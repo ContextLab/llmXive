@@ -1,0 +1,12 @@
+status: none
+intent: Pantheon+ supernova dataset download flat LambdaCDM python package dataset
+required_fields:
+- supernova_name
+- ra
+- dec
+- redshift
+- distance_modulus
+- distance_modulus_error
+cache_key: 7ce32b942861b24b88517a0cd1e9fdae829b4ed14ef1bc84965f8c4baaedf9fc
+searched_at: '2026-10-26T19:15:20.367581+00:00'
+retry_count: 1

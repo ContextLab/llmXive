@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Metrics Schema"
+title: "Model Output Schema"
 description: "Schema for the output of the model training and evaluation step."
 type: "object"
 properties:
@@ -22,11 +22,13 @@ properties:
     type: "number"
     description: "Pearson correlation coefficient."
   t_test_p_value:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "P-value from paired t-test or Wilcoxon test (null if not applicable)."
   hyperparameters:
     type: "object"
-    description: "Dictionary of hyperparameters used for the model."
+    description: "Dictionary of hyperparameters."
     additionalProperties: true
 required:
   - run_id
@@ -34,5 +36,4 @@ required:
   - r_squared
   - mean_absolute_error
   - pearson_r
-  - hyperparameters
-additionalProperties: false
+  . . . (truncated) 

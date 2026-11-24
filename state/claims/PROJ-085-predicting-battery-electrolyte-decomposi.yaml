@@ -1545,3 +1545,71 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-22T06:49:02Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/quickstart.md
+  attempts: 1
+  canonical: electrolyte_features.csv has no missing values and lacks band_gap column
+  claim_id: c_3a898cff
+  context: Verification step 1 instructs users to ensure the generated CSV has no
+    missing values and that the band_gap column is absent.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Check that data/processed/electrolyte_features.csv has no missing values
+    and does not contain the `band_gap` column (it is dropped for collinearity).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T05:27:40Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/quickstart.md
+  attempts: 1
+  canonical: "model_run.json contains R\xB2 scores and MAE"
+  claim_id: c_9eef8efb
+  context: "Verification step 2 asks users to confirm that the model run JSON file\
+    \ includes R\xB2 scores and mean absolute error."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Verify data/processed/model_run.json contains R\xB2 scores and MAE (internal)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T05:27:41Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/quickstart.md
+  attempts: 1
+  canonical: sensitivity analysis shows rank stability for top 3 features across thresholds
+  claim_id: c_2e1898ba
+  context: Verification step 3 requires checking that the sensitivity analysis CSV
+    demonstrates stable ranking for the three most important features across different
+    thresholds.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Ensure the sensitivity_analysis.csv shows rank stability for top\u202F\
+    3 features across thresholds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T05:27:41Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/quickstart.md
+  attempts: 1
+  canonical: report flags External Validation N/A due to missing experimental data
+  claim_id: c_90e486fd
+  context: Verification step 4 directs users to verify that the generated report indicates
+    external validation is not applicable because experimental data are missing.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Confirm the report flags \''External Validation: N/A\'' due to missing
+    experimental data.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T05:27:41Z'

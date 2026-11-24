@@ -75,7 +75,7 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/sdata.2017.85
   verified_at: '2026-09-24T00:55:44.844216Z'
-- artifact_hash: 50f72469b5f5ca0644cdbdecc8d0569672d18e0b0c12c0a1db13a54e8bf4c853
+- artifact_hash: 2a9dd58e29c0c6f7e738d07bce611d72f800fc33ea6ea282fa288374c42d4834
   artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -85,4 +85,4 @@
   value: 10.1038/sdata.2017.85
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/sdata.2017.85
-  verified_at: '2026-09-24T00:55:49.876814Z'
+  verified_at: '2026-10-12T01:13:12.166819Z'

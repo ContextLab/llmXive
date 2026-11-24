@@ -1,70 +1,63 @@
-T022:
+T000:
+  c: true
+  h: b39a452b82f452a9e10d718143f5708f20acb6b84470ed4cc4ce6bc541d11305
+  r: "Checked `code/data/check_permeability.py` implementation and `tests/unit/test_check_permeability.py`;\
+    \ the script correctly scans datasets, writes the identifier to `config/selected_dataset.yaml`\
+    \ on success, returns exit\u202F0 only when a permeability column is present,\
+    \ and returns a non\u2011zero code without creating the config file on failure.\
+    \ All required artifacts exist and behave as specified."
+  sig: 648d95a4d2452304671919e57cbdb9519f882a634fbf60e0b119a12054e350f5
+T001:
+  c: true
+  h: 1beda403ef9c8814cdfc6dd686b3d2092be01f5742d477bd31ac0a44fceb7024
+  r: "Checked `code/data/download.py` which streams the dataset using `load_dataset(...,\
+    \ streaming=True)`, writes the CSV to `data/raw/`, and creates a SHA\u2011256\
+    \ `checksums.json`. The provided `tests/unit/test_download.py` runs the `DataLoader`,\
+    \ and the existing `data/raw/permeability_data.csv` and `checksums.json` confirm\
+    \ that a non\u2011empty file with a `permeability` column is produced and recorded.\
+    \ All required artifacts exist and satisfy the task specifications."
+  sig: cd804b0e1b7810a8f91ad79fc1fb517f49f50c0fa227c1a33da5e5b4d11e79ed
+T002:
+  c: true
+  h: d0a71894e41af95f2fd05c67308e337b39b2fc966c4d02c2b9808bbdd433c517
+  r: "Checked `code/data/preprocess.py` implementation, the generated `data/processed/processed_data.csv`\
+    \ and `.parquet` files, and the unit tests `tests/unit/test_preprocess.py`. The\
+    \ processor parses SMILES, computes the required descriptors, builds the graph\
+    \ JSON, writes both output files before the retention guard, drops rows with missing\
+    \ targets, and raises a non\u2011zero `SystemExit` when the valid\u2011molecule\
+    \ fraction is below 95\u202F%, satisfying all test assertions."
+  sig: c0f9d39f775baa6689ee71d8df747e1610a2ed89c93e72785940a54a91d1e10a
+T005:
   c: false
-  h: 386b5e24eb564273d052da0de7446f5b0b49c6e952f81f7676611b540c5d37cf
-  r: The repository contains a `code/analysis/train.py` file, but the shown code is
-    truncated and does not include a complete training loop nor any logic for saving
-    model checkpoints. Moreover, the required input data file `data/processed/train.csv`
-    is absent, so the script cannot be executed as specified. Both the implementation
-    and the necessary data artifact are missing.
-T023b:
+  h: 4932e85b9a87ab2bf45944233696a1915e9973108682bbfc0fda11118fd09008
+  r: "The `code/models/rf.py` script correctly trains a `RandomForestRegressor` with\
+    \ the required hyper\u2011parameters on the six descriptor columns and writes\
+    \ `code/models/rf.pkl`, and the pickle file is present. However, the unit test\
+    \ `test_rf_training` also expects a `results/training_log.json` file containing\
+    \ a `total_hours` field (and\u202F<\u202F6\u202Fhours), which is not present in\
+    \ the artifacts. This missing log causes the test to fail, so the task is not\
+    \ fully satisfied."
+  sig: 1e09d9bbbe56ea6d409c01e3aa937c912dfb5770caa2ed65275b2371b1d3954c
+T014:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifacts (scripts, processed CSVs, model training logs, performance tables,
-    statistical test results, or attribution visualizations) were provided; without
-    any tangible output we cannot confirm that the ablation study reporting was implemented.
-    The required code, data splits, evaluation metrics, and interpretability analyses
-    are missing.
-T024:
+  h: 51b2ca41028c48ecb06c91e6c71c9608697a5c545e1c7f3ed95636d906c63189
+  r: "The repository contains a non\u2011empty `tests/unit/test_models.py` with a\
+    \ `test_gnn_training_pipeline` that builds a tiny graph dataset, calls `train_gnn`,\
+    \ checks that a checkpoint file and an interim copy exist, and asserts the elapsed\
+    \ time is\u202F<\u202F3600\u202Fs. However, there is no execution evidence (e.g.,\
+    \ CI logs or test run output) showing that this test actually runs and passes,\
+    \ nor can we confirm from the truncated `train_gnn` implementation that the interim\
+    \ checkpoint is indeed created. Without proof that the CI pipeline executes the\
+    \ test successfully within the time limit, the task\u2019s requirement "
+  sig: 0e849fc6be239c84302a0ace9c5318f3dfbb2d9f6e9ed23405c748a8279c1f6b
+T015:
   c: false
-  h: 7b4644b63b6fd68c4ade6fc53725cd5e5230585200f89093070629697017b82d
-  r: "The repository contains an `evaluate.py` with generic metric functions but no\
-    \ code that loads `data/processed/test.csv`, reads model predictions, or computes\
-    \ RMSE/MAE/R\xB2 for the three required models. Moreover, the required `data/processed/test.csv`\
-    \ file is absent. Both the artifact and its functionality are missing, so the\
-    \ task is not satisfied."
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or result outputs (e.g., paired\u2011t\u2011test p\u2011\
-    value, performance metrics, or scripts) are present to demonstrate that a paired\
-    \ t\u2011test on prediction errors between the GNN and RF baseline was actually\
-    \ performed. The required artifact is missing, so the task is not satisfied."
-T031b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No comparative report artifact (e.g., a PDF/HTML/markdown document containing
-    the GNN vs. Random Forest performance metrics, statistical significance test,
-    and interpretation results) was provided. The evidence consists only of the specification
-    text; the required output document is missing.
-T034a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No README.md content was provided; there is no evidence that a \u201CData Pipeline\
-    \ Usage\u201D section detailing how to run the ingestion and preprocessing steps\
-    \ was added. The required documentation artifact is missing."
-T034b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a modified\u202FREADME.md containing a \u201CModel Training &\
-    \ Evaluation\u201D section was provided; the artifact is missing, so the requirement\
-    \ to detail how to run training and interpret metrics is not satisfied."
-T034c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "I looked for an updated `README.md` containing a new \u201CInterpretability\
-    \ Analysis\u201D section that explains how to generate and read feature importance\
-    \ reports, but no such file or excerpt was provided. The required documentation\
-    \ artifact is missing, so the task is not satisfied."
-T034d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `results.md` file or excerpt was provided, and there is no evidence that an
-    "Experimental Setup" section detailing dataset source, target variable, and split
-    strategy was added. The required documentation artifact is missing.
-T034e:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `results.md` file or excerpt was provided, and there is no evidence that\
-    \ a \u201CResults & Discussion\u201D section addressing SC\u2011001 through SC\u2011\
-    005 with measured values and power\u2011analysis context has been added. The required\
-    \ documentation artifact is missing."
+  h: 9e4c33bb666c95a0f10780408bebbda3b4f0df2ee18c1a852f0b335d5e452e02
+  r: "The repository contains `tests/unit/test_models.py` with a `test_rf_training`\
+    \ that checks the RF pickle, verifies six feature importances, and asserts `total_hours\
+    \ < 6`. However, the task\u2019s verification requires the test to confirm training\
+    \ time\u202F<\u202F3600\u202Fs (1\u202Fh) and to \u201Creport\u201D that duration,\
+    \ which the current test does not do. Moreover, the referenced `results/training_log.json`\
+    \ is not present in the checked artifacts, so its existence and content cannot\
+    \ be verified. The test therefore does not fully satisfy the specified requirement."
+  sig: 9021a78d7e081c69c9dfa22f8f311182dfda0aec41a3ec9d3439e04092f0e0e1

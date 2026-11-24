@@ -1,14 +1,5 @@
 status: none
-intent: downloadable ALE execution trace logs with failure annotations python package
-  dataset
-required_fields:
-- trace_id
-- step_number
-- raw_log_entry
-- environment_state_snapshot
-- agent_action
-- failure_label
-- normalized_comparison_metrics
-cache_key: f40a046df668009c54a1098452e607cbf9731d2b9682f5901f9af94576f48953
-searched_at: '2026-07-30T23:27:48.544414+00:00'
-retry_count: 1
+reason: no data intent found in planning artifacts
+cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
+searched_at: '2026-10-13T01:50:34.595497+00:00'
+retry_count: 3

@@ -1,7 +1,6 @@
 T000:
-  reason: "The amendment file exists and includes \u201CStatus: Ratified\u201D, but\
-    \ the required project state file `state/projects/PROJ-026-the-influence-of-visual-complexity-on-im.yaml`\
-    \ is missing, so the version\u2011ing step was not completed."
+  reason: 'Requested task execution failed; rerun successfully: code/utils/write_amendment.py
+    exit=1'
   task: 3473709cab2674872c8f4605cd59c4346de16d5d5d9e1365181227c4cd6f96b4
 T001:
   reason: The provided filesystem lacks the required `docs` directory and the `data/raw/stimuli`,
@@ -10,6 +9,12 @@ T001:
     not present.
   task: b88d22d62cab8e0a2aaedf15d87550cbd3ea3ba81883c5d65f41586a3a3629b2
 T002:
+  reason: The file `code/requirements.txt` exists and contains a reasonable dependency
+    list, but the task explicitly required the file to have the exact content shown
+    in the task specification (the spec-excerpt header block with project ID, FR-001
+    through FR-005, data models, analysis pipeline, and references). The actual file
+    contains only package requirements with no part of that required content. The
+    implementer must rewrite `code/requirements.txt` with the exact specified content.
   task: e267a81c0506c61f5d40f81f14b763fef894886d5100efe0de88a4e4255fd83c
 T003:
   task: e622900a38c8bfecadd7de732572d6ab328f3a1199ce18a73aa7e6612d64569d
@@ -44,6 +49,13 @@ T014:
 T015:
   task: 55407772d155db8d43adf2f31ace65930ed1f629832e742df634b2ca80f398e7
 T016:
+  reason: 'The script `code/stimuli/validate.py` exists and looks functional, but
+    the task''s verification requirement was not met: `data/raw/stimuli/` is MISSING
+    (no mix of valid/corrupt images to run on) and there is no `logs/validation.log`
+    artifact, so there is no evidence the script was ever executed or that it produces
+    correct valid/invalid entries. The implementer must create the test images (valid
+    + corrupt), run `validate_batch` on them, and produce `logs/validation.log` with
+    correct VALID/INVALID entries.'
   task: f35b38127c0ccd917bf47e476816a4c79cb7f320525efb80127b2edb53fcdf5b
 T017a-1:
   task: c138d648e982e574847b5045fbc08f26f82f046e3fe174ed83e9e547b4194190
@@ -132,6 +144,10 @@ T041b:
 T042:
   task: 12a82864df8675ffc49169f9841832436e8f2f179207d8c8af2ce06d09bb7bc0
 T043a:
+  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/analysis.yml`
+    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 85dde20af9678415777072248e1c3a0e4fb22e4375c18080dd66afdf8c2859b0
 T044:
   task: dc7644985dd19eedd7fa7fa9e0f6b6c49415694787ea01c8c62fec31d94fe2e8

@@ -1,52 +1,41 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "BenchmarkResult"
-description: "Schema for evaluation metrics and statistical test results."
-type: "object"
+type: object
 required:
   - result_id
   - model_id
-  - r_bench_score
-  - pai_bench_score
-  - tost_p_value
-  - equivalence_flag
-  - training_duration
+  - benchmark_name
+  - score
+  - mujoco_physics_score
+  - sample_count
 properties:
   result_id:
-    type: "string"
-    description: "Unique ID for the result."
-    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    type: string
+    description: "Unique identifier for the result record."
   model_id:
-    type: "string"
-    description: "Reference to the TrainedModel."
-  r_bench_score:
-    type: "number"
-    description: "Physical consistency score on R-Bench."
+    type: string
+    description: "Reference to the TrainedModel or named baseline (e.g., physisforcing_baseline, unfiltered_baseline)."
+  benchmark_name:
+    type: string
+    enum:
+      - "R-Bench"
+      - "PAI-Bench"
+    description: "Benchmark on which the score was computed (Constitution Principle VII)."
+  score:
+    type: number
     minimum: 0.0
-  pai_bench_score:
-    type: "number"
-    description: "Physical consistency score on PAI-Bench."
-    minimum: 0.0
-  downstream_success_rate:
-    type: "number"
-    description: "Success rate on a separate control task."
-    minimum: 0.0
-    maximum: 1.0
-  mujoco_correlation:
-    type: "number"
-    description: "Correlation with MuJoCo validator (if applicable)."
-    minimum: -1.0
-    maximum: 1.0
-    default: 0.0
-  tost_p_value:
-    type: "number"
-    description: "P-value from TOST equivalence test."
+    description: "Benchmark score."
+  mujoco_physics_score:
+    type: number
     minimum: 0.0
     maximum: 1.0
-  equivalence_flag:
-    type: "boolean"
-    description: "True if equivalent within 15% margin."
-  training_duration:
-    type: "number"
-    description: "Elapsed time in seconds."
+    description: "MuJoCo-validated physical consistency score (primary construct, SC-002)."
+  sample_count:
+    type: integer
+    minimum: 1
+    description: "Number of evaluation samples behind this result."
+  training_duration_seconds:
+    type: number
     minimum: 0.0
+    description: "Training wall time in seconds (SC-005), if applicable to this model."
 additionalProperties: false

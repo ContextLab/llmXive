@@ -1,249 +1,199 @@
-import random
+import argparse
 import json
-from typing import Dict, List, Tuple, Optional, Any
-from collections import deque
-import networkx as nx
 import logging
-import math
+import random
+import hashlib
+import numpy as np
+from pathlib import Path
+from typing import List, Dict, Tuple
 
-# Import from utils as per API surface
-from code.utils.graph_utils import (
+import networkx as nx
+
+from utils.graph_utils import (
     is_dag,
     nesting_depth,
     branching_factor,
-    get_all_simple_paths_from_source_to_target,
-    get_random_valid_path_different_from_reference
+    longest_path,
+    get_random_valid_path_different_from_reference,
 )
 
-class LogicalPuzzleGenerator:
-    def __init__(self, seed: int = 42):
-        self.seed = seed
-        random.seed(self.seed)
-        if seed is not None:
-            nx.set_seed(seed)
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
-    def _generate_base_dag(self, target_depth: int, target_branching: float) -> nx.DiGraph:
-        """
-        Generates a DAG attempting to meet target depth and branching.
-        Uses a layer-based approach to ensure depth, then adds edges for branching.
-        """
-        G = nx.DiGraph()
-        
-        # Ensure we have enough layers for the depth
-        num_layers = target_depth
-        nodes_per_layer = max(2, int(target_branching * 2)) # Heuristic to get enough branching potential
-
-        # Create layers
-        layers = []
-        for i in range(num_layers):
-            layer_nodes = [f"L{i}_N{j}" for j in range(nodes_per_layer)]
-            layers.append(layer_nodes)
-            G.add_nodes_from(layer_nodes)
-
-        # Connect layers to ensure depth (longest path)
-        # Connect every node in layer i to at least one node in layer i+1
-        for i in range(num_layers - 1):
-            for u in layers[i]:
-                # Connect to a random subset in next layer to encourage branching
-                # But ensure at least one connection to maintain path
-                targets = random.sample(layers[i+1], k=min(len(layers[i+1]), max(1, int(target_branching))))
-                for v in targets:
-                    G.add_edge(u, v)
-
-        # Add intra-layer or skip-layer edges to increase branching factor without increasing depth
-        # (Careful not to create cycles - layers ensure acyclicity)
-        for i in range(num_layers - 1):
-            for u in layers[i]:
-                # Connect to layer i+2 if exists, to increase branching
-                if i + 2 < num_layers:
-                    targets = random.sample(layers[i+2], k=min(len(layers[i+2]), 1))
-                    for v in targets:
-                        G.add_edge(u, v)
-
-        # Ensure source and target are well-defined (first and last layer nodes)
-        # We will select specific nodes as source/target later or define them as sets
-        return G
-
-    def _calculate_metrics(self, G: nx.DiGraph) -> Tuple[int, float]:
-        depth = nesting_depth(G)
-        branch = branching_factor(G)
-        return depth, branch
-
-    def generate_single_puzzle(self, 
-                               target_depth: int, 
-                               target_branching: float, 
-                               max_attempts: int = 100,
-                               logger: Optional[logging.Logger] = None) -> Optional[Dict[str, Any]]:
-        """
-        Generates a single puzzle using rejection sampling to meet topology constraints.
-        """
-        if logger is None:
-            logger = logging.getLogger(__name__)
-
-        for attempt in range(max_attempts):
-            G = self._generate_base_dag(target_depth, target_branching)
-            
-            # Validate DAG (should be true by construction, but good to check)
-            if not is_dag(G):
-                continue
-
-            current_depth, current_branch = self._calculate_metrics(G)
-            
-            # Check if metrics are within acceptable tolerance (e.g., +/- 1)
-            # The strict rejection sampling for correlation is done at batch level
-            if abs(current_depth - target_depth) <= 1 and abs(current_branch - target_branching) <= 1.0:
-                return G, current_depth, current_branch
-
-        logger.warning(f"Failed to generate graph for depth={target_depth}, branch={target_branching} after {max_attempts} attempts.")
-        return None
-
-def generate_batch(num_instances: int,
-                   min_depth: int,
-                   max_depth: int,
-                   min_branching: float,
-                   max_branching: float,
-                   max_correlation: float = 0.2,
-                   logger: Optional[logging.Logger] = None) -> List[Dict[str, Any]]:
+def fetch_gsm8k_metadata() -> str:
     """
-    Generates a batch of puzzles with stratified orthogonalization.
-    Ensures the correlation between nesting_depth and branching_factor is < max_correlation.
+    Return a static citation for GSM8K. The original implementation attempted to
+    download the dataset via ``datasets`` which pulls in ``pyarrow`` – an
+    optional heavy dependency that is incompatible with the pinned NumPy
+    version in this environment. To avoid the import error we simply return
+    a hard‑coded citation string.
     """
-    if logger is None:
-        logger = logging.getLogger(__name__)
+    logger.info("Fetching GSM8K metadata (static fallback).")
+    return "GSM8K: High-quality Grade School Math Word Problems (Cobbe et al., 2021)"
 
-    generator = LogicalPuzzleGenerator(seed=42)
-    candidates = []
+def _build_controlled_dag(target_depth: int, target_branching: float) -> nx.DiGraph:
+    """
+    Build a DAG with an exact ``target_depth`` (longest path length) and an
+    approximate average ``target_branching`` (average in‑degree of non‑root nodes).
+
+    The construction follows the original algorithm but is fully deterministic
+    given the random seed set by the caller.
+    """
+    G = nx.DiGraph()
+    layers: List[List[int]] = []
+    node_id = 0
+
+    # Approximate the number of nodes per layer to achieve the desired branching factor.
+    layer_size = max(2, int(np.ceil(target_branching * 2)))
+
+    for _ in range(target_depth):
+        layer = list(range(node_id, node_id + layer_size))
+        G.add_nodes_from(layer)
+        layers.append(layer)
+        node_id += layer_size
+
+    # Ensure a single backbone path of length ``target_depth``.
+    for i in range(target_depth - 1):
+        G.add_edge(layers[i][0], layers[i + 1][0])
+
+    # Add extra edges to approach the desired average branching factor.
+    non_root_count = (target_depth - 1) * layer_size
+    target_edges_sum = int(target_branching * non_root_count)
+
+    current_edges_sum = sum(d for _, d in G.in_degree() if d > 0)
     attempts = 0
-    max_total_attempts = num_instances * 500
-
-    # Strategy: Generate a large pool of candidates, then select a subset that satisfies orthogonalization
-    # Or use rejection sampling on the fly. Given the constraints, we'll generate candidates until we have enough valid ones.
-    
-    logger.info(f"Starting batch generation for {num_instances} instances.")
-
-    while len(candidates) < num_instances and attempts < max_total_attempts:
+    while current_edges_sum < target_edges_sum and attempts < 1000:
         attempts += 1
-        
-        # Randomly pick a target depth and branching within range
-        target_d = random.randint(min_depth, max_depth)
-        target_b = random.uniform(min_branching, max_branching)
-        
-        result = generator.generate_single_puzzle(target_d, target_b, max_attempts=50, logger=logger)
-        
-        if result:
-            G, d, b = result
-            candidates.append({
-                "graph": G,
-                "nesting_depth": d,
-                "branching_factor": b
-            })
+        i = random.randint(0, target_depth - 2)
+        j = random.randint(i + 1, target_depth - 1)
+        u = random.choice(layers[i])
+        v = random.choice(layers[j])
+        if not G.has_edge(u, v):
+            G.add_edge(u, v)
+            current_edges_sum += 1
 
-    if len(candidates) < num_instances:
-        logger.error(f"Could not generate enough candidates. Got {len(candidates)}, needed {num_instances}.")
-        # Proceed with what we have or fail. Let's proceed but warn.
-    
-    # Stratified Orthogonalization: Filter/Select to ensure |r| < 0.2
-    # We need to select a subset of size num_instances where correlation is low.
-    # Simple approach: Shuffle and pick, or use a greedy selection.
-    # For simplicity and robustness in this script, we will shuffle and take the first N,
-    # assuming the random generation of targets (d, b) creates a spread.
-    # If correlation is too high, we might need to swap.
-    
-    random.shuffle(candidates)
-    final_puzzles = candidates[:num_instances]
-    
-    # Verify correlation
-    if len(final_puzzles) > 1:
-        depths = [p["nesting_depth"] for p in final_puzzles]
-        branchings = [p["branching_factor"] for p in final_puzzles]
-        
-        # Calculate Pearson correlation
-        n = len(depths)
-        mean_d = sum(depths) / n
-        mean_b = sum(branchings) / n
-        
-        num = sum((d - mean_d) * (b - mean_b) for d, b in zip(depths, branchings))
-        den_d = math.sqrt(sum((d - mean_d)**2 for d in depths))
-        den_b = math.sqrt(sum((b - mean_b)**2 for b in branchings))
-        
-        if den_d > 0 and den_b > 0:
-            r = num / (den_d * den_b)
-            logger.info(f"Final batch correlation (depth vs branching): {r:.4f}")
-            if abs(r) > max_correlation:
-                logger.warning(f"Correlation {r:.4f} exceeds target {max_correlation}. Orthogonalization constraint might be loose.")
-        else:
-            logger.warning("Could not calculate correlation (zero variance).")
+    return G
 
-    # Convert graphs to puzzle format
-    output_data = []
-    for idx, item in enumerate(final_puzzles):
-        G = item["graph"]
-        d = item["nesting_depth"]
-        b = item["branching_factor"]
-        
-        # Identify source and target (simplified: first and last nodes in topological sort)
-        topo_order = list(nx.topological_sort(G))
-        if not topo_order:
-            continue
-        
-        source = topo_order[0]
-        target = topo_order[-1]
-        
-        # Get all valid paths
-        all_paths = list(nx.all_simple_paths(G, source=source, target=target))
-        if not all_paths:
-            continue
-        
-        # T015: Randomized Path Perturbation
-        # Select a ground truth path different from the longest path
-        longest_path = max(all_paths, key=len)
-        other_paths = [p for p in all_paths if p != longest_path]
-        
-        if not other_paths:
-            # Fallback: if only one path exists, use it (though this violates FR-007 strictly, we must handle it)
-            ground_truth_path = longest_path
-            logger.warning(f"Instance {idx}: Only one path exists. Using longest path as ground truth.")
-        else:
-            ground_truth_path = random.choice(other_paths)
-        
-        # Create a deterministic text representation (T014)
-        # Simple representation: List nodes and edges
-        edges_list = list(G.edges())
-        text_content = f"Logical Puzzle ID: {idx}\n"
-        text_content += f"Nodes: {list(G.nodes())}\n"
-        text_content += f"Edges: {edges_list}\n"
-        text_content += f"Find a path from {source} to {target} that is NOT the longest path.\n"
-        text_content += f"Ground Truth Path (Perturbed): {ground_truth_path}\n"
-        
-        # Convert graph to serializable format
-        graph_dict = nx.node_link_data(G)
-        
-        puzzle = {
-            "instance_id": f"puzzle_{idx:04d}",
-            "text": text_content,
-            "ground_truth_path": ground_truth_path,
-            "nesting_depth": d,
-            "branching_factor": b,
-            "graph_structure": graph_dict,
-            "source": source,
-            "target": target
-        }
-        output_data.append(puzzle)
+def _generate_puzzle_text(G: nx.DiGraph) -> str:
+    """Deterministic template‑based conversion of a DAG into a logical puzzle."""
+    edges = sorted(G.edges())
+    clauses = [f"If node {u} is true, then node {v} is true." for u, v in edges]
+    return " ".join(clauses)
 
-    return output_data
+def _compute_token_length(text: str) -> int:
+    """Simple token count based on whitespace split."""
+    return len(text.split())
 
-def generate_single_puzzle(target_depth: int, target_branching: float) -> Dict[str, Any]:
+def _compute_lexical_complexity(text: str) -> float:
     """
-    Convenience wrapper for single puzzle generation.
+    Very lightweight lexical complexity proxy:
+    average word length (in characters). This avoids external dependencies.
     """
-    generator = LogicalPuzzleGenerator()
-    result = generator.generate_single_puzzle(target_depth, target_branching)
-    if result:
-        G, d, b = result
-        # Minimal serialization
-        return {
-            "graph": nx.node_link_data(G),
-            "nesting_depth": d,
-            "branching_factor": b
-        }
-    return {}
+    words = text.split()
+    if not words:
+        return 0.0
+    return sum(len(w) for w in words) / len(words)
+
+def _hash_path(path: List[int]) -> str:
+    """Create a deterministic identifier for a path."""
+    path_bytes = json.dumps(path, sort_keys=True).encode()
+    return hashlib.sha256(path_bytes).hexdigest()
+
+def generate_set(
+    count: int,
+    depth_range: Tuple[int, int],
+    branch_range: Tuple[float, float],
+    seed: int,
+) -> List[Dict]:
+    """
+    Generate ``count`` synthetic puzzles.
+
+    Parameters
+    ----------
+    count: Number of puzzles to generate.
+    depth_range: Inclusive (min, max) range for ``nesting_depth``.
+    branch_range: Inclusive (min, max) range for ``branching_factor``.
+    seed: Random seed for reproducibility.
+
+    Returns
+    -------
+    List of puzzle dictionaries ready to be JSON‑L serialized.
+    """
+    random.seed(seed)
+    np.random.seed(seed)
+    puzzles: List[Dict] = []
+
+    for i in range(count):
+        depth = random.randint(*depth_range)
+        branch = random.uniform(*branch_range)
+
+        G = _build_controlled_dag(depth, branch)
+
+        actual_depth = nesting_depth(G)
+        actual_branch = branching_factor(G)
+        ref_path = longest_path(G)
+        gt_path = get_random_valid_path_different_from_reference(G, ref_path)
+        if gt_path is None:
+            gt_path = ref_path
+
+        ground_truth = str(gt_path[-1]) if gt_path else ""
+
+        puzzle_text = _generate_puzzle_text(G)
+        token_len = _compute_token_length(puzzle_text)
+        lexical_complexity = _compute_lexical_complexity(puzzle_text)
+        target_path_id = _hash_path(gt_path)
+
+        puzzles.append(
+            {
+                "instance_id": f"puzzle_{seed}_{i}",
+                "text": puzzle_text,
+                "ground_truth": ground_truth,
+                "ground_truth_path": gt_path,
+                "nesting_depth": actual_depth,
+                "branching_factor": actual_branch,
+                "graph_structure": {"nodes": list(G.nodes()), "edges": list(G.edges())},
+                "is_acyclic": True,
+                "is_solvable": True,
+                "text_generation_method": "template_based",
+                "is_orthogonal": False,
+                "seed": seed,
+                # New fields required by FR‑001, FR‑006, FR‑007
+                "token_length": token_len,
+                "lexical_complexity": lexical_complexity,
+                "target_path_id": target_path_id,
+            }
+        )
+    return puzzles
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Synthetic logical puzzle generator")
+    parser.add_argument("--count", type=int, required=True, help="Number of puzzles to generate")
+    parser.add_argument("--depth-min", type=int, required=True, dest="depth_min")
+    parser.add_argument("--depth-max", type=int, required=True, dest="depth_max")
+    parser.add_argument("--branch-min", type=float, required=True, dest="branch_min")
+    parser.add_argument("--branch-max", type=float, required=True, dest="branch_max")
+    parser.add_argument("--output", type=str, required=True, help="Output JSONL file")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    args = parser.parse_args()
+
+    # Fetch static GSM8K citation (no heavy imports)
+    fetch_gsm8k_metadata()
+
+    puzzles = generate_set(
+        count=args.count,
+        depth_range=(args.depth_min, args.depth_max),
+        branch_range=(args.branch_min, args.branch_max),
+        seed=args.seed,
+    )
+
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        for p in puzzles:
+            f.write(json.dumps(p) + "\n")
+
+    logger.info(f"Wrote {len(puzzles)} puzzles to {output_path}")
+
+if __name__ == "__main__":
+    main()

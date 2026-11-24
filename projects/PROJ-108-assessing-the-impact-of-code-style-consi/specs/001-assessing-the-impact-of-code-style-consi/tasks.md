@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 [P] Create `code/`, `data/`, `tests/`, `data/raw/`, `data/processed/`, `data/metadata/`, `tests/unit/`, `tests/integration/` directories at repository root
-- [ ] T002 Initialize Python 3.10 project with pinned dependencies in `code/requirements.txt`
+- [X] T002 Initialize Python 3.10 project with pinned dependencies in `code/requirements.txt`
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
@@ -59,7 +59,7 @@
 - [ ] T005 Implement `code/00_hash_artifacts.py` to generate content hashes for data artifacts and update `state/*.yaml` (Depends on T004 success)
 - [ ] T006 [P] Create `code/utils/metrics.py` with helper functions for BLEU, F1, and statistical calculations
 - [ ] T007 [P] Setup `data/raw/` and `data/metadata/` directory structure with `.gitkeep`
-- [~] T008 [P] Implement CPU-safe model loading utilities in `code/utils/model_loader.py` (no CUDA/bitsandbytes)
+- [X] T008 [P] Implement CPU-safe model loading utilities in `code/utils/model_loader.py` (no CUDA/bitsandbytes)
 - [ ] T009 [P] Implement `code/00_extract_metadata.py` to extract `file_age` (from git log), `file_size` (bytes), and `cyclomatic_complexity` (from radon) for all source files, outputting to `data/metadata/file_metadata.csv`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -74,13 +74,13 @@
 
 ### Tests for User Story 1
 
-- [~] T010 [P] [US1] Unit test for style scoring logic in `tests/unit/test_style_scoring.py` (verify score range and metric aggregation)
-- [~] T011 [P] [US1] Unit test for error handling in `tests/unit/test_style_scoring.py` (verify parse errors skip without crash) <!-- ATOMIZE: requested -->
+- [X] T010 [P] [US1] Unit test for style scoring logic in `tests/unit/test_style_scoring.py` (verify score range and metric aggregation)
+- [X] T011 [P] [US1] Unit test for error handling in `tests/unit/test_style_scoring.py` (verify parse errors skip without crash) <!-- ATOMIZE: requested -->
 - [ ] T012 [P] [US1] Unit test for stratification logic in `tests/unit/test_stratification.py` (verify High/Med/Low group assignment)
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/01_style_scoring.py` to run `pylint` (indentation/naming) and `radon` (line-length), compute composite score, AND extract `file_size` and `cyclomatic_complexity` (if not already in T009), logging errors for skipped files. Output to `data/metadata/style_scores_raw.csv`.
+- [X] T013 [US1] Implement `code/01_style_scoring.py` to run `pylint` (indentation/naming) and `radon` (line-length), compute composite score, AND extract `file_size` and `cyclomatic_complexity` (if not already in T009), logging errors for skipped files. Output to `data/metadata/style_scores_raw.csv`.
 - [~] T014 [US1] Implement `code/02_stratification.py` to read style scores and accept threshold arguments (e.g., `--low-threshold 0.25 --high-threshold 0.75`) to assign groups: Low (<low), Medium (low-high), High (>high). Output to `data/processed/style_scores_threshold_<low>_<high>.csv`.
 - [ ] T015 [US1] Implement `code/03_sensitivity_analysis.py` to run T014 with multiple threshold sets (15/85, 25/75, 30/70), compare group stability (e.g., variance of group means), and output `data/processed/sensitivity_report.json` identifying the optimal threshold set.
 - [ ] T016 [US1] Generate `data/processed/style_scores.csv` using the optimal thresholds from T015, containing columns: `file_path`, `pylint_indent`, `radon_line_len`, `composite_score`, `group`, `file_size`, `cyclomatic_complexity`, `file_age`.

@@ -51,8 +51,6 @@ def get_logger(name: str) -> logging.Logger:
     return logger
 
 # Create a module‑level logger as required by the specification.
-# This logger is instantiated at import time and will have at least the
-# console handler configured by ``get_logger``.
 logger = get_logger(__name__)
 
 def setup_logging(log_file: Optional[Path] = None) -> None:

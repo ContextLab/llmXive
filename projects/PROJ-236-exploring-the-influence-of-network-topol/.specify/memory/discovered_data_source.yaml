@@ -1,15 +1,17 @@
 status: none
-intent: download disordered alloy atomic structures dataset Materials Project OQMD
-  AFLOW python package dataset
+intent: disordered alloy crystal structures Materials Project OQMD AFLOWLIB NOMAD
+  python package dataset
 required_fields:
 - structure_id
-- composition
+- chemical_formula
+- lattice_vectors
+- cell_parameters
 - atomic_positions
-- lattice_parameters
-- space_group
-- formation_energy_per_atom
-- dataset_source
-- nearest_neighbor_distance
-cache_key: 933dbcfb735c57664a7837d4dceafbc759fb27aaf5ec6a7e4766ced36e41e42b
-searched_at: '2026-10-09T15:11:46.181146+00:00'
+- element_symbols
+- site_occupancies
+- spacegroup
+- total_energy
+- metadata
+cache_key: 2869e26655b7708135357eb8fbc4ccb8eed68b15dfa897f23ae7b0b5384f2bcf
+searched_at: '2026-11-05T03:16:16.608247+00:00'
 retry_count: 1

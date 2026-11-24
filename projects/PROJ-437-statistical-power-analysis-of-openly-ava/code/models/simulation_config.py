@@ -1,43 +1,56 @@
 """
-Simulation configuration entity.
+SimulationConfig model.
 
-Defines the parameters for running simulation-based power analysis.
+Centralises the configuration parameters that drive a single simulation run.
+The dataclass is deliberately lightweight – it only stores values that are
+needed across the pipeline. Validation (e.g. against a JSON schema) is
+performed elsewhere; this class merely provides a convenient, typed container.
 """
-from dataclasses import dataclass
-from typing import Optional
-from utils.seed_manager import set_global_seed, get_seed
 
+from __future__ import annotations
 
-@dataclass(frozen=True)
+from dataclasses import dataclass, field
+from typing import List, Optional
+
+@dataclass
 class SimulationConfig:
     """
-    Configuration for simulation-based power analysis.
+    Configuration for a power‑analysis simulation.
 
-    Attributes:
-        sample_size_target: Target number of subjects for the simulation.
-        smoothing_kernel: Smoothing kernel size in mm (or seconds for temporal).
-        num_iterations: Number of bootstrap iterations to run.
-        random_seed: Optional random seed for reproducibility. If None, no seed is set.
+    Attributes
+    ----------
+    sample_size_target: Desired number of subjects (will be clamped to the
+                         available number of subjects by the pipeline).
+    smoothing_kernel: Temporal smoothing kernel size in millimetres.
+    num_iterations: Number of bootstrap iterations (must be >= 1).
+    random_seed: Global seed for reproducibility.
+    effect_sizes: List of ground‑truth Cohen's d values to inject.
+    alpha_thresholds: List of significance thresholds.
+    snr_levels: List of signal‑to‑noise ratios to simulate.
+    magnitude_tolerances: List of percentage tolerances (e.g. 10.0 for ±10 %).
     """
     sample_size_target: int
     smoothing_kernel: float
-    num_iterations: int
-    random_seed: Optional[int] = None
+    num_iterations: int = 50
+    random_seed: int = 42
+    effect_sizes: List[float] = field(default_factory=lambda: [0.0, 0.2, 0.5, 0.8, 1.0])
+    alpha_thresholds: List[float] = field(default_factory=lambda: [0.01, 0.05, 0.10])
+    snr_levels: List[float] = field(default_factory=lambda: [0.5, 1.0, 2.0])
+    magnitude_tolerances: List[float] = field(default_factory=lambda: [10.0, 20.0, 30.0])
 
-    def __post_init__(self):
-        """Validate configuration parameters after initialization."""
+    def __post_init__(self) -> None:
         if self.sample_size_target <= 0:
-            raise ValueError("sample_size_target must be greater than 0")
+            raise ValueError("sample_size_target must be a positive integer")
         if self.smoothing_kernel <= 0:
-            raise ValueError("smoothing_kernel must be greater than 0")
-        if self.num_iterations <= 0:
-            raise ValueError("num_iterations must be greater than 0")
-
-    def apply_seed(self) -> None:
-        """
-        Apply the random seed if one is configured.
-
-        Does nothing if random_seed is None.
-        """
-        if self.random_seed is not None:
-            set_global_seed(self.random_seed)
+            raise ValueError("smoothing_kernel must be positive")
+        if self.num_iterations < 1:
+            raise ValueError("num_iterations must be >= 1")
+        # Ensure lists are not empty
+        for name in (
+            "effect_sizes",
+            "alpha_thresholds",
+            "snr_levels",
+            "magnitude_tolerances",
+        ):
+            if not getattr(self, name):
+                raise ValueError(f"{name} must contain at least one element")

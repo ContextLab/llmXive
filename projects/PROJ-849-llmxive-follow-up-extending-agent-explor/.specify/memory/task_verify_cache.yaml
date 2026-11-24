@@ -1,11 +1,19 @@
-T001:
+T001-struct-src:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `projects/PROJ-849-llmxive-follow-up-extending-agent-explor/code/`\
-    \ directory or any files within it was provided; the claim lacks the required\
-    \ project\u2011structure artifacts. The implementer must create the specified\
-    \ folder hierarchy and populate it with the initial codebase as outlined in the\
-    \ implementation plan."
+  h: 3d3279875164a84295cae012c77e35b8ca89e60576ad53276e8902539a320b17
+  r: "The `projects/PROJ-849-llmxive-follow-up-extending-agent-explor/code/src/models/`\
+    \ package lacks the required `__init__.py` file (marked MISSING), and there is\
+    \ no evidence that `__init__.py` exists in the other subdirectories (`services/`,\
+    \ `lib/`, `cli/`). The task\u2019s critical requirement of creating these init\
+    \ files to make each subdirectory a valid Python package is therefore not met."
+  sig: b7e62fe2c78018af45410ad350114a35367a5daea255cc5dc84162c32b55eb36
+T002:
+  c: true
+  h: fe91890a1ccf1efb8d3d051b79baa66b1930b6988760333ea6f695a4bf99b820
+  r: "Checked the `requirements.txt` file at `projects/PROJ-849-llmxive-follow-up-extending-agent-explor/requirements.txt`;\
+    \ it exists, is non\u2011empty, and lists all required packages (transformers,\
+    \ rank_bm25, scikit-learn, pandas, datasets, pyyaml) meeting the task specification."
+  sig: ef77c6ffdc0508077d3f3b8e85597f268a5e22a136683def2e96377b84c3d082
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,30 +21,40 @@ T003:
     \ `pyproject.toml` with Black settings, or pre\u2011commit hook definitions) were\
     \ provided, nor any evidence that ruff/flake8 and Black have been set up and run.\
     \ The required artifacts are missing, so the task is not satisfied."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `tests/unit/` and `tests/contract/` directories being
-    created is present; the submission contains only the task description and specifications,
-    with no filesystem artifacts or file listings showing those directories. The implementer
-    must add the two test directories (and optionally placeholder test files) to satisfy
-    the task.
+T010:
+  c: true
+  h: 262baf18b0ab48f8ac3b42da127a35e96da37c3dc0b3d13b7e2f90391e6edab7
+  r: "Checked `tests/contract/test_divergence_schema.py`, which defines a schema validator\
+    \ for the required fields, types, and value ranges and includes tests for a valid\
+    \ record, a missing\u2011field case, and an out\u2011of\u2011range case, satisfying\
+    \ the contract\u2011test requirement."
+  sig: d8079905446d5b4930370a033041d89af5e935e256b97bbc203391b611c0bd4f
 T011:
   c: false
-  h: fe0d59d59da43624baf4f105b0843068ebb99a679231434566a7754bc12544bd
-  r: "The required source file `src/models/divergence_model.py` is missing entirely,\
-    \ so there is no output schema to test. The existing `tests/contract/test_schemas.py`\
-    \ only defines a dataclass and validation logic (and is truncated), but does not\
-    \ contain actual pytest contract tests for the divergence model\u2019s output.\
-    \ To complete the task, implement `divergence_model.py` with the expected output\
-    \ structure and add a proper contract test in `tests/contract/test_schemas.py`\
-    \ that validates that structure."
+  h: d846780112d2f42a41f614ee3db8d6cb1ccb59f87a4990eba6e167a5b0b547c5
+  r: "The provided `tests/unit/test_retrieval.py` contains a `test_zero_retrieval_edge_case`\
+    \ that calls a non\u2011existent `retrieve_tools` method and only asserts an empty\
+    \ list, not that a zero\u2011vector embedding and a score of\u202F1.0 are returned.\
+    \ The required behavior (zero vector and score\u202F=\u202F1.0) is not tested,\
+    \ and the service implementation does not expose the needed API. The task\u2019\
+    s unit test is therefore missing or incorrect."
+  sig: 907569c6cebfba7859f5d64587e2b0102e2cf007b4f4aed2083e9f179ed3ce1b
 T012:
-  c: false
-  h: c0ff7142e1900c60fd804c59be8f7d83c790e0fbc455e1a27e8c13fdda99e013
-  r: "The required file `tests/unit/test_retrieval.py` does not exist, so no unit\
-    \ test for the BM25 zero\u2011results edge case is present. The implementer must\
-    \ add the missing test file with appropriate test code."
+  c: true
+  h: 8b4c9bd40ba77499ba0125c1758a3071734ab896eff042ca96361d9b30d7cfb7
+  r: "The `tests/unit/test_metrics.py` file exists (1737\u202Fbytes) and includes\
+    \ the `test_cosine_similarity_orthogonal_vectors` unit test, which creates synthetic\
+    \ orthogonal vectors and asserts that the cosine similarity is 0.0 (\u2264\u202F\
+    0.05), directly satisfying the requirement for a synthetic orthogonal\u2011input\
+    \ test."
+  sig: 6787e78f3d61748c09d788cdeeeacfc74d85ab2d138249164b0aaaed67144819
+T013:
+  c: true
+  h: 21a771190fb3277675ae897ff920d6900fc3090c43c6a2f23975b6a38a48645d
+  r: "Checked `tests/unit/test_metrics.py`, which contains a unit test `test_cosine_similarity_identical_vectors`\
+    \ that uses identical synthetic vectors and asserts a cosine similarity of\u202F\
+    1.0 (\u2265\u202F0.99), fulfilling the required test."
+  sig: 6541c104a2bff56c84cfce90b6a89651e5f9aaadfc59bb030d57014f8678b777
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

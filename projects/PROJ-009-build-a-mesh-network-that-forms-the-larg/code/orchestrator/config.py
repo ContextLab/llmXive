@@ -1,120 +1,95 @@
 """
-Configuration manager for the mesh network supercomputer.
-Loads node lists, granularity settings, and CI timeouts.
+Configuration management for the mesh network orchestrator.
+
+Loads YAML configuration files and provides a global random_seed
+(Principle I: Reproducibility) that is mirrored in sweep_config.yaml
+and used by all stochastic components.
 """
+from __future__ import annotations
+
 import os
 import yaml
 from pathlib import Path
-from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
+from typing import Dict, List, Any, Optional
+
+@dataclass
+class GranularityConfig:
+    fine: int = 1
+    medium: int = 2
+    coarse: int = 3
+
+@dataclass
+class NetworkConfig:
+    base_latency_ms: int = 10
+    packet_loss_rate: float = 0.0
+    bandwidth_mbps: float = 100.0
+    snr_db: float = 30.0
 
 @dataclass
 class Config:
-    """Holds all project configuration."""
-    project_root: Path
-    node_list_path: Path
-    granularity_settings: Dict[str, int]
-    ci_timeout_seconds: int
-    max_retries: int
-    ssh_key_path: Optional[Path]
-    log_level: str = "INFO"
-    data_dir: Path = field(default_factory=lambda: Path("data"))
+    testbed: Dict[str, Any] = field(default_factory=dict)
+    benchmark: Dict[str, Any] = field(default_factory=dict)
+    analysis: Dict[str, Any] = field(default_factory=dict)
+    ci_timeout_seconds: int = 21600  # default CI wall‑clock limit (seconds)
+    random_seed: int = 42  # Global reproducibility seed (Principle I)
 
-    @classmethod
-    def load(cls, config_path: Optional[Path] = None) -> 'Config':
-        """Load configuration from a YAML file or defaults."""
-        if config_path is None:
-            config_path = Path("config.yaml")
+class ConfigError(Exception):
+    """Raised when configuration loading or validation fails."""
+    pass
 
-        # Resolve relative to project root if a file exists, otherwise use defaults
-        if not config_path.exists():
-            # Return a default config if no file exists
-            return cls(
-                project_root=Path.cwd(),
-                node_list_path=Path("nodes.yaml"),
-                granularity_settings={
-                    "fine": 100,
-                    "medium": 1000,
-                    "coarse": 10000
-                },
-                ci_timeout_seconds=21600,  # 6 hours
-                max_retries=3,
-                ssh_key_path=Path("~/.ssh/id_rsa").expanduser(),
-                log_level="INFO",
-                data_dir=Path("data")
-            )
+class ConfigManager:
+    """High‑level manager that loads, validates and provides access to the config."""
 
-        with open(config_path, 'r') as f:
-            data = yaml.safe_load(f)
+    def __init__(self, config_path: str):
+        self.path = Path(config_path)
+        self.config: Optional[Config] = None
+        self._load()
 
-        if data is None:
-            # Handle empty YAML file
-            data = {}
-
-        # Resolve paths relative to the config file location if provided
-        base_dir = config_path.parent if config_path.is_absolute() else Path.cwd()
-
-        project_root = Path(data.get('project_root', '.'))
-        if not project_root.is_absolute():
-            project_root = base_dir / project_root
-
-        node_list_path = Path(data.get('node_list_path', 'nodes.yaml'))
-        if not node_list_path.is_absolute():
-            node_list_path = base_dir / node_list_path
-
-        data_dir = Path(data.get('data_dir', 'data'))
-        if not data_dir.is_absolute():
-            data_dir = base_dir / data_dir
-
-        ssh_key_path = data.get('ssh_key_path')
-        if ssh_key_path:
-            ssh_key_path = Path(ssh_key_path).expanduser()
-            if not ssh_key_path.is_absolute():
-                ssh_key_path = base_dir / ssh_key_path
-
-        return cls(
-            project_root=project_root,
-            node_list_path=node_list_path,
-            granularity_settings=data.get('granularity_settings', {
-                "fine": 100,
-                "medium": 1000,
-                "coarse": 10000
-            }),
-            ci_timeout_seconds=data.get('ci_timeout_seconds', 21600),
-            max_retries=data.get('max_retries', 3),
-            ssh_key_path=ssh_key_path,
-            log_level=data.get('log_level', 'INFO'),
-            data_dir=data_dir
+    def _load(self) -> None:
+        if not self.path.is_file():
+            raise ConfigError(f"Config file not found: {self.path}")
+        with self.path.open("rt") as f:
+            raw = yaml.safe_load(f)
+        if raw is None:
+            raw = {}
+        self.config = Config(
+            testbed=raw.get("testbed", {}),
+            benchmark=raw.get("benchmark", {}),
+            analysis=raw.get("analysis", {}),
+            ci_timeout_seconds=raw.get("ci_timeout_seconds", 21600),
+            random_seed=raw.get("random_seed", 42)
         )
 
+    def get(self) -> Config:
+        if self.config is None:
+            raise ConfigError("Configuration not loaded")
+        return self.config
+
+def load_config(config_path: str) -> ConfigManager:
+    """Convenient helper used by the CLI and other modules."""
+    return ConfigManager(config_path)
+
 def get_config() -> Config:
-    """Global accessor for configuration.
-    
-    Returns:
-        Config: The loaded or default configuration instance.
-    """
-    return Config.load()
+    """Global accessor – loads ``config.yaml`` from the project root."""
+    default_path = Path("config.yaml")
+    if not default_path.is_file():
+        raise ConfigError("Default config.yaml not found")
+    manager = ConfigManager(str(default_path))
+    return manager.get()
 
 def save_config(config: Config, path: Optional[Path] = None) -> None:
-    """Save the current configuration to a YAML file.
-    
-    Args:
-        config: The Config instance to save.
-        path: Optional path to save to. Defaults to 'config.yaml'.
-    """
-    if path is None:
-        path = Path("config.yaml")
-    
+    """Write a ``Config`` instance back to YAML."""
+    target = path or Path("config.yaml")
     data = {
-        'project_root': str(config.project_root),
-        'node_list_path': str(config.node_list_path),
-        'granularity_settings': config.granularity_settings,
-        'ci_timeout_seconds': config.ci_timeout_seconds,
-        'max_retries': config.max_retries,
-        'ssh_key_path': str(config.ssh_key_path) if config.ssh_key_path else None,
-        'log_level': config.log_level,
-        'data_dir': str(config.data_dir)
+        "testbed": config.testbed,
+        "benchmark": config.benchmark,
+        "analysis": config.analysis,
+        "ci_timeout_seconds": config.ci_timeout_seconds,
+        "random_seed": config.random_seed,
     }
-    
-    with open(path, 'w') as f:
-        yaml.dump(data, f, default_flow_style=False)
+    with target.open("wt") as f:
+        yaml.safe_dump(data, f)
+
+# Compatibility alias required by contract tests
+OrchestratorConfig = Config

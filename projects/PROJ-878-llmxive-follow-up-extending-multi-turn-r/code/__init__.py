@@ -1,3 +1,1 @@
-"""
-llmXive research pipeline code modules.
-"""
+"""Top‑level package for the llmXive follow‑up project."""

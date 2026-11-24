@@ -11,6 +11,7 @@ properties:
     description: "Reference to the task specification."
   steps:
     type: "array"
+    description: "List of steps; each step contains an action and the target symbolic state."
     items:
       type: "object"
       properties:
@@ -21,8 +22,8 @@ properties:
           type: "string"
           description: "Reference to the target state."
       required:
-        - action
-        - target_state_id
+        - "action"
+        - "target_state_id"
   planner_type:
     type: "string"
     enum:
@@ -36,10 +37,10 @@ properties:
     type: "string"
     description: "The type of graph used for this sequence (for ablation)."
 required:
-  - sequence_id
-  - task_id
-  - steps
-  - planner_type
-  - planning_time_ms
-  - graph_type
+  - "sequence_id"
+  - "task_id"
+  - "steps"
+  - "planner_type"
+  - "planning_time_ms"
+  - "graph_type"
 additionalProperties: false

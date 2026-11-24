@@ -1,151 +1,121 @@
 """
-Task T020c: Validate sweep results from T020b against the strict outlier tolerance.
+T003: Apply the strict-tolerance outlier rule (FR-004) to every row of
+data/processed/mc_results.csv and write
+data/processed/validated_sweep_results.csv with an additional boolean
+column `outlier_flag` recomputed from `eigenvalue_top` and
+`empirical_bulk_edge`.
 
-This script reads the raw Monte Carlo results (mc_results.csv), applies the
-validation logic defined in T007b (using the configured OUTLIER_TOLERANCE relative
-to the theoretical semicircle edge of ±2.0), and outputs a cleaned CSV file
-(validated_sweep_results.csv) containing only rows that pass the validation.
+FR-004 rule: outlier_flag = (eigenvalue_top > empirical_bulk_edge + 0.05)
 
-It does NOT perform statistical fitting or residual analysis; that is deferred to T021c.
+The script is a pure post-processing step over the real ARPACK
+measurements recorded by T002 (threshold_sweep.py). No synthetic data
+is generated; if the input file is missing the script fails loudly.
 """
+import argparse
 import csv
-import json
 import logging
-import os
 import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+DATA_LOGS = PROJECT_ROOT / "data" / "logs"
 
-from utils.config import get_outlier_tolerance, get_project_paths
-from analysis.eigen_solver import validate_eigenvalues
+# FR-004 strict tolerance for outlier detection
+OUTLIER_TOLERANCE = 0.05
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+INPUT_CSV = DATA_PROCESSED / "mc_results.csv"
+OUTPUT_CSV = DATA_PROCESSED / "validated_sweep_results.csv"
 
-INPUT_FILE = "data/processed/mc_results.csv"
-OUTPUT_FILE = "data/processed/validated_sweep_results.csv"
+def setup_logging() -> logging.Logger:
+    DATA_LOGS.mkdir(parents=True, exist_ok=True)
+    logger = logging.getLogger("validate_sweep_results")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        fmt = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        sh = logging.StreamHandler(sys.stdout)
+        sh.setFormatter(fmt)
+        fh = logging.FileHandler(DATA_LOGS / "validate_sweep_results.log")
+        fh.setFormatter(fmt)
+        logger.addHandler(sh)
+        logger.addHandler(fh)
+    return logger
 
-def load_mc_results(file_path: str) -> List[Dict[str, Any]]:
-    """Load the raw Monte Carlo results from CSV."""
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Input file not found: {file_path}")
-    
-    results = []
-    with open(file_path, 'r', newline='') as f:
+def compute_outlier_flag(eigenvalue_top: float, empirical_bulk_edge: float,
+                         tolerance: float = OUTLIER_TOLERANCE) -> bool:
+    """FR-004: an eigenvalue is an outlier iff it exceeds the empirical
+    bulk edge by strictly more than the tolerance 0.05."""
+    return float(eigenvalue_top) > float(empirical_bulk_edge) + tolerance
+
+def validate_sweep_results(input_path: Path = INPUT_CSV,
+                           output_path: Path = OUTPUT_CSV,
+                           tolerance: float = OUTLIER_TOLERANCE) -> int:
+    """Read mc_results.csv, recompute outlier_flag per row, write
+    validated_sweep_results.csv. Returns the number of rows written."""
+    if not input_path.exists():
+        raise FileNotFoundError(
+            f"Input file not found: {input_path}. "
+            "Run T002 (code/analysis/threshold_sweep.py) first."
+        )
+
+    with open(input_path, "r", newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
-        for row in reader:
-            # Convert numeric fields
-            try:
-                row['N'] = int(row['N'])
-                row['theta'] = float(row['theta'])
-                row['seed'] = int(row['seed'])
-                row['eigenvalue_top'] = float(row['eigenvalue_top'])
-                # outlier_flag might be string 'True'/'False' or boolean
-                if isinstance(row['outlier_flag'], str):
-                    row['outlier_flag'] = row['outlier_flag'].lower() == 'true'
-                else:
-                    row['outlier_flag'] = bool(row['outlier_flag'])
-                results.append(row)
-            except (ValueError, KeyError) as e:
-                logger.warning(f"Skipping malformed row: {row} due to {e}")
-    
-    return results
+        fieldnames = list(reader.fieldnames or [])
+        rows = list(reader)
 
-def validate_row(row: Dict[str, Any], tolerance: float) -> bool:
-    """
-    Validate a single row against the strict tolerance.
-    
-    Uses the validate_eigenvalues function from T007b logic.
-    The function checks if the top eigenvalue is consistent with the 
-    theoretical semicircle edge (±2.0) plus the tolerance.
-    
-    Returns True if the row passes validation (i.e., the outlier detection 
-    logic is consistent with the theoretical bounds within tolerance).
-    """
-    eigenvalue_top = row['eigenvalue_top']
-    outlier_flag = row['outlier_flag']
-    
-    # The validation logic from T007b distinguishes outliers from numerical artifacts.
-    # It checks if the eigenvalue is significantly beyond the semicircle edge (2.0).
-    # If the eigenvalue is > 2.0 + tolerance, it is a true outlier.
-    # If it is <= 2.0 + tolerance, it should NOT be flagged as an outlier.
-    
-    # We verify consistency:
-    # If outlier_flag is True, eigenvalue_top should be > 2.0 + tolerance
-    # If outlier_flag is False, eigenvalue_top should be <= 2.0 + tolerance
-    
-    edge = 2.0
-    threshold = edge + tolerance
-    
-    is_true_outlier = eigenvalue_top > threshold
-    
-    if outlier_flag and not is_true_outlier:
-        # Flagged as outlier but value is within tolerance -> numerical artifact or error
-        logger.debug(f"Row {row['run_id']}: Flagged as outlier but eigenvalue {eigenvalue_top} <= {threshold}. Rejecting.")
-        return False
-    
-    if not outlier_flag and is_true_outlier:
-        # Not flagged but value is beyond tolerance -> missed detection
-        logger.debug(f"Row {row['run_id']}: Not flagged but eigenvalue {eigenvalue_top} > {threshold}. Rejecting.")
-        return False
-    
-    return True
+    required = ["eigenvalue_top", "empirical_bulk_edge"]
+    missing = [c for c in required if c not in fieldnames]
+    if missing:
+        raise ValueError(
+            f"Input CSV is missing required columns: {missing}"
+        )
+    if len(rows) == 0:
+        raise ValueError(f"Input CSV {input_path} contains no data rows.")
 
-def write_validated_results(results: List[Dict[str, Any]], output_path: str) -> None:
-    """Write the validated results to CSV."""
-    if not results:
-        logger.warning("No valid results to write.")
-        # Still create an empty file with headers if needed, or just return
-        # The task requires a CSV with schema, so we write headers even if empty
-        fieldnames = ['run_id', 'N', 'theta', 'seed', 'eigenvalue_top', 'outlier_flag']
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-        return
+    if "outlier_flag" not in fieldnames:
+        fieldnames = fieldnames + ["outlier_flag"]
 
-    fieldnames = ['run_id', 'N', 'theta', 'seed', 'eigenvalue_top', 'outlier_flag']
-    with open(output_path, 'w', newline='') as f:
+    out_rows = []
+    n_outliers = 0
+    for row in rows:
+        flag = compute_outlier_flag(
+            row["eigenvalue_top"], row["empirical_bulk_edge"], tolerance
+        )
+        row["outlier_flag"] = "True" if flag else "False"
+        n_outliers += int(flag)
+        out_rows.append(row)
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for row in results:
-            # Ensure boolean is written as string 'True'/'False' for CSV consistency
-            row_copy = row.copy()
-            row_copy['outlier_flag'] = str(row_copy['outlier_flag'])
-            writer.writerow(row_copy)
+        writer.writerows(out_rows)
 
-def main():
-    paths = get_project_paths()
-    input_path = paths['project_root'] / INPUT_FILE
-    output_path = paths['project_root'] / OUTPUT_FILE
-    
-    if not input_path.exists():
-        logger.error(f"Input file {input_path} does not exist. Did T020b run?")
-        sys.exit(1)
+    logger = logging.getLogger("validate_sweep_results")
+    logger.info(
+        f"Wrote {len(out_rows)} rows to {output_path} "
+        f"({n_outliers} outliers, {len(out_rows) - n_outliers} non-outliers)"
+    )
+    if len(out_rows) != len(rows):
+        raise RuntimeError("Row count mismatch between input and output.")
+    return len(out_rows)
 
-    tolerance = get_outlier_tolerance()
-    logger.info(f"Loading raw results from {input_path} with tolerance {tolerance}")
-    
-    raw_results = load_mc_results(str(input_path))
-    logger.info(f"Loaded {len(raw_results)} rows.")
-
-    validated_results = []
-    for row in raw_results:
-        if validate_row(row, tolerance):
-            validated_results.append(row)
-    
-    logger.info(f"Validation complete: {len(validated_results)} rows passed out of {len(raw_results)}.")
-    
-    write_validated_results(validated_results, str(output_path))
-    logger.info(f"Validated results written to {output_path}")
+def main() -> int:
+    global logger
+    logger = setup_logging()
+    logger.info(
+        "T003: applying FR-004 outlier rule "
+        "(eigenvalue_top > empirical_bulk_edge + 0.05)"
+    )
+    try:
+        n = validate_sweep_results()
+        logger.info(f"T003 completed: {n} validated rows.")
+        return 0
+    except Exception as e:
+        logger.error(f"T003 failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

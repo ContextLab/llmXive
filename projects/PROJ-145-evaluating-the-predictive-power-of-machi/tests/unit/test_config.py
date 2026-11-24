@@ -1,30 +1,35 @@
-"""
-Unit tests for configuration loading and validation.
-"""
-import pytest
-from config import ensure_dirs, setup_logging
-import logging
+"""Unit tests for code/config.py (T002)."""
+import sys
+from pathlib import Path
 
-def test_setup_logging():
-    """Test that logging is configured correctly."""
-    logger = setup_logging()
-    assert isinstance(logger, logging.Logger)
-    assert logger.level == logging.INFO
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
-def test_ensure_dirs(tmp_path):
-    """Test that ensure_dirs creates the required directory structure."""
-    # Mock the config paths to use a temporary directory
-    import config
-    original_data_root = config.DATA_ROOT
-    config.DATA_ROOT = str(tmp_path)
-    
-    try:
-        ensure_dirs()
-        
-        # Verify directories exist
-        assert (tmp_path / "raw").exists()
-        assert (tmp_path / "processed").exists()
-        assert (tmp_path / "models").exists()
-        assert (tmp_path / "figures").exists()
-    finally:
-        config.DATA_ROOT = original_data_root
+import config
+
+
+def test_import_succeeds():
+    assert config is not None
+
+
+def test_random_seed_is_42():
+    assert config.RANDOM_SEED == 42
+
+
+def test_expected_aflow_checksum_placeholder():
+    # Placeholder checksum is a valid 64-char hex SHA-256 string.
+    assert isinstance(config.EXPECTED_AFLOW_CHECKSUM, str)
+    assert len(config.EXPECTED_AFLOW_CHECKSUM) == 64
+    int(config.EXPECTED_AFLOW_CHECKSUM, 16)  # must be hex
+
+
+def test_path_constants():
+    assert config.PROJECT_ROOT == PROJECT_ROOT
+    assert config.DATA_RAW == PROJECT_ROOT / "data" / "raw"
+    assert config.DATA_PROCESSED == PROJECT_ROOT / "data" / "processed"
+    assert config.DATA_MODELS == PROJECT_ROOT / "models"
+
+
+def test_element_source_list_nonempty():
+    assert len(config.ELEMENT_SOURCE_LIST) > 0
+    assert all(isinstance(e, str) for e in config.ELEMENT_SOURCE_LIST)

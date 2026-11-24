@@ -1,68 +1,69 @@
 # Data Model: Evaluating the Impact of Code Generation on Code Review Time
 
-## 1. Overview
+## Overview
+All artifacts live under `data/` and are immutable once written. Checksums (SHA‑256) are recorded in the project state file to guarantee reproducibility (Constitution I). Synthetic data are isolated in `data/synthetic/` (Constitution VI).
 
-This document defines the data structures, schemas, and relationships used in the project. All data artifacts are stored in `data/` with checksums. Synthetic data is isolated in `data/synthetic/`.
+## Core Entities
 
-## 2. Core Entities
-
-### 2.1 PullRequest
-Represents a GitHub Pull Request (Human or Synthetic).
-
+### PullRequest
 | Attribute | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `pr_id` | String | Unique PR identifier (e.g., `repo#123`) | BigQuery / API |
-| `repo_id` | String | Repository identifier (e.g., `owner/repo`) | BigQuery / API |
-| `author_type` | Enum | `human` or `llm` | Derived |
-| `generation_source` | Enum | `generation-from-scratch` or `refactoring` (if `llm`) | Generation Config |
-| `created_at` | DateTime | PR creation timestamp | BigQuery / API |
-| `first_comment_at` | DateTime | First reviewer comment timestamp | BigQuery / API |
-| `merge_at` | DateTime | PR merge timestamp | BigQuery / API |
-| `review_latency` | Float | Duration in seconds (`first_comment_at` - `created_at`) | Calculated |
-| `file_size_loc` | Integer | Lines of Code | `radon` |
-| `complexity_score` | Float | Cyclomatic Complexity | `radon` |
-| `workflow_type` | Enum | `ci-enabled` or `no-ci` | Derived |
-| `semantic_similarity` | Float | Cosine similarity to human original (Optional, Exploratory) | Embeddings (CodeBERT) |
-| `source_code` | String | Raw code content (from BigQuery `diff`) | BigQuery (Mandatory) |
+|---|---|---|---|
+| `pr_id` | string | Unique PR identifier (`repo#123`) | PR parquet |
+| `repo_id` | string | Repository identifier (`owner/repo`) | PR parquet |
+| `author_type` | enum(`human`, `llm`) | Origin of the code | Derived |
+| `generation_source` | enum(`generation-from-scratch`, `refactoring`, `null`) | Cohort label for LLM snippets | Generation config |
+| `created_at` | datetime | PR creation timestamp | PR parquet |
+| `first_comment_at` | datetime | First reviewer comment timestamp (human) **or** observed timestamp from evaluation PR (LLM) | PR parquet / evaluation PR |
+| `merge_at` | datetime | PR merge timestamp (used for outcome) | PR parquet |
+| `review_effort_duration` | number | Seconds from `first_comment_at` to `merge_at` (primary outcome) | Direct / observed from evaluation PR |
+| `total_review_duration` | number | Seconds from `created_at` to `merge_at` (secondary outcome) | Direct |
+| `file_size_loc` | integer | Lines of code (computed from `diff`) | Feature extraction |
+| `complexity_score` | number | Cyclomatic complexity (radon) | Feature extraction |
+| `repo_activity_level` | integer | Number of PRs in the repository (proxy for activity) | Aggregated per repo |
+| `ci_build_time` | number | CI build duration in seconds | PR parquet |
+| `semantic_similarity` | number (‑1 → 1) | Cosine similarity between snippet embedding and **repository‑level centroid embedding** | Feature extraction |
+| `source_code` | string | Full code diff (human) or generated snippet (LLM) | Raw / synthetic |
+| `primary_language` | string | Detected programming language (e.g., `python`) | Feature extraction |
+| `commit_message_length` | integer | Length (characters) of the commit message | Prompt engineering |
+| `evaluation_pr_url` | string | URL of the pull request opened in the sandbox evaluation repository (for LLM snippets) | Evaluation repo module |
 
-### 2.2 CodeSnippet
-Represents the code artifact associated with a PR.
+### CodeSnippet
+| Attribute | Type | Description |
+|---|---|---|
+| `snippet_id` | string | UUID for the snippet |
+| `pr_id` | string | Foreign key to the associated PullRequest |
+| `generation_source` | enum(`human`, `llm`) | Origin |
+| `code_content` | string | Raw code text |
+| `complexity_metrics` | object | `{ "cyclomatic": number, "lines": number }` |
+| `is_valid_syntax` | boolean | Result of AST parsing |
+| `model_version` | string | CodeLlama model identifier (`CodeLlama-7B-4bit-GGUF`) |
+| `generation_params` | object | Parameters **t** = `{ temperature : 0.7, max_tokens : 512, intent_prompt : … }` (example) |
+| `semantic_similarity` | number (‑1 → 1) | Cosine similarity to repo centroid (optional) |
+| `evaluation_pr_url` **(optional)** | string | URL of the evaluation PR for this snippet (if LLM‑generated) |
 
-| Attribute | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `snippet_id` | String | Unique snippet identifier | Generated |
-| `pr_id` | String | Foreign key to `PullRequest` | Link |
-| `source_code` | String | Raw code content (Human or LLM generated) | BigQuery / LLM |
-| `generation_params` | JSON | Model version, temperature, max_tokens, **intent_prompt** | Generation Config |
-| `is_valid_syntax` | Boolean | True if AST parsing succeeds | Validation |
+### MatchedPair
+| Attribute | Type | Description |
+|---|---|---|
+| `pair_id` | string | Unique identifier |
+| `human_pr_ref` | string | `pr_id` of the human PR |
+| `llm_pr_ref` | string | `pr_id` of the LLM PR (prompt‑only or context‑based) |
+| `complexity_diff` | number | Human – LLM cyclomatic complexity |
+| `size_diff` | number | Human – LLM LOC |
+| `activity_diff` | number | Human – LLM repository activity |
+| `ci_build_diff` | number | Human – LLM CI build time |
+| `semantic_similarity_diff` | number | Human – LLM semantic similarity |
+| `balance_verified` | boolean | True if this pair satisfied the covariate balance criteria |
 
-### 2.3 MatchedPair
-Represents a statistical unit for analysis.
+## File Layout
+| Path | Description |
+|---|---|
+| `data/raw/` | Immutable API‑downloaded PR parquet files |
+| `data/processed/` | `features.parquet`, `merged_features.parquet`, `matched_pairs.parquet` |
+| `data/synthetic/` | Generated snippets + provenance JSONL, predicted outcomes |
+| `data/reports/` | PDFs, PNGs, JSON summaries, runtime_report.json |
+| `data/evaluation/` | Pull request URLs and timestamp logs for LLM evaluation PRs |
 
-| Attribute | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `pair_id` | String | Unique pair identifier | Generated |
-| `human_pr_ref` | String | Reference to Human PR | Matching |
-| `llm_pr_ref` | String | Reference to LLM PR | Matching |
-| `complexity_diff` | Float | `human.complexity` - `llm.complexity` | Calculated |
-| `size_diff` | Float | `human.size` - `llm.size` | Calculated |
-| `activity_diff` | Float | `human.activity` - `llm.activity` | Calculated |
-| `balance_verified` | Boolean | True if all SMD < 0.1 | Validation |
+All files are versioned via SHA‑256 checksums recorded in `state/projects/PROJ-302-evaluating-the-impact-of-code-generation.yaml`.
 
-**Note on Matching Covariates**: `semantic_similarity` is **excluded** from the `MatchedPair` calculation and matching process to avoid "bad control" bias. Matching is performed only on `file_size_loc`, `complexity_score`, `workflow_type`, and `repo_activity`.
+---
 
-## 3. Data Flow
-
-1.  **Raw**: `data/raw/github_prs.parquet` (Streamed from BigQuery, includes `diff` field).
-2.  **Processed**: `data/processed/features.parquet` (Extracted features).
-3.  **Synthetic**: `data/synthetic/llm_snippets.jsonl` (Generated code + metadata).
-4.  **Matched**: `data/processed/matched_pairs.parquet` (Final analysis dataset).
-5.  **Reports**: `data/reports/covariate_balance.json`, `data/reports/statistical_results.json`, `data/reports/matching_failure_report.json`, `data/reports/runtime_report.json`.
-
-## 4. Constraints & Rules
-
-- **Immutability**: Raw data files are never modified. Derivations create new files.
-- **Checksums**: Every file in `data/` must have a corresponding entry in `state/` with its SHA-256 hash.
-- **PII**: No user names or emails are stored; only anonymized IDs.
-- **Synthetic Isolation**: Synthetic data must have a `generation_source` tag and be stored in a distinct directory.
-- **Semantic Similarity**: Marked as **Optional** and **Exploratory**. Not used for matching.

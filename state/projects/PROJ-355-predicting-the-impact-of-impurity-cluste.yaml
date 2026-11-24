@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-355-predicting-the-impact-of-impurity-cluste
-last_run_id: 4ed66c9f-e809-43a7-8e85-7384add8431c
+last_run_id: a4aa4e99-fd81-469a-afc1-aa764af485cd
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste
 title: Predicting the Impact of Impurity Clustering on Grain Boundary Segregation
-updated_at: '2026-10-09T14:01:40.797935Z'
+updated_at: '2026-10-25T11:52:43.464508Z'

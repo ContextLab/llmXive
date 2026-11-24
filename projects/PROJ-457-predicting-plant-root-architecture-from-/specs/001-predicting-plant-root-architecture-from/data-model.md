@@ -3,46 +3,60 @@
 ## Entity Definitions
 
 ### RootPhenotypeRecord
-Represents a single observation of root architecture.
-- `species` (string): Scientific name of the plant.
-- `root_length` (float): Total root length (cm).
-- `branching_density` (float): Number of branches per unit length.
-- `surface_area` (float): Total root surface area (cm²).
-- `geographic_location` (string): Location code or coordinates.
-- `experimental_id` (string): Unique identifier for the experiment.
-- `data_source_type` (string): 'observational' or 'experimental'.
+| Field | Type | Description |
+|-------|------|-------------|
+| `species` | string | Scientific name of the plant species (non‑null). |
+| `root_length` | float | Total root length (cm). |
+| `branching_density` | float | Branches per unit length. |
+| `surface_area` | float | Root surface area (cm²). |
+| `geographic_location` | string | Latitude/Longitude or site identifier. |
+| `experimental_id` | string | Unique experiment identifier. |
+| `data_source_type` | string | `"observational"` or `"experimental"` (used for FR‑012). |
 
 ### SoilNutrientRecord
-Represents soil chemical properties (if available).
-- `phosphorus_concentration` (float): mg/kg or ppm.
-- `nitrogen_concentration` (float): mg/kg or ppm.
-- `measurement_date` (date): Date of soil sampling.
-- `depth` (float): Soil depth in cm.
+| Field | Type | Description |
+|-------|------|-------------|
+| `phosphorus_concentration` | float | Soil phosphorus (mg kg⁻¹ or ppm). |
+| `nitrogen_concentration` | float | Soil nitrogen (mg kg⁻¹ or ppm). |
+| `measurement_date` | date | Date of soil sampling. |
+| `depth` | float | Sampling depth (cm). |
+| `geographic_location` | string | Must match `RootPhenotypeRecord.geographic_location` for merging. |
+| `soil_moisture` | float | Optional covariate (may be null). |
+| `temperature` | float | Optional covariate (may be null). |
+| `elevation` | float | Optional covariate (may be null). |
 
-### MergedDataset
-The combined dataset.
-- `species` (string)
-- `root_length` (float, log-transformed)
-- `branching_density` (float, log-transformed)
-- `surface_area` (float, log-transformed)
-- `phosphorus` (float, z-scored)
-- `nitrogen` (float, z-scored)
-- `sample_size_per_species` (int)
-- `data_source_type` (string)
+### MergedDataset (post‑processing)
+| Field | Type | Description |
+|-------|------|-------------|
+| `species` | string | Plant species (non‑null). |
+| `root_length` | float | **Log‑transformed** total length. |
+| `branching_density` | float | **Log‑transformed** branching density. |
+| `surface_area` | float | **Log‑transformed** surface area. |
+| `phosphorus` | float | **Z‑scored** phosphorus concentration; may be null if soil data unavailable. |
+| `nitrogen` | float | **Z‑scored** nitrogen concentration; may be null if soil data unavailable. |
+| `soil_moisture` | float | Optional covariate (may be null). |
+| `temperature` | float | Optional covariate (may be null). |
+| `elevation` | float | Optional covariate (may be null). |
+| `data_source_type` | string | `"observational"` after FR‑012 filtering. |
+| `sample_size_per_species` | integer | Number of rows for the species after filtering (used for SC‑005). |
+| `soil_moisture_missing` | integer | 1 if soil_moisture was imputed, 0 otherwise. |
+| `temperature_missing` | integer | 1 if temperature was imputed, 0 otherwise. |
+| `elevation_missing` | integer | 1 if elevation was imputed, 0 otherwise. |
 
-## Data Flow
+## Data Flow Overview
+1. **Ingestion** – Load PlantPheno (roots) and a verified MergedDataset (pre‑merged roots + soil) via HuggingFace.  
+2. **Merging** – Join on `species` and `geographic_location` using ≤5 km spatial and ≤30 day temporal tolerances; if the merged dataset is used directly, this step is a simple copy.  
+3. **Filtering** – Keep observational rows, enforce n ≥ 30 per species, apply FR‑003 missing‑nutrient policy.  
+4. **Transformation** – Log‑transform root metrics, z‑score nutrients, impute covariates (with missing‑indicator flags), k‑NN impute remaining nutrients.  
+5. **Persistence** – Write the cleaned Parquet file for downstream modeling.  
 
-1.  **Ingestion**: Raw files (TXT/CSV/Parquet) downloaded from verified sources.
-2.  **Cleaning**:
-    -   Filter `data_source_type == 'observational'`.
-    -   Filter `n >= 20` per species.
-    -   Impute missing values (KNN -> Mean).
-3.  **Transformation**:
-    -   `log_root = log(root + 1e-6)`
-    -   `z_p = (P - mean(P)) / std(P)`
-4.  **Storage**: Processed data saved as `data/processed/merged_dataset.parquet`.
+## Schema Constraints (mirrored in `contracts/dataset.schema.yaml`)
+- `species`: required, non‑null string.  
+- Root metrics (`root_length`, `branching_density`, `surface_area`): required numbers (already log‑transformed).  
+- `phosphorus`, `nitrogen`: numbers **or null** (`nullable: true`).  
+- Optional covariates (`soil_moisture`, `temperature`, `elevation`): numbers **or null**; corresponding missing‑indicator flags are required integers (0/1).  
+- No additional properties permitted.
 
-## Schema Constraints
--   **Species**: Must not be null.
--   **Nutrients**: If missing in source, column is dropped (deviation logged).
--   **Outliers**: Values > 3 SD from mean (after log) are capped or flagged.
+---
+
+

@@ -3378,7 +3378,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-01T09:50:57Z'
 - artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
   attempts: 1
@@ -6159,3 +6159,27 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-28T10:41:51Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/plan.md
+  attempts: 1
+  canonical: "median effect h \u2248 0.30 for visual-detail manipulations"
+  claim_id: c_b80ddf25
+  context: "Success Criterion SC\u2011001 Justification ... Prior literature (Smith\u202F\
+    &\u202FJones,\u202F2020) reports a median effect around h\u202F\u2248\u202F0.30\
+    \ for visual\u2011detail manipulations."
+  evidence:
+    asserted: '2020.0'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: "Smith & Jones, 2020 reports a median effect around h \u2248 0.30 for\
+    \ visual-detail manipulations."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-10-23T16:39:31Z'

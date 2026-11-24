@@ -1,0 +1,18 @@
+status: none
+intent: Planck 2018 SMICA CMB map HEALPix FITS SDSS DR16 PhotoObj galaxy catalog python
+  package dataset
+required_fields:
+- pixel_index
+- temperature
+- objID
+- ra
+- dec
+- photoz
+- mag_u
+- mag_g
+- mag_r
+- mag_i
+- mag_z
+cache_key: 8987912f7d9f2e68ecfca2e797fa701e4908fd55c45591746507f7640608f307
+searched_at: '2026-10-24T10:08:08.055500+00:00'
+retry_count: 1

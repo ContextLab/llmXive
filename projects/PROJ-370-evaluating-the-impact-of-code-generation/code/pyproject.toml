@@ -3,10 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-eval-code-gen"
+name = "llmxive-evaluation"
 version = "0.1.0"
 description = "Evaluating the Impact of Code Generation on Code Review Quality with LLM Assistance"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 dependencies = [
     "datasets",
     "transformers",
@@ -16,75 +16,72 @@ dependencies = [
     "pyyaml",
     "pytest",
     "numpy",
+    "requests",
     "torch",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+
+# Linting / formatting configuration (Task T003).
+# NOTE: this file intentionally lives under code/ (a project-owned
+# directory). Run `ruff check .` and `black --check .` from the
+# code/ directory; both must exit 0 on a clean repository.
+
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
     | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+    | venv
+    | __pycache__
+    | data
+    | results
+    | logs
+    | state
+    | \.github
 )/
 '''
 
 [tool.ruff]
-# Same as Black.
 line-length = 88
-target-version = "py310"
-
-# Exclude a variety of commonly ignored directories.
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
+target-version = "py39"
+src = ["src", "tests"]
+extend-exclude = [
+    "data",
+    "results",
+    "logs",
+    "__pycache__",
     ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
     "venv",
+    "state",
+    ".github",
 ]
 
-# Assume Python 3.10.
 [tool.ruff.lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
 ]
 ignore = [
-    "E501",  # line too long, handled by black
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
+    "E501", # line too long (black handles this)
+    "B008", # function calls in argument defaults (common in dataclasses)
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
+"tests/*" = ["S101"] # assert allowed in tests
 
-[tool.pytest.ini_options]
-testpaths = ["code/tests"]
-pythonpath = ["code"]
-addopts = "-v --tb=short"
+[tool.ruff.lint.isort]
+known-first-party = ["src", "code"]
+force-sort-within-sections = true
+combine-as-imports = true

@@ -1,18 +1,18 @@
 status: none
-intent: UCI Adult Iris Wine Quality datasets python package dataset
+intent: download UCI Adult Iris Wine Quality datasets python package dataset
 required_fields:
 - age
 - education-num
 - hours-per-week
-- capital-gain
-- capital-loss
-- sex
-- income (target)
-- sepal length (cm)
-- sepal width (cm)
-- petal length (cm)
-- petal width (cm)
-- species (target)
-cache_key: 4b1a9432a6167eff1597dc229757b917165cb806478a2f2e1db72ea8bbbbb4a3
-searched_at: '2026-09-04T15:05:37.952966+00:00'
+- income
+- sepal length
+- sepal width
+- petal length
+- petal width
+- species
+- fixed acidity
+- volatile acidity
+- citric acid
+cache_key: 189b5f73928b10a1b6a3c59c2c56ae2eab9c4f5f4a57446d0c49e540b19e5a31
+searched_at: '2026-10-15T23:28:28.161940+00:00'
 retry_count: 1

@@ -1,0 +1,5 @@
+# Existing dependencies are provided by the platform.
+# Add any additional third‑party libraries required for T006.
+requests
+pandas
+numpy

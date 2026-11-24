@@ -1,34 +1,37 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Skill Definition
-description: Schema for a single skill entry in the skill library.
-type: object
+title: "SkillSchema"
+description: "Schema for synthetic skill definitions with embeddings."
+type: "object"
 properties:
   skill_id:
-    type: string
-    description: Unique identifier for the skill (e.g., "S1").
-    pattern: "^S[0-9]+$"
-  function_code:
-    type: string
-    description: The actual Python source code string for the skill.
-  embedding_vector:
-    type: array
+    type: "string"
+    description: "Unique identifier for the skill."
+  name:
+    type: "string"
+    description: "Python function name."
+  code:
+    type: "string"
+    description: "Python source code of the skill."
+  embedding:
+    type: "array"
     items:
-      type: number
-    description: Dense vector representation of the skill's semantic meaning.
-    minItems: 1
+      type: "number"
+    minItems: 384
+    maxItems: 384
+    description: "A high-dimensional embedding vector (output of all‑MiniLM‑L6‑v2)."
   usage_count:
-    type: integer
-    description: Number of times this skill has been successfully executed.
+    type: "integer"
     minimum: 0
-  mean_cosine_similarity:
-    type: number
-    description: Mean cosine similarity of this skill to all other skills in the library.
-    minimum: -1.0
-    maximum: 1.0
+    description: "Number of times the skill has been used (runtime metric)."
+  last_used:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of last usage."
 required:
   - skill_id
-  - function_code
-  - embedding_vector
+  - name
+  - code
+  - embedding
   - usage_count
-  - mean_cosine_similarity
+  - last_used
 additionalProperties: false

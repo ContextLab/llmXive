@@ -1,1 +1,1 @@
-"""Configuration management modules."""
+"""Package marker for ``code.src.config``."""

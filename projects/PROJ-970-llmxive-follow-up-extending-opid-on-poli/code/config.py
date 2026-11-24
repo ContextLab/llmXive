@@ -1,130 +1,112 @@
+"""
+Global configuration module for the OPID routing complexity project.
+
+Provides constants, reproducibility helpers, and a feasibility estimator.
+"""
+
+from __future__ import annotations
+
 import os
 import random
-import sys
-from datetime import datetime
-from typing import Dict, Any, Optional, Tuple, List
-import json
 import numpy as np
 
-# Global Constants
+# ----------------------------------------------------------------------
+# Constants
+# ----------------------------------------------------------------------
 SEED = 42
-TIER_NODE_RANGES = {
-    1: (5, 10),
-    2: (20, 50),
-    3: (100, 100)  # Fixed 100 for Tier 3 max as per spec
-}
-THRESHOLD_STEPS = 11  # np.arange(0.0, 1.01, 0.1) yields 11 steps
+TIER_NODE_RANGES = {1: (5, 10), 2: (20, 50), 3: (100, 200)}
+THRESHOLD_STEPS = np.arange(0.0, 1.01, 0.1)
+MAX_EPISODES_PER_SETTING = 1000
 
-# Reproducibility initialization
-def initialize_reproducibility(seed: int = SEED) -> None:
-    """Initialize all random seeds for reproducibility."""
-    np.random.seed(seed)
+# ----------------------------------------------------------------------
+# Reproducibility utilities
+# ----------------------------------------------------------------------
+def set_seed(seed: int = SEED) -> None:
+    """
+    Seed Python's ``random``, NumPy's RNG, and the PYTHONHASHSEED env var.
+    """
     random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-
-# Initialize immediately on module load
-initialize_reproducibility(SEED)
+    np.random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
 
 def get_seed() -> int:
-    return SEED
+    """Return the seed that was set via :func:`set_seed`."""
+    return int(os.getenv("PYTHONHASHSEED", SEED))
 
-def set_seed(seed: int) -> None:
-    global SEED
-    SEED = seed
-    initialize_reproducibility(seed)
-
-def get_tier_config(tier: int) -> Tuple[int, int]:
-    """Return the node range for a given tier."""
+# ----------------------------------------------------------------------
+# Configuration helpers
+# ----------------------------------------------------------------------
+def get_tier_config(tier: int) -> dict:
+    """
+    Return a dictionary with ``num_nodes``, ``branching_prob`` and
+    ``entropy_level`` for the requested tier.
+    """
     if tier not in TIER_NODE_RANGES:
-        raise ValueError(f"Invalid tier: {tier}")
-    return TIER_NODE_RANGES[tier]
+        raise KeyError(f"Unsupported tier: {tier}")
+    min_nodes, max_nodes = TIER_NODE_RANGES[tier]
+    # Simple heuristic configuration per tier.
+    if tier == 1:
+        return {"num_nodes": min_nodes, "branching_prob": 0.0, "entropy_level": "low"}
+    if tier == 2:
+        return {"num_nodes": (min_nodes + max_nodes) // 2, "branching_prob": 0.3, "entropy_level": "medium"}
+    # tier == 3
+    return {"num_nodes": max_nodes, "branching_prob": 0.5, "entropy_level": "high"}
 
 def ensure_directories() -> None:
-    """Create required directory structure."""
-    dirs = [
-        "data/raw/synthetic_graphs",
-        "data/processed",
-        "figures",
-        "logs"
-    ]
-    for d in dirs:
-        os.makedirs(d, exist_ok=True)
-
-def get_version_hash() -> str:
-    """Return a timestamp-based version hash."""
-    return datetime.now().strftime("%Y%m%d_%H%M%S")
-
-def save_config_snapshot(config: Dict[str, Any], path: str) -> None:
-    """Save current configuration to a JSON file."""
-    with open(path, 'w') as f:
-        json.dump(config, f, indent=2)
-
-def get_config_summary() -> Dict[str, Any]:
-    """Return a summary of current configuration."""
-    return {
-        "seed": SEED,
-        "tier_node_ranges": TIER_NODE_RANGES,
-        "threshold_steps": THRESHOLD_STEPS,
-        "version": get_version_hash()
-    }
-
-def verify_feasibility() -> None:
     """
-    Calculate estimated runtime using deterministic constants.
-    
-    Worst-case parameters:
-    - 100 nodes (Tier 3 max)
-    - 200 steps/episode
-    - N=1000 episodes
-    - 11 threshold settings
-    - 3 tiers
-    
-    Formula: estimated_time = (100 * 200 * 1000 * 11 * 3) * constant_overhead
-    
-    Raises RuntimeError if estimated time > 6 hours.
+    Create all required output directories under the project root.
+    Uses ``llmxive_toolkit.paths`` helpers for consistency.
     """
-    # Constants from spec
-    max_nodes = 100
-    steps_per_episode = 200
-    episodes = 1000
-    num_thresholds = 11
-    num_tiers = 3
-    
-    # Estimated operations count (simplified model)
-    total_operations = max_nodes * steps_per_episode * episodes * num_thresholds * num_tiers
-    
-    # Constant overhead factor (operations per second estimate)
-    # Based on typical CPU performance for graph operations
-    # Conservative estimate: 10^6 operations per second
-    constant_overhead = 1.0 / (10**6)  # seconds per operation
-    
-    estimated_time_seconds = total_operations * constant_overhead
-    estimated_time_hours = estimated_time_seconds / 3600
-    
-    max_allowed_hours = 6.0
-    
-    if estimated_time_hours > max_allowed_hours:
+    from llmxive_toolkit import paths
+
+    paths.data("raw", "synthetic_graphs")
+    paths.results()
+    paths.results("profile.txt")
+    paths.results("entropy_regression.json")
+    paths.results("summary_stats.csv")
+    paths.results("episode_results.csv")
+    paths.results("aggregated_metrics.csv")
+    paths.results("success_rate_summary.csv")
+    paths.results("interaction_results.json")
+    paths.results("inflection_points.json")
+    paths.results("policy_rigidity.csv")
+    paths.results("distillation_cost_benefit.csv")
+
+# ----------------------------------------------------------------------
+# Feasibility estimation
+# ----------------------------------------------------------------------
+def verify_feasibility() -> tuple[int, float]:
+    """
+    Estimate runtime for the full experimental sweep.
+
+    Returns ``(episodes_per_setting, estimated_hours)``.  Raises
+    ``RuntimeError`` if the estimate exceeds the 6‑hour budget.
+    """
+    episodes = MAX_EPISODES_PER_SETTING
+    tiers = 3
+    thresholds = len(THRESHOLD_STEPS)
+    max_nodes = max(v[1] for v in TIER_NODE_RANGES.values())
+    max_steps = 200  # per‑step worst‑case assumption
+    per_step_sec = 0.001  # conservative
+
+    total_steps = episodes * tiers * thresholds * max_steps
+    estimated_seconds = total_steps * per_step_sec
+    estimated_hours = estimated_seconds / 3600.0
+
+    if estimated_hours > 6.0:
         raise RuntimeError(
-            f"Feasibility check failed: Estimated runtime {estimated_time_hours:.2f} hours "
-            f"exceeds maximum allowed {max_allowed_hours} hours. "
-            f"Parameters: {max_nodes} nodes, {steps_per_episode} steps, "
-            f"{episodes} episodes, {num_thresholds} thresholds, {num_tiers} tiers."
+            f"Estimated runtime {estimated_hours:.2f} h exceeds 6 h budget."
         )
+    return episodes, estimated_hours
 
-def main():
-    """Main entry point for config module."""
-    print("Config module loaded successfully")
-    print(f"Seed: {SEED}")
-    print(f"Tier node ranges: {TIER_NODE_RANGES}")
-    print(f"Threshold steps: {THRESHOLD_STEPS}")
-    
-    # Run feasibility check
-    try:
-        verify_feasibility()
-        print("Feasibility check passed")
-    except RuntimeError as e:
-        print(f"Feasibility check failed: {e}")
-        sys.exit(1)
+# ----------------------------------------------------------------------
+# CLI helper
+# ----------------------------------------------------------------------
+def main() -> None:
+    set_seed()
+    episodes, hours = verify_feasibility()
+    print(f"Episodes per setting: {episodes}")
+    print(f"Estimated total runtime: {hours:.2f} h")
 
 if __name__ == "__main__":
     main()

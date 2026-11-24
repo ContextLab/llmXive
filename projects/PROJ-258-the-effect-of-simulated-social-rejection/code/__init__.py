@@ -1,3 +1,1 @@
-"""
-Package initializer for the `code` module.
-"""
+# Package marker for the project code directory. No runtime side‑effects.

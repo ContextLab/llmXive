@@ -1,10 +1,9 @@
 status: none
-intent: UCI Machine Learning Repository OpenML download continuous features group
-  label datasets python package dataset
-required_fields:
-- continuous_features
-- group_label_categorical
-- sample_size_n
-cache_key: 2830a2c9abd817e49e80f9745002aa4c8f15be698ee525ef08a4cae0df9ddfef
-searched_at: '2026-09-24T15:41:05.770986+00:00'
-retry_count: 1
+intent: '### User Story 1 - Download and Filter Real-World Datasets (US-1) (Priority:
+  P1) As a researcher, I want to download and filter public datasets from UCI and
+  OpenML that contain continuous variables and known group labels, so that I have
+  valid real-world non-normal data for transformation analysis. *'
+required_fields: []
+cache_key: e50d2fbfe19f03dd6048e69c0f80a6b81c229fff6745618d513daa74cc4bcbb7
+searched_at: '2026-11-21T15:29:06.541980+00:00'
+retry_count: 2

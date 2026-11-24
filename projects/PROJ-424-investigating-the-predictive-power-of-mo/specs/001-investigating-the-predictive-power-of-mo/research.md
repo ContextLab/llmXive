@@ -1,73 +1,81 @@
 # Research: Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients
 
 ## Summary
-This research validates the accuracy of MARTINI force field simulations in predicting self-diffusion coefficients ($D$) for water, ethanol, and acetone. It addresses the critical need to determine the minimum simulation duration required for convergence (1ns vs 5ns vs 10ns). The study uses a rigorous statistical framework (bootstrapping) to estimate uncertainty but explicitly avoids p-value testing due to limited sample sizes (N=5 per condition, or N=3 fallback), adhering to the "Descriptive Trend Analysis" and "CI Overlap Check" requirements.
+We quantify how accurately atomistic OPLS‑AA MD simulations predict experimental self‑diffusion coefficients of water, ethanol, and acetone at three simulation durations (1 ns, 5 ns, 10 ns). The workflow yields timescale‑accuracy curves (MAE vs. duration) with 95 % bootstrap confidence bands, descriptive trend analysis, and a paired‑comparison (with a granularity note) between the shortest and longest simulations.
 
 ## Dataset Strategy
 
-The study relies on two primary data sources:
+| Dataset | Source / Path | Access Method | Validation |
+|---|---|---|---|
+| Experimental diffusion benchmarks | `data/raw/nist_refs.json` (hand‑curated, committed) | `json.load()` via `code/data/loader.py` | Schema‑validated; SHA‑256 checksum stored in `nist_refs.json.sha256`. |
+| MD trajectories | `data/raw/simulations/{solvent}_{duration}ns_seed{seed}.xtc` (generated in‑house) | `mdtraj.load()` | Each trajectory passes convergence diagnostics (R² ≥ 0.95, log‑log slope ≈ 1). |
 
-1.  **Experimental Benchmarks (Ground Truth)**:
-    *   **Source**: Manually curated values from NIST Standard Reference Database.
-    *   **Location**: `data/raw/nist_refs.json`.
-    *   **Rationale**: NIST does not provide a programmatic API for this specific subset of diffusion data. Manual curation ensures accuracy and allows for checksumming (Constitution Principle III).
-    *   **Variables**: Solvent name, Temperature (K), Experimental Diffusion Coefficient ($m^2/s$).
-    *   **Verification**: Values cross-referenced with NIST TRC (Thermodynamics Research Center) data.
-
-2.  **Simulation Trajectories**:
-    *   **Source**: Generated in-situ using GROMACS with MARTINI force field.
-    *   **Location**: `data/raw/simulations/` (generated) or `data/processed/` (analyzed).
-    *   **Rationale**: MARTINI is a coarse-grained force field that accelerates sampling, allowing 10ns simulations to complete within the 6-hour CI budget on CPU (with N=5 or N=3 seeds).
-    *   **Variables**: Time (ps), Mean Squared Displacement ($Å^2$), Coordinates.
-    *   **Sample Size**: 5 independent seeds per solvent/duration condition (Total N=45). Fallback to N=3 seeds (Total N=27) if time > 5.5h.
-
-### Dataset Strategy Table
-
-| Dataset | Source URL / Path | Access Method | Validation |
-| :--- | :--- | :--- | :--- |
-| **Experimental Refs** | `data/raw/nist_refs.json` (Local) | `json.load()` | Checksum verification; Manual spot-check against NIST TRC. |
-| **Trajectories** | `data/raw/simulations/*.xtc` (Local) | `mdtraj.load()` | GROMACS energy check; MSD linearity ($R^2 \ge 0.95$) on t > 100ps. |
-
-*Note: The "Verified datasets" block in the prompt contains NIST 800-53 security control data, which is irrelevant to this chemistry study. We strictly use the local curated JSON file as defined in the Spec and Constitution.*
+**Data availability note**: The "# Verified datasets" block contains no applicable diffusion‑coefficient source. Per the specification (§4), we manually curate the experimental values into `nist_refs.json`; no synthetic fallback is used, satisfying the “no synthetic data” rule.
 
 ## Methodological Approach
 
-### 1. Simulation Protocol
-*   **Force Field**: MARTINI 3.0 (validated for transport properties).
-*   **System Size**: ~200-500 molecules per box to ensure periodic boundary conditions do not artificially restrict diffusion (finite-size correction applied if necessary).
-*   **Durations**: 1 ns, 5 ns, 10 ns.
-*   **Ensemble**: NPT (300K, 1 bar).
-*   **Seeds**: 5 independent random seeds per condition (Total N=45). Fallback to 3 seeds if time > 5.5h.
-*   **Convergence Check**: The Mean Squared Displacement (MSD) is calculated. **The first 100ps of every trajectory is discarded** to avoid the ballistic regime. A linear fit is performed on the MSD vs. time plot for t > 100ps. **Only trajectories with $R^2 \ge 0.95$** (per SC-008 and Constitution Principle VI) are accepted for $D$ calculation.
+### 1. Reference Data Generation (Phase 0)
+- Hard‑code literature diffusion coefficients at 298 K: water = 2.30 × 10⁻⁹ m²/s, ethanol = 1.10 × 10⁻⁹ m²/s, acetone = 0.97 × 10⁻⁹ m²/s.  
+- Write JSON with schema `{solvent: str, D_exp_m2_s: float, temperature_K: int}`.  
+- Compute SHA‑256 checksum; both files are version‑controlled.
 
-### 2. Statistical Analysis
-*   **Metric**: Mean Absolute Error (MAE) between $D_{sim}$ and $D_{exp}$.
-*   **Uncertainty**: 95% Confidence Intervals via Bootstrap Resampling.
-    *   **Iterations**: 1000 (FR-004).
-    *   **Fallback**: If wall-clock time > 5.5 hours, reduce to 100 iterations (FR-004).
-*   **Hypothesis Testing**: **None**. The study does NOT perform difference-of-means tests (t-tests) due to N=5 (or N=3) sample size (SC-005).
-*   **Trend Analysis**:
-    *   Plot MAE vs. Duration.
-    *   **CI Overlap Check**: Compare the 95% CI of the 1ns MAE against the 10ns MAE. **This is a descriptive metric only.** Non-overlapping CIs suggest a potential improvement, but no statistical significance is claimed due to the small sample size.
+### 2. Simulation Protocol
+- **Engine**: OpenMM 8.1.1, CPU platform, 2 threads.  
+- **Force field**: OPLS‑AA.  
+- **System size**: ≈ 300 molecules per solvent (≈ 10 k atoms).  
+- **Ensemble**: NPT, T = 298 K, P = 1 bar, Langevin thermostat (friction = 1 ps⁻¹), Monte‑Carlo barostat.  
+- **Durations & seeds**: a brief nanosecond‑scale interval × 3 seeds, a brief nanosecond interval × 3 seeds, a brief nanosecond‑scale duration × 1 seed (total a set of trajectories). Seeds are fixed integers recorded in the pipeline.  
+- **Wall‑clock monitoring**: Any simulation exceeding 5.5 h logs a performance‑issue warning (FR‑004).
 
-### 3. Sensitivity Analysis
-*   **Variable**: Start time fraction for MSD calculation (0.1, 0.2, 0.3 of total duration).
-*   **Goal**: Ensure variance in $D$ values < 5% across start times (SC-002).
+### 3. Diffusion Coefficient Extraction (FR‑002, FR‑003)
+- Compute MSD for all atoms using `mdtraj`.  
+- Discard first 0.1 × total time (ballistic regime).  
+- Fit MSD = 6 D t + C with ordinary least squares.  
+- **Convergence diagnostics**: (a) linear‑fit R² ≥ 0.95; (b) log‑log MSD vs. t slope must be 1 ± 0.05. Both must pass; otherwise status =`convergence_failed`.  
+- Apply Yeh‑Hummer finite‑size correction:
+  \[
+  D_{\text{corr}} = D_{\text{raw}} + \frac{k_{\mathrm{B}}T\,\xi}{6\pi\eta L},
+  \]
+  with \(\xi≈2.837297\), \(\eta\) taken from literature (water exhibits a viscosity on the order of one centipoise at 298 K., etc.).  
+- Store results in `diffusion_results.csv`.
 
-## Scaling Factors
+### 4. Accuracy & Uncertainty (FR‑004, FR‑008)
+- Compute per‑seed absolute error \(|D_{\text{corr}} - D_{\text{exp}}|\).  
+- **Bootstrap**: Resample the set of errors with replacement 1000 times (fixed count; source 1612.04126, https://arxiv.org/abs/1612.04126).  
+- Derive mean MAE and [deferred] / 97.5 % percentiles → 95 % CI (SC‑003).
+- **Paired descriptive comparison**: For each solvent, compare MAE at 1 ns vs. 10 ns using the same seed set; report mean difference, bootstrap‑derived CI, and a `granularity_note` explaining that with N = 3 (or 1) the minimal attainable p‑value is limited (methodology‑37736ec4). This satisfies SC‑005 without fabricating a formal p‑value.
 
-MARTINI diffusion coefficients are known to be faster than reality. To enable valid comparison with experimental data, we apply fixed scaling factors derived from literature (Marrink et al., J. Chem. Theory Comput. 2007, 3, 1, 146–156):
+### 5. Sensitivity Analysis (US2)
+- Vary MSD start‑fraction to 0.2 and 0.3, repeat fit and compute diffusion coefficients.  
+- Calculate variance‑percentage across seeds for each (solvent, duration, start_fraction).  
+- Store in `sensitivity_report.json`; all variance % < 5 % is considered acceptable (implicit SC‑002, though not explicitly listed).
 
-*   **Water**: 0.6
-*   **Ethanol**: 0.7
-*   **Acetone**: 0.7
+### 6. Timescale‑Accuracy Curves & Trend Analysis (FR‑008)
+- Plot MAE vs. duration for each solvent with 95 % CI bands (Matplotlib).  
+- Perform descriptive trend analysis: monotonic decrease of MAE with longer simulations, CI overlap assessment, and report the paired‑comparison result.  
+- Export figures (`.png`) and summary tables (`.csv`) into `results/`.
 
-These factors are hardcoded constants in the analysis pipeline and are not fitted to the current simulation data, avoiding circularity.
+### 7. End‑to‑End Verification (FR‑009, SC‑006)
+- Run `pytest` suite covering loader, simulation wrapper, diffusion analysis, bootstrap, and pipeline orchestration.  
+- All tests must pass; any failure aborts the CI job.  
+- Successful run of `code/pipeline.py --full-batch` confirms the whole workflow executes without errors.
 
 ## Decision Rationale
 
-*   **CPU-First**: MARTINI simulations of small liquids (water, ethanol, acetone) are computationally cheap. A ns simulation of ~500 particles runs in ~10-15 minutes on 2 CPU cores (including equilibration). This fits within the 6-hour CI limit if N=3 seeds are used, or with a fallback if N=5.
-*   **No GPU Required**: The coarse-grained nature of MARTINI reduces the degrees of freedom, making GPU acceleration unnecessary for this specific scale.
-*   **Bootstrap vs. T-Test**: With N=5 (or N=3) data points per duration, a t-test is statistically underpowered. Bootstrap resampling on the *error distribution* (MAE) is a more robust non-parametric approach for estimating confidence intervals of the aggregate error metric.
-*   **Manual Curation**: Given the lack of an NIST API, manual curation is the only way to ensure the "Verified Accuracy" principle is met without fabricating a fake API endpoint.
-*   **Lag-Time Exclusion**: Discarding the first 100ps is critical to avoid the ballistic regime, which would invalidate the linear fit and the resulting diffusion coefficient.
+| Decision | Reason |
+|----------|--------|
+| **Hard‑coded `nist_refs.json`** | No public API for NIST diffusion data; manual curation yields a deterministic, checksum‑able file that satisfies FR‑001 and Constitution III. |
+| **CPU‑only OpenMM** | Fits within the free‑tier runner; the spec explicitly states no GPU required. |
+| **3 × 1 ns & 5 ns seeds, 1 × 10 ns seed** | Balances statistical precision for short durations against the 6 h wall‑clock budget; power limitation is explicitly reported (SC‑005). |
+| **Exact 1000 bootstrap iterations** | Mandated by FR‑004; iteration count is justified by the cited arXiv source. |
+| **Descriptive paired‑comparison with granularity note** | Avoids reporting a misleading p‑value when seed count is too low; still fulfills SC‑005 by providing a quantitative comparison. |
+| **Additional log‑log slope check** | Strengthens convergence validation beyond R², directly addressing Constitution VI. |
+| **Sensitivity start‑fraction sweep** | Provides robustness evidence for the 0.1 discard choice, satisfying US2. |
+
+## Limitations & Power Considerations (methodology‑9348a9bc)
+
+- **Small seed count** (especially for 10 ns) yields wide bootstrap CIs and limits inferential power. All tables and figures explicitly note this limitation.  
+- **Finite‑size correction** relies on literature viscosity values; any systematic error in those values propagates to the corrected diffusion coefficient.  
+- **Wall‑clock variability**: The reference hardware in FR‑004 (2.5 GHz, multi‑core) is faster than the CI runner; exceeding the 5.5 h threshold will be logged as a performance issue, not as a failure.
+
+---

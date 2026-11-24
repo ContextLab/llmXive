@@ -1,0 +1,14 @@
+status: none
+intent: download Parkinson's progression microbiome longitudinal dataset with MDS-UPDRS
+  scores from MicrobiomeDB python package dataset
+required_fields:
+- sample_id
+- patient_id
+- visit_number
+- collection_date
+- asv_counts_matrix
+- taxon_id
+- MDS_UPDRS_total
+cache_key: d16e300e199e112d2f9e414c1c6140c90b5e17429a8d29eeaeaba10b9c254f27
+searched_at: '2026-10-17T02:22:53.016097+00:00'
+retry_count: 1

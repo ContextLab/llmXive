@@ -15,14 +15,14 @@ properties:
   original_lon:
     type: "number"
     description: "Original longitude of the response."
-  timestamp:
+  original_timestamp:
     type: "string"
     format: "date-time"
-    description: "Original timestamp of the response."
+    description: "Timestamp of the response."
 required:
   - response_id
   - reason
   - original_lat
   - original_lon
-  - timestamp
+  - original_timestamp
 additionalProperties: false

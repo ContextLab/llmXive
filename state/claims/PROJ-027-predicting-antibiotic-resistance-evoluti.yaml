@@ -186,3 +186,66 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-11T23:07:09Z'
+- artifact_path: projects/PROJ-027-predicting-antibiotic-resistance-evoluti/docs/quickstart.md
+  attempts: 1
+  canonical: feature_matrix.csv with genomic features and phenotype columns
+  claim_id: c_b175d451
+  context: After running the full pipeline, the guide says you should see feature_matrix.csv
+    with genomic features and phenotype columns.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: feature_matrix.csv with genomic features and phenotype columns
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T02:24:29Z'
+- artifact_path: projects/PROJ-027-predicting-antibiotic-resistance-evoluti/docs/quickstart.md
+  attempts: 1
+  canonical: model pickle files under data/models
+  claim_id: c_f9bdb693
+  context: The guide lists that after execution you should see model pickle files
+    under data/models/.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Model pickle files under data/models/
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T02:24:29Z'
+- artifact_path: projects/PROJ-027-predicting-antibiotic-resistance-evoluti/docs/quickstart.md
+  attempts: 1
+  canonical: metrics.json, permutation_results.json, sensitivity_sweep.csv
+  claim_id: c_26603d00
+  context: The guide indicates these files should be present after the pipeline run.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: metrics.json, permutation_results.json, sensitivity_sweep.csv
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T02:24:29Z'
+- artifact_path: projects/PROJ-027-predicting-antibiotic-resistance-evoluti/docs/quickstart.md
+  attempts: 1
+  canonical: ROC PR feature importance plots in figures
+  claim_id: c_9284b979
+  context: The guide states that ROC, PR, and feature importance plots should appear
+    in the figures/ directory.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: ROC/PR/feature importance plots in figures/
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T02:24:29Z'

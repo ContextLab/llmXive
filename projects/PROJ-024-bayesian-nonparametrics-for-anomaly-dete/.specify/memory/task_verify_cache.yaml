@@ -1,15 +1,9 @@
-T104:
-  c: true
-  h: 64008669740b7fa725e1d186d40b4dde7cc39bd34518c50c74e6b59932418db6
-  r: "The `data/data_provenance_report.md` file exists, is non\u2011empty, and documents\
-    \ that the `ls -la \u2026 | grep pems` command produced no output after the `rm\
-    \ -f` cleanup, satisfying the task\u2019s verification constraint. The required\
-    \ raw files are absent, confirming they were removed."
-T110:
-  c: true
-  h: 7b54425f3b9ab0d62c90766f4ba5bb7504405b51cceb03d6083d6a9e2339055c
-  r: "The artifacts include a non\u2011empty `code/src/utils/migrate_config.py`, a\
-    \ `code/config.yaml` under 2\u202FKB, and a populated `code/tests/config_compliance_report.md`\
-    \ (1076\u202Fbytes) showing the script was run with `--force`, the size check\
-    \ passed, and all derived\u2011statistic keys were migrated. All task requirements\
-    \ are met."
+T020:
+  c: false
+  h: a412fb29950c40aa6624733031bb6d91b8dc9b7b3ab5bfdd74fa569eadbd00fa
+  r: "The `validation_deferred.md` report is correctly generated and the script runs\
+    \ without error, but `search_datasets.py` only attempts downloads from NAB and\
+    \ PhysioNet and never queries the UCI repository as required by the task (\u201C\
+    across UCI, NAB, and PhysioNet\u201D). Consequently the search does not fully\
+    \ satisfy the specification."
+  sig: ca01841b57eeb8094ca969ddc6b8fdd92bbfc175ff245b18bef9cfd45f3f7d4e

@@ -9,7 +9,8 @@ properties:
       - correctness
       - complexity
       - lines_of_code
-    description: "The metric being analyzed."
+      - power_limitation
+    description: "The metric being analyzed. 'power_limitation' indicates a comparison with observed power < 0.80."
   comparison:
     type: string
     description: "Description of the comparison (e.g., 'zero_shot_style vs zero_shot_basic')."
@@ -28,7 +29,11 @@ properties:
   effect_size:
     type: number
     format: float
-    description: "Effect size (Cohen's h or eta-squared)."
+    description: "Effect size (Cohen's h, eta-squared, or Cohen's f)."
+  observed_power:
+    type: number
+    format: float
+    description: "Post-hoc observed power for the comparison (optional; computed for all comparisons)."
   correction_method:
     type: string
     enum:

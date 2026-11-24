@@ -21,7 +21,7 @@ from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 
 from llmxive.backends.base import ChatMessage
-from llmxive.backends.router import DEFAULT_MODEL, chat_with_fallback
+from llmxive.backends.router import chat_with_fallback
 
 IMAGE = "llmxive-repair-tests:latest"
 SAFETY_TESTS = ["tests/unit/test_repair_safety_contracts.py"]
@@ -98,9 +98,10 @@ def _ask(prompt: str, *, response_path: Path | None = None, format_retry: bool =
             ),
             ChatMessage(role="user", content=prompt),
         ],
-        default_backend="dartmouth",
-        fallback_backends=[],
-        model=DEFAULT_MODEL,
+        # Spec 026: a repair proposal is a deep code-writing call. The profile's
+        # ``deep`` capability already keeps it off the small local fallback
+        # (the former ``fallback_backends=[]``).
+        profile="deep_code",
         max_tokens=32768,
         temperature=0,
     )
@@ -888,10 +889,11 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         patch = subprocess.check_output(["git", "diff", "--cached", "--binary"], cwd=baseline)
         (output / "candidate.patch").write_bytes(patch)
     _progress(output, "independent_review")
-    review_model = (
-        "google.gemma-4-31B-it" if proposal["_producer_model"] == "openai.gpt-oss-120b"
-        else "openai.gpt-oss-120b"
-    )
+    # Independence without naming a model (spec 026): the reviewer is whatever
+    # the selector ranks best for a deep review once the repair's AUTHOR is
+    # prohibited outright, so no fallback can hand the review back to it.
+    from llmxive.model_selection.types import RequirementOverrides
+
     review = chat_with_fallback(
         [
             ChatMessage(
@@ -918,9 +920,10 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
                 + (output / "safety.log").read_text()[-16000:],
             ),
         ],
-        default_backend="dartmouth",
-        fallback_backends=[],
-        model=review_model,
+        profile="deep_review",
+        overrides=RequirementOverrides(
+            exclude_models=frozenset({proposal["_producer_model"]}),
+        ),
         max_tokens=16384,
         temperature=0,
     )

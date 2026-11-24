@@ -1,30 +1,31 @@
 """
 Main entry point for the Resting-State fMRI Global Signal analysis pipeline.
 
-This script orchestrates the full pipeline:
-1. Data Ingestion (download, validate, clean)
-2. Modeling (Ridge regression, null distribution)
-3. Robustness Analysis
-4. Reporting & Visualization
+This orchestrator runs the full workflow:
+1. Ingestion (creates `data/processed/cleaned_data.csv`)
+2. Modeling (ridge regression, null distribution)
+3. Diagnostics
+4. Robustness analysis
+5. Visualisations
+6. Final report generation
 
-Usage:
-    python code/main.py
+The script exits with status 0 on success and logs progress to
+`data/logs/pipeline.log`.
 """
 
-import os
 import sys
 import logging
 from pathlib import Path
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
+# Ensure project root is on the import path
+project_root = Path(__file__).resolve().parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 from config import ensure_directories
 from utils import get_logger, setup_logging
 
-# Import pipeline steps
+# Pipeline step imports
 from run_ingestion_pipeline import main as run_ingestion
 from modeling import main as run_modeling
 from diagnostics import main as run_diagnostics
@@ -32,74 +33,90 @@ from robustness import main as run_robustness
 from visualizations import main as run_visualizations
 from run_final_report import main as run_final_report
 
-def main():
+
+def main() -> None:
     """Execute the full analysis pipeline."""
+    # Initialise logging early so that all steps record to the same file.
+    setup_logging()
     logger = get_logger("main")
-    
-    logger.info("Starting Resting-State fMRI Global Signal Analysis Pipeline")
-    logger.info("=" * 60)
-    
-    # Ensure directories exist
+
+    logger.info("=== Starting Resting‑State fMRI Global Signal Pipeline ===")
+
+    # ------------------------------------------------------------------
+    # Ensure directory structure exists
+    # ------------------------------------------------------------------
     ensure_directories()
-    logger.info("Project directories verified/created")
-    
-    # Step 1: Data Ingestion
-    logger.info("Step 1: Running data ingestion pipeline...")
+    logger.info("Project directories verified/created.")
+
+    # ------------------------------------------------------------------
+    # Step 1 – Data ingestion
+    # ------------------------------------------------------------------
+    logger.info("Step 1/6: Data ingestion")
     try:
         run_ingestion()
-        logger.info("✓ Data ingestion complete")
-    except Exception as e:
-        logger.error(f"✗ Data ingestion failed: {e}")
+        logger.info("✅ Ingestion completed")
+    except Exception as exc:
+        logger.error(f"❌ Ingestion failed: {exc}")
         sys.exit(1)
-    
-    # Step 2: Modeling
-    logger.info("Step 2: Running modeling pipeline...")
+
+    # ------------------------------------------------------------------
+    # Step 2 – Modeling
+    # ------------------------------------------------------------------
+    logger.info("Step 2/6: Modeling")
     try:
         run_modeling()
-        logger.info("✓ Modeling complete")
-    except Exception as e:
-        logger.error(f"✗ Modeling failed: {e}")
+        logger.info("✅ Modeling completed")
+    except Exception as exc:
+        logger.error(f"❌ Modeling failed: {exc}")
         sys.exit(1)
-    
-    # Step 3: Diagnostics
-    logger.info("Step 3: Running collinearity diagnostics...")
+
+    # ------------------------------------------------------------------
+    # Step 3 – Diagnostics
+    # ------------------------------------------------------------------
+    logger.info("Step 3/6: Collinearity diagnostics")
     try:
         run_diagnostics()
-        logger.info("✓ Diagnostics complete")
-    except Exception as e:
-        logger.error(f"✗ Diagnostics failed: {e}")
+        logger.info("✅ Diagnostics completed")
+    except Exception as exc:
+        logger.error(f"❌ Diagnostics failed: {exc}")
         sys.exit(1)
-    
-    # Step 4: Robustness Analysis
-    logger.info("Step 4: Running robustness analysis...")
+
+    # ------------------------------------------------------------------
+    # Step 4 – Robustness analysis
+    # ------------------------------------------------------------------
+    logger.info("Step 4/6: Robustness analysis")
     try:
         run_robustness()
-        logger.info("✓ Robustness analysis complete")
-    except Exception as e:
-        logger.error(f"✗ Robustness analysis failed: {e}")
+        logger.info("✅ Robustness analysis completed")
+    except Exception as exc:
+        logger.error(f"❌ Robustness analysis failed: {exc}")
         sys.exit(1)
-    
-    # Step 5: Visualizations
-    logger.info("Step 5: Generating visualizations...")
+
+    # ------------------------------------------------------------------
+    # Step 5 – Visualisations
+    # ------------------------------------------------------------------
+    logger.info("Step 5/6: Generating visualisations")
     try:
         run_visualizations()
-        logger.info("✓ Visualizations complete")
-    except Exception as e:
-        logger.error(f"✗ Visualizations failed: {e}")
+        logger.info("✅ Visualisations completed")
+    except Exception as exc:
+        logger.error(f"❌ Visualisations failed: {exc}")
         sys.exit(1)
-    
-    # Step 6: Final Report
-    logger.info("Step 6: Generating final report...")
+
+    # ------------------------------------------------------------------
+    # Step 6 – Final report
+    # ------------------------------------------------------------------
+    logger.info("Step 6/6: Final report aggregation")
     try:
         run_final_report()
-        logger.info("✓ Final report complete")
-    except Exception as e:
-        logger.error(f"✗ Final report failed: {e}")
+        logger.info("✅ Final report generated")
+    except Exception as exc:
+        logger.error(f"❌ Final report generation failed: {exc}")
         sys.exit(1)
-    
-    logger.info("=" * 60)
-    logger.info("Pipeline execution completed successfully!")
-    logger.info("Results are available in data/results/")
+
+    logger.info("=== Pipeline finished successfully ===")
+    logger.info("Results are available under `data/results/`")
+
 
 if __name__ == "__main__":
     main()

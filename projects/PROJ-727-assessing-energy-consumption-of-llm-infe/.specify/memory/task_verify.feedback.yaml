@@ -1,0 +1,70 @@
+T001:
+  task: 4042388e25c81c56eee97ee68192a16565b95c735476ca164a70edaa1c045c13
+T002:
+  task: 54d03ef5d8b2335d64a93df9a2b7d7e5c8995997e02effe79a0a449285093f34
+T003:
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T004:
+  task: e7fbb5511577ae9979e4b4689da0fbe49b112642fb3d4e7ccf1f15135841acf5
+T005:
+  task: 97f2d488d7758949f28c425523847463a48d58b6200c6f52c5724e3f3cfffa58
+T006:
+  task: c7cc8f28fd1f42d88ff8693a3481381f9a4e77ea7d3e00c934bc980dc514f60b
+T007:
+  task: 9ffd81c76cc16cc73030a2bb20031ee730c4def4dc4e0a509c46744a83ea5480
+T008:
+  task: 005d4b4c2c34c7483ef49ac60b57b26f91ed5e562a63b1e0752a49f53f1686a3
+T008a:
+  task: c93961a190712a30e752391b03d0d64d47c64d00415c146d528502af2fa70129
+T009:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-727-assessing-energy-consumption-of-llm-infe.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 4fce4e4a5b0e72e63a43c8c9d358feab0ed9fee888070aa4a292fc4e50222d55
+T013:
+  task: c43088cbd56135cc528f9da97a9ad37491c770db0a6e4d0e24d383bdac476da0
+T013a:
+  task: ee98a05d696a54215850b16bce541f651387b5b991b9c91b15b8f99e421ec59b
+T014:
+  task: 0cc1eeb25a35a5ca2238f91881e793430dd8a9a66375800432b326f1ab9f8ba5
+T016a:
+  task: 3f798dd1fe285ea1fa46040a1ad290b5a5bec3811421c8de9cfeb1a5a428bc4b
+T016c:
+  task: ceaff5047b6c497d448d52d8f9facc4719c6df60bda649020d70033a2e6dc359
+T021:
+  task: 83d561d82d5f8e591432ba402287eec90f39dbcb1574659b5029f5cc64dccd8a
+T022:
+  task: 1f57384af22c30871e651ac84caaa0fc6ac50dd61525361a017b7c72a38292a7
+T023:
+  task: 5852a7672894098787b99ef7fea10a9ead111e62731b52e2fc69198cacd73500
+T024a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/sensitivity_delta.csv'
+  task: 865891a83d8d7279fb14c4ffbc52ae0b44e9eaa617cdfe9db149358abcb26097
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/stats_report.csv'
+  task: e0bc7cf096aa4308f9f2188092ce1d1913f0e2e8d14f90ef6280c5d2486dbe99
+T027:
+  task: 6dc66c37b36cb6cd43ff1cd7e05d96945ac68e55ccd69fa866bfc1a3009d5fd3
+T032:
+  task: ec2e33c3d021d6d4c19b4a4dbfd9f969fae96ceafdf70152729e77d0452dcfc3
+T033:
+  task: 348f4b91ca20dd20eec7f8a553b9f4a110efe8fef42ca48742f4465de43863c9
+T034:
+  task: b2dea35b521fac93d525a02f1349395414cff322d9f9fbe26e78d6c7c86cff7f
+T035:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/energy_results_aggregated.csv,
+    data/processed/stats_report.csv, data/processed/energy_bar.png, data/processed/tradeoff_scatter.png'
+  task: 42e4ca313ac6a25c9ed2cb01f072c7d33e58ce60fb8f39a35ee33f3ad6aee0d9
+T036:
+  task: f7267318447e7d46005c2cfcc3d9af8369bc6bc0d66e7a5cdd828e34d7da8aef
+T037:
+  task: a7ca4f0f8f84dc36529236cf68fa3816effef338030fd9d5ede20bead55c1d7d
+T038:
+  task: eb34e120b1787e99a80f705e1d21b542ed9bc9109dbd77befa0008c400595816
+T039:
+  task: 5093e0fb226291495db4a28d8c722f1e505d64570f731973dfa2ab473ac26409
+T040:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/test_data_integrity.py,
+    data/processed/energy_results_aggregated.csv'
+  task: 01f6eb079a815d609847e23a67abdbee7047b546310fd2de45f32917fea6ab72

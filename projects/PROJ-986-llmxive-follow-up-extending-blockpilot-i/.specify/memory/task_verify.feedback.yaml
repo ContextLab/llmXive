@@ -28,6 +28,10 @@ T005:
 T006:
   task: 0a351b50ce2fa089163fca613da9ae0e6c2d8472e64bbb550f158f3e8557c3de
 T007:
+  reason: The evidence includes `contracts/feature_vector.schema.yaml` and `contracts/ground_truth.schema.yaml`,
+    but the required schema files for `Prediction` and `ModelArtifact` (`contracts/prediction.schema.yaml`
+    and `contracts/model_artifact.schema.yaml`) are not present. These missing schema
+    files must be added to satisfy the task.
   task: 3c4327b453a902e2208a27e15584eb4c7424018c12ab425f52ff8e63aaf50a0b
 T008:
   task: f306862b8fa2305a309354591d95fb24af6a325c55999f00e34c21a63379b8a9

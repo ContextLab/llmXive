@@ -1,38 +1,13 @@
 """
-Epigenetic Drift Analysis Pipeline.
+Epigenetic Drift Analysis Pipeline — top-level package marker.
 
-This package provides tools for analyzing the role of epigenetic drift
-in adaptive landscape exploration across multi-generational datasets.
+This file makes the ``code/`` directory a Python package. It is kept
+intentionally free of eager imports so that importing ``code`` (or any
+of its subpackages) never triggers side effects or import-order
+failures in the pipeline entry points (e.g. ``python code/main.py``,
+which places ``code/`` itself on ``sys.path`` and imports modules such
+as ``config`` and ``analysis`` as top-level modules).
 """
 
 __version__ = "0.1.0"
 __author__ = "llmXive Research Team"
-
-# Import main components for convenient access
-from config import set_seed, get_env, get_env_int, get_env_float, ensure_directories
-from memory_monitor import (
-    get_memory_usage,
-    check_memory_usage,
-    cleanup_memory,
-    chunked_iter,
-    process_in_chunks,
-    reduce_dataframe_memory,
-    memory_profile,
-    enforce_memory_limit
-)
-
-__all__ = [
-    "set_seed",
-    "get_env",
-    "get_env_int",
-    "get_env_float",
-    "ensure_directories",
-    "get_memory_usage",
-    "check_memory_usage",
-    "cleanup_memory",
-    "chunked_iter",
-    "process_in_chunks",
-    "reduce_dataframe_memory",
-    "memory_profile",
-    "enforce_memory_limit"
-]

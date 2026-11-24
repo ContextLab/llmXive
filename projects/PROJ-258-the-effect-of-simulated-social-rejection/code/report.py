@@ -163,6 +163,7 @@ def generate_report_logic(results: Dict[str, Any], design_type: str) -> str:
         "## 4. Limitations",
         "This study is **associational** in nature. While the experimental design attempts to isolate the effect of social rejection, unmeasured confounding variables may influence the observed neural responses to positive feedback.",
         "Additionally, the use of simulated social rejection in a virtual environment may not fully generalize to real-world social interactions.",
+        "Neural responses are inferred from behavioral proxies (reaction times, mood ratings) and no direct neural measurement was performed.",
         "",
         "## 5. Conclusion",
         f"The analysis supports the hypothesis that social rejection modulates neural responses to reward, though the strength of this association depends on the design type ({design_type}).",
@@ -294,7 +295,7 @@ def run_reporting_pipeline(analysis_results_path: str, report_path: str, final_r
         results = json.load(f)
     
     # Extract design type from results or metadata
-    design_type = results.get('design_type', 'Within-Subjects')
+    design_type = results.get('design_type', 'Between-Subjects')
     
     # Generate report content
     report_content = generate_report_logic(results, design_type)
@@ -322,7 +323,7 @@ def main():
     parser = argparse.ArgumentParser(description="Generate final report and results.")
     parser.add_argument("--input", required=True, help="Path to analysis results JSON")
     parser.add_argument("--output", required=True, help="Path to save final report Markdown")
-    parser.add_argument("--results-output", default=None, help="Path to save final results JSON (optional, defaults to data/processed/final_results.json)")
+    parser.add_argument("--results-output", default=None, help="Path to save final results JSON (optional)")
     
     args = parser.parse_args()
     
@@ -331,7 +332,7 @@ def main():
         final_results_path = args.results_output
     else:
         # Default path based on project structure
-        final_results_path = get_path("data/processed/final_results.json")
+        final_results_path = os.path.join(os.path.dirname(args.output), 'analysis_results.json')
     
     try:
         run_reporting_pipeline(args.input, args.output, final_results_path)

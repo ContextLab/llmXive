@@ -3,86 +3,69 @@ field: physics
 submitter: google.gemma-3-27b-it
 ---
 
-# Exploring the Statistical Significance of Fine-Structure Constant Variations
+# Exploring the Statistical Significance of Fine-Structure Constant Variations  
 
-**Field**: physics
+**Field**: physics  
 
-## Research question
+## Research question  
 
-Do publicly available quasar absorption-line spectra provide statistically robust evidence for spatial or temporal variations in the fine-structure constant (α) after accounting for systematic uncertainties and selection biases?
+Do publicly available quasar absorption‑line spectra provide statistically robust evidence for spatial or temporal variations in the fine‑structure constant (α) after rigorously accounting for systematic uncertainties and selection biases?  
 
-## Motivation
+## Motivation  
 
-High-precision spectroscopic measurements have reported hints of α varying across the sky or with redshift, a result that would challenge the Standard Model and hint at new physics. However, these claims rely on heterogeneous data sets and ad-hoc error handling, leaving open the possibility that unmodeled systematics drive the signal. A rigorous, reproducible statistical re-analysis can either solidify the evidence for new physics or demonstrate that the variations are consistent with measurement noise.
+Hints of α varying across the sky or with redshift would challenge the Standard Model and suggest new physics. Prior claims rely on heterogeneous data sets and ad‑hoc error handling, leaving open the possibility that unmodelled systematics drive the signal. A reproducible, fully Bayesian re‑analysis of real quasar spectra can either solidify the evidence for new physics or demonstrate that the observed variations are consistent with measurement noise.  
 
-## Related work
+## Related work  
 
-- [Primordial nucleosynthesis with varying fundamental constants: Solutions to the Lithium problem and the Deuterium discrepancy (2021)](https://www.semanticscholar.org/paper/9c71617e0a9a8d8ebb5994a337d2a418657f0d26) — Shows how variations in α affect early-Universe observables, motivating independent astrophysical probes.
-- [Primordial nucleosynthesis with varying fundamental constants (2021)](https://doi.org/10.1051/0004-6361/202140725) — Provides a theoretical framework for linking α variations to cosmological parameters, useful for interpreting any detected trends.
-- [Engineering the sensitivity of macroscopic physical systems to variations in the fine-structure constant (2023)](http://arxiv.org/abs/2305.11264v1) — Discusses experimental designs and systematic error sources relevant to spectroscopic α measurements, informing our error-modeling strategy.
+- [Local and Global Variations of The Fine Structure Constant (2003)](https://arxiv.org/abs/astro-ph/0309273) — Introduces the BSBM varying‑α theory and provides a cosmological framework that motivates empirical searches for spatial/temporal α drift.  
+- [High‑precision limit on variation in the fine‑structure constant from a single quasar absorption system (2016)](https://arxiv.org/abs/1609.03860) — Shows the achievable precision on Δα/α from a well‑studied absorber (HE 0515‑4414), serving as a benchmark for pipeline accuracy.  
+- [Searching for new physics using high precision absorption spectroscopy; continuum placement uncertainties and Δα/α towards the quasar PHL957 (2024)](https://arxiv.org/abs/2410.00684) — Quantifies key systematic effects (continuum placement, wavelength‑calibration drift) that must be explicitly modelled in any robust α‑variation analysis.  
+- [Probing the variability of the fine‑structure constant with the VLT/UVES (2003)](https://arxiv.org/abs/astro-ph/0311280) — Provides a large‑sample VLT/UVES data set and an early methodological baseline; the spectra are publicly released for reuse.  
 
-## Expected results
+## Expected results  
 
-We anticipate obtaining posterior distributions for the fractional change Δα/α in multiple redshift bins and sightline groups derived **exclusively from observed spectral line positions**. A statistically significant deviation from zero (e.g., 95% credible interval excluding 0) would support the variation hypothesis; otherwise, the result will set upper limits comparable to or tighter than existing constraints. Model comparison via Bayes factors will quantify the evidence for a spatial/temporal trend versus a null model.
+The analysis will yield posterior distributions for the fractional change Δα/α in multiple redshift bins and for individual sightlines, derived exclusively from observed line wavelengths and laboratory reference values. A 95 % credible interval that excludes zero will constitute statistically significant evidence for variation; otherwise, the study will set tighter upper limits. Bayes factors will quantify support for (a) a constant α (null), (b) a linear redshift trend, and (c) a dipole spatial pattern.  
 
-## Methodology sketch
+## Methodology sketch  
 
-1.  **Data acquisition** – Download the publicly released UVES Large Programme quasar absorption spectra from the ESO Science Archive (`https://archive.eso.org/wdb/wdb/eso/uves/qso/`). This step retrieves **real observational data**, not simulations.
-2.  **Line-list extraction** – Use `astropy.io.fits` and `specutils` to identify metal-absorption lines (Fe II, Mg II, Si IV, etc.) and their **measured wavelengths** from the observed spectra.
-3.  **Laboratory reference compilation** – Retrieve laboratory transition frequencies from the NIST Atomic Spectra Database (`https://physics.nist.gov/PhysRefData/ASD/`).
-4.  **Systematic-error modeling** – Encode known sources (e.g., wavelength-calibration drift, intra-order distortions) as nuisance parameters with informative priors based on the engineering study (2023).
-5.  **Hierarchical Bayesian model** – Build a PyMC (v5) model:
-    *   Level 1: **Observed** line measurements → Δα/α per absorber with measurement error + systematics.
-    *   Level 2: Absorber-level Δα/α drawn from a redshift-dependent global trend (e.g., linear or dipole).
-    *   Hyper-parameters: trend slope, dipole amplitude, intrinsic scatter.
-6.  **Inference** – Run No-U-Turn Sampler (NUTS) with 2,000 warm-up and 4,000 posterior draws per chain (2 chains). This fits the model to the **real spectral data** to infer the posterior distribution of α variation.
-7.  **Model comparison** – Compute Bayes factors between the null (no variation) and alternative (trend/dipole) models using bridge sampling (`pymc3-bridge`).
-8.  **Cross-validation with large-scale structure** – Correlate the **inferred posterior Δα/α estimates** (derived from real spectra) with galaxy density fields from the SDSS DR12 public catalog (`https://data.sdss.org/sas/dr12/`). Perform a Spearman rank test to assess any spatial alignment.
-9.  **Robustness checks** – Re-run the analysis after: (a) removing the highest-redshift sightlines, (b) varying prior widths on systematic parameters, (c) bootstrapping absorbers.
-10. **Reporting** – Generate summary tables, corner plots (using `arviz`), and a concise manuscript-ready PDF via LaTeX compiled on the runner.
+- **Data acquisition** – Download the publicly released VLT/UVES quasar spectra cited in the 2003 VLT/UVES study (e.g., `https://archive.eso.org/wdb/wdb/eso/uves/qso/HE0515-4414.fits`) and additional spectra listed in the 2024 continuum‑placement paper.  
+- **Line‑list extraction** – Use `astropy.io.fits` and `specutils` to identify metal absorption lines (Fe II, Mg II, Si IV, etc.), recording observed wavelengths and statistical uncertainties.  
+- **Laboratory reference compilation** – Query the NIST Atomic Spectra Database (`https://physics.nist.gov/PhysRefData/ASD/`) via its REST API to obtain rest‑frame wavelengths and their uncertainties for each transition.  
+- **Systematic‑error modelling** – Encode known systematics (wavelength‑calibration drift, intra‑order distortions, continuum placement) as nuisance parameters with informative priors taken from the 2024 continuum‑placement study.  
+- **Hierarchical Bayesian model (PyMC v5)** –  
+  1. *Level 1*: For each absorber, relate observed line positions to a per‑absorber Δα/α, incorporating measurement error and the systematic nuisance terms.  
+  2. *Level 2*: Model the collection of per‑absorber Δα/α values under three competing global hypotheses: (a) constant α, (b) linear dependence on redshift, (c) dipole variation across the sky (amplitude + direction).  
+  3. Hyper‑parameters: trend slope, dipole amplitude/direction, intrinsic scatter.  
+- **Inference** – Run the No‑U‑Turn Sampler (NUTS) with 1 000 warm‑up draws and 2 000 posterior draws per chain (2 chains) to keep runtime < 30 min on a free‑tier runner. Diagnose convergence with R̂ ≈ 1 and effective sample size > 500.  
+- **Model comparison** – Estimate marginal likelihoods using bridge sampling (`pymc3-bridge`) and compute Bayes factors between the null and each alternative model.  
+- **Independent validation** – Correlate the posterior Δα/α estimates with an external large‑scale‑structure density field from SDSS DR12 (`https://data.sdss.org/sas/dr12/`) using a Spearman rank test; this validation target is independent of the spectroscopic measurements.  
+- **Robustness checks** – Repeat the full pipeline after: (a) removing the highest‑redshift absorbers, (b) widening systematic priors, (c) bootstrapping absorbers with replacement. Report how results change.  
+- **Reporting** – Generate tables of posterior summaries, corner plots with `arviz`, and a LaTeX manuscript compiled on the runner. All code, environment files, and data‑access scripts will be committed to the repository for full reproducibility.  
 
-All steps rely on publicly downloadable **real-world data** and pure-CPU Python packages, ensuring execution within the 6-hour GitHub Actions limit. No simulated or hardcoded values are used for the final research conclusions.
+## Duplicate-check  
 
-## Duplicate-check
-
-- Reviewed existing ideas: none.
-- Closest match: N/A.
+- Reviewed existing ideas: none.  
+- Closest match: N/A.  
 - Verdict: **NOT a duplicate**.
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-08-30T03:23:39Z
-**Outcome**: failed
+**Generated by**: librarian (prompt v1.6.0) on 2026-10-22T12:32:32Z
+**Outcome**: success_after_expansion
 **Original term**: Exploring the Statistical Significance of Fine-Structure Constant Variations physics
-**Verified citation count**: 0
+**Verified citation count**: 5
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Exploring the Statistical Significance of Fine-Structure Constant Variations physics | 0 |
-| 1 | temporal variation of the fine-structure constant | 0 |
-| 2 | spatial variation of alpha | 0 |
-| 3 | limits on fine-structure constant drift | 0 |
-| 4 | Oklo natural reactor constraints on alpha | 0 |
-| 5 | quasar absorption line constraints on alpha | 0 |
-| 6 | atomic clock tests of fundamental constant stability | 0 |
-| 7 | variation of fundamental constants cosmology | 0 |
-| 8 | statistical analysis of alpha variation data | 0 |
-| 9 | Einstein equivalence principle tests via alpha | 0 |
-| 10 | time-dependent fundamental constants | 0 |
-| 11 | spatial dipole in the fine-structure constant | 0 |
-| 12 | metrology of alpha stability | 0 |
-| 13 | constraints on varying coupling constants | 0 |
-| 14 | astrophysical bounds on alpha variation | 0 |
-| 15 | laboratory limits on fine-structure constant change | 0 |
-| 16 | variation of electromagnetic coupling strength | 0 |
-| 17 | cosmological evolution of fundamental constants | 0 |
-| 18 | null results in alpha variation searches | 0 |
-| 19 | Bayesian analysis of constant variation data | 0 |
-| 20 | unified field theories with varying constants | 0 |
+| 0 (initial) | Exploring the Statistical Significance of Fine-Structure Constant Variations physics | 5 |
 
 ### Verified citations
 
-(none)
+1. **Local and Global Variations of The Fine Structure Constant** (2003). D. F. Mota, J. D. Barrow. arXiv. [astro-ph/0309273](astro-ph/0309273). PDF-sampled: No.
+2. **High-precision limit on variation in the fine-structure constant from a single quasar absorption system** (2016). Srđan M. Kotuš, Michael T. Murphy, Robert F. Carswell. arXiv. [1609.03860](https://arxiv.org/abs/1609.03860). PDF-sampled: No.
+3. **Searching for new physics using high precision absorption spectroscopy; continuum placement uncertainties and $Δα/α$ towards the quasar PHL957** (2024). John K. Webb, Chung-Chi Lee, Dinko Milaković, Darren Dougan, Vladimir A. Dzuba, et al.. arXiv. [2410.00684](https://arxiv.org/abs/2410.00684). PDF-sampled: No.
+4. **Fine-tunings in radiative $α$-particle capture on $^{12}$C at astrophysical energies** (2026). Ulf-G. Meißner, Bernard Ch. Metsch, Helen Meyer. arXiv. [2601.11180](https://arxiv.org/abs/2601.11180). PDF-sampled: No.
+5. **Probing the variability of the fine-structure constant with the VLT/UVES** (2003). Ralf Quast, Dieter Reimers, Sergei A. Levshakov. arXiv. [astro-ph/0311280](astro-ph/0311280). PDF-sampled: No.

@@ -1,14 +1,18 @@
 status: none
-intent: synthetic multi-agent workflow dataset python package for policy graph generation
-  python package dataset
+intent: pm4py synthetic workflow policy graph generation python package dataset
 required_fields:
 - workflow_id
 - delegation_depth
 - policy_constraints
 - budget_cap
-- metadata
-- ground_truth_execution_log
-- policy_violations
-cache_key: 4a51d3eaab23547b7bd84acf63e4b3917374eee93a5dd86875a8fb340c57a5da
-searched_at: '2026-10-11T03:16:54.534729+00:00'
+- full_context_log
+- compressed_context_log
+- step_id
+- task_name
+- timestamp
+- policy_node_id
+- violation_flag
+- compression_error_metric
+cache_key: 12df0b704db6f01cfcb3b16b7a4944a5b63908a198288c7aae82202140a63dd9
+searched_at: '2026-11-04T06:09:45.099317+00:00'
 retry_count: 1

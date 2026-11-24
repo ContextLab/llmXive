@@ -31,7 +31,7 @@ properties:
     description: "The computed metric value."
   confidence_interval:
     type: "string"
-    description: "JSON string representing the 95% CI (e.g., '[0.1, 0.2]')."
+    description: "JSON string representing the 95% CI (e.g., \"[0.1, 0.2]\")."
 required:
   - metric_name
   - lead_time

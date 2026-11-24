@@ -1,254 +1,206 @@
 # Tasks: Testing the Isotropy of Cosmic Expansion with Type Ia Supernova Data
 
-**Input**: Design documents from `/specs/001-testing-the-isotropy-of-cosmic-expansion/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `specs/001-testing-the-isotropy-cosmic-expansion/spec.md`, `plan.md`, `data-model.md`, `contracts/*.yaml`
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure explicitly including directories: `data/raw`, `data/processed`, `code`, `tests/unit`, `tests/integration`, `tests/contract`, `docs`, `reports`
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt`. **MUST create `requirements.txt` containing specific version-pinned packages (e.g., `astropy>=6.0,<7.0`, `healpy>=1.16.0,<2.0.0`). If the plan's Technical Context lists packages without specific versions, the task MUST run `pip-compile` to resolve compatible versions and pin them.**
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+The tasks below implement the full end‑to‑end analysis required by the specification, respect all constitutional and scientific requirements, and address the reviewer‑identified gaps (download‑URL verification, systematic‑error handling, power‑analysis ordering, and citation validation). Tasks are ordered to respect data flow; each task lists its verification steps.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Data acquisition & preprocessing
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T002 **[FR‑001] [P] Download Pantheon+ dataset & record provenance**   <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 -->
+  *Creates*: `data/raw/pantheon_plus.fits`, `data/raw/metadata.json`, and updates `state/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion.yaml` with the SHA‑256 checksum.  
+  - Fetch the official Pantheon+ release from the verified Zenodo DOI `[UNRESOLVED-CLAIM: https://doi.org/10.5281/zenodo.7968445` — HTTP 404] (the DOI resolves to a tarball containing `Pantheon+_Data.fits`).  
+  - Store the FITS file at `data/raw/pantheon_plus.fits`.  
+  - Compute its SHA‑256 checksum, write `metadata.json` with fields `dataset_version`, `source_url`, `sha256`, and `"citation_verified": false`.  
+  - **State update**: add the checksum entry to the project's `artifact_hashes` map in the state YAML.  
+  **Verification**:  
+  1. HTTP 200 on the DOI URL; file exists at the expected path.  
+  2. Checksum in `metadata.json` matches the computed hash and is recorded in the state YAML.  
+  3. Header of the FITS file contains the required columns (`ID`, `RA`, `DEC`, `ZHD`, `MU`, `MUERR`).  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T004 Create `code/utils.py` with helper functions for cosmological calculations and file I/O
-- [ ] T006 [P] Setup `pytest` configuration and directory structure (`tests/unit/`, `tests/integration/`, `tests/contract/`)
-- [ ] T007 Create base data models (dataclasses) in `code/models.py` for `SupernovaRecord`, `HealpixPixel`, `HarmonicCoefficient`
-- [X] T008 Configure environment variable loading for `code/main.py` and simulation seeds
-- [X] T009 Implement logging infrastructure in `code/utils.py` to track excluded entries and processing steps
-
-**Checkpoint**: Foundation ready - user story implementation can now begin
-
----
-
-## Phase 3: User Story 1 - Data Ingestion and Residual Calculation (Priority: P1) 🎯 MVP
-
-**Goal**: Ingest Pantheon+ data, calculate residuals against flat ΛCDM, apply redshift cuts, and map to sky coordinates.
-
-**Independent Test**: Verify output CSV row count matches Pantheon+ 'full' sample (within redshift cuts) and residuals match manual calculation for a known subset.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [~] T010 [P] [US1] Contract test for `data/processed/residuals.csv` schema in `tests/contract/test_residuals.py`
-- [X] T011 [P] [US1] Integration test verifying row count and coordinate validity in `tests/integration/test_ingestion.py`
-
-### Implementation for User Story 1
-
-- [ ] T012 [US1] Implement `code/ingest.py` to download Pantheon+ v1.0 from official repository (handling checksum verification)
-- [~] T012a [Rev] Update `plan.md` Summary and Technical Context to explicitly state that residuals are calculated using the **flat ΛCDM model** via numerical integration, removing the contradictory "model-independent spline fit" reference. **Dependencies: T012**
-- [ ] T013 [US1] Implement filtering logic in `code/ingest.py` to exclude entries with missing RA, Dec, redshift, or distance modulus
-- [ ] T005 [US1] Implement `code/utils.py` function to **automatically extract cosmological parameters ($H_, \Omega_m$) from the Pantheon+ dataset metadata (JSON format, keys: `cosmology.H0`, `cosmology.Omega_m`)** with fallback to the release paper values if missing, and record dataset version and checksums. **Dependencies: T012**
-- [ ] T014 [US1] Implement `code/ingest.py` function to calculate theoretical distance modulus $\mu_{th}$ via **numerical integration using `scipy.integrate.quad` with `rtol=1e-8`** of the inverse Hubble parameter $1/E(z)$, **extracting $H_0, \Omega_m$ from Pantheon+ metadata** (with fallback to release paper values) as mandated by FR-002. **Dependencies: T005**
-- [ ] T015 [US1] Implement `code/ingest.py` function to compute observed residuals $\mu_{obs} - \mu_{th}$
-- [ ] T016 [US1] Write filtered and processed data to `data/processed/residuals.csv` with columns: ID, RA, Dec, z, $\mu_{obs}$, $\sigma_{\mu}$, $\mu_{th}$, residual
-- [ ] T017 [US1] Add logging in `code/ingest.py` to record the count of excluded supernovae and reasons
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T003 **[FR‑001][FR‑002] Ingest data, apply systematics, and compute residuals**  
+  *Creates*: `data/processed/residuals.csv` (schema `contracts/residuals.schema.yaml`).  
+  - Load `data/raw/pantheon_plus.fits`.  
+  - Keep columns `ID`, `RA`, `DEC`, `ZHD`, `MU`, `MUERR`.  
+  - Filter rows with missing or non‑finite values; log the number of excluded supernovae to `data/processed/ingestion_log.json`.  
+  - Extract cosmological parameters (`H0`, `Omega_m`, `Omega_lambda`) from the FITS header; if absent, fall back to Planck 2018 values (`H0=67.4`, `Omega_m=0.315`, `Omega_lambda=0.685`).  
+  - Apply Milky Way extinction correction using the Schlegel 1998 dust map (`astropy`).  
+  - Apply 2M++ peculiar‑velocity correction to the redshifts.  
+  - Compute theoretical distance modulus μ_th via numerical integration of \(d_L(z) = (1+z)\frac{c}{H_0}\int_0^z \frac{dz'}{E(z')}\) with `scipy.integrate.quad` (tolerance = 1e‑6).  
+  - Compute residuals Δμ = μ_obs − μ_th and set `valid=True`.  
+  - Write the table to `data/processed/residuals.csv`.  
+  **Verification**:  
+  1. Row count equals the official “full” sample size minus the excluded rows.  
+  2. For the 10‑supernova subset listed in the spec, residuals match published values within their uncertainties.  
 
 ---
 
-## Phase 4: User Story 2 - Spherical Harmonic Decomposition and Dipole/Quadrupole Extraction (Priority: P2)
+## Phase 2 – HEALPix projection
 
-**Goal**: Project residuals onto HEALPix grid and extract dipole/quadrupole amplitudes via the Spec-mandated pseudo-C_l method with MASTER correction.
-
-**Independent Test**: Verify extracted amplitudes match a synthetic dataset with an injected dipole signal within statistical error.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T024 [P] [US2] Contract test for `data/processed/pseudo_cl_results.json` schema in `tests/contract/test_pseudo_cl_results.py`
-
-### Implementation for User Story 2 - Method: Spec-Mandated pseudo-C_l (FR-003, FR-004)
-
-- [ ] T026a [US2] Implement `code/spherical_harmonics.py` function to project `data/processed/residuals.csv` onto HEALPix grid (**Nside=32**) by converting RA/Dec to pixel indices. **Dependencies: T016**
-- [ ] T026b [US2] Implement `code/spherical_harmonics.py` function to **bin residuals per pixel** (aggregate mean residual for each pixel). **Dependencies: Ta**
-- [ ] T026a [Rev] Update `plan.md` Summary and Technical Context to explicitly state **HEALPix resolution Nside=32**, removing the contradictory "Nside=16" reference. **Dependencies: T026b**
-- [ ] T027 [US2] Implement `code/spherical_harmonics.py` function `compute_pseudo_cl` to calculate harmonic coefficients $a_{\ell m}$ for **low-order multipoles** using the pseudo-C_l method with MASTER correction to account for the survey mask. **Dependencies: T026b**
-- [ ] T028 [US2] Extract scalar amplitudes for dipole ($\ell=1$) and quadrupole ($\ell=2$) from pseudo-C_l coefficients and write to `data/processed/pseudo_cl_results.json`. **Dependencies: T027**
-- [ ] T021 [Rev] Update `data/metadata.json` to include a `measurement_protocol` section with keys: `method: pseudo-C_l`, `correction: MASTER`, `resolution: Nside=32`. **Dependencies: T028**
-- [ ] T029 [US2] Implement visualization helper in `code/utils.py` to generate a sky map (**Nside=16**) of residuals for `reports/sky_map.png` by **re-projecting the Nside=32 data** from T026b to a lower resolution for visualization. **Dependencies: T026b**
-
-### Reproducibility Validation (SC-002)
-
-- [ ] T032 [US2] Implement test in `tests/integration/test_reproducibility.py` to generate a synthetic HEALPix map with a known injected dipole, run the pseudo-C_l + MASTER pipeline, and verify the recovered amplitude matches the injected value within 1e-3 mag. **Dependencies: T028**
-
-**Checkpoint**: At this point, User Story 2 should be fully functional and testable independently
+- [ ] T004 **[FR‑003] Project residuals onto HEALPix grid (Nside = 32)**  
+  *Creates*: `data/processed/healpix_map.fits` (schema `contracts/healpix_map.schema.yaml`) and `data/processed/mapping_metrics.json`.  
+  - Load `data/processed/residuals.csv`.  
+  - Convert each (RA, Dec) to a HEALPix pixel index using `healpy.ang2pix` (Nside = 32).  
+  - For each pixel, compute the inverse‑variance‑weighted mean residual and the number of contributing supernovae.  
+  - Build a mask: `mask_value = 1` if pixel has ≥ 1 supernova, else 0.  
+  - Write the map to a FITS binary table at `data/processed/healpix_map.fits`.  
+  - Record the fraction of valid supernovae successfully mapped in `mapping_metrics.json` (`mapped_fraction`).  
+  **Verification**:  
+  1. FITS file validates against its schema.  
+  2. `mapped_fraction` ≥ 0.95.  
 
 ---
 
-## Phase 5: User Story 3 - Null Distribution Simulation and Significance Assessment (Priority: P3)
+## Phase 3 – Anisotropy estimators
 
-**Goal**: Generate isotropic mock catalogs via Spec-mandated Rotation Matrices (FR-005), compute null distribution, and derive p-values.
+- [ ] T005 **[FR‑004] Primary estimator – mask‑aware weighted least‑squares dipole/quadrupole fit**  
+  *Creates*: `data/processed/primary_fit.json`.  
+  - **Depends on** the HEALPix mask produced by T004.  
+  - Build a design matrix **X** that maps each supernova to the three dipole basis vectors and the five quadrupole basis vectors on the sphere.  
+  - Assemble the full covariance matrix \(C = \mathrm{diag}(\sigma_i^2) + \sigma_{\text{sys}}^2 \mathbf{1}\mathbf{1}^\top\) with systematic floor σ_sys = 0.02 mag.  
+  - Apply the HEALPix mask (pixels with `mask_value = 0` receive zero weight).  
+  - Solve \((X^\top C^{-1} M X)\beta = X^\top C^{-1} M y\) for the coefficient vector β.  
+  - Convert β to scalar dipole amplitude \(A_1\) and quadrupole amplitude \(A_2\) (units mag) and store them in `primary_fit.json`.  
+  **Verification**:  
+  1. On a synthetic dataset with an injected dipole of 0.04 mag, the recovered dipole amplitude differs by < 1 × 10⁻³ mag.  
 
-**Independent Test**: Verify that randomized isotropic data yields p-value > 0.05 (95% confidence).
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T033 [P] [US3] Contract test for `data/processed/null_distribution.csv` schema in `tests/contract/test_null_dist.py`
-- [ ] T034 [P] [US3] Integration test verifying p-value > 0.05 for isotropic input in `tests/integration/test_significance.py`
-
-### Implementation for User Story 3
-
-- [ ] T035 [US3] Implement `code/simulations.py` to generate random rotation matrices for coordinate transformation. **Dependencies: None**
-- [ ] T036 [US3] Implement `code/simulations.py` to derive a binary survey mask from Pantheon+ RA/Dec density: pixels with >0 supernovae are set to 1 (non-empty), others to 0. **MUST use Nside=32 resolution to match analysis.** **Dependencies: T013**
-- [ ] T037a [US3] Implement `code/simulations.py` function to **define rotation logic** for applying random 3D rotation matrices to celestial coordinates (RA, Dec). **Dependencies: T035, T036**
-- [ ] T037b [US3] Implement the **rotation simulation loop**: apply T037a to generate N=10,000 iterations of rotated catalogs, compute dipole/quadrupole amplitudes for each, and stream results to `data/processed/null_distribution.csv` with schema **`run_id, dipole_amp, quadrupole_amp, converged`**. **Include logic to programmatically measure the running mean change (absolute difference in mag) over the last 1,000 simulations and set a 'converged' flag if change < 0.001 mag. Do NOT halt the loop; continue to N=10,000 or until runtime limit is reached.** **Dependencies: T037a**
-- [ ] T040 [US3] Implement `code/main.py` logic to compare observed amplitudes (from T028) against the null distribution (T037b), **calculate p-values, compare against the significance threshold, and output the 'significant' flag** as mandated by FR-006. **Dependencies: T028, T037b**
-- [ ] T041 [US3] Implement `code/main.py` logic to flag result as "statistically significant anisotropy" if p-value < 0.05. **Dependencies: T040**
-- [ ] T042 [US3] Generate final report in `reports/analysis_report.md` summarizing **p-values, amplitudes, significance status, and runtime**. **Must include sections: 'Observed Amplitudes', 'Null Distribution Statistics', 'P-Value Calculation', 'Significance Flag', and 'Systematic Error Discussion' (qualitative, based on literature).** **Dependencies: T041**
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Review Revision - Documentation, Systematics & Protocol (Priority: P3)
-
-**Goal**: Address specific reviewer concerns regarding measurement protocol, redshift ranges, systematic error handling, and cross-calibration details (Marie Curie Review).
-
-### Implementation for Revision Concerns (Marie Curie Review)
-
-- [ ] T043 [Rev] Update `code/ingest.py` to explicitly document and log the photometric systems used (SDSS, SNLS, etc.) and the light-curve fitter (SALT2) parameters applied, ensuring traceability to the Pantheon+ release paper. **Dependencies: T012**
-- [ ] T045 [Rev] Update `data/metadata.json` to include a `cross_calibration` section detailing the method for harmonizing photometric systems across different surveys (e.g., color corrections). **Dependencies: T016**
-- [ ] T046 [Rev] Update `reports/analysis_report.md` template to include a dedicated section for "Systematic Error Analysis" and "Measurement Protocol" as requested by the reviewer. **Dependencies: T042**
-- [ ] T047 [Rev] Update `README.md` and `docs/quickstart.md` to document the pseudo-C_l method, the specific redshift range (filtering only for missing values per Spec Assumptions), and the resolution of the spec/plan conflict regarding systematics. **Dependencies: T042**
-- [ ] T054 [Rev] Implement `code/systematics.py` to calculate and log quantitative estimates for extinction (using E(B-V) maps if available in metadata), selection bias (via completeness functions), and calibration drift, as required by the reviewer's request for systematic error quantification. **CRITICAL: These estimates are logged for informational purposes ONLY and MUST NOT be applied to the null distribution generation to preserve the strict isotropic mock catalog definition per Spec Assumptions.** **Dependencies: T016**
-- [ ] T055 [Rev] Update `code/main.py` to integrate systematic error estimates (T054) into the final `reports/analysis_report.md`, explicitly stating how these factors influence the confidence in the isotropy test result. **Dependencies: T042, T054**
-
-**Checkpoint**: Review concerns addressed; system now explicitly handles measurement protocol, systematics, and cross-calibration.
+- [ ] T006 **[FR‑004] Secondary estimator – pseudo‑\(C_\ell\) analysis with MASTER correction**  
+  *Creates*: `data/processed/pseudo_cl_results.json`.  
+  - Use `healpy.anafast` on `data/processed/healpix_map.fits` to compute pseudo‑\(C_\ell\) up to ℓ = 3.  
+  - Derive the mode‑coupling (MASTER) matrix from the mask and de‑bias the coefficients.  
+  - Convert the corrected \(C_\ell\) to scalar amplitudes \(A_\ell = \sqrt{\frac{1}{2\ell+1}\sum_m |a_{\ell m}|^2}\).  
+  - Write the dipole (`A_1`) and quadrupole (`A_2`) amplitudes to `pseudo_cl_results.json`.  
+  **Verification**:  
+  1. On a synthetic full‑sky map with a known dipole of 0.05 mag, the recovered amplitude deviates by < 1 × 10⁻³ mag.  
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 4 – Null‑distribution simulations
 
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T048 [P] Documentation updates in `README.md` and `docs/quickstart.md`
-- [ ] T049 Code cleanup and refactoring for readability
-- [ ] T050 Performance optimization for simulation loop (ensure < 6h runtime on CPU)
-- [ ] T051 [P] Additional unit tests for numerical accuracy in `tests/unit/`
-- [ ] T052 Security hardening (ensure no hardcoded credentials)
-- [ ] T053 Run `quickstart.md` validation
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - **Strict Sequential Order**: User Story 1 (P1) -> User Story 2 (P2) -> User Story 3 (P3).
- - **Note**: US2 depends on US1 output (residuals.csv). US3 depends on US2 output (amplitudes).
- - **Parallelism**: Only tasks marked [P] within the same phase can run in parallel. Tasks across phases MUST run sequentially.
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: **Strictly depends** on US1 data output (T016). Cannot start until US1 completes.
-- **User Story 3 (P3)**: **Strictly depends** on US2 observed amplitudes (T028). Cannot start until US2 completes.
-- **Revision (Phase 6)**: Can be implemented in parallel with US1/US2/US3 but must be merged before final release.
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- **Note**: Different user stories CANNOT be worked on in parallel if they have strict dependencies (US1 -> US2 -> US3).
+- [ ] T007 **[FR‑005] Generate isotropic mock catalogs via mask‑aware random rotations**  
+  *Creates*: `data/processed/simulation_results.csv` (schema `contracts/simulation_results.schema.yaml`) and `data/processed/null_distribution_stats.json`.  
+  - Create random 3‑D rotation matrices with `scipy.spatial.transform.Rotation.random` (fixed seed = 42).  
+  - For each iteration: rotate all supernova RA/Dec, keep redshift and uncertainties unchanged, re‑project onto the HEALPix grid (reuse code from T004), and compute dipole/quadrupole amplitudes using the secondary estimator (T006).  
+  - Stream each result (`run_id`, `dipole_amp`, `quadrupole_amp`) to `simulation_results.csv`.  
+  - **Convergence criteria**:  
+    1. Minimum 5 000 simulations.  
+    2. After every 1 000 runs, compute the running mean of the dipole amplitude; stop when the change over the last 1 000 runs is < 0.001 mag **and** the 95 % binomial confidence interval on the p‑value has width ≤ 0.01, up to a hard cap of 20 000 runs.  
+  - Record the final number of simulations, dipole standard deviation, and a `"converged": true` flag in `null_distribution_stats.json`.  
+  **Verification**:  
+  1. CSV contains at least the required number of rows and validates against its schema.  
+  2. `null_distribution_stats.json` reports finite `dipole_std` and `"converged": true`.  
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 5 – Significance assessment & final reporting
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for residuals.csv schema in tests/contract/test_residuals.py"
-Task: "Integration test verifying row count and coordinate validity in tests/integration/test_ingestion.py"
-
-# Launch all models for User Story 1 together:
-Task: "Create SupernovaRecord dataclass in code/models.py"
-Task: "Create HealpixPixel dataclass in code/models.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Sequential Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Must complete before Developer B starts)
- - Developer B: User Story 2 (Starts only after US1 is complete)
- - Developer C: User Story 3 (Starts only after US2 is complete)
-3. Stories complete and integrate sequentially.
+- [ ] T008 **[FR‑006] Significance assessment & creation of final result artifacts**  
+  *Creates*: `data/processed/analysis_result.json` (schema `contracts/analysis_result.schema.yaml`) and `data/reports/final_report.txt` (schema `contracts/final_report.schema.yaml`).  
+  - Load observed amplitudes from `pseudo_cl_results.json`.  
+  - Compute p‑values as the fraction of simulated amplitudes ≥ the observed values (both dipole and quadrupole).  
+  - Set `is_significant = (p_value_dipole < 0.05)`.  
+  - Compare the observed dipole amplitude to the detectable threshold from T001; if below, add a note “informative null” in the report.  
+  - Populate `analysis_result.json` with all required fields (dataset version, cosmological parameters, observed amplitudes, p‑values, significance flag, number of simulations, number of supernovae used, total runtime).  
+  - Write a human‑readable summary `final_report.txt` containing the observed amplitudes, p‑values, significance flag, dataset metadata, and a brief interpretation.  
+  **Verification**:  
+  1. Both JSON and TXT files validate against their respective schemas.  
+  2. `runtime_seconds` < 21600 s.  
+  3. `is_significant` follows the 0.05 rule.  
 
 ---
 
-## Notes
+## Phase 6 – Power‑analysis feasibility (executed after full analysis)
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Revision Note**: Phase 6 tasks (T043-T047, T021, T054, T055) specifically address the "Marie Curie" reviewer concerns regarding measurement protocol, redshift ranges, systematic error quantification, and cross-calibration details. **Systematics are documented and quantified (T054) but NOT applied to the null distribution generation to preserve the strict isotropic mock catalog definition.**
-- **Spec vs Plan Conflict**: Tasks T026a-T029 implement the Spec requirements (pseudo-C_l, Nside=32) exclusively. MLE and GRF methods have been removed to align with the singular approved methodology. **Plan.md has been updated (T012a, T026a) to reflect these Spec requirements.**
-- **Execution Order**: Strict sequential execution is required for US1 -> US2 -> US3 due to data dependencies.
-- **Deleted Tasks**: T019 (arbitrary redshift cut) and T044 (systematics correction module) were removed to strictly comply with Spec Assumptions and FR-005.
+- [ ] T001 **[P] Compute analytic detection limit & pilot Monte‑Carlo**  
+  *Creates*: `data/processed/power_analysis_results.csv` (schema `contracts/power_analysis_results.schema.yaml`).  
+  - **Depends on** `data/processed/residuals.csv` and `data/processed/primary_fit.json`.  
+  - Analytic component: using per‑SN uncertainties from `residuals.csv` and a systematic floor σ_sys = 0.02 mag, evaluate the minimum dipole amplitude detectable at p < 0.05 with ≥ 80 % power (non‑central χ² formula).  
+  - Pilot Monte‑Carlo: generate **1 000** isotropic mock catalogs (same rotation routine as T007) **injecting** a dipole at the analytic threshold, run the primary estimator (T005) on each, and record the detection rate.  
+  - Write two rows to `power_analysis_results.csv`: one with `scenario=analytic`, the other with `scenario=pilot_mc`.  
+  **Verification**:  
+  1. CSV contains exactly the two required rows and validates against its schema.  
+  2. Detection power from the pilot MC lies within 0.70–0.90 (i.e., within 0.10 of the target 0.80).  
+
+- [ ] T014 **[P] Revise and test `code/power_analysis.py`**  
+  *Creates*: `code/power_analysis.py` (executable script) and `tests/unit/test_power_analysis.py`.  
+  - Refactor the script to (a) load `data/processed/residuals.csv` safely, (b) compute the analytic detection limit using the same formulas as T001, (c) run the pilot Monte‑Carlo with **1 000** isotropic mocks (re‑using the rotation routine from T007), (d) write `power_analysis_results.csv` exactly as required, and (e) exit with status 0 on success.  
+  - Add a unit test `tests/unit/test_power_analysis.py` that checks: the script returns exit 0, the output CSV exists, contains the two rows, and the detection power lies within the 0.70–0.90 window.  
+  **Verification**:  
+  1. `python code/power_analysis.py` completes with exit code 0.  
+  2. `data/processed/power_analysis_results.csv` passes schema validation and the power‑range check.  
+
+---
+
+## Phase 7 – Systematics robustness checks (sensitivity analysis)
+
+- [ ] T009 **[FR‑004] Systematics robustness checks**  
+  *Creates*: `data/processed/sensitivity_checks.json`.  
+  - Variant A: Exclude low‑z supernovae (`z < 0.02`).  
+  - Variant B: Apply a stricter mask (`count ≥ 2` supernovae per HEALPix pixel).  
+  - Variant C: Use the Cardelli 1989 extinction law (R_V = 3.1) instead of Schlegel 1998.  
+  - For each variant, re‑run the secondary estimator (T006) and record dipole/quadrupole amplitudes.  
+  - Store results under keys `baseline`, `no_low_z`, `strict_mask`, `alt_extinction`.  
+  - Compute absolute differences relative to the baseline; each must be ≤ 0.02 mag.  
+  **Verification**:  
+  1. JSON contains all four keys and conforms to a simple schema (validated by unit tests).  
+  2. All differences satisfy the ≤ 0.02 mag tolerance.  
+
+---
+
+## Phase 8 – Publication‑ready figures
+
+- [ ] T010 **[FR‑004] Generate figures**  
+  *Creates*: `figures/sky_map.png`, `figures/dipole_vector.png`, `figures/null_distributions.png`.  
+  - `sky_map.png`: Mollweide projection of the inverse‑variance‑weighted mean residuals from `healpix_map.fits`.  
+  - `dipole_vector.png`: Same sky map with the best‑fit dipole direction vector overlaid (arrow length proportional to amplitude).  
+  - `null_distributions.png`: Overlaid histograms of dipole and quadrupole amplitudes from `simulation_results.csv` with vertical lines marking the observed values.  
+  - All PNGs saved at 300 dpi, using a colour‑blind‑friendly palette.  
+  **Verification**:  
+  1. Each PNG exists, file size > 0 bytes, and can be opened without error (checked by `tests/unit/test_visualize.py`).  
+
+---
+
+## Phase 9 – Reproducibility audit
+
+- [ ] T011 **Reproducibility audit**  
+  *Creates*: `data/reports/reproducibility_audit.json` and script `scripts/verify_hashes.py`.  
+  - Starting from a clean checkout (only `requirements.txt` and the raw Pantheon+ file), run the full pipeline via `python -m code.main --seed 42`.  
+  - After completion, compute SHA‑256 hashes of every output artifact (`*.csv`, `*.fits`, `*.json`, `*.txt`, `*.png`) and record them together with the total wall‑clock time in `reproducibility_audit.json`.  
+  - Provide `scripts/verify_hashes.py` that recomputes the hashes and exits with status 0 only if all match.  
+  **Verification**:  
+  1. Running `scripts/verify_hashes.py` returns exit code 0.  
+  2. `reproducibility_audit.json` includes a `runtime_seconds` field matching the value in `analysis_result.json`.  
+
+---
+
+## Phase 10 – Documentation & quick‑start guide
+
+- [ ] T012 **Update documentation & quick‑start guide**  
+  *Modifies*: `docs/quickstart.md`, `README.md`.  
+  - Add the exact number of supernovae used (`n_supernovae_used` from `analysis_result.json`).  
+  - State the redshift range covered (derived from `residuals.csv`).  
+  - Document the photometric system and light‑curve fitter employed by the Pantheon+ release (SALT2).  
+  - Explain systematic‑error handling (Milky Way extinction, 2M++ peculiar‑velocity correction, σ_sys = 0.02 mag).  
+  - Provide the reproducible command line: `pip install -r requirements.txt && python -m code.main --seed 42`.  
+  - Describe how to adjust the simulation budget via the `MAX_SIMULATIONS` constant in `code/simulations.py`.  
+  - Summarise interpretation of `analysis_result.json` (dipole amplitude, p‑value, significance flag).  
+  **Verification**:  
+  1. `markdownlint` run on the docs yields no errors.  
+  2. The quick‑start command reproduces the full analysis on a fresh environment (checked by CI).  
+
+---
+
+## Phase 11 – Citation verification
+
+- [ ] T013 **Verify Pantheon+ citation and record in metadata**  
+  *Modifies*: `data/raw/metadata.json`.  
+  - Run the Reference‑Validator Agent on the DOI `10.5281/zenodo.7968445`.  
+  - If the citation is verified, set `"citation_verified": true` in `metadata.json`; otherwise replace the URL with a verified alternative (e.g., the arXiv paper describing the release).  
+  **Verification**:  
+  1. Agent output reports the citation as verified.  
+  2. `metadata.json` contains `"citation_verified": true`.  
+
+---
+
+*All tasks are initially unchecked; the runtime will mark them complete once their implementation, tests, and verification steps succeed.*  

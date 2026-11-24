@@ -1,97 +1,63 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Evaluation Result Schema"
-description: "Schema for the output of the evaluation pipeline, including statistical tests."
+title: "EvaluationResult (McNemar)"
+description: "Schema for the evaluation results using a paired McNemar test."
 type: "object"
 properties:
   metrics:
     type: "object"
     properties:
-      success_rate:
+      success_rate_distilled:
         type: "number"
         minimum: 0
         maximum: 1
-      step_efficiency:
-        type: "number"
-        description: "Average steps per task."
+      baseline_metrics:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+            success_rate:
+              type: "number"
+              minimum: 0
+              maximum: 1
+            step_efficiency:
+              type: "number"
+          required:
+            - name
+            - success_rate
+            - step_efficiency
     required:
-      - "success_rate"
-      - "step_efficiency"
+      - success_rate_distilled
+      - baseline_metrics
   statistical_test:
     type: "object"
     properties:
-      test_name:
+      test_type:
         type: "string"
-        const: "McNemar's Test"
-      contingency_table:
-        type: "object"
-        properties:
-          a:
-            type: "integer"
-            description: "Both Success"
-          b:
-            type: "integer"
-            description: "Distilled Success, Baseline Fail"
-          c:
-            type: "integer"
-            description: "Distilled Fail, Baseline Success"
-          d:
-            type: "integer"
-            description: "Both Fail"
-        required:
-          - "a"
-          - "b"
-          - "c"
-          - "d"
+        const: "mcnemar"
+      chi2:
+        type: "number"
+        description: "McNemar chi‑square statistic"
       p_value:
         type: "number"
-        minimum: 0
-        maximum: 1
+        description: "Two‑tailed p‑value"
+      corrected_p_value:
+        type: "number"
+        description: "Bonferroni‑adjusted p‑value"
       significant:
         type: "boolean"
-        description: "p < 0.05 (one-tailed derived)"
-    required:
-      - "test_name"
-      - "contingency_table"
-      - "p_value"
-      - "significant"
-  power_analysis:
-    type: "object"
-    properties:
-      required_n:
-        type: "integer"
-      achieved_n:
-        type: "integer"
-      achieved_power:
+      effect_size_odds_ratio:
         type: "number"
-        description: "Calculated power for achieved N."
-      p0_source:
-        type: "string"
-        description: "Source of baseline rate estimate."
+        description: "Odds‑ratio effect size"
     required:
-      - "required_n"
-      - "achieved_n"
-      - "achieved_power"
-      - "p0_source"
-  sensitivity_report:
-    type: "object"
-    properties:
-      thresholds:
-        type: "array"
-        items:
-          type: "number"
-      success_rates:
-        type: "array"
-        items:
-          type: "number"
-      variance:
-        type: "number"
-    required:
-      - "thresholds"
-      - "success_rates"
-      - "variance"
+      - test_type
+      - chi2
+      - p_value
+      - corrected_p_value
+      - significant
+      - effect_size_odds_ratio
 required:
-  - "metrics"
-  - "statistical_test"
-  - "power_analysis"
-  - "sensitivity_report"
+  - metrics
+  - statistical_test
 additionalProperties: false

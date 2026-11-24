@@ -49,30 +49,26 @@ class RunnerConfig:
     memory_limit: float = 7000.0  # MB
     timeout: int = 21600  # seconds
     model_path: str = ""
-    
-    # Additional attributes for compatibility with logging_config
+
+    # Compatibility methods for logging‑style calls
     def info(self, *args, **kwargs):
-        """No-op for logging compatibility."""
+        """No‑op for compatibility with logging‑style interfaces."""
         pass
 
     def debug(self, *args, **kwargs):
-        """No-op for logging compatibility."""
         pass
 
     def warning(self, *args, **kwargs):
-        """No-op for logging compatibility."""
         pass
 
     def error(self, *args, **kwargs):
-        """No-op for logging compatibility."""
         pass
 
     def critical(self, *args, **kwargs):
-        """No-op for logging compatibility."""
         pass
 
     def __getattr__(self, name):
-        """Permissive fallback for any unknown logger-style attributes."""
+        """Fallback for any other unknown attributes – return a no‑op callable."""
         def _noop(*args, **kwargs):
             return None
         return _noop
@@ -92,54 +88,72 @@ class PipelineConfigWrapper:
     def __init__(self, config: Optional[PipelineConfig] = None):
         self.config = config or PipelineConfig()
 
-def load_config(config_path: str = "code/utils/config.yaml") -> PipelineConfig:
-    """Load configuration from YAML file."""
+def _load_pipeline_config(config_path: str = "code/utils/config.yaml") -> PipelineConfig:
+    """
+    Internal helper that loads a full ``PipelineConfig`` dataclass instance
+    from a YAML file.  This is used by internal code that needs the richer
+    object representation.
+    """
     path = Path(config_path)
     if not path.exists():
-        # Return default config
+        # Return a default configuration when the file is missing.
         return PipelineConfig()
-    
+
     with open(path, 'r') as f:
-        data = yaml.safe_load(f)
-    
+        data = yaml.safe_load(f) or {}
+
     config = PipelineConfig()
+
     if 'model' in data:
-        # Map schema keys to dataclass keys
         model_data = data['model']
         config.model = ModelConfig(
             model_path=model_data.get('path', model_data.get('model_path', "")),
             quantization=model_data.get('quantization', "Q4_K_M"),
-            context_window=model_data.get('max_context_length', model_data.get('context_window', 4096)),
+            context_window=model_data.get('max_context_length',
+                                          model_data.get('context_window', 4096)),
             max_tokens=model_data.get('max_tokens', 512)
         )
+
     if 'checkpoint' in data:
         ckpt_data = data['checkpoint']
         config.checkpoint = CheckpointConfig(
-            interval=ckpt_data.get('interval_n', ckpt_data.get('interval', 3)),
-            compression=ckpt_data.get('compression_method', ckpt_data.get('compression', "truncation")),
+            interval=ckpt_data.get('interval_n',
+                                   ckpt_data.get('interval', 3)),
+            compression=ckpt_data.get('compression_method',
+                                      ckpt_data.get('compression', "truncation")),
             max_size=ckpt_data.get('max_size', 1024)
         )
+
     if 'logging' in data:
         log_data = data['logging']
         config.logging = LoggingConfig(
             level=log_data.get('level', "INFO"),
             file=log_data.get('file'),
-            format=log_data.get('format', "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            format=log_data.get('format',
+                                "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         )
+
     if 'data_paths' in data:
         paths_data = data['data_paths']
         config.paths = DataPathsConfig(
             raw_data=paths_data.get('raw', paths_data.get('raw_data', "data/raw")),
-            processed_data=paths_data.get('processed', paths_data.get('processed_data', "data/processed")),
+            processed_data=paths_data.get('processed',
+                                          paths_data.get('processed_data',
+                                                         "data/processed")),
             figures=paths_data.get('figures', "figures")
         )
+
     if 'normalization' in data:
         norm_data = data['normalization']
         config.normalization = NormalizationConfig(
-            tolerance=norm_data.get('float_tolerance', norm_data.get('tolerance', 1e-6)),
-            strip_timestamps=norm_data.get('timestamp_stripping', norm_data.get('strip_timestamps', True)),
-            canonicalize_ids=norm_data.get('id_canonicalization', norm_data.get('canonicalize_ids', True))
+            tolerance=norm_data.get('float_tolerance',
+                                    norm_data.get('tolerance', 1e-6)),
+            strip_timestamps=norm_data.get('timestamp_stripping',
+                                           norm_data.get('strip_timestamps', True)),
+            canonicalize_ids=norm_data.get('id_canonicalization',
+                                          norm_data.get('canonicalize_ids', True))
         )
+
     if 'stats' in data:
         stats_data = data['stats']
         config.stats = StatsConfig(
@@ -147,16 +161,55 @@ def load_config(config_path: str = "code/utils/config.yaml") -> PipelineConfig:
             alpha=stats_data.get('alpha', 0.05),
             correction=stats_data.get('correction', "bonferroni")
         )
+
     if 'runner' in data:
         runner_data = data['runner']
         config.runner = RunnerConfig(
             checkpoint_interval=runner_data.get('checkpoint_interval', 0),
-            memory_limit=runner_data.get('max_memory_gb', runner_data.get('memory_limit', 7)) * 1000,
-            timeout=runner_data.get('timeout_hours', runner_data.get('timeout', 6)) * 3600,
+            memory_limit=runner_data.get('max_memory_gb',
+                                         runner_data.get('memory_limit', 7)) * 1000,
+            timeout=runner_data.get('timeout_hours',
+                                    runner_data.get('timeout', 6)) * 3600,
             model_path=runner_data.get('model_path', "")
         )
-    
+
     return config
+
+def load_config(config_path: str = "code/utils/config.yaml") -> Dict[str, Any]:
+    """
+    Public configuration loader used by the test suite.
+
+    The test expects a *plain* ``dict`` containing at least the keys
+    ``model_path`` and ``checkpoint_interval``.  This wrapper loads the
+    full ``PipelineConfig`` (via :func:`_load_pipeline_config`) and then
+    extracts the two required entries into a simple dictionary.
+
+    Parameters
+    ----------
+    config_path: str
+        Path to the YAML configuration file.  If the file does not exist,
+        defaults are used.
+
+    Returns
+    -------
+    dict
+        ``{'model_path': <str>, 'checkpoint_interval': <int>}``
+    """
+    pipeline_cfg = _load_pipeline_config(config_path)
+
+    # Extract the two primary keys required by the tests.
+    simple_cfg = {
+        "model_path": pipeline_cfg.model.model_path,
+        "checkpoint_interval": pipeline_cfg.checkpoint.interval
+    }
+    return simple_cfg
+
+def load_pipeline_config(config_path: str = "code/utils/config.yaml") -> PipelineConfig:
+    """
+    Load the full ``PipelineConfig`` dataclass.  This function is used by
+    production code that needs the richer configuration object.
+    """
+    return _load_pipeline_config(config_path)
 
 def validate_config(config: PipelineConfig) -> bool:
     """Validate configuration values."""
@@ -169,9 +222,9 @@ def validate_config(config: PipelineConfig) -> bool:
     return True
 
 def main():
-    """Main entry point for config module."""
-    config = load_config()
-    print(f"Loaded config: {config}")
+    """Main entry point for the config module (debug helper)."""
+    cfg = load_pipeline_config()
+    print(f"Loaded full pipeline config: {cfg}")
 
 if __name__ == "__main__":
     main()

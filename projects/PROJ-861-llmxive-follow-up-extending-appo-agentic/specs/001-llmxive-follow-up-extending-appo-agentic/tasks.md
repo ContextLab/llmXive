@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T002 [P] Create a `scaffold.py` script in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/utils/scaffold.py` that generates the core directory structure: `code/`, `data/`, `contracts/`, `data/results/`, `docs/`, `state/`, `tests/`, `src/`. The script MUST verify the project root directory exists before creating subdirectories.
+- [ ] T002 [P] Create a `scaffold.py` script in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/utils/scaffold.py` that generates the core directory structure: `code/`, `data/`, `contracts/`, `data/results/`, `docs/`, `state/`, `tests/`, `src/`. The script MUST verify the project root directory exists before creating subdirectories.
 
 ---
 
@@ -53,16 +53,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Create `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/requirements.txt` with pinned versions for `transformers`, `datasets`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `statsmodels`, `accelerate`, `pytest`, `pytest-timeout`, `memory_profiler`. MUST include `torch --index-url https://download.pytorch.org/whl/cpu` to ensure CPU-only compatibility.
+- [X] T005 [P] Create `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/requirements.txt` with pinned versions for `transformers`, `datasets`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `statsmodels`, `accelerate`, `pytest`, `pytest-timeout`, `memory_profiler`. MUST include `torch --index-url https://download.pytorch.org/whl/cpu` to ensure CPU-only compatibility.
 - [X] T006a [P] Create `pyproject.toml` in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/` with explicit configuration for `black` (target-version py311, line-length set to a standard convention) and `ruff` (select E, E7, E9, F, I).
 - [ ] T006b [P] Add `pre-commit` hooks configuration (`.pre-commit-config.yaml`) in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/` to run `ruff` and `black` on staged files.
 - [ ] T011 [P] Create `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/contracts/output_schema.yaml` containing the full YAML definition for `ReasoningTrace`, `BranchingScore`, and `CorrelationResult` with explicit types, constraints, and required fields:
  - `Reasoning Trace`: `task_id` (str), `tokens` (list), `static_scores` (list), `dynamic_scores` (list)
  - `Branching Score`: `task_id` (str), `position` (int), `score` (float), `type` (str: static/dynamic)
  - `Correlation Result`: `pearson` (float), `spearman` (float), `p_value` (float), `seeds` (list), `inconclusive_flag` (bool)
-- [X] T008 [P] Implement preprocessing utility to tokenize traces and align data structures in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/data/preprocess.py` (consumes schema from T011). **Requires T011**.
-- [X] T007 [P] Implement data download utility to fetch GSMK (dataset ID: `openai/gsmk`) and MATH (dataset ID: `hendrycks/math`) datasets from verified HuggingFace URLs into `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/data/download.py`.
-- [X] T009 [P] Setup configuration management for random seeds, model paths, and hardware constraints (CPU-only enforcement) in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/utils/config.py`.
+- [ ] T008 [P] Implement preprocessing utility to tokenize traces and align data structures in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/data/preprocess.py` (consumes schema from T011). **Requires T011**.
+- [ ] T007 [P] Implement data download utility to fetch GSMK (dataset ID: `openai/gsmk`) and MATH (dataset ID: `hendrycks/math`) datasets from verified HuggingFace URLs into `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/data/download.py`.
+- [ ] T009 [P] Setup configuration management for random seeds, model paths, and hardware constraints (CPU-only enforcement) in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/utils/config.py`.
 - [X] T010 [P] Implement logging infrastructure and progress bars for long-running tasks in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/utils/logger.py`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -78,15 +78,15 @@
 ### Tests for User Story 1
 
 - [X] T012 [P] [US1] Unit test for probability clamping (floor set to 1e-9) to prevent NaN in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/tests/unit/test_static_score.py`.
-- [X] T013 [P] [US1] Integration test for CPU-only inference pass using `microsoft/phi` (no CUDA errors) in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/tests/integration/test_static_inference.py`.
-- [X] T014 [P] [US1] Contract test verifying output JSON structure matches `contracts/output_schema.yaml` (requires T011 completion) in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/tests/contract/test_static_output.py`.
+- [ ] T013 [P] [US1] Integration test for CPU-only inference pass using `microsoft/phi` (no CUDA errors) in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/tests/integration/test_static_inference.py`.
+- [~] T014 [P] [US1] Contract test verifying output JSON structure matches `contracts/output_schema.yaml` (requires T011 completion) in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/tests/contract/test_static_output.py`.
 
 ### Implementation for User Story 1
 
-- [X] T015 [P] [US1] Implement `compute_kl_divergence` function in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/static_score/compute.py` (handles top-k uniform distribution comparison).
-- [X] T016 [US1] Implement `StaticScorer` class in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/static_score/compute.py` (loads `microsoft/phi` by default in default precision, CPU device; **MUST implement an epsilon smoothing factor** to handle log(0) scenarios as per Spec Edge Cases; fallback to `meta-llama/Llama-large` if specified).
-- [X] T018a [US1] Implement task-level timeout logic: if a single task exceeds **30 minutes**, exclude it, log "TIMEOUT_EXCLUDED", and continue. If the exclusion rate exceeds a significant proportion of the total subset, exit with code 1 and log "RESOURCE_LIMIT_EXCEEDED". File: `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/static_score/compute.py`.
-- [X] T018b [US1] Implement system-level resource monitoring: check peak memory usage and total elapsed time. If memory > 7 GB or total time > 5 hours, exit with code 1 and log "RESOURCE_LIMIT_EXCEEDED". File: `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/utils/resource_monitor.py`.
+- [~] T015 [P] [US1] Implement `compute_kl_divergence` function in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/static_score/compute.py` (handles top-k uniform distribution comparison).
+- [~] T016 [US1] Implement `StaticScorer` class in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/static_score/compute.py` (loads `microsoft/phi` by default in default precision, CPU device; **MUST implement an epsilon smoothing factor** to handle log(0) scenarios as per Spec Edge Cases; fallback to `meta-llama/Llama-large` if specified).
+- [~] T018a [US1] Implement task-level timeout logic: if a single task exceeds **30 minutes**, exclude it, log "TIMEOUT_EXCLUDED", and continue. If the exclusion rate exceeds a significant proportion of the total subset, exit with code 1 and log "RESOURCE_LIMIT_EXCEEDED". File: `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/static_score/compute.py`.
+- [~] T018b [US1] Implement system-level resource monitoring: check peak memory usage and total elapsed time. If memory > 7 GB or total time > 5 hours, exit with code 1 and log "RESOURCE_LIMIT_EXCEEDED". File: `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/utils/resource_monitor.py`.
 - [ ] T017 [US1] Implement batch processing loop to generate `data/processed/static_scores.json` for **exactly 100 tasks** (matching the US-1 Independent Test requirement). **Requires T016, T018a, T018b**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -101,8 +101,8 @@
 
 ### Tests for User Story 2
 
-- [X] T019 [P] [US2] Contract test for dynamic score output structure (aligned with static) (requires T011 completion) in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/tests/contract/test_dynamic_output.py`.
-- [X] T020 [P] [US2] Integration test for rollout simulation (no training, inference only) in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/tests/integration/test_appo_rollout.py`.
+- [~] T019 [P] [US2] Contract test for dynamic score output structure (aligned with static) (requires T011 completion) in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/tests/contract/test_dynamic_output.py`.
+- [~] T020 [P] [US2] Integration test for rollout simulation (no training, inference only) in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/tests/integration/test_appo_rollout.py`.
 
 ### Implementation for User Story 2
 
@@ -125,7 +125,7 @@
 ### Tests for User Story 3
 
 - [ ] T026 [P] [US3] Unit test for alignment logic (truncation/exclusion <80% overlap) in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/tests/unit/test_alignment.py`.
-- [X] T027 [P] [US3] Unit test for permutation test timeout handling and "inconclusive" flagging in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/tests/unit/test_permutation.py`.
+- [~] T027 [P] [US3] Unit test for permutation test timeout handling and "inconclusive" flagging in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/tests/unit/test_permutation.py`.
 - [ ] T028 [P] [US3] Integration test for full correlation pipeline with known dummy data, running 100 iterations per seed across **n=3 seeds** to validate timeout and p-value stability in `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/tests/integration/test_correlation_pipeline.py`.
 
 ### Implementation for User Story 3

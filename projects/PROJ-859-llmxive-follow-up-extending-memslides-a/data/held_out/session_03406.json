@@ -1,0 +1,208 @@
+{
+  "trace_id": "held_out_43_03406",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 18,
+  "tool_sequence": [
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "apply_theme",
+    "apply_theme",
+    "update_layout",
+    "update_layout",
+    "insert_chart",
+    "insert_chart",
+    "format_text",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "format_text",
+    "format_text",
+    "insert_image",
+    "insert_chart",
+    "insert_chart"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 86.2606,
+        "y": 6.5742,
+        "width": 7.5123,
+        "height": 37.5858
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 16.6587,
+        "y": 32.4116,
+        "width": 30.8337,
+        "height": 21.6719
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 14.7797,
+        "y": 51.6518,
+        "width": 84.407,
+        "height": 44.1368
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 56.9709,
+        "saturation": 81.7226
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 92.8041,
+        "saturation": 80.8786
+      }
+    },
+    {
+      "step": 5,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 15.5225,
+        "padding": 10.724
+      }
+    },
+    {
+      "step": 6,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 13.7115,
+        "padding": 15.4682
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 31.6946,
+        "y": 77.0824,
+        "width": 81.1786,
+        "height": 90.8027
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 85.0243,
+        "y": 83.8136,
+        "width": 96.2373,
+        "height": 62.477
+      }
+    },
+    {
+      "step": 9,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 85.7328,
+        "x": 80.8917,
+        "y": 50.0559
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 91.6154,
+        "y": 1.5236,
+        "width": 84.2158,
+        "height": 90.5197
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 42.4857,
+        "y": 21.5251,
+        "width": 76.319,
+        "height": 97.8602
+      }
+    },
+    {
+      "step": 12,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 14.5473,
+        "y": 81.8558,
+        "width": 7.6981,
+        "height": 80.8727
+      }
+    },
+    {
+      "step": 13,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 95.672,
+        "x": 27.9889,
+        "y": 50.5471
+      }
+    },
+    {
+      "step": 14,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 56.8187,
+        "x": 64.9071,
+        "y": 48.946
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 44.9599,
+        "y": 17.9285,
+        "width": 35.6588,
+        "height": 69.3198
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 24.1697,
+        "y": 83.3364,
+        "width": 29.6029,
+        "height": 24.9517
+      }
+    },
+    {
+      "step": 17,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 18.0133,
+        "y": 73.9553,
+        "width": 95.8527,
+        "height": 34.0409
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.274023,
+    "tool_repetition_freq": 0.722222,
+    "arg_semantic_variance": 925.511897
+  },
+  "final_state": {
+    "dominant_tool": "insert_chart",
+    "slide_element_count": 8,
+    "layout_hash": "43-3406-insert_chart"
+  },
+  "variance_multiplier": 1.5
+}

@@ -1,0 +1,10 @@
+T000:
+  c: true
+  h: d7f54569bc2f65f3c3cb3cce7c84c7ebd091220c41d6ad97e71415c21f9e1b66
+  r: Checked `code/pipelines/install_dependencies.py` (installs requirements and calls
+    `utils.seed.set_seeds`) and `code/utils/seed.py` (sets NumPy seed 42 yielding
+    the expected first random value). The accompanying `tests/test_setup.py` correctly
+    verifies that the `datasets` package can be imported and that the seeded NumPy
+    value matches the reference. All required artifacts exist and contain the proper
+    functionality.
+  sig: 535390971b60899fc9ea9362f7556b0049187475d35e17d2d7ee9173de4bdf98

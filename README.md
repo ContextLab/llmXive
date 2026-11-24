@@ -112,25 +112,53 @@ labeling invariant.
 
 ## Models and compute
 
-Dartmouth Chat is the production model service. The central default and the
-LLM-agent registry defaults use **GLM-5.3** (`zai-org.glm-5.3`), except the three
-implementer agents (`implementer`, `llmxive_implementer`, `paper_implementer`),
-which use **GPT-OSS 120B** (`openai.gpt-oss-120b`). For transient failures, the
-router tries the other free same-backend models in order: for GLM-5.3, GPT-OSS
-120B then **Gemma 4 31B** (`google.gemma-4-31B-it`); for GPT-OSS 120B, GLM-5.3
-then Gemma 4 31B. Catalog availability and returned-model identity are
-checked separately from configuration. A fallback response is recorded as that
-model; primary-model acceptance tests do not let a peer impersonate the primary.
+Dartmouth Chat is the production model service. Each agent in
+[`agents/registry.yaml`](agents/registry.yaml) declares a named capability
+**profile** (`cheap_structured`, `standard_generation`, `deep_review`,
+`deep_code`, `vision`, `independent_review`) rather than a raw model id.
+[`model_selection/profiles.py`](src/llmxive/model_selection/profiles.py)
+resolves each profile at call time against the live Dartmouth model catalog and
+the versioned capability policy in
+[`model_selection/policy.py`](src/llmxive/model_selection/policy.py), producing
+a free-first chain (**GLM-5.3** (`zai-org.glm-5.3`), then **Qwen 3.5 122B**
+(`qwen.qwen3.5-122b`), then **Gemma 4 31B** (`google.gemma-4-31B-it`), then
+**GPT-OSS 120B** (`openai.gpt-oss-120b`) for a standard reasoning call). For
+transient failures
+the executor walks that chain in order. Catalog availability and
+returned-model identity are checked separately from configuration. A fallback
+response is recorded as that model; primary-model acceptance tests do not let a
+peer impersonate the primary.
 
-The router also supports backend fallback where configured. Local transformers
-requires installed dependencies, suitable hardware and a compatible available
-model; it is not a guarantee that a large Dartmouth model can run on a laptop.
-Qwen remains a compatibility route for callers explicitly requesting it, not
-the production default. Specialized vision, personality and manual utilities
-still have explicit model choices; registry defaults do not describe every call.
-Those remaining choices are tracked in [#1285](https://github.com/ContextLab/llmXive/issues/1285).
+Backend fallback is part of the same chain, ordered by cost class: free hosted
+models (Dartmouth) first, then Hugging Face Inference Providers (funded, within
+`LLMXIVE_HF_MONTHLY_USD`, default 50 USD a month), then the local transformers
+model, then paid models. The funded model is the cheapest one whose LMArena score
+falls in the profile's strength level among the models the Hugging Face router
+offers that day. Scores come from the LMArena leaderboard dataset
+([`lmarena-ai/leaderboard-dataset`](https://huggingface.co/datasets/lmarena-ai/leaderboard-dataset),
+CC-BY-4.0, by LMArena); they are used for internal ranking only and are never
+committed. A funded call needs neither `allow_paid` nor the paid opt-in. Before it
+is sent, its worst-case cost is reserved on the funded ledger
+(`refs/llmxive/funded-ledger`, USD, monthly epoch); it is sent once, and afterwards
+the ledger records its real cost (reported token usage times the catalog price,
+capped at the reservation, with any excess logged and noted on the result; zero
+for an HTTP 401/402/403 rejection or a request provably never sent, such as an
+open circuit breaker or a missing token or bill-to id; the full reservation when
+no usage is reported). When the allowance is exhausted the funded
+candidates are skipped and the chain moves on to free and local candidates; paid
+candidates are skipped too, whether the allowance ran out before selection or
+between selection and the call. A funded provider is eligible only when its
+reported context length holds the call's input plus output token bounds. Settings: `HF_TOKEN` (CI secret or
+macOS Keychain), `LLMXIVE_HF_BILL_TO` (the billed resource group),
+`LLMXIVE_HF_MONTHLY_USD`, `LLMXIVE_HF_DEADLINE_S`, and the funded ledger's
+`LLMXIVE_FUNDED_LEDGER_REMOTE` / `LLMXIVE_FUNDED_LEDGER_ANCHOR` (without the anchor,
+funded spend stays disabled). Local transformers requires installed dependencies,
+suitable hardware and a compatible available model; it is not a guarantee that
+a large Dartmouth model can run on a laptop. A model the capability policy does
+not list is never selected, whatever the catalog offers.
 
-The existing paid Dartmouth fallback is off by default. It requires
+The existing paid Dartmouth fallback (**Claude Haiku 4.5**, the one paid
+family the capability policy lists) is off by default. It requires
 `LLMXIVE_PAID_OPT_IN=1` and headroom under the
 [credit-budget guard](src/llmxive/backends/credits.py); an unavailable or invalid
 balance check refuses paid calls. The deployed
@@ -144,15 +172,18 @@ Research designs should fit available compute. The existing
 [Kaggle offload adapter](src/llmxive/execution/offload.py) can submit eligible
 GPU-bound execution when configured with `KAGGLE_API_TOKEN`, then poll and collect
 outputs. Missing credentials or unavailable capacity do not establish successful
-execution. The optional HF pilot below is a separate, explicitly invoked path.
+execution. The HF pilot helpers below (storage and Jobs) are invoked explicitly;
+Hugging Face inference is part of the model chain described above.
 
 ### Optional Hugging Face pilot
 
 The `contextlab` Academia pilot has private versioned artifact storage and a
-private working bucket in an `llmxive` resource group. **Jobs and Inference
-Providers share one $20 monthly compute cap**; paid Spaces and Inference Endpoints
-have $0 limits. This is a pooled allocation, not ten independent wallets or an
-automatic production fallback. Provider enforcement can lag the cap.
+private working bucket in an `llmxive` resource group. Inference Providers
+calls name the group that pays in `LLMXIVE_HF_BILL_TO`, and they are a routed
+fallback in the model chain: the code reserves each funded call on
+the funded ledger and paces spend against `LLMXIVE_HF_MONTHLY_USD` (default
+50 USD a month). A spending limit set on the Hugging Face side is enforced by
+Hugging Face, and its enforcement can lag.
 
 The [pilot guide](scripts/hf/README.md) records successful private-file
 upload/download verification, a bounded CPU computation and one alternate-model
@@ -162,8 +193,9 @@ data round trip remains untested. Automatic research-artifact migration and
 production compute offloading remain future integration work.
 
 The helper reads `HF_TOKEN` from a CI secret or the local macOS Keychain; it does
-not read plaintext HF caches or repository `.env` files. The pilot currently uses
-Keychain, with no recurring HF workflow or pilot HF CI secret enabled. Keep all
+not read plaintext HF caches or repository `.env` files. Locally it uses the
+Keychain; the workflows that call Hugging Face read the `HF_TOKEN` repository
+secret. Keep all
 tokens out of Git, command arguments and logs. Use the explicit commands in the
 pilot guide only when a bounded storage, compute or model experiment is needed.
 
@@ -265,11 +297,14 @@ Changing the key invalidates old receipts. Keep signing keys outside the reposit
 and generated research subprocesses. Zenodo publication requires its own token;
 sandbox publication tests use a separate sandbox token.
 
-The [main pipeline](.github/workflows/llmxive-pipeline.yml) is scheduled every
+**All schedules are paused as of 2026-11-23**: every workflow's `schedule:`
+trigger is commented out and runs start by manual dispatch only
+(`gh workflow run <file>`). The cadences recorded in the commented blocks are:
+the [main pipeline](.github/workflows/llmxive-pipeline.yml) every
 three hours, with additional [advance workers](.github/workflows/advance.yml)
-and stage-specific workflows. [Submission intake](.github/workflows/submission-intake.yml)
-is hourly; [publication sign-off polling](.github/workflows/signoff-poll.yml)
-is every two hours. Workflow files are the authoritative schedules. A successful
+and stage-specific workflows; [submission intake](.github/workflows/submission-intake.yml)
+hourly; [publication sign-off polling](.github/workflows/signoff-poll.yml)
+every two hours. Workflow files are the authoritative schedules. A successful
 worker exit can mean no eligible progress; inspect stage transitions and artifacts.
 
 ## Platform self-repair

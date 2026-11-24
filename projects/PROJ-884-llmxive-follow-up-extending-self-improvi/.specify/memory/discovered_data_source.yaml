@@ -1,17 +1,15 @@
 status: none
-intent: CSPLib constraint satisfaction puzzles verification scripts MiniZinc Challenge
-  python package dataset
+intent: download CSPLib constraint satisfaction puzzles with verification scripts
+  as python package dataset
 required_fields:
 - puzzle_id
 - puzzle_type
-- puzzle_definition
-- constraints_formal
-- verification_script
+- puzzle_representation
+- constraints_formal_language
+- solution_verifier_script
 - example_solution
-- solution_path
-- final_answer
-- source
 - difficulty_level
-cache_key: e7a2726a75f464ec080523f13d8fcd50da999b10daa6ee09e621d399fec6e8ff
-searched_at: '2026-08-20T07:24:07.243937+00:00'
+- source_reference
+cache_key: b85587391b0efd17ec725b676154da7d7bff777086c3e1787c06a5b98e99b8ff
+searched_at: '2026-10-25T10:52:23.928721+00:00'
 retry_count: 1

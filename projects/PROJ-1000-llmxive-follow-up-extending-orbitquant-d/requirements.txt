@@ -1,17 +1,7 @@
-torch
-transformers
-diffusers
-datasets
-scikit-learn
-accelerate
-sentence-transformers
+# Project dependencies
+torch>=2.0
+pyarrow==14.0.1
 pandas
-numpy
-scipy
-matplotlib
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
+datasets
+tqdm
+# other core dependencies are provided by the platform (numpy, scipy, scikit-learn, etc.)

@@ -1,68 +1,107 @@
 T000:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `plan.md` file or its contents were provided, so there is no evidence that
-    the Summary and Technical Context sections were edited to reference OpenNeuro
-    dataset `ds001495` and to remove all mentions of `ds000208`. The required artifact
-    is missing.
-T014:
-  c: false
-  h: a022d5d10b8ddf3b9ed5d4d42407f4f86933c99b34c3a59f14bed789b707e2b3
-  r: The required output file `data/processed/roi_left_hipp.npy` is missing, so the
-    core artifact the task demanded does not exist. Consequently the extraction of
-    left hippocampus timecourses has not been performed.
-T016:
-  c: false
-  h: 80973c016e045e7fb7099eb3c7ec3b56634167fd574f868cb26d0d279f2782e5
-  r: "The required output file `data/processed/roi_dlpfc.npy` does not exist, so the\
-    \ extraction and saving step was not performed. Consequently the task\u2019s core\
-    \ requirement is unmet."
+  c: true
+  h: a6d73169572dad421b37c57a95727a98fe236ab36bde9b7f6347ccdba3d809de
+  r: "Checked `plan.md` (5231\u202Fbytes) which contains the line referencing the\
+    \ OpenNeuro dataset **ds001495**, satisfying the required update."
+  sig: c57142395139f8dfee476e528196dbfb06c335862956d72de32cf90c978d4282
+T000.1:
+  c: true
+  h: beaf74e628d4565fc9acc32448c038d093f79d8393b4da35ff6691171ce3c3ae
+  r: "Checked `plan.md` (5231\u202Fbytes) which contains a \u201CBaseline Definition\
+    \ (FR\u2011004)\u201D section explicitly stating the baseline model is a **TinyLSTM\
+    \ (quantized transformer)**, satisfying the task\u2019s requirement."
+  sig: bd209b95106f4a78e7de55d09cc6e93981522f66aff144e27b3f16aad88dd8cc
+T002:
+  c: true
+  h: 12158d9c6a9c9bdddc9789c93513c3c8c1e26dfc3ab9f2e08bfb00ee4a9a1c2c
+  r: The file `code/requirements.txt` exists (358 bytes) and contains pinned (`==`)
+    versions for all ten required packages (torch, datasets, nibabel, nilearn, numpy,
+    pandas, scikit-learn, matplotlib, nltk, pytest), plus a few reasonable extras;
+    no placeholders or stubs.
+  sig: 405a44e7fe3c0347429e05705956926c33217f851af16dcde3086af42c207b6d
+T003:
+  c: true
+  h: 6f063a80ccaa4a075a57bb12e190f26f238dd38b2cfedd454ff40e05746ed8ee
+  r: "The `pyproject.toml` exists at the project root (462 bytes) and contains valid\
+    \ `[tool.ruff]` (line-length, target-version, lint select) and `[tool.black]`\
+    \ (line-length, target-version, include) configuration sections, plus a minimal\
+    \ project definition \u2014 exactly what T003 asked for."
+  sig: 2ba38f67e42d5bc148b402a6b9996543ca70075cf65a1acb0365cb719da27f2b
+T004:
+  c: true
+  h: 9197ed1fa565e21c0ee8611e54edea26d162dfc6ed102a980c372506df5877da
+  r: "The `.ruff.toml` exists at the project root (279 bytes) and contains a substantive,\
+    \ well-formed linting rule set: line length, target version, selected rule families\
+    \ (E, F, W, I, B, UP), per-file ignores, and format settings \u2014 no placeholders\
+    \ or stubs. This matches T004's requirement to add the project's linting configuration."
+  sig: f1b7446e24d3eb25867274cac5936b2a10115880b13b7d4c17dff80f220fbf6b
+T006:
+  c: true
+  h: 6f27f21c745c4d106ce24abbcc95522f310b42f1aa397aa05c596fb401271b41
+  r: "Checked `code/utils/schema_validation.py` (13\u202FKB) which defines `validate_neural_data`,\
+    \ `validate_text_data`, and `validate_rsa_output` functions, loads the appropriate\
+    \ YAML schema files, and performs file\u2011type specific validation plus a CLI\
+    \ dispatcher, fulfilling the required validators."
+  sig: 2c7c5e215c8480f25489e0175d621d540876a1e96ff5c9ef1c6c4a2c3a334bfa
+T007:
+  c: true
+  h: c642280110bd18fd835d9cb45aff339709a957970e8904244327e3212073fd43
+  r: "Checked the `code/utils/checksums.py` file (7816\u202Fbytes) which implements\
+    \ `compute_sha256` and related utilities for hashing files and directories, writing\
+    \ and verifying JSON manifests, and provides a CLI entry point. The module is\
+    \ fully functional, non\u2011empty, and matches the SHA\u2011256 hashing requirement."
+  sig: 8317bb03c7053b043ccdaca2b3b534667fd1b32d72699c13d599eb48ab9673ad
+T008:
+  c: true
+  h: 6ac4b54c684f204d4f7cd3106b17a6143f8194413a3e6c8b1f4fff9f27d32de4
+  r: "Checked `code/config.py` (2717\u202Fbytes) which defines `random_seed = 42`,\
+    \ `cpu_only = True`, `max_ram_gb = 7`, and provides a `set_seed()` function that\
+    \ seeds Python, NumPy and PyTorch RNGs. The file exists, is non\u2011empty, and\
+    \ matches all required specifications."
+  sig: 53b532cef1e4f860687a200dee69fc9458e5e6dbc7888ae5c5a44bad6b927d8a
+T009:
+  c: true
+  h: 377ee9870ea141971074d7582e3a2539413a29327228c7fce61575afee19cb33
+  r: "Checked `code/utils/logging_config.py` (6628\u202Fbytes) \u2013 it creates a\
+    \ `logs/pipeline.log` file handler, defines `VALID_ERROR_CODES = {\"E001\",\"\
+    E002\",\"E003\",\"E004\"}`, and provides `log_E001`\u2011`log_E004` functions\
+    \ that emit those codes."
+  sig: 0b7911696b68c592def3ae92c8ac9d2613d6426cc7c6b5f837dd440976f39a26
 T018:
+  c: true
+  h: 2db23733afd18c7e6a3a636371ec5e71c88c8592bfd8778ae4427fc74737c490
+  r: The artifact `code/utils/loaders.py` exists (5.5 KB) and implements `load_chunked_fMRI()`
+    as a generator that lazily slices nibabel's `dataobj` along the time axis, yielding
+    float32 chunks of shape (X, Y, Z, T_chunk) without loading the full 4-D volume,
+    with RAM-aware chunk sizing via `estimate_chunk_size()` using the project's `max_ram_gb`
+    config (7 GB) and psutil available memory. The implementation is real (no stubs/TODOs),
+    handles missing files and non-4D inputs with errors, and matches the task's streaming/memory-bounded
+    requirement.
+  sig: feca21ba13bdb92b78912a4f810f23023ab2b617671f13e115988c196ae52f94
+T050:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of `utils/checksums.py` being executed or of a state file being\
-    \ updated is provided; the required artifact (updated state file with checksum\
-    \ entries) is missing, so the task\u2019s requirement is not demonstrably satisfied."
-T021:
-  c: false
-  h: 74dfdc0609b180979db1fffd6c398d32d4c63b3d3dd7572a5d513a6105d8c5c3
-  r: The required `data/processed/roi_timecourses.csv` file is absent, and the referenced
-    `neural-data.schema.yaml` (or any schema file) is also missing, so the validation
-    script cannot be executed as specified. No execution logs or results are provided.
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No training\u2011loop script, configuration, or logs are present; there is no\
-    \ code implementing a retry mechanism across three random seeds for the sparse\
-    \ autoencoder (SAE), nor any evidence (e.g., saved model checkpoints, convergence\
-    \ plots) that such a loop was executed. The required artifact is missing."
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script, configuration, or log file implementing memory monitoring and enforcing\
-    \ a <\u202F7\u202FGB peak usage limit was provided. The required artifact (e.g.,\
-    \ a monitoring module, logging output, or test confirming the limit) is missing,\
-    \ so the task is not satisfied."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No checksum output file, log, or updated state file is present in the provided
-    evidence, so we cannot confirm that `utils/checksums.py` was actually executed
-    or that the state file was updated as required. The implementer must supply the
-    resulting checksum artifact and the modified state file to satisfy the task.
-T036:
-  c: false
-  h: 726c9f48996c0370587014c4ef90a7dba9475765eafcb57ff2490fb8da145f4b
-  r: "The provided `code/03_rsa_analysis.py` is incomplete (truncated) and does not\
-    \ contain logic to load or verify the T030/T031 model artifacts, compute separate\
-    \ RSA matrices for the Brain\u2011Inspired and Baseline models, or write the resulting\
-    \ RSA distances to `data/results/rsa_matrix.csv` (the file is missing). The task\u2019\
-    s core requirements are therefore not met."
-T037:
-  c: false
-  h: e4ebeb6df526ee237669f6d8139ae7e73e7ea5a17ee43d5d896763a6b56e8968
-  r: "The provided `code/03_rsa_analysis.py` contains data\u2011loading and RSA utilities\
-    \ but no implementation of the required permutation test (convergence logic, timeout\
-    \ handling, or \u201Cborderline\u201D flag). Moreover, the expected output file\
-    \ `data/results/permutation_test_results.json` is absent. Both the core functionality\
-    \ and the result artifact are missing."
+  h: df6a65db09f30fcbbd9928f37aab53f5255c15fa2c2e95ef749ee2fc35020ed3
+  r: "The provided `code/main.py` only writes a placeholder CSV with column headers\
+    \ and records a trivial RAM estimate; it does not download data, run preprocessing,\
+    \ generate models, or produce any intermediate artifacts. Consequently the final\
+    \ `results_summary.csv` is empty of real results and the full end\u2011to\u2011\
+    end pipeline is not executed as required. The missing components are the data\
+    \ ingestion steps, intermediate files, and a populated results summary reflecting\
+    \ actual computations."
+  sig: 489298133cbad1b3da66bd2b3192aabfb2203f458ad8431ed7411556b521c742
+T051:
+  c: true
+  h: 9a9681e7b929d67bac887276ac08416d349595a09b2079ddb91ed3c608176792
+  r: "Checked the `manifest.json` file (size\u202F10\u202FKB) which contains the required\
+    \ dataset URLs, the exact git commit hash, software versions matching `requirements.txt`,\
+    \ and a comprehensive list of SHA\u2011256 checksums, and confirmed the passing\
+    \ `tests/test_generate_manifest.py` run that validates its structure."
+  sig: 103f38cb1499443927bab38c03c3a3c9ccd4bd12ca520bafc58a8c512f4b0a78
+T052:
+  c: true
+  h: ea7e197e7dff73113bf1c9582ceff9a44efb66567a054b300662ed33946671bd
+  r: "Checked the `README.md` file (2829\u202Fbytes) and confirmed it contains a \u201C\
+    ## How to Reproduce\u201D section that (1) references `manifest.json` and (2)\
+    \ instructs the user to run `python -m code.main`. Both required references are\
+    \ present and correctly formatted."
+  sig: 51e8747604579ae12ec7d02aced8438d1ca30dac3e5de475c461904ae7de4c6d

@@ -10,3 +10,50 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1211.0189
   verified_at: '2026-10-09T12:43:31.122937Z'
+- artifact_hash: aae715094ff2e441a1636886f61772ed1847f151ac280c49cacacf5623876124
+  artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/specs/001-autocorrelation-of-the-m-bius-function-i/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "[1211.0189] Uncertainty principles connected with the M\xF6bius\
+    \ inversion formula"
+  kind: url
+  value: https://arxiv.org/abs/1211.0189
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1211.0189
+  verified_at: '2026-10-17T20:27:10.773544Z'
+- artifact_hash: 3c4d1cf7def634c4d1ec3f7d4ae588ee35bf02688ec28499a763b960bbcbe6c4
+  artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/specs/001-autocorrelation-of-the-m-bius-function-i/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "[1211.0189] Uncertainty principles connected with the M\xF6bius\
+    \ inversion formula"
+  kind: url
+  value: https://arxiv.org/abs/1211.0189
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1211.0189
+  verified_at: '2026-10-20T06:41:48.798977Z'
+- artifact_hash: bfb6730e46340869898243b81805a1f6b53e4fae0b73cf34e9a026f36a956ce7
+  artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/specs/001-autocorrelation-of-the-m-bius-function-i/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "[1211.0189] Uncertainty principles connected with the M\xF6bius\
+    \ inversion formula"
+  kind: url
+  value: https://arxiv.org/abs/1211.0189
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1211.0189
+  verified_at: '2026-10-20T06:42:14.924510Z'
+- artifact_hash: 285415bcbc4fd5e5b198281a243c14c609bd6ba5f5d2805808c7d49f727a5db6
+  artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/specs/001-autocorrelation-of-the-m-bius-function-i/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.XXXXX
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.XXXXX
+  verified_at: '2026-10-23T11:10:20.902297Z'

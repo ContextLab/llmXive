@@ -27,7 +27,7 @@ Checking CodeSearchNet...
 ------------------------------------------------------------
 Checking Defects4J...
   URL: https://github.com/rjust/defects4j/releases/download/v2.0.0/defects4j-2.0.0.tar.gz
-  Status: FAIL (HTTP Error: 404 Not Found) [0.21s]
+  Status: FAIL (HTTP Error: 404 Not Found) [0.23s]
 ------------------------------------------------------------
 
 Summary:
@@ -41,7 +41,7 @@ Failed checks:
 
 - python projects/PROJ-108-assessing-the-impact-of-code-style-consi/code/00_download_data.py -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-108-assessing-the-impact-of-code-style-consi/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-108-assessing-the-impact-of-code-style-consi/projects/PROJ-108-assessing-the-impact-of-code-style-consi/code/00_download_data.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-108-assessing-the-impact-of-code-style-consi/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-108-assessing-the-impact-of-code-style-consi/projects/PROJ-108-assessing-the-impact-of-code-style-consi/code/00_download_data.py': [Errno 2] No such file or directory
 
 - python code/01_style_scoring.py -> rc=1
 
@@ -120,3 +120,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/06_robustness_check.py` — IS a run-book command
     - `code/07_generate_statistical_report.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/style_scores.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+## Platform-owned paths written inside the project
+
+A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

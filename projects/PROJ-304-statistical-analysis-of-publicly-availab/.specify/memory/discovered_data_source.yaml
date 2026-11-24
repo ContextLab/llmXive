@@ -1,6 +1,6 @@
 status: none
-intent: NoiseTube municipal open data OpenStreetMap OSMnx WorldPop unified grid python
-  package dataset
+intent: NoiseTube citizen noise measurements OpenStreetMap traffic OSMnx land use
+  WorldPop population python package dataset
 required_fields:
 - grid_id
 - geometry
@@ -10,6 +10,6 @@ required_fields:
 - traffic_volume
 - land_use_class
 - population_density
-cache_key: 6aefbbe42ec15543b201af7225a5a3436967c7c5086b9189607e1509c7e887ce
-searched_at: '2026-10-10T07:21:51.849772+00:00'
+cache_key: 759c2fd91c1c436d5560f68dfa5cf8af9873af108bab9ef616c0117e6f07bca7
+searched_at: '2026-10-21T03:49:10.499659+00:00'
 retry_count: 1

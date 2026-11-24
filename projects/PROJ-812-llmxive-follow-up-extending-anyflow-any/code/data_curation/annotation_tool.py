@@ -2,21 +2,21 @@
 Annotation Tool for Human-in-the-Loop Verification (T008a).
 
 This Streamlit application allows human experts to label video clips as 'continuous'
-or 'cut' based solely on pixel frames (blinding protocol). It accepts a score [0.0, 1.0]
-and outputs the results to `data/raw/manually_verified_pool.csv`.
+or 'cut' based solely on pixel frames (blinding), accept a score [0.0, 1.0],
+and output the results to `data/raw/manually_verified_pool.csv`.
 
 Requirements:
 - streamlit
 - pandas
 - opencv-python-headless
+- pillow
 - utils (logging, hash_utils)
 """
 
 import os
 import hashlib
-import json
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import List, Dict, Any
 
 import streamlit as st
 import pandas as pd
@@ -25,59 +25,90 @@ import numpy as np
 from PIL import Image
 
 # Project imports
-from utils.logging import get_logger, setup_module_logger
-from utils.hash_utils import compute_sha256, save_checksums
+from utils.logging import setup_module_logger
+from utils.hash_utils import compute_sha256
 
-# Initialize logger
+# Initialize logger for this module
 logger = setup_module_logger(__name__)
 
-# Configuration
-OUTPUT_DIR = Path("data/raw")
-OUTPUT_FILE = OUTPUT_DIR / "manually_verified_pool.csv"
-CHECKSUM_FILE = OUTPUT_DIR / "manually_verified_pool.csv.sha256"
+# ----------------------------------------------------------------------
+# Configuration constants
+# ----------------------------------------------------------------------
+OUTPUT_DIR: Path = Path("data/raw")
+OUTPUT_FILE: Path = OUTPUT_DIR / "manually_verified_pool.csv"
+CHECKSUM_FILE: Path = OUTPUT_DIR / "manually_verified_pool.csv.sha256"
 SESSION_STATE_KEY = "annotation_state"
 
-# Ensure output directory exists
+# Ensure the output directory exists at import time
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def load_existing_annotations() -> pd.DataFrame:
-    """Load existing annotations if the output file exists."""
+    """
+    Load existing annotations if the CSV already exists.
+    Returns a DataFrame with the expected columns. If the file does not exist
+    or cannot be read, an empty DataFrame with the correct schema is returned.
+    """
     if OUTPUT_FILE.exists():
         try:
             df = pd.read_csv(OUTPUT_FILE)
-            logger.info(f"Loaded existing annotations from {OUTPUT_FILE}. Rows: {len(df)}")
+            logger.info(f"Loaded {len(df)} existing annotations from {OUTPUT_FILE}")
             return df
         except Exception as e:
-            logger.error(f"Failed to load existing annotations: {e}")
-            return pd.DataFrame(columns=["video_id", "frame_count", "score", "annotator_id", "timestamp", "checksum"])
-    return pd.DataFrame(columns=["video_id", "frame_count", "score", "annotator_id", "timestamp", "checksum"])
+            logger.error(f"Failed to read existing annotations: {e}")
+    # Return an empty DataFrame with the required schema
+    columns = ["video_id", "frame_count", "score", "annotator_id", "timestamp", "checksum"]
+    return pd.DataFrame(columns=columns)
 
-def save_annotation(video_id: str, frame_count: int, score: float, annotator_id: str, timestamp: str) -> None:
-    """Save a single annotation to the CSV and update checksum."""
+def _write_checksum(file_path: Path) -> None:
+    """
+    Compute the SHA‑256 checksum of ``file_path`` and write it to ``CHECKSUM_FILE``.
+    The checksum file contains only the hex digest (compatible with typical
+    ``sha256sum`` output).
+    """
+    try:
+        checksum = compute_sha256(file_path)
+        CHECKSUM_FILE.write_text(f"{checksum}  {file_path.name}\n")
+        logger.info(f"Checksum written to {CHECKSUM_FILE}")
+    except Exception as e:
+        logger.error(f"Unable to write checksum for {file_path}: {e}")
+
+def save_annotation(
+    video_id: str,
+    frame_count: int,
+    score: float,
+    annotator_id: str,
+    timestamp: str,
+) -> None:
+    """
+    Append a new annotation row to the CSV and update the checksum file.
+    """
     new_row = {
         "video_id": video_id,
         "frame_count": frame_count,
         "score": score,
         "annotator_id": annotator_id,
         "timestamp": timestamp,
-        "checksum": ""  # Placeholder, will be updated later
+        "checksum": "",  # will be filled after file write
     }
 
     df = load_existing_annotations()
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
 
-    # Re-calculate checksums for the whole file to ensure integrity
+    # Write CSV
     df.to_csv(OUTPUT_FILE, index=False)
 
-    # Generate and save checksum
-    file_hash = compute_sha256(OUTPUT_FILE)
-    save_checksums(OUTPUT_FILE, file_hash)
-    logger.info(f"Annotation saved for {video_id} (Score: {score}). Checksum updated.")
+    # Update checksum file for the whole CSV (ensures integrity)
+    _write_checksum(OUTPUT_FILE)
+
+    logger.info(f"Saved annotation for video_id={video_id}, score={score}")
 
 def render_video_frames(video_path: str, num_frames: int = 5) -> List[Image.Image]:
     """
-    Extract a representative set of frames from the video for display.
-    Uses OpenCV to read frames and PIL for Streamlit rendering.
+    Extract ``num_frames`` evenly spaced frames from ``video_path``.
+    Returns a list of Pillow ``Image`` objects suitable for Streamlit display.
     """
     if not os.path.exists(video_path):
         logger.error(f"Video file not found: {video_path}")
@@ -85,23 +116,24 @@ def render_video_frames(video_path: str, num_frames: int = 5) -> List[Image.Imag
 
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
-        logger.error(f"Could not open video: {video_path}")
+        logger.error(f"Unable to open video file: {video_path}")
         return []
 
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     if total_frames == 0:
-        logger.warning(f"Video has 0 frames: {video_path}")
+        logger.warning(f"Video has zero frames: {video_path}")
+        cap.release()
         return []
 
-    # Select evenly spaced frames
-    indices = np.linspace(0, total_frames - 1, num_frames).astype(int)
-    frames = []
+    # Choose evenly spaced frame indices
+    indices = np.linspace(0, total_frames - 1, num_frames, dtype=int)
+    frames: List[Image.Image] = []
 
     for idx in indices:
-        cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, int(idx))
         ret, frame = cap.read()
         if ret:
-            # Convert BGR (OpenCV) to RGB (PIL)
+            # Convert BGR (OpenCV) to RGB (Pillow)
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             pil_img = Image.fromarray(frame_rgb)
             frames.append(pil_img)
@@ -112,98 +144,135 @@ def render_video_frames(video_path: str, num_frames: int = 5) -> List[Image.Imag
     return frames
 
 def generate_video_id_from_path(path: str) -> str:
-    """Generate a unique ID from the file path and modification time."""
+    """
+    Generate a deterministic short identifier for a video based on its absolute
+    path and modification timestamp. The identifier is the first 12 hex digits
+    of the SHA‑256 hash.
+    """
     stat = os.stat(path)
     content = f"{path}_{stat.st_mtime}"
     return hashlib.sha256(content.encode()).hexdigest()[:12]
 
-def main():
+# ----------------------------------------------------------------------
+# Streamlit UI
+# ----------------------------------------------------------------------
+def main() -> None:
     st.set_page_config(page_title="Continuity Annotation Tool", layout="wide")
-    st.title("Human-in-the-Loop Video Continuity Annotation")
-    st.markdown("""
-    **Instructions**:
-    1. View the frames below.
-    2. Rate the continuity of motion on a scale of **0.0 (Definite Cut)** to **1.0 (Perfectly Continuous)**.
-    3. Enter your Annotator ID.
-    4. Click 'Submit'.
-    """)
+    st.title("Human‑in‑the‑Loop Video Continuity Annotation")
+    st.markdown(
+        """
+        **Instructions**
+        1. Browse the video clips in the selected directory.
+        2. Examine the displayed frames (no model metrics are shown).
+        3. Use the slider to assign a continuity score:
+           *0.0 = Definite cut* → *1.0 = Perfectly continuous*.
+        4. Enter your annotator ID.
+        5. Click **Submit Annotation**.
+        """
+    )
 
-    # Sidebar for configuration
-    st.sidebar.header("Configuration")
+    # ------------------------------------------------------------------
+    # Sidebar configuration
+    # ------------------------------------------------------------------
     annotator_id = st.sidebar.text_input("Annotator ID", value="expert_01")
     input_dir = st.sidebar.text_input("Video Directory", value="data/raw/clips")
-    video_files = [f for f in os.listdir(input_dir) if f.endswith(('.mp4', '.avi', '.mov'))]
+    video_files = [
+        f for f in os.listdir(input_dir) if f.lower().endswith(('.mp4', '.avi', '.mov'))
+    ]
 
     if not video_files:
-        st.warning(f"No video files found in {input_dir}. Please ensure clips are downloaded.")
+        st.warning(f"No video files found in `{input_dir}`.")
         return
 
-    # Load existing progress
-    df_existing = load_existing_annotations()
-    processed_ids = set(df_existing["video_id"].unique())
+    # ------------------------------------------------------------------
+    # Load progress and determine pending videos
+    # ------------------------------------------------------------------
+    existing_df = load_existing_annotations()
+    processed_ids = set(existing_df["video_id"].unique())
 
-    # Filter out already processed videos
-    pending_videos = [f for f in video_files if generate_video_id_from_path(os.path.join(input_dir, f)) not in processed_ids]
+    pending_videos = [
+        f
+        for f in video_files
+        if generate_video_id_from_path(os.path.join(input_dir, f)) not in processed_ids
+    ]
 
     if not pending_videos:
         st.success("All videos in the directory have been annotated.")
-        if st.button("Refresh Status"):
+        if st.button("Refresh"):
             st.rerun()
         return
 
-    # Select video to annotate
-    video_options = {generate_video_id_from_path(os.path.join(input_dir, f)): f for f in pending_videos}
-    selected_key = st.selectbox("Select Video to Annotate", list(video_options.keys()))
-    selected_filename = video_options[selected_key]
+    # Mapping from generated video_id -> filename for the pending set
+    video_map: Dict[str, str] = {
+        generate_video_id_from_path(os.path.join(input_dir, fname)): fname
+        for fname in pending_videos
+    }
+
+    selected_vid = st.selectbox("Select a video to annotate", list(video_map.keys()))
+    selected_filename = video_map[selected_vid]
     selected_path = os.path.join(input_dir, selected_filename)
 
-    # Display frames (Blinding: No model metrics)
+    # ------------------------------------------------------------------
+    # Display frames (blinded UI)
+    # ------------------------------------------------------------------
     st.subheader(f"Video: {selected_filename}")
     frames = render_video_frames(selected_path)
 
     if not frames:
-        st.error("Could not load frames for this video.")
+        st.error("Unable to extract frames from the selected video.")
     else:
         cols = st.columns(len(frames))
-        for i, col in enumerate(cols):
+        for idx, col in enumerate(cols):
             with col:
-                st.image(frames[i], use_column_width=True)
-                st.caption(f"Frame {i+1}")
+                st.image(frames[idx], use_column_width=True)
+                st.caption(f"Frame {idx + 1}")
 
-    # Input form
+    # ------------------------------------------------------------------
+    # Annotation input
+    # ------------------------------------------------------------------
     st.markdown("---")
-    st.subheader("Annotation")
-    score = st.slider("Continuity Score (0.0 = Cut, 1.0 = Continuous)", 0.0, 1.0, 0.5, 0.01)
+    st.subheader("Your Annotation")
+    score = st.slider(
+        "Continuity Score (0.0 = Cut, 1.0 = Continuous)",
+        min_value=0.0,
+        max_value=1.0,
+        value=0.5,
+        step=0.01,
+    )
 
-    col1, col2 = st.columns([1, 4])
-    with col1:
-        submit_btn = st.button("Submit Annotation", type="primary")
+    submit = st.button("Submit Annotation", type="primary")
 
-    if submit_btn:
+    if submit:
         if not annotator_id:
-            st.error("Please enter an Annotator ID.")
+            st.error("Please provide an Annotator ID.")
         else:
             try:
-                timestamp = pd.Timestamp.now().isoformat()
-                frame_count = int(cv2.VideoCapture(selected_path).get(cv2.CAP_PROP_FRAME_COUNT))
-                cv2.VideoCapture(selected_path).release()
+                # Capture frame count for provenance
+                cap = cv2.VideoCapture(selected_path)
+                frame_cnt = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+                cap.release()
 
+                timestamp = pd.Timestamp.now().isoformat()
                 save_annotation(
-                    video_id=selected_key,
-                    frame_count=frame_count,
+                    video_id=selected_vid,
+                    frame_count=frame_cnt,
                     score=score,
                     annotator_id=annotator_id,
-                    timestamp=timestamp
+                    timestamp=timestamp,
                 )
                 st.success("Annotation saved successfully!")
                 st.rerun()
             except Exception as e:
-                st.error(f"Error saving annotation: {e}")
-                logger.exception("Annotation submission failed")
+                st.error(f"Failed to save annotation: {e}")
+                logger.exception("Error during annotation saving")
 
-    # Footer
+    # ------------------------------------------------------------------
+    # Footer status
+    # ------------------------------------------------------------------
     st.markdown("---")
-    st.caption(f"Total annotated: {len(processed_ids)} | Pending: {len(pending_videos)}")
+    st.caption(
+        f"Annotated: {len(processed_ids)} | Remaining: {len(pending_videos)}"
+    )
 
 if __name__ == "__main__":
     main()

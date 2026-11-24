@@ -1,18 +1,15 @@
 status: none
-intent: OpenNeuro ds004510 EEG oddball complex auditory scene MNE-Python package dataset
+intent: download OpenNeuro ds001734 dataset via Hugging Face datasets python package
+  dataset
 required_fields:
 - eeg_signal
-- sampling_rate
 - channel_names
-- event_onset
-- event_type
+- sampling_rate
+- event_id
+- event_time
 - condition_label
-- stimulus_type
-- participant_id
-- age
-- sex
 - epoch_start
 - epoch_end
-cache_key: 33f351808d5f744cc6e4bb0ee965caf606d91ccb0bfed727c31a6a72a145544b
-searched_at: '2026-10-11T12:13:03.971668+00:00'
+cache_key: 1f5e74e7f86916cc32c829a6781610b4947f9597954e18e2d5ccf2b71ab2461b
+searched_at: '2026-10-26T06:50:17.686968+00:00'
 retry_count: 1

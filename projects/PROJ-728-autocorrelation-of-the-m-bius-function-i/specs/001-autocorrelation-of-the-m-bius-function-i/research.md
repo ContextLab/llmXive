@@ -2,80 +2,69 @@
 
 ## Theoretical Background
 
-### Chowla's Conjecture
-Chowla's conjecture (1965) posits that for any distinct natural numbers $h_1, \dots, h_k$, the sum $\sum_{n \le x} \mu(n+h_1) \dots \mu(n+h_k) = o(x)$. In the case of $k=2$ (autocorrelation), this implies that the correlation between $\mu(n)$ and $\mu(n+h)$ should vanish as $x \to \infty$. Specifically, the normalized autocorrelation should approach 0.
+### Chowla’s Conjecture (k = 2)
+For distinct positive integers \(h_1, h_2\) the conjecture predicts  
+\[
+\sum_{n\le x}\mu(n+h_1)\mu(n+h_2)=o(x).
+\]  
+Setting \(h_1=0,\;h_2=h\neq0\) yields the normalized autocorrelation  
+\[
+r_x(h)=\frac{1}{x-h}\sum_{n=1}^{x-h}\mu(n)\mu(n+h)
+\]  
+which is expected to converge to 0 as \(x\to\infty\).
 
-### The Random Sign Heuristic
-The conjecture is often supported by the heuristic that $\mu(n)$ behaves like a random sequence of $\{-1, 0, 1\}$ with specific probabilities ($P(\mu(n)=0) \approx 1 - 6/\pi^2$). If $\mu(n)$ is truly random in sign, the expected autocorrelation for $h \neq 0$ is zero. This project tests this heuristic empirically.
+### Random‑Sign Heuristic
+The Möbius values are modeled as i.i.d. draws from \(\{-1,0,1\}\) with  
+\[
+\Pr[\mu=0]=1-\frac{6}{\pi^2},\qquad 
+\Pr[\mu=\pm1]=\frac{3}{\pi^2},
+\]  
+the density \(6/\pi^2\) being the verified square‑free density (source: 1211.0189, https://arxiv.org/abs/1211.0189). **Under this heuristic the expected autocorrelation at any non‑zero lag is 0 and the variance is**  
+\[
+\operatorname{Var}(r_L(h))\approx\frac{\sigma^2}{L},\qquad 
+\sigma^2=\frac{6}{\pi^2}\Bigl(1-\frac{6}{\pi^2}\Bigr)\approx0.2384.
+\]
 
-### The Prime Number Theorem (PNT) Baseline
-To avoid circular reasoning in statistical testing, we also establish a theoretical baseline derived from the Prime Number Theorem. Under the assumption that the density of square-free numbers is $6/\pi^2$ and signs are random, the variance of the autocorrelation sum can be derived analytically. This provides an independent check against the permutation null: if the observed variance significantly deviates from the PNT prediction, it suggests arithmetic structure beyond simple random fluctuation.
+**Important Clarification:** The permutation‑null test implemented in this project evaluates the *random‑sign heuristic* described above, **not** Chowla’s conjecture directly. Chowla’s conjecture makes a statement about the true Möbius function; the random‑sign model is a probabilistic approximation that, if valid, is compatible with Chowla’s prediction of zero autocorrelation. Consequently, any claim that “the data support Chowla’s conjecture” is limited to “the data are consistent with the random‑sign heuristic, which is a necessary (but not sufficient) condition for Chowla’s prediction.” This distinction preserves construct validity.
 
 ## Dataset Strategy
 
-Since the Möbius function is a deterministic arithmetic function, no external dataset download is required. The "dataset" is generated algorithmically.
+| Component | Generation Method | Verification |
+|-----------|-------------------|--------------|
+| Möbius sequence \(\mu(n),\;1\le n\le10^7\) | Deterministic linear sieve (`code/sieve.py`). Stored as 2‑bit packed ternary array (`mobius_2bit.npy`) and as an int8 working copy (`mobius_array.npy`). | Unit tests on known values; SHA‑256 recorded in `manifest.sha256`. |
+| Window sampling | 100 non‑overlapping windows per length \(L\in\{10^3,10^4,10^5\}\), seeded (`seed=20231017`). Start indices saved in `window_index.csv`. | Deterministic recreation; integration test checks exact row count (expected total). |
+| Synthetic null windows (SC‑005) | Random‑sign windows with zero density \(6/\pi^2\) (verified fact). | Used only for calibration; not reported as a scientific result. |
+| **Permutation null (FR‑003, VII)** | For each length \(L\) we select **20 representative windows** (the first 20 in `window_index.csv`). Within each selected window we generate **Numerous zero‑preserving sign permutations** and compute autocorrelations for **all lags** via a single FFT per permutation, thereby building a **per‑length null distribution**. This null is then applied to **all 300 windows** to obtain p‑values and confidence intervals. | The permutation engine is unit‑tested on a tiny window; the resulting null distribution matches a pre‑computed reference (Monte‑Carlo tolerance). |
 
-| Dataset Component | Source/Method | Verification |
-| :--- | :--- | :--- |
-| **Möbius Sequence** ($\mu(n)$) | **Algorithmic Generation**: Linear Sieve (Meissel-Lehmer style) implemented in `code/sieve.py`. | **Verified**: The sieve is a standard, deterministic algorithm. Correctness is verified by unit tests against known values (e.g., $\mu(1)=1, \mu(2)=-1, \mu(4)=0$). |
-| **Interval Parameters** | **Specified**: $L \in \{10^3, 10^4, 10^5\}$, $N=10^7$. | **Verified**: Defined in `spec.md`. |
-
-**Note on Data Availability**: The assumption that $\mu(n)$ can be computed exactly for $N=10^7$ is valid. The linear sieve runs in $O(N)$ time and $O(N)$ space. For $N=10^7$, the memory footprint is ~10 MB (using `int8`), which is trivial for the target environment.
+No external data are required; all inputs are algorithmically generated, satisfying Constitution I.
 
 ## Statistical Methodology
 
-### 1. Autocorrelation Computation
-For a window of length $L$ starting at $k$, the normalized autocorrelation at lag $h$ is:
-$$ r_{k, L}(h) = \frac{1}{L-h} \sum_{i=1}^{L-h} \mu(k+i) \mu(k+i+h) $$
-**Implementation**: Vectorized using `numpy`. The summation is performed over `int64` to prevent overflow before division, then cast to `float64` for the final value.
+1. **Autocorrelation Computation (FR‑002)**  
+   For each window \(W\) of length \(L\) and each lag \(h\le\lfloor L/2\rfloor\):  
+   \[
+   r_W(h)=\frac{1}{L-h}\sum_{i=1}^{L-h}\mu(k+i)\mu(k+i+h).
+   \]  
+   Computed via a float64 FFT convolution for speed, then **cross‑validated** against a direct `int64` sum for a seeded random sample of ≥ 100 (window, lag) pairs per \(L\) (Constitution VI). The cross‑validation asserts relative error < 1e‑9; any violation aborts the pipeline.
 
-### 2. Theoretical Variance Benchmark (PNT)
-To distinguish "random fluctuation" from "arithmetic structure" and avoid circularity:
-- **Method**: Compute the theoretical variance of the autocorrelation sum under the Prime Number Theorem (PNT) assumption ($Var \approx \sigma^2 / L$, where $\sigma^2$ is derived from the density of square-free numbers).
-- **Comparison**: Compare the observed variance against this theoretical baseline. Significant deviations from the theoretical variance indicate potential arithmetic structure not explained by random fluctuation.
-- **Role**: This serves as an **arithmetic baseline**, independent of the permutation test.
+2. **Permutation Null (FR‑003, VII)** – **as described in the Dataset Strategy**. By fixing zero positions and uniformly shuffling the signs of the non‑zero entries we generate a null distribution that reflects the independent‑sign heuristic while preserving the observed zero density. The null is **constructed from 20 windows per length**, each with **500 permutations**, yielding a p‑value resolution at a high level of precision and avoiding a p‑value of exactly 0.
 
-### 3. Block-Permutation Test (Null Distribution)
-To test the "random-sign heuristic" (whether $\mu$ is indistinguishable from a shuffled version of itself):
-- **Procedure**:
-  1. Extract the vector $v = [\mu(k+1), \dots, \mu(k+L)]$.
-  2. Divide $v$ into $B$ blocks of size $b$ (e.g., $b=100$).
-  3. Shuffle the order of these $B$ blocks while preserving the content of each block. This preserves local arithmetic structure (short-range correlations) while randomizing long-range order.
-  4. Compute $r_{perm}(h)$ for the permuted vector.
-  5. Repeat times.
-- **Rationale**: A simple local shuffle destroys the very signal (long-range correlations) the project aims to detect. Block-permutation preserves local structure, allowing the test to detect if long-range correlations exist.
-- **P-value**: Two-sided p-value = (count of $|r_{perm}(h)| \ge |r_{obs}(h)|$) / 1000.
-- **Interpretation**: A low p-value indicates $\mu$ is **not** indistinguishable from its shuffled version (violation of the heuristic). A uniform distribution of p-values (across many intervals) indicates the heuristic holds.
+3. **Two‑sided p‑value & 95 % CI (FR‑004)**  
+   \[
+   p = \frac{\#\{|r_{\text{perm}}(h)|\ge|r_W(h)|\}+1}{501},
+   \]  
+   guaranteeing a minimum resolution of 0.002 and avoiding a p‑value of exactly 0. The confidence interval is the empirical 2.5th/97.5th percentiles of the null distribution.
 
-### 4. Multiple Comparison Correction
-Since we test multiple lags ($h \in \{1, \dots, L/2\}$) and multiple intervals, we must address family-wise error.
-- **Method**: Apply the **Benjamini-Hochberg (BH)** procedure to control the False Discovery Rate (FDR) across all tested lags and intervals.
-- **Uniformity Check**: Verify the **uniformity of the p-value distribution** under the null hypothesis (SC-005) using the **Kolmogorov-Smirnov (KS) test**.
-- **Crucial Distinction**: The KS test checks if the *observed* p-values are uniform. If they are, it means the data is consistent with the *shuffled* data (validating the heuristic). If they are not, it means the data is distinguishable from the shuffled data. This is **not** a proof of Chowla's Conjecture, but a test of the random-sign heuristic.
+4. **Multiple‑Comparison Correction (FR‑004)**  
+   Across all \(\approx5.55\) M raw p‑values we apply Benjamini–Hochberg FDR (α = 0.05) using `statsmodels.stats.multitest.multipletests`. The resulting `adjusted_p_value` column drives the significance statements in the paper.
 
-### 5. Sensitivity Analysis
-As per FR-007, we will perturb the zero-count by $\pm 5\%$ and $\pm 10\%$ in the permutation step to verify if the statistical significance of the observed autocorrelation is robust to slight variations in the assumed zero-density.
+5. **Null Calibration (SC‑005)**  
+   The permutation pipeline is validated on **simulated random‑sign windows** (zero density \(6/\pi^2\)). Because the p‑values lie on a discrete 1/501 lattice, we (a) perform a chi‑square goodness‑of‑fit test on equal‑probability bins and (b) a Kolmogorov–Smirnov test on a small subsample of independent windows (as stipulated in the spec). Both tests must yield \(p>0.05\). Results are stored in `calibration_test.json`.  
 
-## Compute Feasibility & Rationale
+   The same two tests are applied to the **real** Möbius p‑values; the outcomes are recorded in `empirical_uniformity.json` and explicitly labeled as a research finding about the random‑sign heuristic (not a test validation).
 
-**Decision**: CPU-first execution.
+6. **Zero‑Density Sensitivity (FR‑007)**  
+   For each window we create four variants with zero counts altered by ±5 % and ±10 % (random insertions/deletions while preserving total length \(L\)). The permutation pipeline is rerun on each variant. A lag is flagged as `significant_change` if the raw p‑value < 0.05 status differs from the original window. The summary table (`sensitivity_summary.csv`) lists the affected lags and also indicates whether any of those lags were BH‑significant in the main analysis. Monte‑Carlo noise (±0.007 near the 0.05 threshold) is acknowledged; flips may arise from stochastic variation.
 
-**Rationale**:
-1.  **Sieve**: $O(N)$ integer operations. $10^7$ ops is ~0.1s on modern CPU.
-2.  **Autocorrelation**: Optimized via sliding window. With $L=10^5$, $N=10^7$, and 100 sampled windows, this is feasible.
-3.  **Block-Permutation**: A sufficient number of permutations will be performed. of length $10^5$ with block size 100. $10^3 \times 100$ shuffles per window. For a set of windows, this is well within the 6h limit.
-4.  **GPU**: Not required. No matrix multiplication or deep learning models are involved.
-
-**Feasibility Check**:
-- **RAM**: $10^7$ `int8` = 10 MB. Intermediate arrays for permutation = 100 MB max. **Safe** (< 7 GB).
-- **Disk**: Output CSVs, PNGs, and JSON < 50 MB. **Safe** (< 14 GB).
-- **Time**: Estimated total runtime < 4 hours. **Safe** (< 6h).
-
-## Limitations & Assumptions
-
-- **Observational Nature**: The study is computational, not experimental. We cannot "randomize" the Möbius function; we can only test if its structure *resembles* a random process.
-- **Window Selection**: We use **Randomized Stratified Sampling** to avoid periodic bias. We cannot test *every* possible window of length $L$ in $N=10^7$ due to time constraints.
-- **Zero-Density**: The permutation test assumes the observed zero-density is the true parameter. The sensitivity analysis (FR-007) addresses uncertainty in this parameter.
-- **Theoretical Variance**: The theoretical variance benchmark assumes the Prime Number Theorem holds. Deviations from this benchmark may indicate arithmetic structure.
-- **Short Interval Variance**: In short intervals, the variance of the sum is naturally high ($O(\sqrt{L})$). The theoretical variance benchmark helps distinguish this noise from signal.
-- **Interpretation of Results**: The permutation test validates the **random-sign heuristic**, not Chowla's Conjecture directly. Uniform p-values mean $\mu$ is indistinguishable from a shuffled version. Deviations from the PNT baseline indicate arithmetic structure.
+7. **Visualization (FR‑005, SC‑006)**  
+   Heatmaps display autocorrelation values (color) for each lag (x‑axis) and each window (y‑axis). A black dashed contour at value = 0 implements the zero line. A twin panel below the heatmap shows the 2.5th/97.5th percentile bands (confidence envelope). Cells with `adjusted_p_value < 0.05` are overlaid with red circles. PNGs are saved at ≥ 1200 × 1200 px; automated tests verify resolution, presence of the zero contour, and CI band artists.

@@ -1,21 +1,23 @@
-# Tasks: Assessing Statistical Power in Reproducible Research with Public Datasets
+# Tasks: Assessing Statistical Power in Reproducible Research with Public Datasets  
 
-**Input**: `spec.md`, `plan.md`, `data-model.md`, and all contract schemas.  
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, all contract schemas in `contracts/`.  
 All tasks are expressed as markdown checklist items following the canonical  
-`- [ ] T### [P?] [USx?] description …` format.  Tasks that can run in parallel
-are marked with **[P]**.  User‑story identifiers (**US1**, **US2**, **US3**) are
-included where the task directly satisfies a story requirement.  Paths are
-relative to the repository root.
 
----
+```
+- [ ] T### [P?] [USx?] description … with exact artifact paths
+```  
 
-## Phase 1 – Project scaffolding & core infrastructure
+Verification steps are indented beneath each headline.  
+The list contains **17** substantive tasks (grouped by logical phases) that together implement the complete end‑to‑end audit while satisfying every functional requirement in the specification and respecting the project constitution.
 
-| ID | Parallel? | Story | Description |
-|----|-----------|-------|-------------|
-| - | - | - | Each task lists its verification steps indented beneath the headline. |
+---  
 
-- [ ] **T001** Create the project directory tree and placeholder `.gitkeep` files.  
+## Phase 1 – Project scaffolding & core configuration  
+
+- [ ] T001 [P] Establish the canonical project directory tree under  
+  `projects/PROJ-234-assessing-statistical-power-in-reproduci/` and add placeholder  
+  `.gitkeep` files.  
+
   ```
   projects/PROJ-234-assessing-statistical-power-in-reproduci/
       code/
@@ -26,212 +28,252 @@ relative to the repository root.
           processed/
       tests/
           unit/
-          contract/
+          integration/
       docs/
       contracts/
   ```  
-  **Verify** – each directory exists (`test -d <dir>`), and a `.gitkeep` file is present in every empty folder.
 
-- [ ] **T002** Write `requirements.txt` with the exact versions required by the specification:  
+  **Verify** – each listed directory exists (`test -d <dir>`), each contains a `.gitkeep`, and the top‑level directory name matches exactly `PROJ-234-assessing-statistical-power-in-reproduci`.
+
+- [ ] T002 [P] Add `requirements.txt` with exact versions and a `config.yaml` that stores runtime limits.  
+
+  `requirements.txt` (excerpt):  
+
   ```
-  pandas==2.0.3
-  scipy==1.11.4
-  statsmodels==0.14.1
-  requests==2.31.0
-  matplotlib==3.8.0
-  pytest==7.4.0
-  beautifulsoup4==4.12.2
-  numpy==1.26.0
-  yaml==0.2.5
+  pandas==2.2.2
+  numpy==1.26.4
+  scipy==1.13.0
+  statsmodels==0.14.2
+  requests==2.32.3
+  beautifulsoup4==4.12.3
+  pyyaml==6.0.1
+  tqdm==4.66.5
   memory_profiler==0.61.0
   ```  
-  **Verify** – `pip install -r requirements.txt --dry-run` succeeds without errors.
 
-- [ ] **T003** Add linting and formatting configuration:  
-  * `pyproject.toml` with Black settings (`max-line-length = 88`, `target-version = ["py310"]`).  
-  * `.flake8` with `max-line-length = 88`.  
-  **Verify** – `black --check .` and `flake8 .` both exit with status 0.
+  `config.yaml` (excerpt):  
 
-- [ ] **T004** Create `config.yaml` that stores the runtime and memory limits required by the spec:  
   ```yaml
   limits:
     max_runtime_hours: 6
-    max_memory_gb: 7
+    max_memory_gb: 8
   ```  
-  **Verify** – file is valid YAML (`python -c "import yaml,sys; yaml.safe_load(open('config.yaml'))"`).
 
-- [ ] **T005** Populate the `contracts/` directory with all schema files required for contract testing:  
-  * `dataset_metadata.schema.yaml` (already provided in the spec).  
-  * `power_audit_result.schema.yaml` (already provided).  
-  * `extracted_params.schema.yaml` – defines `dataset_id`, `sample_size`, `effect_size`, `metric_type`, `degrees_of_freedom`, `source_url`, `status`.  
-  * `report.schema.yaml` – defines the final audit‑report JSON structure (summary statistics, counts, file references).  
-  **Verify** – each file exists, parses with `jsonschema.Draft7Validator`, and `yamllint` reports no errors.
+  **Verify** – `pip install -r requirements.txt --dry-run` succeeds; `yaml.safe_load("config.yaml")` returns a dict containing both keys under `limits`.
 
-- [ ] **T006** Implement `code/utils/api_client.py` containing a thin wrapper around the OpenML REST API with exponential‑backoff retry logic for HTTP 429 responses.  
-  **Unit test** `tests/unit/test_api_client.py::test_retry_on_429` must simulate a 429 and assert that the backoff occurs and the request eventually succeeds.
+- [ ] T003 [P] Populate the `contracts/` directory with the two schema files required by the spec.  
 
-- [ ] **T007** Implement `code/utils/oa_checker.py` that determines whether a URL points to an Open‑Access resource (e.g., by inspecting HTTP `Content‑Type` or known OA domains).  
-  **Unit test** `tests/unit/test_oa_checker.py::test_oa_status` validates true/false outcomes for a set of known OA and paywalled URLs.
+  ```
+  contracts/dataset_metadata.schema.yaml          # supplied in spec
+  contracts/power_audit_result.schema.yaml       # supplied in spec (contains $defs for StatisticalParameters & ExtractionAuditReport)
+  ```  
 
-- [ ] **T008** Add a centralized logging configuration module `code/utils/logging_config.py` that configures a file logger (`data/pipeline.log`) with INFO level and a consistent format.  
-  **Verify** – import the module in another script and confirm that a test log entry appears in `data/pipeline.log`.
+  **Verify** – each file parses with `yaml.safe_load` and a minimal valid instance passes `jsonschema.Draft7Validator`.
 
----
+---  
 
-## Phase 2 – Data ingestion (User Story 1)
+## Phase 2 – Core utility library (single‑module group)  
 
-- [ ] **T009** Implement `code/01_ingest_openml.py` that:
-  1. Connects to the OpenML API (via `api_client`) and retrieves the **top 50 most‑downloaded classification datasets**.
-  2. Filters for entries that have a non‑null `publication_link` **or** a non‑null `task_id`.
-  3. Ensures the dataset’s `task_type` is a classification task; non‑classification entries are logged and skipped (satisfies FR‑001 and FR‑009).
-  4. Writes the raw response to `data/raw/openml_metadata_raw.json`.
-  5. Writes the filtered list to `data/raw/openml_metadata_filtered.json`.
-  6. Generates SHA‑256 checksums for both files and stores them in `data/raw/checksums.txt`.
-  7. Emits a JSON‑formatted statistics record to `data/ingest.log` (total fetched, filtered, type distribution).  
-  **Verification** – a pytest contract test `tests/contract/test_dataset_metadata_schema.py::test_schema` loads `data/raw/openml_metadata_filtered.json` and validates it against `contracts/dataset_metadata.schema.yaml`.
+- [ ] T004 [P] Implement reusable utilities in `code/utils/` that satisfy all unit‑test expectations.  
 
-- [ ] **T010** Add a contract test `tests/contract/test_dataset_metadata_schema.py` that imports the JSON schema and asserts the filtered metadata file conforms to it.  
-  **Verify** – test passes after `T009` runs.
+  * `api_client.py` – thin wrapper around the OpenML REST API with **exponential‑backoff** for HTTP 429 (configurable `max_retries=5`, `initial_delay=1`, `max_delay=60`) and raises a custom `DataFetchError` on permanent failure.  
+  * `oa_checker.py` – `is_open_access(url: str) -> bool` recognises known OA domains (`arxiv.org`, `doi.org/10.`, `pubmedcentral.nih.gov`) and validates the `Content‑Type` header.  
+  * `parsers.py` – deterministic regex/NLP helpers:  
+    - `extract_sample_size(text: str) -> int` (pattern `r"N\s*=\s*(\d+)"`).  
+    - `extract_effect_size(text: str) -> Tuple[float, str, Optional[Tuple[int, int]]]` (patterns for Cohen’s d, F‑statistics with DOF, odds‑ratio).  
+  * All utilities raise `DataFetchError` on failure; **no silent fall‑backs**.  
 
----
+  **Verify** – run `pytest -q tests/unit/` and confirm that `test_api_client.py`, `test_oa_checker.py`, and `test_parsers.py` all pass, including the check that `api_client.py` implements exponential back‑off and raises `DataFetchError` for a bad URL.
 
-## Phase 3 – Publication parsing & statistical‑parameter extraction (User Story 2)
+- [ ] T005 [P] Add missing unit‑test `tests/unit/test_dataset_metadata_schema.py` that loads `data/processed/filtered_datasets.json` (or `.csv` if later) and validates every record against `contracts/dataset_metadata.schema.yaml`.  
 
-- [ ] **T011** Implement `code/utils/parsers.py` with robust, **fail‑loudly** extraction utilities:  
-  * `extract_sample_size(text: str) -> int` – regex `r"N\s*=\s*(\d+)"`.  
-  * `extract_effect_size(text: str) -> Tuple[float, str, Optional[Tuple[int, int]]]` – regexes for Cohen’s d (`r"Cohen\s*['’]?s?\s*d\s*=\s*([0-9.]+)"`) and F‑statistics (`r"F\((\d+),\s*(\d+)\)\s*=\s*([0-9.]+)"`).  
-  * No `try/except` that falls back to synthetic data; any network or parsing failure raises a custom `DataFetchError`.  
-  * Streaming support: if a fetched HTML/PDF text exceeds 5 MiB, process it in 500 KiB chunks, feeding each chunk to the regexes without loading the whole document into memory.  
-  **Unit tests** in `tests/unit/test_parsers.py` for each regex and for the streaming‑chunk logic (`test_streaming_chunks_does_not_exceed_memory`).
+  **Verify** – the test passes on a correctly‑formatted filtered dataset file; CI fails if any record violates the schema.
 
-- [ ] **T012** Implement `code/02_parse_publications.py` that iterates over `data/raw/openml_metadata_filtered.json` and, for each dataset:  
-  1. Performs **pre‑fetch validation** (skip journals unlikely to report univariate effect sizes; see FR‑007).  
-  2. Calls `oa_checker.is_open_access(url)`; if False, records status `"paywalled"` and moves on.  
-  3. Downloads the full‑text via `requests.get` (timeout 10 s). On failure, raises `DataFetchError` (no silent fallback).  
-  4. Applies the parsers from `T011` to extract `sample_size`, `effect_size`, `metric_type`, and optional `degrees_of_freedom`.  
-  5. If extraction fails, marks status `"unparseable"`; if only an abstract is available, retries with the abstract and marks source `"abstract"`.  
-  6. Writes a line‑delimited JSON file `data/processed/extracted_params.json` (one object per dataset) respecting the `extracted_params.schema.yaml`.  
-  7. Generates `data/processed/extraction_stats.json` summarising success/failure counts.  
-  8. Computes the **sensitivity delta** (full‑text success rate – (full‑text + abstract) success rate) and stores it in `data/processed/sensitivity_delta_report.json`.  
+- [ ] T006 [P] Add missing unit‑test `tests/unit/test_extraction_metrics.py` that computes precision, recall, and F1 on a validated set of ≥ 60 papers and asserts **precision ≥ 0.9** and **recall ≥ 0.9** (95 % confidence interval lower bound ≥ 0.9).  
 
-  **Verification** – contract test `tests/contract/test_extracted_params_schema.py::test_schema` validates `extracted_params.json` against its schema; unit tests from `T011` cover the regexes and streaming behavior.
+  **Verify** – the test passes, guaranteeing compliance with FR‑011 and SC‑005.
 
----
+---  
 
-## Phase 4 – Power & MDES computation (User Story 3)
+## Phase 3 – Data ingestion (US‑1)  
 
-- [ ] **T013** Implement `code/03_compute_sensitivity.py` that reads `extracted_params.json` and for each entry:  
-  1. Converts F‑statistics to Cohen’s d when necessary (using the standard conversion formula).  
-  2. Calls `statsmodels.stats.power.TTestIndPower().power(effect_size, nobs1=sample_size, alpha=0.05)` to obtain **observed power**.  
-  3. Calls the same class’s `solve_power` method (inverse power) to compute **MDES** for a target power of 0.8 (default) and `alpha=0.05`.  
-  4. Clamps observed power to ≤ 1.0, logs a warning if the input effect size caused > 1.0.  
-  5. Writes `data/processed/power_audit_results.json` with fields `{dataset_id, observed_power, mdes, threshold_met, status}` matching `power_audit_result.schema.yaml`.  
-  6. Calculates aggregate metrics:  
-     * `observed_power_below_0.8` fraction (SC‑002).  
-     * `mdes_above_0.2` fraction (a secondary MDES adequacy check).  
-     * Writes these to `data/processed/success_metrics.json`.  
-  7. Derives dataset‑type distribution from the ingestion log and writes `data/processed/type_distribution.json` (binary vs. multi‑class counts).  
+- [ ] T007 [P] Implement `code/01_ingest_openml.py` to fetch, filter, and store OpenML metadata using the wrapper from T004.  
 
-  **Verification** – unit test `tests/unit/test_compute_sensitivity.py::test_known_values` runs the functions on synthetic inputs (`N=100, d=0.2`) and asserts observed power ≈ 0.30 ± 0.05 and MDES ≈ 0.25 ± 0.05.
+  1. Call `utils.api_client.fetch_top_classification_datasets(limit=50)`.  
+  2. Filter **retain rows where `publication_link` is non‑null **OR** `task_id` is non‑null**.  
+  3. Write the immutable raw response to `data/raw/openml_raw.json`.  
+  4. Write the filtered list to `data/processed/filtered_datasets.json` (each record conforms to `DatasetMetadata` schema).  
+  5. Record SHA‑256 checksums for both files in `data/processed/checksum_manifest.json`.  
+  6. Emit a concise log `data/ingest.log` with total counts and any skipped entries.  
 
-- [ ] **T014** Produce visualisations:  
-  * Histogram of **observed power** (`power_histogram.png`).  
-  * Histogram of **MDES** (`mdes_histogram.png`).  
-  * Save summary statistics (median, IQR) to `data/processed/mdes_summary.json`.  
+  **Verify** – `tests/unit/test_dataset_metadata_schema.py` loads `filtered_datasets.json` and validates all records; the file is non‑empty. Additionally, the script must exit with status 0 and the checksum manifest must contain entries for both input and output files.
 
-  **Verify** – files exist and are non‑empty PNGs; JSON contains numeric keys `median`, `iqr`.
+---  
 
----
+## Phase 4 – Publication parsing & statistical‑parameter extraction (US‑2)  
 
-## Phase 5 – Report generation & hand‑off
+- [ ] T008 [P] Implement `code/02_parse_publications.py` to extract N and effect sizes.  
 
-- [ ] **T015** Implement `code/04_generate_report.py` that aggregates all JSON artifacts (`power_audit_results.json`, `extraction_stats.json`, `sensitivity_delta_report.json`, `mdes_summary.json`, `success_metrics.json`, `type_distribution.json`) and produces:  
-  1. **Markdown report** `data/processed/audit_report.md` with sections: Overview, Ingestion Summary, Extraction Statistics (including sensitivity delta), Dataset Type Distribution, Observed Power Results (embed `power_histogram.png` and fraction < 0.8), MDES Results (embed `mdes_histogram.png` and summary), and a mandatory disclaimer about post‑hoc power.  
-  2. **Structured JSON report** `data/processed/audit_report.json` that mirrors the markdown sections (counts, fractions, file names).  
+  * Iterate over `data/processed/filtered_datasets.json`.  
+  * For each entry:  
+    1. Use `utils.oa_checker.is_open_access`; if `False`, record status `"paywalled"` and continue.  
+    2. Download full‑text PDF (fallback to abstract) with `requests.get(..., timeout=10)`. Raise `DataFetchError` on any network error.  
+    3. Stream the response in ≤ 500 KiB chunks to `utils.parsers.extract_*` functions.  
+    4. On successful extraction, emit a JSON object adhering to the **`StatisticalParameters`** definition (found under `$defs` in `power_audit_result.schema.yaml`) and write it **line‑delimited** to `data/processed/statistical_params.jsonl`.  
+    5. On failure, record status `"unparseable"` and note the attempted source (`full_text` or `abstract`).  
+  * After processing all datasets, write a summary `reports/extraction_audit.json` that conforms to the `ExtractionAuditReport` schema.  
 
-  **Verification** – contract test `tests/contract/test_final_report_schema.py::test_schema` validates `audit_report.json` against `contracts/report.schema.yaml`; a simple grep on `audit_report.md` confirms the disclaimer text is present.
+  **Verify** – `tests/unit/test_extracted_params_schema.py` validates each line of `statistical_params.jsonl` against its schema; `tests/unit/test_extraction_metrics.py` (added in T006) confirms precision ≥ 0.9, recall ≥ 0.9, and overall extraction success rate ≥ 0.60.
 
-- [ ] **T016** Create `docs/quickstart.md` that documents:  
-  * Prerequisites (Python 3.10+, pip).  
-  * Installation (`pip install -r requirements.txt`).  
-  * Execution command (`./run_pipeline.sh`).  
-  * Expected output files and their purpose.  
-  * Verification step: after running the script, compute SHA‑256 of `data/processed/audit_report.md` and compare it to the checksum recorded in the quick‑start file.  
+- [ ] T009 [P] Add unit‑test `tests/unit/test_extracted_params_schema.py` (if not already present) to perform the schema validation described above.  
 
-  **Verification** – the markdown contains a fenced code block showing the checksum command and the recorded hash.
+  **Verify** – the test passes on a correctly‑generated `statistical_params.jsonl`.
 
-- [ ] **T017** Add a thin wrapper script `run_pipeline.sh` (executable) that runs the four pipeline stages in order:  
+---  
+
+## Phase 5 – Power analysis & reference‑power computation (US‑3)  
+
+- [ ] T010 [P] Implement `code/03_compute_observed_power.py` to calculate observed and reference power.  
+
+  1. Read `data/processed/statistical_params.jsonl`.  
+  2. Convert any F‑statistics to Cohen’s d using the standard conversion (requires DOF).  
+  3. Select the appropriate `statsmodels.stats.power` class:  
+     * `TTestIndPower` for Cohen’s d,  
+     * `FTestAnovaPower` for ANOVA (f),  
+     * `NormalIndPower` (or a logistic‑regression approximation) for odds‑ratio.  
+  4. **Observed power** – compute with reported effect size, sample size `N`, α = 0.05.  
+  5. **Reference power** – compute with the test‑specific small‑effect benchmark (d = 0.2, f = 0.2, log‑odds ≈ 0.2) using the same `N` and α.  
+  6. Clamp any result > 1.0 to 1.0 and log a warning.  
+  7. Write line‑delimited results to `data/processed/power_audit_results.jsonl`, each record conforming to `PowerAuditResult` schema (including `reference_power`, `threshold_met`, `test_type`, etc.).  
+  8. Aggregate summary statistics (fraction with `reference_power < 0.8`, mean observed power, etc.) into `data/processed/power_summary.json`.  
+
+  **Verify** – `tests/unit/test_compute_power.py` runs the core function on a synthetic record (`N=100, d=0.2`) and asserts observed power ≈ 0.30 ± 0.05 and reference power ≥ 0.8; `tests/unit/test_power_audit_schema.py` validates every line of `power_audit_results.jsonl` against its schema.
+
+---  
+
+## Phase 6 – Visualisation & reporting (FR‑005)  
+
+- [ ] T011 [P] Implement `code/04_generate_report.py` to produce figures, markdown, and machine‑readable summaries.  
+
+  * Using `matplotlib`, generate:  
+    - `data/processed/reference_power_histogram.png` (20‑bin histogram of `reference_power`).  
+    - `data/processed/observed_power_histogram.png` (20‑bin histogram of `observed_power`).  
+  * Assemble a markdown report `data/processed/audit_report.md` containing:  
+    - Brief methods recap.  
+    - Ingestion summary (counts, OA breakdown).  
+    - Extraction statistics (pulled from `reports/extraction_audit.json`).  
+    - Power results: embed both PNGs, report the **count** of studies with `reference_power < 0.8`.  
+    - Mandatory disclaimer:  
+      > “Observed post‑hoc power is a monotone function of the p‑value and should not be used as the sole indicator of study adequacy (Hoenig & Heisey).”  
+  * Export a JSON version `data/processed/audit_report.json` mirroring the markdown sections and **including**:  
+    - `reference_power_adequacy` (proportion of studies with `reference_power ≥ 0.8`).  
+    - `extraction_audit_path: "reports/extraction_audit.json"`.  
+
+  **Verify** – `tests/unit/test_report_contents.py` checks that `audit_report.md` contains the disclaimer text and that both PNG files exist; `tests/unit/test_audit_report_metrics.py` asserts that `audit_report.json` includes the `reference_power_adequacy` field (value ≥ 0) and the correct path to the extraction audit JSON.
+
+---  
+
+## Phase 7 – Reproducible execution & user‑facing documentation  
+
+- [ ] T012 [P] Create a pipeline wrapper script `run_pipeline.sh` and accompanying `docs/quickstart.md`.  
+
+  `run_pipeline.sh` (executable):  
+
   ```bash
   #!/usr/bin/env bash
   set -euo pipefail
   python code/01_ingest_openml.py
   python code/02_parse_publications.py
-  python code/03_compute_sensitivity.py
+  python code/03_compute_observed_power.py
   python code/04_generate_report.py
   ```  
-  **Verify** – the script is executable (`chmod +x`) and runs without error on a small test subset (see T023).
 
-- [ ] **T018** Verify the quick‑start workflow (Task T016) by executing `./run_pipeline.sh` on the CI runner and confirming that the SHA‑256 hash of `audit_report.md` matches the value recorded in `quickstart.md`.  
-  **Verification** – a pytest integration test `tests/integration/test_quickstart.py::test_pipeline_produces_expected_checksum` performs the run and asserts equality.
+  `docs/quickstart.md` must list:  
+  1. Prerequisites (`python >=3.11`, `pip install -r requirements.txt`).  
+  2. The command `./run_pipeline.sh`.  
+  3. Expected location of the final report (`data/processed/audit_report.md`).  
+  4. The SHA‑256 checksum of the expected report (computed on a deterministic small‑dataset run).  
 
----
+  **Verify** – `tests/integration/test_quickstart_checksum.py` runs the wrapper with the environment variable `MAX_DATASETS=5` (causing each script to process only the first five OA entries), computes the SHA‑256 of `audit_report.md`, and asserts it matches the checksum recorded in `quickstart.md`.
 
-## Phase 6 – Performance, resource limits & robustness
+---  
 
-- [ ] **T019** Implement a performance harness script `code/performance_harness.py` that:  
-  * Executes the full pipeline while measuring wall‑clock time (`/usr/bin/time -v`).  
-  * Profiles peak RSS using `memory_profiler`.  
-  * Writes a JSON summary `data/processed/performance_metrics.json` containing `elapsed_seconds`, `peak_memory_gb`, and timestamps.  
+## Phase 8 – Performance limits, provenance, and checksum manifest  
 
-  **Verification** – unit test `tests/unit/test_performance_harness.py` runs the harness on a tiny synthetic dataset and asserts that the JSON keys exist and values are numeric.
+- [ ] T013 [P] Add runtime‑ and memory‑limit enforcement to every pipeline script and provide a performance harness.  
 
-- [ ] **T020** Add runtime‑ and memory‑limit enforcement to each pipeline script (`01_ingest_openml.py`, `02_parse_publications.py`, `03_compute_sensitivity.py`, `04_generate_report.py`). Each script must read `config.yaml` (Task T004) and abort with a clear error message if the measured wall‑clock time exceeds `max_runtime_hours` or if the process’s RSS exceeds `max_memory_gb`.  
+  * Each script loads `config.yaml` at start; if wall‑clock time exceeds `limits.max_runtime_hours` **or** RSS exceeds `limits.max_memory_gb`, raise `RuntimeError` with a clear message.  
+  * New module `code/performance_harness.py` runs the full pipeline while measuring elapsed seconds (`time.perf_counter()`) and peak RSS (`memory_profiler.memory_usage`). Results are written to `data/processed/performance_metrics.json` with keys `elapsed_seconds`, `peak_rss_gb`, `status`.  
 
-  **Verification** – integration test `tests/integration/test_limit_enforcement.py` monkey‑patches the limits to tiny values and confirms that the scripts raise `RuntimeError` with the expected message.
+  **Verify** – `tests/unit/test_performance_harness.py` (1) runs on a tiny dataset and asserts both limits are respected (SC‑003, SC‑004); (2) deliberately lowers `limits.max_memory_gb` and confirms a `RuntimeError` is raised; (3) sets `limits.max_runtime_hours` to 0 and confirms a `RuntimeError`.
 
-- [ ] **T021** Write an integration test `tests/integration/test_full_pipeline_small_subset.py` that:  
-  1. Limits the ingestion step to the first **5** filtered datasets (by passing an environment variable `MAX_DATASETS=5`).  
-  2. Executes the entire pipeline via `./run_pipeline.sh`.  
-  3. Checks that `audit_report.md` exists, is non‑empty, and its SHA‑256 matches a pre‑computed reference checksum stored in `tests/integration/expected_audit_report.sha256`.  
+- [ ] T014 [P] Maintain a central checksum manifest for provenance.  
 
-  **Verification** – the test passes on the CI runner, proving end‑to‑end reproducibility on a tractable subset.
+  * After each pipeline stage, append an entry to `data/processed/checksum_manifest.json` of the form:  
 
----
+    ```json
+    {
+      "stage": "ingest",
+      "input": "data/raw/openml_raw.json",
+      "output": "data/processed/filtered_datasets.json",
+      "sha256": "<hash>"
+    }
+    ```  
 
-## Phase 7 – Polish & cross‑cutting clean‑up
+  * Provide a unit test `tests/unit/test_checksum_manifest.py` that modifies a source file, re‑runs the corresponding stage, and asserts the manifest entry’s `sha256` value has changed accordingly.  
 
-- [ ] **T022** Refactor `code/utils/` to eliminate duplicate code:  
-  * Move OA‑check logic from `oa_checker.py` into a shared helper `code/utils/open_access.py`.  
-  * Ensure all scripts import `logging_config` and use the same logger instance.  
-  * Run `flake8` import‑order check to confirm no circular imports.  
+  **Verify** – the test passes, confirming that the manifest tracks true file hashes.
 
-  **Verification** – `flake8` passes, and a grep for `import oa_checker` shows no remaining references.
+---  
 
-- [ ] **T023** Update `docs/constitution.md` with markdown links to the key artifacts (`research.md`, `plan.md`, `quickstart.md`) to satisfy the constitution‑check requirement.  
+## Phase 9 – Constitution‑compliant housekeeping  
 
-  **Verification** – the file contains the three links and `markdown-link-check` (if run) reports no broken links.
+- [ ] T015 [P] Refactor OA logic into a single module `code/utils/open_access.py` and update all imports (replace any lingering `oa_checker` imports).  
 
-- [ ] **T024** Ensure all intermediate artifacts are recorded in a central checksum manifest: `data/processed/checksum_manifest.json`. Each pipeline step (ingest, parse, compute, report) appends entries of the form `{ "input": "<path>", "output": "<path>", "sha256": "<hash>" }`.  
+  **Verify** – `flake8 code/` exits with status 0 and a `grep -R "oa_checker"` returns no results.
 
-  **Verification** – a unit test `tests/unit/test_checksum_manifest.py` modifies a source file, reruns the relevant step, and asserts that the corresponding manifest entry’s hash changes.
+- [ ] T016 [P] Implement the Reference‑Validator citation gate.  
 
----
+  * Script `code/utils/verify_citations.py` parses all `.md` and `.json` artifacts in the project, extracts external URLs, queries a mock Reference‑Validator endpoint to ensure each citation is reachable and has title‑token overlap ≥ 0.7.  
+  * The script exits with code 1 on any failure.  
 
-### Dependency mapping (for reference)
+  **Verify** – run the script against a deliberately bad citation file and assert it fails; run it against the final `audit_report.md` and assert it passes.
+
+- [ ] T017 [P] Ensure deterministic random‑seed pinning across the entire code base.  
+
+  * At the top of every script in `code/` add:  
+
+    ```python
+    import random, numpy as np
+    random.seed(42)
+    np.random.seed(42)
+    ```  
+
+  * Add test `tests/unit/test_reproducibility.py` that runs a stochastic part of the pipeline twice (e.g., shuffling the filtered dataset list) and asserts the resulting `data/processed/filtered_datasets.json` files are byte‑identical.  
+
+  **Verify** – the test passes, guaranteeing reproducibility.
+
+---  
+
+### Dependency mapping (quick reference)
 
 | Spec requirement | Satisfying task(s) |
 |------------------|--------------------|
-| FR‑001, FR‑002, FR‑009 | T009 |
-| FR‑003, FR‑007, FR‑008 | T011, T012 |
-| FR‑004, FR‑005, SC‑001, SC‑002 | T013, T014 |
-| FR‑006 (a‑priori capability) | T009 (provides data) + T015 (report) |
-| FR‑009 (type distribution) | T013 |
-| Contract validation | T005, T010, T018, T030 |
-| Performance limits | T019, T020 |
-| Reproducibility (quickstart) | T016, T017, T018 |
-| Memory‑profile & limit enforcement | T019, T020 |
-| Documentation & constitution | T023, T022 |
+| FR‑001, FR‑002   | T007 |
+| FR‑003, FR‑007   | T008 |
+| FR‑004, FR‑010   | T010 |
+| FR‑005, SC‑001, SC‑002 | T011 |
+| FR‑011, SC‑005   | T008 + T006 |
+| FR‑013           | T007, T008, T010, T011 (all write to SSoT) |
+| FR‑015           | T008 (writes `reports/extraction_audit.json`) |
+| SC‑003, SC‑004   | T013 |
+| SC‑009 (confound modeling) – not required for minimal study, omitted |
+| Constitution I‑VII | T015‑T017 |
+| Performance limits | T013 |
+| Checksum provenance | T014 |
+| Quickstart reproducibility | T012 |
+| Missing unit tests | T005, T006, T009, T015, T016, T017 (added/updated) |
 
---- 
+---  
 
-*All tasks above are unchecked (`[ ]`) to indicate they still need to be implemented and verified.  Once a task passes its verification step, the checkbox can be marked as completed.*
+*All tasks are currently unchecked (`[ ]`).  Once a task’s verification step passes, the corresponding checkbox may be marked as completed.*

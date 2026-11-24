@@ -1,0 +1,27 @@
+T000:
+  c: true
+  h: f77a065597bb8b97add1dee0a2048c4056fef9c9822986beab0f86acdb5b802a
+  r: "Checked `src/data/synthetic_generator.py`, the populated `data/videos/orig/`\
+    \ directory (200 MP4 files) and its `manifest.csv` (200 rows matching the videos).\
+    \ The script ran successfully (exit\u202F0) and the manifest row count equals\
+    \ the video count, exceeding the required 150 videos."
+  sig: e0f59b2534b5410f9c634b528ec9c7f2f5d068299a57afadb78d904134f72a09
+T001:
+  c: false
+  h: c3168de5be5a5dbdf4075ff512cbe52782c6cf91a23cdbbc6e89b088f21d63b7
+  r: "Checked `quickstart.md` and `configs/run.yaml` \u2013 both files exist and contain\
+    \ the required command description and default configuration. However, there is\
+    \ no evidence that `python -m src.pipeline.run_all --config configs/run.yaml`\
+    \ actually runs successfully, prints a concise summary, and exits with status\u202F\
+    0; the provided test log shows a failing pytest test (NameError) and no successful\
+    \ execution record. A passing run (or corrected test) is needed to satisfy the\
+    \ verification requirement."
+  sig: 3a4eea9783ebe4ba5723782568b5edab7f59e59b607e435931105873e960451a
+T002:
+  c: false
+  h: 6de07f4f8d435f91f79ae1042d393a09fc52995f4c74075b8c6d76e71fad355f
+  r: "The `src/data/something_loader.py` and its unit test exist and meet the streaming,\
+    \ exception, and deterministic\u2011seed behavior, but `requirements.txt` does\
+    \ not pin the Faster\u2011RCNN detector weights (e.g., `torchvision==0.17.2`)\
+    \ as required. Adding that version pin will be needed to complete the task."
+  sig: 826145623544716f2aa59181bc2c26d2e560ec8b964791b2b69fe1e16dbdc27c

@@ -13,7 +13,7 @@ The system must ingest public course enrollment datasets containing distinct col
 
 **Why this priority**: This is the foundational data engineering step. Without accurate, temporally distinct metrics for the predictor (recommendations) and outcome (enrollments), no statistical analysis can be performed. It delivers the primary dataset required for the research.
 
-**Independent Test**: Can be fully tested by running the preprocessing script on a known sample dataset (e.g., a 100-row mock CSV) and verifying the output JSON contains calculated entropy scores for both recommendation and enrollment lists that match manual calculations within a tolerance of 0.001.
+**Independent Test**: Can be fully tested by running the preprocessing script on a known sample dataset (e.g., a modest‑sized mock CSV) and verifying the output JSON contains calculated entropy scores for both recommendation and enrollment lists that match manual calculations within an acceptable tolerance.
 
 **Acceptance Scenarios**:
 

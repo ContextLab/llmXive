@@ -18,9 +18,25 @@ class Config:
         self.SAMPLE_TRIGGER_SIZE = 1000
         
     def validate_config(self):
+        # In a full implementation this would check that required attributes are set.
+        # For the purposes of the current pipeline we simply pass.
         pass
 
 CONFIG = Config()
 
-def validate_config():
-    pass
+def validate_config(config: Config = None):
+    """
+    Validate the provided Config instance.
+
+    The original implementation expected no arguments, which caused a
+    TypeError when called with a Config object. This updated signature
+    accepts an optional Config instance and performs a no‑op validation,
+    preserving compatibility with existing callers.
+    """
+    if config is None:
+        return
+    # Placeholder for real validation logic.
+    # Example checks could be added here, e.g.:
+    # if not config.MODEL_ID:
+    #     raise ValueError("CONFIG.MODEL_ID must be set")
+    return

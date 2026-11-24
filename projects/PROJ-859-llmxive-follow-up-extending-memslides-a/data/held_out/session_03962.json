@@ -1,0 +1,208 @@
+{
+  "trace_id": "held_out_43_03962",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "resize_element",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "insert_text",
+    "resize_element",
+    "resize_element",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 36.151
+      }
+    },
+    {
+      "step": 1,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 62.6015
+      }
+    },
+    {
+      "step": 2,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 80.9479
+      }
+    },
+    {
+      "step": 3,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 6.2246
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 21.779
+      }
+    },
+    {
+      "step": 5,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 99.9567
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 36.304,
+        "y": 22.8065,
+        "width": 33.2232,
+        "height": 64.0529
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 38.7132,
+        "y": 32.3964,
+        "width": 77.0998,
+        "height": 39.7056
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 32.9919,
+        "y": 55.1233,
+        "width": 59.8917,
+        "height": 92.6836
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 67.3043,
+        "y": 56.3072,
+        "width": 63.4959,
+        "height": 74.5795
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 83.1156,
+        "y": 35.2651,
+        "width": 81.5034,
+        "height": 6.4689
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 19.0234,
+        "y": 44.1499,
+        "width": 39.1636,
+        "height": 47.7496
+      }
+    },
+    {
+      "step": 12,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 41.8115,
+        "height": 66.2862
+      }
+    },
+    {
+      "step": 13,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 97.0702,
+        "padding": 21.0264
+      }
+    },
+    {
+      "step": 14,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 49.1461,
+        "padding": 59.623
+      }
+    },
+    {
+      "step": 15,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 54.4337,
+        "padding": 61.764
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 59.2115,
+        "y": 71.153,
+        "length": 89.2892
+      }
+    },
+    {
+      "step": 17,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 45.7922,
+        "height": 80.1381
+      }
+    },
+    {
+      "step": 18,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 83.609,
+        "height": 76.3981
+      }
+    },
+    {
+      "step": 19,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 3.7867,
+        "height": 29.203
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.478626,
+    "tool_repetition_freq": 0.75,
+    "arg_semantic_variance": 604.933623
+  },
+  "final_state": {
+    "dominant_tool": "delete_element",
+    "slide_element_count": 2,
+    "layout_hash": "43-3962-delete_element"
+  },
+  "variance_multiplier": 1.5
+}

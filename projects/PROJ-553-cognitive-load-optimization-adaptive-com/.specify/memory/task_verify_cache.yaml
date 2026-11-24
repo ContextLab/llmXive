@@ -1,25 +1,42 @@
 T001:
+  c: true
+  h: f4cac19e1c1720602487b76bfe74b4bfd15d3b735babf3e9190a22b0bf1fa23a
+  r: 'All required directories (`data/raw/`, `data/processed/`, `data/explanation_tiers/`,
+    `data/simulation_results/`, `code/`, `tests/`, `docs/`) exist with content, and
+    all core files are present and non-empty: `README.md` contains a one-sentence
+    project description, `code/__init__.py`, `requirements.txt`, `tests/__init__.py`,
+    and `docs/README.md` all have real content. Execution logs confirm the setup scripts
+    ran successfully (exit 0).'
+  sig: 1d734aa4eed856e51aa542f9922f2658faea73fedb09c090c13c0f1bc62a37dc
+T001a:
   c: false
-  h: 2b3b1475383d14382118093c48288cdfa9482f5235c1374903ddedf74ceb78d0
-  r: The provided artifacts include only three of the required core files (`code/__init__.py`,
-    `requirements.txt`, `tests/__init__.py`) and no evidence of the `README.md` file
-    or any of the required directories (`data/raw/`, `data/processed/`, `data/explanation_tiers/`,
-    `data/simulation_results/`, `code/`, `tests/`, `docs/`). The task is not fully
-    satisfied.
+  h: 775b717dfd58653690ea79f5984367d775e54771b589bb5c37164037e4b05d0a
+  r: "The `compute_checksums()` function exists and a run log shows exit 0, and `data/raw/checksums.sha256`\
+    \ exists \u2014 but it contains only a checksum for `.gitkeep`, i.e., there are\
+    \ no actual raw data files under `data/raw/` for it to cover, so the manifest\
+    \ is vacuous. Additionally, there is no on-disk evidence that `project_state.yaml`\
+    \ exists with the `artifact_hashes` entry; the run log's claim is not confirmed\
+    \ by any collected artifact, and the function writes it to a relative CWD path\
+    \ that may not be the project root. The next implementer should place the real\
+    \ raw data files under `data/raw/`, re"
+  sig: 3b2f25db72c671ef88e63c949d38fe87e417f653d462cfd9c2a30784dcf4cf20
+T001b:
+  c: true
+  h: 4793ed46c7132f756222fd7023166524772ee0402bc4da5da6e21f69c7357a9f
+  r: Checked `code/seed.py` (defines `SEED = 42`, `set_seed()` sets `random`, `numpy`,
+    and optional `torch` seeds) and the pytest log `code/.tasks/T001b.tests_test_seed.py.log`
+    showing two tests (`test_repeatability` and `test_custom_seed`) passed, confirming
+    deterministic behavior.
+  sig: bafd60e49fb00988b51329dcc62084207545246582eda05d9852475613a38dfd
 T002:
   c: true
-  h: 21588fb8e477ccadb02cd7a8453b199735fca27f15bbe7e2fd0e3e02b1f656e3
-  r: "The `requirements.txt` file is present, non\u2011empty, and lists all required\
-    \ packages (scikit-learn, lightgbm, pandas, numpy, textstat, datasets, statsmodels,\
-    \ pytest, requests). Extra entries do not invalidate the fulfillment of the specified\
-    \ requirement."
-T003:
-  c: true
-  h: 0946ec43f928d4cd976567e1b19a9006e9b0973b82cf2ed8e1f7d2f6309ca887
-  r: "The repository contains a non\u2011empty `pyproject.toml` that defines `[tool.black]`\
-    \ with `target-version = ['py311']` and `line-length = 88`, and a `.ruff.toml`\
-    \ that references the ruff configuration (via `extend = \"pyproject.toml\"`).\
-    \ Both required files are present and correctly configured."
+  h: 84a64ebf91bd74b0c3f2ac3e9a4a81f6940cdc59523c122b60411984cd3b60f6
+  r: The `requirements.txt` exists at the project root and lists all nine required
+    packages (scikit-learn, lightgbm, pandas, numpy, textstat, datasets, statsmodels,
+    pytest, requests) plus black/ruff. Execution logs show a successful install run
+    (exit 0) and passing import tests for lightgbm, textstat, and datasets on Python
+    3.11.17.
+  sig: db9db8fc836ccea65857ca3280d74b19d03a02486a4652946e5e7b0f57b02278
 T004:
   c: false
   h: ab90bc05e2ab1942384dc16c06c71ecf2f3b4032db8d5170ae69f8851b5e326f
@@ -28,13 +45,6 @@ T004:
     \ load labels (e.g., NASA\u2011TLX scores) nor does it emit the required warning\
     \ `\"Public dataset lacks concurrent load labels. Manual Golden Set (T007g) is\
     \ required.\"` Consequently the critical part of the task is missing."
-T007e:
-  c: true
-  h: 06bafc19bcec0536914f76463708afd8396dfcee85d61befa6a3f5c5905095a7
-  r: "The `docs/golden_set_creation.md` file is present, non\u2011empty, and provides\
-    \ a thorough guide: it explains generating `golden_set_template.csv` via a script,\
-    \ details the expert labeling workflow, and explicitly states that the process\
-    \ is manual and cannot be automated."
 T007f:
   c: false
   h: ed8acac8be02ac72286c15e0715a1589e5c010a1bc5d1f294b20d3c4a514872b
@@ -68,13 +78,6 @@ T018:
     \ existence check cannot pass and no file size verification can be performed.\
     \ The task\u2019s condition to raise an error for a missing or oversized model\
     \ is therefore not satisfied."
-T021:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or notebook implementing the simple\u2011tier generation with\
-    \ the `facebook/bart-large-cnn` model is provided, nor any evidence of FK\u2011\
-    difference or Jaccard\u2011similarity checks or the required `ValueError` handling.\
-    \ The required artifact is missing, so the task is not satisfied."
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

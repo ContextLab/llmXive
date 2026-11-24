@@ -1,288 +1,217 @@
-# Tasks: The Impact of Digital Decluttering on Cognitive Performance and Well-being
+# Tasks: The Impact of Digital Decluttering on Cognitive Performance and Well‑being  
 
-**Input**: Design documents from `/specs/001-digital-decluttering-study/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as a MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001.1 [P] Create project directory structure: `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/`, `data/raw/`, `data/processed/`, `data/compliance/`, `code/`, `tests/`, `results/`, `docs/`. **Command**: Run in bash terminal: `mkdir -p projects/PROJ-249-the-impact-of-digital-decluttering-on-co/{data/{raw,processed,compliance},code,tests,results,docs} && ls projects/PROJ-249-the-impact-of-digital-decluttering-on-co/ > projects/PROJ-249-the-impact-of-digital-decluttering-on-co/structure.log`. **Verification**: Run `cat projects/PROJ-249-the-impact-of-digital-decluttering-on-co/structure.log` and verify all directories exist. **Output**: `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/structure.log` listing created directories.
-- [ ] T001.2 [P] Create `requirements.txt` with pinned dependencies: `pandas`, `numpy`, `scipy`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `pytest`, `flask`. **Output**: `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/requirements.txt`.
-- [X] T003 [P] Configure linting (flake8/pylint) and formatting (black) tools
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, `contracts/`, original research idea, and reviewer feedback.  
+The goal is to implement a reproducible, end‑to‑end pipeline that evaluates the **associational** effect of a one‑week digital declutter on sustained attention, working memory, stress, and mood, while explicitly acknowledging practice‑effect and control‑group limitations. All functional requirements (FR‑001 – FR‑011) and success criteria (SC‑001 – SC‑005) must be satisfied and verifiable by automated tests.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0 – Pilot Validation (pre‑recruitment)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes data generation, scoring logic, instrument verification, power simulation, compliance logging, and recruitment workflow generation.
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T004 Setup data directory structure: `data/raw/`, `data/processed/`, `data/compliance/`
-- [X] T005 [P] Create `code/__init__.py` and module scaffolding for `scoring/`, `analysis/`, `validation/`, `viz/`, `pipeline/`, `report/`, `web/`
-- [X] T006 [US1] Implement pseudonymous ID generator in `code/scoring/id_generator.py` adhering to `P\d{3}` pattern (FR-001); MUST generate IDs from a recruitment CSV or synthetic source to ensure deterministic linking of baseline/post data; output format MUST strictly match the `P\d{3}` regex pattern required by FR-001 and data-model.md.
-- [ ] T006.1 [US1] Implement 'register_participant' function in `code/pipeline/register_participant.py` (FR-001); MUST assign IDs from T006 to participants upon entry and link them to data records; **Input Schema**: CSV with columns `['recruitment_id', 'consent_timestamp', 'demographic_hash']` from `data/raw/recruitment.csv`; **Output Schema**: `data/raw/participant_registry.csv` with columns `['participant_id', 'recruitment_id', 'status']`; **Error Handling**: MUST raise `ValueError` if `participant_id` does not match `P\d{3}` or if `recruitment_id` is duplicate; **Depends on T006**.
-- [ ] T006.2 [US1] **Implement Participant Registration Service** in `code/pipeline/participant_registration.py` (FR-001); MUST implement executable logic to ingest recruitment data, assign pseudonymous IDs, and persist to the registry; **Input**: `data/raw/recruitment.csv`; **Output**: `data/raw/participant_registry.csv`; **Constraint**: MUST NOT generate static documentation as the primary deliverable; **Depends on T006, T012.0`.
-- [ ] T006.2.1 [US1] **Verify Registration Service** in `code/validation/verify_registration_service.py`; MUST run integration tests against `code/pipeline/participant_registration.py` to verify ID assignment logic and data persistence; **Depends on T006.2`.
-- [ ] T006.3 [US1] **Instrument Verification** in `code/validation/verify_osf_instruments.py`; MUST download SART and Ospan task source code (latest version) from the OSF repository to a local cache `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/data/raw/osf_instruments/` during the Setup phase, compute SHA-256 hash, and compare against the reference hash defined in the plan; MUST fail loudly if hash mismatch; **Output**: `results/instrument_verification.json` with status 'verified' or 'failed'; **Constraint**: MUST run BEFORE any scoring logic is used (T014, T015) and BEFORE synthetic data generation (T009). The verification step MUST run against the local cache to ensure no network calls are required during the analysis phase.
-- [X] T007 Create base data schema definitions in `contracts/dataset.schema.yaml` matching `Participant`, `MeasurementRecord`, `ComplianceLog` entities
-- [X] T008 Configure random seed management utility in `code/utils/random_seed.py` for reproducibility
-- [ ] T008.1 [P] **Reproducibility Manifest Generator** in `code/pipeline/generate_reproducibility_manifest.py`; MUST execute at the end of the pipeline to log the exact random seed used, canonical source URLs, and artifact hashes into `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/reproducibility_manifest.json`; **Output**: `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/reproducibility_manifest.json`; **Depends on T008, T009, T010`.
-- [ ] T009 [US1] Create synthetic data generator for baseline validation in `code/validation/synthetic_baseline.py` (FR-009, US-1); MUST read parameters from `code/config/synthetic_data_config.yaml` (mean, std, distributions) to ensure deterministic execution; output to `data/raw/synthetic_baseline.csv` with columns (`participant_id`, `metric_type`, `value`, `timestamp`); **Output**: `data/raw/synthetic_baseline.csv` with valid ranges for all metrics; **Constraint**: Synthetic data is for pipeline validation ONLY; it does NOT satisfy the acceptance criteria for FR-009's real-world pilot check; **Depends on T006, T006.3`.
-- [ ] T010 [US1] **Monte Carlo Power Simulation** in `code/analysis/power_simulation.py` (FR-006, US-1); MUST use synthetic data from T009, run multiple iterations, apply Holm-Bonferroni correction (from T035), estimate power for d=0.5; **Output**: `results/power_analysis.json` with keys `power_estimate` (float), `iterations` (int), `effect_size` (float); **Constraint**: MUST run BEFORE primary analysis tasks; **Depends on T009, T035`.
-- [ ] T011.0 [US1] **Host OSF Instruments Locally** in `code/pipeline/host_osf_instruments.py`; MUST extract the downloaded OSF code (from T006.3) to `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/code/web/local_instruments/` to enable local testing; **Output**: `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/code/web/local_instruments/`; **Depends on T006.3`.
-- [ ] T011.1 [US1] **Implement Web Interface for Cognitive Tasks** in `code/web/task_interface.py` (FR-002, FR-009); MUST implement a Flask/Streamlit web application to administer SART and Ospan tasks via a browser; **Input**: `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/code/web/local_instruments/`; **Output**: Running web server on localhost; **Constraint**: MUST launch an HTTP server to satisfy FR-002; **Purpose**: Provides the actual user interface for participants; **Depends on T011.0, T006.3`.
-- [ ] T011.2 [US1] **Implement Headless Integration Tests for Web Interface** in `code/web/test_web_interface.py`; MUST use Selenium or Playwright to automate browser interactions with the web interface from T011.1 to verify task rendering and response capture; **Input**: Running web server from T011.1; **Output**: Test results; **Depends on T011.1`.
-- [ ] T012.0 [US1] **Implement Eligibility & Consent Engine** in `code/pipeline/eligibility_engine.py` (FR-001, FR-009); MUST implement executable logic to validate eligibility criteria and consent status before allowing registration; **Input**: Recruitment data; **Output**: Validated/Rejected status; **Constraint**: MUST NOT generate static documentation as the primary deliverable; **Depends on T006`.
-- [ ] T012.1 [US1] **Implement Recruitment Data Ingestion Pipeline** in `code/pipeline/recruitment_ingestion.py` (FR-001); MUST implement logic to process recruitment data, apply eligibility checks (T012.0), and register participants (T006.2); **Input**: `data/raw/recruitment.csv`; **Output**: `data/raw/participant_registry.csv`; **Depends on T012.0, T006.2`.
-- [ ] T012.2 [US1] Generate recruitment script template in `code/pipeline/generate_recruitment_script.py` (FR-009); MUST generate `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/docs/recruitment_script_template.md` with fields: Prolific ID, Screening Questions, Consent Form, Pilot Instructions; **Input**: Config; **Output**: `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/docs/recruitment_script_template.md`; **Depends on T012.1`.
-- [X] T014 [US1] Implement SART scoring function in `code/scoring/sart.py` (response times ranging from tens of milliseconds to several seconds, commission errors); MUST accept input schema `{'response_time': float, 'accuracy': bool, 'stimulus_type': str}` and output `{'commission_errors': int, 'omission_errors': int, 'mean_rt': float}`. **Depends on T011.2, T006.3`.
-- [X] T015 [US1] Implement Ospan scoring function in `code/scoring/ospan.py` (span scores); MUST accept input schema `{'stimulus': str, 'recall': str, 'accuracy': bool}` and output `{'span_score': int, 'total_correct': int}`. **Depends on T011.2, T006.3`.
-- [X] T016 [US1] Implement PSS-10 and PANAS scoring functions in `code/scoring/questionnaires.py`. **Depends on T009`.
-- [X] T017 [US1] Unit test for SART scoring logic against OSF reference (v+) in `tests/unit/test_sart_scoring.py` (runs against data from T009; MUST execute once T014 is complete) **Depends on T014`.
-- [X] T018 [US1] Unit test for Ospan scoring logic against OSF reference (v+) in `tests/unit/test_ospan_scoring.py` (runs against data from T009; MUST execute once T015 is complete) **Depends on T015`.
-- [X] T019 [US1] Unit test for PSS-10 and PANAS scoring in `tests/unit/test_questionnaire_scoring.py` (runs against data from T009; MUST execute once T016 is complete) **Depends on T016`.
-- [X] T020 [P] [US1] Contract test for data schema validation in `tests/contract/test_baseline_schema.py`
-- [X] T021 [US1] Implement instrument logic validation script to run synthetic data through scorers and check ranges in `code/validation/validate_instruments.py`
-- [ ] T019.1 [US1] **Execute Simulated Human-in-the-Loop Pilot** in `code/pipeline/run_pilot.py`; MUST execute the recruitment protocol from T012.1 (specifically the 'execute pilot simulation' step) and T012.2 locally, spawn a set of simulated user sessions using the web interface (T011.1) to interact with SART/Ospan tasks, and collect response data; MUST validate that SART commission errors are > 0 and < 100, Mean RT within a lower-bound-defined window up to 3000ms, and PSS between low and high values. The research question is [Does a one-week period of intentionally reduced digital engagement improve sustained attention, working memory capacity, and self-reported stress and mood compared to baseline levels?], the method is [within-subjects experimental study with bootstrapped CI], and the references are [OSF SART/Ospan v2+, PSS-10, PANAS]; **Output**: `data/raw/pilot_raw.json`; **Constraint**: MUST use the web interface (T011.1) to simulate human interaction; **Depends on T011.1, T009, T014, T015, T012.1, T012.2**. NOTE: This is a faithful proxy execution on synthetic inputs to validate logic without human recruitment, satisfying FR-009's requirement for a functional pilot check with a simulated human-in-the-loop.
-- [X] T022 [US1] Create baseline data collection pipeline script in `code/pipeline/collect_baseline.py`; MUST orchestrate T009 (synthetic) and T019.1 (pilot) data ingestion, ensuring strict adherence to `contracts/dataset.schema.yaml` and applying the pseudonymous ID mapping from T006.1; output MUST be stored in `data/raw/baseline_raw.csv` with a checksum manifest.
-- [X] T026 [US2] Implement daily log parser in `code/compliance/parse_logs.py`
-- [X] T027 [US2] Implement plausibility validation logic (FR-010) in `code/validation/compliance_plausibility.py`
-- [X] T028 [US2] Implement compliance rule engine (≤30 min social media, no news, notifications off) in `code/compliance/rules_engine.py`
-- [X] T029 [US2] Create compliance aggregation script to calculate daily/weekly scores in `code/pipeline/aggregate_compliance.py`
-- [X] T030 [US2] Implement logic to flag non-compliant days but retain data for analysis (US-2); MUST mark entries in `data/compliance/flags.json` without dropping rows, ensuring T034 can process partial data for participants with mixed compliance.
-- [X] T035 [US3] Implement Holm-Bonferroni step-down correction in `code/analysis/holm_bonferroni.py` (FR-008)
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [~] T000 **Pilot validation of SART and Ospan timing (n = 5).**  
+  *Create a tiny live pilot, record raw trial‑level responses, and verify that all response times fall within 100 ms – 5000 ms and that SART accuracy ≥ 50 % (low‑attention flag otherwise).*  
+  **File path(s)**: `data/raw/pilot/`, `code/tests/test_pilot.py`  
+  **Verification**: `pytest code/tests/test_pilot.py` must pass and the pilot files must validate against `contracts/dataset.schema.yaml`.
 
 ---
 
-## Phase 3: User Story 1 - Baseline Data Collection (Priority: P1) 🎯 MVP
+## Phase 1 – Setup, Data Collection, and Early End‑to‑End Run  
 
-**Goal**: Recruit participants (simulated), collect baseline cognitive and emotional metrics, and validate instrument logic.
+### Project scaffolding  
 
-**Independent Test**: Run the baseline script for a single participant; verify SART, Ospan, PSS-10, and PANAS scores are recorded in `data/raw/` with valid ranges.
+- [~] T001 **Create project layout, pin dependencies, and write configuration.**  
+  *Create required directories (`code/scoring/`, `code/analysis/`, `code/compliance/`, `code/viz/`, `code/validation/`, `code/pipeline/`, `code/tests/`, `data/raw/`, `data/processed/`, `data/results/`, `figures/`).*  
+  **File path(s)**: (directory creation), `code/requirements.txt`, `code/config/study_config.yaml`, `quickstart.md` (updated with exact command).  
+  **Verification**: `pytest tests/integration/test_layout.py` confirms directories exist; `pip install -r code/requirements.txt` succeeds without conflicts.
 
-### Implementation for User Story 1
+### Participant recruitment & instrument delivery  
 
-- [ ] T031 [US3] Implement data merger to join baseline and post-intervention records in `code/pipeline/merge_data.py`; **Input**: `data/raw/baseline_raw.csv` and `data/processed/compliance_scores.csv`; **Output**: `data/processed/merged_data.csv`; **Constraint**: MUST fail if `data/processed/compliance_scores.csv` is missing (enforced by dependency on T029); **Depends on T029`.
-- [X] T032 [US3] Implement change score calculator (post - baseline) in `code/analysis/change_scores.py` (FR-005)
-- [X] T033.1 [US3] **Execute Primary Bootstrapping Loop** in `code/analysis/run_bootstrap.py`; MUST execute the primary bootstrapping method (sufficient resamples) for all metrics (SART, Ospan, PSS, PANAS) using the change scores from T032; **Output**: `data/processed/bootstrap_results.json` containing mean change and 95% CI for each metric; **Constraint**: MUST run BEFORE any fallback logic; MUST NOT check for normality (Shapiro-Wilk) to trigger fallback; **FOLLOWING PLAN OVERRIDE**: Wilcoxon fallback triggered ONLY on convergence failure, NOT Shapiro-Wilk p-value. MUST emit a 'convergence_failed' flag to `data/processed/bootstrap_status.json` upon failure; **Depends on T031, T032`.
-- [X] T033.2 [US3] **Bootstrapping Constraint Audit** in `tests/unit/test_no_shapiro_trigger.py`; MUST perform static analysis or unit test asserting the absence of Shapiro-Wilk logic in `code/analysis/run_bootstrap.py`; **Depends on T033.1`.
-- [X] T034.1 [US3] Implement convergence failure detection logic in `code/analysis/convergence_detector.py`; MUST detect specific failure modes: 'empty resamples' (0 valid samples), 'singular matrix' (variance=0 in 99% of resamples), 'max iteration exceedance' (attempts without stable mean); MUST explicitly return a flag indicating 'convergence_failed' to trigger T034; **Depends on T033.1`.
-- [X] T034 [US3] Implement fallback Wilcoxon signed-rank test logic in `code/analysis/wilcoxon_fallback.py`; MUST trigger ONLY if T034.1 detects convergence failure (FR-006). **Depends on T034.1, T033.2`.
-- [X] T036 [US3] Implement Cohen's d with confidence interval calculation in `code/analysis/effect_sizes.py` (FR-007)
-- [X] T037 [US3] Generate `results/statistical_summary.json` with mean change, CI, and corrected p-values (SC-001 to SC-005)
-- [X] T037.1 [US3] **Success Criteria Verdict Generator** in `code/report/generate_success_verdict.py`; MUST read `results/statistical_summary.json`, compare values against SC-001 to SC-005 thresholds (p < 0.05, d ≥ 0.2), and generate `results/success_verdict.json` with a Pass/Fail status for each criterion and an overall study verdict; **Clarification**: This task verifies the *analysis logic* against defined thresholds for pipeline validation; the *scientific success* of the intervention is only determined when real data is analyzed; **Depends on T037`.
-- [ ] T038.1 [US3] **Implement Objective Data Ingestion Adapter** in `code/compliance/objective_data_adapter.py` (FR-011); MUST implement a configurable adapter to attempt loading objective screen-time data from a configured path; **Input**: Config path; **Output**: `data/processed/objective_data_status.json` with status 'available' or 'missing'; **Constraint**: MUST NOT silently fall back to synthetic data; MUST explicitly document 'missing' state; **Depends on T038.2`.
-- [ ] T038.2 [US3] **Implement Sensitivity Analysis Logic** in `code/report/generate_sensitivity_report.py` (FR-011); MUST check `data/processed/objective_data_status.json` from T038.1; IF 'available', implement comparison; IF 'missing', generate limitation statement; **Output**: `results/sensitivity_analysis_report.md`; **Depends on T038.1`.
-- [X] T039 [US3] Create visualization generator for boxplots and change score distributions in `code/viz/generate_plots.py`
-- [X] T049 [US3] Implement dropout handling logic in `code/pipeline/handle_dropouts.py`; MUST exclude participants with missing post-intervention data from paired statistical tests (T032-T036) while retaining their baseline data in `data/processed/descriptive_baseline.csv` for descriptive statistics; **Input**: `data/processed/merged_data.csv`; **Output**: `data/processed/exclusions.json` listing excluded IDs and reason 'missing_post_data'; **Depends on T031`.
-- [X] T050 [US3] Implement attention check validation in `code/validation/attention_check.py`; MUST flag participants with SART accuracy < 50% as 'low_quality' and EXCLUDE them from primary analysis; **Input**: `data/raw/baseline_raw.csv`; **Output**: `data/processed/exclusions.json` append entries with reason 'low_sart_accuracy'; **Depends on T022`.
-- [X] T057 [US2] **Enhance Compliance Log Validation** in `code/validation/compliance_plausibility.py`; MUST add a specific check for the "0 minutes for all 7 days" edge case (US-2 Edge Case); if detected, flag the record as `extreme_compliance` in `data/compliance/flags.json` but DO NOT exclude it from analysis; **Input**: `data/compliance/flags.json`; **Depends on T026, T027`.
-- [X] T055 [US3] **Enforce Strict Data Flow Dependency** in `code/pipeline/run_analysis.py`; MUST explicitly verify that `data/processed/bootstrap_results.json` (from T033.1) is generated and valid BEFORE attempting to run the Holm-Bonferroni correction (T035) or Effect Size calculation (T036); **Logic**: If `bootstrap_results.json` is missing or empty, raise a `DataFlowError` with message "Primary bootstrapping results missing. Cannot proceed with correction."; **Depends on T033.1`.
-- [X] T053 [P] [Review: Edge Cases] Enhance `code/validation/attention_check.py` (T050) to automatically generate a `results/quality_report.md` listing all excluded participants and the specific reason for exclusion (e.g., SART accuracy < 50%), ensuring transparency in the final analysis; **Depends on T050, T049`.
+- [~] T001b **Implement web‑based participant recruitment and pseudonymous ID generation (FR‑001).**  
+  *Develop a minimal Flask endpoint `code/recruitment/app.py` that registers a new participant, assigns an ID matching `^P\\d{3}$`, stores optional demographics, and writes a row to `data/raw/participants.csv`.*  
+  **File path(s)**: `code/recruitment/app.py`, `data/raw/participants.csv`  
+  **Verification**: `tests/integration/test_recruitment.py` confirms ID format and CSV entry.
 
-**Checkpoint**: All user stories should now be independently functional
+- [~] T001c **Build web interface for SART and Ospan delivery (FR‑002).**  
+  *Create `code/web/tasks/sart_ospan.py` that downloads the OSF task code (verified via checksum), serves the tasks, records raw trial‑level responses, and writes CSVs (`data/raw/trial_level/sart_trials_<pid>.csv`, `data/raw/trial_level/ospan_trials_<pid>.csv`).*  
+  **File path(s)**: `code/web/tasks/sart_ospan.py`, `data/raw/trial_level/`  
+  **Verification**: `tests/integration/test_task_delivery.py` ensures files are created and conform to `contracts/dataset.schema.yaml`.
 
----
+- [~] T001d **Create web pages for PSS‑10 and PANAS questionnaires (FR‑003).**  
+  *Implement `code/web/questionnaires/pss_panas.py` that serves the questionnaires, collects raw responses, and writes `data/raw/questionnaire_responses.csv`.*  
+  **File path(s)**: `code/web/questionnaires/pss_panas.py`, `data/raw/questionnaire_responses.csv`  
+  **Verification**: `tests/integration/test_questionnaire.py` validates the CSV against `contracts/dataset.schema.yaml`.
 
-## Phase 4: User Story 2 - Intervention Compliance Logging (Priority: P2)
+- [~] T001e **Develop daily compliance‑logging UI (FR‑004).**  
+  *Provide `code/web/compliance/compliance_ui.py` where participants submit daily logs (social media minutes, news consumption, notifications off). Logs are stored as one CSV per participant per day under `data/raw/compliance_logs/`.*  
+  **File path(s)**: `code/web/compliance/compliance_ui.py`, `data/raw/compliance_logs/`  
+  **Verification**: `tests/integration/test_compliance_ui.py` checks that submitted logs validate against `contracts/compliance.schema.yaml`.
 
-**Goal**: Process daily logs, validate compliance rules, and calculate compliance scores.
+### Scoring functions  
 
-**Independent Test**: Simulate a participant submitting multiple daily logs; verify compliance score calculation and deviation flagging.
+- [~] T002 **Implement scoring functions for SART, Ospan, PSS‑10, and PANAS with quality‑flag logic (FR‑002, FR‑003, FR‑009).**  
+  *Add modules `code/scoring/sart.py`, `code/scoring/ospan.py`, `code/scoring/pss10.py`, `code/scoring/panas.py` that follow OSF v2.1+ reference algorithms. Each returns a numeric score and a `quality_flag` (`valid`, `low_attention`, `missing`). SART flags `low_attention` when accuracy < 50 %; all tasks enforce response‑time limits 100 ms – 5000 ms.*  
+  **File path(s)**: `code/scoring/*.py`, `code/tests/test_scoring.py`  
+  **Verification**: `pytest code/tests/test_scoring.py` must pass; scored rows must validate against `contracts/dataset.schema.yaml`.
 
-### Tests for User Story 2 ⚠️
+### Simulated dataset generation & validation  
 
-- [X] T023 [P] [US2] Contract test for compliance log schema in `tests/contract/test_compliance_schema.py`
-- [X] T024 [P] [US2] Unit test for plausibility validation (0 ≤ minutes ≤ 1440) in `tests/unit/test_compliance_validation.py`
-- [X] T025 [P] [US2] Unit test for compliance rule logic (≤30 min social media, no news) in `tests/unit/test_compliance_rules.py`
+- [~] T003a **Generate a fully‑scored simulated study dataset (baseline & post) for early testing.**  
+  *Run `code/validation/simulate_study.py` (seed = 42) to create:*  
+  - `data/raw/participants_simulated.csv` (IDs P001‑P080).  
+  - `data/raw/trial_level/sart_trials_sim.csv` & `ospan_trials_sim.csv`.  
+  - `data/raw/measurement_records_sim.csv` containing baseline and post records for all four metrics, each with a `quality_flag`.  
+  - `data/raw/compliance_logs_sim/` with seven daily CSVs per participant.  
+  **File path(s)**: `code/validation/simulate_study.py`, `data/raw/*sim*`  
+  **Verification**: Script runs without error and prints a summary; `ls data/raw/*sim*` shows the expected files.
 
-**Note**: Implementation tasks T026-T030 are located in Phase 2 (Foundational) to ensure they are available for all user stories.
+- [ ] T003b **Validate the simulated measurement records against `contracts/dataset.schema.yaml`.**   <!-- FAILED-IN-EXECUTION: code/validation/validate_schema.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validation/validate_schema.py exit=1 -->
+  *Execute `code/validation/validate_schema.py --schema contracts/dataset.schema.yaml --data data/raw/measurement_records_sim.csv`. Any violation must raise an exception (no silent correction).*  
+  **File path(s)**: `code/validation/validate_schema.py` (shared validator)  
+  **Verification**: `pytest code/tests/test_simulated_schema.py` asserts successful validation.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [~] T003c **Generate SHA‑256 checksums for all simulated raw artifacts and verify inclusion.**  
+  *Run `code/validation/generate_checksums.py` targeting `data/raw/` (including simulated files). The script writes `data/checksums.sha256` with a line `<hash>  <relative_path>` for every file.*  
+  **File path(s)**: `code/validation/generate_checksums.py`, `data/checksums.sha256`  
+  **Verification**: `sha256sum -c data/checksums.sha256` exits with all OK; `tests/integration/test_checksum.py` checks that the manifest contains entries for at least five simulated files.
 
----
+- [ ] T003d **Produce a smoke‑analysis result on the simulated dataset and confirm values.**   <!-- FAILED-IN-EXECUTION: code/validation/produce_smoke_results.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validation/produce_smoke_results.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validation/produce_smoke_results.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validation/run_produce_smoke_results.sh exit=1 -->
+  *Run `code/validation/produce_smoke_results.py` which invokes the full analysis pipeline on the simulated data and writes `data/results/smoke_results.json`.*  
+  *After generation, a quick sanity check confirms that each metric’s `mean_change` is a finite number and that `method_used` is either `"bootstrap"` or `"wilcoxon"`.*  
+  **File path(s)**: `code/validation/produce_smoke_results.py`, `data/results/smoke_results.json`  
+  **Verification**: `pytest code/tests/test_smoke_analysis.py` validates JSON against `contracts/analysis.schema.yaml` and asserts non‑null numeric fields.
 
-## Phase 5: User Story 3 - Post-Intervention Analysis & Reporting (Priority: P3)
+### Initial pipeline sanity check (Post-Simulation)
 
-**Goal**: Compute change scores, perform robust statistical testing (bootstrapping), apply corrections, and generate reports.
+- [ ] T001a **Run a full end‑to‑end pipeline on the current (empty) data to produce a successful log.**  
+  *Execute `python -m code.pipeline.run_all --config code/config/study_config.yaml` on the empty `data/raw/` (expected to abort with a clear validation error). Capture the error output and the resulting `results/pipeline.log`. Then, after populating minimal valid data (produced in T003a), re‑run the pipeline and capture a successful log.*  
+  **File path(s)**: `results/pipeline.log` (both failure and success runs).  
+  **Verification**: The success run ends with a line `STATUS: SUCCESS`; `tests/integration/test_full_run.py` asserts this line exists.
 
-**Independent Test**: Feed a synthetic dataset with known pre/post differences; verify output report correctly identifies significance, effect size, and generates plots.
+### Compliance processing  
 
-*Note: Core analysis tasks (T031-T037) are located in Phase 3 (US3) to align with the data flow. This phase focuses on reporting and edge case handling.*
+- [ ] T004 **Process daily compliance logs, enforce plausibility, and produce aggregated compliance output (FR‑010).**  
+  *Implement `code/compliance/compute_compliance.py` (module `code.compliance.compute_compliance`). The script:*  
+  1. Loads all CSVs from `data/raw/compliance_logs/` (or the simulated counterpart).  
+  2. Validates each row against `contracts/compliance.schema.yaml`; any out‑of‑range value raises an exception (no silent fallback).  
+  3. Derives `is_compliant = (social_media_minutes ≤ 30) ∧ (news_consumption == False) ∧ (notifications_off == True)`.  
+  4. Flags participants whose **entire** 7‑day record reports 0 minutes as “extreme” (retain them).  
+  5. Writes `data/processed/aggregated_compliance.csv` (one row per participant) and `data/processed/compliance_flags.json` (list of extreme cases).  
+  **File path(s)**: `code/compliance/compute_compliance.py`, `data/processed/aggregated_compliance.csv`, `data/processed/compliance_flags.json`  
+  **Verification**: `pytest code/tests/test_compliance.py` must pass; running `python -m code.compliance.compute_compliance` exits with code 0 and appends a concise summary to `results/pipeline.log`.
 
-### Implementation for User Story 3 (Reporting & Edge Cases)
+### Data merging & change‑score computation  
 
-- [X] T039 [US3] Create visualization generator for boxplots and change score distributions in `code/viz/generate_plots.py`
-- [X] T040 [US3] Implement final report generator in `code/report/generate_report.py`; MUST include: 1) Full text of sensitivity analysis report (from T038.2), 2) Power simulation results (from T010), 3) Statistical summary (from T037), 4) Validation status (from T021) and Data Quality Report (from T053); Output to `results/final_report.md`; **Depends on T038.2, T010, T037, T021, T053, T008.1, T037.1, `results/quality_report.md` (from T053)`.
-- [X] T056 [US3] **Implement Explicit Power Simulation Reporting** in `code/report/generate_power_report.py`; MUST read `results/power_analysis.json` (from T010) and generate a dedicated markdown section in `results/final_report.md` that explicitly states the estimated power, the effect size (d=0.5) used, the number of iterations, and the limitations of the pilot sample size; **Depends on T010`.
-- [X] T058 [US1] **Document Synthetic Data Limitations** in `code/docs/generate_synthetic_limitations.py`; MUST generate `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/docs/synthetic_data_limitations.md` from a template, explicitly stating that the synthetic baseline data (T009) is for pipeline validation only and does not reflect real psychometric distributions; **Output**: `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/docs/synthetic_data_limitations.md`.
-- [X] T059 [US3] **Implement Missing Data Imputation Warning** in `code/pipeline/handle_dropouts.py`; MUST generate a warning in `results/quality_report.md` if the dropout rate is considered high., explicitly stating the potential bias introduced; **Depends on T049`.
-- [X] T060 [US3] **Verify Holm-Bonferroni Correction Logic** in `tests/unit/test_holm_bonferroni.py`; MUST implement a unit test with a known set of p-values (e.g., [low, moderate, high]) to verify the step-down correction logic produces the exact expected adjusted p-values; **Depends on T035`.
-- [X] T062 [US3] **Statistical Rigor Audit: No Normality Switch** in `tests/unit/test_no_shapiro_trigger.py`; MUST perform static analysis or runtime assertion to ensure `code/analysis/run_bootstrap.py` does NOT contain logic that triggers a fallback based on Shapiro-Wilk p-values; **Constraint**: The fallback to Wilcoxon MUST ONLY occur on convergence failure, not normality checks; **Depends on T033.1`.
-- [X] T063 [US3] **Explicit Power Limitation Documentation** in `code/report/generate_power_report.py`; MUST generate a dedicated section in `results/final_report.md` (T040) that explicitly states the estimated power, the effect size (d=0.5) used, the number of iterations, and the limitations of the pilot sample size, ensuring transparency per FR-011; **Depends on T010`.
-- [X] T064 [US2] **Extreme Compliance Case Handling** in `code/validation/compliance_plausibility.py`; MUST add a specific check for the "0 minutes for all 7 days" edge case; if detected, flag the record as `extreme_compliance` in `data/compliance/flags.json` but DO NOT exclude it from analysis to avoid selection bias; **Depends on T026, T027`.
-- [X] T066 [US3] **Dropout Bias Warning** in `code/pipeline/handle_dropouts.py`; MUST generate a warning in `results/quality_report.md` if the dropout rate exceeds the assumed threshold (≤15%), explicitly stating the potential bias introduced; **Depends on T049`.
-- [X] T067 [US3] **Holm-Bonferroni Verification Test** in `tests/unit/test_holm_bonferroni.py`; MUST implement a unit test with a known set of p-values (e.g., a representative range of small magnitudes) to verify the step-down correction logic produces the exact expected adjusted p-values; **Depends on T035`.
+- [ ] T005 **Merge baseline/post measurements with compliance data, handle attrition, and compute change scores (FR‑005).**  
+  *Implement `code/pipeline/merge_data.py` (module `code.pipeline.merge_data`). The script:*  
+  1. Loads `data/raw/measurement_records.csv` (or the simulated `measurement_records_sim.csv`).  
+  2. Joins with `data/processed/aggregated_compliance.csv` on `participant_id`.  
+  3. Detects participants missing any post‑intervention record; excludes them from paired tests but writes their baseline rows to `data/processed/descriptive_baseline.csv`.  
+  4. Computes `change = post_value – baseline_value` for each metric, producing `data/processed/change_scores.csv` (columns: `participant_id`, `metric_type`, `change`).  
+  5. Preserves original timestamps and `quality_flag` for reproducibility.  
+  **File path(s)**: `code/pipeline/merge_data.py`, `data/processed/descriptive_baseline.csv`, `data/processed/change_scores.csv`  
+  **Verification**: `pytest code/tests/test_merge.py` confirms correct arithmetic, proper dropout handling, and schema‑compliant output; `python -m code.pipeline.merge_data` exits with code 0 and logs summary to `results/pipeline.log`.
 
----
+### Primary statistical analysis  
 
-## Phase 6: Polish & Cross-Cutting Concerns
+- [ ] T006 **Perform primary statistical analysis with bootstrap, fallback Wilcoxon, Cohen’s d, and Holm‑Bonferroni correction (FR‑006, FR‑007, FR‑008).**  
+  *Implement `code/analysis/run_analysis.py` that reads `data/processed/change_scores.csv`.*  
+  *For each of the four outcome metrics:*  
+  1. Perform 10 000‑sample bootstrap of the mean change → 95 % CI.  
+  2. Run Shapiro‑Wilk; if `p < 0.05`, fall back to Wilcoxon signed‑rank **but still report** Cohen’s d (bias‑corrected 95 % CI).  
+  3. Compute Cohen’s d (or rank‑biserial if Wilcoxon fallback is used, per FR‑007).  
+  4. After all metrics, apply Holm‑Bonferroni step‑down to the uncorrected p‑values.  
+  5. Write `data/results/statistical_summary.json` containing one object per metric that conforms exactly to `contracts/analysis.schema.yaml`.  
+  **File path(s)**: `code/analysis/run_analysis.py`, `data/results/statistical_summary.json`  
+  **Verification**: `pytest code/tests/test_analysis.py` checks corrected p‑values ≥ uncorrected, CI containment, and schema compliance; execution logs are appended to `results/pipeline.log`.
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] T006a **Verify family-wise error rate control (SC-005).**  
+  *Implement `code/tests/test_fwer.py` that loads `data/results/statistical_summary.json` and asserts that p-values were corrected using the Holm-Bonferroni method (e.g., by verifying the step-down logic against the uncorrected p-values).*  
+  **File path(s)**: `code/tests/test_fwer.py`  
+  **Verification**: `pytest code/tests/test_fwer.py` must pass.
 
-- [X] T044.1 [P] Write README.md with project overview, installation steps, and usage instructions; MUST include a section on 'Data Generation' and 'Analysis Pipeline'.
-- [X] T044.1.1 [P] Verify README.md content; MUST check that README.md contains H2 headers: "Installation", "Data Generation", "Analysis Pipeline".
-- [X] T044.2 [P] Write `quickstart.md` with step-by-step end-to-end pipeline execution guide.
-- [X] T045.1 [P] Refactor `code/scoring/` module to reduce cyclomatic complexity < 10; MUST produce a refactored module with unit tests passing.
-- [X] T045.2 [P] Refactor `code/analysis/` module to improve modularity and testability; MUST produce a refactored module with unit tests passing.
-- [X] T046 [P] Performance optimization for bootstrap loops (vectorization); MUST reduce runtime by at least 20% without changing results.
-- [X] T047 [P] Additional unit tests for edge cases (dropouts, missing data) in `tests/unit/`; MUST cover at least 3 edge cases.
-- [X] T048 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility.
-- [X] T052 [P] [Review: Data Integrity] Implement strict `try/except` removal in all data loading tasks (`code/pipeline/register_participant.py`, `code/compliance/parse_logs.py`); MUST ensure that any failure to fetch real data (or load real files) raises a hard exception rather than falling back to synthetic/mock data, adhering to the "Fail Loudly" principle; **Verification**: Run `pytest tests/unit/test_no_synthetic_fallback.py`.
+### Success‑criterion enforcement  
 
----
+- [ ] T007 **Verify that all success‑criterion thresholds (SC‑001 – SC‑004) are met.**  
+  *Create `code/tests/test_success_criteria.py` that loads `data/results/statistical_summary.json` and asserts for each metric:*  
+  - `p_value_corrected < 0.05` **and** `effect_size_cohen_d >= 0.2`.  
+  *If any metric fails, the test fails, making the criteria enforceable.*  
+  **File path(s)**: `code/tests/test_success_criteria.py`  
+  **Verification**: `pytest code/tests/test_success_criteria.py` must pass for the study to be accepted.
 
-## Phase 7: Revision & Review Resolution (New Tasks)
+### Power simulation (FR‑011)  
 
-**Purpose**: Address specific reviewer concerns regarding data flow, statistical rigor, and documentation completeness identified in the analysis phase.
+- [ ] T008 **Monte‑Carlo power simulation to justify the planned sample size.**  
+  *Implement `code/analysis/power_simulation.py` that repeats the full analysis pipeline on synthetic data 1 000 times with effect size `d = 0.5` (seed = 42). The script records the proportion of simulations where **all four** primary outcomes achieve Holm‑Bonferroni‑corrected significance (`p < 0.05`). It also performs an incremental search to find the smallest `N` yielding ≥ 80 % power.*  
+  *Write `data/results/power_analysis.json` with keys `power_estimate` (float) and `required_n_for_80pct_power` (int).*  
+  **File path(s)**: `code/analysis/power_simulation.py`, `data/results/power_analysis.json`  
+  **Verification**: `pytest code/tests/test_power.py` confirms both keys exist and values are deterministic given the seed.
 
-### Implementation for Revision Concerns
+### Sensitivity analyses (practice effects & compliance bias)  
 
-- [X] T068 [US3] **Final Data Flow Integration Test** in `tests/integration/test_end_to_end_pipeline.py`; MUST execute the full pipeline from T009 (synthetic data) through T040 (final report) in a single run; MUST verify that `results/final_report.md` contains all required sections and that `results/statistical_summary.json` is valid; **Depends on T033.1, T035, T036, T037, T040`.
-- [X] T069 [US3] **Documentation Completeness Audit** in `code/docs/audit_documentation.py`; MUST verify the existence and content of: `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/docs/recruitment_protocol.md`, `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/docs/recruitment_workflow.md`, `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/docs/synthetic_data_limitations.md`, `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/reproducibility_manifest.json`, `results/quality_report.md`; **Depends on T012.1, T006.2.1, T058, T008.1, T053`.
-- [X] T070 [US3] **Edge Case Coverage Verification** in `tests/unit/test_edge_case_coverage.py`; MUST assert that all edge cases (dropouts, minimal compliance, low SART accuracy) are explicitly handled and logged in the final output.; **Depends on T049, T057, T050`.
+- [ ] T009 **Sensitivity analyses for practice effects and self‑report compliance bias (FR‑011).**  
+  *Implement `code/analysis/sensitivity.py` that:*  
+  1. Re‑runs the primary analysis after **excluding** participants whose overall compliance percentage < 50 % (self‑report quality check).  
+  2. Simulates practice‑effect inflation by adding Gaussian noise (SD = 0.0, 0.2, 0.4) to baseline SART and Ospan scores (grid `practice_effect_grid` from the config), recomputes change scores, and records how effect sizes shift.  
+  3. Writes a narrative `results/sensitivity_report.md` describing the limitation, presenting the grid results, and reiterating the associative framing.  
+  4. Writes `results/sensitivity_analysis.json` summarizing effect‑size changes for each grid value.  
+  **File path(s)**: `code/analysis/sensitivity.py`, `results/sensitivity_report.md`, `results/sensitivity_analysis.json`  
+  **Verification**: `pytest code/tests/test_sensitivity.py` confirms the grid is applied correctly and that the markdown contains required sections; execution logs are appended to `results/pipeline.log`.
 
----
+### Visualizations  
 
-## Dependencies & Execution Order
+- [ ] T010 **Generate all required visualizations from validated outputs (FR‑011).**  
+  *Implement `code/viz/generate_plots.py` that reads `data/results/statistical_summary.json` and `data/processed/change_scores.csv`.*  
+  *Produce:*  
+  - Histogram PDFs for change scores of each metric (`figures/hist_<metric>.png`).  
+  - Forest plot of Cohen’s d with 95 % CIs (`figures/effect_sizes_forest.png`).  
+  - Bar chart of compliance distribution (`figures/compliance_bar.png`).  
+  **File path(s)**: `code/viz/generate_plots.py`, `figures/*.png`  
+  **Verification**: `pytest code/tests/test_viz.py` asserts each expected PNG exists, is non‑zero size, and that plotted numeric values match those in `statistical_summary.json`; script execution is logged.
 
-### Phase Dependencies
+### Final report & explicit limitation discussion  
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-- **Revision (Phase 7)**: Depends on completion of all analysis and reporting tasks (T033.1, T035, T036, T040)
-- **Final Validation (Phase 8)**: Depends on completion of all previous phases
+- [ ] T011 **Compile the final associative report, explicitly acknowledging design limitations.**  
+  *Create `data/results/final_report.md` containing:*  
+  1. **Methods** – references exact script versions, config file, and simulated vs. real data handling.  
+  2. **Results** – a table mirroring `statistical_summary.json` (mean ± CI, corrected p, Cohen’s d).  
+  3. **Figures** – embed all PNGs via markdown image links.  
+  4. **Discussion** – explicitly state that the within‑subject pre/post design lacks a control group, that SART/Ospan are practice‑sensitive, and that observed changes are **associational** only. Summarize the sensitivity‑analysis findings (practice‑effect grid) and the self‑report compliance limitation (FR‑011).  
+  5. **Paper‑stage handoff** – map each JSON key to the intended manuscript table/figure.  
+  **File path(s)**: `data/results/final_report.md`  
+  **Verification**: `pytest code/tests/test_report.py` checks that every statistic in the markdown matches the source JSON and that the discussion section contains the required limitation statements.
 
-### User Story Dependencies
+### Reproducibility & handoff verification  
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
-
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
+- [ ] T012 **Run full pipeline from scratch and verify reproducibility (Phase 2 handoff).**  
+  *Execute `python -m code.pipeline.run_all --config code/config/study_config.yaml` on the **real** (or simulated) dataset.*  
+  *Confirm that `results/pipeline.log` ends with `STATUS: SUCCESS` and that all expected artifacts (`statistical_summary.json`, all PNGs, `final_report.md`, `checksum_verification.log`) are present.*  
+  *Re‑run checksum verification (`sha256sum -c data/checksums.sha256`) and write the full output to `data/results/checksum_verification.log`; append `REPORT: COMPLETE` to `pipeline.log`.*  
+  **File path(s)**: `results/pipeline.log`, `data/results/checksum_verification.log`, `data/results/final_report.md`, `figures/*`  
+  **Verification**: `pytest code/tests/test_full_run.py` asserts the log ends with `STATUS: SUCCESS`, that artifact hashes match the manifest, and that no unexpected files are generated.
 
 ---
 
-## Notes
+## Dependency & Requirement Mapping  
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+| Spec Requirement | Covered by Task(s) | Verification |
+|------------------|--------------------|--------------|
+| FR‑001 (IDs) | T001b | `test_recruitment.py` |
+| FR‑002 / FR‑003 (SART, Ospan, PSS‑10, PANAS) | T001c, T001d, T002 | `test_scoring.py`, UI integration tests |
+| FR‑004 (Compliance logging) | T001e, T004 | `test_compliance.py` |
+| FR‑005 (Change scores) | T005 | `test_merge.py` |
+| FR‑006 (Bootstrap / Wilcoxon) | T006 | `test_analysis.py` |
+| FR‑007 (Effect size) | T006 | `test_analysis.py` |
+| FR‑008 (Holm‑Bonferroni) | T006, T006a | `test_analysis.py`, `test_fwer.py` |
+| FR‑009 (Pilot timing) | T000 | `test_pilot.py` |
+| FR‑010 (Compliance plausibility) | T004 | `test_compliance.py` |
+| FR‑011 (Sensitivity) | T008, T009 | `test_power.py`, `test_sensitivity.py` |
+| SC‑001 – SC‑004 (Success criteria) | T007 | `test_success_criteria.py` |
+| SC-005 (FWER control) | T006a | `test_fwer.py` |
+| All other FRs & SCs | Distributed across tasks above | Corresponding test suites |
+
+All tasks respect data‑flow ordering:  
+
+`T000 → T001 → T001b‑T001e → T002 → T003a‑T003d → T001a → T004 → T005 → T006 → T006a → T007 → T008 → T009 → T010 → T011 → T012`.
+
+---  
+
+*All tasks remain unchecked until their respective verification steps succeed. Completing each will satisfy the specification, address reviewer concerns about practice effects and lack of a control condition, and produce a fully reproducible research pipeline.*

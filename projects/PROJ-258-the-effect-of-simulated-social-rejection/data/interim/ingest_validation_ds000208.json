@@ -1,0 +1,5 @@
+{
+  "dataset": "ds000208.parquet",
+  "error": "Failed to read parquet file: Could not open Parquet input source '<Buffer>': Metadata contains Thrift LogicalType that is not recognized",
+  "status": "fail"
+}

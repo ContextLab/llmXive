@@ -1,14 +1,12 @@
 status: none
-intent: Educational Course Recommendation and Enrollment Dataset with category columns
-  download python package dataset
+intent: Open University Learning Analytics Dataset recommendation enrollment csv download
+  edX Coursera python package dataset
 required_fields:
 - user_id
 - session_id
 - recommended_items
 - enrolled_items
-- recommended_item_categories
-- enrolled_item_categories
 - timestamp
-cache_key: bb94413d7b3c379b4b6e14c09a58ea60c4f326c305ef5bce0d4fc971d5e4d6b7
-searched_at: '2026-10-07T18:40:54.707632+00:00'
+cache_key: 63f26bc14c495146b09129d8b454ae18be8e82c42bdf41c8e3a424f1a1f5c74c
+searched_at: '2026-10-20T06:39:56.812626+00:00'
 retry_count: 1

@@ -1,3 +1,17 @@
-# Core dependencies are provided by the execution environment.
-# Additional project‑specific dependencies:
-python-dotenv>=1.0.0
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+biopython
+dendropy
+tqdm
+pydantic
+docker

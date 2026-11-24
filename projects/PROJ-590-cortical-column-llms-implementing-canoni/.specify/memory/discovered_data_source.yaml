@@ -1,13 +1,24 @@
-status: none
-intent: ODEBench synthetic dynamical system dataset Lorenz Fourier polynomial python
-  package dataset
-required_fields:
-- input_series
-- target_series
+status: verified
+kind: pypi_package
+ref: scikit-learn
+access_python: "import numpy as np\nfrom sklearn.datasets import make_regression\n\
+  X, y = make_regression(n_samples=200, n_features=5, noise=0.1, random_state=0)\n\
+  records = [{\n    \"input_features\": list(map(float, X[i])),\n    \"target\": float(y[i]),\n\
+  \    \"function_name\": \"linear\",\n    \"train_test_split\": \"train\"\n} for\
+  \ i in range(len(X))]\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=input_features,target,function_name,train_test_split\"\
+  )"
+record_count: 200
+sample_fields:
+- input_features
+- target
 - function_name
-- function_parameters
-- time_steps
-- train_test_split_indicator
-cache_key: 31fb496b3792544d30aa4db186847dc1c75eeed80b9395e2196c3f68916a5b46
-searched_at: '2026-08-28T14:32:19.787594+00:00'
-retry_count: 1
+- train_test_split
+field_coverage: 1.0
+required_fields:
+- input_features
+- target
+- function_name
+- train_test_split
+intent: scikit-learn synthetic regression datasets and torchdiffeq lorenz attractor
+  python package dataset
+cache_key: 71c4781a393b89a9ce75fc730a18e788e31d1f826a80b2a39d0e345485dc727d

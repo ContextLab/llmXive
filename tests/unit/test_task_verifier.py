@@ -379,7 +379,12 @@ def test_empty_package_marker_still_requires_semantic_review(tmp_path):
     assert tv._deterministic_verdict(tmp_path, 'Implement src/analysis.py')[0] == 'reject'
 
 
-def test_verifier_receipts_follow_model_and_policy(tmp_path, monkeypatch):
+def test_verifier_receipts_follow_selection_and_policy(tmp_path, monkeypatch):
+    # Spec 026: a receipt is bound to the SELECTION it was requested under
+    # (profile + policy version + escalation overrides), not a model id.
+    from llmxive.model_selection.types import RequirementOverrides
+
+    escalated = RequirementOverrides(allow_paid=False, exclude_leader=True)
     (tmp_path / 'code').mkdir()
     (tmp_path / 'code/main.py').write_text('print(42)\n')
     tasks = tmp_path / 'tasks.md'
@@ -394,14 +399,16 @@ def test_verifier_receipts_follow_model_and_policy(tmp_path, monkeypatch):
     monkeypatch.setattr(tv, 'verify_task', judge)
     args = dict(already_verified=set(), notes_path=tmp_path / 'notes.md',
                 state_path=tmp_path / '.specify/memory/task_verify.yaml')
-    tv.run_verification_pass(tmp_path, tasks, model='custom-model', **args)
-    assert tv.verified_done_keys(tmp_path, tasks, model='custom-model') == {'T001'}
+    tv.run_verification_pass(tmp_path, tasks, overrides=escalated, **args)
+    assert calls[0]['overrides'] is escalated  # the judge call is made under that selection
+    assert tv.verified_done_keys(tmp_path, tasks, overrides=escalated) == {'T001'}
     assert tv.verified_done_keys(tmp_path, tasks) == set()
-    tv.run_verification_pass(tmp_path, tasks, model='custom-model', **args)
+    assert tv.verified_done_keys(tmp_path, tasks, profile='deep_code', overrides=escalated) == set()
+    tv.run_verification_pass(tmp_path, tasks, overrides=escalated, **args)
     assert len(calls) == 1  # unchanged evidence and policy reuse their receipt
     monkeypatch.setattr(tv, '_SYSTEM_PROMPT', tv._SYSTEM_PROMPT + '\nReview updated policy.')
-    assert tv.verified_done_keys(tmp_path, tasks, model='custom-model') == set()
-    tv.run_verification_pass(tmp_path, tasks, model='custom-model', **args)
+    assert tv.verified_done_keys(tmp_path, tasks, overrides=escalated) == set()
+    tv.run_verification_pass(tmp_path, tasks, overrides=escalated, **args)
     assert len(calls) == 2 and tasks.read_text() == original
 
 

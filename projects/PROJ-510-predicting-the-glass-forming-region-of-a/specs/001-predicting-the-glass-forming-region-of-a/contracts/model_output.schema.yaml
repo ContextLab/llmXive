@@ -1,7 +1,12 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
-title: "ModelOutput"
-description: "Artifacts produced after training and evaluation."
+title: "Model Output"
 type: object
+required:
+  - model_path
+  - cv_metrics_path
+  - feature_importance_path
+  - sensitivity_report_path
+  - model_sha256
 properties:
   model_path:
     type: string
@@ -17,11 +22,5 @@ properties:
     const: "data/reports/sensitivity_report.json"
   model_sha256:
     type: string
-    description: "SHA‑256 checksum of the serialized model."
-required:
-  - model_path
-  - cv_metrics_path
-  - feature_importance_path
-  - sensitivity_report_path
-  - model_sha256
+    description: "SHA-256 checksum of the serialized model."
 additionalProperties: false

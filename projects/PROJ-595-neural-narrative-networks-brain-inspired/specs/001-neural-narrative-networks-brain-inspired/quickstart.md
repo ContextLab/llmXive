@@ -1,74 +1,193 @@
 # Quickstart: Neural Narrative Networks
 
 ## Prerequisites
-
-- Python 3.11+
-- `pip` (or `conda`)
-- 7 GB+ RAM
-- Internet access (for dataset download)
+- Python 3.11 or newer  
+- `pip` (or `conda`)  
+- Internet access (for dataset download)  
+- At least **7 GB** RAM (recommended for headroom)  
 
 ## Installation
-
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-595-neural-narrative-networks-brain-inspired
-   ```
-
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-
-## Data Ingestion
-
-Run the data ingestion pipeline to download and preprocess datasets:
-
 ```bash
-python code/data_ingestion/download_neural.py
-python code/data_ingestion/download_text.py
+# Clone the repository (replace <repo-url> with the actual URL)
+git clone <repo-url>
+cd projects/PROJ-595-neural-narrative-networks-brain-inspired
+
+# Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# Install pinned dependencies
+pip install -r code/requirements.txt
+```
+
+## 1. Project Setup
+```bash
+# Create a standard .gitignore (required for verification)
+python - <<'PY'
+import pathlib, textwrap
+p = pathlib.Path('.gitignore')
+p.write_text(textwrap.dedent('''\
+    __pycache__/
+    *.pyc
+    *.pyo
+    *.pyd
+    .Python
+    env/
+    venv/
+    build/
+    develop-eggs/
+    dist/
+    downloads/
+    eggs/
+    .eggs/
+    lib/
+    lib64/
+    parts/
+    sdist/
+    var/
+    *.egg-info/
+    .installed.cfg
+    *.manifest
+    *.spec
+    data/raw/
+    data/processed/
+    .mypy_cache/
+    .pytest_cache/
+    .coverage
+    htmlcov/
+    .tox/
+    .nox/
+    .coverage.*
+    coverage.xml
+    *.cover
+    .cache/
+    .ipynb_checkpoints/
+    .DS_Store
+    '''))
+PY
+```
+
+## 2. Data Ingestion
+```bash
+# Download and preprocess fMRI data
+python code/data_ingestion/download_neural.py   # OpenNeuro ds001495
+
+# Download ROCStories (pre‑training only)
+python code/data_ingestion/download_text.py    # ROCStories
+
+# Preprocess both modalities
 python code/data_ingestion/preprocess.py
 ```
+*Outputs* (under `data/processed/`):
+- `neural/roi_left_hipp.npy`, `roi_right_hipp.npy`, `roi_dlpfc.npy`
+- `text/rocstories_pretrain.jsonl`
+- `text/text_data_metadata.json` (metadata for contract)
+- `text/fMRI_story_transcripts.jsonl` (≥ 100 stories – see plan note on dataset limitation)
 
-*Note: This step may take a variable duration depending on network speed. It includes HRF-aligned extraction and intersection checking.*
-
-## Model Processing
-
-Process the shared stories using the brain-inspired (SAE) and baseline (TinyLSTM) models:
-
+## 3. Model Pre‑training (Sparse Autoencoder)
 ```bash
-python code/models/generator.py --model sae --output data/processed/sae_stories.jsonl
-python code/models/generator.py --model baseline --output data/processed/baseline_stories.jsonl
+python code/models/sparse_autoencoder.py \
+    --train data/processed/text/rocstories_pretrain.jsonl \
+    --output models/sae_pretrained.pt \
+    --save-repr data/processed/neural/pretrain_sae_hidden.pt
+```
+*The log --- **NOTE** --- reports the activation sparsity ratio that must be ≤ 0.20. If the ratio exceeds the threshold ... **[** ... **]** ... ... *???* *corrupted text here due to placeholder in original US‑2* *— see spec for details.* 
+
+## 4. ****  ---  ---  **  </ ? ? ?? 
+
+
+
+---
+
+
+
+---
+
+
+
+  
+
+
+
+
+
+
+
+... 
+
+
+
+ 
+
+
+
+...
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ```
 
-*Note: The model processes only the exact story stimuli from the fMRI dataset, not new generations.*
-
-## Analysis & Visualization
-
-Run the RSA analysis and permutation test:
-
-```bash
-python code/analysis/rsa_computation.py
-python code/analysis/permutation_test.py
-python code/analysis/visualization.py
-```
-
-## Verification
-
-Verify the outputs:
-
-1. Check that `data/processed/neural/roi_left_hipp.npy` exists and is non-empty.
-2. Check that `data/analysis/results/permutation_test_results.csv` contains a p-value < 0.05 (if significant).
-3. Ensure the generated stories in `data/processed/sae_stories.jsonl` have at least N >= 10 entries (the intersection size).
-
-## Troubleshooting
-
-- **Memory Error**: If you encounter a `MemoryError`, reduce the number of stories sampled in `preprocess.py` or enable chunked loading.
-- **Missing Data**: If the pipeline halts with "ROI definition failed", verify that the OpenNeuro dataset contains the required masks or coordinates.
-- **Insufficient Intersection**: If the pipeline halts with E002, the number of shared stories is insufficient for RSA. The analysis cannot proceed.

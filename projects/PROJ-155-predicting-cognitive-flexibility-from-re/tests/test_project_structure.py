@@ -1,41 +1,45 @@
 """
-Test to verify the project structure was created correctly.
-Verifies that code/, data/, docs/, and tests/ directories exist.
+Verify that the project skeleton required by T001 exists and that
+``ruff`` reports no linting errors.
 """
-import os
-import pytest
+
+import subprocess
+import sys
 from pathlib import Path
 
-def test_project_root_exists():
-    """Test that the project root is accessible."""
-    assert Path(".").exists()
+import pytest
 
-def test_code_directory_exists():
-    """Test that the code/ directory exists."""
-    code_dir = Path("code")
-    assert code_dir.exists(), "Directory 'code/' does not exist"
-    assert code_dir.is_dir(), "'code/' is not a directory"
 
-def test_data_directory_exists():
-    """Test that the data/ directory exists."""
-    data_dir = Path("data")
-    assert data_dir.exists(), "Directory 'data/' does not exist"
-    assert data_dir.is_dir(), "'data/' is not a directory"
+@pytest.fixture(scope="module")
+def project_root() -> Path:
+    """Root directory of the repository (where this test lives)."""
+    return Path(__file__).resolve().parents[1]
 
-def test_docs_directory_exists():
-    """Test that the docs/ directory exists."""
-    docs_dir = Path("docs")
-    assert docs_dir.exists(), "Directory 'docs/' does not exist"
-    assert docs_dir.is_dir(), "'docs/' is not a directory"
 
-def test_tests_directory_exists():
-    """Test that the tests/ directory exists."""
-    tests_dir = Path("tests")
-    assert tests_dir.exists(), "Directory 'tests/' does not exist"
-    assert tests_dir.is_dir(), "'tests/' is not a directory"
+def test_directories_exist(project_root: Path) -> None:
+    """Check that the essential top‑level directories are present."""
+    required_dirs = [
+        project_root / "code",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "results",
+        project_root / "docs",
+        project_root / "tests",
+    ]
+    for d in required_dirs:
+        assert d.is_dir(), f"Required directory missing: {d}"
 
-def test_directory_structure_is_complete():
-    """Test that all required top-level directories exist."""
-    required_dirs = ["code", "data", "docs", "tests"]
-    missing = [d for d in required_dirs if not Path(d).exists()]
-    assert not missing, f"Missing directories: {missing}"
+
+def test_ruff_linting_passes(project_root: Path) -> None:
+    """
+    Run ``ruff check .`` from the repository root and assert that it
+    exits with a status code of 0 (no linting errors).
+    """
+    result = subprocess.run(
+        [sys.executable, "-m", "ruff", "check", "."],
+        cwd=str(project_root),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    assert result.returncode == 0, f"Ruff linting failed:\n{result.stdout}"

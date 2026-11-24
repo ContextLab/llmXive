@@ -1,166 +1,195 @@
----
-description: "Task list template for feature implementation"
----
-
 # Tasks: Exploring the Correlation Between Musical Preference and Personality Traits
 
-**Input**: Design documents from `/specs/001-music-personality-correlation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, contracts, and reviewer feedback.  
+**Goal**: Deliver a reproducible end‑to‑end analysis that answers the research question using only real, verified datasets, and produce validated statistical artefacts, visualisations, and a final report.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only if explicitly requested in the feature specification.
+---
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+## Phase 0 – Project scaffolding & reproducibility  
 
-## Format: `[ID] [P?] [Story] Description`
+- [~] **T001** [US‑1] **Create project directory layout**  
+  *Create the following folders at the repository root:* `data/raw/`, `data/processed/`, `results/`, `logs/`, `code/`, `tests/`.  
+  **Verification**:  
+  ```bash
+  python - <<'PY'
+  import pathlib, sys
+  dirs = ['data/raw','data/processed','results','logs','code','tests']
+  missing = [d for d in dirs if not pathlib.Path(d).is_dir()]
+  assert not missing, f"Missing dirs: {missing}"
+  print("OK")
+  PY
+  ```
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] **T002** **Pin exact dependency versions**   <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 -->
+  Create `requirements.txt` containing the exact versions listed in the plan (pandas, numpy, scipy, statsmodels, scikit‑learn, matplotlib, seaborn, datasets, pytest, pyyaml, jsonschema).  
+  **Verification**: Run `pip freeze > installed.txt` and ensure `diff -u requirements.txt installed.txt` reports no version mismatches.
 
-## Path Conventions
+- [~] **T003** **Set deterministic random seeds**  
+  Add `code/seed.py` that sets fixed seeds for `random`, `numpy.random`, and (if used) `torch`. All pipeline scripts must import this module as the first line. The script also writes its SHA‑256 hash to `code/seed_hash.txt`.  
+  **Verification**:  
+  ```bash
+  python -c "import hashlib; print(hashlib.sha256(open('code/seed.py','rb').read()).hexdigest())" > current_hash.txt
+  diff -u current_hash.txt code/seed_hash.txt
+  ```
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+---
 
-## Phase 0: Research (Methodology & Power Analysis)
+## Phase 1 – Power analysis & research documentation  
 
-- [ ] T000a [FR-011] Conduct Power Analysis & Record Requirement: Implement `code/power_analysis.py` to compute required sample size for detecting Pearson r = 0.10 with Bonferroni‑adjusted α = 0.001. **Logic**: Calculate N, write it to `results/power_analysis.txt`, **immediately parse this file**, and update `research.md` (in the "Methodological Rationale" section) and the project state file (`state/projects/PROJ-049-exploring-the-correlation-between-musica.yaml`) with the recorded required sample size. **Verification**: Script runs without error, `results/power_analysis.txt` exists with a numeric value, `research.md` contains the recorded sample size, and the state file entry `required_sample_size` is non‑null.
-- [ ] T000b Document Dataset Strategy & Methodological Rationale: Write `research.md` describing the choice of OpenML BFI‑2 dataset (ID 42473) and HuggingFace `lastfm/lastfm_1k`, include URLs, licensing, and rationale for using real data only. **Verification**: File contains the two dataset URLs, a "Real‑First" paragraph, and the recorded sample size (populated by T000a).
+- [ ] **T004** **Compute required sample size**   <!-- FAILED-IN-EXECUTION: code/power_analysis.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/power_analysis.py exit=1 -->
+  Implement `code/power_analysis.py` that calculates the minimum sample size to detect a Pearson r = 0.10 with Bonferroni‑adjusted α = 0.001 (two‑tailed). The script writes the integer to `results/power_analysis.txt`, updates `research.md` with a line `Required sample size: <n>`, and writes the same value into `state/projects/PROJ-049.yaml` under `required_sample_size`.  
+  **Verification**:  
+  - `results/power_analysis.txt` exists and contains a positive integer.  
+  - `research.md` contains the exact line `Required sample size: <n>`.  
+  - `state/projects/PROJ-049.yaml` has a matching `required_sample_size` field.
 
-## Phase 1: Data Ingestion
+- [ ] **T005** **Draft `research.md` with provenance and “Real‑First” statement**  
+  Create `research.md` that includes:  
+  1. URLs for the verified BFI‑2 OpenML dataset (ID 42473) and the HuggingFace `lastfm/lastfm_1k` dataset.  
+  2. A paragraph titled **Real‑First** explaining that only these publicly verified sources are used.  
+  3. Licensing information for both datasets.  
+  4. The required sample size placeholder (filled by T004).  
+  **Verification**: `grep -E "openml|lastfm|Real‑First|Required sample size" research.md` returns a match for each of the four items.
 
-- [ ] T012a [FR-001] Load OpenML BFI dataset: Implement `code/ingest.py` to download dataset ID 42473 using `openml.datasets.get_dataset`. **Logic**: timeout ≤ 300 s, retry 3, on 404/timeout switch to synthetic data only in CI mode, otherwise raise `DataUnavailableError`. Save to `data/raw/bfi2_raw.csv`. **Verification**: Log shows success or appropriate error; file exists in CI or production mode as expected.
-- [ ] T012b [FR-001] Load Last.fm 1k: Implement `code/ingest.py` to stream `lastfm/lastfm_1k` via `datasets.load_dataset(..., streaming=True)`. Same timing and error handling as T012a. Save to `data/raw/lastfm_raw.csv`. **Verification**: Log shows success or appropriate error; file exists.
-- [ ] T013 [US1] Merge Datasets: Inner‑join `bfi2_raw.csv` and `lastfm_raw.csv` on `user_id`. Raise `DataUnavailableError` if result empty. Save to `data/processed/merged_data.csv`. **Verification**: Output file exists and has >0 rows.
-- [ ] T014 [FR-002] Map Genres: Use `contracts/genre_lookup.yaml` to map raw tags to a set of standardized categories plus “Other”. Save updated file as `data/processed/merged_data_mapped.csv`. **Verification**: Mapping of `['alt', 'rock']` yields `['Rock', 'Rock']`.
-- [ ] T015 [US1] Prepare Unified Data: Select traits, standardized genre, demographics; exclude users with zero total listening minutes; hash `user_id` with SHA‑256; compute `listening_total`. Save to `data/processed/unified_data.csv`. **Verification**: File exists, rows >0, required columns present, `user_id` values are 64‑char hex strings.
-- [ ] T019 Compute Listening Totals: From `unified_data.csv`, compute per‑user total listening minutes, add `listening_total` and `listening_proportion` (`minutes/total`). **Verification**: New columns exist; per‑user sum of proportions ≈ 1.0.
-- [ ] T020 Log‑Transform Proportion: Apply `log1p` to `listening_proportion` creating `log_listening_proportion`. **Verification**: Column exists, all values > 0.
-- [ ] T016 [FR-007] Handle Missing Data: Impute numeric demographics with median, categorical with mode, or exclude rows per strategy. Log counts and strategy. **Verification**: Log contains both counts and strategy used.
-- [ ] T017 Verify schema integrity of `data/processed/unified_data.csv` (non‑empty, correct columns) and log checksum. **Verification**: Validation against `contracts/dataset.schema.yaml` passes; checksum recorded in state file.
-- [ ] T036 Verify that `data/processed/merged_data.csv` conforms to `contracts/dataset.schema.yaml`. **Verification**: Use `pandera` to validate; log mismatches as errors.
-- [ ] T057 Add overlap‑size check: compute number of users present in both source datasets; log warning if < 200, abort with `DataUnavailableError` if count = 0. **Verification**: Log contains overlap count and appropriate action.
-- [ ] T058 Pre‑flight URL Verification (first occurrence): `code/check_data_sources.py` sends HEAD requests to OpenML and HuggingFace URLs before pipeline runs; abort with clear error if any response ≠ 200. **Verification**: Script exits non‑zero with descriptive message on a simulated 404.
-- [ ] T018 Verify Checksums: Compute SHA‑256 checksums for all files in `data/raw/` and record them in `state/projects/PROJ-049-exploring-the-correlation-between-musica.yaml` under `artifact_hashes`. **Verification**: State file contains a checksum entry for each raw data file.
-- [ ] T038 [RECURRING] Update Project State after ingestion: Update `state/projects/PROJ-049-exploring-the-correlation-between-musica.yaml` with new artifact hashes and `updated_at` timestamps. **Verification**: State file shows newer timestamps for each updated artifact.
+---
 
-## Phase 2: Power Analysis
+## Phase 2 – Real‑data acquisition  
 
-- [ ] T200a Run Power Analysis (wrapper): Execute `code/power_analysis.py` (same script as T000a) to ensure required sample size is computed, written to `results/power_analysis.txt`, injected into `research.md`, and recorded in the project state file. **Verification**: Same as T000a verification; ensures the power‑analysis step is explicitly represented in Phase 2.
+- [ ] **T006** **Download BFI‑2 and stream Last.fm data with full hygiene and timing checks**  
+  Extend `code/ingest.py` to:  
+  1. Perform HEAD requests to both source URLs; abort with a clear error if any response is not 200.  
+  2. Download the BFI‑2 CSV (OpenML ID 42473) with a 300 s timeout, retry up to 3 times, compute and log its SHA‑256 checksum, and save to `data/raw/bfi2_raw.csv`.  
+  3. Stream the `lastfm/lastfm_1k` dataset via `datasets.load_dataset(..., streaming=True)`, write a compressed CSV `data/raw/lastfm_raw.csv`, and compute its SHA‑256 checksum (saved to `logs/lastfm_checksum.txt`).  
+  4. Measure total wall‑clock time; abort if > 300 seconds.  
+  5. After merging (see T007), assert the merged dataframe has ≥ 100 rows and that ≤ 5 % of rows have missing demographic fields after imputation.  
+  **Verification**:  
+  - Both raw files exist and are non‑empty.  
+  - `logs/ingestion.log` contains both SHA‑256 hashes and a timing entry ≤ 300 s.  
+  - Post‑merge row count and missing‑demographic percentage checks pass (logged).
 
-## Phase 2: Setup (Shared Infrastructure)
+---
 
-**Purpose**: Project initialization and basic structure
+## Phase 3 – Pre‑processing, merging, and feature engineering (atomized)  
 
-- [ ] T001a Create directory structure: `data/raw/`, `data/processed/`, `code/`, `tests/`, `results/`, `logs/`. **Verification**: Assert each directory exists after creation.
-- [ ] [ ] T001b Create empty `__init__.py` files in `code/` and `tests/`
- **Verification**: Both `code/__init__.py` and `tests/__init__.py` exist after creation.
-- [X] T001c Initialize `requirements.txt` with placeholder dependencies
-- [X] T002 Initialize Python project with dependencies in `requirements.txt`. **Content**: Pin exact versions for `pandas`, `scikit-learn`, `scipy`, `matplotlib`, `seaborn`, `numpy`, `datasets`, `requests`, `pytest`, `statsmodels`. **Verification**: Run `pip install -r requirements.txt` successfully; ensure all versions are pinned (e.g., `pandas==2.2.*`).
-- [ ] T003a Create `.ruff.toml` configuration file for linting. **Content**: Set `line-length = 88`, `target-version = "py311"`, and enable specific rules (E, F, W). **Verification**: File exists and contains the specified settings.
-- [ ] T003b Create `pyproject.toml` with `[tool.black]` configuration for formatting. **Content**: Set `line-length = 88`, `target-version = ['py311']`. **Verification**: File exists and contains the specified settings.
+- [ ] **T007a** **Merge BFI‑2 and Last.fm on hashed `user_id`**  
+  Inner‑join `bfi2_raw.csv` and `lastfm_raw.csv` on a SHA‑256 hash of the original `user_id`. Abort if the join yields zero rows.  
+  **Verification**: Confirm `data/processed/merged_interim.parquet` exists and `row_count > 0`.
 
-## Phase 3: Foundational (Blocking Prerequisites)
+- [ ] **T007b** **Map raw genre tags to standardized categories**  
+  Load `contracts/genre_lookup.yaml` and map every raw genre tag to one of the ten categories (Rock, Pop, Hip‑Hop, Classical, Electronic, Jazz, Folk, Country, Metal, Other). Unmapped tags go to “Other”.  
+  **Verification**: Ensure a column `standard_genre` contains only the allowed enum values.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] **T007c** **Compute total minutes and proportion with correct pseudocount**  
+  For each user compute `total_minutes = sum(listening_minutes)` and for each standardized genre compute  
+  `genre_proportion = (minutes + 1) / (total_minutes + 1)` (1‑minute pseudocount added to both numerator and denominator).  
+  **Verification**: Check that all `genre_proportion` values lie in (0,1] and that the sum across genres equals 1 (within tolerance).
 
-- [ ] T005a Implement `setup_logging()` function in `code/utils.py` returning a logger configured with file rotation to `logs/app.log`. **Verification**: After calling the function, `logs/app.log` exists and contains at least one log entry.
-- [ ] T006a Implement `load_config()` function in `code/utils.py` returning a dict of environment variables (depends on T006c). **Verification**: Function returns a dict containing keys `RANDOM_SEED` and `DATA_PATH`.
-- [ ] T006b Create `.env.example` file listing expected environment variable names (e.g., `RANDOM_SEED`, `DATA_PATH`) with placeholder values. **Verification**: File exists and contains the two variable names.
-- [ ] T006c Populate `.env` with default values: `RANDOM_SEED=42` and `DATA_PATH="data"`. **Verification**: File exists and contains the exact key‑value pairs.
-- [ ] T007a Create `contracts/` directory. **Verification**: `ls contracts/` must succeed.
-- [ ] T007b Define schema fields in `contracts/dataset.schema.yaml` (fields: `user_id`, `openness`, `conscientiousness`, `extraversion`, `agreeableness`, `neuroticism`, `age`, `gender`, `country`) and `contracts/analysis_output.schema.yaml` (fields: `trait`, `genre`, `rho`, `p_value`, `adjusted_p_value`, `is_significant`, `beta`, `std_error`, `effect_size_r`, `cohens_d`, `high_correlation_flag`). **Verification**: Use `pandera` to validate a sample CSV against the schema.
-- [ ] T008 Generate deterministic synthetic dataset for fallback testing.
- - Create `data/processed/synthetic_data.csv`.
- - Validate the file against `contracts/dataset.schema.yaml` using `pandera`.
- - **Record the SHA checksum of this file in the project state file** and document its derivation in `data/README.md`.
- - **Verification**: File exists, row count ≥ 100, passes schema validation, and state file contains the checksum. **Note**: This synthetic file is for unit‑test purposes only and must never be used in production pipelines.
-- [ ] T009 Setup error handling wrappers in `code/utils.py` for HTTP timeouts and 404s. **Verification**: Simulated timeout raises `DataUnavailableError` as expected.
-- [ ] T013b Create Genre Lookup Table: `contracts/genre_lookup.yaml` defining mapping from raw tags (e.g., 'alt', 'rock', 'classical') to standardized categories (Rock, Pop, Hip‑Hop, Classical, Electronic, Jazz, Folk, Country, Metal, Other). **Verification**: Verify file exists and contains all required categories.
-- [ ] T035 Define `contracts/genre_preference.schema.yaml` for the GenrePreference entity (fields: `user_id`, `genre_name`, `listening_minutes`, `genre_score`). **Verification**: Validate a sample CSV with `pandera`.
-- [ ] T065 [P] Update contracts to reflect hashed `user_id` type: modify `contracts/dataset.schema.yaml` to specify `user_id` as a string of length 64 (hex). **Verification**: Schema validation succeeds on the processed files.
+- [ ] **T007d** **Log‑transform and ILR‑transform genre proportions**  
+  Apply `np.log1p` to each `genre_proportion` producing `genre_log_<GENRE>`. Then perform an Isometric Log‑Ratio (ILR) transformation to obtain compositional components stored in `genre_ilr_<COMP>` columns.  
+  **Verification**: Verify that `genre_ilr_*` columns contain finite numbers and that the ILR transformation can be inverted without loss.
 
-## Phase 4: User Story 1 - Data Ingestion and Preprocessing (Priority: P1) 🎯 MVP
+- [ ] **T007e** **Handle missing demographics, one‑hot encode, and document limitation**  
+  Impute missing `age` with the median, `gender` and `country` with their modes; exclude rows where imputation is impossible, logging the count and strategy. Group countries with frequency < 1 % into an “Other” category before one‑hot encoding, producing `gender_onehot_*` and `country_onehot_*`. Write a short limitation note about using listening minutes as a proxy to `docs/limitations.txt`.  
+  **Verification**:  
+  - `data/processed/unified_data.parquet` includes all required columns.  
+  - Schema validation against `contracts/processed_dataset.schema.yaml` passes.  
+  - `docs/limitations.txt` exists and contains the required narrative.
 
-**Goal**: Ingest OpenML BFI‑2 and Last.fm 1k, clean, map genres, and prepare a unified dataframe.
+---
 
-- [ ] T058b [FR-001] Pre‑flight URL verification script (`code/check_data_sources.py`) that sends a HEAD request to each dataset URL (OpenML and HuggingFace) before the main pipeline runs; abort with clear error if any returns non‑200. **Verification**: Script exits with non‑zero status and descriptive message on a 404.
-- [ ] T000c [US2] Verify Sample Size Adequacy: After loading the merged dataset, compare its row count to the required sample size from `results/power_analysis.txt`. **If N < required, log a WARNING** with the deficit and record the actual vs. required size in the project state file. **Do NOT abort**. **Verification**: Log contains either "Sample size sufficient (N=…)" or a warning "Sample size deficit: N=…, required ≥ …" and the state file is updated.
-- [ ] T036a Validate `merged_dataset.csv` against `contracts/dataset.schema.yaml`. **Verification**: Use `pandera` to validate; log any mismatches as errors.
-- [ ] T099d Map Genres (renamed from duplicate T014): Implement `code/mapping.py` that loads `contracts/genre_lookup.yaml` and maps raw genre tags in `merged_data.csv` to the 10 standardized categories plus 'Other'. **Verification**: Test mapping of `['alt', 'rock']` yields `['Rock', 'Rock']`.
-- [ ] T099e Prepare Unified Data (renamed from duplicate T015): From merged data, select personality traits, standardized genre, and demographics; exclude users with zero total listening minutes. **Hash user_id using SHA‑256** before saving. **Persist `listening_total` as a column**. Save to `data/processed/unified_data.csv`. **Verification**: File exists, row count >0, contains required columns (`user_id` (hashed), trait scores, `genre`, `age`, `gender`, `country`, `listening_total`), and `user_id` values are 64‑char hex strings.
-- [ ] T099f Compute Listening Totals (renamed from duplicate T019): From `unified_data.csv`, compute per‑user total listening minutes, add `listening_total` and `listening_proportion` columns (proportion = minutes / total). **Verification**: New columns exist; sum of `listening_proportion` per user ≈ 1.0; `listening_total` is present and **persisted in `unified_data.csv`**.
-- [ ] T099g Log‑Transform Proportion (renamed from duplicate T020): Apply `log1p` to `listening_proportion` creating `log_listening_proportion`. **Verification**: Column exists, all values > 0.
-- [ ] T099h Handle Missing Data (renamed from duplicate T016): Impute numeric demographics with median, categorical with mode, or exclude rows as per strategy. Log exact counts: `"INFO: Imputed X rows using {strategy} | Excluded Y rows"`. **Verification**: Log contains both counts and strategy used.
-- [ ] T099i Verify schema integrity of `data/processed/unified_data.csv` (non‑empty, correct columns) and log checksum. **Verification**: Validation against `contracts/dataset.schema.yaml` passes; checksum logged in state file.
-- [ ] T099j Verify that `data/processed/merged_data.csv` conforms to `contracts/dataset.schema.yaml`. **Verification**: Use `pandera` to validate; log any mismatches as errors.
-- [ ] T099k Add overlap‑size check (renamed from duplicate T057): after loading both source datasets, compute the number of users present in **both** datasets; log a warning if the count is < 200 and abort with `DataUnavailableError` if count is 0. **Verification**: Log contains the overlap count and appropriate warning/abort behavior.
-- [ ] T099l Pre‑flight URL verification (renamed from duplicate T058): Same script as earlier; ensures no second definition collides. **Verification**: Script exits non‑zero with descriptive message on failure.
-- [ ] T099m Verify Checksums (renamed from duplicate T018): Compute SHA‑256 checksums for all files in `data/raw/` and record them in the state file. **Verification**: State file contains checksum entries for each raw data file.
-- [ ] T099n [RECURRING] Update Project State after ingestion (renamed from duplicate T038): Update `state/projects/PROJ-049-exploring-the-correlation-between-musica.yaml` with new artifact hashes and `updated_at` timestamps. **Verification**: State file shows newer timestamps for each updated artifact.
+## Phase 4 – Correlation analysis and effect‑size computation  
 
-## Phase 5: User Story 2 - Statistical Correlation and Regression Analysis (Priority: P2)
+- [ ] **T008** **Compute Pearson correlations, Bonferroni correction, Cohen’s d, and bootstrap CIs**  
+  In `code/analysis.py` calculate for every Big‑Five trait × standardized genre pair (5 × 10):  
+  1. Pearson r and two‑tailed p‑value using the `genre_log_<GENRE>` columns.  
+  2. Bonferroni‑adjusted p‑value (α = 0.05 / 50 ≈ 0.001) and flag `is_significant`.  
+  3. Convert r to Cohen’s d via `d = 2r / sqrt(1‑r²)`.  
+  4. Obtain a 95 % confidence interval for r (and consequently for d) using Fisher’s z transformation with 10 000 bootstrap resamples.  
+  Write the results to `data/processed/correlation_results.csv` adhering to `contracts/correlation_results.schema.yaml`.  
+  **Verification**: Run JSON‑Schema validation; spot‑check a synthetic subset to ensure values fall within tolerance.
 
-**Goal**: Compute Pearson correlations, multiple linear regressions with demographics, apply Bonferroni correction.
+---
 
-- [ ] T020a [TEST] Generate Synthetic Merged Dataset for Independent Testing: Create `data/processed/synthetic_merged.csv` with ≥ 5 users, full trait, genre, and demographic fields. Validate against both `contracts/dataset.schema.yaml` and `contracts/genre_preference.schema.yaml`. **Verification**: File exists and passes both schema checks.
-- [ ] T020b [FR-003] Compute **Pearson** Correlations: In `code/analysis.py`,
- 1. Use `log_listening_proportion` (log‑transformed proportion) as the metric.
- 2. Compute Pearson **r** and two‑tailed p‑value for every trait‑genre pair.
- 3. Output `data/processed/correlation_results.csv` with columns `trait`, `genre`, `rho`, `p_value`.
- 4. Add boolean `high_correlation_flag` where `abs(rho) > 0.3`.
- **Verification**: File exists, columns correct, values match synthetic ground truth within tolerance when run on `synthetic_merged.csv`.
-- [ ] T021 Run Multiple Linear Regression: For each trait, fit OLS `trait ~ age + gender + C(country, treatment) + listening_total` using `statsmodels`. **Logic**: Before encoding, **group rare countries (frequency < 1 %) into an 'Other' category** to handle high‑cardinality. Ensure `country` is one‑hot encoded. Output beta coefficients, standard errors to `data/processed/regression_results.csv`. **Verification**: File exists, contains expected columns; **verify `listening_total` is included as a continuous predictor**.
-- [ ] T021a Ensure Total Listening Minutes Covariate: Verify that `listening_total` is included as a continuous predictor in every regression model and log its coefficient. **Verification**: Log entry shows `listening_total` coefficient for each trait.
-- [ ] T022 Detect Collinearity: Compute VIF for covariates; if any VIF > 5, drop that predictor, log warning, and re‑fit. Add `model_definition` JSON column listing actual covariates used. **Verification**: Log contains any VIF warnings; output file reflects dropped predictors.
-- [ ] T023a Perform Residual Normality Test: After each regression model, run Shapiro‑Wilk on residuals. Log the p‑value; if p < 0.05, flag the model and record in `regression_results.csv` a column `residual_normality_pass` (True/False). **Verification**: Column present and correctly reflects test outcome.
-- [ ] T023b Perform Homoscedasticity Test: Apply Breusch‑Pagan test to each model's residuals. Log the p‑value; if p < 0.05, flag heteroscedasticity in a new column `homoscedasticity_pass`. **Verification**: Column present and correctly reflects test outcome.
-- [ ] T023c Assess Linearity: Generate component‑plus‑residual (partial residual) plots for each predictor; if automated slope‑trend check indicates non‑linearity, log a warning and add `linearity_pass` column. **Verification**: Column added; warnings appear in log when simulated non‑linear data is used.
-- [ ] T023 Apply **Bonferroni** Correction: Using **fixed N = 50** (5 traits × 10 genres), compute `adjusted_p_value = p_value * 50` (capped at 1.0). Flag `is_significant` when `adjusted_p_value < 0.001`. Append these columns to `correlation_results.csv`. **Verification**: Adjusted p‑values present and significance flag follows the 0.001 threshold with N=50.
-- [ ] T034 Sensitivity Analysis: Alpha Sweep: In `code/analysis.py`, sweep α from 0.01 to 0.001 (specifically 0.01, 0.005, 0.001), record count of significant findings per α in `data/processed/sensitivity_analysis.csv`. **Verification**: File exists with columns `alpha`, `significant_count`.
-- [ ] T024 Save Final Analysis Results: Merge correlation, regression, and coefficient delta tables into `data/processed/analysis_results.csv` (includes FR‑004 fields, FR‑006 placeholders, and flags). **Verification**: File exists and matches `contracts/analysis_output.schema.yaml`.
-- [ ] T037 Verify that `data/processed/analysis_results.csv` conforms to `contracts/analysis_output.schema.yaml`. **Verification**: Use `pandera` to validate; log any mismatches.
-- [ ] T099o [RECURRING] Update Project State (renamed from duplicate T038): Update `state/projects/PROJ-049-exploring-the-correlation-between-musica.yaml` with new artifact hashes and `updated_at` timestamps. **Verification**: State file shows timestamps newer than previous run for each updated artifact.
-- [ ] T039 [US2] Implement Regression Diagnostic Suite: In `code/diagnostics.py` add functions to (a) test residual normality (Shapiro‑Wilk), (b) test homoscedasticity (Breusch‑Pagan), (c) assess linearity (component‑plus‑residual plots) for each regression model. Log any violations and, if a violation is severe (p < 0.01), flag the model for review. **Verification**: Running diagnostics on the synthetic dataset produces a log entry for each test; on real data, failures are clearly reported.
-- [ ] T069 Unit Test Bonferroni Adjustment: Add `tests/unit/test_bonferroni.py::test_adjustment` that feeds a small synthetic correlation file and asserts that adjusted p‑values equal `p * 50` (capped at 1.0) and that the significance flag respects the 0.001 threshold. **Verification**: Test passes.
+## Phase 5 – Regression modelling with diagnostics  
 
-## Phase 6: User Story 3 - Visualization and Reporting (Priority: P3)
+- [ ] **T009** **Fit trait‑specific linear regressions, perform diagnostics, and record results**  
+  Using `statsmodels.OLS` in `code/regression.py`:  
+  1. For each trait, fit a model with predictors `genre_ilr_*`, `age`, all `gender_onehot_*`, and all `country_onehot_*` (exclude `total_minutes`).  
+  2. Compute VIF for all predictors; drop any with VIF > 5, log the action, and refit.  
+  3. Run Shapiro‑Wilk test on residuals (normality) and Breusch‑Pagan test (homoscedasticity); record pass/fail flags.  
+  4. Identify high‑influence points via Cook’s distance (> 4 / n) and log any removals.  
+  5. Apply Bonferroni correction to the p‑values of each coefficient.  
+  6. Store the final coefficient table (`trait`, `predictor`, `coefficient`, `std_error`, `p_value`, `adjusted_p_value`, `is_significant`) in `data/processed/regression_results.csv` (matches `contracts/regression_results.schema.yaml`).  
+  7. Append a diagnostics array to a master JSON file `data/processed/analysis_output.json` that follows `contracts/analysis_output.schema.yaml`, ensuring each entry contains `model_trait`, `issue`, and `action`.  
+  **Verification**:  
+  - `regression_results.csv` validates against its schema.  
+  - `analysis_output.json` contains a `diagnostics` entry for each trait with the required fields (checked via a JSON‑Schema validator).  
+  - `logs/regression.log` lists VIF values, dropped predictors, and diagnostic test statistics.
 
-**Goal**: Generate heatmap, compute effect sizes, and produce a summary CSV.
+---
 
-- [ ] T026 [FR-006] Generate Correlation Heatmap: Read `analysis_results.csv` and produce `results/correlation_heatmap.png` (800×600, 150 dpi) using `seaborn.heatmap` with diverging colormap ('coolwarm'), labeled axes, and title. **Verification**: File exists, dimensions 800×600, and image loads without error.
-- [ ] T027a Generate Regression Coefficient Bar Plot: Plot beta coefficients per trait from `analysis_results.csv`, save `results/regression_coefficients.png`. **Verification**: File exists, image dimensions > 0, and contains a bar for each trait.
-- [ ] T027 [FR-006] Calculate Effect Sizes: For each **significant** trait‑genre pair, compute Cohen's d from Pearson r and derive 95 % CI via Fisher's z transformation. Append `cohens_d`, `ci_lower`, `ci_upper` to `analysis_results.csv`. **Verification**: Columns present, numeric, and CI values are finite.
-- [ ] T028 [FR-006] Export Summary Report: Create `results/results_report.csv` containing `trait`, `genre`, `cohens_d`, `ci_lower`, `ci_upper`, `significance_status`. For non‑significant trait‑genre pairs, leave effect‑size fields empty and set `significance_status` to `"Non‑significant (adjusted p ≥ 0.001)"`. **Verification**: Schema matches `contracts/analysis_output.schema.yaml`, all trait‑genre combinations are present, and **every non‑significant row has the exact string "Non‑significant (adjusted p ≥ 0.001)"**.
-- [ ] T029 Verify Report Completeness: Test `tests/test_report.py::test_report_completeness` asserts that `results_report.csv` contains rows for all traits across all standardized genres. **Verification**: Test passes.
-- [ ] T054 Deterministic Report Validation (single definition):
- 1. Load `results/correlation_heatmap.png` with Pillow; assert image width > 0 and presence of a gradient column (simple pixel‑range check).
- 2. Load `results/results_report.csv` and validate header against `contracts/analysis_output.schema.yaml` using `pandera`.
- **Verification**: Both checks must pass; task fails otherwise.
-- [ ] T099p [RECURRING] Update Project State (renamed from duplicate T038): Update `state/projects/PROJ-049-exploring-the-correlation-between-musica.yaml` with new artifact hashes and `updated_at` timestamps. **Verification**: State file shows timestamps newer than previous run for each updated artifact.
+## Phase 6 – Visualisation and final report  
 
-## Phase N: Polish & Cross‑Cutting Concerns
+- [ ] **T010** **Generate visualisations and compile the final results report**  
+  1. Produce `results/correlation_heatmap.png` (800 × 600 px, 150 dpi) visualising signed Pearson r values across traits (rows) and genres (columns) using a diverging colormap. Verify dimensions with Pillow (`Image.open(...).size`).  
+  2. Produce `results/regression_coefficients.png`, a grouped bar chart showing all significant regression coefficients per trait. Verify dimensions similarly.  
+  3. Assemble `results/results_report.csv` that conforms to `contracts/report.schema.yaml`, containing:  
+     - `summary_statistics` (total_tests = 50, significant_tests, required_sample_size from T004, actual_sample_size from the processed dataset, a brief power note).  
+     - `significant_findings`: the subset of rows from `correlation_results.csv` where `is_significant` = true, including Cohen’s d and 95 % CIs.  
+     - `limitations`: the narrative from `docs/limitations.txt`.  
+  **Verification**:  
+  - PNG files open without error and Pillow reports the requested dimensions.  
+  - `results_report.csv` validates against `contracts/report.schema.yaml`.  
+  - A unit test (`tests/unit/test_report_completeness.py`) asserts that exactly 50 trait‑genre combinations are present.
 
-- [ ] T030 Documentation updates in `README.md` with execution instructions and real‑data source explanation. **Verification**: `README.md` contains a section titled "Execution Instructions" and includes URLs for OpenML BFI‑2 and Last.fm archive.
-- [ ] T031 Refactor Codebase:
- - T031a Apply `ruff` linting fixes across `code/`. **Verification**: `ruff check` succeeds without errors.
- - T031b Apply `black` formatting across `code/`. **Verification**: `black --check` passes without modifications.
- - T031c Ensure all modules have type hints and docstrings per `pyproject.toml` settings. **Verification**: Running `mypy` (or custom script) reports no missing type hints or docstrings.
-- [ ] T032a Add `tests/test_edge_cases.py::test_empty_dataset` for empty dataset handling. **Verification**: File `tests/test_edge_cases.py` exists and contains the function `test_empty_dataset`.
-- [ ] T032b Add `tests/test_edge_cases.py::test_all_missing_demographics` for missing demographic handling. **Verification**: Same as above for the second test function.
-- [ ] T033 End‑to‑End Pipeline Orchestration: Implement `code/pipeline.py` that sequentially runs ingestion, analysis, and reporting, records total runtime in `logs/timing.log`, and raises `TimeoutError` if execution exceeds 6 hours. **Verification**: `logs/timing.log` exists, contains total seconds, and script aborts on timeout.
-- [ ] T042 Documentation: Update `README.md` and `data/README.md` to explicitly state the "Real‑First" strategy, list OpenML 42473 and `lastfm/lastfm_1k` as the **exclusive production** data sources, and document the synthetic fallback for **testing/CI** only. **Verification**: Both README files contain the "Real‑First" paragraph, the two data‑source URLs, and a "Testing Strategy" section describing the synthetic fallback.
-- [ ] T053 (optional) Add Sensitivity Analysis: In `code/analysis.py`, sweep α from 0.01 to 0.10, record count of significant findings per α in `data/processed/sensitivity_analysis.csv`. **Verification**: File exists with columns `alpha`, `significant_count`.
-- [ ] T059 Set global random seed (`code/utils.py::set_global_seed`) that seeds `numpy`, `random`, and any other libraries; invoke it at the start of `code/pipeline.py`. **Verification**: Running the pipeline twice on the same data yields identical outputs (hashes/checksums match).
-- [ ] T060 Add production guard: in `code/pipeline.py`, after successful real‑data download, **if PRODUCTION_MODE is True**, assert that the path used for downstream steps is not the synthetic fallback (`data/processed/synthetic_*`). Raise `RuntimeError` if a synthetic path is mistakenly used. **Verification**: Unit test confirms the guard triggers when `synthetic_merged.csv` is passed as the main input in production mode, and passes in test mode.
-- [ ] T061 Unit test for privacy hashing: `tests/unit/test_hashing.py::test_user_id_hashed` loads `data/processed/unified_data.csv` and asserts all `user_id` values match the SHA‑256 pattern and are unique. **Verification**: Test passes.
-- [ ] T062 Unit test for country grouping: `tests/unit/test_country_grouping.py::test_rare_countries_grouped` validates that no country appears with a count ≤ 5 except `"Other"`. **Verification**: Test passes.
-- [ ] T063 Unit test for overlap size: `tests/unit/test_overlap.py::test_minimum_overlap` asserts that the overlap count ≥ 200 for the real dataset (or skips if real data unavailable). **Verification**: Test passes when real data is present.
-- [ ] T064 Unit test for pipeline abort on missing data: `tests/unit/test_pipeline_error.py::test_abort_on_missing_dataset` simulates a 404 during download and checks that `DataUnavailableError` is raised and the pipeline exits cleanly (in production mode). **Verification**: Test passes.
-- [ ] T066 Documentation of privacy & compliance: Add a section in `README.md` titled "Privacy & Data Handling" describing the hashing approach, the exclusion of personally identifying information, and the licensing compliance for OpenML and Last.fm data. **Verification**: Section present and contains the required keywords (e.g., "hashing", "PII", "licensing").
-- [ ] T070 [TEST] Add CI Benchmark for Ingestion Runtime: Create `tests/performance/test_ingestion_time.py::test_ingestion_under_300s` that asserts that the total time taken by the ingestion phase (tasks T012a, T012b, T013, T014, T015, T019, T020) is ≤ 300 seconds on the CI runner. **Verification**: Test passes on CI; failure aborts the run.
-- [ ] T099a Verify uniqueness of task IDs across `tasks.md`. **Verification**: Script scans `tasks.md`, asserts no duplicate IDs, logs result.
-- [ ] T099b Refactor duplicate task IDs: rename the second occurrence of **T058** (Pre‑flight URL verification) to **T058b** and the second occurrence of **T020** (Pearson correlation computation) to **T020b**; update any internal references in documentation or scripts accordingly. **Verification**: Updated `tasks.md` contains no duplicate IDs and all references point to the new IDs.
-- [ ] T099c Update documentation to reflect corrected task IDs and note that legacy IDs are deprecated but retained for audit history. **Verification**: `README.md` includes a "Task ID Audit" section listing the changes.
+---
+
+## Phase 7 – Contract validation and CI integration  
+
+- [ ] **T011** **Validate all pipeline artefacts against their JSON‑Schema contracts**  
+  Run `code/validate.py` which loads each output file (`unified_data.parquet`, `correlation_results.csv`, `regression_results.csv`, `results_report.csv`, `analysis_output.json`) and validates them against the corresponding schemas in `specs/.../contracts/`. Abort on any mismatch and write detailed error messages to `logs/validation.log`.  
+  **Verification**: The script exits with status 0; `logs/validation.log` is empty on success.
+
+- [ ] **T012** **Update README and add CI tests for runtime and schema compliance**  
+  1. Add an “Execution Instructions” section describing the single command `python -m code.pipeline`.  
+  2. Add a “Privacy & Data Handling” section explaining hashing of `user_id`, removal of PII, and licensing compliance.  
+  3. Add two CI tests under `tests/performance/`:  
+     - `test_ingestion_under_300s.py` asserts that the combined runtime of the download step (T006) is ≤ 300 seconds.  
+     - `test_all_outputs_valid.py` runs the validator from T011.  
+  **Verification**: `grep -E "Execution Instructions|Privacy & Data Handling" README.md` returns matches; CI workflow executes the two new tests and they both pass.
+
+---
+
+## Phase 8 – Quickstart guide  
+
+- [ ] **T013** **Create Quickstart documentation**  
+  Write `quickstart.md` that outlines: environment setup (`pip install -r requirements.txt`), data download (`python -m code.ingest`), running the full pipeline (`python -m code.pipeline`), and where to find results. Include code snippets and expected output file locations.  
+  **Verification**: `grep -E "pip install|python -m code.ingest|python -m code.pipeline" quickstart.md` returns matches for each command.
+
+---
+
+### Dependency mapping (summary)
+
+| Spec / FR | Satisfied by task(s) |
+|-----------|----------------------|
+| FR‑001 | T006 |
+| FR‑002 | T007b |
+| FR‑003 | T007c (corrected pseudocount) |
+| FR‑004 | T009 |
+| FR‑005 | T008 (Bonferroni) |
+| FR‑006 | T010 |
+| FR‑007 | T007e |
+| FR‑008 | T007c (total_minutes) |
+| FR‑009 | T009 (diagnostics) |
+| SC‑001 | T006 (runtime, row count, missing‑demographic checks) |
+| SC‑002 | T008 (significance threshold) |
+| SC‑004 | T009 (diagnostic pass) |
+| SC‑005 | T007c (proportion computation) |
+| SC‑006 | T010 (visuals & report) |
+| SC‑012 | T008 (Bonferroni) |
+| Power‑analysis / sample‑size | T004 |
+| Quickstart guide | T013 |
+
+---  
+
+*All tasks are initially unchecked (`[ ]`). Once a task is verified in CI, its checkbox may be ticked.*  

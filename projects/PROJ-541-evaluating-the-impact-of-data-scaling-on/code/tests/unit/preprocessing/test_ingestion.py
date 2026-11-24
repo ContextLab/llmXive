@@ -1,4 +1,5 @@
 """Unit tests for preprocessing.ingestion module (T056 verification)."""
+
 import pytest
 import pandas as pd
 import numpy as np
@@ -20,7 +21,7 @@ from preprocessing.ingestion import (
     process_real_world_dataset,
     run_ingestion_pipeline,
     validate_dataset_availability,
-    RealWorldDataset
+    RealWorldDataset,
 )
 
 
@@ -38,17 +39,15 @@ def sample_dataset_config():
         "target_column": "target",
         "features": ["feat1", "feat2"],
         "verification_status": "verified",
-        "last_verified": "2026-01-01"
+        "last_verified": "2026-01-01",
     }
 
 
 @pytest.fixture
 def sample_df():
-    return pd.DataFrame({
-        "feat1": [1.0, 2.0, 3.0],
-        "feat2": [4.0, 5.0, 6.0],
-        "target": [0, 1, 0]
-    })
+    return pd.DataFrame(
+        {"feat1": [1.0, 2.0, 3.0], "feat2": [4.0, 5.0, 6.0], "target": [0, 1, 0]}
+    )
 
 
 class TestDatasetIngestion:
@@ -86,7 +85,7 @@ class TestDatasetIngestion:
     def test_download_dataset_streaming(self, mock_load, sample_df):
         """Test download_dataset with streaming."""
         mock_ds = MagicMock()
-        mock_ds.__iter__ = MagicMock(return_value=iter(sample_df.to_dict('records')))
+        mock_ds.__iter__ = MagicMock(return_value=iter(sample_df.to_dict("records")))
         mock_load.return_value = mock_ds
 
         df, count = download_dataset("test/ds", streaming=True, max_rows=10)
@@ -131,7 +130,7 @@ class TestDatasetIngestion:
             target_column="target",
             features=["feat1"],
             verification_status="verified",
-            last_verified="2026-01-01"
+            last_verified="2026-01-01",
         )
         update_manifest(ds, sample_df)
         assert ds.row_count == 3
@@ -156,7 +155,9 @@ class TestDatasetIngestion:
         mock_download.assert_called_once()
 
     @patch("preprocessing.ingestion.download_dataset")
-    def test_process_real_world_dataset_failure(self, mock_download, sample_dataset_config):
+    def test_process_real_world_dataset_failure(
+        self, mock_download, sample_dataset_config
+    ):
         """Test failure handling in process_real_world_dataset."""
         mock_download.side_effect = RuntimeError("Download failed")
 
@@ -173,7 +174,22 @@ class TestDatasetIngestion:
         self, mock_path, mock_open, mock_process, mock_load_config, tmp_path
     ):
         """Test run_ingestion_pipeline writes correct CSV schema."""
-        mock_load_config.return_value = [{"id": "test/1", "name": "T1", "source": "S", "type": "tab", "description": "D", "streaming_compatible": True, "config": "c", "splits": ["t"], "target_column": "t", "features": ["f"], "verification_status": "v", "last_verified": "2026-01-01"}]
+        mock_load_config.return_value = [
+            {
+                "id": "test/1",
+                "name": "T1",
+                "source": "S",
+                "type": "tab",
+                "description": "D",
+                "streaming_compatible": True,
+                "config": "c",
+                "splits": ["t"],
+                "target_column": "t",
+                "features": ["f"],
+                "verification_status": "v",
+                "last_verified": "2026-01-01",
+            }
+        ]
 
         mock_ds = MagicMock(spec=RealWorldDataset)
         mock_ds.dataset_id = "test/1"
@@ -187,7 +203,9 @@ class TestDatasetIngestion:
         mock_path.return_value.parent = tmp_path
         mock_path.return_value.__truediv__ = lambda self, x: tmp_path / x
 
-        run_ingestion_pipeline(config_path=tmp_path / "config.yaml", output_path=output_file)
+        run_ingestion_pipeline(
+            config_path=tmp_path / "config.yaml", output_path=output_file
+        )
 
         # Verify CSV header
         handle = mock_open()

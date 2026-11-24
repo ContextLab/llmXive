@@ -4,7 +4,7 @@ description: "Represents a single ensemble forecast instance."
 type: "object"
 properties:
   grid_id:
-    type: "integer"
+    type: "string"
     description: "Unique identifier for the grid point."
   lead_time:
     type: "integer"
@@ -18,12 +18,19 @@ properties:
     minimum: 0.0
     maximum: 1.0
     description: "Probability of the event (0.0 to 1.0)."
+  precip_prob:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Alternative field name for probability (NOAA GFS compatibility)"
   raw_ensemble_mean:
     type: "number"
-    description: "Mean of the ensemble members (optional, for reference)."
+    description: "Mean of the ensemble members (optional)."
 required:
   - grid_id
   - lead_time
   - forecast_date
-  - probability_value
+oneOf:
+  - required: ["probability_value"]
+  - required: ["precip_prob"]
 additionalProperties: false

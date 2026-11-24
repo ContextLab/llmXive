@@ -1,34 +1,35 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "EEG Dataset Metadata Schema"
-description: "Schema for validating dataset metadata and event labels for MMN analysis"
+description: "Schema for validating per‑subject metadata required for MMN analysis."
 type: object
 properties:
   subject_id:
     type: string
-    description: "Unique subject identifier (e.g., 'sub-01')"
+    description: "Unique subject identifier (e.g., 'sub-01')."
   condition_label:
     type: string
     enum:
       - "simple"
       - "complex"
-    description: "Experimental condition type"
+    description: "Experimental condition extracted from events.tsv."
   stimulus_type:
     type: string
     enum:
       - "standard"
       - "deviant"
-    description: "Stimulus classification"
+    description: "Stimulus classification."
   is_valid:
     type: boolean
-    description: "Flag indicating if the subject passed quality control"
+    description: "True if the subject passed QC (artifact rejection < 50%)."
   artifact_rejection_rate:
     type: number
     minimum: 0
     maximum: 100
-    description: "Percentage of epochs rejected due to artifacts"
+    description: "Percentage of epochs rejected due to artifacts."
 required:
   - subject_id
   - condition_label
   - stimulus_type
   - is_valid
+  - artifact_rejection_rate
 additionalProperties: false

@@ -25,13 +25,16 @@ properties:
     type: string
     enum: ["Yes", "No"]
     description: "Antibiotic use in the last 3 months."
+  batch:
+    type: string
+    description: "Sequencing batch identifier (non‑empty)."
   read_depth:
     type: integer
     description: "Total sequencing reads. Minimum 5000."
     minimum: 5000
   cohort:
     type: string
-    enum: ["AGP", "UKBB"]
+    enum: ["AGP", "UKBB", "User"]
     description: "Source cohort."
 required:
   - sample_id
@@ -40,6 +43,7 @@ required:
   - sex
   - bmi
   - antibiotic_use
+  - batch
   - read_depth
   - cohort
 additionalProperties: false

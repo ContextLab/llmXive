@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.05639",
+  "judged_at": "2026-10-16T15:31:09Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material strength from microstructure images with convolutional neural networks materials science",
+  "rationale": "The paper is about interpretable tabular-data regression/classification with Gaussian RBF neural networks; it does not involve microstructure images, CNNs, or material strength prediction. It shares only the generic machine-learning keyword space, not the user's domain, variables, or mechanism.",
+  "relevant": false
+}

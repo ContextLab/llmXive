@@ -23,10 +23,10 @@ def global_seed():
     """
     return 42
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="function", autouse=True)
 def set_seed(global_seed):
     """
-    Fixture to set random seeds before each test function.
+    Autouse fixture to set random seeds before each test function.
     Ensures deterministic behavior for tests involving randomness.
     """
     random.seed(global_seed)

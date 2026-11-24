@@ -1,2 +1,2 @@
-# This directory is intended for data processing scripts.
-# The .gitkeep file ensures the directory is tracked by git.
+Placeholder file to ensure the code/data/ directory is tracked in version control.
+This directory holds the data acquisition and preprocessing modules (download.py, preprocess.py) for PROJ-066.

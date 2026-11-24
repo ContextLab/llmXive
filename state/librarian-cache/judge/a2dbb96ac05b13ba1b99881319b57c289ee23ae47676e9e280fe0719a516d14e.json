@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1309.1799",
+  "judged_at": "2026-10-24T08:24:50Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available bird migration patterns and climate change statistics",
+  "rationale": "The paper presents a Bayesian nonparametric method for weighted survey sampling, applied to a social‑science study, and does not address bird migration patterns, climate‑change statistics, or the typical ecological/climatological analyses relevant to the user's question. It falls outside the domain and variables of interest.",
+  "relevant": false
+}

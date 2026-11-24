@@ -111,7 +111,7 @@
 
 - [X] T028 [P] [US2] Implement HumanEval test suite execution and pass rate calculation (≥0.01 precision) [UNRESOLVED-CLAIM: c_ede92285 — status=not_enough_info] (code/quality/pass_rate.py)
 - [X] T029 [P] [US2] Implement cyclomatic complexity computation using radon cc (integer ≥1 (Wikidata Q6007191, https://www.wikidata.org/wiki/Q6007191)) [UNRESOLVED-CLAIM: c_5b37254f — status=not_enough_info] (code/quality/complexity.py)
-- [X] T030 [P] [US2] {{claim:c_d6f9e3b9}} (code/quality/coverage.py)
+- [X] T030 [P] [US2] Implement test coverage measurement via coverage.py (percentage 0-100%) (code/quality/coverage.py)
 - [X] T031 [P] [US2] Implement static analysis warning count using pylint (Python) or checkstyle (Java) (code/quality/static_analysis.py)
 - [X] T032 [US2] Implement quality metric aggregation and storage per submission (code/quality/metric_aggregator.py)
 - [X] T033 [P] [US2] Set 300s timeout for test suite execution [UNRESOLVED-CLAIM: c_c6f8d547 — status=not_enough_info], catch subprocess.TimeoutExpired/Exception, log error with submission ID and traceback, return error response to client (code/quality/execution_sandbox.py)

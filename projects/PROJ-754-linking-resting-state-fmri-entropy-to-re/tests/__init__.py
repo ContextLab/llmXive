@@ -1,1 +1,1 @@
-# Tests package
+# Ensure the tests package is recognised by pytest.

@@ -1,0 +1,15 @@
+status: none
+intent: download E coli and S aureus genomes AST from NCBI Pathogen Browser CARD python
+  package dataset
+required_fields:
+- isolate_id
+- species
+- genome_accession
+- assembly_fasta_url
+- antibiotic
+- phenotype
+- arg_gene_id
+- arg_presence_binary
+cache_key: 3bddee28a941b58d864a8d4297d0545e4c94b416e6607fedbaeac02fb6fa1ab7
+searched_at: '2026-10-25T06:44:50.120457+00:00'
+retry_count: 1

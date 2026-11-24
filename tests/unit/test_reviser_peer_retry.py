@@ -1,4 +1,10 @@
-"""Malformed documents must not pin corrective retries to a healthy bad producer."""
+"""Malformed documents must not pin corrective retries to a healthy bad producer.
+
+Spec 026: the reviser names a profile, and the free chain comes from the REAL
+selector over the offline snapshot (``tests/conftest.py``):
+glm-5.3 → qwen3.5 → gemma-4 → gpt-oss. With the leader down, qwen3.5 is the
+fallback that produces the unusable document.
+"""
 from types import SimpleNamespace
 
 import pytest
@@ -10,8 +16,10 @@ from llmxive.convergence.revisers._self_consistency import invoke_reviser_backen
 from llmxive.convergence.revisers.tasks_reviser import TasksReviser
 
 GLM = 'zai-org.glm-5.3'
+QWEN = 'qwen.qwen3.5-122b'
 GPT = 'openai.gpt-oss-120b'
 GEMMA = 'google.gemma-4-31B-it'
+PROFILE = 'deep_code'
 PATH = 'projects/PROJ-test/specs/001-test/tasks.md'
 VALID = f'```json\n{{"responses": []}}\n```\n===BEGIN_ARTIFACT {PATH}===\n- [ ] T001 Run the measured experiment.\n===END_ARTIFACT==='
 
@@ -25,18 +33,18 @@ class Backend:
 
     def chat(self, messages, *, model, max_tokens=None, **kwargs):
         self.calls.append((model, max_tokens, list(messages)))
-        if model == GLM or (model == GEMMA and self.unavailable_peer):
+        if model == GLM or (model in {GEMMA, GPT} and self.unavailable_peer):
             raise BackendUnavailable('fixture outage')
-        assert model in {GPT, GEMMA}, 'a format retry must not try paid models'
+        assert model in {QWEN, GEMMA, GPT}, 'a format retry must not try paid models'
         # The observed failure: a complete-looking body without END_ARTIFACT.
         text = VALID if model == GEMMA and not self.invalid_peer else VALID.rsplit('\n', 1)[0]
-        if model == GPT and self.duplicate_ids:
+        if model == QWEN and self.duplicate_ids:
             text = VALID.replace('===END_ARTIFACT===', '- [ ] T001 Duplicate task.\n===END_ARTIFACT===')
         return ChatResponse(text=text, model=model, backend='fixture')
 
 
 def revision_attempt(backend, tmp_path):
-    reviser = TasksReviser(backend=backend, repo_root=tmp_path, project_id='PROJ-test', model=GLM)
+    reviser = TasksReviser(backend=backend, repo_root=tmp_path, project_id='PROJ-test', profile=PROFILE)
     def run_pass(extra=''):
         text = invoke_reviser_backend(reviser, [ChatMessage(role='user', content=extra)])
         return reviser._parse_response(text, [], PATH)
@@ -49,11 +57,12 @@ def test_actual_fallback_producer_is_excluded_from_existing_corrective_attempt(t
     reviser, attempt = revision_attempt(backend, tmp_path)
     artifact, _ = run_pass_with_artifact_retry(attempt, reviser_name='TasksReviser', reviser=reviser)
     assert 'T001' in artifact
-    assert [c[0] for c in backend.calls] == [GLM, GPT, GLM, GEMMA]
+    assert [c[0] for c in backend.calls] == [GLM, QWEN, GLM, GEMMA]
     assert all(c[1] == GENERATION_MAX_TOKENS for c in backend.calls)
     assert 'END_ARTIFACT' in backend.calls[-1][2][-1].content
     assert reviser._revision_excluded_models == frozenset()
-    assert reviser._model == GLM  # no persistent mutation of user/model preference
+    # no persistent mutation of the reviser's selection preference
+    assert reviser._profile == PROFILE and reviser._overrides is None
 
 
 def test_two_invalid_free_responses_still_fail_closed(tmp_path):
@@ -61,7 +70,7 @@ def test_two_invalid_free_responses_still_fail_closed(tmp_path):
     reviser, attempt = revision_attempt(backend, tmp_path)
     with pytest.raises(RuntimeError, match='no usable'):
         run_pass_with_artifact_retry(attempt, reviser_name='TasksReviser', reviser=reviser)
-    assert [c[0] for c in backend.calls] == [GLM, GPT, GLM, GEMMA]
+    assert [c[0] for c in backend.calls] == [GLM, QWEN, GLM, GEMMA]
     assert reviser._revision_excluded_models == frozenset()
 
 
@@ -70,8 +79,30 @@ def test_corrective_outage_does_not_escape_to_paid_or_retry_bad_producer(tmp_pat
     reviser, attempt = revision_attempt(backend, tmp_path)
     with pytest.raises(BackendUnavailable):
         run_pass_with_artifact_retry(attempt, reviser_name='TasksReviser', reviser=reviser)
-    assert [c[0] for c in backend.calls] == [GLM, GPT, GLM, GEMMA]
+    # Every remaining free peer is walked; the bad producer (qwen) is never
+    # retried and nothing paid is reached (the fixture asserts free-only).
+    assert [c[0] for c in backend.calls] == [GLM, QWEN, GLM, GEMMA, GPT]
     assert reviser._revision_excluded_models == frozenset()
+
+
+def test_paid_only_rung_keeps_the_ordinary_corrective_retry(tmp_path):
+    """A reviser escalated onto the paid-only rung has no free peers to offer, so
+    the corrective attempt is the ordinary retry — no exclusion set is installed."""
+    from llmxive.model_selection.types import RequirementOverrides
+
+    reviser = TasksReviser(
+        backend=Backend(), repo_root=tmp_path, project_id='PROJ-test', profile=PROFILE,
+        overrides=RequirementOverrides(allow_paid=True, require_paid=True),
+    )
+    reviser._last_revision_model = QWEN
+    seen = []
+    def attempt(extra=''):
+        seen.append((extra, getattr(reviser, '_revision_excluded_models', frozenset())))
+        if not extra:
+            raise RuntimeError('no usable artifact')
+        return 'corrected'
+    assert run_pass_with_artifact_retry(attempt, reviser_name='TasksReviser', reviser=reviser) == 'corrected'
+    assert [excluded for _, excluded in seen] == [frozenset(), frozenset()]
 
 
 @pytest.mark.parametrize('error', [ValueError('logic bug'), RuntimeError('logic bug'), BackendUnavailable('outage')])

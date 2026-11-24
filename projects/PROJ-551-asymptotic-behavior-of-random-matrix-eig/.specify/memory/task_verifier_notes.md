@@ -2,7 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T015** — declared artifact(s) missing/empty/invalid: data/processed/single_run_results.json
-- **T020b** — declared artifact(s) missing/empty/invalid: data/processed/mc_results.csv, data/processed/convergence_data.json
-- **T020c** — declared artifact(s) missing/empty/invalid: data/processed/mc_results.csv, data/processed/validated_sweep_results.csv
-- **T021c** — declared artifact(s) missing/empty/invalid: data/processed/validated_sweep_results.csv, data/processed/threshold_identification.json
+- **T001** — Requested task execution failed; rerun successfully: code/run_tests.py exit=1
+- **T002** — The required artifacts `data/processed/perturbation_verification.json`, `data/processed/single_run_results.json`, `data/processed/convergence_report.json`, and `perturbation_verification.schema.yaml` are all MISSING from disk. The historical run log shows the command exited 0 but wrote to a wrong `processed/` directory (not `data/processed/`), and even those files are not present now; additionally, `data/checksums.yaml` contains three conflicting sha256 values for the same matrix file (e6bd1dbf…, 1f9299fd…, d4ec5bdf…), indicating fabricated/inconsistent checksum records rather than a genuine v
+- **T003** — The execution log shows both tests FAILED: the `python -m code.main --mode single ...` subprocess exited with status 1, and `data/processed/single_run_results.json` was never generated. The test file itself is well-formed, but the reproducibility integration test does not actually pass — the CLI invocation must be fixed (or the correct entry point/arguments used) so the run succeeds, produces the JSON, and the eigenvalue/byte-identity assertions are actually exercised.
+- **T004** — Requested task execution failed; rerun successfully: code/analysis/sweep.py exit=1

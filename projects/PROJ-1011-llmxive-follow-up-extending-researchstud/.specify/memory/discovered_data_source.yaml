@@ -1,11 +1,11 @@
 status: none
-intent: downloadable abstract dataset Nature Climate Change Health Affairs machine
-  learning arXiv python package dataset
+intent: Nature Climate Change Health Affairs arXiv abstracts acceptance status dataset
+  python package dataset
 required_fields:
 - title
 - abstract
 - venue
 - acceptance_status
-cache_key: f398739e354644e1ac5bdfc93db3c6e07b2ca52c2890193acc6c2e2ad42d533b
-searched_at: '2026-10-04T01:27:40.308346+00:00'
+cache_key: d2f8d686a8606dbde7afa2d7165404b1e290f33dc598c0b93704db17074bea83
+searched_at: '2026-10-21T18:38:23.549769+00:00'
 retry_count: 1

@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a [P] Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `output/`, `tests/`
+- [ ] T001a [P] Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `output/`, `tests/`
 - [X] T001b [P] Create `code/__init__.py` and `tests/__init__.py`
 - [X] T001c [P] Create `requirements.txt` with dependencies: `healpy`, `numpy`, `scipy`, `scikit-learn`, `requests`, `astropy`, `matplotlib`, `pytest`
 - [X] T001d [P] Create `README.md` with project overview and setup instructions
@@ -60,8 +60,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T006 Implement `code/download.py` with exponential backoff retry logic for Planck Legacy Archive access
-- [X] T007 Implement checksum validation logic for downloaded FITS files in `code/download.py`
+- [~] T006 Implement `code/download.py` with exponential backoff retry logic for Planck Legacy Archive access
+- [~] T007 Implement checksum validation logic for downloaded FITS files in `code/download.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,17 +77,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Unit test for download retry logic and checksum validation in `tests/test_download.py`
-- [X] T011 [P] [US1] Unit test for mask application and pixel count verification in `tests/test_mask.py`
+- [~] T010 [P] [US1] Unit test for download retry logic and checksum validation in `tests/test_download.py`
+- [~] T011 [P] [US1] Unit test for mask application and pixel count verification in `tests/test_mask.py`
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/download.py`: Fetch `COM_CMB_ILM-NR1-000_R2.01.fits` (SMICA Nside=128) from Planck Legacy Archive with retry logic
-- [X] T013 [US1] Implement `code/download.py`: Validate file integrity via MD5/SHA checksums against known Planck Legacy Archive values for `COM_CMB_ILM-NR1-000_R2.01.fits` and save validation result to `data/raw/checksum_report.json`.
-- [X] T015 [US1] Implement `code/mask.py`: Apply the Schmalzing & Gorski analytical correction as the PRIMARY and SOLE method for mask correction, strictly adhering to plan.md Phase 1 Step 1.4 which mandates using the mask's own Minkowski Functionals to correct observed MFs analytically. DO NOT use buffer zones as the primary correction method.
+- [~] T012 [US1] Implement `code/download.py`: Fetch `COM_CMB_ILM-NR1-000_R2.01.fits` (SMICA Nside=128) from Planck Legacy Archive with retry logic
+- [~] T013 [US1] Implement `code/download.py`: Validate file integrity via MD5/SHA checksums against known Planck Legacy Archive values for `COM_CMB_ILM-NR1-000_R2.01.fits` and save validation result to `data/raw/checksum_report.json`.
+- [~] T015 [US1] Implement `code/mask.py`: Apply the Schmalzing & Gorski analytical correction as the PRIMARY and SOLE method for mask correction, strictly adhering to plan.md Phase 1 Step 1.4 which mandates using the mask's own Minkowski Functionals to correct observed MFs analytically. DO NOT use buffer zones as the primary correction method.
 - [ ] T015b [US1] Implement `code/mask.py`: Apply a 2-pixel buffer zone as a SECONDARY verification step ONLY; compare T015 output against analytical expectations and log comparison to `data/processed/mask_verification.log`.
 - [ ] T018 [US1] Save masked map to `data/processed/masked_cmb_n128.fits`
-- [ ] T016a [US1] {{claim:c_2e64795e}} (input: `data/processed/masked_cmb_n128.fits`) and save verification result to `data/processed/coverage_report.json` with schema {"sky_coverage": float, "valid_pixels": int, "total_pixels": int}.
+- [ ] T016a [US1] Verify ≥2.5M valid pixels are present in masked map (input: `data/processed/masked_cmb_n128.fits`) and save verification result to `data/processed/coverage_report.json` with schema {"sky_coverage": float, "valid_pixels": int, "total_pixels": int}.
 - [ ] T017 [US1] Compute basic statistics (mean, std) on masked map (input: `data/processed/masked_cmb_n128.fits`) and save mean/std to `data/processed/map_stats.json` with schema {"mean": float, "std": float}.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -102,12 +102,12 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T019 [P] [US2] Unit test for Minkowski Functional computation on synthetic Gaussian map in `tests/test_minkowski.py`
-- [X] T020 [P] [US2] Integration test for mask-corrected MF computation in `tests/test_minkowski_integration.py`
+- [~] T019 [P] [US2] Unit test for Minkowski Functional computation on synthetic Gaussian map in `tests/test_minkowski.py`
+- [~] T020 [P] [US2] Integration test for mask-corrected MF computation in `tests/test_minkowski_integration.py`
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Implement `code/minkowski.py`: Compute Area, Perimeter, and Genus functionals using `healpy` and `numpy`
+- [~] T021 [US2] Implement `code/minkowski.py`: Compute Area, Perimeter, and Genus functionals using `healpy` and `numpy`
 - [ ] T022 [US2] Implement `code/minkowski.py`: Apply Schmalzing & Gorski mask correction to MF results
 - [ ] T023 [US2] Compute functionals at thresholds {±0.5σ, ±1σ, 0σ} and store results in a dictionary with keys corresponding to threshold values.
 - [ ] T024a [US2] Generate theoretical genus curve for Gaussian Random Field as a STATIC REFERENCE derived analytically from the Planck power spectrum and save to `data/processed/theoretical_genus_curve.json`.

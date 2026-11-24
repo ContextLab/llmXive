@@ -1,11 +1,13 @@
-# Unresolved panel concerns (address in this revision)
+# Re-plan: task(s) could not be made to pass verification — adjust the approach
 
-The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
 
-**Why it was kicked back**: 3 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
+## Repeatedly-unverifiable tasks
 
-## Unresolved concerns
+- `T007a` (rejected 1x): the task writes platform-owned path(s) inside the project: `state/artifact_hashes.json` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- `T002` (rejected 1x): Requested task execution failed; rerun successfully: code/scripts/preprocess.py exit=1
 
-- T013b (anonymization) depends on T007a (hash script creation), but T007a is marked [P] (parallel-safe) and placed in Phase 2 alongside T004/T005. However, T013b explicitly states it 'MUST run after T006b (config creation) AND T007a'. The current ordering places T013b in Phase 3, which is correct, but the dependency on T007a (a utility script) is a hidden shared state requirement. If T007a is executed in parallel with T004/T005, the script file must exist before T013b runs. The task list implies T007a is a 'creation' task, but T013b treats it as a 'runtime dependency'. This is a semantic ordering violation: the script file must be committed/available before the preprocessing task can import it. The current flow assumes T007a is 'done' before Phase 3, but the [P] tag suggests it could be run concurrently with other Phase 2 tasks, potentially creating a race condition if the file isn't committed before T013b starts.
-- T006b (config creation) depends on T006a (config keys definition). The task list marks T006a as [P] (parallel-safe) and T006b as non-[P]. This is correct. However, the description of T006b says 'Create file... based on T006a keys'. The dependency is clear. But T006a is a 'definition' task, not a 'creation' task. The ordering is correct, but the [P] tag on T006a is misleading if it implies the keys are 'ready' without the file being created. The task should be rephrased to clarify that T006a defines the schema, and T006b creates the file. The current ordering is acceptable, but the [P] tag on T006a might be confusing.
-- T015a and T015b (checkpoint integration) are marked as [ ] (unimplemented) and depend on T008a (checkpoint utility). The task list states 'T015a MUST run after T008a'. This is correct. However, T015a and T015b are part of US1, and T008a is in Phase 2. The dependency is clear. The issue is that T015a and T015b are marked as 'unimplemented' in the task list, but the plan requires them for FR-012. This is a coverage issue, not an ordering issue. However, the ordering is correct: T008a -> T015a/T015b. The [ ] status is a separate concern.
+## Required change
+
+Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
+

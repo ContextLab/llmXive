@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T044` (rejected 1x): No documentation files or updates in a `docs/` directory were provided; the claim lacks any visible artifact showing an explanation of the methodology and results. The required documentation is missing, so the task is not satisfied.
+- `T008` (rejected 1x): Requested task execution failed; rerun successfully: code/simulate_hk.py exit=1
 
 ## Required change
 

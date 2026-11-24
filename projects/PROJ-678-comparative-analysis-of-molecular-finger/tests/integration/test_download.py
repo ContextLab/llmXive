@@ -8,17 +8,33 @@ from pathlib import Path
 import pytest
 from datasets import load_dataset
 
-# Import setup_logging from utils. Note: utils.py defines this function.
-# We assume the project structure allows importing from code.utils.
+# Import utilities from the project
 try:
+    from code.download import (
+        calculate_checksum,
+        verify_checksum,
+        fetch_tox21_dataset,
+    )
     from code.utils import setup_logging, get_logger
 except ImportError:
-    # Fallback if running in a different context, though project structure should handle it.
+    # Fallback imports if the module path differs
     import logging
+
     def setup_logging():
         logging.basicConfig(level=logging.INFO)
+
     def get_logger(name):
         return logging.getLogger(name)
+
+    # Dummy stubs for checksum functions (will raise if used)
+    def calculate_checksum(*args, **kwargs):
+        raise NotImplementedError("calculate_checksum not available")
+
+    def verify_checksum(*args, **kwargs):
+        raise NotImplementedError("verify_checksum not available")
+
+    def fetch_tox21_dataset(*args, **kwargs):
+        raise NotImplementedError("fetch_tox21_dataset not available")
 
 # Configure logger for this module
 setup_logging()
@@ -42,74 +58,75 @@ EXPECTED_COLUMNS = [
     "SR-ATAD5",
     "SR-HSE",
     "SR-MMP",
-    "SR-p53"
+    "SR-p53",
 ]
 
 @pytest.mark.integration
 def test_download_and_checksum_tox21():
     """
     Integration test to verify Tox21 dataset download and data integrity.
-    
+
     This test:
-    1. Downloads the Tox21 dataset from HuggingFace.
+    1. Downloads the Tox21 dataset via the project's download module.
     2. Verifies the dataset contains expected columns.
-    3. Computes a checksum of the first 1000 rows to ensure data consistency.
+    3. Computes a checksum of the saved CSV file and validates it using the
+       project's checksum verification function.
     4. Logs the download size and row count.
     """
     logger.info("Starting Tox21 dataset download and validation...")
-    
-    # Download the dataset
-    # Using trust_remote_code=False as it's a standard HF dataset
-    try:
-        # Load the training split
-        dataset = load_dataset("deepchem/tox21", split="train")
-    except Exception as e:
-        pytest.fail(f"Failed to load Tox21 dataset from HuggingFace: {e}")
-    
-    logger.info(f"Dataset loaded successfully. Number of rows: {len(dataset)}")
-    
-    # Verify expected columns
-    # Check if at least the SMILES column and one toxicity endpoint exist
-    missing_columns = set(EXPECTED_COLUMNS) - set(dataset.column_names)
-    if missing_columns:
-        # Log warning but don't fail if only some optional columns are missing
-        # as long as SMILES and at least one endpoint exist
-        if "SMILES" not in dataset.column_names:
-            pytest.fail(f"Dataset is missing required column: SMILES")
-        
-        # Check for at least one toxicity endpoint
-        toxicity_endpoints = [col for col in EXPECTED_COLUMNS if col != "SMILES"]
-        present_endpoints = [col for col in toxicity_endpoints if col in dataset.column_names]
-        if not present_endpoints:
-            pytest.fail(f"Dataset is missing all expected toxicity endpoints. Found columns: {dataset.column_names}")
-        
-        logger.warning(f"Some expected columns missing: {missing_columns}. Proceeding with available columns.")
-    else:
-        logger.info("All expected columns present.")
-    
-    # Compute a simple checksum of the data to ensure it's not corrupted
-    # We serialize the first 1000 rows (or all if less) to bytes and hash them
-    sample_size = min(1000, len(dataset))
-    sample_data = dataset.select(range(sample_size))
-    
-    # Create a deterministic string representation for checksumming
-    # We only checksum SMILES and one toxicity column to keep it fast
-    checksum_input = ""
-    for i in range(sample_size):
-        row = sample_data[i]
-        # Use SMILES and NR-AR if available, otherwise use the first available endpoint
-        smiles = row.get('SMILES', '')
-        nr_ar = row.get('NR-AR', '')
-        checksum_input += f"{smiles}:{nr_ar}\n"
-    
-    computed_hash = hashlib.md5(checksum_input.encode('utf-8')).hexdigest()
-    logger.info(f"Computed checksum (MD5) for first {sample_size} rows: {computed_hash}")
-    
-    # Verify the dataset is not empty
-    assert len(dataset) > 0, "Dataset is empty"
-    
-    # Verify we have a reasonable number of rows (Tox21 should have ~8000)
-    # Using a lower bound to be safe against version changes
-    assert len(dataset) >= 7000, f"Dataset has fewer rows than expected: {len(dataset)}"
-    
-    logger.info(f"Tox21 dataset validation passed. Total rows: {len(dataset)}")
+
+    # Use a temporary directory for the download to avoid polluting the repo
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_dir = Path(tmpdir)
+
+        # Download the dataset using the project's helper
+        try:
+            df, csv_path = fetch_tox21_dataset(str(output_dir), dataset_name="deepchem/tox21")
+        except Exception as e:
+            pytest.fail(f"Failed to fetch Tox21 dataset via fetch_tox21_dataset: {e}")
+
+        logger.info(f"Dataset downloaded to {csv_path} with {len(df)} rows")
+
+        # Verify expected columns
+        missing_columns = set(EXPECTED_COLUMNS) - set(df.column_names)
+        if missing_columns:
+            # Log warning but don't fail if only some optional columns are missing
+            # as long as SMILES and at least one endpoint exist
+            if "SMILES" not in df.column_names:
+                pytest.fail(f"Dataset is missing required column: SMILES")
+
+            # Check for at least one toxicity endpoint
+            toxicity_endpoints = [col for col in EXPECTED_COLUMNS if col != "SMILES"]
+            present_endpoints = [col for col in toxicity_endpoints if col in df.column_names]
+            if not present_endpoints:
+                pytest.fail(
+                    f"Dataset is missing all expected toxicity endpoints. Found columns: {df.column_names}"
+                )
+
+            logger.warning(
+                f"Some expected columns missing: {missing_columns}. Proceeding with available columns."
+            )
+        else:
+            logger.info("All expected columns present.")
+
+        # Compute checksum of the saved CSV file (first 1000 rows)
+        try:
+            checksum = calculate_checksum(str(csv_path), algorithm="md5")
+        except Exception as e:
+            pytest.fail(f"Failed to calculate checksum: {e}")
+
+        logger.info(f"Computed MD5 checksum of the CSV file: {checksum}")
+
+        # Verify the checksum using the project's verification function
+        try:
+            is_valid = verify_checksum(str(csv_path), checksum, algorithm="md5")
+        except Exception as e:
+            pytest.fail(f"Checksum verification raised an exception: {e}")
+
+        assert is_valid, "Checksum verification failed; the downloaded file may be corrupted."
+
+        # Additional sanity checks
+        assert len(df) > 0, "Dataset is empty"
+        assert len(df) >= 7000, f"Dataset has fewer rows than expected: {len(df)}"
+
+        logger.info(f"Tox21 dataset validation passed. Total rows: {len(df)}")

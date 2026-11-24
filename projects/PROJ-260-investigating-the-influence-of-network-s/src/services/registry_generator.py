@@ -24,10 +24,6 @@ from src.lib.config import VERIFIED_DATASET_IDS, get_project_root
 def _get_logger() -> logging.Logger:
     """
     Create (or retrieve) a logger for the registry generator.
-
-    The logger is configured lazily to avoid side‑effects at import time.
-    A file handler is added only when the logger is first used, and the
-    target directory is created if it does not yet exist.
     """
     logger = logging.getLogger(__name__)
     if not logger.handlers:
@@ -126,7 +122,7 @@ def main() -> int:
         logger.info("T008 (registry_generator) completed successfully.")
         return 0
 
-    except Exception as exc:  # pragma: no cover – exercised via tests / CLI
+    except Exception as exc:  # pragma: no cover
         logger.critical(f"T008 failed with error: {exc}")
         return 1
 

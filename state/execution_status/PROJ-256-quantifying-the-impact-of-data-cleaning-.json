@@ -8,11 +8,11 @@
     "python -m code.data_loader -> rc=1\n    No dataset URLs found in configuration. Aborting.",
     "python -m code.main --dataset-id wine_quality --stage cleaning_bootstrap -> rc=2\n    usage: main.py [-h] [--stage STAGE]\nmain.py: error: unrecognized arguments: --dataset-id wine_quality"
   ],
-  "fix_rounds": 5,
-  "model_tier": 1,
+  "fix_rounds": 0,
+  "model_tier": 2,
   "total_attempts": 5,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-09-08T22:23:05Z"
+  "updated_at": "2026-10-19T07:51:36Z"
 }

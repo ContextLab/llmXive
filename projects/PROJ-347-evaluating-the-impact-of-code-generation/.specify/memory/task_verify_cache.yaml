@@ -1,0 +1,9 @@
+T001:
+  c: true
+  h: 92ff4ca05d44000888bca3334e590b708088ea5b5a22ed78f77e1e1a7cc72ae8
+  r: "Checked `scripts/quickstart_env.sh` (exists, 3486\u202FB, runs without error)\
+    \ and its execution logs (`code/.tasks/T001.scripts_quickstart_env.sh.log`) showing\
+    \ exit\u202F0 and log entries for venv activation, successful `pip install -r\
+    \ requirements.txt`, and Docker image pulls. All required verification steps are\
+    \ satisfied."
+  sig: 0852478fa7a8d020561f0b549cdb3067d99217bc213036fadbf8c0f89f6bea1f

@@ -10,48 +10,70 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/runtime_validator.py: synthetic/fake INPUT data not authorized by the spec — “…> list:     """Generates mock data for a dry run."""     re…”
 
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+
+- `python code/data_pipeline.py --sample-size 800 --seed 42`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/runtime_validator.py: synthetic/fake INPUT data not authorized by the spec — “…> list:     """Generates mock data for a dry run."""     re…”; 2 command(s) failed: python code/data_pipeline.py --sample-size --seed 42 (rc=1); python code/statistical_analysis.py (rc=1)
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/runtime_validator.py: synthetic/fake INPUT data not authorized by the spec — “…> list:     """Generates mock data for a dry run."""     re…”; 3 command(s) failed: python code/data_pipeline.py --sample-size 800 --seed 42 (rc=1); python code/statistical_analysis.py (rc=1); python -m pytest tests/ (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/data_pipeline.py --sample-size --seed 42 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 22, in <module>
-    logger = setup_logging("data_pipeline")
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: setup_logging() takes 0 positional arguments but 1 was given
+- python code/data_pipeline.py --sample-size 800 --seed 42 -> rc=1
+aceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 325, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 310, in main
+    df = run_pipeline(
+         ^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 248, in run_pipeline
+    sampled_functions = load_sampled_functions_stratified(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 179, in load_sampled_functions_stratified
+    verify_dataset_source(dataset_id)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 50, in verify_dataset_source
+    raise ConnectionError(error_msg)
+ConnectionError: Dataset code-search-net/python is unreachable: Dataset 'code-search-net/python' doesn't exist on the Hub or cannot be accessed.
+
 - python code/statistical_analysis.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/statistical_analysis.py", line 15, in <module>
-    logger = setup_logging(__name__)
-             ^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: setup_logging() takes 0 positional arguments but 1 was given
+-271-evaluating-the-effectiveness-of-llms-for/data/static_baseline.csv
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/statistical_analysis.py", line 392, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/statistical_analysis.py", line 370, in main
+    results = run_statistical_analysis()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/statistical_analysis.py", line 303, in run_statistical_analysis
+    static_df = load_static_baseline(static_baseline_path)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/statistical_analysis.py", line 26, in load_static_baseline
+    raise FileNotFoundError(f"Static baseline file not found: {filepath}")
+FileNotFoundError: Static baseline file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/static_baseline.csv
 
-## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
+- python -m pytest tests/ -> rc=2
+test_statistical_analysis.py ___________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/unit/test_statistical_analysis.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_statistical_analysis.py:9: in <module>
+    from code.statistical_analysis import (
+E   ImportError: cannot import name 'generate_sensitivity_report' from 'code.statistical_analysis' (/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/statistical_analysis.py)
+=========================== short test summary info ============================
+ERROR tests/unit/test_config.py
+ERROR tests/unit/test_data_pipeline_stratified.py
+ERROR tests/unit/test_quickstart_validation.py
+ERROR tests/unit/test_statistical_analysis.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 4 errors in 4.78s ===============================
 
-One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines and that MANY scripts call in DIFFERENT ways. Rewriting the definition to match one caller breaks the others — that is why this keeps failing. Fix the DEFINITION **once** so it is compatible with EVERY call site listed below: accept ``*args, **kwargs``, branch on what was actually passed, and NEVER raise on an unexpected call shape. For an auxiliary utility (e.g. logging), doing nothing on an unrecognized shape is fine. Do NOT edit the call sites — edit only the defining module.
 
-**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
-
-**This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
-
-### `setup_logging` — defined in `code/config.py`; called 14 way(s):
-
-- code/linting_runner.py: logger = setup_logging(__name__)
-- code/quickstart_validator.py: logger = setup_logging("quickstart_validator", logging.INFO)
-- code/data_pipeline.py: logger = setup_logging("data_pipeline")
-- code/verify_results.py: setup_logging()
-- code/run_quickstart_validation.py: setup_logging()
-- code/validate_baseline.py: setup_logging()
-- code/linting_config.py: setup_logging()
-- code/semantic_analysis.py: setup_logging()
-- code/runtime_validator.py: setup_logging()
-- code/vif_report_generator.py: logger = setup_logging(__name__)
-- code/generate_run_metadata.py: logger = setup_logging(__name__)
-- code/statistical_analysis.py: logger = setup_logging(__name__)
-- code/runtime_verification.py: setup_logging()
-- code/run_pipeline_validation.py: setup_logging()
-
-Make `setup_logging` in `code/config.py` accept ALL of the above.

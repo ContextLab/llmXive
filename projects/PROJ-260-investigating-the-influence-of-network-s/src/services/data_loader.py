@@ -1,217 +1,91 @@
 import os
-import sys
 import json
+import hashlib
 import logging
-import time
+import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Dict, List
 
-import numpy as np
-from ase.io import read
 from datasets import load_dataset
+from llmxive_toolkit import paths, get_logger
 
-# Project internal imports matching the provided API surface
-from src.lib.config import get_project_root, get_config
-from src.lib.utils import setup_logging
+log = get_logger(__name__)
 
-# Constants for dataset IDs as specified in tasks.md
-# These map system size (N) to the specific Zenodo dataset ID
-VERIFIED_DATASET_IDS = {
-    1000: "zenodo.1234567",
-    2000: "zenodo.7654321",
-    4000: "zenodo.9876543"
-}
+def compute_sha256(file_path: Path) -> str:
+    """Compute the SHA-256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-# Minimum realizations required for statistical validity
-MIN_REALIZATIONS = 30
-
-def setup_logger(name: str) -> logging.Logger:
-    """Configure a dedicated logger for the data loader."""
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        ))
-        logger.addHandler(handler)
-    return logger
-
-def load_verified_dataset_ids() -> Dict[int, str]:
+def stream_dataset_to_file(dataset_id: str, size_label: str, output_path: Path):
     """
-    Returns the mapping of system size to dataset ID.
-    In a real deployment, this might be loaded from a config file,
-    but per tasks.md, we use the hardcoded list if research.md is unavailable.
+    Streams a dataset from HuggingFace and writes it to a local file.
+    Fails loudly if the dataset cannot be loaded.
     """
-    return VERIFIED_DATASET_IDS.copy()
-
-def fetch_dataset(dataset_id: str, system_size: int, output_dir: Path, logger: logging.Logger) -> bool:
-    """
-    Fetches a real amorphous silicon trajectory dataset using the HuggingFace datasets library.
+    # The registry might contain short names; we ensure they are full HF paths.
+    # Based on quickstart.md, the namespace is 'THZERAOFC'.
+    full_id = dataset_id if "/" in dataset_id else f"THZERAOFC/{dataset_id}"
     
-    This function attempts to load the dataset. If the dataset ID is invalid or the
-    fetch fails, it raises a RuntimeError to ensure the pipeline fails loudly.
-    
-    Args:
-        dataset_id: The Zenodo/HuggingFace dataset ID (e.g., 'zenodo.1234567')
-        system_size: The expected number of atoms (N) for validation
-        output_dir: Directory to save the downloaded data
-        logger: Logger instance
-    
-    Returns:
-        True if fetch and basic validation succeed.
-    
-    Raises:
-        RuntimeError: If fetch fails or data is insufficient.
-    """
-    logger.info(f"Attempting to fetch dataset {dataset_id} for system size N={system_size}")
+    log.info(f"Streaming dataset {full_id} for {size_label} into {output_path}...")
     
     try:
-        # Attempt to load the dataset. 
-        # Note: In a real scenario, 'zenodo.XXXXX' might need a specific config or
-        # a custom loader if not directly on HF Hub. 
-        # We assume the dataset is available via HF Hub or a compatible interface.
-        # If the ID is not found on HF Hub, this will raise an exception.
+        # Streaming=True ensures we don't load the whole thing into RAM
+        ds = load_dataset(full_id, streaming=True, split='train')
         
-        # Fallback logic for specific Zenodo IDs if they are not on HF Hub directly:
-        # The tasks.md implies these are the IDs to use. We will attempt to load them.
-        # If the dataset is not found, we let the exception bubble up to fail loudly.
+        with open(output_path, 'w', encoding='utf-8') as f:
+            count = 0
+            for record in ds:
+                f.write(json.dumps(record) + '\n')
+                count += 1
         
-        dataset = load_dataset(dataset_id, split="train")
+        if count == 0:
+            raise RuntimeError(f"Dataset {full_id} was streamed but contained no records.")
         
-        if dataset is None:
-            raise RuntimeError(f"Dataset {dataset_id} returned None.")
-        
-        # Validate count
-        count = len(dataset)
-        logger.info(f"Dataset {dataset_id} loaded with {count} realizations.")
-        
-        if count < MIN_REALIZATIONS:
-            raise RuntimeError(
-                f"Statistical validity check failed: Dataset {dataset_id} has {count} realizations, "
-                f"but requires at least {MIN_REALIZATIONS}."
-            )
-        
-        # Save metadata about the fetch
-        output_dir.mkdir(parents=True, exist_ok=True)
-        meta_file = output_dir / "fetch_metadata.json"
-        with open(meta_file, 'w') as f:
-            json.dump({
-                "dataset_id": dataset_id,
-                "system_size": system_size,
-                "realization_count": count,
-                "timestamp": time.time()
-            }, f)
-        
-        logger.info(f"Successfully fetched and validated {dataset_id}. Saved metadata to {meta_file}")
-        return True
-
+        log.info(f"Successfully streamed {count} records for {size_label}.")
     except Exception as e:
-        # Fail loudly: do not catch and return False. Raise to halt pipeline.
-        raise RuntimeError(f"Failed to fetch or validate dataset {dataset_id}: {str(e)}") from e
-
-def write_missing_log(missing_sizes: List[int], log_path: Path):
-    """
-    Writes a log of missing system sizes to the specified path.
-    This is called if validation fails, ensuring the failure is recorded.
-    """
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(log_path, 'w') as f:
-        f.write("Missing System Sizes for Amorphous Silicon Trajectories\n")
-        f.write("=" * 50 + "\n")
-        for size in missing_sizes:
-            f.write(f"- N={size}\n")
-        f.write("\nAction: Pipeline halted due to missing data.\n")
+        # Abort loudly as per requirement (no synthetic fallback)
+        raise RuntimeError(f"Failed to stream dataset {full_id}: {str(e)}") from e
 
 def main():
     """
-    Main entry point for T056.
-    Fetches real data for N=1000, 2000, 4000.
-    Validates realization count >= 30.
-    Writes trajectory_ids.json.
-    Halts on any failure.
+    T010: Stream verified datasets into data/raw/ and record checksums.
     """
-    # Setup logging
-    logger = setup_logger("data_loader")
-    project_root = get_project_root()
-    data_metadata_dir = project_root / "data" / "metadata"
-    data_raw_dir = project_root / "data" / "raw"
+    registry_path = paths.data("metadata", "dataset_registry.json")
+    checksums_path = paths.data("metadata", "checksums.txt")
     
-    logger.info(f"Project root: {project_root}")
-    logger.info(f"Data directories: {data_metadata_dir}, {data_raw_dir}")
-    
-    # Ensure directories exist
-    data_metadata_dir.mkdir(parents=True, exist_ok=True)
-    data_raw_dir.mkdir(parents=True, exist_ok=True)
-    
-    dataset_map = load_verified_dataset_ids()
-    required_sizes = sorted(dataset_map.keys())
-    
-    missing_sizes = []
-    fetched_ids = []
-    
-    logger.info(f"Starting fetch for required system sizes: {required_sizes}")
-    
+    if not registry_path.exists():
+        raise RuntimeError(f"Dataset registry not found at {registry_path}. Run T008 first.")
+
+    with open(registry_path, 'r') as f:
+        registry = json.load(f)
+
+    # We expect N1000, N2000, N4000
+    required_sizes = ["N1000", "N2000", "N4000"]
+    checksums = []
+
     for size in required_sizes:
-        dataset_id = dataset_map[size]
-        try:
-            # Define output path for this specific size
-            size_output_dir = data_raw_dir / f"amorphous_si_N{size}"
-            
-            if fetch_dataset(dataset_id, size, size_output_dir, logger):
-                # In a real scenario, we would extract the actual trajectory IDs from the dataset
-                # or metadata. For this implementation, we assume the dataset ID itself
-                # serves as the primary key for the batch, or we extract a 'trajectory_id'
-                # field if available in the dataset.
-                # Since we are fetching a dataset, we record the dataset ID as the source.
-                # If the dataset has a 'trajectory_id' column, we would extract it.
-                # For now, we assume the dataset_id is the identifier for this batch.
-                # To satisfy the requirement of writing 'trajectory_id' to JSON:
-                # We will generate a deterministic ID based on the dataset and size if not present.
-                # However, the prompt says "extract the trajectory_id from the fetched metadata".
-                # If the dataset is a simple list of frames, the 'dataset_id' is the batch ID.
-                # Let's assume the dataset returns a metadata dict or we construct one.
-                # Since we can't run the actual fetch here to inspect the schema,
-                # we will assume the 'dataset_id' is the unique identifier for the batch.
-                
-                # To strictly follow "extract trajectory_id", we simulate the extraction logic
-                # that would happen if we parsed the metadata file created in fetch_dataset.
-                # In a real run, we would read fetch_metadata.json.
-                trajectory_id = f"traf_{dataset_id.replace('.', '_')}_{size}"
-                fetched_ids.append({
-                    "system_size": size,
-                    "dataset_id": dataset_id,
-                    "trajectory_id": trajectory_id
-                })
-                logger.info(f"Successfully processed N={size}. Recorded ID: {trajectory_id}")
-            else:
-                missing_sizes.append(size)
-        except RuntimeError as e:
-            logger.error(f"Fatal error for N={size}: {e}")
-            missing_sizes.append(size)
+        if size not in registry:
+            raise RuntimeError(f"System size {size} missing from registry.")
+        
+        # Use the first verified ID for this size
+        dataset_id = registry[size][0]
+        output_file = paths.data("raw", f"{size}.jsonl")
+        
+        # Stream real data to disk
+        stream_dataset_to_file(dataset_id, size, output_file)
+        
+        # Compute checksum of the resulting file
+        file_hash = compute_sha256(output_file)
+        checksums.append(f"{output_file.name}: {file_hash}")
+        log.info(f"Checksum for {size}: {file_hash}")
+
+    # Write checksums to metadata
+    with open(checksums_path, 'w', encoding='utf-8') as f:
+        f.write("\n".join(checksums) + "\n")
     
-    if missing_sizes:
-        error_msg = f"Pipeline HALTED: Missing or invalid data for system sizes: {missing_sizes}"
-        logger.error(error_msg)
-        write_missing_log(missing_sizes, data_raw_dir / "missing_datasets.log")
-        sys.exit(1)
-    
-    # Verify we have all required sizes
-    if len(fetched_ids) != len(required_sizes):
-        logger.error(f"Pipeline HALTED: Did not fetch all required sizes. Expected {len(required_sizes)}, got {len(fetched_ids)}")
-        sys.exit(1)
-    
-    # Write trajectory_ids.json
-    output_file = data_metadata_dir / "trajectory_ids.json"
-    try:
-        with open(output_file, 'w') as f:
-            json.dump(fetched_ids, f, indent=2)
-        logger.info(f"Successfully wrote trajectory IDs to {output_file}")
-    except Exception as e:
-        logger.error(f"Failed to write trajectory_ids.json: {e}")
-        sys.exit(1)
-    
-    logger.info("T056 Data Loader completed successfully.")
+    log.info(f"T010 completed. Checksums written to {checksums_path}")
 
 if __name__ == "__main__":
     main()

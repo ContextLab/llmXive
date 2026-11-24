@@ -9,4 +9,6 @@ matplotlib==3.8.0
 pytest==7.4.2
 requests==2.31.0
 python-dotenv==1.0.0
-flask==3.0.0
+ruff
+flake8
+black

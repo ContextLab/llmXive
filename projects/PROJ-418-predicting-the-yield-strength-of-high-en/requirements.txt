@@ -1,7 +1,11 @@
-# Project dependencies
-pandas
-numpy
-pyyaml
-jsonschema
-# Existing dependencies (if any) should be listed here as well.
-# The above list ensures the validation script can import required packages.
+pandas==2.2.2
+numpy==1.26.4
+pyyaml==6.0.1
+jsonschema==4.21.1
+scikit-learn==1.4.2
+statsmodels==0.14.2
+scipy==1.13.0
+matplotlib==3.8.4
+seaborn==0.13.2
+requests==2.32.3
+pytest==8.2.2

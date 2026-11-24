@@ -1,89 +1,129 @@
+"""Data fetching utilities for real datasets.
+
+This module provides three primary loader functions that return
+streaming datasets or downloaded files for the benchmark:
+
+* ``load_ms_marco`` – streams the MS MARCO test split.
+* ``load_spider`` – streams the Spider tables split.
+* ``load_dbpedia`` – downloads the DBpedia triples parquet file.
+
+The functions raise ``DataFetchError`` if the required libraries are
+missing or the download fails. No synthetic fallback is performed,
+complying with the task specification.
 """
-Data Fetching Module.
 
-Handles real dataset downloads from URLs defined in config.py.
-Verifies checksums and handles partial downloads.
-"""
+from __future__ import annotations
 
-import os
-import hashlib
-import shutil
-import tempfile
-from pathlib import Path
-from typing import Optional, Dict, Any, Tuple
-import requests
+import pathlib
+from typing import Iterable
 
-from config import DATASET_URLS
+from llmxive_toolkit import get_logger, paths
 
-class DataFetchError(Exception):
-    """Exception raised when data fetching fails."""
-    pass
+log = get_logger(__name__)
 
-def calculate_checksum(filepath: str, algorithm: str = "sha256") -> str:
-    """Calculate checksum of a file."""
-    hash_func = hashlib.getbyname(algorithm)
-    with open(filepath, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_func.update(chunk)
-    return hash_func.hexdigest()
+class DataFetchError(RuntimeError):
+    """Raised when a dataset cannot be fetched."""
 
-def fetch_dataset(url: str, dest_path: str, expected_checksum: Optional[str] = None) -> str:
-    """
-    Fetch a dataset from a URL.
-    Verifies checksum if provided.
+
+# ----------------------------------------------------------------------
+# Public loader functions
+# ----------------------------------------------------------------------
+def load_ms_marco() -> Iterable[dict]:
+    """Stream the MS MARCO *test* split.
+
+    Returns
+    -------
+    Iterable[dict]
+        A streaming ``datasets`` object yielding examples from the
+        ``microsoft/ms_marco`` repository, ``test`` configuration,
+        ``test`` split.
     """
     try:
-        # Stream download
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
+        from datasets import load_dataset  # type: ignore
+    except Exception as exc:
+        log.error("datasets library is required for MS MARCO loading: %s", exc)
+        raise DataFetchError("datasets library not installed") from exc
 
-        # Save to temp file first
-        fd, temp_path = tempfile.mkstemp()
-        try:
-            with os.fdopen(fd, "wb") as tmp:
-                shutil.copyfileobj(response.raw, tmp)
-            
-            # Move to final destination
-            Path(dest_path).parent.mkdir(parents=True, exist_ok=True)
-            shutil.move(temp_path, dest_path)
-
-            # Verify checksum
-            if expected_checksum:
-                actual_checksum = calculate_checksum(dest_path)
-                if actual_checksum != expected_checksum:
-                    raise DataFetchError(f"Checksum mismatch for {url}. Expected {expected_checksum}, got {actual_checksum}")
-            
-            return dest_path
-        finally:
-            if os.exists(temp_path):
-                os.unlink(temp_path)
-
-    except requests.RequestException as e:
-        raise DataFetchError(f"Failed to download {url}: {e}")
-
-def verify_all_datasets() -> None:
-    """
-    Verify all datasets in DATASET_URLS.
-    If any fail, raise DataFetchError.
-    """
-    for name, url in DATASET_URLS.items():
-        # In a real implementation, we would have checksums here
-        # For now, we just check reachability
-        try:
-            response = requests.head(url)
-            if response.status_code != 200:
-                raise DataFetchError(f"Dataset {name} at {url} returned status {response.status_code}")
-        except Exception as e:
-            raise DataFetchError(f"Failed to verify dataset {name}: {e}")
-
-def main():
-    """Entry point for data fetcher."""
     try:
-        verify_all_datasets()
-        print("All datasets verified.")
-    except DataFetchError as e:
-        print(f"Data fetch error: {e}")
-        raise
+        # Using the specific config "test" as mandated by the task description.
+        ds = load_dataset(
+            "microsoft/ms_marco",
+            "test",
+            split="test",
+            streaming=True,
+        )
+        log.info("MS MARCO test split streamed successfully")
+        return ds
+    except Exception as exc:
+        log.error("Failed to stream MS MARCO test split: %s", exc)
+        raise DataFetchError("Unable to load MS MARCO test split") from exc
 
-if __name__ == "__main__":
-    main()
+
+def load_spider() -> Iterable[dict]:
+    """Stream the Spider *tables* split.
+
+    Returns
+    -------
+    Iterable[dict]
+        A streaming ``datasets`` object yielding Spider table examples.
+    """
+    try:
+        from datasets import load_dataset  # type: ignore
+    except Exception as exc:
+        log.error("datasets library is required for Spider loading: %s", exc)
+        raise DataFetchError("datasets library not installed") from exc
+
+    try:
+        # Using the "tables" configuration as mandated by the task description.
+        ds = load_dataset(
+            "spider",
+            "tables",
+            split="train",
+            streaming=True,
+        )
+        log.info("Spider tables streamed successfully")
+        return ds
+    except Exception as exc:
+        log.error("Failed to stream Spider tables split: %s", exc)
+        raise DataFetchError("Unable to load Spider tables split") from exc
+
+
+def load_dbpedia() -> pathlib.Path:
+    """Download the DBpedia 2023 triples parquet file.
+
+    The file is retrieved via :func:`huggingface_hub.hf_hub_download` and
+    stored under the project's ``data/raw`` directory.
+
+    Returns
+    -------
+    pathlib.Path
+        Path to the downloaded ``dbpedia_triples.parquet`` file.
+    """
+    try:
+        from huggingface_hub import hf_hub_download  # type: ignore
+    except Exception as exc:
+        log.error("huggingface_hub is required for DBpedia download: %s", exc)
+        raise DataFetchError("huggingface_hub library not installed") from exc
+
+    try:
+        # Repository and filename as specified in the task description.
+        repo_id = "allenai/dbpedia-2023-triples"
+        filename = "dbpedia_triples.parquet"
+
+        # Specify that we are downloading from a dataset repository.
+        local_path = hf_hub_download(
+            repo_id=repo_id,
+            filename=filename,
+            repo_type="dataset",
+        )
+        dest_path = paths.data("raw", "dbpedia_triples.parquet")
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Move the file into the project's data folder.
+        pathlib.Path(local_path).replace(dest_path)
+
+        log.info("DBpedia triples parquet downloaded to %s", dest_path)
+        return dest_path
+    except Exception as exc:
+        log.error("Failed to download DBpedia triples parquet: %s", exc)
+        raise DataFetchError("Unable to download DBpedia triples") from exc

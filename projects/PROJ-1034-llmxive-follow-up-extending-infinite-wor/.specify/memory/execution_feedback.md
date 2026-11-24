@@ -31,7 +31,7 @@ run_simulation.py: error: unrecognized arguments: --mode sweep --seed 42
 
 - python -m src.cli.validate_data --path data/raw/ -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1034-llmxive-follow-up-extending-infinite-wor/bin/python: No module named src.cli.validate_data
+2026-10-14 09:29:34,153 ERROR __main__: No Parquet files found under data/raw.
 
 ## Platform-owned paths written inside the project
 

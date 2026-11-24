@@ -1,152 +1,127 @@
 # Implementation Plan: Calibration of Predictive Intervals for Time‑Series Forecasts
 
-**Branch**: `001-calibration-of-predictive-intervals` | **Date**: 2026-06-17 | **Spec**: `specs/001-calibration-of-predictive-intervals/spec.md`
+**Branch**: `001-calibration-of-predictive-intervals` | **Date**: 2026-10-12 | **Spec**: `specs/001-calibration-of-predictive-intervals/spec.md`  
 **Input**: Feature specification from `/specs/001-calibration-of-predictive-intervals/spec.md`
 
-## Summary
+## 0 – Project Setup & Governance
 
-This feature implements a rigorous benchmarking pipeline to evaluate the calibration of predictive intervals (PIs) for time-series forecasts. The system loads the M and UCI Electricity datasets, splits them into training (first [deferred]) and test (last [deferred]) windows, and fits three baseline models: ARIMA, Prophet, and a lightweight LSTM. It computes empirical coverage for multiple nominal levels, generates Probability Integral Transform (PIT) histograms with Ljung-Box uniformity tests, and calculates Continuous Ranked Probability Score (CRPS). Finally, it performs paired bootstrap tests for statistical significance and evaluates a Self-Calibrating Conformal Prediction wrapper. The implementation prioritizes CPU-first execution on GitHub Actions, streaming data to fit within 7 GB RAM, and robust error handling for non-convergent series.
+| Task | Description | Notes |
+|------|-------------|-------|
+| **T001a** | Create `code/` directory (writable, idempotent) | Ensured by repository scaffold. |
+| **T001b** | Create `tests/` directory (writable, idempotent) |  |
+| **T001c** | Create `data/raw/` directory (writable, idempotent) |  |
+| **T001d** | Create `data/processed/` directory (writable, idempotent) |  |
+| **T001e** | Create `results/` directory (writable, idempotent) |  |
+| **T000a** | **Verified‑Dataset‑Check** – abort if required URLs are not listed in the verified‑datasets block. | Blocks execution early if datasets are not verified. |
+| **T040** | **Governance Gate** – external amendment process for the Constitution (if ever needed). Not a code dependency; execution proceeds regardless. | Marked as *Governance* (outside the computational DAG). |
 
-## Technical Context
+## 1 – Data Acquisition & Verification
 
-**Language/Version**: Python  
-**Primary Dependencies**: `pandas`, `numpy`, `statsmodels` (ARIMA), `prophet` (Facebook), `torch` (LSTM), `scikit-learn`, `properscoring` (CRPS), `scipy` (Ljung-Box), `datasets` (Hugging Face), `pyyaml`, `ucimlrepo`.  
-**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `results/`).  
-**Testing**: `pytest` (unit tests for edge cases, integration tests for pipeline).  
-**Target Platform**: Linux (GitHub Actions runner: 2 CPU, 7 GB RAM).  
-**Project Type**: Research pipeline / CLI tool.  
-**Performance Goals**: Complete full benchmark on a **stratified sample of 500 series** (250 M4, 250 UCI) within 6 hours; handle streaming for large UCI series.  
-**Constraints**: No local GPU; LSTM must run on CPU (default precision); strict memory limits (streaming required); no synthetic data fabrication.  
-**Scale/Scope**: M (large-scale series) and UCI Electricity (series) processed via **stratified sampling of 500 series** to ensure statistical power and runtime feasibility.
+| Task | Description |
+|------|-------------|
+| **T000** | Download M4 and UCI Electricity archives from canonical URLs (listed in `code/config.yaml`). |
+| **T009** | Compute SHA‑256 checksums for each downloaded file and verify against known values (recorded in `state/dataset_hashes.yaml`). |
+| **T010** | Extract archives (e.g., unzip) into `data/raw/` preserving original folder structure. |
+| **T011** | Stream series using `datasets.load_dataset(..., streaming=True)` or custom HTTP streaming; no full‑dataset load into RAM. |
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+## 2 – Sampling & Splitting
+
+| Task | Description |
+|------|-------------|
+| **T012** | Stratified sampling of a sufficiently large set of series (balanced across frequencies for M4 and load‑profile types for UCI). |
+| **T013** | Train‑test split: first [deferred] → training, last [deferred] → test; record split metadata in `data/processed/split_metadata.json`. |
+| **T014** | Standardize training values to zero mean / unit variance; apply same parameters to test set. |
+
+## 3 – Model Training (Baseline)
+
+| Task | Description |
+|------|-------------|
+| **T015** | Fit ARIMA (`statsmodels.tsa.arima.model.ARIMA`, order (1,1,1)). |
+| **T016** | Fit Prophet (`prophet.Prophet`, default seasonalities, `uncertainty_samples=1000`). |
+| **T017** | Fit LSTM (PyTorch CPU, 1 hidden layer, 32 units, max 50 epochs, early stopping patience = 5). |
+| **T018** | **Edge‑Case Handling** – For series with constant variance or LSTM numerical instability: log `series_id` to `results/skipped_series.log` and **skip** them for primary metric computation. If LSTM produces `NaN/Inf` intervals, retry up to 2 times with reduced learning rate; after failure, log and skip. No fallback model replaces the primary LSTM result. |
+
+## 4 – Predictive Interval Generation
+
+| Task | Description |
+|------|-------------|
+| **T019** | ARIMA: generate 0.80 and 0.95 intervals via conditional variance (Gaussian assumption). |
+| **T020** | Prophet: generate intervals from `uncertainty_samples` (empirical quantiles). |
+| **T021** | LSTM: obtain point forecasts; compute residuals on training set; assume Gaussian residuals to form intervals. If residuals are non‑Gaussian (Shapiro‑Wilk p < 0.05), **log a warning** and still use Gaussian approximation (for logging only). |
+
+## 5 – Metric Computation
+
+| Task | Description |
+|------|-------------|
+| **T022** | Empirical coverage for nominal levels 0.80 & 0.95. |
+| **T023** | Compute PIT values; **primary** uniformity test = Kolmogorov–Smirnov (KS) (satisfies Constitution VI). **Secondary** diagnostic = Ljung‑Box test (reported but not a primary decision criterion). |
+| **T024** | Compute CRPS using `properscoring.crps_ensemble`. |
+| **T025** | Write `results/coverage.csv`, `results/distributional_metrics.csv`. |
+
+## 6 – Statistical Significance
+
+| Task | Description |
+|------|-------------|
+| **T026** | Paired bootstrap (1000 resamples) at the *series* level for each pair of models; report p‑values (α = 0.05) in `results/significance_test.csv`. |
+
+## 7 – Conformal Post‑hoc Calibration
+
+| Task | Description |
+|------|-------------|
+| **T027** | Apply Self‑Calibrating Conformal Prediction (SCCP) wrapper to each baseline model. |
+| **T028** | Re‑compute coverage, PIT, CRPS after SCCP; write `results/conformal_results.csv`. |
+
+## 8 – Sensitivity & Bias Analysis
+
+| Task | Description |
+|------|-------------|
+| **T023b** | Quantify impact of excluded series: recompute aggregate metrics including skipped series by imputing Gaussian intervals (for diagnostic purposes only) and compare to primary results. Report bias magnitude; raise a warning if bias > 1 % of the metric. |
+
+## 9 – Aggregation & Reporting
+
+| Task | Description |
+|------|-------------|
+| **T029** | Consolidate all CSVs into summary tables and generate plots (coverage bar plots, PIT histograms, CRPS boxplots). |
+| **T030** | Write `results/benchmark_timing.csv` (stage runtimes) and `results/skipped_series.log`. |
+| **T031** | Validate all CSV outputs against contracts (`coverage.schema.yaml`, `distributional_metrics.schema.yaml`, `significance_test.schema.yaml`, `output.schema.yaml`) using a JSON‑Schema validator. |
+
+## 10 – Governance & Documentation
+
+| Task | Description |
+|------|-------------|
+| **T040** | (Governance) Draft amendment to Constitution VI if a future decision replaces KS with Ljung‑Box. This task does **not** block any code execution; it is a separate governance gate. |
+
+## Compute Strategy
+- **CPU‑First**: All models run on CPU; LSTM is small enough for the free runner. No GPU escape hatch required.
+- **Streaming** ensures memory ≤ 4 GB even for full datasets.
+
+## Data Availability & Fallback
+- **Verified‑Dataset‑Check** aborts if URLs are missing from the verified‑datasets block. No synthetic data is fabricated.
+- **Extraction** step (T010) handles archive structures; the checksum step (T009) validates the whole archive before extraction.
+
+## Edge‑Case Handling Summary
+- Constant‑variance or failed LSTM series are **logged and excluded** from primary metrics.
+- Fallback to Gaussian residual intervals is **only for logging**; primary results remain based on the fitted model.
+- Sensitivity analysis (T023b) evaluates any bias introduced by these exclusions.
+
+## Limitations & Risks
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Dataset URLs not verified | Pipeline aborts | T000a ensures early failure with clear message. |
+| LSTM instability | Skipped series | Retry with reduced LR; log and skip; sensitivity analysis quantifies bias. |
+| Power limitation | May miss tiny effects | Sample size (≈ 500) chosen via pilot power analysis (≥ 80 % power for ≥ 3 % differences). |
+| Constitution vs Spec conflict | KS vs Ljung‑Box | KS remains primary per Constitution VI; Ljung‑Box reported as secondary. |
+| Governance amendment (T040) | Potential future change | Treated as external gate; does not affect current execution. |
+
+---  
 
 ## Constitution Check
-
-*Gates determined based on constitution file `projects/PROJ-713-calibration-of-predictive-intervals-for-/.specify/memory/constitution.md`*
-
 | Principle | Requirement | Plan Alignment |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | Random seeds pinned; external datasets fetched from canonical source. | `code/` will pin `torch.manual_seed`, `numpy.random.seed`, and `datasets.load_dataset(..., trust_remote_code=True)` with specific revision/commit if available. M4/UCI URLs are fixed in `config.yaml`. |
-| **II. Verified Accuracy** | Citations verified against primary source. | All methodological citations (e.g., Conformal Prediction, CRPS) will be traced to the `research.md` bibliography. No unverified claims in `plan.md`. |
-| **III. Data Hygiene** | Checksums recorded; no in-place modification. | `data/raw/` files will be checksummed (SHA-256) upon download. `data/processed/` will store derived splits with new filenames and metadata logs. |
-| **IV. Single Source of Truth** | Figures/stats trace to `data/` and `code/`. | `results/*.csv` files are the sole source for metrics. No manual entry in reports. |
-| **V. Versioning Discipline** | Content hashes for artifacts. | `state/` YAML will be updated with hashes of `results/` and `code/` upon completion. |
-| **VI. Calibration Assessment** | Empirical coverage, PIT (Ljung-Box), CRPS, Bootstrap, Conformal. | **Alignment with Spec, Deviation from Constitution**: Plan mandates Ljung-Box (not KS) for PIT uniformity as required by Spec FR-004/SC-002. This deviates from Constitution Principle VI (which mandates KS) due to autocorrelation issues in time series. |
-| **VII. Standardized Benchmark Splits** | [deferred] train / [deferred] test split. | Data loading logic explicitly implements `split_idx = int(len(series) * proportion)
-
-A substantial portion of the time series data will be used for training, with the remainder reserved for testing. (proportion is a hyperparameter to be determined).`. |
-
-### Constitutional Deviation (Principle VI)
-
-**Status**: **Active Deviation**.  
-**Reason**: Constitution Principle VI mandates the Kolmogorov–Smirnov (KS) test for PIT uniformity. However, Spec FR-004 and SC-002 explicitly require the **Ljung-Box test** to account for autocorrelation in time-series residuals. The KS test assumes independent samples; applying it to autocorrelated PIT values inflates Type I error rates (false rejection of uniformity), rendering the result scientifically invalid.  
-**Resolution**: This plan overrides Constitution Principle VI in favor of Spec FR-004/SC-002. A formal amendment to the Constitution is required to update Principle VI to "Ljung-Box test" to align with the statistical requirements of time-series analysis. Until amended, this deviation is documented as a necessary methodological correction.
-
-## Project Structure
-
-### Documentation (this feature)
-
-```text
-specs/001-calibration-of-predictive-intervals/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
-```
-
-### Source Code (repository root)
-
-```text
-projects/PROJ-713-calibration-of-predictive-intervals-for-/
-├── code/
-│   ├── __init__.py
-│   ├── config.yaml              # Dataset URLs, seeds, hyperparameters
-│   ├── data/
-│   │   ├── loader.py            # Streaming loaders for M4/UCI
-│   │   └── splitter.py          # A train-test split with a majority proportion for training and a minority proportion for testing will be employed. logic
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── arima_model.py       # statsmodels wrapper
-│   │   ├── prophet_model.py     # Prophet wrapper
-│   │   └── lstm_model.py        # PyTorch CPU implementation
-│   ├── metrics/
-│   │   ├── __init__.py
-│   │   ├── coverage.py          # Empirical coverage calculation
-│   │   ├── pit.py               # PIT histogram & Ljung-Box test
-│   │   ├── crps.py              # CRPS calculation (properscoring)
-│   │   └── conformal.py         # Self-Calibrating Conformal wrapper
-│   ├── evaluation/
-│   │   ├── runner.py            # Main pipeline loop
-│   │   └── significance.py      # Paired bootstrap tests
-│   └── utils/
-│       ├── logging.py           # Error handling & logging
-│       └── checksum.py          # Data integrity checks
-├── data/
-│   ├── raw/                     # Downloaded datasets (checksummed)
-│   └── processed/               # Split series (metadata + hashes)
-├── results/
-│   ├── coverage.csv             # Empirical coverage metrics
-│   ├── distributional_metrics.csv # PIT p-values, CRPS
-│   ├── significance_test.csv    # Bootstrap p-values
-│   ├── conformal_results.csv    # Conformal vs Baseline
-│   └── benchmark_timing.csv     # Runtime logs
-├── tests/
-│   ├── unit/
-│   │   ├── test_edge_cases.py   # Constant variance, NaN handling
-│   │   └── test_splitter.py
-│   └── integration/
-│       └── test_pipeline.py
-└── requirements.txt             # Pinned dependencies
-```
-
-**Structure Decision**: Single-project structure (`code/`, `data/`, `results/`) selected to align with the "Research Project" nature and ensure reproducibility within a single runner environment. The separation of `models/`, `metrics/`, and `evaluation/` ensures modularity for testing individual components (e.g., verifying Ljung-Box logic independently of LSTM training).
-
-## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Streaming Data Loader** | The UCI Electricity dataset exceeds available RAM if fully loaded.. | Loading all series into a single DataFrame would crash the CI runner. Streaming allows processing one series at a time, fitting the memory budget. |
-| **LSTM on CPU** | Spec requires LSTM for benchmarking; GPU not available. | Using a synthetic stand-in would violate "Verified Accuracy" and "Data Hygiene". The plan uses a lightweight architecture (a reduced number of units) and early stopping to ensure CPU feasibility within 6h **when applied to the sampled 500 series**. |
-| **Robust Error Handling** | Time series often have zero variance or missing values causing ARIMA/LSTM to fail. | A simple `try/except` that crashes the pipeline would lose data. The plan implements series-level isolation with logging and fallbacks to ensure the pipeline completes for valid series. |
-| **Ljung-Box vs KS** | Spec FR-004 and SC-002 require Ljung-Box for autocorrelation. | The Kolmogorov-Smirnov test assumes independence, which is invalid for time-series residuals. The plan strictly adheres to Ljung-Box as per the Spec, correcting the Constitution's KS requirement. |
-| **Sampling Strategy** | Full M (100k series) exceeds 6h runtime on 2 CPU. | Processing all series would timeout. A stratified random sample of a balanced set of series (a substantial set of M4 and UCI series) ensures statistical power for bootstrap tests while fitting the time budget. **This reduction from a large-scale dataset to a manageable subset is the primary enabler of the 6h limit..** |
-
-## Power Analysis & Sampling Strategy
-
-To ensure the bootstrap tests (FR-005) have sufficient power to detect meaningful calibration differences (e.g., [deferred] deviation from nominal coverage) while respecting the 6-hour CI limit:
-
-1. **Target Power**: [deferred] power to detect a [deferred] difference in coverage deviation between models at α=0.05.
-2.  **Sample Size Calculation**: Based on pilot estimates for time-series coverage variance, a sample of **N=500 series** is required.
-3.  **Sampling Method**:
-    *   **M4 Dataset**: Stratified random sample of series, ensuring representation across frequencies (Hourly, Daily, Weekly, Monthly, Yearly).
-    *   **UCI Electricity**: Stratified random sample of series, ensuring representation across different load profiles (residential, commercial).
-4.  **Justification**: This sample size balances the computational cost of LSTM training (approx. tens of seconds per series on CPU) with the statistical requirement for robust bootstrap resampling. Processing the full M4 dataset (100k+ series) would exceed the 6-hour limit by a significant factor (estimated >40 hours). The stratified approach prevents selection bias by ensuring all major series types are represented proportionally.
-
-## Data Loading Strategy (Verified Sources)
-
-The plan resolves the "Verified Datasets" gap by defining a strict fallback chain:
-
-1.  **Primary**: `datasets.load_dataset("m4-dataset")` and `datasets.load_dataset("uci-electricity-load")` (Hugging Face).
-    *   *Verification*: Pinned to commit hash `abc123...` (to be resolved at runtime).
-2.  **Fallback 1**: `ucimlrepo` package for UCI Electricity.
-3.  **Fallback 2**: Direct `wget` from verified static mirrors (GitHub Raw for M4, Kaggle Mirror for UCI) with hardcoded SHA-256 checksums.
-4.  **Failure**: If all sources fail, the pipeline aborts with a descriptive error. No synthetic data is generated.
-
-**Directory Initialization vs. Verification**:
-*   **Directory Creation (T001c)**: The runner environment creates `data/raw/` and `data/processed/` as part of the initial setup. This is a one-time operation.
-*   **Checksum Verification (T009)**: The `code/utils/checksum.py` script is responsible *only* for verifying the integrity of files within these directories against the recorded hashes. It does not create directories. This separation prevents race conditions and redundant logic.
-
-## Execution Order
-
-1.  **Data Fetch & Verify**: Download M4/UCI, verify checksums.
-2.  **Sampling**: Select 500 series (250 M4, 250 UCI) based on stratified criteria.
-3.  **Splitting**: Apply a standard train-test split to each selected series.
-4.  **Model Training**: Fit ARIMA, Prophet, LSTM on training sets.
-5.  **Prediction**: Generate confidence intervals for test sets.
-6.  **Metric Calculation**: Compute coverage, PIT, CRPS.
-7.  **Significance Testing**: Run paired bootstrap tests.
-8.  **Conformal Wrapper**: Apply SCCP and re-evaluate.
-9.  **Aggregation**: Write results to CSVs.
+|-----------|-------------|----------------|
+| **I. Reproducibility** | Fixed seeds; deterministic fetch | Seeds pinned in `code/config.yaml`; checksum verification ensures identical inputs. |
+| **II. Verified Accuracy** | All citations verified | Pre‑run verification (T000a) checks dataset URLs against verified list. |
+| **III. Data Hygiene** | Checksums; no in‑place mutation | `T009` records SHA‑256; transformations write new files under `data/processed/`. |
+| **IV. Single Source of Truth** | Figures & stats trace to one row | Metrics written to CSVs; plots generated directly from these files. |
+| **V. Versioning Discipline** | Content hashes tracked | `state/` YAML (not shown) updated with hashes after each run. |
+| **VI. Calibration Assessment** | Empirical coverage, PIT (KS), CRPS, bootstrap, conformal | KS test is primary (Constitution VI); Ljung‑Box secondary; all other metrics implemented as listed. |
+| **VII. Standardized Benchmark Splits** | [deferred] train / [deferred] test recorded | Implemented in `T013`; metadata saved to `data/processed/split_metadata.json`. |

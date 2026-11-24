@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T006` (rejected 1x): Checked `code/main.py`, `data/results/simulation_raw.json`, and the execution log `code/.tasks/T006.code_run_primary_sweep.py.log`. The JSON file is present but its size (≈75 KB) and the displayed excerpt suggest far fewer than the required 2 500 replicate records, and no count is provided. The log records a run of a different script (`run_primary_sweep.py`) lasting only seconds and does not contain the required runtime or RAM usage information, nor does it show that `code/main.py` was invoked with the full‑sweep parameters. Consequently the task’s quantitative and performance verification req
+- `T001` (rejected 1x): Requested task execution failed; rerun successfully: code/scripts/generate_base_template.py exit=1
 
 ## Required change
 

@@ -1,173 +1,163 @@
 """
-Dataset Downloader for Socratic Transformers Project.
-
-Downloads GSM8K and MATH datasets from HuggingFace, computes SHA-256 checksums
-of the cached parquet files, and writes a manifest to state/artifact_hashes.yaml.
-
-Real Data Requirement: This script fetches actual data from the HuggingFace Hub.
-It will fail loudly if the datasets cannot be downloaded.
+Download raw datasets (GSM8K, MATH, MMLU-STEM) and store them as Parquet files.
+Generates a SHA-256 manifest at `state/artifact_hashes.yaml`.
 """
-import hashlib
-import json
-import os
+
 import sys
+import os
+import hashlib
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Any, List, Union, Dict
 
-# Add project root to path to ensure imports work regardless of execution context
-project_root = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(project_root))
-
-from datasets import load_dataset
 import yaml
+from datasets import load_dataset
+import pandas as pd
 
-# Configuration for datasets
-DATASET_CONFIGS = [
-    {
-        "name": "gsm8k",
-        "hf_id": "openai/gsm8k",
-        "config": "main",
-        "split": "train",
-        "output_file": "gsm8k_train.parquet"
-    },
-    {
-        "name": "math",
-        "hf_id": "hendrycks/math",
-        "config": "prealgebra", # Using a subset to keep download manageable for initial run
-        "split": "train",
-        "output_file": "math_train.parquet"
-    }
-]
+# Ensure the project root is in the python path so 'src' can be imported
+# when running as 'python src/data/download.py' from the 'code' directory.
+current_file = Path(__file__).resolve()
+project_root = current_file.parent.parent.parent # code/src/data/download.py -> code/
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-# Paths relative to project root
-RAW_DATA_DIR = project_root / "data" / "raw"
-STATE_DIR = project_root / "state"
-MANIFEST_FILE = STATE_DIR / "artifact_hashes.yaml"
+# Project configuration utilities
+from src.utils.config import get_config
 
-def ensure_data_dirs() -> None:
-    """Ensure raw data and state directories exist."""
-    RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
+def ensure_directories() -> None:
+    """
+    Ensure that the raw data and state directories exist.
+    """
+    cfg = get_config()
+    cfg.data_raw.mkdir(parents=True, exist_ok=True)
+    cfg.state_dir.mkdir(parents=True, exist_ok=True)
 
-def compute_file_hash(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+def compute_sha256(file_path: Path) -> str:
+    """
+    Compute the SHA-256 hash of a file.
 
-def load_manifest() -> Dict[str, Any]:
-    """Load existing manifest if it exists."""
-    if MANIFEST_FILE.exists():
-        with open(MANIFEST_FILE, "r") as f:
-            return yaml.safe_load(f) or {}
+    Args:
+        file_path: Path to the file.
+
+    Returns:
+        Hexadecimal SHA-256 digest.
+    """
+    sha256 = hashlib.sha256()
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
+
+def load_manifest(manifest_path: Path) -> dict:
+    """
+    Load an existing YAML manifest if it exists.
+
+    Args:
+        manifest_path: Path to the manifest file.
+
+    Returns:
+        Dictionary with previously recorded hashes (empty if none).
+    """
+    if manifest_path.is_file():
+        with manifest_path.open("r", encoding="utf-8") as f:
+            try:
+                return yaml.safe_load(f) or {}
+            except yaml.YAMLError:
+                return {}
     return {}
 
-def save_manifest(manifest: Dict[str, Any]) -> None:
-    """Save manifest to YAML file."""
-    with open(MANIFEST_FILE, "w") as f:
-        yaml.dump(manifest, f, default_flow_style=False, sort_keys=False)
-
-def download_dataset(dataset_config: Dict[str, Any]) -> Optional[Path]:
+def save_manifest(manifest: dict, manifest_path: Path) -> None:
     """
-    Download a dataset from HuggingFace and return the path to the cached parquet file.
-    
-    This function forces a download by specifying the cache_dir to our raw data directory
-    and then locating the parquet file that was created.
+    Write the manifest dictionary to a YAML file.
+
+    Args:
+        manifest: Mapping of file paths to SHA-256 hashes.
+        manifest_path: Destination path.
     """
-    hf_id = dataset_config["hf_id"]
-    config_name = dataset_config["config"]
-    split = dataset_config["split"]
-    output_file_name = dataset_config["output_file"]
-    
-    print(f"Downloading {hf_id} ({config_name}, split={split})...")
-    
-    try:
-        # Load dataset with streaming=False to ensure it's fully downloaded to cache
-        # We point cache_dir to our raw data directory to keep artifacts organized
-        dataset = load_dataset(
-            hf_id, 
-            config_name, 
-            split=split,
-            cache_dir=str(RAW_DATA_DIR / "hf_cache"),
-            trust_remote_code=True
-        )
-        
-        # The datasets library caches data in a specific structure.
-        # We need to find the actual parquet file to hash it.
-        # Since we are using the standard loader, the data is stored in:
-        # cache_dir/hf_id/config_name/split/0.parquet (or similar)
-        
-        # However, for the purpose of this task, we need to produce a stable artifact.
-        # The 'datasets' library doesn't always expose the local file path directly 
-        # in a simple way without digging into the cache structure.
-        # To ensure we have a hashable file, we will write the dataset to a parquet file
-        # explicitly in our raw data directory. This is a standard practice for 
-        # creating stable data artifacts in research pipelines.
-        
-        output_path = RAW_DATA_DIR / output_file_name
-        
-        # Export to parquet to create a stable, hashable file
-        # Using to_pandas() might be memory intensive for full datasets, 
-        # but for GSM8K and a subset of MATH it is acceptable.
-        # For very large datasets, we would stream and write in chunks.
-        # Given the constraints of this specific task (GSM8K + Math prealgebra),
-        # loading to pandas is feasible.
-        
-        df = dataset.to_pandas()
-        df.to_parquet(output_path, index=False)
-        
-        print(f"Successfully saved {output_path}")
-        return output_path
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    with manifest_path.open("w", encoding="utf-8") as f:
+        yaml.safe_dump(manifest, f, sort_keys=True)
 
-    except Exception as e:
-        print(f"Failed to download {hf_id}: {e}", file=sys.stderr)
-        raise
+def download_dataset(name: str, config: Union[str, List[str], None]) -> Path:
+    """
+    Download a HuggingFace dataset and save it as a Parquet file.
 
-def download_all_datasets() -> List[Path]:
-    """Download all configured datasets and return list of file paths."""
-    ensure_data_dirs()
-    paths = []
-    for config in DATASET_CONFIGS:
-        path = download_dataset(config)
-        if path:
-            paths.append(path)
-    return paths
+    Handles standard datasets and datasets with multiple required subsets 
+    (like MMLU-STEM).
+
+    Args:
+        name: Dataset identifier (e.g., "gsm8k").
+        config: Configuration name, list of configuration names, or None.
+
+    Returns:
+        Path to the written Parquet file.
+    """
+    # Special handling for MMLU-STEM (which requires specific subsets)
+    if name == "cais/mmlu" and isinstance(config, list):
+        frames = []
+        for subj in config:
+            # Load specific subset, non-streaming
+            ds = load_dataset(name, subj, streaming=False)
+            for split in ds.keys():
+                frames.append(ds[split].to_pandas())
+        df = pd.concat(frames, ignore_index=True)
+    else:
+        # Standard load for GSM8K, competition_math, etc.
+        dataset = load_dataset(name, config, streaming=False)
+        frames = []
+        for split in dataset.keys():
+            frames.append(dataset[split].to_pandas())
+        df = pd.concat(frames, ignore_index=True)
+
+    # Determine output filename
+    safe_name = name.replace("/", "_")
+    out_path = get_config().data_raw / f"{safe_name}.parquet"
+
+    # Write Parquet
+    df.to_parquet(out_path, index=False)
+    return out_path
 
 def main() -> None:
-    """Main entry point for the dataset downloader."""
-    print("Starting dataset download process...")
-    
-    try:
-        downloaded_files = download_all_datasets()
-        
-        if not downloaded_files:
-            print("No datasets were downloaded.", file=sys.stderr)
+    """
+    Main entry point executed by `python src/data/download.py`.
+
+    Downloads the three required datasets, records their SHA-256 hashes,
+    and writes a manifest to `state/artifact_hashes.yaml`.
+    """
+    ensure_directories()
+    cfg = get_config()
+    manifest_path = cfg.state_dir / "artifact_hashes.yaml"
+    manifest = load_manifest(manifest_path)
+
+    # Dataset specifications: (HF identifier, config/subsets)
+    # MMLU-STEM is defined as a collection of STEM-related subjects.
+    datasets_to_fetch = [
+        ("gsm8k", "main"),          # GSM8K
+        ("competition_math", None), # MATH
+        ("cais/mmlu", [            # MMLU-STEM
+            "college_physics", 
+            "college_biology", 
+            "college_chemistry", 
+            "abstract_algebra", 
+            "linear_algebra", 
+            "college_computer_science"
+        ]),
+    ]
+
+    for ds_name, ds_config in datasets_to_fetch:
+        try:
+            parquet_path = download_dataset(ds_name, ds_config)
+            file_hash = compute_sha256(parquet_path)
+            # Use relative path in manifest for portability
+            rel_path = parquet_path.relative_to(project_root)
+            manifest[str(rel_path)] = file_hash
+            print(f"✔ Downloaded {ds_name} → {parquet_path}")
+        except Exception as exc:
+            print(f"✖ Failed to download {ds_name}: {exc}", file=sys.stderr)
             sys.exit(1)
-        
-        # Load existing manifest
-        manifest = load_manifest()
-        
-        # Update manifest with new hashes
-        for file_path in downloaded_files:
-            file_hash = compute_file_hash(file_path)
-            # Store relative path for portability
-            rel_path = str(file_path.relative_to(project_root))
-            manifest[rel_path] = {
-                "hash": file_hash,
-                "algorithm": "sha256",
-                "size_bytes": file_path.stat().st_size
-            }
-            print(f"Hashed {rel_path}: {file_hash}")
-        
-        # Save manifest
-        save_manifest(manifest)
-        print(f"Manifest saved to {MANIFEST_FILE}")
-        
-    except Exception as e:
-        print(f"Critical error during download process: {e}", file=sys.stderr)
-        sys.exit(1)
+
+    # Persist the manifest
+    save_manifest(manifest, manifest_path)
+    print(f"✅ Manifest written to {manifest_path}")
 
 if __name__ == "__main__":
     main()

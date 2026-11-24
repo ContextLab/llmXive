@@ -1,0 +1,10 @@
+# Selected dataset configuration for permeability prediction
+# This file is read by code/data/download.py to determine which
+# Hugging Face dataset to stream.
+hf_path: "deepchem/permeability"
+split: "train"
+filename: "permeability_data.csv"
+# Expected column names (case‑insensitive) that must be present
+expected_columns:
+  - "smiles"
+  - "permeability"

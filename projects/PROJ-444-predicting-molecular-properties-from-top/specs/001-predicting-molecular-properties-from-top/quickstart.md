@@ -1,83 +1,105 @@
 # Quickstart: Predicting Molecular Properties from Topological Data Analysis
 
 ## Prerequisites
-
--   Python 3.11+
--   `pip` or `conda`
--   Access to GitHub Actions runner (for CI execution) or local Linux environment.
+- Python 3.11+
+- `git`
+- Linux environment (local machine or GitHub Actions runner)
 
 ## Installation
 
-1.  **Clone Repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-444-predicting-molecular-properties-from-top
-    ```
+```bash
+# 1. Clone the repository
+git clone <repo-url>
+cd projects/PROJ-444-predicting-molecular-properties-from-top
 
-2.  **Create Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+# 2. Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: Ensure `gudhi` or `dionysus2` installs CPU wheels. If GPU wheels are detected, force CPU installation.*
+# 3. Install exact dependencies (CPU wheels only)
+pip install -r code/requirements.txt
+```
 
 ## Data Preparation
 
-1.  **Download Dataset**:
-    The pipeline expects data in `data/raw/`. Use the script to fetch from verified sources:
-    ```bash
-    python code/01_data_ingestion.py --source pubchem
-    ```
-    *Verify that the downloaded file contains `smiles` and target property columns.*
+```bash
+# Stream the PubChem dataset, shuffle, randomly sample a large set of valid molecules,
+# extract SMILES & logP, and write the validated CSV
+python code/01_download_pubchem.py \
+    --source huggingface \
+    --dataset sagawa/pubchem-10m-canonicalized \
+    --max-molecules 5000 \
+    --seed 42 \
+    --sample-mode random   # ensures shuffling + unbiased sampling
+```
 
-2.  **Validate Data**:
-    The script automatically logs invalid SMILES. Check `data/processed/exclusion_log.csv`.
+- **Note**: The script shuffles the record order with a **fixed seed (= 42)** before sampling, ensuring an unbiased random sample rather than simply taking the first N records.
+- The script streams the Hugging Face dataset, shuffles the stream using the fixed seed, keeps only rows where `canonical_smiles` and `XLogP3` are present, renames them to `smiles` and `logP`, validates each SMILES with RDKit, and writes `data/processed/molecules.csv`.  
+- Invalid SMILES are logged in `data/processed/exclusions.csv` (idempotent).  
+- A SHA‑256 checksum file `data/checksums.txt` is updated; you can verify it with:
 
-## Running the Pipeline
+```bash
+python code/00_checksum_verify.py
+```
 
-Execute the steps sequentially:
+- **Contract validation**: Immediately after download, run the pytest contract test to ensure `molecules.csv` conforms to `contracts/dataset.schema.yaml`:
 
-1.  **Compute Checksums**:
-    ```bash
-    python code/00_checksum_verify.py
-    ```
-    *Output: `data/checksums.txt`*
+```bash
+pytest tests/contract/test_dataset_schema.py
+```
 
-2.  **Compute TDA Features**:
-    ```bash
-    python code/02_tda_computation.py --resolution 10
-    ```
-    *Output: `data/processed/topological_features.csv`*
+## Full Pipeline
 
-3.  **Train & Evaluate Models**:
-    ```bash
-    python code/04_model_training.py
-    ```
-    *Output: `reports/metrics/` with R², RMSE, and p-values.*
+```bash
+# 1. Compute topological descriptors (baseline square grid of moderate resolution)
+python code/02_tda_computation.py --grid 10
 
-4.  **Run Diagnostics**:
-    ```bash
-    python code/06_diagnostics.py
-    ```
-    *Output: `reports/diagnostics/vif_report.json`, `reports/diagnostics/mi_report.json`*
+# Contract validation for persistence images:
+pytest tests/contract/test_feature_matrix_schema.py --grid 10
 
-5.  **Sensitivity Analysis** (Optional):
-    ```bash
-    python code/05_sensitivity_analysis.py --resolutions 10 20 30
-    ```
+# 2. Compute traditional RDKit descriptors and merge with topological features
+python code/03_feature_engineering.py
 
-6.  **Monitor Resources** (Required for SC-004):
-    ```bash
-    python code/07_resource_monitor.py
-    ```
-    *Output: `reports/metrics/resource_usage.json`*
+# 3. Train and evaluate models (multiple repeats of 10‑fold scaffold CV)
+python code/04_model_training.py
+
+# 4. Extract feature importance (outputs conform to model_metrics.schema.yaml)
+python code/07_feature_importance.py
+
+# 5. Run statistical diagnostics (Bonferroni, VIF for Linear Regression, MI)
+python code/06_diagnostics.py
+
+# 6. Sensitivity sweep over grid resolutions (assert σ < 0.02)
+python code/05_sensitivity_analysis.py --grids 10 20 30
+
+# 7. Record resource usage for SC‑004
+python code/08_resource_monitor.py
+```
+
+All artifacts are written under `reports/`:
+
+- `metrics/model_metrics.json`
+- `metrics/feature_importance.json`
+- `diagnostics/vif_report.json`
+- `diagnostics/mi_report.json`
+- `diagnostics/sensitivity_report.json`
+- `metrics/resource_usage.json`
 
 ## Verification
 
--   **Contract Tests**: Run `pytest tests/contract/` to validate output schemas.
--   **Reproducibility**: Re-run the pipeline; results should match (within floating-point tolerance) due to pinned seeds.
+```bash
+# Contract tests (schema validation)
+pytest tests/contract/
+
+# Unit tests for core utilities
+pytest tests/unit/
+```
+
+Re‑running the pipeline yields identical results (within floating‑point tolerance) because:
+
+- Random seeds are fixed (`random.seed(42)`, `np.random.seed(42)`).  
+- The dataset is streamed from a single, immutable Hugging Face source.  
+- All `molecule_id` fields are stored as strings before any merge.  
+- Checksums guarantee data integrity across runs.
+
+---

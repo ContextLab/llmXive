@@ -1,17 +1,28 @@
+[project]
+name = "proj108-code-style-impact"
+version = "0.1.0"
+description = "Assessing the Impact of Code Style Consistency on LLM Code Understanding"
+requires-python = "==3.10.*"
+dependencies = [
+    "numpy==1.26.4",
+    "pandas==2.2.2",
+    "scipy==1.11.4",
+    "scikit-learn==1.4.2",
+    "statsmodels==0.14.2",
+    "matplotlib==3.8.4",
+    "seaborn==0.13.2",
+    "pyyaml==6.0.1",
+    "pylint==3.1.0",
+    "radon==6.0.1",
+    "torch==2.2.2",
+    "transformers==4.40.2",
+    "datasets==2.19.0",
+]
+
 [tool.black]
-line-length = 88
-target-version = ['py310']
-include = '\\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+line-length = 100
+target-version = ["py310"]
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = ["E203", "W503"]

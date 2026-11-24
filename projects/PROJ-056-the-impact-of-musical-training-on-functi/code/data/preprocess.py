@@ -2,7 +2,7 @@ import os
 import logging
 import numpy as np
 import pandas as pd
-from typing import Optional, List, Tuple, Dict, Any
+from typing import Optional, List, Dict, Any
 from pathlib import Path
 from scipy import stats as scipy_stats
 from data.models import create_subjects_from_dataframe
@@ -12,7 +12,11 @@ from data.synthetic_generator import generate_synthetic_dataset
 # Import the DataAccessError used for analysis‑mode failures
 from data.download import DataAccessError
 
-logger = get_logger(__name__)
+log = get_logger(__name__)
+
+###########################################################################
+# Helper utilities
+###########################################################################
 
 def load_nifti_safe(path: str) -> Optional[np.ndarray]:
     """
@@ -23,20 +27,20 @@ def load_nifti_safe(path: str) -> Optional[np.ndarray]:
         img = nib.load(path)
         return img.get_fdata()
     except Exception as e:
-        logger.error(f"Failed to load NIfTI at {path}: {e}")
+        log.error(f"Failed to load NIfTI at {path}: {e}")
         return None
 
 def filter_by_training_years(df: pd.DataFrame, threshold: float = 1.0) -> pd.DataFrame:
     """
-    Filter subjects based on years of training threshold.
-    Musicians: >= threshold years.
+    Keep only subjects with ``years_of_training`` >= ``threshold``.
     """
-    logger.info(f"Filtering subjects with years_of_training >= {threshold}")
-    return df[df['years_of_training'] >= threshold].copy()
+    log.info(f"Applying musician cutoff of {threshold} year(s)")
+    return df[df["years_of_training"] >= threshold].copy()
 
 def remove_missing_data(df: pd.DataFrame, columns: Optional[List[str]] = None) -> pd.DataFrame:
     """
-    Remove rows with missing data in specified columns or all numeric columns.
+    Drop rows that have missing values in the supplied ``columns``.
+    If ``columns`` is ``None`` all numeric columns are considered.
     """
     if columns is None:
         columns = df.select_dtypes(include=[np.number]).columns.tolist()
@@ -44,334 +48,419 @@ def remove_missing_data(df: pd.DataFrame, columns: Optional[List[str]] = None) -
     df_clean = df.dropna(subset=columns)
     removed = initial_len - len(df_clean)
     if removed > 0:
-        logger.warning(f"Removed {removed} subjects due to missing data in {columns}")
+        log.warning(f"Removed {removed} subjects due to missing data in {columns}")
     return df_clean
 
-def handle_confounders(df: pd.DataFrame, confounders: List[str], treatment_col: str = 'group') -> pd.DataFrame:
+###########################################################################
+# Matching / residualisation utilities
+###########################################################################
+
+def _standardized_mean_difference(
+    treated: pd.Series, control: pd.Series
+) -> float:
     """
-    Perform Propensity Score Matching (PSM) or Linear Regression Residualization
-    to balance confounders between groups.
+    Compute the absolute standardized mean difference (SMD) between two groups.
     """
-    logger.info(f"Handling confounders: {confounders} for treatment {treatment_col}")
+    mean_t = treated.mean()
+    mean_c = control.mean()
+    var_t = treated.var()
+    var_c = control.var()
+    pooled_sd = np.sqrt((var_t + var_c) / 2.0)
+    if pooled_sd == 0:
+        return 0.0
+    return abs(mean_t - mean_c) / pooled_sd
 
-    # Ensure we have the necessary columns
-    required_cols = [treatment_col] + confounders
-    if not all(col in df.columns for col in required_cols):
-        missing = [c for c in required_cols if c not in df.columns]
-        raise ValueError(f"Missing columns for confounder handling: {missing}")
+def compute_smds(
+    df: pd.DataFrame,
+    treatment_col: str,
+    covariates: List[str],
+) -> Dict[str, float]:
+    """
+    Compute SMD for each covariate in ``covariates`` between the two
+    treatment groups defined by ``treatment_col``.
+    """
+    smd_dict = {}
+    for cov in covariates:
+        treated = df[df[treatment_col] == "musician"][cov]
+        control = df[df[treatment_col] == "non_musician"][cov]
+        smd = _standardized_mean_difference(treated, control)
+        smd_dict[cov] = smd
+    return smd_dict
 
-    # Check memory
-    try:
-        df = check_and_subset_memory(df, limit_gb=6.5)
-    except MemoryLimitExceeded:
-        logger.warning("Memory limit exceeded during confounder handling, attempting regression fallback")
-        return _linear_residualization(df, confounders, treatment_col)
+def handle_confounders(
+    df: pd.DataFrame,
+    confounders: List[str],
+    treatment_col: str = "group",
+) -> pd.DataFrame:
+    """
+    Perform Propensity‑Score Matching (PSM) with a caliper of 0.2 SD.
+    If the ``causalml`` package is unavailable, fall back to a simple
+    greedy nearest‑neighbor matching based on Euclidean distance in the
+    standardized covariate space.
+    """
+    log.info(f"Attempting confounder handling (matching) on {confounders}")
 
-    # Attempt PSM if causalml is available
+    # Verify required columns exist
+    required = [treatment_col] + confounders
+    missing = [c for c in required if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns for matching: {missing}")
+
+    # Try PSM if causalml is present
     try:
         from causalml.inference.propensity import PropensityScoreMatching
+
+        # Encode treatment as binary
+        df_tmp = df.copy()
+        mapping = {"musician": 1, "non_musician": 0}
+        df_tmp[treatment_col] = df_tmp[treatment_col].map(mapping)
+
         psm = PropensityScoreMatching(
             treatment_col=treatment_col,
             features=confounders,
             caliper=0.2,
-            ratio=1
+            ratio=1,
         )
-        df_temp = df.copy()
-        if df_temp[treatment_col].dtype == 'object':
-            unique_groups = df_temp[treatment_col].unique()
-            if len(unique_groups) != 2:
-                logger.warning("PSM requires exactly 2 groups, falling back to regression")
-                return _linear_residualization(df, confounders, treatment_col)
-            mapping = {g: i for i, g in enumerate(unique_groups)}
-            df_temp[treatment_col] = df_temp[treatment_col].map(mapping)
-
-        matched_df = psm.match(df_temp)
-        if matched_df is not None and len(matched_df) > 0:
-            logger.info(f"PSM successful, matched {len(matched_df)} subjects")
-            return matched_df
+        matched = psm.match(df_tmp)
+        if matched is not None and not matched.empty:
+            # Restore original group labels
+            inv_map = {v: k for k, v in mapping.items()}
+            matched[treatment_col] = matched[treatment_col].map(inv_map)
+            log.info(f"PSM succeeded – matched {len(matched)} subjects")
+            return matched
     except ImportError:
-        logger.warning("causalml not installed, using linear residualization fallback")
+        log.warning("causalml not installed – falling back to greedy matching")
     except Exception as e:
-        logger.warning(f"PSM failed ({e}), using linear residualization fallback")
+        log.warning(f"PSM failed ({e}) – falling back to greedy matching")
 
-    return _linear_residualization(df, confounders, treatment_col)
+    # Greedy matching fallback
+    return _greedy_matching(df, confounders, treatment_col)
 
-def _linear_residualization(df: pd.DataFrame, confounders: List[str], treatment_col: str) -> pd.DataFrame:
+def _greedy_matching(
+    df: pd.DataFrame,
+    confounders: List[str],
+    treatment_col: str,
+) -> pd.DataFrame:
     """
-    Simple greedy nearest‑neighbor matching as a fallback when PSM is unavailable.
+    Simple nearest‑neighbor matching without external dependencies.
     """
-    logger.info("Performing simple greedy matching as fallback")
-    if len(df) < 2:
-        return df
-
+    log.info("Running greedy nearest‑neighbor matching")
     df = df.copy()
-    confounders_df = df[confounders].copy()
-    means = confounders_df.mean()
-    stds = confounders_df.std().replace(0, 1)
-    confounders_df = (confounders_df - means) / stds
+    # Standardise covariates
+    cov_df = df[confounders].astype(float)
+    means = cov_df.mean()
+    stds = cov_df.std().replace(0, 1)
+    cov_std = (cov_df - means) / stds
 
-    musicians = df[df[treatment_col] == 'musician']
-    non_musicians = df[df[treatment_col] == 'non_musician']
+    musicians = df[df[treatment_col] == "musician"]
+    non_musicians = df[df[treatment_col] == "non_musician"]
 
-    if len(musicians) == 0 or len(non_musicians) == 0:
+    if musicians.empty or non_musicians.empty:
+        log.warning("One of the groups is empty – returning original dataframe")
         return df
 
     matched_indices = []
-    used_non_musician_indices = set()
+    used_non = set()
 
     for m_idx, m_row in musicians.iterrows():
-        m_vec = confounders_df.loc[m_idx]
-        best_dist = float('inf')
-        best_n_idx = -1
-
+        m_vec = cov_std.loc[m_idx].values
+        best_dist = np.inf
+        best_n_idx = None
         for n_idx, n_row in non_musicians.iterrows():
-            if n_idx in used_non_musician_indices:
+            if n_idx in used_non:
                 continue
-            n_vec = confounders_df.loc[n_idx]
+            n_vec = cov_std.loc[n_idx].values
             dist = np.linalg.norm(m_vec - n_vec)
             if dist < best_dist:
                 best_dist = dist
                 best_n_idx = n_idx
+        if best_n_idx is not None:
+            matched_indices.extend([m_idx, best_n_idx])
+            used_non.add(best_n_idx)
 
-        if best_n_idx != -1:
-            matched_indices.append(m_idx)
-            matched_indices.append(best_n_idx)
-            used_non_musician_indices.add(best_n_idx)
+    matched_df = df.loc[matched_indices]
+    log.info(f"Greedy matching retained {len(matched_df)} subjects")
+    return matched_df
 
-    return df.loc[matched_indices]
+###########################################################################
+# Reporting utilities
+###########################################################################
 
-def calculate_dataset_validity(df: pd.DataFrame) -> Dict[str, float]:
-    """
-    Calculate dataset validity metrics.
-    """
-    total = len(df)
-    valid_years = df['years_of_training'].notna().sum()
-    valid_fMRI = df['fMRI_available'].notna().sum() if 'fMRI_available' in df.columns else total
-    validity_pct = (valid_years / total * 100) if total > 0 else 0.0
-    return {
-        'valid_subjects_percentage': validity_pct,
-        'valid_fMRI_percentage': (valid_fMRI / total * 100) if total > 0 else 0.0
-    }
-
-def write_validity_report(validity_metrics: Dict[str, float], output_path: str) -> None:
-    """
-    Write dataset validity report to CSV.
-    """
-    df = pd.DataFrame([
-        {'metric': k, 'value': v} for k, v in validity_metrics.items()
-    ])
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Wrote validity report to {output_path}")
-
-def generate_matching_balance_report(
-    df_pre: pd.DataFrame,
-    df_post: pd.DataFrame,
-    confounders: List[str],
-    treatment_col: str = 'group',
-    output_path: str = 'data/processed/matching_balance_report.csv'
+def write_exclusion_report(
+    missing_years: int,
+    corrupted_nifti: int,
+    output_path: str,
 ) -> None:
     """
-    Generate a CSV report comparing confounder means before and after matching.
-    Columns: variable, pre_mean, post_mean, diff, p_value
+    Write a plain‑text report summarising exclusion counts.
     """
-    logger.info(f"Generating matching balance report for {confounders}")
-
-    records = []
-    for var in confounders:
-        if var not in df_pre.columns or var not in df_post.columns:
-            logger.warning(f"Variable {var} missing in one of the datasets, skipping")
-            continue
-
-        pre_musician = df_pre[df_pre[treatment_col] == 'musician'][var]
-        pre_non_musician = df_pre[df_pre[treatment_col] == 'non_musician'][var]
-        pre_mean_m = pre_musician.mean() if len(pre_musician) > 0 else np.nan
-        pre_mean_nm = pre_non_musician.mean() if len(pre_non_musician) > 0 else np.nan
-        pre_diff = pre_mean_m - pre_mean_nm
-
-        post_musician = df_post[df_post[treatment_col] == 'musician'][var]
-        post_non_musician = df_post[df_post[treatment_col] == 'non_musician'][var]
-        post_mean_m = post_musician.mean() if len(post_musician) > 0 else np.nan
-        post_mean_nm = post_non_musician.mean() if len(post_non_musician) > 0 else np.nan
-        post_diff = post_mean_m - post_mean_nm
-
-        p_val = np.nan
-        if len(post_musician) > 1 and len(post_non_musician) > 1:
-            try:
-                _, p_val = scipy_stats.ttest_ind(post_musician, post_non_musician)
-            except Exception as e:
-                logger.warning(f"Could not compute p-value for {var}: {e}")
-
-        records.append({
-            'variable': var,
-            'pre_mean': pre_diff,
-            'post_mean': post_diff,
-            'diff': post_diff - pre_diff,
-            'p_value': p_val
-        })
-
-    report_df = pd.DataFrame(records)
+    report = (
+        f"Exclusion Report\\n"
+        f"=================\\n"
+        f"Subjects removed due to missing years_of_training: {missing_years}\\n"
+        f"Subjects removed due to corrupted NIfTI files: {corrupted_nifti}\\n"
+    )
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    report_df.to_csv(output_path, index=False)
-    logger.info(f"Wrote matching balance report to {output_path}")
+    with open(output_path, "w") as f:
+        f.write(report)
+    log.info(f"Wrote exclusion report to {output_path}")
 
-def write_cleaned_subjects(df: pd.DataFrame, output_path: str) -> None:
+def write_matching_balance_report(
+    pre_smd: Dict[str, float],
+    post_smd: Dict[str, float],
+    output_path: str,
+) -> None:
     """
-    Write the cleaned subjects dataframe to CSV.
+    Write a CSV containing SMD values before and after matching.
+    Columns: covariate, pre_smd, post_smd, diff (post‑pre)
     """
-    required_cols = ['subject_id', 'group', 'years_of_training',
-                     'age', 'sex', 'motion_score', 'ses_score']
-    if all(col in df.columns for col in required_cols):
-        df[required_cols].to_csv(output_path, index=False)
-    else:
-        df.to_csv(output_path, index=False)
-    logger.info(f"Wrote cleaned subjects to {output_path}")
+    records = []
+    for cov in pre_smd.keys():
+        pre = pre_smd.get(cov, np.nan)
+        post = post_smd.get(cov, np.nan)
+        diff = post - pre
+        records.append(
+            {
+                "covariate": cov,
+                "pre_smd": pre,
+                "post_smd": post,
+                "diff": diff,
+            }
+        )
+    df_report = pd.DataFrame(records)
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    df_report.to_csv(output_path, index=False)
+    log.info(f"Wrote matching balance (SMD) report to {output_path}")
 
-def _generate_synthetic_dataframe(count: int) -> pd.DataFrame:
+def write_cleaned_subjects(
+    df: pd.DataFrame,
+    csv_path: str,
+    parquet_path: str,
+) -> None:
     """
-    Helper to generate a deterministic synthetic dataframe for verification mode.
-    All generated subjects satisfy the training‑year filter so that the final
-    cleaned CSV contains exactly `count` rows.
+    Persist the cleaned subject table in both CSV and Parquet formats.
     """
-    np.random.seed(0)
-    subject_ids = [f"SYNTH_{i:04d}" for i in range(count)]
-    groups = np.random.choice(['musician', 'non_musician'], size=count, p=[0.5, 0.5])
-    years = np.random.uniform(1.0, 5.0, size=count)  # >= 1.0 to pass filter
-    ages = np.random.randint(12, 20, size=count)
-    sexes = np.random.choice(['M', 'F'], size=count)
-    motion = np.random.uniform(0.0, 2.0, size=count)
-    ses = np.random.uniform(0.0, 100.0, size=count)
-    df = pd.DataFrame({
-        'subject_id': subject_ids,
-        'group': groups,
-        'years_of_training': years,
-        'age': ages,
-        'sex': sexes,
-        'motion_score': motion,
-        'ses_score': ses,
-        'fMRI_available': True  # placeholder for validity metric
-    })
-    return df
+    required = [
+        "subject_id",
+        "group",
+        "years_of_training",
+        "age",
+        "sex",
+        "motion_score",
+        "ses_score",
+    ]
+    missing = [c for c in required if c not in df.columns]
+    if missing:
+        log.warning(f"Missing expected columns {missing} – writing what is available")
+    df_subset = df[required] if not missing else df
+    Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
+    df_subset.to_csv(csv_path, index=False)
+    Path(parquet_path).parent.mkdir(parents=True, exist_ok=True)
+    df_subset.to_parquet(parquet_path, index=False)
+    log.info(f"Wrote cleaned subjects to {csv_path} and {parquet_path}")
+
+###########################################################################
+# Core preprocessing pipeline
+###########################################################################
 
 def preprocess_subjects(
     df: Optional[pd.DataFrame] = None,
-    mode: str = 'verification',
+    mode: str = "verification",
     synthetic_count: int = 100,
-    output_path: Optional[str] = None,
-    output_dir: Optional[str] = None
+    output_dir: Optional[str] = None,
 ) -> pd.DataFrame:
     """
-    Main preprocessing pipeline.
+    End‑to‑end preprocessing.
 
     Parameters
     ----------
-    df : pd.DataFrame, optional
-        Input dataframe. If ``None`` and ``mode='verification'`` a synthetic
-        dataframe is generated.
-    mode : str, default 'verification'
-        Either ``'verification'`` (synthetic) or ``'analysis'`` (real data).
-    synthetic_count : int, default 100
-        Number of synthetic subjects to generate when ``mode='verification'``.
-    output_path : str, optional
-        Exact path for the cleaned subjects CSV. If omitted, ``output_dir`` is
-        used and the file is written to ``<output_dir>/subjects_cleaned.csv``.
-    output_dir : str, optional
-        Directory where auxiliary reports are written. If ``output_path`` is
-        provided, its parent directory is used as ``output_dir``.
+    df : pd.DataFrame | None
+        Input subject table. If ``None`` and ``mode='verification'`` a synthetic
+        table is generated.
+    mode : {'verification', 'analysis'}
+        ``verification`` uses synthetic data; ``analysis`` expects real data.
+    synthetic_count : int
+        Number of synthetic subjects to generate for verification mode.
+    output_dir : str | None
+        Directory where all artefacts are written. If ``None`` defaults to
+        ``data/processed``.
+
     Returns
     -------
     pd.DataFrame
-        The post‑matching dataframe.
+        The matched & filtered dataframe (post‑processing).
     """
     # Resolve output locations
-    if output_path:
-        cleaned_path = Path(output_path)
-        out_dir = cleaned_path.parent
-    else:
-        out_dir = Path(output_dir) if output_dir else Path('data/processed')
-        cleaned_path = out_dir / 'subjects_cleaned.csv'
-
+    out_dir = Path(output_dir) if output_dir else Path("data/processed")
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load or generate data
+    # ------------------------------------------------------------------
+    # Load or generate the raw subject table
+    # ------------------------------------------------------------------
     if df is None:
-        if mode == 'verification':
-            logger.info(f"Generating {synthetic_count} synthetic subjects for verification")
+        if mode == "verification":
+            log.info(f"Generating {synthetic_count} synthetic subjects for verification")
             df = _generate_synthetic_dataframe(synthetic_count)
         else:
-            # In analysis mode the caller must supply a dataframe; otherwise we cannot proceed.
-            raise DataAccessError("Real data required for analysis mode but no dataframe was provided.")
+            raise DataAccessError(
+                "Real data required for analysis mode but no dataframe was provided."
+            )
 
-    # 1. Filter by training years (>=1)
-    df_filtered = filter_by_training_years(df, threshold=1.0)
+    # ------------------------------------------------------------------
+    # 1. Apply musician cutoff (≥1 year)
+    # ------------------------------------------------------------------
+    df = filter_by_training_years(df, threshold=1.0)
 
-    # 2. Remove missing data
-    df_clean = remove_missing_data(df_filtered)
+    # ------------------------------------------------------------------
+    # 2. Exclude subjects with missing years_of_training
+    # ------------------------------------------------------------------
+    before_missing = len(df)
+    df = remove_missing_data(df, columns=["years_of_training"])
+    missing_years = before_missing - len(df)
 
-    # 3. Handle confounders
-    confounders = ['age', 'motion_score', 'ses_score']
-    confounders_for_matching = confounders + ['sex']
-    if mode == 'verification':
-        # Skip matching for verification to keep the synthetic count deterministic
-        df_matched = df_clean
-    else:
-        df_matched = handle_confounders(df_clean, confounders_for_matching)
+    # ------------------------------------------------------------------
+    # 3. Exclude subjects with corrupted NIfTI files
+    # ------------------------------------------------------------------
+    nifti_dir = Path("data/raw/mock_nifti")
+    corrupted = 0
+    valid_indices = []
+    for idx, row in df.iterrows():
+        nifti_path = nifti_dir / f"{row['subject_id']}.nii.gz"
+        if not nifti_path.is_file() or load_nifti_safe(str(nifti_path)) is None:
+            corrupted += 1
+        else:
+            valid_indices.append(idx)
+    df = df.loc[valid_indices]
 
-    # 4. Generate validity report (based on the *original* loaded cohort)
-    validity_metrics = calculate_dataset_validity(df)
-    validity_report_path = out_dir / 'dataset_validity_report.csv'
-    write_validity_report(validity_metrics, str(validity_report_path))
+    # Write exclusion report
+    exclusion_report_path = out_dir / "exclusion_report.txt"
+    write_exclusion_report(
+        missing_years=missing_years,
+        corrupted_nifti=corrupted,
+        output_path=str(exclusion_report_path),
+    )
 
-    # 5. Generate matching balance report
-    balance_report_path = out_dir / 'matching_balance_report.csv'
-    generate_matching_balance_report(df, df_matched,
-                                    confounders_for_matching,
-                                    output_path=str(balance_report_path))
+    # ------------------------------------------------------------------
+    # 4. Matching on confounders
+    # ------------------------------------------------------------------
+    confounders = ["age", "sex", "motion_score", "ses_score"]
+    pre_smd = compute_smds(df, treatment_col="group", covariates=confounders)
 
-    # 6. Write cleaned subjects CSV
-    write_cleaned_subjects(df_matched, str(cleaned_path))
+    df_matched = handle_confounders(df, confounders, treatment_col="group")
+    post_smd = compute_smds(df_matched, treatment_col="group", covariates=confounders)
+
+    # ------------------------------------------------------------------
+    # 5. Write matching balance (SMD) report
+    # ------------------------------------------------------------------
+    balance_report_path = out_dir / "matching_balance_report.csv"
+    write_matching_balance_report(pre_smd, post_smd, str(balance_report_path))
+
+    # ------------------------------------------------------------------
+    # 6. Verify minimum sample size per group
+    # ------------------------------------------------------------------
+    group_counts = df_matched["group"].value_counts()
+    if any(group_counts < 50):
+        log.error("Sample Size Insufficient – one of the groups has <50 subjects")
+        raise RuntimeError("Sample Size Insufficient")
+
+    # ------------------------------------------------------------------
+    # 7. Persist cleaned subject table (CSV + Parquet)
+    # ------------------------------------------------------------------
+    cleaned_csv = out_dir / "subjects_cleaned.csv"
+    cleaned_parquet = out_dir / "subjects_cleaned.parquet"
+    write_cleaned_subjects(df_matched, str(cleaned_csv), str(cleaned_parquet))
 
     return df_matched
 
-def main():
+###########################################################################
+# Synthetic dataframe generator (deterministic for verification)
+###########################################################################
+
+def _generate_synthetic_dataframe(count: int) -> pd.DataFrame:
     """
-    Entry point for preprocessing.
+    Deterministic synthetic subject table for verification mode.
+    All subjects satisfy the musician cutoff so the final cleaned CSV
+    contains exactly ``count`` rows (subject to exclusion logic).
+    """
+    np.random.seed(0)
+    subject_ids = [f"SYNTH_{i:04d}" for i in range(count)]
+    groups = np.random.choice(["musician", "non_musician"], size=count, p=[0.5, 0.5])
+    years = np.random.uniform(1.0, 5.0, size=count)  # >=1.0 to pass cutoff
+    ages = np.random.randint(12, 20, size=count)
+    sexes = np.random.choice(["M", "F"], size=count)
+    motion = np.random.uniform(0.0, 2.0, size=count)
+    ses = np.random.uniform(0.0, 100.0, size=count)
+    df = pd.DataFrame(
+        {
+            "subject_id": subject_ids,
+            "group": groups,
+            "years_of_training": years,
+            "age": ages,
+            "sex": sexes,
+            "motion_score": motion,
+            "ses_score": ses,
+            "fMRI_available": True,  # placeholder flag
+        }
+    )
+    return df
+
+###########################################################################
+# CLI entry point
+###########################################################################
+
+def main() -> None:
+    """
+    Command‑line interface for preprocessing.
     """
     import argparse
-    parser = argparse.ArgumentParser(description="Preprocess fMRI subject data")
-    parser.add_argument('--input', type=str, required=False,
-                        help='Input CSV path (optional for verification mode)')
-    parser.add_argument('--output', type=str, default='data/processed',
-                        help='Output directory or exact file path for cleaned subjects')
-    parser.add_argument('--mode', type=str, default='verification',
-                        choices=['verification', 'analysis'],
-                        help='Mode of operation')
-    parser.add_argument('--synthetic-count', type=int, default=100,
-                        help='Number of synthetic subjects to generate in verification mode')
-    args = parser.parse_args()
 
-    logger.info(f"Starting preprocessing with mode {args.mode}")
+    parser = argparse.ArgumentParser(description="Preprocess fMRI subject data")
+    parser.add_argument(
+        "--input",
+        type=str,
+        required=False,
+        help="Path to input CSV/Parquet (optional for verification mode)",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="data/processed",
+        help="Directory where all output artefacts will be written",
+    )
+    parser.add_argument(
+        "--mode",
+        type=str,
+        default="verification",
+        choices=["verification", "analysis"],
+        help="Mode of operation",
+    )
+    parser.add_argument(
+        "--synthetic-count",
+        type=int,
+        default=100,
+        help="Number of synthetic subjects to generate in verification mode",
+    )
+    args = parser.parse_args()
 
     df_input = None
     if args.input:
-        df_input = pd.read_csv(args.input)
+        if args.input.endswith(".parquet"):
+            df_input = pd.read_parquet(args.input)
+        else:
+            df_input = pd.read_csv(args.input)
 
-    # Determine if output is a file or directory
-    output_is_file = args.output.lower().endswith('.csv')
-    if output_is_file:
-        output_path = args.output
-        output_dir = None
-    else:
-        output_path = None
-        output_dir = args.output
+    try:
+        preprocess_subjects(
+            df=df_input,
+            mode=args.mode,
+            synthetic_count=args.synthetic_count,
+            output_dir=args.output_dir,
+        )
+    except Exception as exc:
+        log.error(f"Preprocessing failed: {exc}")
+        raise
 
-    preprocess_subjects(df=df_input,
-                        mode=args.mode,
-                        synthetic_count=args.synthetic_count,
-                        output_path=output_path,
-                        output_dir=output_dir)
+    log.info("Preprocessing completed successfully")
 
-    logger.info("Preprocessing completed successfully")
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

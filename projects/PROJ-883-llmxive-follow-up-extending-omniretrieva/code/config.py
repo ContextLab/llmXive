@@ -1,41 +1,51 @@
-"""
-Configuration module for the llmXive pipeline.
+"""Project configuration and path management."""
+from llmxive_toolkit import paths, get_logger
 
-Defines seeds, paths, CPU throttling configuration, and real dataset URLs.
-"""
+log = get_logger(__name__)
 
-import os
-from pathlib import Path
+# Global constants
+DEFAULT_SEED = 42
+DEFAULT_CORES = 2
+DEFAULT_MEMORY_GB = 7
 
-# Project Root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-# Seeds
-RANDOM_SEED = 42
-
-# CPU Throttling Constants
-EXIT_CODE_THROTTLING_FAILURE = 1
-
-# Dataset URLs (Real Sources)
-DATASET_URLS = {
-    "ms_marco": "https://huggingface.co/datasets/ms_marco/resolve/main/data/train.parquet",
-    "spider": "https://raw.githubusercontent.com/taoyan/Spider/main/spider.json",
-    "dbpedia": "https://dbpedia.org/sparql/sparql-endpoint" # Placeholder for actual endpoint or subset
+# Dataset configurations for real fetching
+DATASET_CONFIGS = {
+    "ms_marco": {
+        "hf_path": "microsoft/ms_marco",
+        "config_name": "v1.1",
+        "split": "train",
+        "max_samples": 1000,
+    },
+    "spider": {
+        "hf_path": "xlangai/spider",
+        "config_name": None,
+        "split": "train",
+        "max_samples": 1000,
+    },
+    "dbpedia_sample": {
+        "url": "https://raw.githubusercontent.com/RDFWebTools/rdf-samples/master/dbpedia-sample.ttl",
+        "max_samples": None,
+    },
 }
 
-# Configuration Dictionary
-CONFIG = {
-    "num_queries": 100,
-    "timeout_seconds": 60,
-    "cpu_cores_limit": 2,
-    "memory_limit_mb": 2048,
-    "dataset_urls": DATASET_URLS,
-    "output_paths": {
-        "raw_logs": PROJECT_ROOT / "data" / "processed" / "execution_logs.csv",
-        "anova_results": PROJECT_ROOT / "data" / "results" / "anova_results.json",
-        "sensitivity_analysis": PROJECT_ROOT / "data" / "results" / "sensitivity_analysis.json"
+def get_config() -> dict:
+    """Returns the runtime configuration dictionary."""
+    return {
+        "seed": DEFAULT_SEED,
+        "cpu_cores": DEFAULT_CORES,
+        "memory_gb": DEFAULT_MEMORY_GB,
+        "paths": {
+            "raw": paths.data("raw"),
+            "processed": paths.data("processed"),
+            "results": paths.results(""),
+        }
     }
-}
 
-def get_config():
-    return CONFIG
+def get_dataset_config(name: str) -> dict:
+    """Returns the configuration for a specific dataset."""
+    if name not in DATASET_CONFIGS:
+        raise KeyError(f"Dataset '{name}' not found in DATASET_CONFIGS")
+    return DATASET_CONFIGS[name]
+
+if __name__ == "__main__":
+    log.info("Config module loaded. Seed: %s", DEFAULT_SEED)

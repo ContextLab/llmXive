@@ -1,17 +1,21 @@
-T021:
+T001:
   c: false
-  h: 5fb97f1f1bd4f67105ff3bc6a01df6f422a59a4d197d92e44e6a175c4a90f13d
-  r: "The repository contains `scripts/verify_output.py`, but the script is truncated\
-    \ and never validates the CSV against `contracts/cleaned_study.schema.yaml`, nor\
-    \ does it implement the required exit\u2011code logic. Moreover, the referenced\
-    \ schema file, the CSV, the exclusion log, and the mock JSON are all missing,\
-    \ so the script cannot perform the checks it is supposed to. The task\u2019s requirements\
-    \ are therefore not satisfied."
-T037:
+  h: 4f440b8a063548988cb9d05219632e7f0a41200756183f47d9f7ea36dc6aaf30
+  r: "The required artifact `docs/quickstart.md` is explicitly MISSING, so the task's\
+    \ core deliverable \u2014 documenting the runnable command `python run_pipeline.py\
+    \ --thin` \u2014 does not exist, and there is no evidence that command was ever\
+    \ executed. Additionally, `requirements.txt` does not match the pinned dependencies\
+    \ in `pyproject.toml` (e.g. pandas 2.2.2 vs 2.0.0, bayesmeta 2.0.0 vs 0.1.0),\
+    \ and no `Makefile`/`make setup` target or `run_pipeline.py` is evidenced, so\
+    \ the stated verification steps cannot be confirmed."
+  sig: 55209aae53a8c555efd0e1620bdb344187344f8d8e82878dba1df5bd4cda6a91
+T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or report artifact was provided that demonstrates the required\
-    \ conditional logic to suppress the funnel plot and Egger\u2019s test when the\
-    \ total sample size N\u202F<\u202F10, nor the addition of a warning to the final\
-    \ report. The implementer\u2019s claim cannot be verified without such concrete\
-    \ evidence."
+  h: 2d55084ce3169514796414ddaf475d36299a351e14de622a8b3cd69f5327a10a
+  r: 'The execution log shows `python -m pytest tests/contract/test_schemas.py` failed
+    with 2 of 4 tests failing (exit 1): the dummy-instance generator ignores `enum`
+    and `minimum` constraints, producing ''example'' for the registry enum and 0 for
+    `n_treatment` (minimum 1). The verification criterion explicitly requires all
+    tests to pass; the test helper `_dummy_value` must be fixed to respect enum/minimum/maximum
+    constraints (or use realistic valid fixtures).'
+  sig: 13332e08ad2715153a5ac7ebcac025f4e24cadbce5fdb759dae833799ae792c6

@@ -1,0 +1,31 @@
+# Minimal feature matrix schema required for contract tests
+type: object
+required:
+  - molecule_id
+  - resolution
+  - p_img_columns
+  - features
+  - feature_names
+  - target_property
+  - target_value
+properties:
+  molecule_id:
+    type: string
+  resolution:
+    type: integer
+  p_img_columns:
+    type: array
+    items:
+      type: string
+  features:
+    type: array
+    items:
+      type: number
+  feature_names:
+    type: array
+    items:
+      type: string
+  target_property:
+    type: string
+  target_value:
+    type: number

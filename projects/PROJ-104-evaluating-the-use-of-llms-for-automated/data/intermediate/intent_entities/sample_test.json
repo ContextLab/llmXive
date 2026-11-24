@@ -1,0 +1,10 @@
+{
+  "sample_id": "0000000000000000000000000000000000000000",
+  "type": "intent",
+  "entities": [
+    {
+      "entity": "smoke_test_intent",
+      "verified": true
+    }
+  ]
+}

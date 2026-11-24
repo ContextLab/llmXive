@@ -1,3 +1,43 @@
+T001a:
+  c: true
+  h: 71aeed2f3c9a337587712e167bb1d94eb21cc41a8d94b38715cbae3f7534d96c
+  r: "The evidence shows that the project root contains the required `src/`, `tests/`,\
+    \ and `data/` directories (each present with multiple entries), fulfilling the\
+    \ task\u2019s sole requirement."
+  sig: 0affc3d94d20468cec887abd505dfc87861fe381280f8fba2890a152e53639a8
+T001b:
+  c: false
+  h: 85c4b4ec2065ddf953347c4d306e7fc2b652b2bcdf1495d1796327b73a680d43
+  r: The evidence shows that only `data/raw/` and `contracts/` directories exist;
+    the required `data/cleaned/`, `data/results/`, and `figures/` directories are
+    missing.
+  sig: c5e2542f8d315b007ee44af576367c55e61ee6b2c4dfb7cec5db87e60c8bf008
+T001c:
+  c: true
+  h: 1caa99e112d3c2fdbc73af40a16f1e1141746c682fb5b7d4a803ea5dedaebe5d
+  r: "The evidence shows that all five required directories (`src/ingest/`, `src/cleaning/`,\
+    \ `src/descriptors/`, `src/analysis/`, `src/utils/`) exist in the project root,\
+    \ each with a non\u2011empty listing of files. This satisfies the task\u2019s\
+    \ sole requirement of creating those directories."
+  sig: 5a555f92d7d1562ab69476bc6da214b28e7a64a21c0c5ea52dce8b1b331015bb
+T002:
+  c: true
+  h: 632ca9918cd2cdd45bf47707da0baaa6ece30a1ae6f6b151ddc32e6c6537f662
+  r: "Checked the `requirements.txt` at the project root; it contains all required\
+    \ packages with the exact versions (pymatgen, pandas, numpy, scikit-learn, statsmodels,\
+    \ seaborn, requests, tqdm, pytest) and is a non\u2011empty file. The presence\
+    \ of an additional harmless entry (`pyyaml`) does not violate the task\u2019s\
+    \ requirement."
+  sig: 4cfbde54bdb55e7eec1af5228b267b321f9c42845972a4f598383e332460c24b
+T003:
+  c: false
+  h: 1fdffc815663df13b2b9834a07088948db3cfe11562d26ae19d0780e4c4eeb2e
+  r: Checked the provided `pyproject.toml`, which correctly contains Black settings
+    with `line-length = 88`. No `create.flake8` (or equivalent `.flake8`) file was
+    found in the project artifacts, so the required linting configuration is missing.
+    Adding a `create.flake8` file with `max-line-length = 88` and `extend-ignore =
+    E203` will satisfy the task.
+  sig: baab65e9ae09e50207b0fecc664bf3e1a3780e66431cb30ffbc92dd0ef69aac3
 T005b:
   c: false
   h: 18fe4374dc9ebbda734c8c535ad2bf1c68fca084fb49f3771e271abda4a3fb05
@@ -35,7 +75,10 @@ T025b:
     alone does not satisfy the execution requirement.
 T038:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `research.md` file containing a documented conflict between\
-    \ Constitution VII and FR\u2011010, nor any flag or note indicating a required\
-    \ specification amendment, was provided. The required artifact is missing."
+  h: dd2ecd53e594e04d7374096a75454dcf1fb29b4ab67e7c9c1f2998491cf54b41
+  r: "The provided `research.md` documents the conflict but does not contain the required\
+    \ exact sentence: \u201CConstitution VII is overridden by FR-010 for this project;\
+    \ thermal data MUST be sourced exclusively from peer-reviewed literature or NIST,\
+    \ NOT Materials Project thermal endpoint.\u201D Adding this explicit statement\
+    \ is needed to satisfy T038."
+  sig: 3b89e175e657d426697b2f5d6c09604019448d3d41d60f0fb860880dc9b96e4f

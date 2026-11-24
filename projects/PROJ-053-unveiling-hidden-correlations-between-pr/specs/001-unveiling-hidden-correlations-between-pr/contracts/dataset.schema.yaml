@@ -1,45 +1,44 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "AM Process-Property Dataset Schema"
-description: "Schema for the preprocessed dataset used in GPR training."
-type: "object"
-properties:
-  laser_power_norm:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Normalized laser power in Watts."
-  scan_speed_norm:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Normalized scan speed in mm/s."
-  layer_thickness_norm:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Normalized layer thickness in µm."
-  is_Ti-6Al-4V:
-    type: "integer"
-    enum: [0, 1]
-    description: "One-hot encoded flag for Ti-6Al-4V alloy."
-  is_Inconel_718:
-    type: "integer"
-    enum: [0, 1]
-    description: "One-hot encoded flag for Inconel 718 alloy."
-  yield_strength_norm:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Normalized yield strength in MPa."
-  ductility_norm:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Normalized ductility in percent."
-required:
-  - "laser_power_norm"
-  - "scan_speed_norm"
-  - "layer_thickness_norm"
-  - "yield_strength_norm"
-  - "ductility_norm"
-additionalProperties: false
+title: "AM Process‑Property Dataset Schema (Exact Required Columns)"
+description: "Schema for each row of the **preprocessed CSV** dataset used in GPR training. The CSV rows are validated by converting each row to a JSON object and applying this schema."
+type: array
+items:
+  type: object
+  properties:
+    laser_power_norm:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+      description: "Normalized laser power (W) to [0, 1]."
+    scan_speed_norm:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+      description: "Normalized scan speed (mm/s) to [0, 1]."
+    layer_thickness_norm:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+      description: "Normalized layer thickness (µm) to [0, 1]."
+    yield_strength_norm:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+      description: "Normalized yield strength (MPa)."
+    ductility_norm:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+      description: "Normalized ductility (%)."
+  required:
+    - laser_power_norm
+    - scan_speed_norm
+    - layer_thickness_norm
+    - yield_strength_norm
+    - ductility_norm
+  additionalProperties: false
+  patternProperties:
+    "^alloy_.*$":
+      type: integer
+      enum: [0, 1]
+      description: "Binary indicator for a specific alloy composition (one‑hot)."

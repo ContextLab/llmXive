@@ -9,7 +9,7 @@ properties:
   grid_cell:
     type: string
     pattern: "^[+-]?\\d+\\.\\d+_[+-]?\\d+\\.\\d+$"
-    description: "Grid cell identifier in 'lat_lon' format (0.5° resolution)."
+    description: "Grid cell identifier in ‘lat_lon’ format (sub-degree resolution)."
   year:
     type: integer
     minimum: 2020

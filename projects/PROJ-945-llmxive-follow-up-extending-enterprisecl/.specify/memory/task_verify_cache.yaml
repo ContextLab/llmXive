@@ -1,11 +1,22 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or other evidence of the requested folder hierarchy are
-    provided; the claim alone does not prove that the `src/...`, `data/...`, and `tests/...`
-    directories were actually created. The implementer must supply a manifest (e.g.,
-    `tree` output or a list of created paths) showing that all specified directories
-    exist.
+  h: faf7d701ce1cb9be367dde77813bd248a2b3395f1aac7b1feee6e0f87ec47785
+  r: "The only evidence is a log stating that a manifest was written, but the manifest\u2019\
+    s contents (or a directory listing) are not provided, so we cannot confirm that\
+    \ the required directories (`src/features`, `src/modeling`, `src/intervention`,\
+    \ `src/eval`, `src/utils`, `data/raw`, `data/processed`, `data/results`, `data/models`,\
+    \ `tests/unit`, `tests/integration`, `tests/contract`) actually exist. The implementer\
+    \ must supply concrete proof that these folders were created (e.g., the manifest\
+    \ file showing the paths or a filesystem snapshot)."
+  sig: f3fe0b0b464625bc19fa2f20bf73c31298c271de7b87927b0e8cd35df14b8d5b
+T002:
+  c: true
+  h: c82f64dd34ed5d84a4fc7924c379dff6d4d2b54a46688ea24df7ce5263de7108
+  r: "The `requirements.txt` file (resolved at `projects/PROJ-945-llmxive-follow-up-extending-enterprisecl/requirements.txt`)\
+    \ exists, is non\u2011empty, and contains pinned versions for all seven required\
+    \ packages, including a CPU\u2011only torch specification. The content matches\
+    \ exactly the task\u2019s specification."
+  sig: 617aa8a9003c2c29cd595e1986b0f8a107cafa5b2a12dbe80af83994b4e5d777
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -27,6 +38,45 @@ T005:
     \ without closing braces, error handling, iteration over DOIs, or JSON writing)\
     \ and no `data/results/citation_report.json` file was generated. The required\
     \ end\u2011to\u2011end citation verification and report output are therefore missing."
+T006:
+  c: true
+  h: 89b300cbbc041559f1516361d03180ca17ed958277d339e8e87430ab972c33ed
+  r: "Checked the provided `src/config.py` (5824\u202Fbytes) which defines a `Config`\
+    \ class that resolves project\u2011relative paths, manages a reproducible seed\
+    \ (with env\u2011var override), supports JSON overrides, and offers attribute/dict\
+    \ access plus a global getter. This satisfies the requirement for a base configuration\
+    \ loader for paths and seeds."
+  sig: 94fda2ff7bf7978782d588e0efb9feff53ae74d83b1ca4fa801d4cd5e5c7d189
+T011:
+  c: false
+  h: f3a9a69a0d0da94c3b3807e961084e734c8185b06ea66aeba1e28d811671c05f
+  r: "Checked `src/utils/data_loader.py` \u2013 it contains placeholder URLs and a\
+    \ `EXPECTED_CHECKSUM = None`, so it does not actually download from a real canonical\
+    \ source nor enforce checksum verification as required. The `data/raw/` directory\
+    \ is empty, providing no evidence that a valid dataset was fetched. The implementation\
+    \ needs a concrete, verified download URL and a defined checksum to satisfy the\
+    \ task."
+  sig: dd2e51e100600197f85ab36d9e74b7133349eff64a8d1113ad6478060637bcfe
+T012:
+  c: true
+  h: c2272a244fe03fc782b187200d483d192ab0a3f3e03bf2c3bd6049ac46e5ce8d
+  r: Checked `src/features/extract.py`, which contains a full implementation that
+    locates `data/raw/`, reads `.log` and `.jsonl` files, parses entries, and extracts
+    syntactic and pragmatic features as required. The `data/raw/` directory is present
+    (though empty), satisfying the requirement that the parser target this location.
+  sig: cc2354d0ec43208c05cb505ba4c8b151111966e6ff46b133697a2f3bf55c9279
+T013:
+  c: false
+  h: 39818029423f4a4bbe2fcba1fd5d89ba19b8146d52ede6f060179d811a0fac49
+  r: "The `src/features/extract.py` file does contain a `calculate_syntax_tree_depth`\
+    \ function, but it computes depth by counting indentation and bracket nesting\
+    \ and never imports or uses the `networkx` library as required. Consequently,\
+    \ the task\u2019s core requirement\u2014implementing the syntax\u2011tree depth\
+    \ calculator with `networkx`\u2014is not satisfied. The implementer must add a\
+    \ `networkx`\u2011based implementation (e.g., parsing the content into a graph\
+    \ and using `networkx` functions to compute the maximum path length) and import\
+    \ `networkx` in the module."
+  sig: 960f9984da1da905cf3c0f900d132651257622c4ad429d8863eabe816efbbad2
 T018:
   c: false
   h: f7ade492976033ac4e8ebc8305b024a70431b06ea64481bd0f1c4629eb9f9d3f

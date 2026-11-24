@@ -38,54 +38,80 @@ python code/setup_directories.py
 ```
 
 ### 2. Generate Synthetic Data (User Story 1)
-Generate 500 multi-step tasks and a skill library with configurable overlap:
 ```bash
 python code/generate_data.py
 ```
 **Outputs**:
 - `data/raw/tasks.json`
 - `data/raw/skills.json`
-- `state/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot.yaml` (checksums)
+- `data/raw/checksums.json`
 
-### 3. Run Agent Experiments (User Story 2)
-Execute the Digital Colleague agent across varying library sizes:
+### 3. Fix Task Schema (add missing `ground_truth_skills`)
 ```bash
-python code/run_experiment.py
+python code/fix_tasks_schema.py
+```
+
+### 4. Validate Raw Data
+```bash
+pytest tests/contract/
+```
+Ensures `tasks.json` and `skills.json` conform to their schemas.
+
+### 5. Align Logging Configuration
+The `code/logging_config.py` file defines `LOG_COLUMNS`. **Make sure it exactly matches** the required header:
+```
+run_id,task_id,library_size,pruning_enabled,success,latency_ms,tokens_used,retrieval_precision,retrieval_diversity,edge_case
+```
+If you modify the header, update `LOG_COLUMNS` accordingly.
+
+### 6. Execute the Agent (full factorial sweep)
+```bash
+python -m code.agent \
+ --library-sizes 10 20 30 40 50 60 70 80 90 100 \
+ --overlap low medium high \
+ --pruning off fr04 \
+ --seed 42 \
+ --randomize-tasks
 ```
 **Outputs**:
 - `data/results/experiment_log.csv` (detailed execution logs)
-- `data/results/baseline_metrics.json` (if baseline run)
+- `data/results/execution_logs/run_<size>_<pruning>_<overlap>.jsonl` (JSON‑L logs for each run)
 
-### 4. Analyze Results (User Story 3)
-Perform statistical analysis, calculate VIF, and identify the tipping point:
+### 7. Verify CSV Output
 ```bash
-python code/analyze.py
+python -c "from code.logging_config import verify_log_file_exists; assert verify_log_file_exists(), 'CSV log missing'"
+```
+
+### 8. Analyze Results (User Story 3)
+```bash
+python code/analyze.py --input data/results/experiment_log.csv
 ```
 **Outputs**:
-- `data/results/tipping_point.json`
+- `data/results/analysis_report.json`
 - `data/results/sensitivity_report.json`
 - `data/results/final_analysis.json`
+
+### 9. Validate All Outputs
+```bash
+pytest tests/contract/
+```
+
+### 10. Verify End‑to‑End Reproducibility
+Run the entire Quickstart on a fresh runner (e.g., a new GitHub Actions job) and confirm that the final `analysis_report.json` matches the one produced in Step 8.
 
 ## Configuration
 
 Environment variables can override defaults in `code/config.py`:
 - `SEED_A`: Random seed for skill generation (default: 42)
-- `SEED_B`: Random seed for task ground-truth assignment (default: 123)
+- `SEED_B`: Random seed for task ground‑truth assignment (default: 123)
 - `OVERLAP_LEVEL`: 'low', 'medium', or 'high' (default: 'medium')
-
-## Verification
-
-Run tests to ensure system integrity:
-```bash
-pytest tests/
-```
 
 ## Troubleshooting
 
-- **Memory Errors**: The system checks RAM usage. If you encounter "Memory Limit Exceeded", reduce the dataset size or run on a machine with more RAM.
+- **Memory Errors**: The system checks RAM usage. Reduce the dataset size or run on a machine with more RAM if you encounter "Memory Limit Exceeded".
 - **Schema Validation Errors**: Ensure `contracts/*.yaml` files are present and match the data structure.
-- **Missing Data**: Re-run `generate_data.py` if `data/raw/` is empty.
-
-## Next Steps
-
-Refer to `README.md` for detailed architecture and `specs/` for feature requirements.
+- **Missing Data**: Re‑run `generate_data.py` if `data/raw/` is empty.
+- **Logging Issues**: If the CSV header does not match, verify `LOG_COLUMNS` in `code/logging_config.py` and re‑run the dummy‑log command.
+- **CLI argument error**: Use the exact flags shown above; do not include braces or other shell‑specific syntax.
+- **Pruning removes wrong skills**: Ensure `pruning.py` implements `prune_fr04` as described in the methodology.
+- **Agent exits with code 2**: Run `pytest tests/integration/test_full_sweep.py` to see the failure traceback; the updated `agent.py` now accepts multiple pruning flags.

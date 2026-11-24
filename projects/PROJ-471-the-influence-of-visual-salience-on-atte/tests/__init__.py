@@ -1,3 +1,1 @@
-"""
-Tests package initialization.
-"""
+# This file makes the ``tests`` directory a package for pytest discovery.

@@ -1,17 +1,18 @@
 status: none
-intent: GeoQA geometry chain-of-thought dataset plus number theory CoT dataset download
-  python package dataset
+intent: GeoQA geometry CoT traces and number theory dataset download python package
+  dataset
 required_fields:
 - problem_id
 - domain
-- cot_raw_text
-- step_id
+- problem_text
+- cot_trace
+- atomic_step_id
 - step_text
-- predecessor_step_ids
-- dependency_edges
+- dependency_step_ids
 - max_path_depth
 - human_difficulty_rating
-- validation_flag
-cache_key: 60196ae2b3c7b3e71e3f8fa1b0970c1f91c0f7382499eda3911babf2254b68a1
-searched_at: '2026-08-21T07:39:59.392661+00:00'
+- expert_agreement_kappa
+- source_dataset
+cache_key: 0ce1597ffe26806c7a19db6f134e21e707f2dd5a559ff09f654ecc602d37dd1c
+searched_at: '2026-10-22T09:34:53.419532+00:00'
 retry_count: 1

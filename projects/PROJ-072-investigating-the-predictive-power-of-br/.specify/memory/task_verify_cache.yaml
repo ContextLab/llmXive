@@ -53,14 +53,61 @@ T009:
     \ the two download\u2011validation tests (and provide a real or mock dataset file\
     \ for checksum verification)."
   sig: 26692f2ebb476c39f83c5bd7aea380bf0476a1b4c38e5e1b3addbf5957aeb209
-T011:
+T010:
   c: false
-  h: cd4b7ab569ab286878e51593d795ad8cb7154293e53a350f2e665aba2dd458d7
-  r: "The repository contains a `download.py` file, but it does not show any code\
-    \ that reads diagnostic labels, excludes subjects with missing labels, or writes\
-    \ the exclusion count to `data/metadata/exclusion_log.txt`. Moreover, the required\
-    \ `exclusion_log.txt` file is absent. These missing pieces mean the task\u2019\
-    s core requirement is not fulfilled."
+  h: 90a3c6b89dc703310ef8dafca75dc9d0fa00c98fa2a7b98b5901034826004f63
+  r: "The integration test file exists but it checks for a `.npy` matrix (`sub-001_matrix.npy`)\
+    \ and also expects a range check, while the task requires a `data/processed/test_subject_matrix.csv`\
+    \ 90\xD790 matrix with no NaNs. The required CSV file is missing, and the preprocessing\
+    \ code only saves a preprocessed NIfTI image, not a connectivity matrix CSV. Consequently\
+    \ the specified artifact and verification criteria are not satisfied."
+  sig: f7e506c2f9a1af8bf342df79b4376ad618e39262ca75ee6bcdba425887b95085
+T011:
+  c: true
+  h: cb14201184de76104f5de02244408101aba91ed9484214a04f2f82a120379a7c
+  r: "The `code/preprocessing/download.py` file contains full download functionality\
+    \ (e.g., `download_dataset`, URL handling) and a `process_metadata_and_exclude_subjects`\
+    \ routine that writes missing\u2011label exclusions to `data/metadata/exclusion_log.txt`,\
+    \ which is present and populated. The script therefore meets the specified requirement."
+  sig: ab5626da1cab5ce320e8f1cc9f4320aed0e691fa9e3acb0decb1df78f1a419ed
+T012:
+  c: true
+  h: 708988933a893297f6059abb6ef1153edbc5940868bd60a648827d5519844558
+  r: "The `code/preprocessing/preprocess.py` file (12060\u202Fbytes) implements motion\
+    \ correction, normalization, and band\u2011pass filtering using nilearn, generates\
+    \ an FSL\u2011style log header, and includes a compliance check for required markers.\
+    \ The log creation and verification functions satisfy the requirement to match\
+    \ FSL standard headers for Constitution Principle\u202FVI."
+  sig: 858acfa2c65325f10820ddfd63bc9c330d1104cdf5b6d193c4e625f8597e659f
+T013:
+  c: false
+  h: eced7e5ce9fca5efa19673126690c059882d484af1f1567f5e626348892fe645
+  r: "The provided `code/preprocessing/parcellate.py` exists but contains critical\
+    \ bugs: it calls `validate_and_regularize_matrix` with the wrong signature and\
+    \ assigns its tuple return value to `corr_matrix`, causing later shape accesses\
+    \ to fail. Consequently it cannot reliably generate valid 90\u202F\xD7\u202F90\
+    \ connectivity matrices, and no evidence of successful runs (e.g., saved `.npy`\
+    \ files without NaNs) is supplied. The implementation must be fixed to correctly\
+    \ validate/regularize the matrix and produce proper output files."
+  sig: 9d0de9e28a4b359e819b4e936f6901c44aa9bcb47c30c3b27d10218f0aae356b
+T015:
+  c: false
+  h: 3b8a3ffa506f5bbd3cd1cb7e323f0fca1c794cbe5464c8902d1c71474aac4cce
+  r: "Checked `code/preprocessing/metadata.py` (exists and contains logic to write\
+    \ `data/metadata/subject_labels.csv`) but the required output file `data/metadata/subject_labels.csv`\
+    \ is missing, so the task\u2019s verification conditions (file existence, correct\
+    \ schema, no NaNs) are not satisfied."
+  sig: b24d504e255aee493007c3f2d110dacc2b50941cf3281cbb5d30d3141fe4ab30
+T015.5:
+  c: false
+  h: dafd210989337e01f1ba5d7898a4fc3a546a33ece642cacc6cf17e6c93bcc40b
+  r: The provided `metadata.py` writes `analysis_config.json` with the correct key,
+    but it detects medication status by scanning `participants.tsv` columns rather
+    than looking for a `medication_status` field in OpenNeuro JSON sidecar files as
+    the task specifies. Moreover, there is no evidence that the JSON file was actually
+    created on disk. The implementation therefore does not meet the required detection
+    logic or produce the verified output.
+  sig: 225ae7f4919d719563e38358d13bdcf016acb34e14e84500a270dccef7b929eb
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

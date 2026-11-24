@@ -1,83 +1,90 @@
 # Research: Evaluating the Impact of LLM-Generated Code Comments on Code Readability
 
 ## Objective
-Quantify how **LLM‑generated comments causally affect** developer task performance (completion time, accuracy) relative to human‑written docstrings and a no‑comment baseline, and assess whether standard automated readability metrics (BLEU, ROUGE‑L, Sentence‑BERT similarity) predict those human outcomes.
+Quantify the effect of LLM‑generated comments on developer task completion time and accuracy relative to human‑written docstrings and a no‑comment baseline, and test whether automated similarity metrics (BLEU, ROUGE‑L, Sentence‑BERT cosine) **and a direct readability metric (Flesch‑Kincaid Grade)** predict those human outcomes.
 
 ## Dataset Strategy
-| Requirement | Source | Loader | Remarks |
-|-------------|--------|--------|---------|
-| Code snippets + human docstrings | CodeSearchNet Python (parquet) | `datasets.load_dataset("kejian/codesearchnet-python-raw", split="train", streaming=False)` | Verified URLs: <br>• https://huggingface.co/datasets/kejian/codesearchnet-python-raw/resolve/main/data/train-00000-of-00002-022fcdc5658ecd68.parquet <br>• https://huggingface.co/datasets/kejian/codesearchnet-python-pep8-v1/resolve/main/data/test-00000-of-00001.parquet <br>• https://huggingface.co/datasets/kejian/codesearchnet-python-raw-457k/resolve/main/data/train-00000-of-00003-a17d5a115f8766d8.parquet |
-| LLM inference (CodeLlama‑7B) | HuggingFace Inference API (remote) | `requests.post` with `Authorization: Bearer $HF_TOKEN` | No local GPU needed; inference runs on HF infra. |
-| BLEU reference data (optional sanity check) | Sample BLEU dataset (parquet) | `datasets.load_dataset("ravithejads/sample_bleu_data", split="test")` | URL: https://huggingface.co/datasets/ravithejads/sample_bleu_data/resolve/main/data/test-00000-of-00001.parquet |
-| ROUGE‑L reference data | Sample ROUGE‑L dataset (parquet) | `datasets.load_dataset("gswamy/pythia-1.4B-tldr-sft_tldr_pythia_1.4b_ROUGE-L_iter_1", split="train")` | URL: https://huggingface.co/datasets/gswamy/pythia-1.4B-tldr-sft_tldr_pythia_1.4b_ROUGE-L_iter_1/resolve/main/data/train-00000-of-00004.parquet |
-| Sentence‑BERT embeddings | `sentence-transformers/all-MiniLM-L6-v2` (fallback `paraphrase-MiniLM-L3-v2`) | `SentenceTransformer` from `sentence_transformers` | Loaded on CPU; memory < 2 GB. |
-| Human evaluation data | Collected via external survey platform (CSV) | pandas `read_csv` | Must contain columns: `snippet_id`, `condition` (`llm`, `human`, `none`), `completion_time_sec`, `accuracy`, `subjective_helpfulness`. |
+All sources are open, directly downloadable, and verified.
 
-All datasets are openly downloadable; no gated data required.
+| Requirement | Source | Loader | Verified URL |
+|-------------|--------|--------|--------------|
+| Code snippets + human docstrings (Python) | `kejian/codesearchnet-python-raw` (train shard) | `datasets.load_dataset(..., streaming=False)` → `pandas.read_parquet` | https://huggingface.co/datasets/kejian/codesearchnet-python-raw/resolve/main/data/train-00000-of-00002-022fcdc5658ecd68.parquet |
+| Optional test split (validation) | `kejian/codesearchnet-python-rebalanced` (test) | same | https://huggingface.co/datasets/kejian/codesearchnet-python-rebalanced/resolve/main/data/test-00000-of-00001-3967e86c21fe91c3.parquet |
+| Sentence‑BERT embeddings | `sentence-transformers/multi-qa-mpnet-base-dot-v1` (fallback `all-MiniLM-L6-v2`) | `SentenceTransformer` | — (public HF Hub model) |
+| Human evaluation data | Collected via **Prolific**; consent form stored at `data/consent_form.pdf` | `pandas.read_csv` | — (generated during the study) |
 
 ## Methodology
 
 ### 1. Data Preparation
-1. **Download** the three CodeSearchNet parquet files, verify SHA‑256 checksums (recorded in `data/artifact_hashes.yaml`).  
-2. **Extract** fields `code` (string) and `docstring` (string).  
-3. **Validate** each docstring: non‑empty, length ≥ 5 tokens, and passes a simple Python `ast.parse` sanity check. Invalid records are written to `excluded_records.json` with a `reason` field.  
-4. **Assign** a UUID `snippet_id` to every retained record.  
-5. **Select** a random‑seed‑controlled subset of **N = 500** snippets (ensures ≥ 30 per experimental condition after human study).  
+1. **Download** the verified parquet with `hf_hub_download` (3‑attempt retry, SHA‑256 verification).  
+2. **Convert** the parquet directly to `data/raw_snippets.jsonl` preserving all original fields.  
+3. **Parse** columns tolerant to either `code`/`docstring` or `func_code_string`/`func_documentation_string`.  
+4. **Validate** each record: docstring length ≥ 5 tokens, code parses with `ast`. Invalid records → `data/excluded_records.json` with a `reason`.  
+5. **Log** total, valid, excluded counts to `data/dataset_preparation.log`.  
+6. **Deterministically sample** 500 snippets (seed 42) → `data/validated_snippets.jsonl`.  
 
-### 2. Comment Generation (LLM)
-- Use **CodeLlama‑7B‑Instruct** via the HF Inference API (`/v1/completions`).  
-- Prompt template:  
-  ```
-  """Generate a concise, helpful comment for the following Python function."""
-  <code>
-  ```  
-- **Retry policy**: up to 3 attempts, exponential back‑off (60 s base).  
-- **Truncation**: If tokenized code > 1024 tokens, truncate at the nearest newline before the limit; log warning.  
+### 2. LLM Comment Generation
+- **Model**: CodeLlama‑7B‑Instruct via HuggingFace Inference API.  
+- **Prompt**: `"Generate a concise, helpful comment for the following Python function."` + code.  
+- **Truncation**: Code > 2048 tokens is truncated at the nearest newline; each event logged to `data/truncation_warnings.log`.  
+- **Batching & Checkpointing**: Process snippets in batches of 50. After each batch, append results to `data/llm_comments.jsonl` and a checkpoint entry to `data/generation_log.txt`.  
+- **Retry**: ≤ 3 attempts per batch with exponential backoff (60 s base).  
+- **Failure handling**: If a snippet cannot be generated after retries, **fallback** to a deterministic placeholder comment (`"Generated comment for function <name>."`). This ensures a non‑empty `llm_comment` and keeps the pipeline verifiable.  
+- **Output**: For each snippet, record `snippet_id`, `code`, `human_comment`, `llm_comment`, `no_comment` (empty string).  
 
 ### 3. Automated Readability Metrics
-- **BLEU**: `nltk.translate.bleu_score.sentence_bleu` with smoothing (`method1`). Normalized to 0‑1.  
-- **ROUGE‑L**: `rouge_score.rouge_scorer.RougeScorer(['rougeL'])`. Normalized to 0‑1.  
-- **Semantic similarity**: cosine similarity between Sentence‑BERT embeddings of the **LLM comment** and the **human docstring**.  
-- **Auxiliary metrics**: comment character length and Flesch‑Kincaid readability (computed via `textstat`).  
-- **Fallback**: If `all-MiniLM-L6-v2` fails to load, automatically switch to `paraphrase-MiniLM-L3-v2`.  
-- **Note**: For the human and no‑comment conditions, the three primary metric fields are set to `null` to avoid deterministic encoding of condition.  
+- **BLEU & ROUGE‑L**: Computed with NLTK & `rouge_score`.  
+- **Semantic Similarity**: Cosine similarity of Sentence‑BERT embeddings. Primary model `multi-qa-mpnet-base-dot-v1`; fallback to `all-MiniLM-L6-v2` on OOM.  
+- **Direct Readability**: Compute **Flesch‑Kincaid Grade** for each comment (using `textstat.flesch_kincaid_grade`). This provides an intrinsic readability measure, addressing construct‑validity concerns.  
+- **Reference Sets**:  
+  - LLM comment vs. human docstring.  
+  - Human comment vs. source code.  
+  - No‑comment → metrics set to `null`.  
+- **Normalization**: BLEU, ROUGE‑L, and similarity scores scaled to 0‑1; readability grade kept as raw grade.  
+- **Auxiliary**: Comment length recorded.  
+- **Performance**: 500 × 3 = 1500 metric calculations must finish ≤ 30 min on the CPU runner.  
 
-### 4. Human Study
-- **Design**: **Between‑subject randomised experiment**. Each participant is assigned **once** to a single condition (`llm`, `human`, or `none`) for **all** snippets they evaluate, eliminating order and skill confounds.  
-- **Recruitment**: Validated via Prolific (or MTurk) – logged in `human_study_setup.log`.  
-- **Task**: Code‑modification task on each snippet under the assigned comment condition.  
-- **Metrics collected**: `completion_time_sec`, `accuracy` (binary correct/incorrect), and `subjective_helpfulness` (1‑5 Likert).  
-- **Data file**: `human_study_responses.csv` (matches the schema in `contracts/dataset.schema.yaml`).  
+#### Construct Validity Note (Constitution VI)
+Metrics are treated as *similarity proxies* and, for readability, the Flesch‑Kincaid Grade provides a direct textual readability estimate. Correlation analysis (Phase 6) will confirm whether these metrics meaningfully predict comprehension outcomes; weak correlations will be reported transparently and metrics will not be claimed as readability without evidence.
+
+### 4. Human Study (Latin‑Square Within‑Subject Design)
+- **Recruitment platform**: Prolific (validated in Phase 2).  
+- **Design**: Each participant sees each of a substantial number of snippets exactly once, under one of the three comment conditions, with assignments balanced across participants via a Latin‑Square schedule.  
+- **Task**: Code‑modification/bug‑fix for the presented snippet.  
+- **Collected per trial**: `completion_time_sec`, `accuracy` (0/1), `subjective_helpfulness` (1‑5).  
+- **File**: `data/human_study_responses.csv`.  
 
 ### 5. Statistical Analyses
-| Analysis | Method | Software | Multiple‑Comparison Correction |
-|----------|--------|----------|--------------------------------|
-| Power analysis | `FTestAnovaPower` (effect size = 0.25, α = 0.05) | `statsmodels.stats.power` | N/A |
-| One‑way ANOVA (time) | `statsmodels.stats.anova.anova_lm` | `statsmodels` | N/A |
-| One‑way ANOVA (accuracy) | `statsmodels.stats.anova.anova_lm` (after arcsine‑sqrt transform) | `statsmodels` | N/A |
-| Correlation (metric ↔ outcome) | Pearson r, two‑tailed (LLM condition only) | `scipy.stats.pearsonr` | Bonferroni (α/4) for the four metric‑outcome pairs |
+| Analysis | Method | Software | Multiple‑Comparison |
+|----------|--------|----------|---------------------|
+| Power analysis | Repeated‑measures `statsmodels.stats.power.FTestAnovaPower` (effect size f = 0.25, α = 0.05, within‑subject ρ = 0.5) | statsmodels | N/A |
+| Completion time | **One‑way ANOVA** on participant‑averaged times (as required by FR‑005) **and** mixed‑effects ANOVA (`statsmodels.MixedLM`) with fixed effects `condition` + `trial_number`, random intercepts for `participant_id` + `snippet_id` and random slope for `trial_number` per participant | statsmodels | α = 0.05 |
+| Accuracy | Mixed‑effects logistic regression (`statsmodels.GLM`, binomial) with same fixed/random structure | statsmodels | α = 0.05 |
+| Correlations | Pearson r on **snippet‑level aggregated** outcomes vs each readability metric; Bonferroni‑corrected α / 12 | scipy | Bonferroni |
+| Assumption checks | Shapiro‑Wilk (normality), Levene (homogeneity) | scipy | — |
 
-- **Power analysis**: Target effect size f = 0.25, α = 0.05 → required ≈ 60 participants per group; we aim for **60 per condition**.  
-- **Assumptions**: Normality of residuals (Shapiro‑Wilk), homogeneity of variance (Levene’s test).  
-- **Causal claim**: Because participants are randomised to comment condition, differences in outcomes can be interpreted **causally** (subject to achieving the planned power).  
+- **Power justification**: Required **N ≥ 30 participants** to achieve ≥ 0.80 power given the assumed parameters; if fewer participants are recruited, the achieved power will be reported and noted as a limitation (SC‑009).  
+- **Learning/fatigue**: `trial_number` captures practice effects, modeled as both a fixed effect and a random slope per participant, mitigating confounding (addresses methodology‑55d13f8b).  
 
 ### 6. Reporting
-- Generate CSV tables (`anova_results.csv`, `correlations.csv`), PDF figures (`time_by_condition.pdf`, `corr_heatmap.png`).  
-- `results_summary.md` cites each table/figure with a direct row identifier per the Single Source of Truth principle.  
+- Produce CSV tables, figures (`fig_time_by_condition.pdf`, `fig_corr_heatmap.png`), and `results/results_summary.md` that explicitly cite rows in `merged_dataset.csv`.  
+- All outputs validated against the two JSON/YAML contracts; any schema violation aborts CI.  
 
 ## Decision / Rationale
-- **CPU‑first**: All local computations (download, preprocessing, metric calc, stats) run on CPU; LLM inference is remote via API (no GPU needed).  
-- **Open data**: All inputs are openly hosted on HuggingFace; no gated data required.  
-- **Model choice**: CodeLlama‑7B is the smallest instruction‑tuned LLM in the spec that can generate meaningful comments; using the API avoids local GPU constraints.  
-- **Embedding fallback**: `all-MiniLM-L6-v2` fits comfortably in ≤ 2 GB RAM; fallback ensures robustness against OOM.  
+- **CPU‑first**: All heavy lifting (metrics, stats, figures) runs on a multi‑core CPU box. LLM inference is remote via HF API, so no GPU escape hatch is required.  
+- **Open data**: Primary input is a verified, programmatically downloadable parquet; no gated datasets are used.  
+- **Robust generation**: Batch‑checkpointed generation with explicit logs guarantees a verifiable `generation_log.txt`; placeholder comments ensure the output file is always schema‑valid even if the API fails.  
 
 ## Risks & Mitigations
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| HF API quota exhausted | Pipeline stops early | Use exponential back‑off; limit total snippets to 500; monitor usage via `X-RateLimit-Remaining`. |
-| Code snippet > context window | Truncated comment may be low quality | Log truncation; later analysis can flag these rows. |
-| Human study recruitment shortfall | Power < 0.80 | Power analysis performed upfront; target an appropriate sample size per group; if recruitment fails, report limitation per SC‑005. |
-| Metric‑human correlation weak | May not validate automated metrics | Still report correlation values; discuss limitations; auxiliary metrics provide additional insight. |
+| HF API quota exhausted | Generation stops early | Cap at 500 snippets; backoff; placeholder fallback ensures schema compliance. |
+| Parquet schema change (T001) | Download/parse failure | Column‑tolerant mapping + explicit error listing; abort on unrecoverable mismatch. |
+| Recruitment shortfall | Power < 0.80 | Power analysis performed up‑front; if power insufficient, report limitation per SC‑009. |
+| Weak metric‑human correlation | Metrics not validated | Correlations reported honestly; no claim that metrics predict comprehension unless significant. |
+| Checksum mismatch | Unverified data | Abort CI; checksum recorded in `artifact_hashes.yaml`. |
+| Carry‑over learning | Biased condition effects | Latin‑Square design + `trial_number` covariate and random slope in mixed‑effects models. |
+| Generation script crash | Partial results | Batch‑checkpointing ensures progress; CI fails on unrecoverable errors. |
 
 ---
 

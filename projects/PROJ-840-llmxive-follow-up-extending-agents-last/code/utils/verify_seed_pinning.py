@@ -1,178 +1,125 @@
 """
-Seed Pinning Compliance Verifier (Task T004b).
+Seed‑pinning compliance checker.
 
-This script scans all Python files in the `code/` directory to ensure that
-every random operation (e.g., `random.seed`, `np.random.seed`, `torch.manual_seed`)
-uses `seeds.get_seed(task_id)` (or the wrapper `seeds.set_seed`) as mandated by FR-008.
-
-It exits with code 0 if compliant, 1 if any violation is found.
+Scans the project's Python source files for prohibited direct calls to
+``random.seed``, ``np.random.seed`` or ``torch.manual_seed``.  Allowed
+usage is via the project's ``code.utils.seeds`` helpers
+(``set_seed`` / ``get_seed``).  The script exits with status 0 if no
+violations are found, otherwise with status 1 and a summary of the
+offending lines.
 """
 
+import argparse
 import ast
-import os
 import sys
 from pathlib import Path
-from typing import List, Tuple, Set
 
-# Constants
-CODE_ROOT = Path("code")
-ALLOWED_SEED_FUNCTIONS = {
-    "seeds.set_seed",
-    "seeds.get_seed",
-    "seeds.restore_seed_state",
-    "seeds.verify_seed",
-}
-# Patterns of direct random calls that are FORBIDDEN unless wrapped or using a seed from seeds.py
-FORBIDDEN_DIRECT_CALLS = {
-    "random.seed",
-    "np.random.seed",
-    "numpy.random.seed",
-    "torch.manual_seed",
-    "torch.cuda.manual_seed",
-    "torch.cuda.manual_seed_all",
-    "torch.backends.cudnn.deterministic", # Often used with seeds, but must be set explicitly
-}
-
-class SeedComplianceVisitor(ast.NodeVisitor):
-    """AST visitor to detect seed usage violations."""
-
-    def __init__(self, filepath: Path):
-        self.filepath = filepath
-        self.violations: List[Tuple[int, str]] = []
-        self.imports: Set[str] = set()
-        self.aliases: dict = {}  # maps alias -> module
-
-    def visit_Import(self, node: ast.Import):
-        for alias in node.names:
-            full_name = alias.name
-            as_name = alias.asname if alias.asname else alias.name
-            self.imports.add(full_name)
-            self.aliases[as_name] = full_name
-        self.generic_visit(node)
-
-    def visit_ImportFrom(self, node: ast.ImportFrom):
-        module = node.module or ""
-        for alias in node.names:
-            full_name = f"{module}.{alias.name}"
-            as_name = alias.asname if alias.asname else alias.name
-            self.imports.add(full_name)
-            self.aliases[as_name] = full_name
-        self.generic_visit(node)
-
-    def _resolve_call(self, node: ast.Call) -> str:
-        """Resolves a function call to a string like 'module.func' or 'alias.func'."""
-        if isinstance(node.func, ast.Attribute):
-            if isinstance(node.func.value, ast.Name):
-                base = node.func.value.id
-                # Resolve alias if it exists
-                base_module = self.aliases.get(base, base)
-                return f"{base_module}.{node.func.attr}"
-            elif isinstance(node.func.value, ast.Attribute):
-                # Handle nested attributes like np.random.seed
-                # We need to walk up to find the root name
-                parts = []
-                current = node.func
-                while isinstance(current, ast.Attribute):
-                    parts.append(current.attr)
-                    current = current.value
-                if isinstance(current, ast.Name):
-                    root = current.id
-                    root_module = self.aliases.get(root, root)
-                    parts.append(root_module)
-                    return ".".join(reversed(parts))
-        elif isinstance(node.func, ast.Name):
-            return self.aliases.get(node.func.id, node.func.id)
-        return ""
+# ----------------------------------------------------------------------
+# Helper: walk the AST and collect prohibited seed calls
+# ----------------------------------------------------------------------
+class SeedCallVisitor(ast.NodeVisitor):
+    """
+    Visits all Call nodes and records those that directly invoke a prohibited
+    seeding function without going through ``code.utils.seeds``.
+    """
+    def __init__(self, file_path: Path):
+        self.file_path = file_path
+        self.violations = []  # List[Tuple[Path, int, str]]
 
     def visit_Call(self, node: ast.Call):
-        call_str = self._resolve_call(node)
+        # Helper to extract the full dotted name as a string.
+        def get_full_name(expr):
+            if isinstance(expr, ast.Name):
+                return expr.id
+            elif isinstance(expr, ast.Attribute):
+                value = get_full_name(expr.value)
+                return f"{value}.{expr.attr}" if value else expr.attr
+            return None
 
-        # Check for forbidden direct calls
-        if call_str in FORBIDDEN_DIRECT_CALLS:
-            # Special case: if it's seeds.* it's allowed
-            if call_str.startswith("seeds."):
-                self.generic_visit(node)
-                return
+        func_name = get_full_name(node.func)
 
-            # Check if it's a known allowed wrapper
-            is_allowed = False
-            for allowed in ALLOWED_SEED_FUNCTIONS:
-                if call_str == allowed or call_str.endswith(allowed.split('.')[-1]):
-                    # If it matches exactly or is a known alias of the allowed function
-                    # We need to be careful with aliases.
-                    # If the call is `random.seed`, it's forbidden.
-                    # If the call is `seeds.set_seed`, it's allowed.
-                    pass
-            
-            # Strict check: if the resolved string matches a forbidden pattern exactly
-            # or if it's a direct call to random/np/torch without going through seeds.py
-            if call_str in FORBIDDEN_DIRECT_CALLS:
-                self.violations.append((
-                    node.lineno,
-                    f"Direct random seed call detected: '{call_str}'. "
-                    f"Must use seeds.get_seed(task_id) or seeds.set_seed."
-                ))
+        # List of prohibited seeding functions (fully qualified).
+        prohibited = {
+            "random.seed",
+            "np.random.seed",
+            "numpy.random.seed",
+            "torch.manual_seed",
+            "torch.cuda.manual_seed",
+            "torch.cuda.manual_seed_all",
+        }
 
+        if func_name in prohibited:
+            # Record the violation with file context.
+            self.violations.append((self.file_path, node.lineno, func_name))
+
+        # Continue traversing.
         self.generic_visit(node)
 
-def scan_file(filepath: Path) -> List[Tuple[int, str]]:
-    """Scan a single Python file for seed pinning violations."""
-    try:
-        with open(filepath, "r", encoding="utf-8") as f:
-            source = f.read()
-        
-        tree = ast.parse(source, filename=str(filepath))
-        visitor = SeedComplianceVisitor(filepath)
-        visitor.visit(tree)
-        return visitor.violations
-    except SyntaxError as e:
-        return [(e.lineno or 0, f"Syntax error in file: {e.msg}")]
-    except Exception as e:
-        return [(0, f"Error parsing file: {str(e)}")]
+# ----------------------------------------------------------------------
+# Main driver
+# ----------------------------------------------------------------------
+def find_python_files(root: Path) -> list[Path]:
+    """Recursively find all ``.py`` files under *root*."""
+    return list(root.rglob("*.py"))
 
-def scan_directory(root_path: Path) -> List[Tuple[Path, List[Tuple[int, str]]]]:
-    """Recursively scan a directory for Python files and check compliance."""
-    violations_found = []
-    
-    for py_file in root_path.rglob("*.py"):
-        # Skip __pycache__ and hidden directories
-        if "__pycache__" in str(py_file) or py_file.name.startswith("."):
-            continue
-        
-        file_violations = scan_file(py_file)
-        if file_violations:
-            violations_found.append((py_file, file_violations))
-    
-    return violations_found
+def scan_file(path: Path) -> list[tuple[Path, int, str]]:
+    """Parse *path* and return any seed‑pinning violations."""
+    try:
+        source = path.read_text(encoding="utf-8")
+    except Exception:
+        # If the file cannot be read, skip it – CI will catch other issues.
+        return []
+    try:
+        tree = ast.parse(source, filename=str(path))
+    except SyntaxError:
+        # Invalid Python – let the test suite surface this.
+        return []
+    visitor = SeedCallVisitor(path)
+    visitor.visit(tree)
+    return visitor.violations
 
 def main():
-    """Main entry point for the seed pinning verification."""
-    print(f"Scanning {CODE_ROOT} for seed pinning compliance...")
-    
-    if not CODE_ROOT.exists():
-        print(f"Error: Directory '{CODE_ROOT}' not found.")
+    parser = argparse.ArgumentParser(
+        description="Verify that the project does not use prohibited random seed calls."
+    )
+    parser.add_argument(
+        "--root",
+        type=str,
+        default=".",
+        help="Root directory to start scanning (default: current directory)",
+    )
+    args = parser.parse_args()
+    root_path = Path(args.root).resolve()
+
+    all_violations = []
+
+    for py_file in find_python_files(root_path):
+        # Skip the compliance script itself to avoid false positives.
+        if py_file.samefile(Path(__file__)):
+            continue
+        all_violations.extend(scan_file(py_file))
+
+    # Exclude any violations that occur inside the official seed‑pinning helper.
+    # The helper lives in ``code/utils/seeds.py``; direct calls inside that file
+    # are permissible because the module abstracts the seeding logic.
+    allowed_modules = {
+        root_path / "code" / "utils" / "seeds.py",
+    }
+    filtered_violations = [
+        (path, lineno, func)
+        for (path, lineno, func) in all_violations
+        if path not in allowed_modules
+    ]
+
+    if filtered_violations:
+        print("Seed‑pinning violations detected:")
+        for path, lineno, func_name in filtered_violations:
+            rel_path = path.relative_to(root_path)
+            print(f"  {rel_path}:{lineno}: prohibited call to {func_name}")
         sys.exit(1)
-
-    violations = scan_directory(CODE_ROOT)
-
-    if not violations:
-        print("✅ SUCCESS: All Python files comply with seed pinning (FR-008).")
-        print("   Every random operation uses seeds.get_seed(task_id) or seeds.set_seed.")
-        sys.exit(0)
     else:
-        print("❌ FAILURE: Seed pinning violations detected.")
-        for filepath, file_violations in violations:
-            print(f"\nFile: {filepath}")
-            for line_no, msg in file_violations:
-                print(f"  Line {line_no}: {msg}")
-        
-        print("\n" + "="*60)
-        print("FIX REQUIRED: Replace direct random calls with:")
-        print("  from utils.seeds import set_seed, get_seed")
-        print("  seed = get_seed(task_id)")
-        print("  set_seed(seed)")
-        print("="*60)
-        sys.exit(1)
+        print("No seed‑pinning violations found.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

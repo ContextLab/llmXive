@@ -21,8 +21,8 @@ properties:
     description: "Ratio of listens during adolescence to total listens. Null if birth_year is missing and fallback not triggered."
   total_listens:
     type: integer
-    minimum: 3
-    description: "Total number of listens for this user-track pair. Must be >= 3."
+    minimum: 5
+    description: "Total number of listens for this user-track pair. Must be >= 5."
   mean_vividness:
     type: number
     description: "Average vividness rating."
@@ -33,9 +33,9 @@ properties:
     type: integer
     minimum: 1
     description: "Number of memory cues for this pair. Must be >= 1."
-  popularity:
+  track_popularity:
     type: number
-    description: "Track popularity score."
+    description: "Track popularity"
   match_threshold:
     type: integer
     description: "Levenshtein threshold used for matching."
@@ -43,7 +43,7 @@ properties:
     type:
       - number
       - "null"
-    description: "Global exposure metric if birth_year is missing and fallback triggered."
+    description: "Global exposure metric if birth_year is missing."
 required:
   - user_id
   - track_id
@@ -51,6 +51,6 @@ required:
   - mean_valence
   - n_cues
   - total_listens
-  - popularity
+  - track_popularity
   - match_threshold
 additionalProperties: false

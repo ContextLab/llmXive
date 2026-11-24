@@ -1,85 +1,63 @@
-# Research: Neuro-Symbolic Learning Networks
+# Research: Neuro‑Symbolic Learning Networks
 
 ## Research Question
-
-Does a neuro-symbolic explanation approach (combining neural narrative with symbolic trace) improve student reasoning accuracy, response time, and self-reported comprehension compared to neural-only or symbolic-only explanations in mathematics education **within the ASSISTments domain**?
+*Within the ASSISTments domain, does a neuro‑symbolic explanation (neural narrative + symbolic trace) improve student reasoning accuracy, response time, and self‑reported comprehension compared to neural‑only and symbolic‑only explanations?*
 
 ## Background & Motivation
-
-Educational research increasingly explores the "black box" of AI tutors. While Large Language Models (LLMs) provide fluent explanations (System 1 intuition), they often lack logical rigor. Conversely, symbolic solvers provide exact traces (System 2 reasoning) but can be opaque to learners. This project investigates whether bridging these modes yields superior pedagogical outcomes.
+Neural language models generate fluent natural‑language explanations, yet they may lack logical rigor. Symbolic solvers provide precise traceability but can be opaque to novices. A hybrid neuro‑symbolic explanation could combine the pedagogical strengths of both, potentially boosting learning outcomes. Prior work on explanation formats in intelligent tutoring systems (e.g., Koedinger et al.) emphasizes the need for mixed‑methods evaluation (accuracy, speed, confidence). This study directly tests that hypothesis in a controlled educational setting.
 
 ## Verified Datasets
+| Dataset | Role | Verified URL |
+|---|---|---|
+| **ASSISTments** | Source of math/logic problems (raw) | https://huggingface.co/datasets/OloriBern/assistments-dataset/resolve/main/skill_builder_data_corrected.csv |
+| **Khan Academy** | Source of additional math/logic problems (raw) | *No verified open download URL is available.* |
+| **Human Pilot Data** | Calibration of BKT simulator (≥ 50 participants) | *Collected locally; stored at `data/pilot/real_pilot_data.csv`* |
+| **Real Student Data** | Primary inferential evidence (≥ 200 participants) | *Collected locally; stored at `data/processed/real_student_data.csv`* |
 
-The following datasets are verified and used for this project. **Only these sources are cited.**
-
-| Dataset | Purpose | Verified Source URL |
-| :--- | :--- | :--- |
-| **ASSISTments** | Source of math/logic problems for generation and simulation. | https://huggingface.co/datasets/OloriBern/assistments-dataset/resolve/main/skill_builder_data_corrected.csv |
-| **Khan Academy** | Secondary source of problems to ensure diversity (if available via open proxy). | *No direct verified URL for full Khan dataset in block; using ASSISTments as primary with partial ingestion.* |
-| **Human Pilot Data** | Calibration data for BKT simulator (≥50 participants). | *Collected via mock survey interface (T030b) or existing public dataset if available.* |
-| **Real Student Data** | Final analysis data (≥200 participants). | *Collected via mock survey interface (T030b) or existing public dataset if available.* |
-
-*Note: The spec mentions Khan Academy, but the `# Verified datasets` block does not contain a verified, direct-download URL for the full Khan Academy dataset. The plan relies on the ASSISTments dataset (verified) as the primary source. If Khan data is strictly required, the pipeline proceeds with ASSISTments only and logs the failure to meet the dual-source requirement (FR-001 partial).*
+*Note*: Because no verified open Khan Academy dataset exists, the pipeline **must abort** if the Khan download cannot be completed. This limitation is recorded for a future spec amendment; the current pipeline proceeds only when both datasets are available.
 
 ## Dataset Strategy
-
-### Primary Data Source: ASSISTments
-The `skill_builder_data_corrected.csv` from the verified Hugging Face source will be used.
-- **Ingestion**: Downloaded via `code/data/download_assistments.py` with a A timeout of several minutes will be applied. (FR-007).
-- **Validation**: Schema validated against `contracts/problem.schema.yaml` (T012a).
-- **Subset**: A representative subset of problems (e.g., algebra, geometry) will be selected to ensure the dataset contains the necessary variables (problem text, solution steps, difficulty).
-
-### Secondary Data Source: Khan Academy (Optional)
-- **Ingestion**: Attempted via `code/data/download_khan.py`.
-- **Failure Handling**: If the download fails (timeout or missing URL), the pipeline logs `ERROR: Failed to download Khan Academy within 300 seconds – aborting pipeline` for the Khan step, but **proceeds** with ASSISTments data only. The final report will note that FR-001 was partially met (single source).
-- **Scope Reduction Protocol**: **If only ASSISTments data is available, the study's external validity is explicitly limited to the ASSISTments domain.** The final report will state: "Findings are generalizable only to the ASSISTments corpus; claims regarding broader mathematics education are not supported due to single-dataset constraints."
-
-### Human Data Acquisition Protocol (T030b)
-- **Method**: Real human pilot data (≥50) and real student data (≥200) are collected via a mock survey interface (e.,g., Google Forms/Qualtrics) or ingested from a verified public dataset (e.g., OpenML Human Learning).
-- **Fallback**: If real human data is unavailable after 48 hours, the project triggers the **Scope Reduction Protocol**: the study is reclassified as a "Simulation Feasibility Study," and all claims about "real student performance" are disabled. The BKT simulator is not calibrated, and the comparative analysis is limited to the simulated environment only.
-
-### Data Limitations & Mitigation
-- **Missing Variables**: If the ASSISTments dataset lacks specific metadata (e.g., explicit "difficulty" scores), these will be inferred via a lightweight heuristic or derived from problem length/complexity, documented in `research.md`.
-- **Dataset Size**: The full dataset may exceed RAM. Streaming (`datasets.load_dataset(..., streaming=True)`) will be used to process problems in batches.
+| Step | Action | Rationale |
+|---|---|---|
+| **Ingestion** | `download_assistments.py` fetches the CSV from the verified HuggingFace URL with a 300 s timeout (FR‑001, FR‑007). | Guarantees reproducibility and satisfies ASSISTments requirement. |
+| **Khan Download** | `download_khan.py` attempts to download the Khan Academy dataset. If the download fails (no verified URL or timeout), the CI job aborts with exit 1 and a clear error message (FR‑001, FR‑007, SC‑008). | Enforces the requirement that **both** datasets be present; flags the missing open source. |
+| **Unification** | `unify_datasets.py` merges the two sources, **enforces ≥ 30 % representation from each source** when both are present (FR‑012, FR‑021). | Controls source bias. |
+| **Schema Validation** | `validate_schema.py` checks `unified_problems.csv` against `problem.schema.yaml`. | Enforces data hygiene (III). |
+| **Human Pilot** | Manual collection of ≥ 50 participants across three explanation conditions; stored as `real_pilot_data.csv`.<br>Run `simulation/pilot_calibrator.py` to fit BKT parameters, compute RMSE, TOST (FR‑010). If calibration fails, abort (prevents circular simulation). | Provides calibration data (FR‑010). |
+| **Real‑Student Data** | Manual collection of ≥ 200 participants; stored as `real_student_data.csv`.<br>Run `analysis/merge_data.py` to concatenate simulated + real, add `data_source` column (FR‑011). | Supplies primary evidence (FR‑011). |
 
 ## Methodological Rigor & Statistical Plan
+- **Design**: Between‑subjects; each student experiences only one explanation condition per problem. Random assignment enforced by the simulator and by study recruitment scripts.  
+- **Mixed‑Effects Model** (FR‑006):  
+  - Fixed effects: `condition`, `prior_knowledge_score`, `difficulty`.  
+  - Random intercepts: `problem_id`, `student_id`.  
+  - Implemented with `statsmodels.MixedLM` (Python) or `lme4` (R via `rpy2`).  
+- **Exploratory Diagnostics**: Run the same mixed‑effects model on the **combined** simulated + real dataset **solely for diagnostics** (effect‑size CI widths, `data_source` effect) – results are reported but **not used for primary causal claims** (FR‑020).  
+- **Primary Inference**: Run the mixed‑effects model **only on the real‑student subset**; this satisfies FR‑006, FR‑011, and the constitution’s Educational Evaluation Rigor principle.  
+- **Multiple‑Comparison**: Holm‑Bonferroni correction applied to the three pairwise condition contrasts (SC‑003).  
+- **Effect Sizes**: Cohen’s d with 95 % confidence intervals for each contrast (SC‑003).  
+- **Power**: No formal power analysis is claimed; with ≥ 200 real participants the study may be under‑powered for small effects. This limitation is **explicitly acknowledged** (methodology‑3bceee5f).  
+- **Causal Claims**: Results from simulated data are labeled *exploratory* (FR‑020). Primary inferential claims are drawn solely from the real‑student dataset.  
+- **Measurement Validity**: ASSISTments problems have established validity in prior tutoring research (cited in the literature review).  
+- **Collinearity**: Variance Inflation Factor (VIF) computed for `difficulty` and `rt_seconds`; VIF > 5 triggers a diagnostic note.  
 
-### Experimental Design
-A **between-subjects design** where each simulated student is assigned to exactly one explanation condition per problem.
-1.  **Neural-Only**: LLM-generated narrative.
-2.  **Symbolic-Only**: Rule-based step-by-step trace.
-3.  **Neuro-Symbolic**: Hybrid of both.
-
-*Constraint*: A `student_id` cannot appear for the same `problem_id` in multiple conditions. This prevents carryover effects (learning from the first explanation invalidating the second).
-
-### Statistical Analysis
-- **Model**: Linear Mixed-Effects Model (LMM) using `statsmodels` (Python) or `lme4` (R).
-  - **Fixed Effects**: `explanation_condition`, `prior_knowledge` (derived), `problem_difficulty`, `data_source` (simulated vs. real).
-  - **Random Effects**: Random intercepts for `problem_id` and `student_id`.
-- **Multiple Comparison Correction**: Bonferroni or Holm-Bonferroni correction applied for pairwise comparisons (Neuro-Symbolic vs. Neural, etc.) to control family-wise error rate.
-- **Power Analysis**: Sample size of [deferred] students per condition ([deferred] total) is targeted to achieve power ≥ 0.80 for effect sizes ≥ 0.1 (FR-009).
-- **Causal Inference**: As this is a simulation, claims are framed as "associational" unless the simulation explicitly models a causal mechanism. The inclusion of `data_source` (simulated vs. real) as a fixed effect controls for potential biases (FR-011). **Crucially, if real human pilot data (T030b) is missing, the study is scope-reduced to "Simulation Feasibility" and no causal claims about real learners are made.**
-
-### Measurement Validity
-- **Response Time**: Simulated based on BKT probability of knowledge and explanation complexity.
-- **Comprehension**: Likert scale (1-5) derived from a logistic function of **knowledge_gap** (student's current knowledge vs. problem difficulty) and **explanation_complexity**. This avoids circularity by not deriving comprehension from correctness.
-- **Collinearity**: If "difficulty" and "response time" are definitionally related, they will be reported descriptively, and collinearity acknowledged in the model diagnostics.
+## Prior Knowledge Score
+- **Simulated students**: The calibrated BKT model provides an estimated mastery probability at the start of each problem; this probability is recorded as `prior_knowledge_score`.  
+- **Real students**: A short pre‑test administered before the main task yields a numeric `prior_knowledge_score` stored in `real_student_data.csv`.  
 
 ## Compute Feasibility
+- **CPU‑First**: TinyLlama‑1.1B‑Chat quantized to 4‑bit runs on ≤ 2 CPU cores, ≤ 2 GB RAM per inference.  
+- **GPU Escape Hatch**: If CPU OOM occurs, the same script re‑executes on a free Kaggle GPU (`device="cuda"`). No fabricated CPU surrogate is used.  
+- **Streaming**: Large CSVs processed with `datasets.load_dataset(..., streaming=True)` to keep RAM under 7 GB.  
+- **Runtime**: End‑to‑end ≤ 5 h on the free CI runner; GPU off‑load adds ≤ 2 h, still within the 6 h job limit.  
 
-### CPU-First Strategy
-- **LLM Inference**: A **B-parameter model** (e.g., `TinyLlama-1.1B-Chat-v1.0` in 4-bit precision) will be used to fit within 7 GB RAM on the -core CPU runner. This is a conservative choice to ensure stability.
-- **Simulation**: The BKT model is purely algorithmic (matrix operations) and runs efficiently on CPU.
-- **Analysis**: `statsmodels` mixed-effects models are optimized for CPU and can handle the target sample size (6k rows) within the -hour window.
+## Decision / Rationale Summary
+- **Dataset Choice**: ASSISTments is the only fully verified open dataset; Khan Academy lacks a verified URL, so the pipeline aborts if it cannot be obtained, satisfying FR‑001 while flagging a scope limitation.  
+- **Model Size**: 1 B‑parameter quantized LLM satisfies CPU constraints; larger models would force a GPU‑only solution, which is avoided.  
+- **Simulation**: BKT calibrated on a human pilot ensures realistic exploratory behavior while keeping primary inference human‑based.  
+- **Analysis**: Mixed‑effects regression aligns with constitution principle VI and captures hierarchical data structure.  
+- **Scope‑Reduction**: If Khan download fails, the job aborts with a clear error; this enforces the requirement that **both** datasets be present.  
 
-### GPU Escape Hatch
-- If the LLM inference fails due to memory constraints on the CPU runner, the pipeline will automatically detect the failure and re-run the generation step on a **Kaggle GPU** (GB VRAM) using the same code with `device="cuda"`.
-- The plan does **not** fabricate a CPU approximation for a GPU-only task; it relies on the auto-offload mechanism for genuine GPU requirements.
+---
 
-## Decision/Rationale
 
-- **Why ASSISTments?** It is the only math/education dataset with a verified, direct-download URL in the provided block.
-- **Why Partial Ingestion?** To satisfy FR-001's "attempt" requirement while avoiding a total pipeline abort if Khan Academy is unavailable. **Scope Reduction Protocol limits generalizability claims if only one dataset is used.**
-- **Why Mixed-Effects?** Accounts for the hierarchical nature of the data (students nested within problems) and controls for problem difficulty.
-- **Why Human-Only Calibration?** To avoid circular validation (synthetic pilot tuning) and ensure the BKT model approximates real cognitive processes.
-- **Why 0.5B Model?** To guarantee CPU feasibility on the 7GB RAM runner, avoiding the high risk of OOM with 1B+ models.

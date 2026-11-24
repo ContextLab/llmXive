@@ -1,120 +1,109 @@
-# Implementation Plan: Quantifying Hallucination in LLM-Generated API Documentation
+# Implementation Plan: Quantifying Hallucination in LLM‑Generated API Documentation
 
-**Branch**: `001-quantify-hallucination` | **Date**: 2026-06-22 | **Spec**: `specs/001-quantify-hallucination/spec.md`
-**Input**: Feature specification from `/specs/001-quantify-hallucination/spec.md`
+**Branch**: `001-quantifying-hallucination-in-llm-generat` | **Date**: 2026-10-18 | **Spec**: `specs/001-quantifying-hallucination-in-llm-generat/spec.md`  
+**Input**: Feature specification from `/specs/001-quantifying-hallucination-in-llm-generat/spec.md`
 
 ## Summary
+We will build a reproducible, CPU‑only pipeline that (1) downloads the Python subset of CodeSearchNet, (2) generates a single‑sentence API description for each function with two open‑source models (`codegen-350M` and `starcoderbase-1b`), (3) computes an entity‑overlap F1 and a semantic‑similarity score, (4) combines them into the HallucinationIndex per FR‑003, (5) extracts intrinsic code characteristics, (6) runs partial Spearman correlations (controlling for generated description length) and a multiple linear regression **excluding description length** (source‑code length only), (7) applies Bonferroni correction, (8) performs a sensitivity sweep on the HallucinationIndex classification threshold, (9) validates **both** the entity‑overlap and semantic‑similarity components against a manually annotated stratified subset, (10) compares model‑specific results, (11) fits a mixed‑effects model that includes `model` as a fixed effect to isolate model‑specific variance, (12) produces a single JSON/CSV report satisfying all functional requirements (FR‑001 – FR‑020) and success criteria (SC‑001 – SC‑007).
 
-This project implements a reproducible pipeline to quantify hallucination in LLM-generated API documentation. The system ingests the CodeSearchNet Python dataset, generates descriptions using `codegen-350M` and `starcoderbase-1b` on CPU, and computes a composite hallucination index based on entity-overlap F1 scores against source code ASTs. It performs statistical correlation analysis (Spearman, Mann-Whitney U, Multiple Linear Regression) between hallucination and code characteristics (length, naming, complexity), applies multiplicity corrections, and validates the automated metric against a manual human-annotated subset. The pipeline is designed to run within GitHub Actions free-tier constraints (2 CPU, ~7GB RAM, 6h limit).
-
-**Key Methodological Corrections**:
-1.  **Independence of Validation**: The manual rubric (FR-009) now scores "Behavioral Consistency" (logic, side effects) rather than "AST Matching", ensuring the human ground truth is independent of the automated AST-based metric.
-2.  **Avoidance of Mathematical Coupling**: The regression model (FR-008) controls for `source_code_token_count` instead of `generated_description_token_count` to avoid coupling the covariate with the dependent variable.
-3.  **Metric Decomposition**: The "Hallucination Index" is split into "Precision Hallucination" (invented entities) and "Recall Omission" (missing entities) to distinguish between distinct phenomena.
+All steps are ordered so that data is fetched before any computation, models are run before analysis, and the final report is generated before any downstream use.
 
 ## Technical Context
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `transformers`, `torch` (CPU‑only), `datasets`, `spacy` (`en_core_web_sm`), `radon`, `pandas`, `numpy`, `scikit-learn`, `scipy`, `statsmodels`, `seaborn`, `matplotlib`, `jsonschema`, `bitsandbytes`, `pwr` (for power analysis)  
+- **Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/manual/`, `results/`)  
+- **Testing**: `pytest` + contract validation against YAML schemas in `contracts/`  
+- **Target Platform**: Linux GitHub Actions free‑tier runner (2 CPU, ~7 GB RAM, ≤6 h)  
+- **Constraints**: CPU‑only inference, peak RAM ≤ 7 GB, total runtime ≤ 4 h for 1 000 functions, deterministic seeding, no placeholder scores (FR‑012).  
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers`, `torch` (CPU-only), `datasets`, `spacy`, `radon`, `pandas`, `scikit-learn`, `numpy`, `seaborn`, `matplotlib`  
-**Storage**: Local filesystem (CSV/JSON/Parquet) within `data/` and `results/` directories  
-**Testing**: `pytest` with contract validation against YAML schemas  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Data science research pipeline / CLI  
-**Performance Goals**: Process 1000 functions within 6 hours; memory usage < 7GB  
-**Constraints**: CPU-only execution for generation; no external API keys; strict random seed pinning for reproducibility  
-**Scale/Scope**: A representative set of functions sampled from CodeSearchNet; % manual validation subset
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+## Decision/Rationale: Compute Feasibility & Power
+- **CPU‑first**: `codegen-350M` loads in ~2 GB (16‑bit) and `starcoderbaseb` loads in ~3 GB after 4‑bit quantization. Batch size 1 keeps memory < 5 GB.  
+- **No GPU Escape Hatch**: All required operations (including SBERT similarity) have faithful CPU implementations.  
+- **Power Analysis**: Using the `pwr` package, detecting a Spearman ρ = 0.1 with α = 0.05 and power = 0.8 requires ≈ 825 samples. Processing **1 000** functions therefore satisfies the power requirement (SC‑001).  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Evidence/Action |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates `config.py` (T008a) AND explicit `torch.manual_seed`, `numpy.random.seed`, `random.seed` calls in `generate.py` and `analyze.py` (T008b). All data fetches use canonical Hugging Face URLs. |
-| **II. Verified Accuracy** | **PASS** | All dataset citations restricted to the `# Verified datasets` block (CodeSearchNet parquet URLs). No fabricated URLs. |
-| **III. Data Hygiene** | **PASS** | Plan includes checksumming of downloaded parquet files before processing. Raw data preserved; derivations written to new files. |
-| **IV. Single Source of Truth** | **PASS** | Final report (JSON/CSV) is the sole source for statistics. No hand-typed numbers in `paper.md` (future phase). |
-| **V. Versioning Discipline** | **PASS** | `state/` artifact hashes updated upon data generation and analysis completion. |
-| **VI. Metric Alignment** | **PASS** | Plan includes T030b (Interface), T030c (Human Annotation), and T032 (Correlation Check) to validate the entity-overlap F1 metric against an independent behavioral rubric (FR-009). |
-| **VII. Code-Metric Isolation** | **PASS** | Plan mandates running the full pipeline for *both* models (`codegen-350M`, `starcoderbase-1b`) and comparing regression coefficients to isolate model-specific variance. |
+| Principle | Status | Evidence / Action |
+|-----------|--------|-------------------|
+| I. Reproducibility | PASS | Random seeds pinned; data download uses canonical URLs; pipeline fully scriptable. |
+| II. Verified Accuracy | PASS | Only verified HuggingFace URLs are referenced. |
+| III. Data Hygiene | PASS | Downloads are checksummed; raw parquet files never overwritten; every transformation writes a new file. |
+| IV. Single Source of Truth | PASS | Final statistics live solely in `results/final_report.json`; no hand‑typed numbers elsewhere. |
+| V. Versioning Discipline | PASS | Artifact hashes updated after each major artifact creation. |
+| VI. Metric Alignment | PASS | Both entity‑overlap and semantic‑similarity components are validated against a human‑annotated subset (FR‑020). |
+| VII. Code‑Metric Isolation | PASS | Regression controls only for source‑code predictors; model‑specific variance is handled by separate regressions and a mixed‑effects model (FR‑010, T015). |
 
 ## Project Structure
-
-### Documentation (this feature)
-
-```text
-specs/001-quantify-hallucination/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+```
+specs/001-quantifying-hallucination/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
 │   ├── dataset.schema.yaml
 │   ├── analysis_result.schema.yaml
 │   └── manual_score.schema.yaml
-└── tasks.md             # Phase 2 output (not created by this command)
+└── tasks.md   # generated later by /speckit-tasks
 ```
 
-### Source Code (repository root)
-
-```text
+```
 projects/PROJ-762-quantifying-hallucination-in-llm-generat/
 ├── code/
 │   ├── __init__.py
-│   ├── config.py              # Seeds, model paths, thresholds
-│   ├── download.py            # Fetch CodeSearchNet parquet
-│   ├── generate.py            # LLM generation + entity extraction
-│   ├── analyze.py             # Stats, regression, sensitivity
-│   ├── validate.py            # Manual validation interface logic
-│   └── main.py                # Orchestration
+│   ├── config.py               # seeds, model paths, thresholds
+│   ├── download.py             # fetch CodeSearchNet parquet files
+│   ├── generate.py             # model inference, one‑sentence enforcement
+│   ├── metrics.py              # entity extraction, F1, semantic similarity
+│   ├── analyze.py              # stats, regression, sensitivity, correction
+│   ├── validate.py             # manual annotation workflow & aggregation
+│   └── main.py                 # orchestrates the full pipeline
 ├── data/
-│   ├── raw/                   # Downloaded parquet files
-│   ├── processed/             # Generated CSVs with metrics
-│   └── manual/                # Manual validation CSVs
+│   ├── raw/                    # parquet files
+│   ├── processed/              # `records.csv`
+│   └── manual/                 # human scores
 ├── results/
-│   ├── performance_log.json   # Memory/time metrics
-│   └── final_report.json      # Correlation/regression results
+│   ├── performance_log.json
+│   └── final_report.json
 ├── tests/
-│   ├── contract/              # Schema validation tests
-│   └── integration/           # End-to-end pipeline tests
+│   ├── contract/               # schema validation tests
+│   └── integration/            # end‑to‑end pipeline test
 └── requirements.txt
 ```
 
-**Structure Decision**: Single-project structure (Option 1) chosen as this is a linear data processing pipeline. Separation of `download`, `generate`, `analyze`, and `validate` ensures modularity and testability. `data/` is strictly for inputs/intermediates; `results/` for final outputs.
-
 ## Complexity Tracking
-
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Two Model Runs** | Constitution Principle VII requires comparing `codegen-350M` and `starcoderbase-1b` to isolate model-specific variance. | Running a single model would conflate code characteristics with model bias, failing the isolation requirement. |
-| **Manual Validation Step** | Constitution Principle VI and FR-009/SC-003 require human-in-the-loop verification of the entity-overlap metric against an independent behavioral ground truth. | Purely automated metrics (BLEU/ROUGE) are known to correlate poorly with factual accuracy in code; human scoring is mandatory for validity. |
-| **CPU-Only Constraint** | Target platform is GitHub Actions free-tier (no GPU). | GPU-based models (e.g., Llama-2-7B) would exceed memory limits and fail the compute feasibility gate. |
-| **Behavioral Rubric** | To avoid circular validation, the human rubric must measure "Behavioral Consistency" (logic, side effects) rather than "AST Matching". | A rubric based on AST matching would be tautological with the automated metric. |
+|-----------|------------|--------------------------------------|
+| Two model runs | Required by Principle VII to isolate model‑specific variance and by FR‑010. | Single‑model runs would conflate code‑characteristic effects with model bias. |
+| Manual validation step | Required by Principle VI to ensure metric alignment (FR‑020) and by SC‑003. | Purely automated metrics lack proven factual validity. |
+| CPU‑only inference | Required by compute‑feasibility gate (free‑tier runner). | GPU‑only models would exceed memory limits and breach the CPU‑first rule. |
+| Stratified sampling for validation | Required to meet FR‑009 (≥ 5 % stratified) and to provide power for SC‑003. | Random sampling without stratification could produce unbalanced subsets. |
+| Inclusion of model as factor / mixed‑effects model | Addresses methodology‑43d71544 concern; ensures model variance does not confound code‑metric relationships (Principle VII). | Ignoring model would violate Principle VII. |
 
-## Tasks (Updated to Address Gaps)
+## Tasks (Mapping to Functional Requirements)
 
-*   **T008a**: Create `config.py` with model paths and seed values.
-*   **T008b**: **Implement Seeding Logic** - Inject `torch.manual_seed`, `numpy.random.seed`, and `random.seed` calls into `generate.py` and `analyze.py` to ensure deterministic execution (Addresses Spec Coverage concerns).
-* **T030a**: Implement sampling logic for the [deferred] validation subset.
-*   **T030b**: **Generate Manual Annotation Interface** - Create the CSV template and simple CLI tool for human annotators to input scores based on the revised "Behavioral Consistency" rubric.
-*   **T030c**: **Execute Human Annotation** - Produce the `manual_scores.csv` artifact with real human scores (or a flagged placeholder for CI testing that is replaced by real data for final results). This task is the producer of the ground truth data for T032.
-*   **T032**: Implement correlation logic between automated F1 and manual scores, including the `r >= 0.7` flag.
-*   **T039**: **Run Performance Validation** - Execute `quickstart.md` steps on a fresh environment, measure max RAM and total time for 1000 functions, and **assert** `max_memory_mb < 7168` and `total_time_sec < 21600`, recording metrics in `results/performance_log.json`.
+| Task ID | Description | FR(s) Covered |
+|---------|-------------|---------------|
+| **T001** | `download.py`: programmatically fetch the two verified CodeSearchNet parquet files, verify checksums, store under `data/raw/`. | FR‑001 |
+| **T002** | `generate.py`: load `codegen-350M` (16‑bit) and `starcoderbase-1b` (4‑bit) on CPU, generate one‑sentence descriptions, enforce deterministic truncation, record provenance metadata (`generation_id`, `timestamp`, `model_name`, `input_function_hash`). | FR‑002, FR‑018, FR‑012 |
+| **T003** | `metrics.py`: extract parameters/return types from source AST (ground truth) and from generated text (using spaCy), compute entity‑overlap F1, precision‑hallucination, recall‑omission, and semantic‑similarity (SBERT cosine). Combine into HallucinationIndex per FR‑003. | FR‑003 |
+| **T004** | Edge‑case handling: empty LLM output (`entity_f1=0.0`, `empty_output=True`), missing reference docstring (`skip`, `missing_docstring=True`), Radon parse failure (`NaN`, `radon_parse_failure=True`). | FR‑014, FR‑015, FR‑016 |
+| **T005** | Compute intrinsic code predictors – token count, identifier‑entropy, cyclomatic complexity, naming‑style classification. | FR‑001 (via radon), FR‑004 |
+| **T006** | `analyze.py`: partial Spearman correlation (FR‑019) for each predictor controlling for generated description length, then Bonferroni correction (FR‑005). | FR‑004, FR‑005 |
+| **T007** | `analyze.py`: fit multiple linear regression **HallucinationIndex ~ token_count_source + identifier_entropy + cyclomatic_complexity** (per model), report β‑coefficients with 95 % CI, compute VIFs. **DescriptionLength is NOT a predictor** (Principle VII). | FR‑008 |
+| **T008** | Sensitivity sweep over thresholds {0.01, 0.05, 0.1} (FR‑006) and record high‑hallucination rates. | FR‑006 |
+| **T009** | `validate.py`: stratified random sample ≥ 5 % (≥ 50 items) **jointly stratified on HallucinationIndex quartiles and source token‑count deciles** → CSV template for human annotators. | FR‑009 |
+| **T010** | `validate.py`: aggregate manual scores → median factual score, median entity‑F1, compute Krippendorff’s α; flag if α < 0.7. | FR‑009 |
+| **T011** | `validate.py`: compute Pearson r between automated `entity_f1` and median manual entity‑F1; flag “needs review” if r < 0.7 and report 95 % CI. | FR‑011 |
+| **T012** | **Semantic‑Similarity Validation (FR‑020)**: sample the same stratified subset, collect human similarity ratings (0‑1 Likert), compute Pearson r between automated SBERT similarity and human ratings; require r ≥ 0.7, otherwise flag for review. | FR‑020 |
+| **T013** | **Manual Verification Workflow Orchestration (FR‑013 & FR‑017)**: `validate.py` coordinates annotation distribution, collection, senior‑reviewer adjudication (invoked when α < 0.7 or score spread > 1.0), and produces an adjudication report. | FR‑013, FR‑017 |
+| **T014** | `analyze.py`: compare model‑specific regression coefficients (`codegen-350M` vs `starcoderbase-1b`), ensure absolute difference ≤ 0.15 (SC‑006). | FR‑010, SC‑006 |
+| **T015** | **Mixed‑Effects Model (optional)**: fit a linear mixed‑effects model with `model` as a fixed effect and source‑code predictors as random effects to verify that model‑specific variance does not confound relationships. | FR‑010 |
+| **T016** | **Power Analysis Documentation (FR‑001 & SC‑001)**: run `pwr` to compute required sample size for detecting Spearman ρ > 0.1 with α = 0.05, power = 0.8; store results in `results/power_analysis.json`. | SC‑001 |
+| **T017** | **Senior Reviewer Invocation (FR‑017)**: command‑line flag `--senior-review` triggers the adjudication step; logs reviewer ID and resolution notes. | FR‑017 |
+| **T018** | `main.py`: orchestrate the full pipeline, enforce runtime & memory guards (SC‑001, SC‑002) via `psutil`. | SC‑001, SC‑002 |
+| **T019** | `tests/contract/`: validate `records.csv`, `manual/scores.csv`, and `final_report.json` against schemas in `contracts/`. | All FRs (ensures data‑hygiene, reproducibility). |
 
-## Data Flow
+All tasks are designed to run within the free‑tier CPU budget; no GPU escape hatch is required.
 
-1.  **Raw Data**: `data/raw/*.parquet` (CodeSearchNet)
-2.  **Processed Data**: `data/processed/records.csv` (FunctionRecord with F1 scores)
-3.  **Manual Data**: `data/manual/scores.csv` (ManualScoreRecord) - Produced by T030c.
-4.  **Final Report**: `results/final_report.json` (AnalysisResult)
+---
 
-## Constraints
-
-- **Null Handling**: Missing docstrings are filtered out. Missing complexity metrics are set to `NaN` and excluded from regression.
-- **Range**: `entity_f1` and `human_score_norm` are strictly in $[0.0, 1.0]$.
-- **Uniqueness**: `id` must be unique across all records.
-- **Reproducibility**: All random seeds are pinned in `generate.py` and `analyze.py` (T008b).
-- **Independence**: The manual rubric (FR-009) is explicitly defined to measure behavioral consistency, independent of the AST-based automated metric.
-- **No Coupling**: Regression covariates exclude `generated_description_token_count` to avoid mathematical coupling.

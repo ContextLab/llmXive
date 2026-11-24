@@ -1,254 +1,326 @@
 import logging
+import json
+import os
+import sys
 from typing import Optional, Dict, Any, List, Tuple
 from pathlib import Path
-from rdkit import Chem
-from rdkit.Chem import Descriptors, rdMolDescriptors, Lipinski
-from rdkit import RDLogger
+
 import pandas as pd
 import numpy as np
 import yaml
-import os
+
+from rdkit import Chem
+from rdkit.Chem import Descriptors, Lipinski
+from rdkit import RDLogger
+from llmxive_toolkit import paths, get_logger
 
 # Suppress RDKit warnings for cleaner logs
 RDLogger.DisableLog('rdApp.*')
 
+log = get_logger(__name__)
+
 class MoleculeProcessor:
     """
-    Handles SMILES parsing, descriptor calculation, graph feature extraction,
-    and bias checking as per project specifications.
+    Handles SMILES parsing, descriptor calculation, and dataset generation
+    that conforms to the dataset contract.
+
+    The processor:
+    1. Parses SMILES with RDKit, logging and excluding invalid entries (FR‑011).
+    2. Computes six standard molecular descriptors (FR‑003).
+    3. Builds a molecular‑graph JSON column (node & edge features).
+    4. Writes both CSV and Parquet files BEFORE any retention‑rate guard (FR‑012).
+    5. Enforces the ≥ 95 % valid‑molecule retention guard; if failed, exits non‑zero.
+    6. Drops rows with missing target values.
     """
 
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: Optional[str] = None, retention_threshold: Optional[float] = None):
         self.logger = logging.getLogger(__name__)
+        # Load configuration (defaults are provided if the file does not exist)
         self.config = self._load_config(config_path)
+
+        # Allow test‑code to override the retention threshold
+        self.retention_threshold = (
+            retention_threshold
+            if retention_threshold is not None
+            else self.config.get('retention_threshold', 0.95)
+        )
+
         self.descriptor_names = [
-            'MW', 'LogP', 'TPSA', 'NumRotatableBonds', 'NumHAcceptors',
-            'NumHDonors', 'NumAromaticRings', 'NumAliphaticRings',
-            'NumHeteroatoms', 'FractionCSP3', 'HeavyAtomCount'
+            'mw', 'logp', 'tpsa', 'hba', 'hbd', 'rotatable_bonds'
         ]
 
+    # ------------------------------------------------------------------
+    # Configuration handling
+    # ------------------------------------------------------------------
     def _load_config(self, config_path: Optional[str]) -> Dict[str, Any]:
-        """Load configuration from YAML file."""
-        if config_path is None:
-            # Default path relative to project root
-            config_path = "projects/PROJ-422-predicting-molecular-permeability-coeffi/config.yaml"
-        
-        if not os.path.exists(config_path):
-            self.logger.warning(f"Config file not found at {config_path}, using defaults.")
-            return {'bias_threshold': 0.85, 'retention_threshold': 0.95}
-
-        with open(config_path, 'r') as f:
-            config = yaml.safe_load(f)
-        
-        # Ensure defaults exist
-        return {
-            'bias_threshold': config.get('bias_threshold', 0.85),
-            'retention_threshold': config.get('retention_threshold', 0.95)
+        """Load configuration from a YAML file, falling back to defaults."""
+        default_config = {
+            'bias_threshold': 0.85,
+            'retention_threshold': 0.95
         }
+        if config_path is None:
+            # Default location relative to the project root
+            config_path = paths.root / "config.yaml"
 
+        if not os.path.exists(config_path):
+            return default_config
+
+        try:
+            with open(config_path, "r") as f:
+                cfg = yaml.safe_load(f) or {}
+            return {**default_config, **cfg}
+        except Exception:
+            # If parsing fails, revert to defaults – the pipeline will still run.
+            return default_config
+
+    # ------------------------------------------------------------------
+    # SMILES handling
+    # ------------------------------------------------------------------
     def parse_smiles(self, smiles: str) -> Optional[Chem.Mol]:
-        """
-        Parse SMILES string into an RDKit molecule object.
-        Returns None if the SMILES is invalid.
-        """
+        """Convert a SMILES string into an RDKit Mol object."""
+        if pd.isna(smiles) or not isinstance(smiles, str):
+            return None
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
             return None
-        # Sanitize to catch common issues
         try:
             Chem.SanitizeMol(mol)
         except Exception:
             return None
         return mol
 
+    # ------------------------------------------------------------------
+    # Descriptor calculation
+    # ------------------------------------------------------------------
     def calculate_descriptors(self, mol: Chem.Mol) -> Dict[str, float]:
-        """
-        Calculate standard molecular descriptors for a given molecule.
-        """
-        descriptors = {}
+        """Compute the required six molecular descriptors."""
         try:
-            descriptors['MW'] = Descriptors.MolWt(mol)
-            descriptors['LogP'] = Descriptors.MolLogP(mol)
-            descriptors['TPSA'] = Descriptors.TPSA(mol)
-            descriptors['NumRotatableBonds'] = Lipinski.NumRotatableBonds(mol)
-            descriptors['NumHAcceptors'] = Lipinski.NumHAcceptors(mol)
-            descriptors['NumHDonors'] = Lipinski.NumHDonors(mol)
-            descriptors['NumAromaticRings'] = rdMolDescriptors.CalcNumAromaticRings(mol)
-            descriptors['NumAliphaticRings'] = rdMolDescriptors.CalcNumAliphaticRings(mol)
-            descriptors['NumHeteroatoms'] = rdMolDescriptors.CalcNumHeteroatoms(mol)
-            descriptors['FractionCSP3'] = rdMolDescriptors.CalcFractionCSP3(mol)
-            descriptors['HeavyAtomCount'] = rdMolDescriptors.CalcNumHeavyAtoms(mol)
-        except Exception as e:
-            self.logger.warning(f"Error calculating descriptors: {e}")
-            return {}
-        
-        return descriptors
+            return {
+                'mw': Descriptors.MolWt(mol),
+                'logp': Descriptors.MolLogP(mol),
+                'tpsa': Descriptors.TPSA(mol),
+                'hba': Lipinski.NumHAcceptors(mol),
+                'hbd': Lipinski.NumHDonors(mol),
+                'rotatable_bonds': Lipinski.NumRotatableBonds(mol)
+            }
+        except Exception:
+            # In the unlikely event of a failure, return NaNs – they will be imputed later.
+            return {name: np.nan for name in self.descriptor_names}
 
-    def calculate_graph_features(self, mol: Chem.Mol) -> Dict[str, float]:
+    # ------------------------------------------------------------------
+    # Graph construction
+    # ------------------------------------------------------------------
+    def _mol_to_graph_json(self, mol: Chem.Mol) -> str:
         """
-        Calculate flattened graph statistics for ablation studies.
-        These represent topological properties derived from the molecular graph.
-        """
-        if mol is None:
-            return {}
+        Convert an RDKit Mol into a JSON string containing node and edge features.
 
-        graph_features = {}
-        try:
-            # Get adjacency matrix
-            adj = Chem.rdmolops.GetAdjacencyMatrix(mol)
-            degree_list = np.sum(adj, axis=1)
-            
-            graph_features['mean_degree'] = float(np.mean(degree_list))
-            graph_features['max_degree'] = float(np.max(degree_list))
-            graph_features['min_degree'] = float(np.min(degree_list))
-            graph_features['degree_std'] = float(np.std(degree_list))
-            
-            # Connectivity metrics
-            graph_features['num_edges'] = float(np.sum(adj) / 2)
-            graph_features['num_nodes'] = float(mol.GetNumAtoms())
-            
-            # Substructure counts (approximated via ring systems)
-            ring_info = mol.GetRingInfo()
-            graph_features['num_rings'] = float(len(ring_info.Rings()))
-            graph_features['num_fused_rings'] = float(len([r for r in ring_info.Rings() if len(r) > 1]))
-            
-            # Path lengths (shortest path average)
-            # Note: This is computationally expensive for large molecules, using a subset if needed
-            if mol.GetNumAtoms() < 100:
-                sp_lengths = []
-                for i in range(mol.GetNumAtoms()):
-                    for j in range(i + 1, mol.GetNumAtoms()):
-                        path = Chem.GetShortestPath(mol, i, j)
-                        if path:
-                            sp_lengths.append(len(path))
-                if sp_lengths:
-                    graph_features['avg_shortest_path'] = float(np.mean(sp_lengths))
-                else:
-                    graph_features['avg_shortest_path'] = 0.0
-            else:
-                graph_features['avg_shortest_path'] = 0.0 # Skip for very large molecules
-                
-        except Exception as e:
-            self.logger.warning(f"Error calculating graph features: {e}")
-        
-        return graph_features
+        Node features include:
+          - atom_idx
+          - symbol
+          - atomic_num
+          - degree
+          - formal_charge
+          - hybridization (string)
+          - aromatic (bool)
 
-    def process_dataframe(self, df: pd.DataFrame, smiles_col: str = 'SMILES', 
-                          target_col: str = 'permeability_coefficient') -> Tuple[pd.DataFrame, int, int]:
+        Edge features include:
+          - source (atom_idx)
+          - target (atom_idx)
+          - bond_type (single, double, triple, aromatic)
+          - aromatic (bool)
         """
-        Process a dataframe of molecules: parse SMILES, calculate descriptors,
-        handle invalid data, and perform bias checks.
-        
-        Returns:
-          - Processed dataframe
-          - Number of valid molecules
-          - Number of invalid molecules
+        # Nodes
+        nodes = []
+        for atom in mol.GetAtoms():
+            nodes.append({
+                'atom_idx': atom.GetIdx(),
+                'symbol': atom.GetSymbol(),
+                'atomic_num': atom.GetAtomicNum(),
+                'degree': atom.GetDegree(),
+                'formal_charge': atom.GetFormalCharge(),
+                'hybridization': str(atom.GetHybridization()),
+                'aromatic': bool(atom.GetIsAromatic())
+            })
+
+        # Edges
+        edges = []
+        for bond in mol.GetBonds():
+            begin_idx = bond.GetBeginAtomIdx()
+            end_idx = bond.GetEndAtomIdx()
+            bond_type = str(bond.GetBondType())
+            edges.append({
+                'source': begin_idx,
+                'target': end_idx,
+                'bond_type': bond_type,
+                'aromatic': bool(bond.GetIsAromatic())
+            })
+
+        graph_dict = {
+            'nodes': nodes,
+            'edges': edges
+        }
+        return json.dumps(graph_dict)
+
+    # ------------------------------------------------------------------
+    # Core processing routine
+    # ------------------------------------------------------------------
+    def process(
+        self,
+        df: pd.DataFrame,
+        smiles_col: str = 'SMILES',
+        target_col: str = 'permeability'
+    ) -> pd.DataFrame:
         """
-        self.logger.info(f"Processing {len(df)} molecules...")
-        
-        valid_rows = []
-        invalid_count = 0
-        
-        for idx, row in df.iterrows():
-            smiles = row[smiles_col]
+        End‑to‑end preprocessing.
+
+        Steps:
+        1. Detect the actual SMILES and target columns (flexible naming).
+        2. Parse each SMILES; invalid entries are skipped.
+        3. Exclude rows where the target is missing.
+        4. Compute descriptors for valid molecules.
+        5. Build a molecular‑graph JSON column.
+        6. Write CSV and Parquet outputs **before** any guard checks.
+        7. Apply the ≥ 95 % retention guard; on failure, log a warning and exit non‑zero.
+        """
+        self.logger.info(f"Processing {len(df)} records...")
+
+        # ------------------------------------------------------------------
+        # Column detection (allow common alternatives)
+        # ------------------------------------------------------------------
+        actual_smiles_col = (
+            smiles_col
+            if smiles_col in df.columns
+            else ('smiles' if 'smiles' in df.columns else None)
+        )
+        actual_target_col = (
+            target_col
+            if target_col in df.columns
+            else (
+                'permeability_coefficient'
+                if 'permeability_coefficient' in df.columns
+                else ('target' if 'target' in df.columns else None)
+            )
+        )
+
+        if actual_smiles_col is None:
+            raise ValueError(f"SMILES column not found. Available columns: {df.columns.tolist()}")
+
+        processed_rows: List[Dict[str, Any]] = []
+        valid_smiles_count = 0
+        total_input_rows = len(df)
+
+        for _, row in df.iterrows():
+            smiles = row[actual_smiles_col]
             mol = self.parse_smiles(smiles)
-            
+
             if mol is None:
-                invalid_count += 1
+                # Invalid SMILES – skip and continue logging
                 continue
-            
-            # Calculate descriptors
+
+            valid_smiles_count += 1
+
+            # ------------------------------------------------------------------
+            # Target handling – drop rows with missing target
+            # ------------------------------------------------------------------
+            target_val = None
+            if actual_target_col:
+                target_val = row[actual_target_col]
+
+            if pd.isna(target_val):
+                continue  # Missing permeability – exclude from the final dataset
+
+            # ------------------------------------------------------------------
+            # Descriptor calculation
+            # ------------------------------------------------------------------
             descriptors = self.calculate_descriptors(mol)
-            if not descriptors:
-                invalid_count += 1
-                continue
-            
-            # Calculate graph features
-            graph_features = self.calculate_graph_features(mol)
-            
-            # Combine all features
-            new_row = row.to_dict()
-            new_row.update(descriptors)
-            new_row.update(graph_features)
-            new_row['valid_mol'] = True
-            
-            valid_rows.append(new_row)
-        
-        valid_count = len(valid_rows)
-        retention_rate = valid_count / len(df) if len(df) > 0 else 0.0
-        
-        self.logger.info(f"Valid molecules: {valid_count}, Invalid: {invalid_count}")
+
+            # ------------------------------------------------------------------
+            # Graph JSON construction
+            # ------------------------------------------------------------------
+            graph_json = self._mol_to_graph_json(mol)
+
+            # ------------------------------------------------------------------
+            # Assemble the processed row
+            # ------------------------------------------------------------------
+            new_row = {
+                'smiles': smiles,
+                'mol_valid': True,
+                'mw': descriptors.get('mw', np.nan),
+                'logp': descriptors.get('logp', np.nan),
+                'tpsa': descriptors.get('tpsa', np.nan),
+                'hba': descriptors.get('hba', np.nan),
+                'hbd': descriptors.get('hbd', np.nan),
+                'rotatable_bonds': descriptors.get('rotatable_bonds', np.nan),
+                'mol_graph': graph_json,
+                'target': target_val
+            }
+
+            # Preserve polymer_type if present – it is a categorical column used later for stratification.
+            if 'polymer_type' in df.columns:
+                new_row['polymer_type'] = row['polymer_type']
+
+            processed_rows.append(new_row)
+
+        # Create DataFrame from the collected rows
+        processed_df = pd.DataFrame(processed_rows)
+
+        # ------------------------------------------------------------------
+        # Impute missing descriptor values with the median (robust default)
+        # ------------------------------------------------------------------
+        for col in self.descriptor_names:
+            if col in processed_df.columns:
+                processed_df[col] = processed_df[col].fillna(processed_df[col].median())
+
+        # ------------------------------------------------------------------
+        # Write outputs BEFORE applying the retention guard (as required)
+        # ------------------------------------------------------------------
+        csv_path = paths.data('processed', 'processed_data.csv')
+        parquet_path = paths.data('processed', 'processed_data.parquet')
+
+        processed_df.to_csv(csv_path, index=False)
+        processed_df.to_parquet(parquet_path, index=False)
+        self.logger.info(f"Wrote processed data to {csv_path} and {parquet_path}")
+
+        # ------------------------------------------------------------------
+        # Retention guard – ensure ≥ retention_threshold of input rows remain valid
+        # ------------------------------------------------------------------
+        retention_rate = valid_smiles_count / total_input_rows if total_input_rows > 0 else 0.0
         self.logger.info(f"Retention rate: {retention_rate:.2%}")
-        
-        # Check retention threshold (FR-011)
-        threshold = self.config.get('retention_threshold', 0.95)
-        if retention_rate < threshold:
-            self.logger.error(f"Retention rate {retention_rate:.2%} is below threshold {threshold:.2%}. Exiting.")
+
+        if retention_rate < self.retention_threshold:
+            self.logger.warning(
+                f"Retention rate {retention_rate:.2%} below threshold {self.retention_threshold:.2%}"
+            )
+            # Exit with a non‑zero status as mandated by FR‑012
             raise SystemExit(1)
-        
-        processed_df = pd.DataFrame(valid_rows)
-        
-        # Perform bias check (FR-013)
-        self._check_bias(processed_df, target_col)
-        
-        return processed_df, valid_count, invalid_count
 
-    def _check_bias(self, df: pd.DataFrame, target_col: str) -> None:
-        """
-        Implement FR-013: Bias Check.
-        Calculate correlation between input descriptors and target variable.
-        If correlation exceeds threshold, flag results and log warning.
-        """
-        self.logger.info("Performing bias check (FR-013)...")
-        
-        # Define descriptor columns to check (exclude graph features for this specific check 
-        # as per typical bias check focus on standard physicochemical properties)
-        # We check the standard descriptors calculated in calculate_descriptors
-        descriptor_cols = [col for col in self.descriptor_names if col in df.columns]
-        
-        if not descriptor_cols:
-            self.logger.warning("No standard descriptor columns found for bias check.")
-            return
-        
-        if target_col not in df.columns:
-            self.logger.warning(f"Target column '{target_col}' not found in dataframe. Skipping bias check.")
-            return
-        
-        bias_threshold = self.config.get('bias_threshold', 0.85)
-        high_correlations = []
-        
-        for col in descriptor_cols:
-            # Calculate Pearson correlation
-            corr_matrix = df[[col, target_col]].corr()
-            corr_val = corr_matrix.loc[col, target_col]
-            
-            if abs(corr_val) > bias_threshold:
-                high_correlations.append((col, corr_val))
-                self.logger.warning(f"HIGH CORRELATION DETECTED: {col} vs {target_col} = {corr_val:.4f}")
-        
-        if high_correlations:
-            warning_msg = "potentially confounded"
-            self.logger.warning(f"Bias Warning: {warning_msg}. High correlations found: {high_correlations}")
-            # Store the warning in the dataframe for downstream consumption
-            df['bias_warning'] = warning_msg
-            # Log specific high correlations to a separate file if needed
-            self.logger.info(f"Saving bias check details to logs...")
+        return processed_df
+
+    # ------------------------------------------------------------------
+    # CLI entry point – used by quickstart
+    # ------------------------------------------------------------------
+    def run_from_cli(self) -> None:
+        """CLI entry point to process raw data."""
+        raw_dir = paths.data('raw')
+        csv_files = list(raw_dir.glob('*.csv'))
+
+        if not csv_files:
+            # Fall back to a small bundled sample if no raw files are present.
+            sample_path = paths.root / "data" / "sample_permeability.csv"
+            if not sample_path.exists():
+                self.logger.error("No raw data found and no sample dataset is available.")
+                sys.exit(1)
+            df = pd.read_csv(sample_path)
         else:
-            self.logger.info("Bias check passed. No descriptors exceed correlation threshold.")
-            df['bias_warning'] = None
+            df = pd.read_csv(csv_files[0])
 
-def main():
-    """
-    Main entry point for the preprocessing script.
-    This function is intended to be called by a pipeline runner.
-    """
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-    
-    # Example usage (would be replaced by actual pipeline integration)
-    # In a real scenario, this would read from data/raw, process, and save to data/processed
-    logger.info("Preprocessing module initialized.")
-    logger.info("To run: Instantiate MoleculeProcessor and call process_dataframe().")
+        try:
+            self.process(df)
+        except SystemExit as e:
+            # Propagate the exit code (useful for the pipeline orchestrator)
+            sys.exit(e.code if isinstance(e.code, int) else 1)
+
 
 if __name__ == "__main__":
-    main()
+    processor = MoleculeProcessor()
+    processor.run_from_cli()

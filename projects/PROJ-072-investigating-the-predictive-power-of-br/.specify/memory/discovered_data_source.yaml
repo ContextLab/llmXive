@@ -1,13 +1,14 @@
 status: none
-intent: download OpenNeuro ds000030 resting state fMRI with AAL atlas connectivity
-  python package dataset
+intent: OpenNeuro ds000030 resting state fMRI AAL atlas connectivity python package
+  dataset
 required_fields:
 - subject_id
-- diagnosis
+- diagnosis_label
+- connectivity_matrix
 - preprocessing_status
-- connectivity_matrix_path
-- motion_mean_translation
-- motion_mean_rotation
-cache_key: d4ab22b9fc4fc37815637787508e354edaecdf4707485c3e6f8ee43ce1a852be
-searched_at: '2026-10-11T05:14:19.528850+00:00'
+- motion_flag
+- age
+- sex
+cache_key: a0670bd90d1bbd398719dc55f848d4e7317792fd80e78acc77987ce4fd164f9a
+searched_at: '2026-10-24T03:32:44.379463+00:00'
 retry_count: 1

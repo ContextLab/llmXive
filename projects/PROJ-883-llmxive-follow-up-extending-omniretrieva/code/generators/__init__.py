@@ -1,1 +1,2 @@
-"""Query generation modules."""
+# Package initialization for query generators.
+pass

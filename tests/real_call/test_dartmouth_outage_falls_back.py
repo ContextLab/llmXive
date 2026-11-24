@@ -98,9 +98,7 @@ def test_dartmouth_transient_error_routes_to_local(monkeypatch: pytest.MonkeyPat
 
     response = backend_router.chat_with_fallback(
         [ChatMessage(role="user", content="ping")],
-        default_backend="dartmouth",
-        fallback_backends=["local"],
-        model="qwen.qwen3.5-122b",
+        profile="standard_generation",
     )
     assert response.backend == "local", (
         f"expected fallback to local; got backend={response.backend!r}"

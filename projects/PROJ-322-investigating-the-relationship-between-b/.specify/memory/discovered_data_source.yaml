@@ -1,12 +1,14 @@
 status: none
-intent: OpenNeuro longitudinal mTBI resting state fMRI dataset download python package
-  dataset
+intent: OpenNeuro longitudinal mTBI resting state fMRI dataset with PCS scores python
+  package dataset
 required_fields:
 - subject_id
-- time_point
+- timepoint
 - preprocessed_nifti_path
 - raw_nifti_path
 - pcs_score
-cache_key: a721f611ebd5edfe4cf85299fc3df3e82f9b5f47ef283366ec4a7ccf20f9d91f
-searched_at: '2026-10-11T10:14:26.732555+00:00'
+- age
+- sex
+cache_key: ffb00e691f0a015815f183bbf36f91d55b81ded59379b7b084a249ba09561335
+searched_at: '2026-10-13T07:04:42.703129+00:00'
 retry_count: 1

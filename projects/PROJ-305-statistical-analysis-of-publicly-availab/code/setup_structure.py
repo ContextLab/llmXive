@@ -1,12 +1,14 @@
-import logging
 import os
 import subprocess
+import logging
 from pathlib import Path
+from typing import List
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Required directory tree as specified in T001
 REQUIRED_DIRS = [
     "src",
     "src/data",
@@ -24,97 +26,87 @@ REQUIRED_DIRS = [
     "logs",
 ]
 
-
-def create_directories():
+def create_directories() -> None:
     """Create the required project directory tree."""
     logger.info("Creating project directory structure...")
     for dir_path in REQUIRED_DIRS:
         p = Path(dir_path)
         p.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created/Verified: {dir_path}")
+        logger.info(f"Created: {dir_path}")
 
-
-def write_tree_snapshot(root_path: Path, output_file: Path):
+def _python_tree_fallback(root: Path, max_depth: int = 3) -> List[str]:
     """
-    Capture a filesystem snapshot.
-    Attempts to use the system 'tree' command; falls back to a Python
-    implementation if 'tree' is not installed.
+    Pure Python implementation of 'tree -a -L 3' for environments 
+    where the system 'tree' command is not installed.
     """
-    logger.info(f"Capturing filesystem snapshot to {output_file}...")
-
-    # Try using the system 'tree' command as requested in tasks.md
-    try:
-        # -a: all files, -L 3: depth 3
-        result = subprocess.run(
-            ["tree", "-a", "-L", "3"],
-            cwd=root_path,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        snapshot = result.stdout
-        logger.info("Used system 'tree' command for snapshot.")
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        logger.warning(
-            "System 'tree' command not found or failed. Using Python fallback."
-        )
-        snapshot = _python_tree_fallback(root_path, max_depth=3)
-
-    # Ensure logs directory exists before writing
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    output_file.write_text(snapshot, encoding="utf-8")
-    logger.info("Snapshot written successfully.")
-
-
-def _python_tree_fallback(root: Path, max_depth: int = 3) -> str:
-    """Pure Python implementation of tree -a -L <depth>."""
     lines = []
-
+    
     def walk(current_path: Path, depth: int):
         if depth > max_depth:
             return
-
+        
         try:
-            # Sort to ensure deterministic output
-            items = sorted(current_path.iterdir(), key=lambda x: x.name)
+            # Get all entries including hidden ones
+            entries = sorted(list(current_path.iterdir()), key=lambda x: x.name)
         except PermissionError:
             return
 
-        for i, item in enumerate(items):
-            is_last = i == len(items) - 1
-            prefix = "└── " if is_last else "├── "
-            indent = "    " * (depth - 1) if depth > 0 else ""
+        for i, entry in enumerate(entries):
+            # Simple visual representation
+            prefix = "  " * depth + "|-- "
+            name = entry.name
+            if entry.is_dir():
+                name += "/"
+            lines.append(f"{prefix}{name}")
+            if entry.is_dir():
+                walk(entry, depth + 1)
 
-            # Add trailing slash for directories to help grep verification
-            suffix = "/" if item.is_dir() else ""
-            lines.append(f"{indent}{prefix}{item.name}{suffix}")
-
-            if item.is_dir():
-                walk(item, depth + 1)
-
-    lines.append(f".")
     walk(root, 1)
-    return "\n".join(lines)
+    return lines
 
+def write_tree_snapshot(root_path: Path, output_file: Path) -> None:
+    """
+    Capture a filesystem snapshot using the system 'tree' command,
+    falling back to a Python implementation if 'tree' is unavailable.
+    """
+    logger.info(f"Capturing filesystem snapshot to {output_file}...")
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        # Attempt to use the system 'tree' command as requested
+        with open(output_file, "w", encoding="utf-8") as f:
+            subprocess.run(
+                ["tree", "-a", "-L", "3"], 
+                cwd=root_path, 
+                stdout=f, 
+                stderr=subprocess.PIPE, 
+                check=True, 
+                text=True
+            )
+        logger.info("Snapshot captured using system 'tree'.")
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        logger.warning("System 'tree' command not found or failed. Using Python fallback.")
+        snapshot = _python_tree_fallback(root_path)
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write(f"Project Root: {root_path}\n")
+            f.write("\n".join(snapshot))
+            f.write("\n")
+        logger.info("Snapshot captured using Python fallback.")
 
-def main():
+def main() -> None:
     """Main entry point for project scaffolding."""
-    root = Path.cwd()
-
-    # 1. Create directories
+    root = Path(".")
+    output_file = root / "logs" / "structure.txt"
+    
     create_directories()
-
-    # 2. Capture snapshot
-    snapshot_file = root / "logs" / "structure.txt"
-    write_tree_snapshot(root, snapshot_file)
-
-    # Final verification check (internal)
-    if not snapshot_file.exists() or snapshot_file.stat().st_size == 0:
-        logger.error("Verification failed: logs/structure.txt is missing or empty.")
+    write_tree_snapshot(root, output_file)
+    
+    # Final verification check within the script
+    if output_file.exists() and output_file.stat().st_size > 0:
+        logger.info("Verification: logs/structure.txt is non-empty.")
+    else:
+        logger.error("Verification: logs/structure.txt is missing or empty.")
         exit(1)
-
-    logger.info("T001: Project structure created and snapshot captured.")
-
 
 if __name__ == "__main__":
     main()

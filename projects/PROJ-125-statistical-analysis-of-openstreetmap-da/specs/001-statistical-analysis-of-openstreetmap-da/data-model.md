@@ -2,67 +2,84 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and relationships used in the project. All data is stored in the `data/` directory with strict versioning and checksumming.
+Defines immutable schemas for raw, processed, and result artifacts. All files live under `data/` with SHA‑256 checksums recorded in `data/raw/manifest.json` (Constitution Principle III).
 
 ## Core Entities
 
 ### CityBoundary
-Represents the administrative boundary of the study area.
-- **Attributes**:
-  - `name`: str (City name)
-  - `bbox`: Tuple[float, float, float, float] (MinX, MinY, MaxX, MaxY)
-  - `crs`: str (EPSG code, e.g., "EPSG:4326")
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | `string` | City name (e.g., "New York") |
+| `bbox` | `array[float]` (length 4) | `[minx, miny, maxx, maxy]` in EPSG:4326 |
+| `crs` | `string` | EPSG code of source CRS |
 
 ### RasterCovariate
-Represents a rasterized urban feature (e.g., building density, tree cover).
-- **Attributes**:
-  - `path`: str (Relative path to GeoTIFF)
-  - `resolution`: float (30.0)
-  - `crs`: str (EPSG:3857 or Local UTM)
-  - `variable_name`: str (e.g., "building_density")
-  - `source`: str (e.g., "OSM")
+| Field | Type | Description |
+|-------|------|-------------|
+| `path` | `string` | Relative path to GeoTIFF |
+| `resolution` | `number` | Target resolution (30.0 m) |
+| `crs` | `string` | EPSG code after reprojection |
+| `variable_name` | `string` | e.g., `building_density`, `land_use_*`, `tree_cover`, `road_density` |
+| `source` | `string` | `"OSM"` |
+| `description` | `string` | Rasterization/aggregation method (Principle VI) |
 
 ### TemperatureRaster
-Represents the Land Surface Temperature (LST) data.
-- **Attributes**:
-  - `path`: str (Relative path to GeoTIFF)
-  - `resolution`: float (30.0)
-  - `crs`: str (EPSG:3857 or Local UTM)
-  - `time_range`: str (e.g., "2020-2025")
-  - `source`: str (e.g., "MODIS")
+| Field | Type | Description |
+|-------|------|-------------|
+| `path` | `string` | Relative path to GeoTIFF |
+| `resolution` | `number` | 30.0 m |
+| `crs` | `string` | EPSG after reprojection |
+| `time_range` | `string` | e.g., `"2020-2024"` (JJA median composites, 5‑year average) |
+| `source` | `string` | `"Landsat"` (via `ingest_lst.py` contract; `DATA_GAP` if unavailable) |
 
 ### ModelResult
-Stores the output of a regression model.
-- **Attributes**:
-  - `model_type`: str ("OLS", "SAR", "GWR")
-  - `rmse`: float
-  - `mae`: float
-  - `r2`: float
-  - `p_values`: Dict[str, float] (Variable -> p-value)
-  - `correction_method`: str (e.g., "FDR_BH")
-  - `memory_status`: str ("OK", "DEGRADED")
-  - `city_name`: str
+| Field | Type | Description |
+|-------|------|-------------|
+| `model_type` | `string` | `"OLS"`, `"SAR"`, `"GWR"`, or `"OLS_DEGRADED"` |
+| `city_name` | `string` | City identifier |
+| `rmse` | `number` | Root Mean Squared Error |
+| `mae` | `number` | Mean Absolute Error |
+| `r2` | `number` | R‑squared value |
+| `coefficients` | `object` | Per‑predictor coefficient map |
+| `standard_errors` | `object` | Per‑predictor standard‑error map |
+| `p_values` | `object` | FDR‑corrected p‑values per predictor |
+| `correction_method` | `string` | `"permutation-FDR"` (SC‑003) |
+| `memory_status` | `string` | `"OK"` or `"DEGRADED"` |
+| `memory_peak_gb` | `number` | Peak RSS via psutil (SC‑005) |
+| `n_samples` | `integer` | Cell count used in the model |
+| `n_eff` | `number` | Effective sample size (heuristic) |
+| `cv_metrics` | `object` | Spatial 5‑fold CV RMSE/MAE/R² |
+| `sensitivity_analysis` | `object` | Bandwidth or block‑size sweep results |
+| `unexplained_variance_gap` | `number` | 0.68 − Observed_R² (provisional) |
+| `notes` | `string` | Bias warning / descriptive‑only label in degraded mode |
+| `morans_i` | `number` | Moran's I of model residuals (always reported) |
 
 ## File Formats
 
-### Raw Data
-- **OSM**: GeoJSON or GeoParquet (downloaded via `osmnx`).
-- **Satellite**: HDF or GeoTIFF (downloaded via `earthengine-api` or `modis`).
+| Category | Format | Location |
+|----------|--------|----------|
+| Raw OSM vectors | Parquet / GeoJSON | `data/raw/osm/` |
+| Raw LST | GeoTIFF (cloud‑screened) | `data/raw/lst/` |
+| Download manifest (checksums, timestamps) | JSON | `data/raw/manifest.json` |
+| Processed 30 m rasters | GeoTIFF | `data/processed/rasters/` |
+| Alignment log (reprojection/aggregation methods) | JSON | `data/processed/alignment_log.json` |
+| Aligned pixel dataset | Parquet | `data/processed/aligned/` |
+| Exploratory statistics | CSV (`exploratory.csv`) | `data/results/` |
+| Model metrics | CSV (`metrics.csv`) | `data/results/` |
+| Model outputs | JSON | `data/results/models/` |
+| Plots | PNG | `data/results/plots/` |
+| Lint reports / test logs | TXT | `data/results/qa/` |
+| Reports | Markdown | `data/results/reports/` |
 
-### Processed Data
-- **Rasterized Features**: GeoTIFF (30m, EPSG:3857).
-- **Aligned Dataset**: CSV or GeoParquet (30m points with all variables).
+## Data Flow (Logical)
 
-### Results
-- **Metrics**: CSV (`data/results/metrics.csv`).
-- **Plots**: PNG/SVG (in `data/results/plots/`).
-- **Reports**: Markdown/HTML (in `data/results/reports/`).
+1. **Ingest** → `data/raw/` (checksums + timestamps recorded).  
+2. **Transform** → `data/processed/` (reproject, rasterize, log methods).  
+3. **Sample / memory check** → possibly block‑sampled subset of `processed/aligned/`.  
+4. **Model** → `data/results/models/` (ModelResult JSON).  
+5. **Validate & visualize** → plots, contract‑validated outputs.  
+6. **QA** → lint reports, unit/contract test logs.  
+7. **Report** → markdown report in `data/results/reports/`.
 
-## Data Flow
+All steps are deterministic given fixed seeds (e.g., a designated seed identifier). Raw data is never modified in place; all transformations write new files.  
 
-1. **Ingest**: Download raw OSM and Satellite data to `data/raw/`.
-2. **Preprocess**: Rasterize OSM features and align with LST to 30m resolution.
-3. **Sample**: If N > 500k, apply spatial sampling to reduce size.
-4. **Model**: Fit OLS, SAR, GWR (or pipeline halts if memory constraints are exceeded).
-5. **Validate**: Spatial cross-validation and FDR correction.
-6. **Export**: Save metrics and plots to `data/results/`.

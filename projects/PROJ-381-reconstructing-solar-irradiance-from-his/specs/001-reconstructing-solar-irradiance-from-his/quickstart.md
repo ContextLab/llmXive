@@ -1,78 +1,94 @@
 # Quickstart: Reconstructing Solar Irradiance from Historical Sunspot Records
 
 ## Prerequisites
-*   Python 3.11+
-*   `pip`
-*   ~5 GB free disk space (for data and virtual environment).
+- Python 3.11+  
+- `git`  
+- ~Adequate free disk space (datasets + intermediate files)  
+- Internet access (to download the open datasets)
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+```bash
+git clone https://github.com/your-org/solar-irradiance-reconstruction.git
+cd solar-irradiance-reconstruction
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+## Environment Configuration
+
+```bash
+cp .env.example .env
+```
+
+`.env.example` (loaded by `code/config.py` via `python-dotenv`):
+
+```dotenv
+# Root directory for raw/processed/artifacts data
+DATA_ROOT=data
+
+# Pinned random seed for all stochastic steps
+RANDOM_SEED=42
+
+# Number of bootstrap iterations (spec requires ≥ 1000)
+BOOTSTRAP_ITER=1000
+```
 
 ## Data Preparation
 
-The pipeline attempts to download data from verified URLs. If any URL fails, the pipeline halts with a `DataValidationError`.
-
-1.  **Run the ingestion script**:
-    ```bash
-    python code/data/ingestion.py
-    ```
-    *Output*: Raw data files in `data/raw/`.
-
-2.  **Preprocess data**:
-    ```bash
-    python code/data/preprocessing.py
-    ```
-    *Output*: `data/processed/preprocessed_data.parquet`.
-
-## Running the Pipeline
-
-### 1. Train Models (User Story 1)
-Executes Time-Block Cross-Validation and trains RF/GP models.
 ```bash
-python code/models/train.py
-```
-*Output*: `data/artifacts/model_*.pkl`, `data/artifacts/cv_report.json`.
+# Download verified datasets (SILSO cycles + CMIP6 solar forcing)
+python -m code.data.ingestion
 
-### 2. Sensitivity Analysis (FR-009)
-Sweeps the inconsistency tolerance threshold.
+# Preprocess SILSO data, detect cycles, engineer features; writes preprocessed_data.parquet
+python -m code.data.preprocessing
+```
+
+## Running the Full Analysis
+
 ```bash
-python code/analysis/sensitivity.py
+# Orchestrates the entire pipeline; steps that lack required data are skipped automatically
+python -m code.main
 ```
-*Output*: `data/artifacts/sensitivity_report.json`.
 
-### 3. Generate Reconstruction (User Story 2)
-Applies the best model to pre-satellite data.
+### Step‑by‑step (if a verified TSI dataset becomes available)
+
 ```bash
-python code/models/predict.py
+python -m code.models.train        # skipped with a log note if TSI or GSN unavailable
+python -m code.analysis.sensitivity   # skipped if no model was trained
+python -m code.models.predict      # skipped if no model was trained
+python -m code.analysis.comparison # runs with whatever data is present; missing metrics are `null`
 ```
-*Output*: `data/processed/tsi_reconstruction_1610_2002.parquet`.
 
-### 4. Compare with Baseline (User Story 3)
-Calculates error reduction and variance differences.
-```bash
-python code/analysis/comparison.py
-```
-*Output*: `data/artifacts/comparison_report.json`.
+**Current data status**: No verified open SORCE/TIM TSI or 2007 baseline are available, and a verified GSN dataset is also missing. Consequently, model training, reconstruction, and any metric that depends on predictions will be omitted. The final JSON report contains `gsn_available = false`, `tsi_available = false`, and `baseline_available = false`; all dependent metrics are `null` with explanatory notes.
 
-## Running Tests
-
-Execute the full test suite:
+## Testing
 ```bash
 pytest tests/ -v
 ```
+The test suite verifies:
+- Successful download + checksum verification of the two verified datasets (SILSO, CMIP series).  
+- Correct gap‑filling logic (interpolation vs. proxy).  
+- Cycle‑boundary detection within ±6 months of SILSO maxima.  
+- One‑hot encoding of `cycle_id`.  
+- Conditional model training (or graceful skip) based on data availability.  
+- Conformance of `preprocessed_data.parquet` and, when produced, `tsi_reconstruction_1610_2002.parquet` to `contracts/dataset.schema.yaml`.  
+- Bootstrap uses a sufficiently large number of iterations (seeded).  
+- Proper logging of `gsn_available`, `tsi_available`, and `baseline_available` flags.
 
 ## Troubleshooting
 
-*   **Missing TSI Data**: If `ingestion.py` fails to load TSI from the verified URL, the pipeline halts. Do not use synthetic data for scientific claims.
-*   **Memory Error**: Ensure you are running on a machine with >4GB RAM. The pipeline is optimized for 7GB.
-*   **Cycle Detection Failure**: If cycle boundaries are misaligned, check the `SILSO` cycle definitions in `code/config.py`.
+| Symptom | Likely Cause | Fix |
+|---|---|---|
+| Download error in ingestion | Verified URL temporarily unreachable | Re‑run; CI will abort with a clear error if persistent. |
+| Model training skipped | No verified TSI or GSN dataset (expected) | Provide a verified source to enable training. |
+| `preprocessed_data.parquet` missing | Preprocessing crashed before write | Check logs; rerun `python -m code.data.preprocessing`. |
+| Bootstrap iterations < 1000 | `BOOTSTRAP_ITER` incorrectly set | Set `BOOTSTRAP_ITER=1000` (or higher) in `.env`. |
+| Baseline metrics absent | 2007 baseline unavailable | Expected; `baseline_available = false` in the report. |
+| Reconstruction file missing | No trained model (TSI or GSN missing) | Expected; pipeline proceeds with remaining analyses. |
+
+---
+
+
+

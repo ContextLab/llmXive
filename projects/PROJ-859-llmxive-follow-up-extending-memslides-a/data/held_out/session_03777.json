@@ -1,0 +1,109 @@
+{
+  "trace_id": "held_out_43_03777",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 10,
+  "tool_sequence": [
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "delete_element",
+    "delete_element",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 56.4069,
+        "height": 14.0018
+      }
+    },
+    {
+      "step": 1,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 77.0171,
+        "height": 48.0215
+      }
+    },
+    {
+      "step": 2,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 53.2122,
+        "height": 74.2992
+      }
+    },
+    {
+      "step": 3,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 1.1612,
+        "height": 72.6945
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 79.9869
+      }
+    },
+    {
+      "step": 5,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 77.8295
+      }
+    },
+    {
+      "step": 6,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 58.4457,
+        "height": 6.1861
+      }
+    },
+    {
+      "step": 7,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 5.4804,
+        "height": 96.3156
+      }
+    },
+    {
+      "step": 8,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 43.292,
+        "height": 23.7026
+      }
+    },
+    {
+      "step": 9,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 79.7425,
+        "height": 74.4152
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.500402,
+    "tool_repetition_freq": 0.8,
+    "arg_semantic_variance": 860.10498
+  },
+  "final_state": {
+    "dominant_tool": "resize_element",
+    "slide_element_count": 9,
+    "layout_hash": "43-3777-resize_element"
+  },
+  "variance_multiplier": 1.5
+}

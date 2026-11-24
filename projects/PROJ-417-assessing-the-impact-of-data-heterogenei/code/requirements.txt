@@ -1,7 +1,8 @@
 numpy
-scipy
 pandas
-scikit-learn
+scipy
 matplotlib
 pyyaml
-psutil
+jsonschema
+pytest
+# No additional dependencies required for T001a.

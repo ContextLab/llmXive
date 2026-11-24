@@ -1,103 +1,44 @@
-"""
-Unit tests for MoleculeProcessor (SMILES parsing, descriptors, graph features).
-"""
-
-import pytest
 import pandas as pd
 import numpy as np
+import pytest
 from pathlib import Path
-from rdkit import Chem
-from rdkit.Chem import Descriptors
-
-import sys
-from pathlib import Path
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from data.preprocess import MoleculeProcessor
+from llmxive_toolkit import paths
+from code.data.preprocess import MoleculeProcessor
 
 @pytest.fixture
-def valid_smiles():
-    return [
-        "CCO",          # Ethanol
-        "CC(=O)O",      # Acetic acid
-        "c1ccccc1",     # Benzene
-        "CC1=CC=CC=C1", # Toluene
-        "C1CCCCC1"      # Cyclohexane
-    ]
+def sample_dataframe():
+    """Mix of valid/invalid SMILES and missing targets."""
+    return pd.DataFrame({
+        'SMILES': ['CCO', 'C1CC1', 'invalid', 'CC(N)C(=O)O', None],
+        'permeability': [0.85, 1.10, 0.95, None, 0.70],
+        'polymer_type': ['A', 'B', 'A', 'B', 'A']
+    })
 
-@pytest.fixture
-def invalid_smiles():
-    return ["INVALID", "####", ""]
+def test_preprocess_writes_output(sample_dataframe):
+    """Verify output files are created and schema is correct."""
+    # Set threshold to 0 to avoid SystemExit during this test
+    processor = MoleculeProcessor(retention_threshold=0.0)
+    processed_df = processor.process(sample_dataframe)
 
-@pytest.fixture
-def processor_config():
-    return {
-        "bias_threshold": 0.85,
-        "retention_threshold": 0.95
-    }
-
-def test_parse_smiles_valid(valid_smiles, processor_config):
-    processor = MoleculeProcessor(processor_config)
-    for smiles in valid_smiles:
-        mol = processor.parse_smiles(smiles)
-        assert mol is not None, f"Failed to parse {smiles}"
-        assert Chem.MolToSmiles(mol) is not None
-
-def test_parse_smiles_invalid(invalid_smiles, processor_config):
-    processor = MoleculeProcessor(processor_config)
-    for smiles in invalid_smiles:
-        mol = processor.parse_smiles(smiles)
-        assert mol is None, f"Should return None for invalid {smiles}"
-
-def test_calculate_descriptors(valid_smiles, processor_config):
-    processor = MoleculeProcessor(processor_config)
-    mol = processor.parse_smiles("CCO")
-    descriptors = processor.calculate_descriptors(mol)
+    # Expected: CCO (valid), C1CC1 (valid). 
+    # 'invalid' is invalid SMILES. 'CC(N)C(=O)O' has no target. None is invalid.
+    assert len(processed_df) == 2
     
-    # Check for expected keys
-    assert "MW" in descriptors
-    assert "logP" in descriptors
-    assert "TPSA" in descriptors
+    required_cols = ['smiles', 'mol_valid', 'mw', 'logp', 'tpsa', 'hba', 'hbd', 'rotatable_bonds', 'target']
+    for col in required_cols:
+        assert col in processed_df.columns
     
-    # Check types
-    assert isinstance(descriptors["MW"], float)
-    assert isinstance(descriptors["logP"], float)
+    assert paths.data('processed', 'processed_data.csv').exists()
+    assert paths.data('processed', 'processed_data.parquet').exists()
+    assert isinstance(processed_df['mol_valid'].iloc[0], (bool, np.bool_))
 
-def test_flatten_graph_statistics(valid_smiles, processor_config):
-    processor = MoleculeProcessor(processor_config)
-    mol = processor.parse_smiles("c1ccccc1")
-    graph_stats = processor.flatten_graph_statistics(mol)
-    
-    assert "mean_node_degree" in graph_stats
-    assert "num_atoms" in graph_stats
-    assert "num_bonds" in graph_stats
-
-def test_process_dataframe(valid_smiles, invalid_smiles, processor_config, tmp_path):
-    # Create a mixed dataframe
-    data = {
-        "smiles": valid_smiles + invalid_smiles,
-        "permeability_coefficient": [-5.0] * len(valid_smiles) + [-4.0] * len(invalid_smiles),
-        "polymer_type": ["P1"] * len(valid_smiles) + ["P2"] * len(invalid_smiles)
-    }
-    df = pd.DataFrame(data)
-    input_file = tmp_path / "input.csv"
-    output_dir = tmp_path / "output"
-    output_dir.mkdir()
-    
-    df.to_csv(input_file, index=False)
-    
-    processor = MoleculeProcessor(processor_config)
-    # Set retention low to avoid exit, but we expect some rows dropped
-    processor.config["retention_threshold"] = 0.5 
-    
-    result_df = processor.process(input_file, output_dir)
-    
-    # Should have valid rows only
-    assert len(result_df) == len(valid_smiles)
-    assert "MW" in result_df.columns
-    assert "logP" in result_df.columns
-    assert "graph_features" in result_df.columns # Or flattened cols
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_retention_check_raises():
+    """Verify that low retention triggers SystemExit."""
+    df = pd.DataFrame({
+        'SMILES': ['invalid'] * 9 + ['CCO'],
+        'permeability': [0.5] * 10
+    })
+    # Use default 95% threshold
+    processor = MoleculeProcessor(retention_threshold=0.95)
+    with pytest.raises(SystemExit):
+        processor.process(df)

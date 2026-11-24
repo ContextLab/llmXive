@@ -51,35 +51,65 @@ T005:
   sig: aae09f31d444a37901cd612ec794446777c06ee40e4101c1976636f2c240102d
 T006:
   c: true
-  h: f2d6f6f6a159fa73263b157734da02f8353040b45774e221db9494e01167645c
-  r: '`code/utils/logger.py` exists (2256 bytes) with a real, functional `setup_logging`
-    that defaults to writing `data/raw/app.log`, creates parent directories, configures
-    file+console handlers with formatting, plus `get_logger`/`get_log_path`/`export_log_summary`
-    utilities. The `data/raw/` directory exists and contains an `app.log` file, consistent
-    with the logger having been exercised; no stubs or placeholders are present.'
-  sig: abdcf803be9ef59ef3b967da678966a1f2ea14bb2ffd1eb158ace92799b0c17e
+  h: 8936a73fef44ee08cfceb65e0bea97aafa5096b0605295d41c5fc3679b15a7af
+  r: "Checked `code/utils/logger.py`, which defines `setup_logging` that defaults\
+    \ to `Path(\"data/raw/app.log\")` and creates the file in the required `data/raw/`\
+    \ directory, and verified that `data/raw/` (containing `app.log`) exists. The\
+    \ logging configuration meets the task\u2019s specification."
+  sig: a2e76ae30609bfcf9b438d74e8a18aa8ed5dd0e690e93b41b41bb88112e04105
 T007:
   c: true
-  h: 903adb2922a40aa7fe8f3affad24a8048d6fa77a656fb1b293d201dd63eb522c
-  r: "The artifact `code/experiments/grid_config.py` exists (2530 bytes) and contains\
-    \ a real `GridConfig` dataclass with alpha, student_horizon, seed, output paths,\
-    \ and serialization (`to_dict`/`from_dict`), plus `create_default_grid()` sweeping\
-    \ alpha {0.1, 0.3, 0.5, 0.7, 0.9} \xD7 horizons {3, 5, 7, 10, 15} with deterministic\
-    \ seeds \u2014 matching the task's requirement for an experiment configuration\
-    \ schema for alpha and horizon sweeps. The `run_grid_search` placeholder is acceptable\
-    \ since executing the training loop belongs to later tasks, not this schema-setup\
-    \ task."
-  sig: edceef4455fe4986364c1e2523c88f6980d81f5ad1caf10c300fa32680efb5fd
+  h: c032ea5e3eeaffd86f9466f8dbc2b5df2be22d54f91127bcd364dc23d2cf03e7
+  r: "Checked `code/experiments/grid_config.py`, which defines a `GridConfig` dataclass\
+    \ schema with `alpha` and `horizon` fields (plus a seed) and provides `create_default_grid()`\
+    \ that generates the required sweep over \u03B1\u202F=\u202F{0.1,0.3,0.5,0.7,0.9}\
+    \ and horizon values. The file is non\u2011empty and implements the requested\
+    \ configuration schema."
+  sig: 7e67439739a73a1f88b95159f04746390d8a8d2d10d17d34d060b3824dd08fc1
 T008:
-  c: true
-  h: e5008190ffcdad01ba960539d58ce0c59b110c5c28ceb364efba04403634748a
-  r: "The artifact `tests/unit/test_mdp.py` exists (2818 bytes) and contains a substantive\
-    \ `test_valid_state_transitions` covering reset, valid action selection, step,\
-    \ state dimension, and info fields (`effective_depth`, `teacher_depth`), plus\
-    \ supporting tests for invalid actions, goal conditions, and state representation\
-    \ \u2014 matching the task's requirement for a unit test of valid MDP state transitions.\
-    \ No stubs, TODOs, or placeholders are present."
-  sig: 8f424fd157a85e85cb36e2f48f760828d18902e6db5703953aa735f6a892e050
+  c: false
+  h: e3446dccfbf23a38cae745db5f78b38b910fe3bf9df9734acbc34ab28dafe783
+  r: "The provided `tests/unit/test_mdp.py` exists but calls methods (`mdp.get_valid_actions()`,\
+    \ `mdp.state_dim`, `mdp.action_dim`, expects a four\u2011element `step` return\
+    \ with an `info` dict) that are not implemented in the actual `code/env/reasoning_mdp.py`\
+    \ (which only has `reset()`, `step(action)` returning three values, and no `get_valid_actions`\
+    \ or dimension attributes). Consequently the unit test cannot run successfully\
+    \ and does not fulfill the task\u2019s requirement for a valid state\u2011transition\
+    \ test. The test must be rewritten to match the real MDP API or the MDP implementation\
+    \ must be extended acco"
+  sig: ed6898b42f6b18a3e039a261a1c2384a624cd12d3762a289cbcdf3a5789c8293
+T009:
+  c: false
+  h: 3aef3f7d27fbabd58bac09fcbcfc9dddc2acba7940110ac35cd1952c2c797667
+  r: "The provided `tests/unit/test_teacher_policy.py` cannot run: it constructs `ReasoningMDP`\
+    \ with nonexistent arguments (`num_initial_states`, `max_depth`, `num_inference_rules`)\
+    \ and calls a non\u2011existent `teacher_policy.get_action` method. Moreover,\
+    \ it never invokes `TeacherPolicy.get_optimal_path` to verify that the teacher\
+    \ generates the optimal action sequence of a specified depth, which is the core\
+    \ requirement of the task. The unit test therefore does not satisfy the specification."
+  sig: 9cbfb254f71581e0dc23bfd3e00de4789e72752565e0ddd6afdd772b01f511b7
+T010:
+  c: false
+  h: 18d3c99604719373f44427a10247d91a16d01d3a5c0f5f72af461bbb4eda8f5c
+  r: "The `tests/unit/test_mdp.py` file exists, but its `test_invalid_action_penalty`\
+    \ relies on MDP attributes and methods (`action_dim`, `get_valid_actions`, `info[\"\
+    valid\"]`, negative reward) that are not implemented in the provided `code/env/reasoning_mdp.py`.\
+    \ The MDP class only defines a simple `step` that raises a `ValueError` for any\
+    \ non\u2011zero action and never returns a penalty reward, so the test cannot\
+    \ actually verify invalid\u2011action penalty handling. The required functional\
+    \ unit test is therefore missing/incorrect."
+  sig: 45b7ff794228e123942a8d941562d36f365125945819afae0aa744b93e68caf0
+T015:
+  c: false
+  h: 3f5a3ab12d2d39158e5de6965e950ae197830d64d5d36cdf153b2c0f277a1dff
+  r: "The file `tests/unit/test_student_policy.py` is present, but it imports a `StudentPolicy`\
+    \ class that does not provide the attributes and methods the test expects (e.g.,\
+    \ `horizon`, `get_horizon_status`, `state_dim`, `action_dim`, `weights`, `total_updates`,\
+    \ `convergence_history`, `get_action`, `update(loss_value, alpha)`). Consequently\
+    \ the test does not actually verify horizon\u2011constraint enforcement for the\
+    \ real `StudentPolicy` implementation and will fail at import/runtime. The required\
+    \ unit test behavior is missing."
+  sig: 71fde6bbc10775d4d69534082a80caa75eba44466f6ff589a886e35fe0bf83ac
 T022:
   c: false
   h: 30832ddfa0682cbec0d430042d6b48d0b2fa01ae76ddb4f4f287f30afc938043

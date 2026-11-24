@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EntitySet"
+type: object
+required:
+  - sample_id
+  - entities
+properties:
+  sample_id:
+    type: string
+    description: "Composite key `{commit_hash}_{model_id}`."
+  entities:
+    type: array
+    items:
+      type: object
+      required:
+        - text
+        - type
+        - source
+        - verified
+      properties:
+        text:
+          type: string
+          description: "Raw entity string."
+        type:
+          type: string
+          enum: ["surface", "intent"]
+          description: "Entity category."
+        source:
+          type: string
+          enum: ["human", "generated"]
+          description: "Origin of the entity."
+        verified:
+          type: boolean
+          description: "True if surface entity found in repo codebase (via git grep + AST)."
+additionalProperties: false

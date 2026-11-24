@@ -1,70 +1,63 @@
+# Data directories (raw, processed, and derived artifacts)
+data/raw/
+data/processed/
+data/artifacts/
+data/raw/*
+data/processed/*
+data/artifacts/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
-*.so
-
 # Distribution / packaging
-.Python
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
 *.egg
+.eggs/
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+# Compiled artifacts
+*.so
+*.o
+*.a
+*.pyd
+*.dll
+*.dylib
 
 # Unit test / coverage reports
-htmlcov/
+.pytest_cache/
 .coverage
 .coverage.*
-.hypothesis/
-.pytest_cache/
+coverage.xml
+htmlcov/
 .tox/
+.nox/
 
 # Environments
-.env
+.venv/
 venv/
-ENV/
 env/
+ENV/
 
-# IDE
+# Editors / IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# OS
+# OS artifacts
 .DS_Store
 Thumbs.db
 
-# Project specific
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-artifacts/*
-!artifacts/.gitkeep
-figures/*
-!figures/.gitkeep
+# Logs
+logs/
 *.log
-state.yaml
+
+# Large scientific data formats
+*.nc
+*.h5
+*.hdf5
+*.zarr/

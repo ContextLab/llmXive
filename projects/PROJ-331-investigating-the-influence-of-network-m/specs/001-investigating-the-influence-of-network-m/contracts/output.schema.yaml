@@ -11,14 +11,14 @@ properties:
         const: 42
       bonferroni_alpha:
         type: "number"
-        description: "Bonferroni-adjusted alpha (0.05 / 13)."
+        description: "Bonferroni‑adjusted alpha (0.05 / 52)."
       permutation_count:
         type: "integer"
         minimum: 1000
       power_target:
         type: "number"
         const: 0.80
-        description: "Target statistical power (0.80, per Wikipedia 'Power (statistics)')."
+        description: "Target statistical power (0.80, per Wikipedia \"Power (statistics)\")."
       vif_threshold:
         type: "number"
         const: 5
@@ -62,10 +62,10 @@ properties:
           type: ["number", "null"]
           minimum: 0
           maximum: 1
-          description: "Permutation empirical p-value; null if test skipped."
+          description: "Empirical p‑value from permutation test; null if test was skipped."
         skipped_reason:
           type: ["string", "null"]
-          description: "e.g. 'insufficient variance' when motif z-vector is constant."
+          description: "e.g. \"insufficient variance\" when motif z‑vector constant."
         vif:
           type: "number"
         n_subjects:

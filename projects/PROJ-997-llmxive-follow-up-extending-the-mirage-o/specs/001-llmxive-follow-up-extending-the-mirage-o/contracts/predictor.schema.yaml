@@ -31,7 +31,7 @@ properties:
       - "pearson_correlation"
   content_hash:
     type: "string"
-    description: "SHA-256 hash of the model weights/params."
+    description: "SHA‑256 hash of the model weights/params."
 required:
   - "model_type"
   - "kernel_params"

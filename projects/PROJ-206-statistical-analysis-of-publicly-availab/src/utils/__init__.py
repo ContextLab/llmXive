@@ -1,4 +1,1 @@
-"""
-Utilities subpackage for the project.
-Includes logging, configuration, and state‑management helpers.
-"""
+# Sub-module for shared utilities, configuration, and logging.

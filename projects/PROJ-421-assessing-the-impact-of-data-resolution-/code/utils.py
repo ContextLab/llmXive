@@ -30,20 +30,31 @@ class RetryError(Exception):
     """Custom exception for retry failures."""
     pass
 
-def retry_with_backoff(func, max_retries=3, backoff_factor=2, *args, **kwargs):
+def retry_with_backoff(max_retries: int = 3, backoff_factor: int = 2):
     """
-    Retry a function with exponential backoff.
+    Decorator factory that retries a function with exponential backoff.
+
+    Args:
+        max_retries: Maximum number of attempts.
+        backoff_factor: Base factor for exponential delay (seconds).
+
+    Returns:
+        Decorator that wraps the target function.
     """
-    last_exception = None
-    for attempt in range(max_retries):
-        try:
-            return func(*args, **kwargs)
-        except Exception as e:
-            last_exception = e
-            wait_time = backoff_factor ** attempt
-            logger.warning(f"Attempt {attempt+1} failed: {e}. Retrying in {wait_time}s...")
-            time.sleep(wait_time)
-    raise RetryError(f"Failed after {max_retries} retries") from last_exception
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            last_exception = None
+            for attempt in range(max_retries):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    last_exception = e
+                    wait_time = backoff_factor ** attempt
+                    logger.warning(f"Attempt {attempt+1} failed: {e}. Retrying in {wait_time}s...")
+                    time.sleep(wait_time)
+            raise RetryError(f"Failed after {max_retries} retries") from last_exception
+        return wrapper
+    return decorator
 
 def create_memory_mapped_array(shape: Tuple[int, int], dtype=np.float32) -> np.ndarray:
     """Create a memory-mapped array."""
@@ -57,7 +68,7 @@ def get_raster_info(path: str) -> dict:
     """Get basic info about a raster file."""
     if not os.path.exists(path):
         raise FileNotFoundError(f"Raster file not found: {path}")
-    
+
     with rasterio.open(path) as src:
         return {
             "width": src.width,
@@ -65,7 +76,9 @@ def get_raster_info(path: str) -> dict:
             "count": src.count,
             "dtype": src.dtype,
             "crs": src.crs,
-            "transform": src.transform
+            "transform": src.transform,
+            "res": src.res,
+            "nodata": src.nodata,
         }
 
 def validate_raster_bounds(path: str, bounds: dict) -> bool:
@@ -87,28 +100,20 @@ def read_raster_windowed(path: str, window_size: int = 2000) -> np.ndarray:
     with rasterio.open(path) as src:
         height = src.height
         width = src.width
-        
-        # Read all chunks
-        chunks = []
+
+        # Pre‑allocate full array
+        full_array = np.zeros((height, width), dtype=src.dtypes[0])
+
         for window in iter_windows(height, width, window_size):
             data = src.read(1, window=window)
-            chunks.append(data)
-        
-        # Stitch chunks together
-        # This is a simplification; proper stitching requires careful indexing
-        # For this task, we assume the chunks are read in order and can be vstack/hstack
-        # A more robust implementation would use a pre-allocated array
-        full_array = np.zeros((height, width), dtype=chunks[0].dtype)
-        
-        for window, chunk in zip(iter_windows(height, width, window_size), chunks):
-            full_array[window.row_off:window.row_off+window.height, 
-                       window.col_off:window.col_off+window.width] = chunk
-        
+            full_array[window.row_off:window.row_off + window.height,
+                       window.col_off:window.col_off + window.width] = data
+
         return full_array
 
 def read_raster_windowed_with_retry(path: str, window_size: int = 2000) -> np.ndarray:
     """Read raster with retry logic."""
-    return retry_with_backoff(read_raster_windowed, path=path, window_size=window_size)
+    return retry_with_backoff()(read_raster_windowed)(path=path, window_size=window_size)
 
 def checksum_file(path: str) -> str:
     """Calculate SHA256 checksum of a file."""
@@ -122,7 +127,7 @@ def validate_raster_metadata(path: str, expected_checksum: Optional[str] = None)
     """Validate raster metadata and optionally checksum."""
     if not os.path.exists(path):
         return False
-    
+
     info = get_raster_info(path)
     if expected_checksum:
         actual_checksum = checksum_file(path)
@@ -132,30 +137,28 @@ def validate_raster_metadata(path: str, expected_checksum: Optional[str] = None)
 def validate_url(url: str) -> bool:
     """
     Verify a URL is reachable and return a boolean.
-    
+
     This function performs a HEAD request to check if the URL exists and is accessible.
     It includes retry logic for transient network errors.
-    
+
     Args:
         url (str): The URL to validate.
-        
+
     Returns:
         bool: True if the URL is reachable (HTTP status 200 or 206), False otherwise.
-        
+
     Raises:
         ValueError: If the URL format is invalid.
         requests.RequestException: If the URL is unreachable after retries.
     """
     if not url or not isinstance(url, str):
         raise ValueError("URL must be a non-empty string")
-    
+
     # Basic format validation
     if not (url.startswith('http://') or url.startswith('https://')):
         logger.warning(f"URL does not start with http:// or https://: {url}")
-        # We don't immediately return False, as some internal systems might use other schemes,
-        # but for this project, we strictly check HTTP(S)
         return False
-    
+
     # Setup session with retry strategy
     session = requests.Session()
     retry_strategy = Retry(
@@ -166,28 +169,25 @@ def validate_url(url: str) -> bool:
     adapter = HTTPAdapter(max_retries=retry_strategy)
     session.mount("http://", adapter)
     session.mount("https://", adapter)
-    
+
     try:
-        # Use HEAD first to check existence without downloading body
-        # Some servers block HEAD, so we fallback to GET with stream=True if needed
         logger.info(f"Validating URL: {url}")
         response = session.head(url, timeout=10, allow_redirects=True)
-        
+
         if response.status_code in (200, 206):
             logger.info(f"URL is reachable: {url} (Status: {response.status_code})")
             return True
-        
-        # If HEAD fails with 405 or similar, try GET with stream to just check headers
+
         if response.status_code == 405:
             logger.warning("HEAD not allowed, trying GET with stream...")
             response = session.get(url, stream=True, timeout=10, allow_redirects=True)
             if response.status_code in (200, 206):
                 logger.info(f"URL is reachable: {url} (Status: {response.status_code})")
                 return True
-        
+
         logger.error(f"URL validation failed: {url} (Status: {response.status_code})")
         return False
-        
+
     except requests.exceptions.Timeout:
         logger.error(f"Timeout while validating URL: {url}")
         raise

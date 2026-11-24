@@ -1,103 +1,92 @@
 # Quickstart: Evaluating Calibration of Probabilistic Weather Forecasts
 
 ## Prerequisites
-- Python 3.11+
-- GitHub Actions runner (multi-core CPU, sufficient RAM, and adequate disk storage)
-- Internet access for dataset download
+- Python 3.11 or newer  
+- Internet access (for dataset download)  
+- GitHub Actions runner (or local machine with ≥ 2 CPU cores, ~7 GB RAM, ~14 GB disk)
 
-## Installation
+## Setup
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-763-evaluating-calibration-of-probabilistic-/code/
-   ```
-
-2. **Create virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Running the Pipeline
-
-### Step 1: Download and Verify Dataset
 ```bash
-bash data/download.sh
-bash data/verify.sh
+# 1. Clone the repository
+git clone <repo-url>
+cd projects/PROJ-763-evaluating-calibration-of-probabilistic-/code
+
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate
+
+# 3. Install pinned dependencies
+pip install -r requirements.txt
 ```
-- Downloads SubseasonalRodeo (or NOAA GFS substitute) from verified source.
-- Verifies checksum; halts if missing `probability_value` field (exit code 1).
 
-### Step 2: Baseline Calibration Assessment
+## Running the Full Pipeline
+
 ```bash
+# Step 0: Download and verify the open‑source NOAA GFS dataset
+bash data/download.sh
+bash data/verify.sh   # exits with code 1 if `probability_value` missing
+
+# Step 1: Baseline calibration assessment
 python analysis/baseline/align.py
 python analysis/baseline/metrics.py
-python analysis/baseline/plots.py
-```
-- Aligns forecasts with observations.
-- Computes Brier scores, CRPS.
-- Generates reliability diagrams and PIT histograms.
-- Outputs: `results_baseline.csv`, `reliability_diagram_raw.png`.
+python analysis/baseline/plots.py   # creates reliability_diagram_raw.png, pit_histogram_raw.png
 
-### Step 3: Isotonic Recalibration
-```bash
+# Step 2: Isotonic recalibration
 python analysis/isotonic/train.py
 python analysis/isotonic/evaluate.py
-python analysis/isotonic/sensitivity.py
-```
-- Fits isotonic regression per lead time and variable.
-- Computes recalibrated metrics.
-- Runs sensitivity analysis with varying split ratios.
-- Outputs: `results_isotonic.csv`, `reliability_diagram_isotonic.png`.
+python analysis/isotonic/sensitivity.py   # runs 60/40 and 80/20 splits
 
-### Step 4: Bayesian Hierarchical Recalibration
-```bash
-python analysis/bayesian/model.py
+# Step 3: Bayesian hierarchical recalibration
+python analysis/bayesian/model.py          # may fall back to isotonic
 python analysis/bayesian/prior_sensitivity.py
 python analysis/bayesian/diagnostics.py
-```
-- Runs MCMC sampling (multiple chains, sufficient draws).
-- Checks convergence (R-hat, ESS).
-- If fails, generates `results_fallback.csv`.
-- Outputs: `results_bayesian.csv` (if converged) or `results_fallback.csv`.
 
-### Step 5: Statistical Comparison
-```bash
+# Step 4: Statistical comparison & final summary
 python analysis/comparison/diebold_mariano.py
 python analysis/comparison/summary.py
+
+echo "Pipeline completed. All results are in the `results/` folder."
 ```
-- Runs DM-HAC or Block Bootstrap tests.
-- Generates final comparison table.
-- Outputs: `results/` directory with all files.
 
-## Expected Outputs
+## Expected Outputs (all under `results/`)
 
-- `results/results_baseline.csv`: Baseline metrics.
-- `results/results_isotonic.csv`: Isotonic recalibration metrics.
-- `results/results_bayesian.csv`: Bayesian recalibration metrics (if converged).
-- `results/results_fallback.csv`: Fallback isotonic results (if Bayesian failed).
-- `results/reliability_diagram_*.png`: Reliability diagrams.
-- `results/pit_histogram_*.png`: PIT histograms.
-- `results/convergence_diagnostics.json`: Bayesian convergence diagnostics.
-- `results/pipeline.log`: Full pipeline log.
+| File | Description |
+|------|-------------|
+| `results_baseline.csv` | Brier & CRPS for raw forecasts (per lead‑time/variable). |
+| `reliability_diagram_raw.png` | Raw reliability diagram. |
+| `pit_histogram_raw.png` | Raw PIT histogram. |
+| `results_isotonic.csv` | Metrics after isotonic recalibration. |
+| `reliability_diagram_isotonic.png` | Isotonic reliability diagram. |
+| `sensitivity_analysis_log.csv` | 60/40 & 80/20 split results. |
+| `results_bayesian.csv` *or* `results_fallback.csv` | Bayesian metrics (if converged) or isotonic fallback. |
+| `convergence_diagnostics.json` | R‑hat, ESS, and timeout information. |
+| `diebold_mariano_results.json` | DM or Block‑Bootstrap test outcomes. |
+| `summary_table.csv` | Final comparison table (baseline vs. isotonic vs. Bayesian/fallback). |
 
 ## Troubleshooting
 
-- **Dataset download failed**: Check internet connection; verify URL; ensure checksum matches.
-- **Data Availability Gate Failed**: Dataset lacks `probability_value`; halt execution.
-- **Bayesian convergence failed**: Check R-hat, ESS; if > thresholds, fallback to isotonic.
-- **Memory overflow**: Use streaming or sample; log power limitation.
-- **Autocorrelation in errors**: Shapiro-Wilk test fails; use Block Bootstrap.
+| Symptom | Action |
+|---------|--------|
+| **Dataset download fails** | Verify internet connection; re‑run `data/download.sh`; ensure the URL matches the verified HuggingFace link. |
+| **`Data Availability Gate Failed`** | The downloaded file lacks `probability_value`/`precip_prob`. Check the raw parquet schema; if missing, the pipeline cannot proceed (per FR‑001). |
+| **Bayesian convergence warnings** | Inspect `convergence_diagnostics.json`; if R‑hat > 1.05 or ESS < 400, the pipeline will have already generated `results_fallback.csv`. |
+| **MemoryError** | Enable streaming (`datasets.load_dataset(..., streaming=True)`) or reduce sample size via `--sample-size` flag in `run_pipeline.sh`. |
+| **DM test reports `normality_test_p < 0.05`** | The pipeline automatically switches to Block‑Bootstrap; review `diebold_mariano_results.json` for the selected method. |
 
 ## Verification
 
-- **Unit Tests**: `pytest tests/unit/`
-- **Integration Tests**: `pytest tests/integration/`
-- **Contract Tests**: `pytest tests/contract/`
-- **Pipeline Test**: `bash run_pipeline.sh` (entire pipeline within 6 hours).
+```bash
+# Unit tests
+pytest tests/unit/
+
+# Integration tests (pipeline end‑to‑end on a tiny sample)
+pytest tests/integration/
+
+# Contract validation (ensures outputs match schemas)
+pytest tests/contract/
+```
+
+All tests must pass and the total wall‑clock time must stay below 6 hours on the CI runner.
+
+---

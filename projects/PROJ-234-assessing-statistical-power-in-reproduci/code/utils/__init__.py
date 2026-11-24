@@ -1,21 +1,20 @@
 """
-Utility module for the llmXive pipeline.
+Utility package for the project.
+
+Exposes the public helpers:
+- api_client
+- oa_checker
+- parsers
+- DataFetchError
 """
-from .api_client import OpenMLClient, fetch_top_classification_datasets
-from .oa_checker import is_open_access, check_doi_oa_status
-from .logging_config import setup_logging, test_log_entry
+from .api_client import DataFetchError, fetch_top_classification_datasets
+from .oa_checker import is_open_access
 from .parsers import extract_sample_size, extract_effect_size
-from .verify_schema import check_yamllint, load_and_validate_schema
 
 __all__ = [
-    "OpenMLClient",
+    "DataFetchError",
     "fetch_top_classification_datasets",
     "is_open_access",
-    "check_doi_oa_status",
-    "setup_logging",
-    "test_log_entry",
     "extract_sample_size",
     "extract_effect_size",
-    "check_yamllint",
-    "load_and_validate_schema",
 ]

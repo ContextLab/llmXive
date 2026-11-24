@@ -1,0 +1,8 @@
+# Dependencies beyond the platform base environment
+# (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels, seaborn,
+#  pytest, PyYAML, requests, jsonschema are pre-installed).
+rdkit>=2023.9.1
+torch
+torch-geometric
+torchmetrics
+tqdm

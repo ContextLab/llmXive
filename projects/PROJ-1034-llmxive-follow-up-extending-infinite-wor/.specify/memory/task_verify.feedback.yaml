@@ -1,4 +1,9 @@
 T001a:
+  reason: "Checked the project root `projects/PROJ-1034-llmxive-follow-up-extending-infinite-wor`\
+    \ but no evidence was provided that the required directories (`src/sim`, `src/analysis`,\
+    \ `src/data`, `src/cli`, `src/tests`, `data/raw`, `data/processed`, `docs`, `state`)\
+    \ actually exist. The task\u2019s core deliverable \u2013 the created directory\
+    \ skeleton \u2013 is missing."
   task: 97f189e1566129800070739fd764bd3fb1f483a8dbbfc7ac6562d2a294e9685f
 T001b:
   reason: The evidence includes all required `src/*/__init__.py` files and the two
@@ -22,10 +27,26 @@ T004:
 T005:
   task: 836980064d63281a617073b8dd8885a963f269011c48001a3e0ffd3f5ae05f35
 T006a:
+  reason: "The provided `src/sim/physics_oracle.py` defines a `PhysicsOracle` that\
+    \ can detect violations but never creates or updates a `MetricRecord` (it only\
+    \ imports the class). There is no code that logs the violation values into the\
+    \ `physics_violations` field of a `MetricRecord`, nor any test or verification\
+    \ showing the data flow from the oracle to the record. The task\u2019s core requirement\u2014\
+    recording violations in `MetricRecord` and confirming the flow\u2014is therefore\
+    \ unmet."
   task: 4e721e4c31a833b35864d157f40c8614b7d92f664d5f7f4d69a51eb288237f0b
 T006b:
+  reason: "The `src/sim/eco_director.py` file does not contain any use of `resource.setrlimit`,\
+    \ no hard\u2011loop time counter beyond a simple elapsed\u2011time check, and\
+    \ it never emits a signal or calls the termination handler from T008b. The memory\u2011\
+    limit check is a placeholder comment and does not enforce RAM limits, nor does\
+    \ it log the required \u201COut of Bounds\u201D reason such as \u201CMemory Explosion\u201D\
+    . Consequently the task\u2019s core requirements are not satisfied."
   task: 126dd34f1337b9bff09dab33a41839d19878d98a203ec12cf091a0dfe706177c
 T006c:
+  reason: "Checked `src/sim/eco_director.py` \u2013 it does not import `src/sim/termination_handler.py`\
+    \ nor invoke any of its termination functions when limits are exceeded. The required\
+    \ integration is missing."
   task: f72bb95219568a091d4678b3ff09fa0c105bb2422115940dda3c6ec47b529b4f
 T006d:
   reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_termination_signal.py'

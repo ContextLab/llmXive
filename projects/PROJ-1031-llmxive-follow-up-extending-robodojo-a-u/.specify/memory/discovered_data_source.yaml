@@ -1,15 +1,15 @@
 status: none
-intent: RoboDojo dataset for symbolic planning task specifications and visual observations
-  python package dataset
+intent: download RoboDojo dataset HuggingFace python package parquet library
 required_fields:
 - task_id
-- task_name
-- task_specification_description
-- semantic_embeddings
-- visual_observation_images
-- object_affordances
-- symbolic_state_predicates
-- environment_metadata
-cache_key: 752d34ab9987194a6df0f174a6ac8cea1149e3e1c480bf661f934e55869a163b
-searched_at: '2026-09-28T00:55:34.286403+00:00'
+- scene_name
+- object_ids
+- initial_pose
+- goal_pose
+- pose_success_threshold
+- orientation_success_threshold
+- semantic_embedding
+- affordance_predicates
+cache_key: f32772c1179c61a6a350c89246a667599a6df53110ae5b1b68de2662bf94c753
+searched_at: '2026-11-07T08:15:00.556316+00:00'
 retry_count: 1

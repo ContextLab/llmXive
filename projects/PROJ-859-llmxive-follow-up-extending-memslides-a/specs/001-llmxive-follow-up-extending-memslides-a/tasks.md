@@ -43,10 +43,10 @@
 
 **Purpose**: Implement the core "Structural Diversity Strategy" mandated by the Plan (Phase 0) to ensure outcome variance. This phase generates Training and Held-Out sets with *distinct* distributions, not a split of a single set.
 
-- [ ] T000 [P] [Phase0] **External Validation Proxy**. Attempt to validate synthetic distribution against a small, verified proxy dataset (if available). Document outcome in `data/processed/validation_proxy.json`. **Schema**: Must contain `ks_statistic`, `p_value`, `is_valid_shift` (boolean). **Logic**: Perform KS test on `sequence_entropy`, `tool_repetition_freq`, and `arg_semantic_variance` between proxy and synthetic. **Constraint**: If no proxy exists, document the limitation in the JSON with `reason: "no_proxy_available"`. **Dependency**: None.
-- [ ] T001 [P] [Phase0] **Generate Synthetic Training Data**. Generate **5000** multi-turn revision sessions for the Training Set using `seed=42` and standard parameters (`tool_types`, `min_length=5`, `max_length=20`). Output: `data/training/*.json`. **Constraint**: Must log exact tool sequences and argument variances to `data/raw/logs/trace_integrity.log`. **Dependency**: Requires T006 completion.
-- [ ] T002 [P] [Phase0] **Generate Synthetic Held-Out Data**. Generate **5000** distinct sessions for the Held-Out Test Set using `seed=43` and **perturbed distribution** (`variance_multiplier=1.5` for sequence length and tool repetition) to ensure structural diversity and variance in the outcome variable (fidelity loss). Output: `data/held_out/*.json`. **Constraint**: Must use a *different random seed* and *perturbed distribution* as per Plan Phase 0 T002. **Dependency**: Requires T006 completion.
-- [ ] T003 [P] [Phase0] **Validate Trace Integrity**. Verify `data/raw/logs/trace_integrity.log` exists and contains valid structural metadata for all sessions. Fail pipeline if missing. **Dependency**: Requires T001, T002 completion.
+- [X] T000 [P] [Phase0] **External Validation Proxy**. Attempt to validate synthetic distribution against a small, verified proxy dataset (if available). Document outcome in `data/processed/validation_proxy.json`. **Schema**: Must contain `ks_statistic`, `p_value`, `is_valid_shift` (boolean). **Logic**: Perform KS test on `sequence_entropy`, `tool_repetition_freq`, and `arg_semantic_variance` between proxy and synthetic. **Constraint**: If no proxy exists, document the limitation in the JSON with `reason: "no_proxy_available"`. **Dependency**: None.
+- [X] T001 [P] [Phase0] **Generate Synthetic Training Data**. Generate **5000** multi-turn revision sessions for the Training Set using `seed=42` and standard parameters (`tool_types`, `min_length=5`, `max_length=20`). Output: `data/training/*.json`. **Constraint**: Must log exact tool sequences and argument variances to `data/raw/logs/trace_integrity.log`. **Dependency**: Requires T006 completion.
+- [X] T002 [P] [Phase0] **Generate Synthetic Held-Out Data**. Generate **5000** distinct sessions for the Held-Out Test Set using `seed=43` and **perturbed distribution** (`variance_multiplier=1.5` for sequence length and tool repetition) to ensure structural diversity and variance in the outcome variable (fidelity loss). Output: `data/held_out/*.json`. **Constraint**: Must use a *different random seed* and *perturbed distribution* as per Plan Phase 0 T002. **Dependency**: Requires T006 completion.
+- [X] T003 [P] [Phase0] **Validate Trace Integrity**. Verify `data/raw/logs/trace_integrity.log` exists and contains valid structural metadata for all sessions. Fail pipeline if missing. **Dependency**: Requires T001, T002 completion.
 
 ---
 
@@ -56,13 +56,13 @@
 
 - [X] T004a [P] Create `contracts/trace.schema.yaml`
 - [X] T004b [P] Create `contracts/metrics.schema.yaml`
-- [X] T004c [P] Create `contracts/benchmark_results.schema.yaml`
-- [X] T004d [P] Create `contracts/compressibility_analysis.schema.yaml`. **Note**: Must validate `beta_coefficients`, `p_values`, `trade_off_curve_points`, `edit_accuracy_difference`, and `delta_accuracy`.
-- [X] T005 [P] [Foundational] Implement `code/contracts/__init__.py` validation logic
-- [X] T006 [P] [Foundational] Setup `code/config.py` with seeds, paths, and threshold configurations. **Explicit Constraint**: Define `FIDELITY_TOLERANCE = 0.90`, `TRAINING_SEED = 42`, `HOLDOUT_SEED = 43`, `HOLDOUT_VARIANCE_MULTIPLIER = 1.5`.
-- [X] T007 [P] [Foundational] Create base data loaders and schema validators in `code/utils/`
-- [X] T008 [P] [Foundational] Configure `pytest` with contract test plugins in `tests/contract/`
-- [ ] T009 [P] [Foundational] Setup environment configuration management. **Explicit Constraint**: Implement `code/config.py` as the default source, but allow `config.yaml` in the project root to override seeds/paths for reproducibility on fresh runners (Constitution Principle I).
+- [~] T004c [P] Create `contracts/benchmark_results.schema.yaml`
+- [~] T004d [P] Create `contracts/compressibility_analysis.schema.yaml`. **Note**: Must validate `beta_coefficients`, `p_values`, `trade_off_curve_points`, `edit_accuracy_difference`, and `delta_accuracy`.
+- [~] T005 [P] [Foundational] Implement `code/contracts/__init__.py` validation logic
+- [~] T006 [P] [Foundational] Setup `code/config.py` with seeds, paths, and threshold configurations. **Explicit Constraint**: Define `FIDELITY_TOLERANCE = 0.90`, `TRAINING_SEED = 42`, `HOLDOUT_SEED = 43`, `HOLDOUT_VARIANCE_MULTIPLIER = 1.5`.
+- [~] T007 [P] [Foundational] Create base data loaders and schema validators in `code/utils/`
+- [~] T008 [P] [Foundational] Configure `pytest` with contract test plugins in `tests/contract/`
+- [~] T009 [P] [Foundational] Setup environment configuration management. **Explicit Constraint**: Implement `code/config.py` as the default source, but allow `config.yaml` in the project root to override seeds/paths for reproducibility on fresh runners (Constitution Principle I).
 - [ ] T009b [P] [Foundational] Implement `code/utils/config_loader.py` to load `config.yaml` if present, otherwise use `code/config.py` defaults.
 - [ ] T068 [US1/US3] **Structural Diversity Validator**. Implement `code/analysis/validate_split.py` to explicitly verify that the **Held-Out Set** (T002) exhibits significantly different structural properties compared to the **Training Set** (T001). **Logic**:
  1. Load `data/training/*.json` and `data/held_out/*.json`.
@@ -84,12 +84,12 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T010 [US1] Contract test for generated trace schema in `tests/contract/test_trace_schema.py`
-- [X] T011 [US1] Integration test for dataset generation pipeline in `tests/integration/test_synthetic_generation.py`
+- [~] T010 [US1] Contract test for generated trace schema in `tests/contract/test_trace_schema.py`
+- [~] T011 [US1] Integration test for dataset generation pipeline in `tests/integration/test_synthetic_generation.py`
 
 ### Implementation for User Story 1
 
-- [X] T056 [P] [Foundational] Add a pre-generation check in `code/generators/synthetic_trace.py` to verify the MemSlides schema file exists and is valid YAML; raise `FileNotFoundError` if missing. **Dependency**: Must run before T001/T002.
+- [~] T056 [P] [Foundational] Add a pre-generation check in `code/generators/synthetic_trace.py` to verify the MemSlides schema file exists and is valid YAML; raise `FileNotFoundError` if missing. **Dependency**: Must run before T001/T002.
 - [ ] T012 [US1] **DEPRECATED**. This task has been removed to resolve circular dependencies. Data generation is now handled directly by T001 and T002 which produce the distinct Training and Held-Out sets. **Do not implement**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -106,15 +106,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [US2] Contract test for metrics schema in `tests/contract/test_metrics_schema.py`
-- [X] T019 [US2] Unit test for entropy and variance calculations in `tests/unit/test_metrics_extract.py`
-- [X] T042a [US2] Unit tests for `code/metrics/extract.py` functions (`compute_entropy`, `compute_repetition`, `compute_variance`) in `tests/unit/test_metrics_extract.py`.
+- [~] T018 [US2] Contract test for metrics schema in `tests/contract/test_metrics_schema.py`
+- [~] T019 [US2] Unit test for entropy and variance calculations in `tests/unit/test_metrics_extract.py`
+- [~] T042a [US2] Unit tests for `code/metrics/extract.py` functions (`compute_entropy`, `compute_repetition`, `compute_variance`) in `tests/unit/test_metrics_extract.py`.
 
 ### Implementation for User Story 2
 
-- [X] T020a [P] [US2] Implement `code/metrics/extract.py` with **pure functions** `compute_entropy()`, `compute_repetition()`, and `compute_variance()` that accept a trace object and return metric values. **Constraint**: These functions must NOT handle missing data or logging; they assume valid input or raise `ValueError`. **Dependency**: Requires T006 completion.
+- [~] T020a [P] [US2] Implement `code/metrics/extract.py` with **pure functions** `compute_entropy()`, `compute_repetition()`, and `compute_variance()` that accept a trace object and return metric values. **Constraint**: These functions must NOT handle missing data or logging; they assume valid input or raise `ValueError`. **Dependency**: Requires T006 completion.
 - [ ] T020b [US2] Implement `code/metrics/pipeline.py` to orchestrate feature matrix generation. **Logic**: Iterate over `data/training/` and `data/held_out/`, call functions from T020a. **Exclusion**: If `compute_variance`, `compute_entropy`, or `compute_repetition` fails or returns undefined (None/NaN), **EXCLUDE the trace** and log a warning to `data/processed/imputation_log.json` (containing `trace_id`, `excluded_reason`, `timestamp`). **DO NOT impute 0.0**. **Deliverable**: Generate `data/processed/metrics.csv` (primary deliverable per Plan T004) containing structural metrics for every trace. Also generate `data/processed/feature_matrix.csv` for internal use. **Column Definitions**: `trace_id` (str), `dataset_split` (str: 'training' or 'held_out'), `sequence_entropy` (float), `tool_repetition_freq` (float), `arg_semantic_variance` (float). **Checksum**: Record the SHA256 hash of the generated `metrics.csv` as a **derived artifact hash** in the state file. **Verification**: Immediately after generation, verify that every row in `metrics.csv` can be mathematically reconstructed from the corresponding raw trace in `data/training/` or `data/held_out/` (Constitution Principle VI) with a tolerance of a sufficiently small threshold. Raise `DataIntegrityError` if verification fails. **Dependency**: Requires T020a, T001, T002 completion.
-- [X] T023 [US2] Implement `code/models/rule_induction.py` to perform **aggregate rule induction** (FR-003). **Logic**:
+- [~] T023 [US2] Implement `code/models/rule_induction.py` to perform **aggregate rule induction** (FR-003). **Logic**:
  1. Load `metrics.csv` (from T020b) and **filter strictly for rows where `dataset_split == 'training'`**.
  2. **Target Serialization**: Serialize the `final_state` into a categorical label or vector representation suitable for classification (e.g., hash of the state or a discrete action label).
  3. Train a lightweight CPU model (Decision Tree with `max_depth=5`, `min_samples_leaf=10`) using aggregate structural metrics to predict the serialized `final_state`.
@@ -136,14 +136,14 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T028 [US3] Contract test for benchmark results schema in `tests/contract/test_benchmark_results_schema.py`
-- [X] T029 [US3] Integration test for agent comparison pipeline in `tests/integration/test_agent_benchmark.py`
-- [X] T042b [US3] Unit tests for `code/evaluation/benchmark.py` in `tests/unit/test_benchmark.py`.
+- [~] T028 [US3] Contract test for benchmark results schema in `tests/contract/test_benchmark_results_schema.py`
+- [~] T029 [US3] Integration test for agent comparison pipeline in `tests/integration/test_agent_benchmark.py`
+- [~] T042b [US3] Unit tests for `code/evaluation/benchmark.py` in `tests/unit/test_benchmark.py`.
 
 ### Implementation for User Story 3
 
-- [X] T030 [P] [US3] Implement `code/agents/baseline.py` (raw memory agent)
-- [X] T031 [US3] Implement `code/agents/compressed.py` (symbolic rule agent using **global rule set** from `data/processed/rules/global_rules_baseline.json` generated by T023). **Dependency**: **Must wait for T023 completion**. This task is NOT [P] because it depends on the global rule artifact.
+- [~] T030 [P] [US3] Implement `code/agents/baseline.py` (raw memory agent)
+- [~] T031 [US3] Implement `code/agents/compressed.py` (symbolic rule agent using **global rule set** from `data/processed/rules/global_rules_baseline.json` generated by T023). **Dependency**: **Must wait for T023 completion**. This task is NOT [P] because it depends on the global rule artifact.
 - [ ] T032a [US3] Implement `code/evaluation/benchmark.py` to run **Baseline Agent** on the **held-out test set** (from T002). **Logic**: Execute baseline agent on each trace in the `data/held_out/` set. **Deliverable**: Generate raw execution logs in `data/processed/benchmark_raw_logs_baseline.json` containing execution details for every trace. **Dependency**: Explicitly requires the **Held-Out Set** artifact generated by T002.
 - [ ] T032c [US3] Implement `code/evaluation/benchmark.py` to run **Compressed Agent** on the **held-out test set** (from T002). **Logic**: Execute compressed agent (using rules from T023) on each trace in the `data/held_out/` set. **Deliverable**: Generate raw execution logs in `data/processed/benchmark_raw_logs_compressed.json` containing execution details for every trace. **Dependency**: Requires T031, T002 completion.
 - [ ] T032b [US3] Implement `code/evaluation/benchmark.py` to aggregate metrics. **Logic**: Parse `data/processed/benchmark_raw_logs_baseline.json` and `data/processed/benchmark_raw_logs_compressed.json` to calculate **Edit Accuracy** (fraction of edits matching ground truth) and **Retrieval Latency** (time to context-ready) for both agents. **Deliverable**: Output a single JSON report to `data/processed/benchmark_results.json` containing both metrics for every trace. **Dependency**: Requires T032a, T032c completion.
@@ -168,8 +168,8 @@
  c. Run the **compressed agent** (T031) on the **held-out test set** using this specific rule set.
  d. Calculate **Fidelity Rate** and **Retrieval Latency**.
  3. **Deliverable**: Save `data/processed/sensitivity_sweep.csv` with columns: `fidelity_tolerance`, `fidelity_rate`, `latency`, `rule_count`. This output explicitly captures the trade-off curve required by the research question. **Dependency**: Requires T023 and T031 completion.
-- [X] T062 [US3] Implement `code/evaluation/benchmark.py` latency variance analysis. **Logic**: In addition to mean latency, calculate and report **Standard Deviation** and **95th Percentile** latency for both baseline and compressed agents to assess stability. **Deliverable**: Append `latency_std_dev` and `latency_p95` columns to `data/processed/benchmark_results.json`. **Dependency**: Requires T032b completion.
-- [X] T064 [P] [Foundational] Refactor `code/metrics/extract.py` to handle `sentence-transformers` CPU memory spikes. **Logic**: Process traces in small batches (e.g., a limited number of traces) and clear the CPU cache between batches if available, ensuring the script does not OOM on the free-tier runner. **Dependency**: Requires T020a completion.
+- [~] T062 [US3] Implement `code/evaluation/benchmark.py` latency variance analysis. **Logic**: In addition to mean latency, calculate and report **Standard Deviation** and **95th Percentile** latency for both baseline and compressed agents to assess stability. **Deliverable**: Append `latency_std_dev` and `latency_p95` columns to `data/processed/benchmark_results.json`. **Dependency**: Requires T032b completion.
+- [~] T064 [P] [Foundational] Refactor `code/metrics/extract.py` to handle `sentence-transformers` CPU memory spikes. **Logic**: Process traces in small batches (e.g., a limited number of traces) and clear the CPU cache between batches if available, ensuring the script does not OOM on the free-tier runner. **Dependency**: Requires T020a completion.
 
 **Checkpoint**: All user stories should now be independently functional
 

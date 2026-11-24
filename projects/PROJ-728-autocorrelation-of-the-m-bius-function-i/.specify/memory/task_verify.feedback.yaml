@@ -1,57 +1,37 @@
-T000:
-  task: 05d7ad11ed2f059182661d5c2919cff7f93b1033b0ee0d57593318f3e4663904
 T001:
-  task: fb85e7700be124b554ea3228eccdfa72e169a670af464d6f0c79152654974650
+  task: d3c4c44fd2dd95c87706d6394ff367153119976d58cf83385f98ffe95105210f
 T002:
-  task: 6c47a2060425b9f463bb57b58a62c9aa51b97e40d0456f342b77540ab87cb537
+  task: 2396c7098f8b72c6063a30418165d8d985528a1190b1c485d9076c2c827bac9a
 T003:
-  task: d9ca51cce317e2b3c781638c2f31db61d7222b493609f0f4a879299435619dc3
+  reason: 'Requested task execution failed; rerun successfully: code/pack.py exit=1'
+  task: b2dbc8aa54e9239d2666b5d8fcad079be0370e99329e638bb1218e1ef9f555fb
 T004:
-  task: c6ba993535bc22d8a2820ead8ec5a302395c4ad4e5b386693c053ff26fe1b6b9
+  reason: "The required output file `data/processed/window_index.csv` is missing;\
+    \ the repository contains the generator scripts (`code/window.py` and `code/window_index.py`)\
+    \ but no evidence that the CSV was actually created, contains 300 rows, or passes\
+    \ the non\u2011overlap and reproducibility checks. The next implementer must run\
+    \ the generator (or add a pre\u2011computed CSV) so that `data/processed/window_index.csv`\
+    \ exists with the correct 300 rows and columns."
+  task: 183b5bfd1fd30b73b67f562c552a64e947378e5ec8c8ef90efefd5f48daf67b4
 T005:
-  task: a64f0b32e2d8016b7fc6f1522d08d1425cbf4d348a32963409dc743ee08675dc
+  reason: 'Requested task execution failed; rerun successfully: code/demo_autocorr.py
+    exit=1'
+  task: be426812d4aaf58e6887b57fa955b6c1b039310fc961c0ccaaaff1aab087110f
 T006:
-  task: 8b07e1ebbbbd93e8e3e5cadc32f1ab953a0aecf1b59d456cd2b3826cd613b5bc
+  task: b6a8b5455e7cde37b1be166f01eb4235ff756ef4e88ac0054e5295190669a973
 T007:
-  task: 7fded56cb53e6d39b9e6ceaf20edd355c2c4b70cd720decb9466d4793446b578
+  task: 49d2456229a9858d7e9181ede8acab39479083bee9de4ded61c404f89c07d452
 T008:
-  task: cb1db929da32d2ec2a8afad47e2072f4eaf5ffcbf956c40d654ab23d8692b0c1
+  task: 1397a695b60353f548689db01168adc2dc924d36ae96a44da39621dc820d5369
 T009:
-  task: 9d4a6ecd0b62cf3c2a095aa2d6ca259db1be25e2913378283092740c32de8448
+  task: 02b760ef4b2a9f561d2f56bd9a0b6229000c2c2a56a3e78be69b358583c056b1
 T010:
-  task: 2fae3f3b79c8dca80688060fcfe64754b6ff3f0157312375647eda3062746592
+  task: c6ffb9941fd85582a23592c15b030c1b68bdbc1dcb9a9fbfcb1f2875765602b4
 T011:
-  task: 62d78d32696c1fd543c8edaf4da18e464b35b0afbc7b077230e37e7ed5c07e10
+  task: 7e748328698ce83b2afc3d42e30d828907b994651d3703d478d3dcd612cc1dc7
 T012:
-  reason: 'Requested task execution failed; rerun successfully: code/sensitivity.py
-    exit=-1 (TIMEOUT)'
-  task: 57fe6535edec4bd81cdd90791eea0e85a4af3f0ed1ba5b6c1a82f8164127a772
+  task: 6b268be0fb6db9611a34dbbcff12663112c33353318a58784a0f403da2af89f0
+T013:
+  task: 4074a417c27d552210eb0120848d59c2ba13c50fc029b8389a33ddbf31f745e2
 T014:
-  reason: "The only artifact provided is `code/viz.py`; the required PNG files `outputs/figures/heatmap_L{L}.png`\
-    \ are missing, and the script\u2019s zero\u2011line (`plt.axhline(y=-0.5)`) does\
-    \ not correctly draw a horizontal line at autocorrelation\u202F=\u202F0, nor does\
-    \ the confidence\u2011band overlay align with the heat\u2011map axes. The task\u2019\
-    s visual output is therefore not satisfied."
-  task: ff3ed206c101c0a55a30760473116cc2e521e33b8502d852f89520abc3f2fdfa
-T015:
-  task: f95151accabc27cdb8211d8005e9343383f743bf72a28c0fc8491520a7ad9fb3
-T016:
-  reason: "The `research.md` file is present and contains methods, results, and a\
-    \ discussion of the theoretical variance, but it does not list the exact row numbers\
-    \ (or figure indices) that support each claim, nor does it enumerate the specific\
-    \ interval start indices flagged by `sensitivity_flag`. The claim\u2011to\u2011\
-    artifact links are given only as conditions (e.g., \u201Crows where `adjusted_p_value\
-    \ \u2265 0.05`\u201D) rather than concrete row identifiers, which fails the task\u2019\
-    s requirement for precise linking."
-  task: 41df335023d4be4efc73dd07e99a86262ac8cc808c21cc4014a3b9d0e7488dca
-T017:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
-  task: e4fc2c939cc1bbcfc19604b9a2f34c90943eff2215ed04691faddea0588940da
-T018:
-  task: a89bc03575250bdc0e08648037cd24a8076f6b7a0346b4896ce76344b46ff8e7
-T019:
-  task: f8acbcc3b843fbcff423c6e58bb8c9727bf4c2c1e73af49e510c3f722b2a8908
-T020:
-  task: ed396b866561734a3cb5b40c88c23a38385d7487b5aa12a8606846c3a7f3aa7f
-T021:
-  task: 44b939888874f82e423ac3361f4cf0a8580da3e0f1a21346e0fee779ae64f899
+  task: fa2e17a66ab828881a55a8f34f1e53ccd79d68b366d62c4f1c49c81230878d23

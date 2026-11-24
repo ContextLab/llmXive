@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: EvaluationLogEntry
+description: Schema for a single evaluation log entry written by the evaluation logger.
+type: object
+additionalProperties: false
+required:
+  - attempt_id
+  - puzzle_id
+  - method
+  - is_valid
+  - error_code
+  - timestamp
+properties:
+  attempt_id:
+    type: string
+    description: Unique identifier for the evaluation attempt.
+  puzzle_id:
+    type: string
+    description: Identifier of the puzzle that was attempted.
+  method:
+    type: string
+    description: Name of the method used for the attempt (e.g., "symbolic", "neural").
+  is_valid:
+    type: boolean
+    description: Whether the solution was judged valid by the deterministic verifier.
+  error_code:
+    type: [string, "null"]
+    description: Error code returned by the verifier when is_valid is false; null otherwise.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO‑8601 UTC timestamp when the entry was recorded.

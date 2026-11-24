@@ -7,7 +7,7 @@ env:
   # You can obtain a token from https://huggingface.co/settings/tokens
   # Example: export HF_TOKEN=hf_...
   token_required: true
-  
+
   # Dataset cache location (defaults to data/hf_cache if not set)
   datasets_cache: "data/hf_cache"
 
@@ -19,7 +19,7 @@ datasets:
     split: "train"
     cache_dir: "data/datasets/ultrafeedback"
     streaming: true
-    
+
   # Dolly dataset settings
   dolly:
     name: "databricks/databricks-dolly-15k"
@@ -31,57 +31,57 @@ datasets:
 preprocessing:
   # Minimum number of reasoning traces required per prompt
   min_traces: 4
-  
+
   # Context simulation settings
   context_simulation:
     # Number of privileged contexts to sample per prompt
     num_privileged: 1
-    # Seed for reproducibility
-    seed: 42
-    
+    # Seed for reproducibility (project‑wide seed)
+    seed: 2026
+
 # Training Configuration
 training:
   # Model settings
   model:
     name: "distilbert-base-uncased"
     max_length: 512
-    
+
   # Optimization settings
   optimizer:
     lr: 2e-5
     weight_decay: 0.01
     warmup_steps: 100
-    
+
   # AntiSD settings
   antisd:
     js_divergence_weight: 1.0
     pmi_threshold: 0.5
-    
-  # Timeout settings (in seconds)
-  timeout: 19800  # 5.5 hours
-    
+
+  # Timeout settings (in seconds) – 5 hours = 18000 s
+  timeout: 18000
+
 # Analysis Configuration
 analysis:
   # Statistical test settings
   statistical_test:
     alpha: 0.05
     power_target: 0.8
-    
+
   # Visualization settings
   visualization:
     dpi: 150
     style: "seaborn-v0_8-whitegrid"
-    
+
 # Output Configuration
 output:
   # Data output directory
   data_dir: "data"
-  
+
   # Results output directory
   results_dir: "results"
-  
+
   # Figures output directory
   figures_dir: "figures"
-  
+
   # Log level
   log_level: "INFO"

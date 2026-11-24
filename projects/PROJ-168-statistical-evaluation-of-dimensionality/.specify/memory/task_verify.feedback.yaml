@@ -1,0 +1,61 @@
+T001:
+  reason: The required directories `data/results/` and `paper/` are missing from the
+    project layout, even though they appear in `results/dir_listing.txt`. The task
+    explicitly demands these directories be created, so the implementation is incomplete.
+  task: 8068ae9ea79a5edddeb392a597db827e719f325f1533692f1dd7c252c0ff34f9
+T003:
+  task: 7ecf287aa0512e08b458080465b233c998bd912716e43fb5b87993b0f106c34f
+T004:
+  reason: "The `code/ci_limits.py` file exists and correctly implements the required\
+    \ checks, but there is no provided evidence (e.g., test runs, logs, or a deliberately\
+    \ violating `monitoring.csv`) showing that the script exits with code\u202F1 on\
+    \ a violating CSV and with code\u202F0 on a compliant one. Adding execution evidence\
+    \ or a failing CSV test is needed."
+  task: 1078c4c265ad231eeaa514a1197d0ea5c144f470c12c436841610323e8c36f93
+T006:
+  reason: "The required `code/Snakefile` (defining all listed rules and the abort\
+    \ behavior for `verify_data_availability`) is not present in the provided evidence,\
+    \ nor is any execution output showing the expected abort message or DAG generation.\
+    \ Without this file, the task\u2019s core deliverable is missing."
+  task: 799ac7fb946d6a60d850cf0300111daec3222f4ef1b2cb92c7fe1a6f9a9ff71f
+T007:
+  reason: "The `data/manifest.json` present does not contain entries for the three\
+    \ required GEO accessions (it only lists a dummy \u201CTEST001\u201D record),\
+    \ so the required fields (`dataset_id`, `source_url`, `status`, `checksum`, `raw_file_path`,\
+    \ `processed_file_path`) are not recorded as specified. Additionally, the schema\
+    \ file `dimensionality/contracts/dataset.schema.yaml` needed for the jsonschema\
+    \ validation is missing. These issues prevent the task from being considered genuinely\
+    \ completed."
+  task: 1b6fba68ec28caaf55b21e9fa16bafebc2b2d92eb2e407e3fc784d0b3778b4d0
+T008:
+  reason: 'Requested task execution failed; rerun successfully: code/preprocess_and_geometry.py
+    exit=1'
+  task: a1e6f67ea7723284c6a4c1d8d76bd3ac84d36dd3bcef05b99ced4d9e3f6c13f7
+T009:
+  reason: 'Requested task execution failed; rerun successfully: code/generate_embeddings.py
+    exit=1'
+  task: b236c4a4398cad202e61f856285c811da618f00dde845e94f0d0cbd8046304cc
+T010:
+  task: eebdb4fe9cec41ebbb3926ba0f61f41215a326202ddfc42006f89b3b55e9a59b
+T011:
+  task: 54524bd24609540c266ab3a9fc49cf8ba692b5aed6f2466d6986bdd739a4c5fb
+T012:
+  task: 7b937328665d641bca75b9614f3cf3131c7d92a88a53572ff50ce9304267a72b
+T013:
+  task: 2d8f3da0601c7ac69f829eee228ad33182eb359871354f88cca341a3d5fb2d48
+T014:
+  task: ca00c0d5cbe9c94db01bae0fc1f5e15d2c79788164d414abc5518228c16f6cfa
+T015:
+  task: c921a8370b0837bef6a3abe50f6e6297ddf43f456e3225a62e29dc4aea844e3c
+T016:
+  task: b4f74e9837f71f034e554630481a4c9bec3ba052cc4a296721af66917853a020
+T017:
+  task: 2a35542ae579c542ec2ae16e8e2d852a3fe4f0f5ef298d2986cf9069a1ea9863
+T018:
+  task: e229aa32edbefa0eb71256cdaebc1d38339386cee1504f7f85b8c9431e6c3d54
+T019:
+  task: fafed3fcba9494732f8afe6e92079f4c5a9b34c40bedba6e496395a58860e6a5
+T020:
+  task: 44271f1751119d0df9d53834fc5b773164535e548756822e368033f568960924
+T021:
+  task: d9e3808cb9fac3acb2bd15e0846daaef3b2477de94ae595fc82f44129c289f69

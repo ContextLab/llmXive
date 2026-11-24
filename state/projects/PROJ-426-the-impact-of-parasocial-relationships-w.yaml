@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-426-the-impact-of-parasocial-relationships-w
-last_run_id: 9fcb882d-b45f-43b9-9647-86f3858b3ada
+last_run_id: face8125-fe74-451a-adec-b4813b39009c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w
 title: The Impact of Parasocial Relationships with AI Companions on Loneliness
-updated_at: '2026-10-07T18:58:13.567726Z'
+updated_at: '2026-11-02T19:15:29.389908Z'

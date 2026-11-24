@@ -1,0 +1,127 @@
+T001-contracts:
+  task: 5a38d91f6d6366731e7ac5e9cc827c718aff1edbc9111de597564118b1bc4be0
+T001-data-cached:
+  task: c3b09808ccfdb847e2cdf1e208bd0cca2dc15b6a30c6e025e9b082e7d6f40768
+T001-data-processed:
+  task: e74ead0086afa0a457df48b721f390a5e84548190a1b04bb26b3e09b80a37ff1
+T001-data-raw:
+  task: 704225608d8e1f3eeb95a5240b323009885bdfe1380bbc5d6a8cf594481da297
+T001-data-tool-mappings:
+  task: b0985ca39519bf601bcf60b5391d5dfaa474e3431ad483751f1ede69138b6b24
+T001-results:
+  task: 3e9d331712d7b13aff81433d7c779abbcc46bf64b81bdb715f2d445e20e2af66
+T001-state:
+  task: 273c79d87db0acdd49a2a1268cbea9fe3b3a4bd22a7a6d4a6fa38ef7ac7c2b33
+T001-struct-src:
+  reason: "The `projects/PROJ-849-llmxive-follow-up-extending-agent-explor/code/src/models/`\
+    \ package lacks the required `__init__.py` file (marked MISSING), and there is\
+    \ no evidence that `__init__.py` exists in the other subdirectories (`services/`,\
+    \ `lib/`, `cli/`). The task\u2019s critical requirement of creating these init\
+    \ files to make each subdirectory a valid Python package is therefore not met."
+  task: 74bcd2cb6dee8e7d76dfe1b0cbf09a81379b8bb7d25aac4c062dc5d56ffb32ca
+T001-tests-main:
+  task: 3e7d2e0ae0c80b5e0f796a3eb04b1ab3a35ffd88601c5be79dab62c3cd2657a6
+T001-tests-subdirs:
+  task: 390caa8b7db2cda318b8bc6abfc9d6970ccaf7dbc8a9ea507c00e4bb86ffe69f
+T002:
+  task: 1ecb932bbf0fb3f0efdc071c2d2430d1e3cc72ffd2cd7209bd54e086885b2631
+T003:
+  task: c075037bdf9ef26a6ddc5b265a95f8ef98fcbbbf34e2281b01183e953a436d2d
+T004:
+  task: 3c8a933293849896a1e7f148a7c04e952dee4a58043ecea484344037c5a150bc
+T004-ext:
+  task: 94bf81f9c78d83477ac26d6d3d48186302a43d494075430424e18b0636e73943
+T004-integration:
+  task: e80660134ac95e76afad63ab8b133101ed6bf0c62e63ebe5573d023c35cdb70a
+T005:
+  task: 6e8477e74e5f0bcbc81e315c83e00a14cce967344995f0fb6fa5c4f805e8bf63
+T005-ext:
+  task: 57d9b6a5ad3cb68870937dadfc54cd20b7d3c6e308fcae9cb3a6dd6eef212679
+T005-stat-check:
+  task: fd0e3d044c0e14009d9c9e6f0b43c34a0544fe5a0347ecd58f6db0f970dc7c7a
+T006:
+  task: b8ed34ac90915f97e3504174041dcef8474dd70ecc39e52d8496844a14e956e6
+T008-exec-axpo:
+  task: 776774bf28aad0b87fa39b241a5eeae9d1640cd42015de3254230c84348ab401
+T008-impl-cache:
+  task: 1af846d34ad0f8d4be22c3c0770c28ef363d3b9bc005b953bde7288c287d2e24
+T008-impl-schema:
+  task: ec7b8d6141ee14e18802cb5767a7c4702522c8aa5b5b80708322a5347ee245ae
+T008-sim-wrapper:
+  task: 46e3b5188f852790487269e7c69ddb04e069c592417daadc83fdb882540f0869
+T010:
+  task: ca1e81433ac504dfb19b4f511f9a6e0cfb6435c173ea6fd171aacb1325bfbfb1
+T011:
+  reason: "The provided `tests/unit/test_retrieval.py` contains a `test_zero_retrieval_edge_case`\
+    \ that calls a non\u2011existent `retrieve_tools` method and only asserts an empty\
+    \ list, not that a zero\u2011vector embedding and a score of\u202F1.0 are returned.\
+    \ The required behavior (zero vector and score\u202F=\u202F1.0) is not tested,\
+    \ and the service implementation does not expose the needed API. The task\u2019\
+    s unit test is therefore missing or incorrect."
+  task: 207476c4840b8679620f38e462d015437274bb96406d67206b94b5e6ffbdd4a1
+T012:
+  task: dc1631eee6176826928d56852eeb4b51579778d9d5de1390148a1559646d6e49
+T013:
+  task: 49350ec23bb81fc835ffde29b2f0956cbda0cb1e37c38b4ddd01530400de0202
+T014:
+  task: ae443541086cc7adefb15c7ba2cd75a82f115672147154a1ee4b7f7c63aa4cd9
+T015:
+  task: 6f94c1bd5f0f27cd9d6af35331c9f9e814ed2c3129ba072cfed128355a076ba7
+T016:
+  task: 5200e7b0b9d5db357c98a0647c904d1280ce5cde301ef39f2d6220c154396df7
+T017:
+  task: 6b8c69fd68cde38d4ed6e7a5efa6d75f2f59adb5f12a9432efcfddcdc2fbbe41
+T018:
+  task: 179f4817a14aa8b01223dcb9779db8ca4759f93b66cba7097e0b8d97f9e778bc
+T019:
+  task: 5c18d8e9fbd7f3dd89ebeb7ecc36c94348f174d2bf0bcae3435cc55866853529
+T020:
+  task: ec3a3096e0697e3314cd0810c8c6d4a40b171b28b87b38412f3b1173c18d4435
+T021:
+  task: 00265ce8a7ecbb72302dc2c089b1a318b04ae451185c011d15b736ac01697a38
+T022:
+  task: 31562bd33fd4dae54a084bb31dd3d16b61bdb2abadc0ebdbbf6634af249c0cba
+T023:
+  task: de2e51c052329a535e48cae8e9f7329d9920cc0a667a11a184153b45f938b625
+T024:
+  task: 14c8004af1397c197fe7af76c3f487b722a51b117daa26d5e377c44ecf70f1fa
+T024-verify:
+  task: 0c9d2d6b70ff5f21393ee19ae63150b5ad50747924136b33ce2a24bfd4d100f2
+T025:
+  task: e675df4febd5741e1fc21ff93dd67f1180df8e706971a7f4f3c5ae1324f9fc25
+T026:
+  task: e91915e320c384e55b06b6dd02d3d31141cefa297d60b5512eb2984318b2f5aa
+T027:
+  task: 0076be798e068d4a479ce602699eee918bf410bfc749cb0049cff845a0673de1
+T028:
+  task: de6ad5b54f8ec7597e549ae2a2224791f83897712039c8dc203d925f81818e6f
+T029:
+  task: 46dfc607e0c872d32a30f280f72c8982b4a8eeee062bc7f2aa1ab750381d8f1a
+T030:
+  task: 4ecce20f61238b996c53f26b1a337f5a05789d78fad8adf8a05d5ece63215603
+T031:
+  task: 50ad2bd5c2a348cc348d5958ac1e87e13b5fb062c16fee8abe4b4188159f4ebe
+T032:
+  task: b977729d0f0c658ca69c1f16653462705080e2b8dd8fa326eaed17241a5ef3f6
+T032-persist:
+  task: d75a9bd99d0685fe7ee53fd76bdc080643db8c69ca67b3c2f2c44216c7b18e8e
+T032-schema:
+  task: c04e724a317373d3d8fdc18696a24a14d155234ee81ed4761ee4cb4b19a79e36
+T032-verify:
+  task: b5027c302619b53156ae660edd0e8e2f16a1005e1c2186519646fa07f46c0ab1
+T033:
+  task: 6cf614a2cbeda842efa7865d255e62328422b206c5b07bbdb8545ea9144a949b
+T034:
+  task: 8a88eee939cdec73c469452feccfd983d72d8a5d80915d0d6061d4d9039fa843
+T035:
+  task: 5af2a781703339f1218f424d6534cdd33c749dd450cac0db7927c83236b58031
+T036:
+  task: 070d79649a3513819065bd98e03a880f62d234b763e9940dab68f43b16ed90cf
+T037:
+  task: 4ebceb25e3eafe95ebbc90fdf59be4a21de6171f22e2e36b54e99f1b7209b001
+T038:
+  task: 14893c87a87d9207c739b1d2cae44f38f624abe718256503055a536424aef9ae
+T039:
+  task: 3935b4ebeb56ffcd940623b77c100a80f23cf60b1b405ef5ba7f48b498743a95
+T040:
+  task: d693663b828676b16d7c80d1814f077784d36f5f4e9c0eca53dce9bb16369efc

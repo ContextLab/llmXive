@@ -1,76 +1,143 @@
 """
-Fetch a diverse set of text prompts from the MS-COCO training set using HuggingFace datasets.
-Writes the result to data/processed/diverse_prompts.csv.
+Download a diverse set of prompts from at least two public caption collections.
+Source 1: COCO 2017 Train annotations (publicly available zip).
+Source 2: Conceptual Captions (HuggingFace dataset, public, no auth required).
+
+The script writes a CSV file with columns: prompt_id, caption, source.
+At least 150 prompts are required; otherwise it raises an error.
+All errors are re‑raised as RuntimeError so the script exits non‑zero on failure.
 """
+
+import os
+import urllib.request
+import zipfile
+import tempfile
+import random
 import csv
 import logging
-import sys
-import random
 from pathlib import Path
-from typing import List, Dict
 
-try:
-    from datasets import load_dataset
-except ImportError:
-    raise RuntimeError("The 'datasets' library is required. Please run 'pip install datasets'.")
+from pycocotools.coco import COCO
+from datasets import load_dataset
+from llmxive_toolkit import paths
 
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from config import Config
-
+# Configure module‑level logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
+    format="%(asctime)s - %(levelname)s - %(message)s"
 )
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
-def fetch_diverse_prompts(num_samples: int = 1000) -> List[Dict[str, str]]:
-    """
-    Fetches diverse text prompts from the COCO training split via streaming.
-    """
-    try:
-        logger.info("Streaming MS-COCO training set from HuggingFace (nlpconnect/coco_captions)...")
-        dataset = load_dataset("nlpconnect/coco_captions", split="train", streaming=True)
-    except Exception as e:
-        raise RuntimeError(f"Failed to fetch COCO training dataset from HuggingFace: {e}") from e
 
-    prompts = []
-    # Use a fixed seed for reproducibility of the "diverse" sample
-    random.seed(42)
-    
-    count = 0
-    for item in dataset:
-        caption = item.get("caption")
-        if isinstance(caption, str) and caption.strip():
-            prompts.append({
-                "id": f"train_{count}",
-                "caption": caption.strip(),
-                "source": "coco_train2017"
-            })
-            count += 1
-        if len(prompts) >= num_samples:
+def _download_coco_train_captions() -> list[dict]:
+    """
+    Download COCO 2017 *train* captions and return a list of annotation dicts.
+    Each dict contains at least a ``caption`` field.
+    """
+    log.info("Fetching prompts from COCO 2017 Train...")
+    coco_url = (
+        "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"
+    )
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        zip_path = os.path.join(tmp_dir, "coco_train.zip")
+        urllib.request.urlretrieve(coco_url, zip_path)
+
+        with zipfile.ZipFile(zip_path, "r") as zf:
+            zf.extractall(tmp_dir)
+
+        ann_file = os.path.join(tmp_dir, "annotations", "captions_train2017.json")
+        if not os.path.exists(ann_file):
+            raise FileNotFoundError(
+                f"COCO train annotation file not found at expected location: {ann_file}"
+            )
+
+        coco = COCO(ann_file)
+        ann_ids = coco.getAnnIds()
+        anns = coco.loadAnns(ann_ids)
+
+        # Sample up to 100 captions (or all if fewer)
+        sample_size = min(100, len(anns))
+        sampled = random.sample(anns, sample_size)
+
+        records = []
+        for i, ann in enumerate(sampled):
+            records.append(
+                {
+                    "prompt_id": f"coco_{i}",
+                    "caption": ann["caption"],
+                    "source": "coco2017_train",
+                }
+            )
+        return records
+
+
+def _download_conceptual_captions() -> list[dict]:
+    """
+    Stream the ``conceptual_captions`` dataset from HuggingFace and collect
+    up to 100 captions. The dataset is public and does **not** require an
+    authentication token.
+    """
+    log.info("Fetching prompts from HuggingFace 'conceptual_captions' dataset...")
+    # The dataset contains a ``caption`` field.
+    ds = load_dataset("conceptual_captions", split="train", streaming=True)
+
+    records = []
+    for idx, item in enumerate(ds):
+        if idx >= 100:
             break
-    
-    if not prompts:
-        raise RuntimeError("No valid captions were extracted from the COCO training dataset.")
-    
-    logger.info(f"Fetched {len(prompts)} diverse prompts.")
-    return prompts
+        caption = item.get("caption")
+        if caption:
+            records.append(
+                {
+                    "prompt_id": f"conceptual_{idx}",
+                    "caption": caption,
+                    "source": "conceptual_captions",
+                }
+            )
+    return records
+
 
 def main() -> None:
-    config = Config()
-    prompts = fetch_diverse_prompts(num_samples=1000)
-    
-    output_path = config.processed_data_dir / "diverse_prompts.csv"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["id", "caption", "source"])
-        writer.writeheader()
-        writer.writerows(prompts)
-    
-    logger.info(f"Diverse prompts saved to {output_path}")
+    """
+    Orchestrates the download of two caption collections, merges them,
+    validates the total count, and writes the combined CSV to the project
+    ``data/processed`` directory.
+    """
+    output_path = paths.data("processed", "diverse_prompts.csv")
+
+    # Ensure reproducibility of the random sampling
+    random.seed(42)
+
+    try:
+        records = []
+
+        # 1️⃣ COCO train captions
+        records.extend(_download_coco_train_captions())
+
+        # 2️⃣ Conceptual Captions
+        records.extend(_download_conceptual_captions())
+
+        total = len(records)
+        if total < 150:
+            raise RuntimeError(
+                f"Collected only {total} prompts; at least 150 are required."
+            )
+
+        # Write CSV (header + rows)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w", newline="", encoding="utf-8") as csv_file:
+            writer = csv.DictWriter(
+                csv_file, fieldnames=["prompt_id", "caption", "source"]
+            )
+            writer.writeheader()
+            writer.writerows(records)
+
+        log.info(f"Successfully wrote {total} diverse prompts to {output_path}")
+
+    except Exception as exc:
+        # Re‑raise as RuntimeError so the CLI exit code is non‑zero
+        raise RuntimeError(f"Failed to download diverse prompts: {exc}") from exc
+
 
 if __name__ == "__main__":
     main()

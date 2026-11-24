@@ -1,46 +1,46 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Output Schema"
+title: "ModelOutputSchema"
 description: "Schema for the model evaluation metrics and predictions."
-type: object
+type: "object"
 properties:
   model_type:
-    type: string
+    type: "string"
     enum:
       - "RandomForest"
       - "GradientBoosting"
     description: "Type of model used."
   r2_score:
-    type: number
+    type: "number"
     description: "Coefficient of determination on the test set."
   rmse_mV:
-    type: number
+    type: "number"
     description: "Root Mean Square Error in millivolts."
   is_learnable:
-    type: boolean
-    description: "True if R2 > 0.05 and p < 0.05 via global permutation test AND RMSE < 150 mV."
+    type: "boolean"
+    description: "True if R² > 0.05 and p < 0.05 via global permutation test AND RMSE < 150 mV."
   feature_importance:
-    type: array
+    type: "array"
+    description: "List of feature importances with significance testing."
     items:
-      type: object
+      type: "object"
       properties:
         feature_name:
-          type: string
+          type: "string"
         importance_score:
-          type: number
+          type: "number"
         p_value:
-          type: number
+          type: "number"
         is_significant:
-          type: boolean
+          type: "boolean"
       required:
-        - feature_name
-        - importance_score
-        - p_value
-        - is_significant
-    description: "List of feature importances with significance testing."
+        - "feature_name"
+        - "importance_score"
+        - "p_value"
+        - "is_significant"
 required:
-  - model_type
-  - r2_score
-  - rmse_mV
-  - is_learnable
-  - feature_importance
+  - "model_type"
+  - "r2_score"
+  - "rmse_mV"
+  - "is_learnable"
+  - "feature_importance"
 additionalProperties: false

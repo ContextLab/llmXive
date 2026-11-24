@@ -1,76 +1,65 @@
 # Research: Predicting Molecular Properties from Topological Data Analysis
 
 ## Overview
-
-This research phase investigates the feasibility of using Topological Data Analysis (TDA) to predict molecular properties. The core hypothesis is refined: while shortest-path filtration captures topological cycles (rings) that are also encoded in Morgan fingerprints (ECFP), TDA may offer a **more compact or interpretable representation** of these structural features. The study focuses exclusively on **logP** (octanol-water partition coefficient) using the **MoleculeNet ESOL** dataset to ensure data consistency and avoid the noise of merging disparate sources.
+We evaluate whether topological descriptors derived from shortest‑path distance filtrations add predictive value for **logP** beyond traditional QSPR descriptors. The investigation is strictly associative; we do **not** claim causal inference.
 
 ## Dataset Strategy
 
 ### Verified Sources
+| Dataset | URL | Format | Contains |
+|---------|-----|--------|----------|
+| PubChem multi‑million canonicalized (subset) | https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized/resolve/main/data/train-00000-of-00001-e9b227f8c7259c8b.parquet | Parquet (streamable) | `canonical_smiles`, `XLogP3` (used as `logP`) |
 
-Per project constraints, only the following verified datasets are used. The study requires **SMILES strings** and **experimental logP values**.
-
-| Dataset Name | Source URL | Format | Relevance |
-|--------------|------------|--------|-----------|
-| **MoleculeNet ESOL** | `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv` | CSV | Contains SMILES strings and experimental logP values. **Primary Source**. |
-| **MKE Novel Druglike SMILES** | ` | CSV | Contains SMILES but **NO** logP values. **Excluded** for this study. |
-| **HUBioDataLab SELFormer SMILES** | ` | CSV | Contains SMILES but **NO** logP values. **Excluded** for this study. |
-| **PubChem 10M Canonicalized** | ` | Parquet | Contains SMILES but **NO** standard logP column. **Excluded** for this study. |
-
-### Dataset Selection & Variable Fit
-
-**Primary Candidate**: **MoleculeNet ESOL**.
-- **Rationale**: This is the only verified source in the block that explicitly contains both SMILES and the target property (logP) in a single, consistent format.
-- **Critical Check**: The `01_data_ingestion.py` script MUST verify that the downloaded CSV contains columns `smiles` and `logP` (or `expt_logP`). If these are missing, the pipeline halts with a "Data Gap" error.
-- **Exclusion of Other Properties**: The spec mentions solubility and boiling point, but these are not natively available in the verified ESOL dataset. To maintain data integrity and avoid merging noise, the study is restricted to **logP** only. This reduces N (number of hypothesis tests) and simplifies the multiple comparison correction.
-- **No Fallback**: If MoleculeNet ESOL does not contain the required columns, the study is **blocked**. No merging of secondary sources or manual curation is permitted to avoid violating Constitution Principles I and II.
-
-**Decision**: The study proceeds **only** with MoleculeNet ESOL. No fallback to manual curation or merging of secondary sources is permitted.
+### Variable Fit
+- **Required columns**: `canonical_smiles` (renamed to `smiles`) and `XLogP3` (renamed to `logP`).  
+- `01_download_pubchem.py` validates the presence of these columns against `contracts/dataset.schema.yaml`. If either column is missing, the pipeline aborts with a **Data Gap** error.  
+- The streaming loader **shuffles** the entire dataset with a fixed random seed (`42`) and then **randomly samples** the first **5 000** valid molecules. This ensures an unbiased sample irrespective of the original ordering.
 
 ## Methodological Rigor
 
 ### Statistical Framework
+1. **Model Comparison**  
+   - Feature sets: Traditional, Topological, Combined.  
+   - Learners: Linear Regression (L2, α = 1.0) and Random Forest (100 trees, max_depth = 10).  
+   - **5 repeats of 10‑fold scaffold‑based cross‑validation** (Bemis‑Murcko, seed = 42) → total **50** paired observations per model configuration.  
+   - Metrics per fold: R², RMSE.  
 
-1. **Model Comparison**:
- - **Baseline**: Traditional descriptors (Morgan fingerprints, MW, atom counts) via RDKit.
- - **Experimental**: Topological features (persistence images from shortest-path filtration).
- - **Combined**: Concatenation of both sets.
- - **Metric**: R² and RMSE from 5-fold scaffold cross-validation.
- - **Significance**: Paired t-test (or Wilcoxon signed-rank if non-normal) on fold-wise scores, followed by **Holm-Bonferroni correction** (replacing the spec's "Bonferroni" to address correlated tests) for the single property (logP) and any secondary tests.
+2. **Paired Test**  
+   - Perform a **Wilcoxon signed‑rank test** on the **RMSE** differences between the Combined and Traditional models (RMSE is unbounded and more appropriate for a non‑parametric test).  
 
-2. **Multiple Comparison Correction**:
- - **Method**: **Holm-Bonferroni** correction applied to the set of hypothesis tests.
- - **Rationale**: Unlike Bonferroni, Holm-Bonferroni is less conservative when tests are correlated (e.g., if multiple properties were used) and maintains strong control of the Family-Wise Error Rate (FWER). This addresses the concern that Bonferroni is overly conservative for correlated outcomes.
+3. **Multiple‑Comparison Correction**  
+   - Apply **Holm–Bonferroni** correction using a family‑wise α = 0.05 (source: https://en.wikipedia.org/wiki/Holm%E2%80%93Bonferroni_method) (FR‑005).  
 
-3. **Collinearity Diagnostics**:
- - **Method**: Variance Inflation Factor (VIF) for all predictors in the combined model.
- - **Threshold**: VIF > 5 flagged (FR-007).
- - **Handling**: High VIF pairs reported descriptively; no causal claims made for correlated predictors.
- - **Redundancy Analysis**: Mutual Information (MI) between traditional and topological feature sets is calculated to quantify the overlap. The hypothesis is that TDA provides a *subset* of the information in fingerprints, and the MI value will reflect this.
+4. **Power Analysis**  
+   - For a paired non‑parametric test, a minimum of **N ≥ 30** paired observations is recommended to achieve reasonable power (α = 0.05, power = 0.8, medium effect size).  
+   - With **5 repeats of 10‑fold CV**, we obtain **N = 50** RMSE differences, satisfying the power requirement. The script checks that the total number of paired observations meets the N ≥ 30 threshold and aborts with **Power Insufficient** if not.
 
-4. **Power & Sample Size**:
- - **Requirement**: The pipeline performs an a priori power analysis.
- - **Parameters**: alpha=0.05, Power=0.8, Effect Size (Cohen's d) = 0.5 (medium).
- - **Threshold**: Minimum sample size required is **N=128** for a paired t-test.
- - **Action**: If the ESOL dataset (approx. 1128 molecules) yields fewer than 128 valid molecules after filtering, the pipeline halts with a "Power Insufficient" error. This ensures the study is not merely "exploratory" but statistically valid.
+5. **Collinearity Diagnostics**  
+   - Compute Variance Inflation Factor (VIF) for every predictor in the **Linear Regression** model (FR‑007).  
+   - Flag predictors with VIF > 5; report in `vif_report.json`.
 
-### Sensitivity Analysis
+6. **Redundancy Analysis**  
+   - Estimate **Mutual Information (MI)** between the Traditional descriptor matrix and the Topological feature matrix (FR‑009).  
+   - Report the MI value to contextualize feature overlap.
 
-- **Parameter**: Grid resolution for persistence images.
-- **Sweep**: {10x10, 20x20, 30x30}.
-- **Metric**: Variance in R² across resolutions.
-- **Goal**: Ensure results are not artifacts of a single grid choice (SC-002).
+7. **Feature Importance Extraction**  
+   - After training, extract importance scores for both traditional and topological descriptors (Linear Regression coefficients, Random Forest Gini importance).  
+   - Store results in `feature_importance.json` conforming to `model_metrics.schema.yaml`.
+
+8. **Sensitivity Analysis**  
+   - Sweep persistence image grid resolutions `{10, 20, 30}` (FR‑006).  
+   - Record mean and standard deviation of **R²** for each resolution; **assert that the standard deviation σ < 0.02** to satisfy stability criterion (SC‑002).  
 
 ### Assumptions & Limitations
-
-1. **Dataset Availability**: The study relies on MoleculeNet ESOL. If this dataset is unavailable or lacks the `logP` column, the study is blocked.
-2. **Filtration Adequacy**: Shortest-path distance filtration captures relevant topology (rings) but is a subset of ECFP information. The study tests if this subset is a *useful* representation, not if it is *independent*.
-3. **Causal Inference**: No causal claims; all results are associational.
-4. **Computational Limits**: Assumes sufficient RAM for 10x10 persistence images of ~1100 molecules.
-5. **Property Scope**: Restricted to logP. Solubility and boiling point are excluded due to lack of verified, single-source data.
-6. **Redundancy**: The plan acknowledges that TDA features are likely highly correlated with traditional fingerprints. The primary scientific contribution is the quantification of this redundancy (via MI) and the assessment of TDA as a compact representation.
+- **Dataset Scope**: Only `logP` is analyzed; solubility and boiling point are omitted due to lack of verified joint sources.  
+- **Filtration Choice**: Shortest‑path distance filtration captures graph topology but not 3D geometry.  
+- **Causal Claims**: None; findings are associative (Constitution VI).  
+- **Computational Limits**: All steps run on CPU; no GPU required (FR‑008).  
+- **Data Source**: PubChem dataset is streamed from the Hugging Face repository; no alternative sources are used.  
 
 ## References
+- **Dataset**: PubChem 10 M canonicalized – Hugging Face repository (verified URL above).  
+- **Multiple‑Comparison**: Holm–Bonferroni method, α = 0.05 (source: https://en.wikipedia.org/wiki/Holm%E2%80%93Bonferroni_method).  
+- **Topological Methods**: GUDHI library documentation (CPU‑only).  
 
-- **Dataset**: MoleculeNet ESOL (Verified URL: `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv`)
-- **Method**: Holm-Bonferroni correction (Holm, S. (1979). A simple sequentially rejective multiple test procedure).
+---

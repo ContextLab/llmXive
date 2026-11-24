@@ -7,6 +7,7 @@ from pathlib import Path
 # Mock the config module if necessary, or assume it's available in test env
 # For this test, we'll mock the config loading
 import sys
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from data_ingestion import filter_by_missing_nutrients

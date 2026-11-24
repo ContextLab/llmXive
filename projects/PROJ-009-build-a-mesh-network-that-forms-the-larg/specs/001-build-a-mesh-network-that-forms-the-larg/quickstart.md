@@ -1,31 +1,29 @@
 # Quickstart: Mesh Network Supercomputer Using Pooled Idle Computing Resources
 
 ## Prerequisites
-
-- **Local Machine**: Linux/macOS with Python 3.11+
-- **Testbed Devices**: 10–20 heterogeneous devices (laptops, Raspberry Pis, mobile devices) on the same Wi-Fi network
-- **SSH Access**: Passwordless SSH keys configured for all testbed devices
-- **CLI Tools**: `tcpdump`, `mpstat`, `iperf`, `ping` installed on testbed devices
-- **Network**: Local Wi-Fi network with ability to inject latency (e.g., `tc` command on Linux)
+- **Local Machine**: Linux/macOS with Python 3.11+ installed.  
+- **Testbed Devices**: 10–20 heterogeneous devices (laptops, Raspberry Pis, Android phones) on the same Wi‑Fi network.  
+- **SSH Access**: Password‑less SSH keys configured for every testbed device.  
+- **CLI Tools on Nodes**: `tcpdump`, `mpstat`, `iperf3`, `ping`, `tc` (for latency injection), `sensors` (for temperature), `iwconfig` (for RSSI).  
+- **Network**: Ability to shape traffic (e.g., `tc qdisc add …`).  
 
 ## Installation
-
 ```bash
-# Clone repository
+# Clone the repository
 git clone <repo-url>
 cd projects/PROJ-009-build-a-mesh-network-that-forms-the-larg
 
-# Create virtual environment
+# Create and activate a virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-# Install dependencies
+# Install Python dependencies
 pip install -r code/requirements.txt
 ```
 
 ## Configuration
+Create a `config.yaml` in the project root (the file is required by the test suite and the CLI).
 
-1. **Create `config.yaml`** in the project root:
 ```yaml
 testbed:
   nodes:
@@ -33,98 +31,125 @@ testbed:
       hardware: "Raspberry Pi 4"
     - ip: "192.168.1.102"
       hardware: "Laptop Intel i7"
-    # Add more nodes...
+    # Add additional nodes as needed
   network:
-    base_latency_ms: 10
-    packet_loss_rate: 0.01
-    bandwidth_mbps: 100
-    snr_db: 25
+    base_latency_ms: 5      # typical baseline latency on your network
+    packet_loss_rate: 0.0   # expected baseline loss
+    bandwidth_mbps: 100     # approximate baseline bandwidth
+    snr_db: 40              # typical SNR on your channel
 
 benchmark:
   granularity: ["fine", "medium", "coarse"]
   node_counts: [10, 15, 20]
-  injected_latencies: [0, 50, 100, 200]
-  runs_per_config: 5
+  injected_latencies: [0, 50, 100, 200]  # ms
+  runs_per_config: 2
+  random_seed: 42
 
 analysis:
-  random_seed: 42
-  max_runtime_hours: 6
+  max_runtime_hours: 5   # CI‑friendly default; adjust if you have more resources
 ```
 
-2. **Verify SSH connectivity**:
+Verify SSH connectivity to all nodes:
+
 ```bash
-python code/orchestrator/node_manager.py --verify
+python -m code.orchestrator.node_manager --verify
 ```
 
-## Execution
+## Step‑by‑Step Workflow
 
-### Run a Single Benchmark
-
+### 1. Calibration (creates real‑world conversion factors)
 ```bash
-python code/orchestrator/scheduler.py --config config.yaml --granularity fine --nodes 15 --latency 100
+python -m code.orchestrator.calibration --config config.yaml
 ```
+- **Network calibration** → `data/raw/network_calibration.json` (packet‑count ↔ throughput).  
+- **CPU calibration** → `data/raw/cpu_calibration.json` (mpstat % ↔ CPU load).  
 
-This will:
-1. Deploy tasks to 15 nodes
-2. Inject 100ms latency
-3. Collect execution logs
-4. Output `data/raw/run_001.csv`
-
-### Run Full Parameter Sweep
-
+### 2. Run a Single Benchmark (real hardware)
 ```bash
-python code/orchestrator/scheduler.py --config config.yaml --sweep
+python -m code.orchestrator.cli run \
+  --config config.yaml \
+  --granularity fine \
+  --node-count 15 \
+  --injected-latency 100
 ```
+*Outcome*:  
+- Scheduler distributes Monte Carlo integration chunks.  
+- Each node logs `tcpdump` and `mpstat`; metadata written to `data/raw/physical_node_<ip>.json`.  
+- Dropout events recorded in `data/raw/dropout_events.json`.  
+- Raw CSV `data/raw/run_<id>.csv` and `task_chunks/<run_id>.jsonl` are produced.  
 
-This will:
-1. Execute all granularity/node/latency combinations
-2. Aggregate results into `data/processed/execution_runs.csv`
-3. Fit regression model and output `data/processed/regression_model.json`
-
-### Validate Against Theoretical Bound
-
+### 3. Full Parameter Sweep (research‑scale, CI‑verified)
 ```bash
-python code/analysis/theoretical_bound.py --config config.yaml --input data/processed/regression_model.json
+python -m code.orchestrator.cli sweep --config config.yaml
 ```
+*What happens*:  
+- Executes every combination of granularity, node count, and injected latency (default 2 replicates each).  
+- After each run, calibration factors are applied, and aggregated metrics are stored under `data/processed/`.  
 
-This will:
-1. Load regression model results
-2. Compute Ong & Motani (2007) bound
-3. Output deviation metric and flag if empirical exceeds theoretical
-
-## Testing
-
-### Unit Tests
-
+### 4. Mock Run (CPU‑only, used by CI verification)
 ```bash
+python -m code.orchestrator.cli mock --config config.yaml
+```
+- Generates a synthetic mesh of virtual nodes with realistic heterogeneity distributions.  
+- Produces **all** required artefacts (`run_*.csv`, `task_chunks/*.jsonl`, `dropout_events.json`, `physical_node_*.json`, calibration JSONs, runtime JSON, timeout log).  
+- All files are validated against the schemas in `contracts/`.  
+
+### 5. Analysis (runs on either real or mock data)
+```bash
+# Aggregate and fit regression
+python -m code.analysis.regression \
+  --input data/raw/ \
+  --output data/processed/
+
+# Theoretical bound validation
+python -m code.analysis.theoretical_bound \
+  --input data/processed/execution_runs.csv \
+  --output data/processed/
+```
+*Outputs*:  
+- `data/processed/execution_runs.csv` (one row per configuration).  
+- `data/processed/regression_model.json` (coefficients, p‑values, R², VIF, FDR‑adjusted p‑values).  
+- `data/processed/theoretical_bound_validation.json` (normalized efficiency, scaling‑law exponent comparison, deviation flags).  
+
+### 6. Testing
+```bash
+# Unit tests
 pytest tests/unit/ -v
-```
 
-### Contract Tests (Schema Validation)
-
-```bash
+# Contract (schema) tests
 pytest tests/contract/ -v
-```
 
-### Integration Tests (Mocked Testbed)
-
-```bash
+# Integration test (mock pipeline end‑to‑end)
 pytest tests/integration/ -v --mock-testbed
 ```
+All tests must exit with status 0; CI will fail otherwise.
 
-## Output Artifacts
-
-- **Raw Logs**: `data/raw/run_*.csv` (one per execution)
-- **Aggregated Metrics**: `data/processed/execution_runs.csv`
-- **Regression Model**: `data/processed/regression_model.json`
-- **Validation Report**: `data/processed/theoretical_bound_validation.json`
+## Output Artefacts
+| Artifact | Location | Description |
+|----------|----------|-------------|
+| Raw execution logs | `data/raw/run_*.csv` | One row per task chunk (wall‑clock time, CPU %, packet count). |
+| Dropout events | `data/raw/dropout_events.json` | JSON array of node dropout/re‑assignment events. |
+| Physical node metadata | `data/raw/physical_node_*.json` | Baseline & runtime metrics per node. |
+| TaskChunk records | `data/raw/task_chunks/*.jsonl` | JSON‑Lines of each dispatched chunk (validated against schema). |
+| Calibration data | `data/raw/network_calibration.json`, `data/raw/cpu_calibration.json` | Conversion factors used in analysis. |
+| Aggregated metrics | `data/processed/execution_runs.csv` | One row per configuration (throughput, efficiency, overhead). |
+| Regression model | `data/processed/regression_model.json` | Coefficients, p‑values, R², VIF, FDR‑adjusted results. |
+| Theoretical bound validation | `data/processed/theoretical_bound_validation.json` | Deviation ratio, scaling‑law exponent comparison, bound‑violation flags. |
+| Runtime tracker | `data/runtime/pipeline_runtime.json` | Total pipeline wall‑clock time. |
+| Timeout log | `data/runtime/timeout_enforced.log` | Message indicating whether the hard timeout was triggered. |
+| Checksums & hashes | `state/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg.yaml` | SHA‑256 hashes for raw files (data hygiene). |
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| SSH connection refused | Verify SSH keys and firewall settings |
-| `tcpdump` not found | Install `tcpdump` on testbed devices |
-| Memory overflow on low-end device | Reduce `estimated_ops` in benchmark config |
-| Run exceeds 6-hour limit | Reduce `runs_per_config` or node count |
-| High packet loss detected | Check Wi-Fi interference; abort run if >20% |
+| Symptom | Likely Cause | Remedy |
+|---------|--------------|--------|
+| `ssh: connect to host … Connection refused` | Node unreachable or firewall | Verify IP, ensure SSH port 22 open, test manually with `ssh user@IP`. |
+| `tcpdump: command not found` | Missing tool on node | Install via package manager (`apt-get install tcpdump`). |
+| Run exceeds 6 h limit | Too many replicates or high node count | Reduce `runs_per_config` or drop highest‑latency setting. |
+| High packet loss (> 20 %) aborts run | Wi‑Fi saturation or external traffic | Reduce injected latency, move to a less congested channel, or abort as per spec. |
+| Unit tests fail on parsing | Real node output format differs from mock samples | Update `instrumentor.py` parsing regexes; add new sample files to `tests/unit/samples/`. |
+| Calibration step fails | Missing `iperf3` or `sysbench` on controller machine | Install via package manager (`apt-get install iperf3 sysbench`). |
+| `pytest` reports missing `config.yaml` | File not committed or path typo | Ensure `config.yaml` exists at project root and is tracked by Git. |
+| VIF > 5 reported | Predictors highly collinear (e.g., `granularity` and `injected_latency`) | Consider dropping one predictor or reporting interaction only. |
+
+---

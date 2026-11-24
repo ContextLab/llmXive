@@ -17,6 +17,17 @@ These commands failed because the analysis needs hardware the FREE, CPU-only CI 
 
 - `python -c "import torch; import rdkit; print('CPU:', torch.cuda.is_available())"`
 
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+
+- `python code/src/data/download.py --source ufukhaman`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/src/analysis/evaluate.py: synthetic/fake INPUT data not authorized by the spec — “…xist_ok=True)          # Mock data for demonstration if rea…”; code/src/analysis/evaluate.py: synthetic/fake INPUT data not authorized by the spec — “…old results found. Using simulated data for demonstration.")…”; 5 command(s) failed: python code/src/data/download.py --source ufukhaman (rc=1); python code/src/data/parse.py --input data/raw/uspto_subset.parquet --output data/processed/graphs.h5 (rc=1); python code/src/analysis/train.py --epochs 200 --patience 5 --device cpu --cv-folds 5 (rc=1)
@@ -30,22 +41,26 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'torch'
 
 - python code/src/data/download.py --source ufukhaman -> rc=1
-File Error: Data file not found at --source. Ensure T012 (download) has been executed successfully.
 
+Failed to download/validate USPTO subset: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/ufukhaman/USPTO-Yield-Prediction/main/data/uspto_yield_sample.csv
 
 - python code/src/data/parse.py --input data/raw/uspto_subset.parquet --output data/processed/graphs.h5 -> rc=1
-
-[06:40:28] SMILES Parse Error: syntax error while parsing: invalid_smiles
-[06:40:28] SMILES Parse Error: Failed parsing SMILES 'invalid_smiles' for input: 'invalid_smiles'
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-536-predicting-molecular-reactivity-using-gr/code/src/data/parse.py", line 208, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-536-predicting-molecular-reactivity-using-gr/code/src/data/parse.py", line 198, in main
-    parsed_df, valid, invalid = parse_reaction_dataframe(df)
-                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-536-predicting-molecular-reactivity-using-gr/code/src/data/parse.py", line 117, in parse_reaction_dataframe
-    log_invalid_smiles(logger, idx, reactants_smiles, product_smiles)
-TypeError: log_invalid_smiles() takes from 1 to 2 positional arguments but 4 were given
+n
+    df = pd.read_parquet(args.input)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-536-predicting-molecular-reactivity-using-gr/lib/python3.11/site-packages/pandas/io/parquet.py", line 670, in read_parquet
+    return impl.read(
+           ^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-536-predicting-molecular-reactivity-using-gr/lib/python3.11/site-packages/pandas/io/parquet.py", line 265, in read
+    path_or_handle, handles, filesystem = _get_path_or_handle(
+                                          ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-536-predicting-molecular-reactivity-using-gr/lib/python3.11/site-packages/pandas/io/parquet.py", line 139, in _get_path_or_handle
+    handles = get_handle(
+              ^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-536-predicting-molecular-reactivity-using-gr/lib/python3.11/site-packages/pandas/io/common.py", line 872, in get_handle
+    handle = open(handle, ioargs.mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/uspto_subset.parquet'
 
 - python code/src/analysis/train.py --epochs 200 --patience 5 --device cpu --cv-folds 5 -> rc=1
 
@@ -72,3 +87,8 @@ Traceback (most recent call last):
     import torch
 ModuleNotFoundError: No module named 'torch'
 
+## Platform-owned paths written inside the project
+
+A script in this project created `.github/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

@@ -22,7 +22,7 @@ from typing import List, Dict, Any
 # Import logging utilities from the existing project structure
 try:
     from utils.logging import get_logger
-except ImportError:
+except ImportError:  # pragma: no cover
     # Fallback for direct execution if package structure isn't fully installed yet
     import logging
     def get_logger(name: str):
@@ -38,12 +38,12 @@ RUBRIC_FILE = DATA_RAW_DIR / "rubric_definition.md"
 def generate_expert_roster() -> List[Dict[str, Any]]:
     """
     Generates a list of expert definitions.
-    
+
     In a real production environment, this might fetch from a database or
     a pre-approved list of human annotators. For this pipeline, we define
     a standard set of expert roles required by the specification (FR-014)
     to ensure the adjudication workflow has the necessary actors.
-    
+
     Returns:
         List of expert dictionaries with 'id', 'role', and 'specialization'.
     """
@@ -89,15 +89,15 @@ def generate_expert_roster() -> List[Dict[str, Any]]:
 def generate_rubric_definition() -> str:
     """
     Generates the content for the annotation rubric (guidelines).
-    
+
     This document defines the scoring criteria for 'continuous' vs 'discontinuous'
     motion, ensuring blinding and consistency as required by FR-002 and FR-031.
-    
+
     Returns:
         Markdown string containing the full rubric.
     """
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
+
     rubric_content = f"""# Annotation Rubric: Video Continuity Verification
 
 **Project**: llmXive Follow-up: Extending AnyFlow
@@ -151,33 +151,29 @@ Refer to `data/raw/experts.json` for the list of active expert IDs and their rol
 """
     return rubric_content
 
-def main():
+def main() -> None:
     """
     Main entry point to generate the experts.json and rubric_definition.md files.
     """
     logger.info("Starting setup_experts.py to generate configuration artifacts.")
-    
+
     # Ensure output directory exists
     DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-    
+
     # 1. Generate and write experts.json
     logger.info(f"Generating expert roster: {EXPERTS_FILE}")
     experts = generate_expert_roster()
-    
-    with open(EXPERTS_FILE, 'w', encoding='utf-8') as f:
+    with open(EXPERTS_FILE, "w", encoding="utf-8") as f:
         json.dump(experts, f, indent=2)
-    
     logger.info(f"Successfully wrote {len(experts)} experts to {EXPERTS_FILE}")
-    
+
     # 2. Generate and write rubric_definition.md
     logger.info(f"Generating annotation rubric: {RUBRIC_FILE}")
     rubric = generate_rubric_definition()
-    
-    with open(RUBRIC_FILE, 'w', encoding='utf-8') as f:
+    with open(RUBRIC_FILE, "w", encoding="utf-8") as f:
         f.write(rubric)
-    
     logger.info(f"Successfully wrote rubric to {RUBRIC_FILE}")
-    
+
     logger.info("setup_experts.py completed successfully.")
 
 if __name__ == "__main__":

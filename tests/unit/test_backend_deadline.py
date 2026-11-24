@@ -51,6 +51,17 @@ def test_deadline_fires_and_returns_promptly() -> None:
     assert elapsed < 5.0, f"caller was blocked {elapsed:.1f}s past the deadline"
 
 
+def test_a_sub_second_deadline_is_reported_as_given_not_rounded_to_zero() -> None:
+    """A 0.5 s deadline once read "hung past 0s deadline", which looked like a budget
+    already spent before the request (CI triage of a funded-execute test)."""
+    release = threading.Event()
+    try:
+        with pytest.raises(TransientBackendError, match=r"hung past 0\.2s deadline"):
+            invoke_with_deadline(lambda: release.wait(30), timeout=0.2, description="slow model")
+    finally:
+        release.set()
+
+
 def test_abandoned_worker_is_daemon_and_does_not_block_exit() -> None:
     """The abandoned worker must be a daemon thread (so it never blocks
     interpreter exit) and the slow call keeps running in the background

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Differential Abundance Schema"
-description: "Schema for ANCOM-II and DESeq2 results."
+description: "Schema for ANCOM‑II and DESeq2 results."
 type: object
 properties:
   taxon_id:
@@ -15,7 +15,7 @@ properties:
     description: "Adjusted p-value."
   effect_size:
     type: number
-    description: "Log-fold change or W-statistic."
+    description: "Log‑fold change or W‑statistic."
   direction:
     type: string
     enum: ["Positive", "Negative"]

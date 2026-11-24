@@ -3,26 +3,21 @@ kind: pypi_package
 ref: networkx
 access_python: 'import networkx as nx
 
-  # generate a regular ring lattice (Watts-Strogatz with rewiring prob 0)
+  G = nx.watts_strogatz_graph(n=30, k=4, p=0.0)  # regular ring lattice
 
-  G = nx.watts_strogatz_graph(n=30, k=4, p=0)
+  edges = [{"edge_source": u, "edge_target": v} for u, v in G.edges()]
 
-  # build records: each edge as a dict with node_id, source, target (node_id = source)
+  print(f"RECORDS={len(edges)}")
 
-  records = [{''node_id'': u, ''source'': u, ''target'': v} for u, v in G.edges()]
-
-  print(f''RECORDS={len(records)}'')
-
-  print(''FIELDS=node_id,source,target'')'
+  print("FIELDS=edge_source,edge_target")'
 record_count: 60
 sample_fields:
-- node_id
-- source
-- target
-field_coverage: 1.0
+- edge_source
+- edge_target
+field_coverage: 0.667
 required_fields:
 - node_id
-- source
-- target
-intent: NetworkX synthetic regular ring lattice generator python package dataset
-cache_key: 6e25dd7beca50083422fbb81206f307af5eff78e5297dce8a75ca2916c5633a5
+- edge_source
+- edge_target
+intent: NetworkX synthetic regular ring lattice python package dataset
+cache_key: 3c530d4b3ed58edbdd08917219b93512e7535ddef0b32bea1cdcf45eaa300de2

@@ -1,120 +1,91 @@
 # Research: llmXive follow-up: extending "ResearchStudio-Idea"
 
+*(In-place revision; Sections 1–6 preserved, with dataset strategy corrected to cite only verified sources, claim scope narrowed, corpus role clarified, and compute feasibility clarified per the revision concerns.)*
+
 ## 1. Research Question & Hypothesis
 
-**Question**: Do the 15 'ideation patterns' derived from top-tier ML conferences generalize to improve the quality of research proposals in resource-constrained, non-ML domains (public health, climate adaptation), or are these patterns specific artifacts of ML research culture?
+**Question**: Do the 'ideation patterns' derived from top-tier ML conferences generalize to improve the quality of research proposals in resource-constrained, non-ML domains (public health, climate adaptation), or are these patterns specific artifacts of ML research culture?
 
-**Hypothesis**:
-*   **H1 (Generalization)**: Pattern-guided proposals (selected by semantic similarity) will receive significantly higher scores in "contextual alignment" and "feasibility" than both the Baseline (generic prompt) and the Random-Pattern (randomly selected patterns) groups.
-*   **H0 (Null)**: No significant difference exists between the three groups.
+**Hypothesis** (scoped — see §4 confound limitation):
+- **H1 (Generalization, scoped)**: Proposals generated with ML-pattern structural constraints receive significantly higher expert scores in "contextual alignment" (primary) and "feasibility" than proposals generated with a generic unstructured prompt. **Note**: because the baseline is an unstructured prompt, this comparison tests *structured (ML-pattern) prompting vs. unstructured prompting*; it cannot by itself isolate the ML-origin of the structure (see §4).
+- **H0 (Null)**: No significant difference between the two conditions.
 
 ## 2. Dataset Strategy
 
-**Strategy**: The study requires two distinct corpora:
-1.  **ML Corpus**: 200 accepted abstracts (source: verified ML dataset).
-2.  **Non-ML Corpus**: 200 accepted and 200 rejected abstracts from *Nature Climate Change* and *Health Affairs*.
+**Corpora required**:
+1. **ML Corpus**: accepted abstracts (ML conference culture reference).
+2. **Non-ML Corpus**: accepted and rejected abstracts from public-health and climate-adaptation venues.
 
-**Constraint Check & Fallback**:
-*   **FR-001** mandates downloading 600 abstracts.
-*   **Feasibility**: The spec assumes these are "publicly accessible via direct URL."
-*   **Risk**: Many high-impact journals (Nature, Health Affairs) are paywalled.
-*   **Mitigation (Fallback)**: If the primary venues return 403/404, the pipeline **automatically switches** to verified open-access alternatives:
-    *   **Climate**: `arxiv` dataset (filter by `cs.CY` or `q-bio.QM`), or `pubmed` (Open Access subset).
-    *   **Public Health**: `pubmed` (Open Access subset) or `arxiv` (cs.HC).
-    *   **Implementation**: `code/01_data_acquisition.py` will attempt the primary source first. If it fails, it logs "Primary source inaccessible, switching to fallback: [Dataset ID]" and proceeds with the open dataset. This ensures the study remains feasible on the free CI tier.
+**Corpus role (methodological, clarified)**: the corpus is the **source of the non-ML problem statements** and the ML reference context for the pattern cards. `acceptance_status` is recorded for provenance and FR-001 ingestion hygiene (balancing) but is **not used in any statistical analysis**; no corpus-level accepted-vs-rejected comparison is performed. The paired-proposal experiment is the entire study.
 
-**Verified Datasets**:
-*   **ML Corpus**: `huggingface/datasets` (e.g., `bigscience/mt-bench` or similar open ML abstracts).
-*   **Non-ML Fallback**: `arxiv` (via Hugging Face), `pubmed` (via Hugging Face).
-*   **Action**: The implementation will verify the availability of the fallback datasets. If no open dataset exists, the plan acknowledges this as a **fatal feasibility flaw** and halts.
+**Verified sources (the ONLY dataset URLs citable here)**: The verified-datasets block for this project contains only `all-MiniLM-L6-v2` embedding parquet files:
+- https://huggingface.co/datasets/lsb/simplewiki2023-all-minilm-l6-v2-embedding/resolve/main/data/train-00000-of-00002-3dabc2a2d6e3d70d.parquet
+- https://huggingface.co/datasets/lsb/openwebtext-all-minilm-l6-v2-embedding/resolve/main/data/train-00000-of-00105-5fb99383dece10fd.parquet
+- 
 
-**Data Flow**:
-1.  Download raw JSON/CSV (Primary or Fallback).
-2.  Parse and validate (non-empty abstract).
-3.  Filter to exactly 200 accepted/200 rejected (non-ML) and 200 (ML).
-4.  Store as `data/processed/corpus.jsonl`.
+These are pre-computed embedding corpora, **not** abstract corpora with acceptance metadata. **Therefore no verified, directly-downloadable abstract dataset (ML or non-ML, with accepted/rejected labels) is currently available for this project.** This is stated explicitly rather than fabricating a URL. **Consequently the research question is UNANSWERABLE until a verified labeled corpus and real expert ratings are added; current deliverables are pipeline validation only.** Consequences for the plan:
+
+- `code/01_data_acquisition.py` (T011) is implemented with the full download/pagination/balancing/fallback architecture against configurable source endpoints, and MUST fail gracefully with a per-venue error log and non-zero exit when a configured source is inaccessible (per the spec's edge case) rather than proceeding with incomplete data. The deterministic fixture is produced only via an explicit `--dry-run` flag.
+- The pipeline's dry-run path uses a small, clearly-labeled deterministic fixture corpus (fixed seed, `mock=true` metadata) so all downstream logic (embedding, generation, blinding, statistics) is exercised and tested end-to-end. The final report (T037) MUST label results as dry-run/fixture-based and MUST NOT present them as answering the research question.
+- **Scope gap flagged**: obtaining a real, open, labeled abstract corpus (e.g., an open-review or PubMed-OA mirror with acceptance labels) requires a verified source added to the spec's dataset list before real-data conclusions can be drawn. This is surfaced for scope revision, not silently worked around.
+
+**Data flow**: download/fixture → `data/raw/corpus_raw.jsonl` (checksummed) → validate/balance → `data/processed/corpus_clean.jsonl`.
 
 ## 3. Methodology
 
 ### 3.1 Pattern Mapping (FR-002)
-*   **Model**: `sentence-transformers/all-MiniLM-L6-v2` (Quantized).
-*   **Reasoning**: Fits within 7 GB RAM on CPU. Provides sufficient semantic similarity for pattern retrieval.
-*   **Process**:
-    1.  Encode the 15 ML Pattern Cards.
-    2.  Encode non-ML problem statements.
-    3.  Compute cosine similarity.
-    4.  Select top-3 patterns with score ≥ 0.6.
-
-#### 3.1.1 Pattern Mapping Validation (New)
-*   **Purpose**: To verify that semantic similarity correlates with *applicability* of the pattern.
-*   **Method**: Before full generation, select a hold-out set of 10 problem statements.
-*   **Action**: A domain expert manually reviews a representative subset of the top retrieved patterns for each statement.
-*   **Gate**: If < 70% of the retrieved patterns are deemed "applicable" by the experts, the pipeline halts and flags the embedding model as unsuitable. This prevents the generation of noise-based proposals.
+- **Model**: `sentence-transformers/all-MiniLM-L6-v2` (quantized/dynamic-quantized on CPU).
+- **Fallback (spec edge case)**: if the configured model fails to load under memory constraints, the system falls back to a smaller, lighter model (configured in `utils/config.py`) and **logs the switch** with reason and both model names.
+- **Process**: encode 15 pattern cards; encode non-ML problem statements; cosine similarity; select top-3 patterns with score ≥ 0.6 (retrieval mechanism only, not a validity metric — SC-004 note preserved).
 
 ### 3.2 Proposal Generation (FR-003)
-*   **Approach**:
-    *   **Experimental Group (Pattern-Guided)**: Prompt LLM with problem statement + top-3 patterns (selected by similarity).
-    *   **Control Group 1 (Random-Pattern)**: Prompt LLM with problem statement + **3 randomly selected patterns** (no similarity filter). This decouples "relevance" from "structural utility."
-    *   **Control Group 2 (Baseline)**: Prompt LLM with problem statement + "be creative" generic instruction.
-*   **Constraints**:
-    *   Must generate multiple sets of proposals (including Pattern, Random, and Baseline categories) to ensure sufficient data for analysis.
-    *   Must run within 4 hours on CPU.
-    *   **Model Choice**:
-        *   **Primary**: Hugging Face Inference API (free tier).
-        *   **Fallback**: If API rate-limited, switch to **Ollama** running a quantized `Mistral-7B-Instruct-v0.1` (4-bit) via a local Docker container.
-        *   **Logic**: `code/03_proposal_generation.py` checks API quota. If exceeded, it spawns the Ollama container and switches endpoints automatically.
-    *   **Batching**: Process in batches to manage memory and rate limits.
-    *   **Covariate Collection**: Record `token_count` and `generation_time` for every proposal.
+- **Experimental group**: problem statement + top-3 similarity-selected patterns as structural constraints in the prompt.
+- **Baseline group**: same problem statement + generic "be creative" instruction, no pattern-derived structure.
+- Exactly one pattern-guided and one baseline proposal per problem statement (valid pairing, 50 pairs).
+- **Claim scope**: because the baseline is unstructured, any significant difference is attributable at most to *structured (ML-pattern) prompting vs. unstructured prompting*; a third arm with non-ML structural scaffolding would be needed to isolate the ML-origin of the patterns — flagged as a spec gap, not added (see §4).
+- **Model**: Hugging Face Inference API (primary); Ollama with quantized Mistral-7B-Instruct (4-bit) fallback. Both are CPU/API-feasible; no fake CPU imitation of a GPU-only computation is planned (none is needed — API inference offloads compute; local 4-bit inference fits the runner).
+- **Batching + covariates**: record `token_count`, `generation_time` per proposal.
+- **Runtime**: 100 proposals within 4 hours (FR-003), measured against the ≤6 h runner budget (SC-003).
 
 ### 3.3 Expert Evaluation (FR-004)
-*   **Protocol**:
-    *   **Blind**: Strip generation metadata.
-    *   **Raters**: **Recruit 15 domain experts** (public health/climate) via **Prolific** (or academic networks).
-        *   **Budget**: Pre-approved budget of $X (calculated at $Y/hour for 30 mins per expert).
-        *   **Inclusion**: ORCID + ≥5 years of domain experience.
-    *   **Metrics**: Feasibility, Bottleneck Identification, Contextual Alignment (1-5 Likert).
-    *   **Recruitment Mechanism**: The pipeline includes a `code/utils/recruit_experts.py` script that generates the Prolific study link and instructions. The CI pipeline runs in "Dry-Run" mode (validates logic) or "Live" mode (waits for the `ratings.csv` file uploaded by the user after recruitment).
-    *   **Inter-Rater Reliability (IRR) Gate**:
-        *   **Requirement**: The study design requires recruiting **until** Krippendorff's alpha ≥ 0.6 is achieved for each metric.
-        *   **Action**: `code/05_statistical_analysis.py` calculates alpha. If alpha < 0.6, the pipeline halts and outputs "Recruit More Experts" with specific guidance, rather than rejecting the data post-hoc.
+- **Blind protocol**: `04_evaluation_loader.py` strips generation metadata and writes `data/results/blinded_batches.csv` (T059a).
+- **Alignment rubric (anti-circularity)**: experts rate "contextual alignment" as the degree to which the proposal addresses the **problem statement and its domain context** (public health / climate adaptation). Pattern cards are never shown, described, or inferable from the instructions; the full rubric text is embedded in the `instructions` field of `blinded_batches.csv` (T059a). This prevents the primary outcome from being partially determined by the manipulation.
+- **Dry-run**: deterministic mock ratings (fixed seed, labeled) written to `data/results/ratings_filled.csv` (T059b) to verify statistical logic only.
+- **Real ratings**: ingested via the same loader; experts verified via ORCID and ≥5 years domain experience; ≥3 independent experts per proposal.
+- **IRR gate**: Krippendorff's alpha ≥ 0.6 computed on RAW ratings BEFORE any outlier removal or cleaning (T055 runs before T033). If alpha < 0.6, halt with recruitment guidance.
 
 ### 3.4 Statistical Analysis (FR-005, FR-006)
-*   **Tests**:
-    *   **Model**: Linear Mixed-Effects Model (LMM) or Paired Test with Covariates.
-    *   **Formula**: `Score ~ Group + Token_Count + (1|Problem_Statement)`.
-        *   `Group`: Categorical (Pattern, Random, Baseline).
-        *   `Token_Count`: Covariate to control for generation artifacts (length bias).
-    *   **Normality**: Shapiro-Wilk on residuals.
-    *   **Correction**: Benjamini-Hochberg for 3 metrics (Feasibility, Bottleneck, Alignment).
-    *   **Effect Size**: Cohen's d (or partial eta-squared for LMM).
-*   **Rhetoric**: Explicitly state "associational, not causal" in the conclusion.
+- **Power config (T024b)**: read n (pairs) from `data/results/generated_proposals.jsonl`; write `data/results/power_analysis_config.json` (α = 0.05, target d = 0.5, achieved power `[deferred]`); the limitation text references the **0.8 power convention** so the achieved estimate (expected ≈0.70 for n=50, d=0.5, two-sided paired t) is interpretable against it.
+- **Tests**: Shapiro-Wilk normality check on paired mean-score differences → paired t-test or Wilcoxon signed-rank (automatic selection).
+- **Correction**: Benjamini-Hochberg across the 3 metrics (feasibility, bottleneck, alignment).
+- **Outliers**: sensitivity re-run with extreme ratings removed (spec edge case).
+- **Validity (T036)**: `calculate_validity_improvement()` computes the alignment-score difference from expert mean scores (SC-004) → `data/results/validity_metrics.json`. SC-004 is treated as a **testable outcome** evaluated against the null of no difference — no presupposed direction or significance.
+- **Report (T037)**: `data/results/analysis_report.md` generated from result files; MUST contain "associational, not causal" in the conclusion, enforced by a parser assertion; conclusions scoped to structured-vs-unstructured prompting.
 
 ## 4. Statistical Rigor & Limitations
 
-*   **Multiple Comparisons**: Addressed via FWER/FDR correction (FR-005).
-*   **Power**: N=50 problem statements (paired). Assumed power is sufficient for medium effect (d=0.5) at α=0.05, accounting for inter-rater variance. *Limitation*: Small sample size for creative evaluation; results are preliminary.
-*   **Causal Claims**: The study is observational/experimental in design but lacks randomization of the *problem statements* to the *patterns* (patterns are selected by similarity). Claims will be framed as **associational**.
-*   **Collinearity**: Patterns are not independent. The analysis treats them as a composite "pattern-guided" condition, but the "Random-Pattern" control isolates the structural effect.
-*   **Measurement Validity**: Relies on expert judgment. Inter-rater reliability (Krippendorff's alpha) is a **prerequisite** for analysis (IRR Gate).
+- **Multiple comparisons**: BH correction across 3 metrics (FR-005, SC-002).
+- **Power**: n = 50 pairs at d = 0.5, α = 0.05 (two-sided paired t) yields achieved power of roughly 0.70 — **below the 0.8 convention**; the power config (T024b) reports the achieved estimate against the 0.8 reference and the report acknowledges this as an explicit limitation.
+- **Confound (structured vs. unstructured prompting)**: the two-arm design cannot distinguish "ML-derived patterns generalize" from "any structured prompt outperforms an unstructured one". All claims are therefore framed as **structured (ML-pattern) vs. unstructured prompting**; a third arm (non-ML structural scaffolding) is flagged as a spec gap for scope revision.
+- **Causal framing**: patterns are selected by similarity, not randomized; all claims framed as **associational, not causal** (FR-006).
+- **Measurement validity**: expert judgment with IRR gate as prerequisite; alignment rubric anchored to the problem statement/domain (not patterns), preventing circularity; no internal model metrics used as quality proxies (Principle VII).
 
-## 5. Compute Feasibility (CPU-First)
+## 5. Compute Feasibility (CPU-first)
 
-*   **Embedding**: `all-MiniLM-L6-v2` runs comfortably on CPU (2 cores, 7 GB RAM).
-*   **Generation**:
-    *   **Option A (API)**: Hugging Face Inference API (Free Tier). Preferred. Offloads compute.
-    *   **Option B (Local Fallback)**: Ollama + Mistral-7B (4-bit). Used if API rate-limited. Fits in available RAM.
-*   **Analysis**: `statsmodels` and `scipy` are lightweight.
-*   **Memory**: 7 GB limit is tight for LLM inference. Batching and the API fallback ensure feasibility.
-*   **Time**: A reasonable time limit is sufficient for a sufficient number of generations if API is used. Local fallback may take longer but is within the standard Kaggle time window if offloaded.
+- **Embedding**: `all-MiniLM-L6-v2` runs on CPU within 7 GB RAM (verified assumption in spec); lighter fallback model with logged switch if loading fails.
+- **Generation**: HF Inference API (offloaded) primary; local 4-bit Ollama fallback fits the box. No GPU escape hatch needed.
+- **Analysis**: `statsmodels`/`scipy`/`krippendorff` are lightweight.
+- **Time**: full pipeline within ≤6 h; generation within 4 h (SC-003).
 
 ## 6. Decision/Rationale
 
 | Component | Choice | Rationale |
 | :--- | :--- | :--- |
-| **Embedding Model** | `all-MiniLM-L6-v2` (Quantized) | CPU-tractable, fits 7 GB RAM, standard for semantic similarity. |
-| **Pattern Control** | **Random-Pattern Group** (No similarity filter) | Decouples semantic relevance from structural utility. |
-| **LLM for Generation** | Hugging Face API (Primary) / Ollama (Fallback) | API ensures feasibility. Ollama fallback guarantees execution if API fails. |
-| **Statistical Test** | LMM with `Token_Count` covariate | Controls for generation artifacts (length bias). |
-| **Correction** | Benjamini-Hochberg | Controls FDR, less conservative than Bonferroni for 3 tests. |
-| **Data Source** | Primary (Paywalled) -> Fallback (arXiv/PubMed) | Ensures feasibility on free CI tier. |
-| **Evaluation** | Real Experts (Prolific) + IRR Gate | Validates hypothesis with real data. IRR gate ensures quality. |
+| Embedding model | `all-MiniLM-L6-v2` (quantized), lighter fallback w/ logged switch | CPU-tractable, fits 7 GB RAM, spec-mandated; fallback per spec edge case |
+| LLM generation | HF Inference API / Ollama 4-bit fallback | Real generation, feasible on the free runner |
+| Statistical test | Paired t / Wilcoxon (auto-selected) | Spec-mandated (FR-005) |
+| Correction | Benjamini-Hochberg | Controls FDR for 3 tests |
+| Data source | Configurable endpoints + labeled deterministic fixture for dry-run (`--dry-run` only; fail-first otherwise) | No verified open abstract corpus exists in the verified block; no URL is fabricated; real-data conclusions blocked until a verified source is added |
+| Evaluation | Blind expert ratings, problem-statement-anchored alignment rubric, IRR gate on raw data | Principle VII; anti-circularity; T055-before-T033 ordering enforced |
+| Claim scope | Structured (ML-pattern) vs. unstructured prompting | Two-arm design cannot isolate ML-origin of structure; third arm flagged as spec gap |
+| Compute | All CPU / API | No GPU-requiring method in the pipeline |

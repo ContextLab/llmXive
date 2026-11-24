@@ -1,12 +1,15 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 7 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `task-format` (rejected 1x): Tasker must repair ambiguous task identities while preserving requirements. Malformed: []; duplicates: ['T006', 'T008', 'T009', 'T010']
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan states it will compute Pearson and Spearman correlations (Phase 3) but does not specify how Spearman p‑values will be obtained. The research document mentions a block‑permutation test with a block length equal to the estimated autocorrelation time, yet the plan omits any description of this permutation scheme or how the block length will be estimated. Without a concrete procedure the significance testing may be invalid for autocorrelated time series.
+- Linear interpolation is applied to fill gaps ≤ 6 h (Phase 2). Interpolation can artificially inflate correlation estimates, especially if gaps coincide with storm periods or rapid changes. The plan logs interpolated intervals but provides no sensitivity analysis or alternative gap‑handling strategy to assess potential bias.
+- The optional storm‑filtered analysis (Phase 4) is performed on Dst < ‑50 nT data with a ‘collider‑bias disclaimer’. However, the plan treats this branch as an exploratory supplement without restricting its influence on the primary scientific claim. Presenting storm‑filtered results alongside the full‑dataset results may lead readers to over‑interpret findings from a biased subset, contradicting the stated goal of avoiding selection bias.
+- Phase 8 (Reporting) has no explicit trace to a spec FR or SC. Consider tying it to FR‑009/FR‑008 or eliminating it if not required.
+- The plan specifies a block‑permutation test with 10 000 permutations for each of the 30 composition‑index‑lag pairs (and repeats for validation and optional storm‑filtered analyses). Running ~900 000 permutations on ~200 k‑row time series is unlikely to complete within the claimed ≤ 6 h runtime on the GitHub Actions free‑tier (2 CPU cores, limited RAM). This makes the compute budget infeasible under llmXive’s free‑compute constraints. Reduce the number of permutations, use an analytical approximation, or provide a more realistic runtime estimate.
+- Step 7 states “Validates the trained model on a held‑out period (2018‑2020)…”. The project does not train any predictive model; it only computes lagged correlations. This wording is misleading and conflicts with the functional requirements (FR‑003, FR‑009) which describe validation of correlation results, not a model.
+- Phase 2 (Synchronise) describes creation of `data/processed/synced.csv` but does not explicitly reference the `dataset.schema.yaml` contract that defines the required columns and types for this file. For full plan‑contract alignment the step should state that the synchronized CSV must conform to the `dataset.schema`.

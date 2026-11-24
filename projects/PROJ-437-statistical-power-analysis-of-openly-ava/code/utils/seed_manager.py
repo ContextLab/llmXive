@@ -85,6 +85,7 @@ def set_global_seed(seed: int) -> None:
     # Some libraries respect these environment variables
     os.environ['PYTHONHASHSEED'] = str(seed)
 
+
 def get_seed() -> Optional[int]:
     """
     Retrieve the currently set global seed.

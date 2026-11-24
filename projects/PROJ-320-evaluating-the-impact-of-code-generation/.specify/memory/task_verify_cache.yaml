@@ -1,64 +1,28 @@
-T003:
+T002:
   c: true
-  h: 5783926b1e9bef56f020962833de16d8b4d63ae238399df6ba857e7cfc2c0924
-  r: "The `pyproject.toml` file contains full `[tool.black]` and `[tool.ruff]` configuration\
-    \ sections, satisfying the requirement to provide project\u2011specific linting\
-    \ and formatting settings (the separate `ruff.toml` and `black.toml` files are\
-    \ optional)."
-T017:
+  h: 5b9101be749721df1d6c4440294ea22e2cbd7975c81971d56274a3c144c36081
+  r: "I verified that `code/utils/checksum.py` implements the required `sha256_file`\
+    \ function (and related helpers) and that `tests/unit/test_checksum.py` contains\
+    \ a comprehensive pytest suite exercising the function against known vectors,\
+    \ edge cases, and manifest utilities. The implementation logic matches all test\
+    \ expectations, so running `pytest tests/unit/test_checksum.py` would exit with\
+    \ code\u202F0."
+  sig: 535cc923a67d161256acda5f9b883571b73fd7e7f265c60d597656007d6c897c
+T005:
   c: false
-  h: b6c24437230c47aa646b66f9e01bf6a9e8500d23af2743e9718b7e341eae6f44
-  r: "The `save_labeled_dataset.py` script exists and defines the required schema,\
-    \ but the expected output file `data/processed/prs_labeled.csv` is missing, so\
-    \ the task\u2019s primary deliverable (the labeled CSV) was not produced. The\
-    \ next implementer must run the script (or otherwise generate) to create the CSV\
-    \ with the specified columns."
-T019a:
+  h: c41a9b3cca38a5b66bc13f5f2af913294bb62d660ea1bfe2b16ecfb20e076919
+  r: "The unit test `tests/unit/test_entropy_detector.py` fails the \u201Cnoisy diff\
+    \ higher entropy than clean diff\u201D assertion (both scores evaluate to 1.0),\
+    \ so the test suite does not fully pass as required. The detector implementation\
+    \ itself exists, but the verification condition is not met."
+  sig: 60d77460abd0befd4d5a089cf1a15f3d0d455ae8f8de6ad4e00d3c44a9c6e79c
+T008:
   c: false
-  h: 55cf842a59b805eeefaa1ae6dd7ac2deee86e325a005638758867ee338bd25ed
-  r: "The `manual_validation.py` script is incomplete and contains placeholder logic\
-    \ (e.g., `n_llm = sum(1 for _ in range(total_count))`) rather than a real stratified\u2011\
-    sample calculation, and the file is truncated before the sample\u2011selection,\
-    \ checklist, and JSON\u2011logging code. Moreover, the required output file `data/audit/manual_audit_results.json`\
-    \ does not exist."
-T019b:
-  c: false
-  h: a4252aeb61d1294bc3f5b4b384e49217e451260e9c7d901e11b7f00c24f718a4
-  r: "The provided `manual_validation.py` is truncated (e.g., `select_stratified_sample`\
-    \ ends abruptly) and lacks the CLI entry point, polling loop, error\u2011rate\
-    \ calculations, and code that writes `manual_audit_results.json` and `error_rate.json`.\
-    \ Moreover, the expected result files are absent from `data/audit/`. The implementation\
-    \ does not fulfill the full task requirements."
-T024a:
-  c: false
-  h: 6fc3e763963ff4c598820cbbe63492faeba3603acc0a222c9bcc999df38e05ec
-  r: "The required output file `data/processed/results.json` does not exist, so the\
-    \ primary deliverable is missing. Additionally, the provided `statistical_tests.py`\
-    \ excerpt does not show the required Shapiro\u2011Wilk normality check or the\
-    \ JSON writing logic. The next implementer must add the normality test, ensure\
-    \ the t\u2011test is forced with the specified warning, compute both t\u2011test\
-    \ and Mann\u2011Whitney U results, and write them to `data/processed/results.json`\
-    \ with the exact schema."
-T027:
-  c: false
-  h: 8000ea2b71150998fd4006aa6d4f86d630000b526d91a6d242ed058cbcfef9dd
-  r: "The provided `generate_results_report.py` does not create the required `data/processed/results.json`\
-    \ with the specified statistical schema; instead it reads an existing `results.json`\
-    \ (which is missing) and focuses on gate status logic. The expected output file\
-    \ is absent, so the task\u2019s core requirement is not met."
-T030b:
-  c: false
-  h: 7d0f6b8e12e6be18903f863fc18366c09a3fe200734e2d793d294c2791b47a54
-  r: "The repository contains an integration test for boxplot generation, but the\
-    \ required test `test_histogram_generation` (which should assert that `reports/figures/histograms.pdf`\
-    \ exists) is absent, and the `histograms.pdf` file itself is missing. The task\u2019\
-    s specific artifact and test are not present."
-T033b:
-  c: false
-  h: da0b8c3a035021d954448d4bb78330bf081f477133f5ced5caadc70ca77f1ed6
-  r: "The `save_complexity_scores.py` script exists, but the required input file `data/processed/prs_labeled.csv`\
-    \ and the generated output `data/processed/complexity_scores.csv` are both missing,\
-    \ so the script cannot produce the required CSV with `pr_id` and `complexity_score`\
-    \ columns. The next implementer must provide the `prs_labeled.csv` dataset (or\
-    \ mock data) and ensure the script runs to create a non\u2011empty `complexity_scores.csv`\
-    \ with the correct columns."
+  h: ee68077077e1a7ec23099938345acc14a010984c91b6da7b46ace47ca795fb11
+  r: "The `code/analysis/complexity.py` script never retrieves full source files nor\
+    \ builds a control\u2011flow graph with\u202Fnetworkx as required; it only fetches\
+    \ the diff and computes complexity from the added lines (or falls back to a simple\
+    \ added\u202F+\u202Fremoved count). Consequently the produced `complexity_scores.csv`\
+    \ contains only `loc=0` and `complexity_score=1` for every PR, showing that the\
+    \ full\u2011analysis path was never exercised, violating the task specification."
+  sig: a89e4b85baa601e0e80d752fe91f15013ee5e7490abb178133d0fc0cdad06f43

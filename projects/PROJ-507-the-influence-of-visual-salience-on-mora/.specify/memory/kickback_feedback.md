@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `task-format` (rejected 1x): Tasker must repair ambiguous task identities while preserving requirements. Malformed: []; duplicates: ['T022']
+- `T004` (rejected 1x): Artifact proposal refused 3 consecutive times: [implementer] refusing to write 'tests/unit/test_manipulation.py': SyntaxError at line 5: invalid decimal literal. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 2078
 
 ## Required change
 

@@ -1,25 +1,31 @@
 T001:
   c: true
-  h: 07a12ec3f2619557825a49d1d95b4b3d2a89c90cd575877dc93243235fbd9a15
-  r: All nine required directories (`code/`, `code/data/`, `code/modeling/`, `code/utils/`,
-    `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`) exist
-    at the project root with non-empty listings including `.gitkeep` markers, matching
-    the task's directory-layout requirement.
-  sig: 3703e1b2eabe7a04da7cb6ca2f5f6292d0efd69bd992cf4463a66978fe3de9d0
+  h: 3666d2987a903bddf0b2c85616bca048946cf1173ba6ea6309252e79fb844a6b
+  r: "All required directories (`code/`, `code/data/`, `code/modeling/`, `code/utils/`,\
+    \ `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`) are\
+    \ present in the repository as confirmed by the collector\u2019s directory listings."
+  sig: 4a2acbab0f648a438d5e3b758a1b92531d4ffdad6d432d8afd5e966011ab7c0f
+T002:
+  c: false
+  h: 10305e05136660497a85762c6420a1002215e78c74fa7636cee67777ebd47d70
+  r: "The evidence includes `.ruff.toml` and `pyproject.toml`, but the required `.flake8`\
+    \ file and `.env.example` (with the placeholder keys) are missing, so the linting/formatting\
+    \ and env\u2011variable template requirements are not fully satisfied."
+  sig: 2466507659b498ac610e94f7fcc81c60083c36fc0186e723f9bbdc02bf0e4f27
+T003:
+  c: true
+  h: 936c3795ceb91afdd591d33e7637cb3cce12007e19f46e4ff766c501eada730c
+  r: "Checked `code/models/schemas.py` (6384\u202Fbytes) \u2013 it exists, is non\u2011\
+    empty, and defines the four required Pydantic models (Species, BGCFeature, Metabolite,\
+    \ ModelOutput) with appropriate fields and validators. No required artifact is\
+    \ missing or stubbed."
+  sig: 7d7be216875efdf6426973a2bb36a98310d88d476aa585ebfc7616e861985843
 T004:
   c: true
-  h: 0289d24f145631478540f0ed6c499e55a1f5f431891c27871cf75cec5f6f748c
-  r: "The file `code/models/schemas.py` exists (6383 bytes) and defines all four required\
-    \ Pydantic models (Species, BGCFeature, Metabolite, ModelOutput) with substantive,\
-    \ validated fields (non-empty string validators, count/abundance \u2265 0, R\xB2\
-    /pearson/p-value range constraints) matching the spec's data needs (InChIKeys,\
-    \ log-transformed abundance, BGC presence/count, model performance metrics). No\
-    \ stubs, TODOs, or placeholders are present."
-  sig: f840b7172c6cc143aef09d6cb7fea4a63e1661f96bec85c98e1dd87defc2d85d
-T018:
-  c: true
-  h: d06fa43e41d100dc9445e77d3b65cef30287c5ff8502d735d08a25c4ac88b436
-  r: "The file `code/data/align.py` contains a non\u2011placeholder implementation\
-    \ of `save_aligned_matrix()` that defaults to writing `aligned_matrix.csv` under\
-    \ `data/processed/` via `get_data_path()`. The function creates the directory\
-    \ if needed and saves the DataFrame, satisfying the task\u2019s requirement."
+  h: d625a9c21d1230f6970addd98a6b9b19cca342ea2f33c0cf201a25e73d794f6c
+  r: "Checked `code/config.py` and `code/utils/logging.py` for proper seed handling\
+    \ and logging setup, and the execution record `code/.tasks/T004.code_utils_verify_t004.py.log`\
+    \ which confirms seed reproducibility and that INFO\u2011level messages were written\
+    \ (evidenced by the logged \u201CConfiguration loaded\u201D lines and the script\u2019\
+    s \u201CLogging output verified\u201D message)."
+  sig: 88350ad818013739fccdd40dd02b309c85c9b4d8c95525d80d809c154aef4c35

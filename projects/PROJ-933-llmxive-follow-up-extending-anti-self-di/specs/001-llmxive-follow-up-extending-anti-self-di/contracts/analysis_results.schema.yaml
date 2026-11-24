@@ -33,12 +33,18 @@ properties:
             type: number
           mean_bleu:
             type: number
+          mean_semantic_similarity:
+            type: number
           mean_quality_score:
+            type: number
+          mean_entropy:
             type: number
         required:
           - mean_deliberation_freq
           - mean_bleu
+          - mean_semantic_similarity
           - mean_quality_score
+          - mean_entropy
       standard_sd:
         type: object
         properties:
@@ -46,12 +52,18 @@ properties:
             type: number
           mean_bleu:
             type: number
+          mean_semantic_similarity:
+            type: number
           mean_quality_score:
+            type: number
+          mean_entropy:
             type: number
         required:
           - mean_deliberation_freq
           - mean_bleu
+          - mean_semantic_similarity
           - mean_quality_score
+          - mean_entropy
     required:
       - anti_sd
       - standard_sd
@@ -65,9 +77,38 @@ properties:
             type: number
           statistic:
             type: number
+          effect_size:
+            type: number
         required:
           - p_value
           - statistic
+          - effect_size
+      bleu:
+        type: object
+        properties:
+          p_value:
+            type: number
+          statistic:
+            type: number
+          effect_size:
+            type: number
+        required:
+          - p_value
+          - statistic
+          - effect_size
+      semantic_similarity:
+        type: object
+        properties:
+          p_value:
+            type: number
+          statistic:
+            type: number
+          effect_size:
+            type: number
+        required:
+          - p_value
+          - statistic
+          - effect_size
       quality_score:
         type: object
         properties:
@@ -75,31 +116,34 @@ properties:
             type: number
           statistic:
             type: number
+          effect_size:
+            type: number
         required:
           - p_value
           - statistic
+          - effect_size
+      entropy:
+        type: object
+        properties:
+          p_value:
+            type: number
+          statistic:
+            type: number
+          effect_size:
+            type: number
+        required:
+          - p_value
+          - statistic
+          - effect_size
     required:
       - deliberation_freq
+      - bleu
+      - semantic_similarity
       - quality_score
-  correlation_results:
-    type: object
-    properties:
-      spearman_rho:
-        type: number
-        description: "Spearman rank correlation coefficient."
-      p_value:
-        type: number
-        description: "Two‑tailed p‑value for the Spearman test."
-    required:
-      - spearman_rho
-      - p_value
-  human_score_diff_pass:
-    type: boolean
-    description: "True if AntiSD quality score exceeds StandardSD by ≥ 0.2 points (SC‑006)."
+      - entropy
 required:
   - sample_size
   - power_analysis
   - metrics
   - wilcoxon_results
-  - correlation_results
-  - human_score_diff_pass
+additionalProperties: false

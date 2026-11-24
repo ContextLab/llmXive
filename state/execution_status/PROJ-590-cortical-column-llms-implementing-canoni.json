@@ -11,11 +11,11 @@
     "python -m src.experiments.scaling --variant scaling_4x --output data/results/scaling_4x.json -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-590-cortical-column-llms-implementing-canoni/code/.venv/bin/python: No module named src.experiments.scaling",
     "python scripts/run_all_experiments.sh --seed 12345 -> rc=2\n    /home/runner/work/llmXive/llmXive/projects/PROJ-590-cortical-column-llms-implementing-canoni/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-590-cortical-column-llms-implementing-canoni/scripts/run_all_experiments.sh': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 3,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 3,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-28T14:31:09Z"
+  "updated_at": "2026-10-25T00:59:49Z"
 }

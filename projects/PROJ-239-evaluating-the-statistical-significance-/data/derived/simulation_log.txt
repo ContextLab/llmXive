@@ -1,0 +1,9 @@
+2026-10-13 11:37:07,791 - INFO - Memory check passed: 0.00 MB estimated.
+2026-10-13 11:37:07,792 - INFO - Configuration logged to data/derived/simulation_config_log.csv
+2026-10-13 11:37:07,792 - INFO - Processing ICC=0.0
+2026-10-13 11:38:23,070 - INFO - Processing ICC=0.1
+2026-10-13 11:39:37,424 - INFO - Raw simulation results saved to data/derived/simulation_results_raw.csv
+2026-10-13 11:39:37,424 - ERROR - Unexpected error: Results dictionaries must contain keys: {'method'}
+2026-10-13 11:39:51,403 - INFO - Memory check passed: 0.00 MB estimated.
+2026-10-13 11:39:51,403 - INFO - Configuration logged to data/derived/simulation_config_log.csv
+2026-10-13 11:39:51,403 - INFO - Processing ICC=0.0

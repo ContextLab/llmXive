@@ -1,0 +1,16 @@
+status: none
+intent: download perovskite EDS elemental maps with PCE J_sc V_oc dataset python package
+  dataset
+required_fields:
+- sample_id
+- element_pb_map
+- element_i_map
+- element_ma_map
+- pce
+- j_sc
+- v_oc
+- pixel_grid
+- source_database
+cache_key: 0fa55b9a4aa21718825ffc279ca55b5af4faa12922e8eb76e875828705dc2e66
+searched_at: '2026-10-25T15:14:17.318128+00:00'
+retry_count: 1

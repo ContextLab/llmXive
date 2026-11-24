@@ -1,0 +1,13 @@
+{
+  "resources": {
+    "total_ram_gb": 15.615,
+    "ram_limit_gb": 7.0,
+    "cpu_count": 4,
+    "resource_guard_active": true
+  },
+  "provenance": {
+    "agp_accessible": false,
+    "agp_verified_source": null,
+    "hrs_portal_accessible": false
+  }
+}

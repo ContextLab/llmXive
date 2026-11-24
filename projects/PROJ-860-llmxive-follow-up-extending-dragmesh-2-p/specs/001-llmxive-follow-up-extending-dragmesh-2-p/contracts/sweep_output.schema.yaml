@@ -1,7 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-type: object
-title: "Sweep Output Schema"
+title: "SweepOutput"
 description: "Schema for data/generated/sweep.csv containing trial execution logs."
+type: "object"
 required:
   - trial_id
   - object_id
@@ -12,34 +12,35 @@ required:
   - runtime_seconds
 properties:
   trial_id:
-    type: integer
+    type: "integer"
     description: "Unique integer ID for the trial."
   object_id:
-    type: string
-    description: "String identifier for the novel object."
+    type: "string"
+    description: "Identifier of the novel object used in the trial."
   friction_coefficient:
-    type: number
+    type: "number"
     minimum: 0.0
     maximum: 2.5
-    description: "Randomized friction coefficient for this trial."
+    description: "Friction coefficient assigned to the object for this trial."
   policy_type:
-    type: string
+    type: "string"
     enum:
       - "static"
       - "adaptive"
-    description: "Type of policy used (static baseline or adaptive)."
+      - "ablation_random"
+    description: "Policy executed in the trial."
   success:
-    type: integer
+    type: "integer"
     enum:
       - 0
       - 1
     description: "Binary outcome: 1 if goal reached, 0 otherwise."
   k_est_mean:
-    type: number
+    type: "number"
     minimum: 0.0
-    description: "Average stiffness proxy computed during the trial."
+    description: "Mean Dynamic Resistance Proxy value observed during the trial."
   runtime_seconds:
-    type: number
+    type: "number"
     minimum: 0.0
-    description: "Wall-clock time for the simulation step."
+    description: "Wall‑clock time consumed by the trial."
 additionalProperties: false

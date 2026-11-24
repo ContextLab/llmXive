@@ -1,0 +1,157 @@
+T000a:
+  reason: "The required log file `data/research/data_availability_log.txt` is missing,\
+    \ so there is no evidence that the dataset was verified or that the required subject\
+    \ count and session criteria were checked. The task\u2019s core deliverable is\
+    \ absent."
+  task: 1e473c28a73bbfa9b1d293a24a2d2463da1cb745aa90238e14ba20c1303f5023
+T000b:
+  reason: "The required log file `data/research/coordinate_alignment_log.txt` does\
+    \ not exist in the project, so the verification and any planned resampling strategy\
+    \ have not been recorded as specified. The task\u2019s core deliverable is missing."
+  task: cc9e3cec6bbfd635048a25298f294dcd77340f7b3d2963099867da48eef3b51b
+T001a:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 3f8fa5ef483ee1b2436b5b278bc45a97c10a087a96838f981149ec018a930cfc
+T001b:
+  reason: Checked the project root for a `.gitignore` file; the artifact list shows
+    only data directories and contract JSON files, with no `.gitignore` present. The
+    required ignore patterns are therefore missing.
+  task: 594dd24dcf177b7eb0ed07304b53d4f823c50cf029b41b666f0e04482ac8dfa4
+T001c:
+  reason: The `README.md` file exists and has the correct title, but the Installation
+    and Usage sections contain actual content (bullet points and placeholder steps)
+    rather than being empty as the task requires. The sections need to be stripped
+    to just headings (or placeholder comments) with no added items.
+  task: 08069eb3a62548141791520308bdd148b5bf1934c05fe1881629860ef17812b0
+T001d:
+  reason: 'declared artifact(s) missing/empty/invalid: data/contracts/csv_time_series.schema.yaml'
+  task: c5963c94ff4627801c626f998e2636786d01620f1a8e92fadf2fb89e7766a2fa
+T001e:
+  reason: 'declared artifact(s) missing/empty/invalid: data/contracts/states.schema.yaml'
+  task: 3ef480432cdf1745b188f3f77bf4b4c32477ccb1fb85a78cae09927f1fd3e2e5
+T002:
+  task: 7680f32c90b39bd165b0584f2f94b0b5d8373baadeef78999614f7b6f11ed2f2
+T003:
+  task: cff52c23c518c943e1ea25b360915343a03e1f4a9c286c1a3c8ac8849eddc97d
+T004:
+  task: e790bd673490cbddf50ed425637ffe105277ee97092ae190cc0364729b9b7961
+T005:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 71a2ccaa1640e4d9a97766de2c0b68078fb7eb1acebe69c351860c1b7082ee5b
+T006:
+  task: ab171b9ae86c6e4569c82771cde35598fc515c5a8b550bf9908a7031998570fb
+T007a:
+  task: 2e0bc928b0a0714627d1827c98efdc97b537880afbdb3ae20fbc877321cf71d4
+T007b:
+  task: 01d3130a8a1121a4cda1d9fc5b4c35b1e60be28f27f16fb6d41dfa8d210a859f
+T007c:
+  task: 5a2a0e877180991651ce4c280c22244d5c556038e5d9f567cbaab96711caaece
+T008:
+  task: 2d7e08dde19b20b9ebfdde44190f2adbb016b082d82ad7d809c373309bf19464
+T009:
+  task: 7f04278037f422a9e63d142502ae2949992d42488fe19aef60c01db58a903c0c
+T010:
+  task: d39123a973acae9a2418ea60c8428e654abcaf23891e9262c629ab1eeec06a11
+T011:
+  task: a2f2e397168c7df796fd01fc34c434bdb79854ce6d13424ffa665d374b150c6a
+T012:
+  task: cb16026892be393f5bfbfc64ac9c977fb1d9a8d8051e354fe341de3e39b64594
+T012a:
+  task: 2f5f279ff787f13c003e331599dacb2b973dc5ee328d69c2a01f003bb04030ad
+T013:
+  task: caf42f4a0e66799695601bac759457e0f7cbb8af8a355575e628763193c14629
+T016:
+  task: 62cf38dab79d8ae61b0c890a4ee359115760746c33f543194c25a1e125bd0984
+T016b:
+  task: cdce6cd4f42f13961519afeaff8deb2a485c7c0a4630e49dab79f8fe665b88f2
+T016c:
+  task: c222a26aafd71b039090860fbf443d020ebf2c9211b94c1f6ae4e831de249c3e
+T016d:
+  task: ca0548047a4a779852240954a97b38b54bf526280fbfaf6fe2b1ad6bb9cc9a1c
+T017:
+  task: 854db00bd1b818e59a78aa4c529134af9aba1e87e0e58869be1bf6afb2fffeb5
+T018:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/memory_profile.json'
+  task: fe0fdb66cc9c11fa2e8b545c152061f028010ece26ba86c62a3971e21cb7ce27
+T019:
+  task: 5fb72df1e2eb353e43dced8a5a9f353828d70747e2f8d0c05f91b4a61520533d
+T020:
+  task: 1d8a9bbc52d021cfda2217ce67916159d444de858792ce61e2a7eaec286261f0
+T020b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/synthetic/ground_truth_seed.csv'
+  task: 92837e5e74708ff73c14a054236cfe8309b88e22c2eda19c932601c3f7f9de3f
+T021:
+  reason: 'declared artifact(s) missing/empty/invalid: code/connectivity.py'
+  task: 21f976e3362fe6dd49f692c3b913b1c7b0001f8b12593487e8e03bc227925321
+T021a:
+  task: 0124aff4f2278b9366ee0b44ee24611b9746059bfd03e4a60872e9b5a6a4a00c
+T021b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/connectivity.py'
+  task: f490ec075304508780325c2818532e7996947cefa7bcc19cad40006d7da0ee4a
+T022:
+  reason: 'declared artifact(s) missing/empty/invalid: code/connectivity.py'
+  task: 8bf1d5c0fc1db80f0b73b40624d014230bfbaec5041a1f716d1aa9cb0dc3abe6
+T023:
+  reason: 'declared artifact(s) missing/empty/invalid: code/connectivity.py'
+  task: 881e8164c8b0b32b7951e4489d78dca36e39ab19d91ae6af88e60df9e4310d5c
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: code/connectivity.py, data/processed/excluded_zero_variance_subjects.csv,
+    data/processed/ventral_striatum_activation.csv'
+  task: 9de10317d4d271a06fc4ffd5a211720455d6dd9ee9c639636031ee844228e4a8
+T026:
+  task: e8e0ece2005600534e4b99c71b2eac475f704dc8793ca78a35aa9386a256bf21
+T027:
+  task: aad98e6abca6799a65c2783b4871b2017312ff9163acd4d41a727415d3f011e1
+T028:
+  task: ac4daf031db3d764829daf5a15b033202ebf91dfae50c843a3653c064a67171a
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis.py'
+  task: bae8da1462dd118a8d8d874d70fb6a600d627388b05545ad63dabb49cf84a643
+T029b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis.py, data/processed/sensitivity_analysis.csv'
+  task: a7407b5308cc53c41871a504a51d760f23d5ba2f38b8c1ea4d5e0ae9511867cc
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis.py'
+  task: 1b21d0ed81bde640d3a5fb5f6270a29e1fc1dd6166419077a4810899482cb005
+T031:
+  task: 410abb3a9e3086b17d031eaa634c6d0f7ce399bb8d2658e82d979b1fd5c71412
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/correlation_plot.png'
+  task: 09f7dca365b8a313a8bd6773ff264b10ef4497893942cff4b71e1822c29ed9e6
+T033:
+  reason: 'declared artifact(s) missing/empty/invalid: code/reporting.py, data/processed/sensitivity_analysis.csv,
+    paper/results.md'
+  task: 068e8992ee8e1987d48ddc912a5c668057bf9484f1f2fa1f52e7f2f3257ede8a
+T035a:
+  task: d71743350cb9e776eefceea6407ed984316ac9ae8c1d0ef20f5317b5c0e4d3dc
+T035b:
+  task: 50302d4022f238c6f5797ad9eb2a03b3ba1ba9fb7e3fa86dceff04cd0258e939
+T036a:
+  task: 4d0cd243ae9d61515c5f047e1044dc828bea176195f0663b595d3d87f6426071
+T036b:
+  task: f89a7162e751be4c5438b3de45d453eb098d8b34e23062964eec9ab11e14a0bc
+T037a:
+  task: 701cf504e3ad2555f51352a18f81d5060c9967bc7286f7af35fd253902bdec4e
+T037b:
+  task: b61dd7431098df19b06933ed8cc73a2b3371a6be31a0c26ae993069f0dd7ed9e
+T037c:
+  task: 3615d02d6203285af7fb4e41c6b8502c2a3c7f005be9a21ab862d10d417ced18
+T038:
+  task: cd9a6195ad5cc98c92bdac9881462298a9c9bde065b9c301937ac2244aeacbd1
+T039:
+  task: 387c35ade7893beee604fcf7295a0708db93d6d7bd1d1a74e6acbc70e13e87a9
+T040:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 5c3e505ea7a6508a7864d53b8753afb379c5e2c2a74bd9f47cf051da597806ec
+T041:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
+  task: 1fac97bee773d63a86910fb1141812c23e5ca71d904dcb54c9f4c559cdf1da0b

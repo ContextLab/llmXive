@@ -5,9 +5,9 @@ type: "object"
 properties:
   model_type:
     type: "string"
-    description: "Type of model: 'gaussian_glm' or 'ridge'."
+    description: "Type of model: 'beta_glm' or 'ridge'."
     enum:
-      - "gaussian_glm"
+      - "beta_glm"
       - "ridge"
   coefficients:
     type: "object"
@@ -23,7 +23,7 @@ properties:
       maximum: 1.0
   p_values_fdr:
     type: "object"
-    description: "Map of feature names to FDR-corrected p-values."
+    description: "Map of feature‑fetched p‑values after FDR correction."
     additionalProperties:
       type: "number"
       minimum: 0.0
@@ -38,7 +38,7 @@ properties:
     description: "Akaike Information Criterion."
   cv_scores:
     type: "array"
-    description: "R² scores from 5-fold cross-validation."
+    description: "R² scores from 5‑fold cross‑validation."
     items:
       type: "number"
       minimum: 0.0
@@ -47,7 +47,7 @@ properties:
     maxItems: 5
   significant_features:
     type: "array"
-    description: "List of features with FDR-corrected p < 0.01."
+    description: "List of features with FDR‑corrected p < 0.01."
     items:
       type: "string"
 required:

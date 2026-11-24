@@ -2,6 +2,7 @@
 Linting and formatting configuration and execution utilities.
 Provides functions to run flake8, black, and isort on the project codebase.
 """
+
 import os
 import subprocess
 import sys
@@ -9,6 +10,7 @@ from pathlib import Path
 from logger import get_logger, error, info
 
 logger = get_logger(__name__)
+
 
 def ensure_config_files():
     """
@@ -56,6 +58,7 @@ target-version = ['py38']
                 f.write("\n[tool.black]\nline-length = 88\n")
             info("Added [tool.black] section to existing pyproject.toml")
 
+
 def run_flake8(target_dir: str = "code") -> bool:
     """
     Run flake8 on the specified directory.
@@ -68,13 +71,13 @@ def run_flake8(target_dir: str = "code") -> bool:
             cwd=Path(__file__).parent.parent,
             capture_output=True,
             text=True,
-            check=False
+            check=False,
         )
         if result.stdout:
             logger.info(result.stdout)
         if result.stderr:
             logger.warning(result.stderr)
-        
+
         if result.returncode == 0:
             info("flake8: No issues found.")
             return True
@@ -84,6 +87,7 @@ def run_flake8(target_dir: str = "code") -> bool:
     except Exception as e:
         error(f"Failed to run flake8: {e}")
         return False
+
 
 def run_black(target_dir: str = "code", check_only: bool = False) -> bool:
     """
@@ -98,15 +102,15 @@ def run_black(target_dir: str = "code", check_only: bool = False) -> bool:
             cmd.append("--check")
             cmd.append("--diff")
         cmd.append(target_dir)
-        
+
         result = subprocess.run(
             cmd,
             cwd=Path(__file__).parent.parent,
             capture_output=True,
             text=True,
-            check=False
+            check=False,
         )
-        
+
         if result.stdout:
             # If check_only, stdout contains the diff
             if check_only:
@@ -114,9 +118,11 @@ def run_black(target_dir: str = "code", check_only: bool = False) -> bool:
                     info("black: All files are formatted correctly.")
                     return True
                 else:
-                    logger.warning("black: Formatting issues found. Run without --check to fix.")
+                    logger.warning(
+                        "black: Formatting issues found. Run without --check to fix."
+                    )
                     # Log a summary of the diff if too long
-                    lines = result.stdout.split('\n')
+                    lines = result.stdout.split("\n")
                     for line in lines[:20]:
                         logger.warning(line)
                     if len(lines) > 20:
@@ -124,10 +130,10 @@ def run_black(target_dir: str = "code", check_only: bool = False) -> bool:
                     return False
             else:
                 logger.info(result.stdout)
-        
+
         if result.stderr:
             logger.warning(result.stderr)
-        
+
         if result.returncode == 0:
             info("black: Formatting applied successfully.")
             return True
@@ -137,6 +143,7 @@ def run_black(target_dir: str = "code", check_only: bool = False) -> bool:
     except Exception as e:
         error(f"Failed to run black: {e}")
         return False
+
 
 def run_isort(target_dir: str = "code") -> bool:
     """
@@ -150,14 +157,14 @@ def run_isort(target_dir: str = "code") -> bool:
             cwd=Path(__file__).parent.parent,
             capture_output=True,
             text=True,
-            check=False
+            check=False,
         )
-        
+
         if result.stdout:
             logger.info(result.stdout)
         if result.stderr:
             logger.warning(result.stderr)
-        
+
         if result.returncode == 0:
             info("isort: Imports sorted successfully.")
             return True
@@ -168,6 +175,7 @@ def run_isort(target_dir: str = "code") -> bool:
         error(f"Failed to run isort: {e}")
         return False
 
+
 def main():
     """
     Main entry point to run all linting and formatting tools.
@@ -175,26 +183,29 @@ def main():
     """
     root = Path(__file__).parent.parent
     logger.info("Starting linting and formatting workflow...")
-    
+
     ensure_config_files()
-    
+
     # Run isort first to sort imports
     if not run_isort("code"):
         logger.warning("isort encountered issues.")
-    
+
     # Run black to format code
     if not run_black("code"):
         logger.warning("black encountered issues. Re-running check...")
         run_black("code", check_only=True)
-    
+
     # Run flake8 to check for linting errors
     flake8_ok = run_flake8("code")
-    
+
     if flake8_ok:
         logger.info("Linting and formatting workflow completed successfully.")
     else:
-        logger.error("Linting workflow completed with errors. Please fix reported issues.")
+        logger.error(
+            "Linting workflow completed with errors. Please fix reported issues."
+        )
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

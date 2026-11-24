@@ -1,242 +1,136 @@
 # Tasks: Predicting Avian Migration Patterns from Publicly Available eBird Data
 
-**Input**: Design documents from `/specs/001-predicting-avian-migration/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-- **[Depends on: T#]**: Explicit dependency marker for parallel runners
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project structure by executing `mkdir -p code tests data/raw data/processed data/outputs` and creating `code/__init__.py` and `tests/__init__.py`.
-- [X] T002 Create `code/requirements.txt` containing pinned versions for: pandas, xgboost, scikit-learn, scipy, shap, requests, huggingface_hub, numpy, pytest, statsmodels, psutil.
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools by creating `pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections, and verifying setup by running `ruff check.` and `black --check.` with exit code 0.
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T004 [P] Setup `config.py` with explicit variables: `SEED=42`, `LAKE_POWELL_BOUNDS` (dict: lat/lon min/max for the Lake Powell region: lat 36.8-37.2, lon -111.8 to -111.4), `MODIS_SOURCES` (dict: product IDs), `THRESHOLDS=[3, 5, 10]`, `MAX_GAP_DAYS=7`, `RAM_LIMIT_GB=7`, `TIME_LIMIT_HOURS=6`. Ensure no hardcoded values in downstream code.
-- [X] T005 [P] Implement robust data directory structure (`data/raw`, `data/processed`, `data/outputs`) with checksum verification logic. Write SHA-256 checksums of all raw data files to `data/raw/checksums.json` upon successful download.
-- [X] T006 [P] Add a `get_logger` function to `code/__init__.py` that returns a configured logger instance, and configure logging in `code/config.py`.
-- [X] T007 Create base data models/entities (`GridCellObservation`, `EnvironmentalPredictor`) in `code/data_models.py`
-- [X] T008 Implement strict error handling for data loading (FAIL LOUDLY on fetch failure, no synthetic fallback) in `code/data_loader.py`. Ensure `ConnectionError` is raised if eBird or MODIS fetch fails.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Pipeline Construction and First-Arrival Derivation (Priority: P1) 🎯 MVP
-
-**Goal**: Ingest raw eBird and MODIS data for the **Lake Powell region**, align to a fine-resolution grid, and derive "first arrival" dates for *Setophaga ruticilla* (2015–2023) using a sensitivity sweep.
-
-**Independent Test**: The pipeline can be executed on a subset of data to produce a CSV with grid-cell ID, week, first-arrival date, and environmental values, verifiable against manual spot-checks.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T009 [P] [US1] Contract test for data schema in `tests/contract/test_dataset_schema.py`: Implement `test_ebd_schema_has_required_columns()` checking for `checklist_id`, `species_code`, `latitude`, `longitude`, `date`, `duration`, `observer_count`, `distance`.
-- [X] T010 [P] [US1] Integration test for end-to-end pipeline on sample data in `tests/integration/test_data_pipeline.py`: Implement `test_pipeline_produces_valid_first_arrival()` verifying output CSV schema and non-null arrival dates for valid cells.
-
-### Implementation for User Story 1
-
-- [ ] T011 [P] [US1] Implement EBD data loader in `code/data_loader.py`: Download specific *Setophaga ruticilla* records (2015-2023) via `datasets.load_dataset(..., streaming=True)`, filter for complete checklists (duration ≥ 1m, observers ≥ 1, distance ≤ 10km), stream to `data/raw/ebd_subset.csv` in chunks (chunksize=50000), and verify checksum. **Constraint**: Must raise `ConnectionError` if fetch fails (NO synthetic fallback).
-- [ ] T012 [P] [US1] Implement MODIS data loader in `code/data_loader.py`: Retrieve MOD11A2 (Temp) and MOD13Q1 (NDVI) data for the **Lake Powell region** (using `LAKE_POWELL_BOUNDS`), resample to a high-resolution grid/weekly frequency. **Constraint**: Handle cloud gaps via **linear interpolation** with `max_gap_days=7`. If gap > 7 days, mark as missing. Crop/resample to the `LAKE_POWELL_BOUNDS` bounding box.
-- [ ] T013 [US1] [Depends on: T011, T012] Implement grid aggregation logic in `code/preprocessing.py`: Aggregate eBird counts to regular spatial grid cells within the Lake Powell region and join with MODIS environmental data. Flag missing environmental data.
-- [ ] T014 [US1] [Depends on: T013] Derive "first arrival" dates with sensitivity sweep in `code/preprocessing.py`: Calculate the week where the **year-to-date cumulative count** reaches thresholds {3, 5, 10}. Algorithm: `first_index = df[df['cum_count'] >= threshold].index[0]`. Exclude grid cells with total annual counts < 10. Explicitly handle grid cells with **zero observations** for a specific year by marking them as `status='undetermined'`. Write unified output to `data/processed/first_arrival_sweep.csv` with columns: `grid_id`, `week`, `arrival_date_3`, `arrival_date_5`, `arrival_date_10`, `status`. **Constraint**: Must mark cells with insufficient data as `status='undetermined'`.
-- [ ] T015 [US1] [Depends on: T014] Validate the unified sensitivity sweep output in `code/preprocessing.py`: Ensure the output file `data/processed/first_arrival_sweep.csv` contains valid dates for all thresholds {3, 5, 10} and correctly marks cells with insufficient data as `status='undetermined'`.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Gradient Boosting Model Training and Variable Importance Extraction (Priority: P2)
-
-**Goal**: Train an XGBoost model using a **Temporal Split** (Train: 2015–2020, Validate: 2021, Test: 2022) on the **Lake Powell region** to predict first arrival dates and extract SHAP values.
-
-**Independent Test**: The model achieves lower RMSE than a naive baseline on the test set (2022 data) and produces consistent SHAP/Permutation importance rankings.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T017 [P] [US2] Contract test for model output schema in `tests/contract/test_output_schema.py`: Implement `test_model_metrics_schema()` checking for `rmse`, `pearson_r`, `shap_values`, `feature_names`.
-- [X] T018 [P] [US2] Integration test for model training and evaluation in `tests/integration/test_model_training.py`: Implement `test_temporal_split_training()` verifying that 2015-2020 data is used for training and 2022 data for testing.
-
-### Implementation for User Story 2
-
-- [ ] T019 [US2] [Depends on: T015] Implement feature engineering in `code/preprocessing.py`: Create lagged features (multiple weeks prior) for temperature and NDVI. Ensure strict separation of target (current week) and predictors.
-- [ ] T020 [US2] [Depends on: T015] Implement **Temporal Split** logic in `code/model_training.py`: Split data into Train (–2020), Validate (2021), and Test (2022) strictly by year. **Constraint**: Use `SEED=42` for reproducibility. Do NOT use spatial splits.
-- [ ] T021 [US2] Implement XGBoost training in `code/model_training.py`: Train Gradient Boosting Regressor with `tree_method='hist'` (CPU-optimized) on training set. Optimize hyperparameters using grid search over `max_depth=[3,7]`, `eta=[0.01, 0.1]` minimizing RMSE on the validation set.
-- [ ] T022 [US2] Implement model evaluation in `code/model_training.py`: Calculate RMSE and Pearson correlation on the held-out **2022** test set. Compare against naive baseline (mean arrival date of the training set).
-- [ ] T023 [US2] Implement SHAP analysis in `code/model_training.py`: Compute SHAP values and generate beeswarm summary plots to quantify temperature vs. NDVI contribution. Save plot to `data/outputs/shap_summary.png`.
-- [ ] [ ] T024 [US2] Implement permutation importance test in `code/model_training.py`: Verify feature rankings are robust and not artifacts of collinearity. Save results to `data/outputs/permutation_importance.csv`.
-- [ ] T025 [US2] Implement regional mapping logic in `code/visualization.py`: Prepare data for regional visualization of predicted arrival dates within the **Lake Powell region**.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Validation and Sensitivity Analysis (Priority: P3)
-
-**Goal**: Perform **Diebold-Mariano test** to statistically compare model performance across predictor sets and validate the robustness of the "first arrival" threshold.
-
-**Independent Test**: The analysis produces p-values for the DM test and a table showing arrival date stability across thresholds {3, 5, 10}.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T026 [P] [US3] Contract test for metrics output in `tests/contract/test_metrics_schema.py`: Implement `test_dm_metrics_schema()` checking for `p_value`, `dm_statistic`, `model_type`.
-- [X] T027 [P] [US3] Integration test for statistical validation in `tests/integration/test_statistical_validation.py`: Implement `test_dm_significance()` verifying that DM test returns valid p-values for predictor set comparisons.
-
-### Implementation for User Story 3
-
-- [ ] T028 [US3] [Depends on: T022] Implement **Diebold-Mariano test** logic in `code/model_training.py`: Calculate prediction errors for Temperature-only, NDVI-only, and Combined models on the test set. Use `statsmodels` or custom implementation to perform the Diebold-Mariano test comparing the error series.
-- [ ] T029 [US3] [Depends on: T028] Implement statistical comparison in `code/model_training.py`: Calculate **p-values** (using Diebold-Mariano test) for the difference in forecast accuracy between predictor sets at **alpha=0.05**. Append results to `data/processed/metrics.json` with keys: `dm_p_value_combined_vs_temp`, `dm_p_value_combined_vs_ndvi`. **Constraint**: Must satisfy US-3 acceptance criteria for statistical significance.
-- [ ] T030 [US3] [Depends on: T015] Implement threshold sensitivity analysis in `code/model_training.py`: Read from `data/processed/first_arrival_sweep.csv`. Analyze variation in first-arrival dates across {3, 5, 10}. Flag findings if **mean absolute difference > 7 days**. Output `status` column in CSV: 'stable' or 'sensitive'.
-- [ ] T031 [US3] [Depends on: T029, T030] Implement final metrics aggregation in `code/model_training.py`: Write all RMSE, Correlation, DM p-values (from T029), and stability flags (from T030) to `data/processed/metrics.json`. **Constraint**: Must run strictly after T029 and T030 complete.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Visualization & Validation (Priority: P4)
-
-**Goal**: Generate continental-scale maps and validate performance constraints.
-
-- [ ] T032 [US3] [Depends on: T022, T025] Implement **continental-scale map generation** in `code/visualization.py`: Visualize predicted arrival dates and spatial gradient of the strongest predictor for the **full North American extent**. **Constraint**: Must cover the continental US/North America as per Spec FR-007. If data is only available for Lake Powell, the map must explicitly show the region of data availability within the continental context (e.g., using a base map of North America with data overlaid only for Lake Powell), but the artifact must be a continental-scale visualization.
-- [ ] T033 [P] Documentation updates: Update `README.md` with installation steps and add docstrings to all functions in `code/`.
-- [ ] T034 Code cleanup: Remove unused imports and ensure PEP8 compliance via ruff.
-- [ ] T035 [P] Performance profiling: Run `time ./run_pipeline.sh` and capture RAM usage. **Explicitly use `psutil` (or parse `free -m` output)** to detect peak RAM usage. Write top 3 bottlenecks to `data/outputs/profile_report.txt`. Parse `free -m` output to extract peak RSS.
-- [ ] T036 [P] Performance refactoring: If T035 reports peak RAM > **7 GB**, refactor `code/data_loader.py` to use `pandas.read_csv(chunksize=10000)` or `streaming=True` logic.
-- [ ] T037 [P] Additional unit tests in `tests/unit/`: Create `tests/unit/test_dm.py` (testing T028 logic) and `tests/unit/test_regional_map.py` (testing T032 logic).
-- [ ] T038 [P] Runtime validation: Execute the full pipeline (`python code/main.py --validate`) wrapped in a `time` command. Parse the output to extract total seconds, write `data/outputs/runtime_validation.json` with keys `total_seconds` and `passed` (true if < **21600s** (6 hours)).
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Visualization & Validation (Phase 6)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on US1 data output** (aggregated grid). T019/T020 cannot run until T013/T014/T015 complete.
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output and US1 sensitivity data (T015)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Data loading before feature engineering
-- Feature engineering before model training
-- Model training before evaluation/visualization
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, US1 can start immediately.
-- US2 (T019-T025) **cannot** start until US1 data is generated (T013/T014/T015 complete).
-- US3 (T028-T031) **cannot** start until US2 is complete.
-- All tests for a user story marked [P] can run in parallel.
-- T032, T033, T034, T036, T037, T038 can run in parallel after all US tasks complete.
-- T031 **cannot** run in parallel with T029/T030; it must follow them sequentially.
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data Pipeline)
- - Developer B: User Story 2 (Modeling) - *Must wait for US1 data output*
- - Developer C: User Story 3 (Validation) - *Must wait for US2 output*
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Data Integrity**: All data loaders MUST fail loudly on fetch errors. NO synthetic data fallbacks allowed.
-- **Compute Constraints**: All models must run on CPU (XGBoost `tree_method='hist'`). Full dataset must be streamed or sampled to fit < 7GB RAM.
-- **Scope Constraint**: All tasks must target the **Lake Powell region** as per Plan.md and verified data constraints, EXCEPT T032 which must generate continental-scale maps per Spec FR-007.
-- **Methodology Constraint**: Statistical validation MUST use **Diebold-Mariano test** (T028-T029), not LMM, as mandated by the Spec.
-- **Temporal Split**: Model training MUST use a **Temporal Split** (2015-2020/21/22) as per FR-004 and Constitution Principle VII.
-- **Sensitivity Sweep**: The sensitivity sweep MUST be integrated into the first-arrival derivation logic (T014) to produce a unified output for all thresholds {3, 5, 10} as required by FR-003.
-- **Statistical Significance**: DM test MUST calculate p-values for the difference in forecast accuracy between predictor sets to satisfy US-3 acceptance criteria.
-- **Memory Profiling**: T035 MUST include a specific mechanism for detecting peak RAM usage (`psutil` or `free -m`) before deciding on chunked reading implementation.
-- **Explicit Dependencies**: T030 MUST explicitly reference the input file path `data/processed/first_arrival_sweep.csv` generated by T015.
-- **Thresholds**: T030 must use **7 days** threshold; T036 must use **7 GB** threshold; T038 must use **6 hours** limit.
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, and all JSON‑Schema contracts under `specs/001-predicting-avian-migration-patterns-from/contracts/`.  
+All tasks produce real artifacts under `code/`, `data/`, or `tests/` and must fail loudly if any external download fails.
+
+## Phase 0 – Setup and first end‑to‑end analysis  
+
+- [X] T001 [US1] Create `code/config.py` with deterministic seeds, directory constants, full‑continent bounding box, XGBoost defaults, and analysis parameters.  
+  - **Paths**: `code/config.py`  
+  - **Verification**: `python -c "import code.config"` exits 0; the module defines constants for FR‑001 and FR‑004.  
+
+- [ ] T002 [US1] Implement the eBird Basic Dataset loader in `code/data_loader.py`.   <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 -->
+  - Stream `datasets.load_dataset("vvud/eb-data", split="train", streaming=True)`.  
+  - Filter rows: `species_code == "SRUT"` and complete‑checklist criteria (`duration_min ≥ 1`, `num_observers ≥ 1`, `distance_km ≤ 10`).  
+  - Keep records with latitude/longitude inside the full North American bbox (`LAT_MIN=15, LAT_MAX=75, LON_MIN=-170, LON_MAX=-50`) and years 2015‑2022.  
+  - Write chunked CSV (`chunksize=50_000`) to `data/raw/ebd_subset.csv`.  
+  - Compute SHA‑256 checksum and store in `data/raw/checksums.json`.  
+  - **Fail loudly** on any fetch error (no synthetic fallback).  
+  - **Verification**: CSV exists, non‑empty, contains only SRUT rows within bbox/years; spot‑check ≥ 3 rows match the streamed source.  
+
+- [ ] T003 [US1] Implement MODIS environmental data acquisition and preprocessing in `code/data_loader.py`.  
+  - Download MODIS 8‑day LST (MOD11A2) and 16‑day NDVI (MOD13Q1) composites from the **verified HuggingFace archive** `https://huggingface.co/datasets/earthmod/modis-8day/resolve/main/modis_8day.npz`.  
+  - Load the NPZ, extract `lst` and `ndvi` arrays.  
+  - Fill cloud gaps with a 7‑day moving‑average interpolation (`MAX_GAP_DAYS = 7`); flag cells with >30 % missing weeks as `missing_env`.  
+  - Resample both products to a 0.5° × 0.5° grid and aggregate to true weekly means via `rasterio.warp.reproject`.  
+  - Write NetCDFs `data/raw/modis_lst_weekly.nc` and `data/raw/modis_ndvi_weekly.nc`.  
+  - Validate coverage: compute per‑cell valid‑week fraction; cells with < 95 % coverage are logged and excluded (FR‑011).  
+  - **Verification**: NetCDF files exist, contain weekly grids covering the bbox; `data/outputs/modis_coverage.txt` reports ≥ 95 % coverage for retained cells.  
+
+- [ ] T004 [US1] Implement grid aggregation and first‑arrival derivation in `code/preprocessing.py`.  
+  - Bin filtered eBird checklists to 0.5° cells (`grid_cell_id = f"{lat:.1f}_{lon:.1f}"`) and ISO weeks.  
+  - Exclude cells with total annual observations < 10 (`data_quality_flag="insufficient_data"`).  
+  - For each cumulative‑count threshold *k* ∈ {3, 5, 10}, **adjust the threshold by the per‑cell effort covariate** (offset = `effort_covariate / mean_effort_global`) before comparing to cumulative counts; compute the week where the offset‑adjusted cumulative count first reaches *k*. If never reached, set `first_arrival_week = null` and flag `data_quality_flag="undetermined"`.  
+  - Attach lagged predictors `lst_lag_1…4`, `ndvi_lag_1…4` (weekly means from the MODIS NetCDFs) and the **effort_covariate** (total complete checklists per cell‑year, used only as a predictor).  
+  - Write `data/processed/first_arrival_sweep.csv` that validates against **`contracts/grid_cell_observation.schema.yaml`** (single schema).  
+  - **Verification**: `jsonschema.validate` passes for the CSV; a spot‑check of three cell‑years matches raw counts and lagged values.  
+
+- [ ] T012 [US1] Validate MODIS covariates against NOAA GHCN stations in `code/modis_validation.py`.  
+  - Download daily GHCN temperature records for 2015‑2022 within the continental bbox.  
+  - Aggregate to weekly means per grid cell and compute Pearson R and MAE against the MODIS LST weekly values.  
+  - Log any cell with Pearson R < 0.95 to `data/outputs/modis_ghcn_validation.txt`; exclude those cells from modeling by marking `data_quality_flag="missing_env"` in `first_arrival_sweep.csv`.  
+  - **Verification**: Validation report exists; flagged cells are absent from the final modeling CSV.  
+
+- [ ] T005 [US1] Run a thin end‑to‑end pipeline on a small sampled region/year to verify data flow and model training without full compute.  
+  - Sample a single 0.5° grid cell and a single year (e.g., 2020) from `first_arrival_sweep.csv`.  
+  - Execute the full preprocessing, model training (using a reduced XGBoost config), and prediction steps on this subset via `code/run_thin_pipeline.py`.  
+  - Verify that all intermediate files are created and that a prediction CSV with at least one row is produced.  
+  - **Verification**: Script exits 0; output files exist; sanity‑check asserts predicted arrival week is within 1‑52.  
+
+## Phase 1 – Complete the study and validate its evidence  
+
+- [ ] T006 [US2] Train Gradient Boosting Regressors in `code/model_training.py`.  
+  - Temporal split: train = 2015‑2020, validate = 2021, test = 2022.  
+  - Train three XGBoost models (temperature‑only, NDVI‑only, combined) using `XGB_PARAMS` from `config.py`.  
+  - Predictors: lagged environmental variables, `effort_covariate`, latitude, longitude, and a **Gaussian Process spatial random‑effects term** (e.g., `sklearn.gaussian_process.GaussianProcessRegressor` with a suitable kernel) to capture residual spatial structure (FR‑010).  
+  - Save model binaries to `data/outputs/models/` (`*_temp.json`, `*_ndvi.json`, `*_combined.json`).  
+  - Generate test‑set predictions (`data/outputs/predictions.csv`) with columns `grid_cell_id, year, week_number, predicted_arrival_day, actual_arrival_day, residual, shap_lst, shap_ndvi`.  
+  - Compute RMSE, MAE, Pearson R for each model and for a naive baseline (mean training‑set arrival week). Write a `metrics.json` file containing objects of type `model_metrics.schema.yaml`.  
+  - **Verification**: Model files are valid JSON; predictions CSV exists with required columns; `metrics.json` validates against `contracts/model_metrics.schema.yaml`.  
+
+- [ ] T007 [US2] Perform primary statistical comparison via Diebold‑Mariano test (HAC‑corrected) in `code/evaluation.py`.  
+  - Compare prediction errors of each XGBoost model against the naive baseline on the 2022 test set.  
+  - Record DM statistic, two‑sided p‑value, and 95 % confidence interval for each comparison.  
+  - Append metric objects with `metric_type="Diebold_Mariano"` and populate the `p_value_dm` field.  
+  - **Verification**: `metrics.json` contains three DM entries; each p‑value is a number in `[0,1]`.  
+
+- [ ] T008 [US2] Conduct secondary spatial block bootstrap validation in `code/evaluation.py`.  
+  - Partition the continental grid into ~5° × 5° spatial blocks.  
+  - Perform 1 000 block‑bootstrap resamples of test‑set errors for each model pair (combined vs temp‑only, combined vs NDVI‑only, combined vs naive).  
+  - Compute RMSE difference distribution, two‑sided p‑value, and 95 % CI (Bonferroni‑adjusted).  
+  - Store three metric objects with `metric_type="Spatial_Block_Bootstrap_P"` and a `value` field equal to the p‑value.  
+  - **Verification**: `metrics.json` now includes three bootstrap‑p‑value entries; values lie in `[0,1]`.  
+
+- [ ] T009 [US2] Run interpretability analyses in `code/model_interpretation.py`.  
+  - Compute SHAP values for the combined model on the test set; generate `shap_summary.png` and `shap_interaction.png` in `data/outputs/`.  
+  - Calculate mean absolute SHAP for temperature and NDVI; perform a paired bootstrap (1 000 resamples) to obtain a p‑value for the difference; record `shap_diff_p_value` in `metrics.json`.  
+  - Execute permutation importance (10 permutations per feature) on the validation set; ensure the maximum absolute difference between any two normalized importance scores ≤ 0.1 (SC‑005). Store a metric object with `metric_type="Permutation_Importance_Diff"` and `value` equal to the observed maximum difference.  
+  - **Verification**: PNGs exist and are ≥ 500 KB; `metrics.json` contains `shap_diff_p_value` and the permutation‑importance metric with a numeric value ≤ 0.1.  
+
+- [ ] T010 [US2] Perform threshold‑sensitivity analysis in `code/sensitivity.py`.  
+  - Load `first_arrival_sweep.csv`; for thresholds 3, 5, 10 compute the median `first_arrival_week`.  
+  - If the median shift across thresholds exceeds 7 days, set a metric object `metric_type="Threshold_Sensitivity_Flag"` with `value=1`; otherwise `value=0`.  
+  - For each threshold, compute the feature‑importance ranking (from permutation importance); calculate the Spearman rank‑order correlation across the three rankings and store it as a metric object with `metric_type="Threshold_Rank_Correlation"` and `value` equal to the correlation (must be ≥ 0.8 for success).  
+  - **Verification**: `metrics.json` contains the sensitivity flag and the correlation metric; correlation ≥ 0.8 is reported.  
+
+- [ ] T015 [US2] Validate output artifacts against `output.schema.yaml`.  
+  - Run `jsonschema.validate` on `metrics.json` and each model output JSON file using `contracts/output.schema.yaml`.  
+  - Fail loudly if any artifact does not conform.  
+  - **Verification**: Validation passes; no schema errors reported.  
+
+- [ ] T016 [US2] Execute feasibility CI test.  
+  - A pytest test `tests/test_feasibility.py` reads `metrics.json.feasibility` and asserts `elapsed_time_hours ≤ 6` and `peak_ram_gb ≤ 7`.  
+  - T014 (full pipeline) now runs this test as part of its verification.  
+  - **Verification**: `pytest -q tests/test_feasibility.py` exits 0.  
+
+## Phase 2 – Reproducible results and paper handoff  
+
+- [ ] T011 [US2] Generate continental‑scale visualizations in `code/visualization.py`.  
+  - Predict arrival week for every valid 0.5° cell across North America using the combined model plus the GP random‑effects adjustment.  
+  - Rasterize predictions to `data/outputs/migration_map_continental.png`.  
+  - Compute per‑cell absolute SHAP difference (temp vs NDVI) and rasterize to `data/outputs/predictor_gradient_continental.png`, overlayting 95 % confidence‑interval shading derived from the spatial block bootstrap (T008).  
+  - Both PNGs must be ≥ 500 KB, include a legend, CRS annotation, and contain no missing‑data artifacts.  
+  - **Verification**: File sizes ≥ 500 KB; a quick visual checklist (`map_checklist.txt`) confirms legend, CRS, and no NaN patches.  
+
+- [ ] T013 [US2] Build a provenance manifest in `code/provenance.py`.  
+  - After each pipeline stage, append a line to `data/outputs/provenance.log` of the form:  
+    `output_file ← input_file1 + input_file2 [+ …]`.  
+  - Include entries for raw eBird CSV, MODIS NetCDFs, processed CSV, model binaries, predictions, metrics, and both PNG maps.  
+  - **Verification**: `provenance.log` contains one line per generated artifact and passes a simple parser test (`tests/test_provenance.py`).  
+
+- [ ] T014 [US1] Execute the full end‑to‑end pipeline via `./run_pipeline.sh` (no arguments).  
+  - The script runs data ingestion, preprocessing, MODIS validation, model training, evaluation, interpretability, sensitivity, validation, visualization, and provenance logging.  
+  - A `psutil` monitor records `elapsed_time_hours` and `peak_ram_gb`; these are written into `metrics.json` under the `feasibility` sub‑object (conforming to `contracts/metrics.schema.yaml`).  
+  - CI asserts `elapsed_time_hours ≤ 6` and `peak_ram_gb ≤ 7` via the pytest feasibility test (T016).  
+  - **Verification**: CI logs show wall‑clock ≤ 6 h and peak RAM ≤ 7 GB; `metrics.json` contains the feasibility sub‑object with numeric values; pytest feasibility test passes.  
+
+---  
+
+### Mapping of functional requirements → tasks  
+
+| FR | Covered by |
+|----|------------|
+| FR‑001 | T002 |
+| FR‑002 / FR‑002a | T003 |
+| FR‑003 | T004 (effort offset applied) |
+| FR‑004 | T006 |
+| FR‑005 | T009 |
+| FR‑006 | T007 (primary DM) |
+| FR‑007 | T011 |
+| FR‑008 | T004 (effort_covariate as predictor) |
+| FR‑009 | T008 |
+| FR‑010 | T006 (Gaussian Process random‑effects) |
+| FR‑011 | T012 |
+| FR‑012 | T013 |
+
+All success criteria (SC‑001 … SC‑007) are verified in the respective tasks’ “Verification” sections.  

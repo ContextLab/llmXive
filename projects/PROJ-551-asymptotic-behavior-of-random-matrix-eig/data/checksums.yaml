@@ -1,0 +1,13 @@
+? /home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/raw/matrix_N1000_seed42.npy
+: e6bd1dbf7b14dbff543bc014c3b015f56c6a98e214d7cfb2ccda5bc31ebb2769
+? /home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/processed/convergence_report.json
+: ee00d7e690a1dc72bbb0c04ed8bedff887e8482b063b754e16065ff7b996cbb1
+? /home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/processed/perturbation_verification.json
+: d59e1099687183c9190f405cf67b5d47c9886377b5edc2f262e61e87692ab005
+? /home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/processed/single_run_results.json
+: 0a524e266e83a1f4d8a9a9f7654ea579bd7a7bdef96d93e00c06683dd18b82fd
+data/raw/matrix_N1000_seed42.npy: 1f9299fd1324d4af3f3656c5e89e0b80285e8020b90fd0ccf2613a81041a2020
+matrix_N1000_seed42.npy:
+  path: /home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/raw/matrix_N1000_seed42.npy
+  sha256: d4ec5bdff258651234ab3ae3a96f3d97c2de174f4bd26339071b76037cd07382
+  timestamp: '2026-10-17T23:16:04.043717+00:00'

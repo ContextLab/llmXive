@@ -43,7 +43,7 @@
 
 **Purpose**: Mandatory validation steps required by the Project Constitution before any development begins.
 
-- [ ] T002c [Setup] **Implement Reference-Validator Script**: Create `code/utils/validate_citations.py` to fetch primary sources and verify citation metadata. **Action**: Implement script to query HuggingFace API and DOI resolver (e.g., `doi.org` or `crossref.org`) with rate-limit handling (retry with exponential backoff). **Output Schema**: `data/artifacts/citation_validation_report.json` must contain `{"status": "PASS"|"FAIL", "citations": [{"id": string, "status": "PASS"|"FAIL", "mismatch_reason": string|null, "source_metadata": {"title": string, "authors": list[str], "year": int}}]}`. **Dependency**: None. **Citation**: Per Constitution Principle II (Verified Accuracy).
+- [ ] T002c [Setup] **Implement Reference-Validator Script**: Create `code/utils/validate_citations.py` to fetch primary sources and verify citation metadata. **Action**: Implement script to query HuggingFace API and DOI resolver (e.g., `doi.org` or `crossref.org`) with rate-limit handling (retry with exponential backoff). **Output Schema**: `data/artifacts/citation_validation_report.json` must contain `{"status": "PASS"|"FAIL", "citations": [{"id": string, "status": "PASS"|"FAIL", "mismatch_reason": string|null, "source_metadata": {"title": string, "authors": list[str], "year": int}}]}`. **Dependency**: None. **Citation**: Per Constitution Principle II (Verified Accuracy). <!-- FAILED-IN-EXECUTION: code/utils/validate_citations.py exit=2 -->
 
 - [ ] T002 [Gate] **Reference-Validator Execution**: Implement and execute the `Reference-Validator Agent` as a blocking gate against `plan.md` and `spec.md`. **Action**:
  1. Fetch the primary source URLs/DOIs for all citations listed in `plan.md` and `spec.md` (e.g., the HuggingFace dataset `claw-ai-lab/arc-bench` or the associated paper DOI).
@@ -85,14 +85,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T006a [Setup] Create `specs/001-llmxive-followup/contracts/failure_case.schema.yaml` with explicit JSON schema definition: keys `task_id` (string), `raw_error_log` (string), `ground_truth_resolution` (string), `annotated_structural_feature` (enum: "Syntactic Error", "Logical Loop", "Semantic Ambiguity", "Missing Context", "Unstructured").
-- [~] T006d [Setup] **Create Distilled Rule Schema**: Re-implement `specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml` ensuring it matches FR-002 requirements. **Action**: Create schema with keys `rule_id` (string), `condition_pattern` (string), `pivot_action` (string), `confidence` (float). **Dependency**: T006a. **Output**: `specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml`.
-- [~] T006c [Setup] Create `specs/001-llmxive-followup/contracts/pivot_attempt.schema.yaml` with explicit JSON schema definition: keys `task_id` (string), `method` (string), `time_to_pivot` (float), `success` (boolean), `failure_type` (string).
-- [~] T007 [Setup] **Implement `code/utils/config.py` (Base Constraints)**: Implement `code/utils/config.py` with environment variables, random seeds, and explicit resource limits for the Rule Engine: `MAX_CPU_CORES=2`, `MAX_MEMORY_GB=7`, `TIMEOUT_SECONDS=3600`, `MAX_STREAMING_ROWS=500`, `DEFAULT_SAMPLE_SIZE=50`, `MODEL_PRIORITY_LIST=["LlamaB-INT4", "Llama-3-4B-INT4", "TinyLlama-1.1B-INT4"]`. **Note**: Baseline resource configs are managed via T007b. **Action**: Write the file to `code/utils/config.py`. **Dependency**: T001.
+- [ ] T006a [Setup] Create `specs/001-llmxive-followup/contracts/failure_case.schema.yaml` with explicit JSON schema definition: keys `task_id` (string), `raw_error_log` (string), `ground_truth_resolution` (string), `annotated_structural_feature` (enum: "Syntactic Error", "Logical Loop", "Semantic Ambiguity", "Missing Context", "Unstructured").
+- [X] T006d [Setup] **Create Distilled Rule Schema**: Re-implement `specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml` ensuring it matches FR-002 requirements. **Action**: Create schema with keys `rule_id` (string), `condition_pattern` (string), `pivot_action` (string), `confidence` (float). **Dependency**: T006a. **Output**: `specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml`.
+- [ ] T006c [Setup] Create `specs/001-llmxive-followup/contracts/pivot_attempt.schema.yaml` with explicit JSON schema definition: keys `task_id` (string), `method` (string), `time_to_pivot` (float), `success` (boolean), `failure_type` (string).
+- [ ] T007 [Setup] **Implement `code/utils/config.py` (Base Constraints)**: Implement `code/utils/config.py` with environment variables, random seeds, and explicit resource limits for the Rule Engine: `MAX_CPU_CORES=2`, `MAX_MEMORY_GB=7`, `TIMEOUT_SECONDS=3600`, `MAX_STREAMING_ROWS=500`, `DEFAULT_SAMPLE_SIZE=50`, `MODEL_PRIORITY_LIST=["LlamaB-INT4", "Llama-3-4B-INT4", "TinyLlama-1.1B-INT4"]`. **Note**: Baseline resource configs are managed via T007b. **Action**: Write the file to `code/utils/config.py`. **Dependency**: T001.
 - [ ] T007b [Setup] **Implement Baseline Resource Overrides**: Create `code/utils/config_baseline.py` or extend `config.py` to define `BASELINE_CPU_CORES=4`, `BASELINE_MEMORY_GB=16`. **Action**: Implement logic to load these overrides when the `--profile=baseline` flag is passed. **Dependency**: T007. **Output**: `code/utils/config_baseline.py`.
 - [ ] T007c [Setup] **Implement Resource Watchdog**: Implement `code/utils/watchdog.py` with functions `check_memory_limit()` (monitor RAM, trigger shutdown if >7GB) and `enforce_cpu_quota()` (limit CPU usage). **Dependency**: T007. **Output**: `code/utils/watchdog.py`.
 - [ ] T007d [Setup] **Implement Adaptive Sampling Fallback**: Implement `code/utils/adaptive_sampler.py` to handle dataset truncation when RAM limits are exceeded. **Action**: Implement logic to reduce `MAX_STREAMING_ROWS` or sample from the dataset dynamically if `check_memory_limit()` is triggered. **Dependency**: T007, T007c. **Output**: `code/utils/adaptive_sampler.py`.
-- [~] T008 [Setup] Implement `code/utils/logging.py` for structured logging of pipeline stages
+- [X] T008 [Setup] Implement `code/utils/logging.py` for structured logging of pipeline stages
 
 ---
 
@@ -104,7 +104,7 @@
 
 ### Implementation for User Story 1
 
-- [~] T009 [US1] **Implement `code/01_data_ingestion/download_arc_bench.py`**: Fetch the ARC‑Bench **topic subset** via HuggingFace `datasets`. **Action**: Implement logic to filter by `topic_id` (e.g., `dataset.filter(lambda x: x['topic'] in TOPIC_IDS)`) to ensure only the specified subset is ingested, not the full dataset. **Action**: Generate `data/raw/.checksums` file with SHA256 hashes of downloaded files. **Output**: `data/raw/arc_bench_topic_subset.parquet`, `data/raw/.checksums`. **Dependency**: T001, T007.
+- [ ] T009 [US1] **Implement `code/01_data_ingestion/download_arc_bench.py`**: Fetch the ARC‑Bench **topic subset** via HuggingFace `datasets`. **Action**: Implement logic to filter by `topic_id` (e.g., `dataset.filter(lambda x: x['topic'] in TOPIC_IDS)`) to ensure only the specified subset is ingested, not the full dataset. **Action**: Generate `data/raw/.checksums` file with SHA256 hashes of downloaded files. **Output**: `data/raw/arc_bench_topic_subset.parquet`, `data/raw/.checksums`. **Dependency**: T001, T007.
 
 - [ ] T050 [US1] Implement Real Data Source Verification. **Action**: Create `code/utils/verify_data_source.py` to read `data/raw/.checksums` and verify integrity against expected hashes. **Output**: `data/artifacts/data_source_report.json`. **Dependency**: T009.
 
@@ -112,7 +112,7 @@
 
 - [ ] T005a [US1] **Implement Gold Standard Loader**: Create `code/annotation/gold_standard_loader.py` to load pre-verified ground truth data. **Action**: Implement loader that reads from `data/raw/gold_standard.json`. **Constraint**: If `data/raw/gold_standard.json` is missing, the script MUST raise `FileNotFoundError` with message "Real ground truth missing. Human-in-the-loop annotation required." **NO** synthetic generation is allowed for the gold standard. **Output**: `code/annotation/gold_standard_loader.py`. **Dependency**: T005e.
 
-- [~] T005d [US1] **Provision Human Annotator Interface**: Create the workflow/interface for human-in-the-loop annotation. **Action**: Implement a Streamlit interface in `code/annotation/interface.py` that displays error logs, provides a dropdown with a limited number of enum values ("Syntactic Error", "Logical Loop", "Semantic Ambiguity", "Missing Context", "Unstructured"), and submits to `data/derived/human_annotations.csv`. Define `docs/human_review_protocol.md` with exact review steps. **Dependency**: T036. **Output**: `code/annotation/interface.py`, `docs/human_review_protocol.md`.
+- [ ] T005d [US1] **Provision Human Annotator Interface**: Create the workflow/interface for human-in-the-loop annotation. **Action**: Implement a Streamlit interface in `code/annotation/interface.py` that displays error logs, provides a dropdown with a limited number of enum values ("Syntactic Error", "Logical Loop", "Semantic Ambiguity", "Missing Context", "Unstructured"), and submits to `data/derived/human_annotations.csv`. Define `docs/human_review_protocol.md` with exact review steps. **Dependency**: T036. **Output**: `code/annotation/interface.py`, `docs/human_review_protocol.md`.
 
 - [ ] T005e [US1] **Generate Gold Standard File**: Convert human annotations to `data/raw/gold_standard.json`. **Action**: Implement script `code/annotation/generate_gold_standard.py` that reads `data/derived/human_annotations.csv`, aggregates by `task_id` (majority vote), and writes to `data/raw/gold_standard.json` with schema `{task_id: {raw_error_log, ground_truth_resolution, annotated_structural_feature}}`. **Dependency**: T005d. **Output**: `data/raw/gold_standard.json`.
 
@@ -124,17 +124,17 @@
 
 - [ ] T005c [US1] **Resolve Disagreements**: Create `code/annotation/disagreement_resolver.py` to flag cases where consensus is not reached for manual review. **Dependency**: T005b. **Output**: `data/derived/disagreements.csv`.
 
-- [~] T005f [US1] **Enforce Fail-Loudly on Data Fetch**: Ensure `code/01_data_ingestion/download_arc_bench.py` raises an exception if ARC-Bench fetch fails, with NO synthetic fallback. **Dependency**: T009. **Constraint**: Per Constitution Principle I & III.
+- [ ] T005f [US1] **Enforce Fail-Loudly on Data Fetch**: Ensure `code/01_data_ingestion/download_arc_bench.py` raises an exception if ARC-Bench fetch fails, with NO synthetic fallback. **Dependency**: T009. **Constraint**: Per Constitution Principle I & III.
 
 - [ ] T011a [US1] **Create Stratified Held-Out Split**: Split the labeled dataset into training ([deferred]) and held-out ([deferred]) sets **before** distillation. **Action**: Implement `code/annotation/create_split.py` to stratify by `annotated_structural_feature` and write `data/derived/train_split.json` and `data/derived/holdout_split.json`. **Dependency**: T005e, T005b. **Output**: `data/derived/train_split.json`, `data/derived/holdout_split.json`.
 
-- [~] T011c [US1] **Implement CPU-Tractable Model Distillation Logic (Pilot)**: Implement the core logic in `code/annotation/distill_rules.py` to load a CPU-tractable model (e.g., Llama-3-8B-INT4) and generate rules. **Action**: Implement model loading with `load_in_8bit=True` or INT4 quantization, ensuring it runs on CPU. **Dependency**: T009a, T005b. **Output**: `code/annotation/distill_rules.py`.
+- [ ] T011c [US1] **Implement CPU-Tractable Model Distillation Logic (Pilot)**: Implement the core logic in `code/annotation/distill_rules.py` to load a CPU-tractable model (e.g., Llama-3-8B-INT4) and generate rules. **Action**: Implement model loading with `load_in_8bit=True` or INT4 quantization, ensuring it runs on CPU. **Dependency**: T009a, T005b. **Output**: `code/annotation/distill_rules.py`.
 
 - [ ] T011b [US1] **Generate Distilled Rule Library Artifact (data/derived/rules_library.json)**: Generate the final rule library file. **Action**: Execute distillation using `train_split.json` and write output to `data/derived/rules_library.json`. **Dependency**: T011c, T009a, T005b, T011a. **Output**: `data/derived/rules_library.json`.
 
 - [ ] T011d [US1] **Implement Rule Coverage Validation & Gate (FR-002)**: Calculate the percentage of held-out patterns covered by the generated rules. **Action**: Implement script to calculate coverage. **Constraint**: If the validation split size or threshold is marked '[deferred]', skip the hard gate or use a configurable threshold. **Output**: `data/derived/coverage_report.json` with schema `{"coverage_percentage": float, "threshold": float, "status": "PASS"|"FAIL"|"DEFERRED"}`. **Dependency**: T011b, T011a.
 
-- [~] T015b [US1] **Schema Validation**: Validate `rules_library.json` against `distilled_rule.schema.yaml`. **Action**: Implement `code/annotation/validate_rules_schema.py` to load `rules_library.json` and validate against `specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml`. Output `data/derived/schema_validation_report.json`. **Dependency**: T011b. **Output**: `data/derived/schema_validation_report.json`.
+- [ ] T015b [US1] **Schema Validation**: Validate `rules_library.json` against `distilled_rule.schema.yaml`. **Action**: Implement `code/annotation/validate_rules_schema.py` to load `rules_library.json` and validate against `specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml`. Output `data/derived/schema_validation_report.json`. **Dependency**: T011b. **Output**: `data/derived/schema_validation_report.json`.
 
 - [ ] T016 [US1] **Log Annotation & Distillation Metrics**: Record metrics to `data/derived/metrics_log.json`. **Action**: Log `kappa_score` (from T054), `coverage_percentage` (from T011d), and rule counts. Output: `data/derived/metrics_log.json`. **Dependency**: T011d, T054.
 
@@ -148,14 +148,14 @@
 
 ### Implementation for User Story 2
 
-- [~] T017 [US2] **Implement `code/03_execution/rule_engine.py`**: Implement the rule matching engine. **Action**:
+- [ ] T017 [US2] **Implement `code/03_execution/rule_engine.py`**: Implement the rule matching engine. **Action**:
  1. Input: `error_log` (string), `rules_library.json` (list of rules).
  2. Logic: Iterate rules, match `condition_pattern` (regex or JSON path) against `error_log`.
  3. Output: `{pivot_action: string, matched_rule_id: string}` or `{pivot_action: "UNMATCHED", matched_rule_id: null}`.
  4. Behavior for unmatched: Return "Manual Review" action.
  **Dependency**: T011b. **Output**: `code/03_execution/rule_engine.py`.
 
-- [~] T041a [US2] **Implement GPU Policy CI Check**: Create `ci/check_gpu_policy.sh` to assert no GPU imports in `code/` and verify runner environment. **Output**: `data/artifacts/gpu_policy_check.json`. **Dependency**: T001.
+- [ ] T041a [US2] **Implement GPU Policy CI Check**: Create `ci/check_gpu_policy.sh` to assert no GPU imports in `code/` and verify runner environment. **Output**: `data/artifacts/gpu_policy_check.json`. **Dependency**: T001.
 - [ ] T041b [US2] **Implement Code Import Guard**: Create `code/utils/gpu_guard.py` to check for `torch.cuda` imports at runtime in source files and raise errors if found. **Dependency**: T041a. **Output**: `code/utils/gpu_guard.py`.
 - [~] T044 [US2] Power Analysis.
 - [ ] T019a [US2] **Generate experiment manifest**: Create `data/derived/experiment_manifest.json`. **Action**: Define JSON schema: `{"task_id": string, "method": string, "resource_profile": string, "expected_runtime": int}`. Populate for all test tasks. **Output**: `data/derived/experiment_manifest.json`. **Dependency**: T011a.

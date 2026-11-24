@@ -6,7 +6,7 @@ properties:
   smiles:
     type: "string"
     description: "Canonical SMILES string of the molecule."
-    pattern: "^[A-Za-z0-9@#$%&*()+=<>\\[\\]{}!~^|\\\\\\\\]+$"
+    pattern: "^[A-Za-z0-9@#$%&*()+=<>\\[\\]{}!~^|\\\\]+$"
   molecular_weight:
     type: "number"
     description: "Molecular weight in g/mol."
@@ -49,19 +49,15 @@ properties:
           type: "boolean"
         stereo:
           type: "string"
-          enum: ["NONE", "STEREOANY", "STEREOZ", "STEREOE"]
+          enum: ["STEREONONE", "STEREOZ", "STEREOE"]
       required:
         - bond_type
         - is_conjugated
         - stereo
-  scaffold_id:
-    type: "string"
-    description: "Murcko scaffold fingerprint."
 required:
   - smiles
   - molecular_weight
   - refractive_index
   - node_features
   - edge_features
-  - scaffold_id
 additionalProperties: false

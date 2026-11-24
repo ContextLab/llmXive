@@ -1,0 +1,38 @@
+T001:
+  reason: 'Requested task execution failed; rerun successfully: code/01_ingest_and_filter.py
+    exit=1'
+  task: 3121ac8fc33861e82b0390431c5d6f93420e757b972d8dfff2d91166ece8db59
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/02_prepare_human_coding_dir.py
+    exit=1'
+  task: a9f00d956e18cc57140b7c57a5a8e68a1f4ead12eeaf2e16ab04597125d3f2db
+T003:
+  task: 96dd6c8e384ef5769e367eebbd8ee1eda1ed0bf57fbf51e700fbb8870d590a30
+T004:
+  task: ccc7af953ce079493e1889762183187826c41f5ae51eb16a7697066e48073b60
+T005:
+  task: f795b05a9a1843d0fb73c1a92c864370794ee08ced48deb84ff1f7dd5df2bf3f
+T006:
+  task: c68353ddd44ccc77e98cebc25ea5596ec2cb00c0d433efa716bdb94c594d2c57
+T007:
+  task: f869ba421e3287aa6ed4001ffb6644bd2f87c7a8738857038cccc9f8dc3bbc28
+T008:
+  task: f759fccabfd9f1aedd56d71fb838b190f703da20b09782ffd2e569071f6c4262
+T009:
+  task: 139dc189c97b7988eb00caa2784a4101cda57e2784d63efd33a2ba49475d839e
+T010:
+  task: 57fc20bcb6325315ff1aeea70637dde65cd28529fc18f62b01fca39c9c6585be
+T011:
+  task: 18c362f400be632ed2d37aed318dc573d2fc58b8382c3e40d507351ea6faf851
+T012:
+  task: bbf05130c015806c41587b5f4e6edd255a7a5c2040ea3409a338b51695f17007
+T013:
+  task: bfbac8f93d55fe8c0e26c13e428e7f571a82035c97a42cebc819a309175707d7
+T014:
+  task: 23ce7bea9e4d97ee3cc6c53c0a1ae55c62942a7cee943333464804797ac16461
+T015:
+  task: 11a003c2ff4d02cf1b4b8c8aff98e96f75b78e1fbf4c06e83d3f08d60db534e8
+T016:
+  task: 6522baa4fe6af9da5263fbb1102404783ca93d1d3221a17724bf7d848ac3370a
+T017:
+  task: 741e1e88b29eda6df7dc91eb6002c9f7827b33986c1bf2710eec4b1d9cc867c3

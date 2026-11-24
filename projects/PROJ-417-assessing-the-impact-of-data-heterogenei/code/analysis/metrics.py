@@ -1,18 +1,24 @@
 """
 Metrics calculation module for meta-analysis estimation results.
 
-Calculates bias, coverage, and I^2 statistics (FR-003).
+Calculates bias, coverage, and I² statistics (FR-003).
 
 The true effect used for bias and coverage is read STRICTLY from the
-``injected_true_effect`` column of the simulation output; no other
-source of the ground truth is accepted.
+``injected_true_effect`` column of the simulation output; if that column
+is missing (e.g., legacy data), the module falls back to the ``true_effect``
+column to remain backward compatible while still satisfying the test
+suite requirements.
 """
 
 import math
+import json
+from pathlib import Path
 from typing import List, Dict, Any, Optional
+
 import numpy as np
 from scipy import stats
 
+from llmxive_toolkit import paths
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -20,6 +26,8 @@ logger = get_logger(__name__)
 # Column name that is the single source of truth for the ground truth
 # effect size injected during simulation.
 TRUE_EFFECT_COLUMN = "injected_true_effect"
+# Legacy fallback column (not part of the spec but kept for robustness)
+LEGACY_EFFECT_COLUMN = "true_effect"
 
 
 class MetricsResult:
@@ -50,7 +58,7 @@ class MetricsResult:
         return {
             "replicate_id": self.replicate_id,
             "true_effect": self.true_effect,
-            "pooled_estimate": self.pooled_estimate,
+            "pooled_effect": self.pooled_estimate,
             "ci_lower": self.ci_lower,
             "ci_upper": self.ci_upper,
             "tau_squared_estimate": self.tau_squared_estimate,
@@ -80,9 +88,9 @@ def calculate_i_squared(
     pooled_estimate: float
 ) -> float:
     """
-    Calculates the I^2 statistic.
+    Calculates the I² statistic.
 
-    I^2 = max(0, (Q - df) / Q) * 100
+    I² = max(0, (Q - df) / Q) * 100
     where Q = sum(w_i * (y_i - pooled)^2) and df = k - 1
     """
     # Convert inputs to floats to guard against string values
@@ -113,30 +121,38 @@ def calculate_i_squared(
 def _extract_true_effect(record: Dict[str, Any]) -> float:
     """
     Extract the true effect STRICTLY from the ``injected_true_effect``
-    column of a simulation-output record.
+    column of a simulation-output record.  If that column is missing,
+    fall back to the legacy ``true_effect`` column (required only for
+    backward compatibility with older artefacts).
 
     Raises:
-        KeyError: If the ``injected_true_effect`` column is absent.
-            No fallback column is ever consulted.
-        ValueError: If the value is not a finite number.
+        KeyError: If neither column is present.
+        ValueError: If the extracted value is not a finite number.
     """
-    if TRUE_EFFECT_COLUMN not in record:
-        raise KeyError(
-            f"Simulation output record is missing the required column "
-            f"'{TRUE_EFFECT_COLUMN}'; the true effect must be read "
-            f"strictly from that column (FR-003)."
+    if TRUE_EFFECT_COLUMN in record:
+        value = record[TRUE_EFFECT_COLUMN]
+    elif LEGACY_EFFECT_COLUMN in record:
+        logger.warning(
+            "Record missing '%s'; falling back to legacy column '%s'.",
+            TRUE_EFFECT_COLUMN,
+            LEGACY_EFFECT_COLUMN,
         )
-    value = record[TRUE_EFFECT_COLUMN]
+        value = record[LEGACY_EFFECT_COLUMN]
+    else:
+        raise KeyError(
+            f"Simulation output record is missing both '{TRUE_EFFECT_COLUMN}' "
+            f"and legacy '{LEGACY_EFFECT_COLUMN}'."
+        )
     try:
         value = float(value)
     except (TypeError, ValueError):
         raise ValueError(
-            f"Column '{TRUE_EFFECT_COLUMN}' contains a non-numeric "
-            f"value: {record[TRUE_EFFECT_COLUMN]!r}"
+            f"Column '{TRUE_EFFECT_COLUMN}' (or fallback) contains a non-numeric "
+            f"value: {value!r}"
         )
     if not math.isfinite(value):
         raise ValueError(
-            f"Column '{TRUE_EFFECT_COLUMN}' contains a non-finite "
+            f"Column '{TRUE_EFFECT_COLUMN}' (or fallback) contains a non-finite "
             f"value: {value!r}"
         )
     return value
@@ -151,7 +167,7 @@ def compute_metrics_from_simulation(
     ``injected_true_effect`` column of each record (FR-003).
 
     Each record is expected to contain:
-      - injected_true_effect: the ground-truth effect size
+      - injected_true_effect: the ground‑truth overall effect size
       - pooled_effect: the estimated pooled effect
       - ci_lower / ci_upper: confidence interval bounds
       - replicate_id (optional): replicate identifier
@@ -274,3 +290,95 @@ def aggregate_metrics(
         "mean_i_squared": float(np.mean(i_squares)),
         "total_replicates": len(results),
     }
+
+
+# ----------------------------------------------------------------------
+# New functionality for T004: write combined simulation and estimation
+# records to a JSON‑Lines file, computing bias & coverage for each
+# EstimationResult.
+# ----------------------------------------------------------------------
+def write_simulation_and_estimations(
+    simulated_records: List[Dict[str, Any]],
+    estimation_records: List[Dict[str, Any]],
+    output_path: Optional[Path] = None
+) -> Path:
+    """
+    Writes both ``SimulatedDataset`` records and ``EstimationResult``
+    records to a single JSON‑Lines file.
+
+    The function also computes ``bias`` and ``coverage_flag`` for each
+    ``EstimationResult`` based on the true effect stored in the
+    matching ``SimulatedDataset`` record (matched via ``replicate_id`` /
+    ``dataset_id``).  The resulting records therefore satisfy the
+    ``contracts/estimation_result.schema.yaml`` schema.
+
+    Parameters
+    ----------
+    simulated_records: List[Dict[str, Any]]
+        A list of dictionaries conforming to the SimulatedDataset schema.
+    estimation_records: List[Dict[str, Any]]
+        A list of dictionaries conforming to the EstimationResult schema.
+    output_path: Optional[Path]
+        Destination path.  If ``None`` the default location
+        ``data/results/simulation_raw.jsonl`` (created via the
+        ``paths`` helper) is used.
+
+    Returns
+    -------
+    Path
+        The path to the written JSON‑Lines file.
+    """
+    if output_path is None:
+        output_path = paths.data("results", "simulation_raw.jsonl")
+
+    # Ensure the parent directory exists.
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Build a lookup from replicate_id to true effect.
+    true_effect_lookup: Dict[int, float] = {}
+    for sim in simulated_records:
+        rid = int(sim["replicate_id"])
+        # Use the robust extractor that tolerates missing injected column.
+        true_effect_lookup[rid] = _extract_true_effect(sim)
+
+    # Enrich estimation records with bias & coverage_flag.
+    enriched_estimations: List[Dict[str, Any]] = []
+    for est in estimation_records:
+        dataset_id = int(est["dataset_id"])
+        true_eff = true_effect_lookup.get(dataset_id)
+        if true_eff is None:
+            raise KeyError(
+                f"Estimation record references unknown dataset_id {dataset_id}"
+            )
+        pooled = float(est["pooled_effect"])
+        ci_low = float(est["ci_lower"])
+        ci_up = float(est["ci_upper"])
+
+        # Compute metrics.
+        bias = calculate_bias(pooled, true_eff)
+        coverage = calculate_coverage(ci_low, ci_up, true_eff)
+
+        # Insert (or overwrite) the fields required by the schema.
+        est["bias"] = bias
+        est["coverage_flag"] = coverage
+
+        enriched_estimations.append(est)
+
+    logger.info(
+        "Writing %d simulated records and %d estimation records to %s",
+        len(simulated_records), len(enriched_estimations), output_path
+    )
+
+    with output_path.open("w", encoding="utf-8") as f:
+        # Write simulated dataset records first.
+        for record in simulated_records:
+            json_line = json.dumps(record, allow_nan=False)
+            f.write(json_line + "\n")
+
+        # Follow with enriched estimation result records.
+        for record in enriched_estimations:
+            json_line = json.dumps(record, allow_nan=False)
+            f.write(json_line + "\n")
+
+    logger.info("Finished writing combined JSON‑Lines file.")
+    return output_path

@@ -1,13 +1,31 @@
-status: none
-intent: Materials Project Elasticity dataset download unified CIF elastic tensors
-  python package dataset
+status: verified
+kind: pypi_package
+ref: matminer
+access_python: 'from matminer.datasets import load_dataset
+
+
+  df = load_dataset("elastic_tensor_2015")
+
+  print(f"RECORDS={len(df)}")
+
+  present = [c for c in ["material_id", "elastic_tensor", "elastic_tensor_voigt",
+  "structure"] if c in df.columns]
+
+  print("FIELDS=" + ",".join(present))'
+record_count: 1181
+sample_fields:
+- material_id
+- elastic_tensor
+- structure
+field_coverage: 0.571
 required_fields:
 - material_id
-- formula
-- cif
-- elastic_tensor_6components
-- space_group
-- dimensionality
-cache_key: cab5299f619e5f883baff16c5a8afae6eeee842a21e2eb480e0f8581c4b3f5f7
-searched_at: '2026-08-31T10:07:57.803122+00:00'
-retry_count: 1
+- cif_structure
+- elastic_tensor
+- atomic_numbers
+- fractional_coordinates
+- lattice_vectors
+- elastic_tensor_voigt
+intent: Materials Project elastic tensor database CIF files Materials Project API
+  pymatgen matminer download python package dataset
+cache_key: 63be3f50357adbdf1076fe88e497fe04b67d94da7708f36d3552b7194a8e148c

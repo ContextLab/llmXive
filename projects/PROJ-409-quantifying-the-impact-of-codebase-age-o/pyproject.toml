@@ -1,0 +1,17 @@
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.eggs
+  | \.mypy_cache
+  | \.venv
+  | venv
+  | build
+  | dist
+  | data
+)/
+'''

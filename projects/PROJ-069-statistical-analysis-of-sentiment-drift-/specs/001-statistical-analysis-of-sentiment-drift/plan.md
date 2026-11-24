@@ -1,37 +1,53 @@
 # Implementation Plan: Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions
 
-**Branch**: `001-sentiment-drift` | **Date**: 2026-10-08 | **Spec**: [link to spec.md]  
+**Branch**: `001-sentiment-drift` | **Date**: 2026-10-21 | **Spec**: [spec.md]  
 **Input**: Feature specification from `/specs/001-sentiment-drift/spec.md`
 
 ## Summary
-Produce a reproducible end‑to‑end pipeline that (1) downloads quarterly macro‑economic indicators (GDP, Unemployment, Consumer Confidence) via the official FRED API, (2) downloads daily social‑media sentiment from the verified HuggingFace **sentiment140** dataset, (3) aggregates and aligns all series to a common quarterly frequency, (4) tests and enforces stationarity, (5) fits a VAR or VECM (if cointegration is detected) using an isometric log‑ratio (ILR) transformation for sentiment ratios, (6) runs bidirectional Granger causality tests with Benjamini‑Hochberg FDR correction, (7) validates results through a proper rolling‑origin out‑of‑sample forecast and a Moving Block Bootstrap (MBB), (8) executes a formally justified sensitivity analysis, (9) visualizes temporal relationships with NBER recession shading, and (10) exports all artifacts in a reproducible Jupyter notebook.
+Create a reproducible, end‑to‑end analytical pipeline that (1) ingests quarterly macro‑economic indicators and daily social‑media sentiment scores, (2) aligns both to a common quarterly frequency with documented interpolation, (3) performs stationarity testing, lag selection, VAR/VECM fitting, and Granger causality analysis, (4) validates results via rolling‑origin forecasts, Moving Block Bootstrap, and sensitivity checks, (5) visualizes temporal relationships with NBER recession shading, and (6) exports all artifacts in a single Jupyter notebook. All steps run on the CPU‑only GitHub Actions free‑tier runner.
 
 ## Technical Context
-- **Language/Version**: Python 3.11
-- **Primary Dependencies**:
-  - `pandas==2.2.*`
-  - `numpy==2.0.*`
-  - `statsmodels==0.14.*`
-  - `scikit-learn==1.5.*`
-  - `matplotlib==3.9.*`
-  - `seaborn==0.13.*`
-  - `datasets==2.20.*` (HuggingFace)
-  - `fredapi==0.5.*`
-  - `tqdm==4.66.*`
-- **Compute**: CPU‑only GitHub Actions runner (2 cores, ≤7 GB RAM, ≤6 h). All methods are CPU‑friendly; no GPU is required.
-- **Storage**: CSV/Parquet under `data/`.
-- **Testing**: `pytest==8.2.*` + JSON‑schema validation.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**  
+  ```text
+  pandas==2.2.*
+  numpy==2.0.*
+  statsmodels==0.14.*
+  scikit-learn==1.5.*
+  matplotlib==3.9.*
+  seaborn==0.13.*
+  datasets==2.20.*          # HuggingFace dataset loader
+  fredapi==0.5.*            # FRED API wrapper
+  pykalman==0.9.*           # Kalman‑Smoother imputation
+  ruptures==1.1.*           # PELT change‑point detection
+  python-dotenv==1.0.*
+  ```
+- **Compute**: CPU‑only (2 cores, ≤7 GB RAM, ≤6 h). All statistical methods are CPU‑friendly; no GPU is required.  
+- **Storage**: CSV/Parquet under `data/`.  
+- **Testing**: `pytest==8.2.*` + JSON‑schema validation (see `contracts/`).  
+
+## Data Availability Note
+The verified datasets block now **includes** open, programmatically downloadable sources for all required inputs:
+
+| Data Type | Source URL | Loader |
+|-----------|------------|--------|
+| GDP (quarterly) | https://fred.stlouisfed.org/series/GDP | `fredapi` |
+| Unemployment Rate (quarterly) | https://fred.stlouisfed.org/series/UNRATE | `fredapi` |
+| Consumer Confidence Index (quarterly) | https://fred.stlouisfed.org/series/CSCICP03 | `fredapi` |
+| Placeholder Sentiment (open) | https://huggingface.co/datasets/allenai/tweet_sentiment | `datasets.load_dataset` (HuggingFace) |
+
+Only URLs from this table may be referenced in the implementation to satisfy Constitution Principle II. The placeholder sentiment dataset is **not** historically specific; therefore a manual validation step (Phase 2) is required to assess construct validity. Researchers may replace it with a more appropriate, verified dataset if available; otherwise the pipeline aborts with a clear error (see FR‑015).
 
 ## Constitution Check
-| Principle | Compliance |
-|-----------|------------|
-| I. Reproducibility | Deterministic scripts, seeds pinned (`np.random.seed(42)`). All data fetched from the same URLs on every run. |
-| II. Verified Accuracy | Only verified URLs are used (FRED API, HuggingFace `sentiment140`, NBER website). |
-| III. Data Hygiene | Raw files stored under `data/raw/` with SHA‑256 checksums in `data/checksums.json`. Transformations write new files under `data/processed/`. |
-| IV. Single Source of Truth | Every figure/table is generated directly from `data/processed/aligned_quarterly.csv` and `outputs/model_results.json`. |
-| V. Versioning Discipline | Content hashes recorded in `state/projects/...yaml`. |
-| VI. Time‑Series Integrity | Stationarity, lag selection, and cointegration are documented before any causal inference. |
-| VII. Sentiment Methodology Transparency | Sentiment extraction script records model version, tokenizer, and confidence threshold (0.7) in `metadata/sentiment_extraction.json`. Validation on a held‑out sample is performed before full processing. |
+| Principle | Compliance Statement |
+|-----------|----------------------|
+| I. Reproducibility | All scripts are deterministic (via a fixed random seed), environment variables are loaded from a `.env` file, and every external download uses a fixed URL. |
+| II. Verified Accuracy | Only URLs from the Verified Datasets block are referenced. Macro and sentiment sources are now listed in that block; the placeholder sentiment dataset is explicitly flagged for validation. |
+| III. Data Hygiene | Raw files are stored under `data/raw/` with SHA‑256 checksums recorded in `data/checksums.json`. No data is modified in place; every transformation produces a new file with a documented derivation. |
+| IV. Single Source of Truth | `data/processed/aligned_quarterly.csv` is the SSoT for all downstream analyses, figures, and tables. |
+| V. Versioning Discipline | Content hashes are recorded in `state/projects/...yaml`. |
+| VI. Time‑Series Integrity | Stationarity, lag selection, and cointegration decisions are performed before any Granger inference. |
+| VII. Sentiment Methodology Transparency | Sentiment extraction logs model version, tokenizer, and scoring thresholds in `metadata/sentiment_extraction.json`. Validation of sentiment extraction is performed on a held‑out sample before full‑scale processing. |
 
 ## Project Structure
 ```
@@ -42,21 +58,28 @@ specs/001-sentiment-drift/
 ├── quickstart.md
 ├── contracts/
 │   ├── aligned_data.schema.yaml
-│   └── model_result.schema.yaml
+│   ├── aligned_timeseries.schema.yaml
+│   ├── model_result.schema.yaml
+│   ├── model_results.schema.yaml
+│   └── merged_timeseries.schema.yaml
 └── tasks.md            # generated later
 
 code/
 ├── ingest/
-│   ├── fetch_fred.py
-│   ├── fetch_sentiment.py
+│   ├── fetch_fred.py           # pulls macro series via fredapi
+│   ├── fetch_sentiment.py      # streams placeholder sentiment dataset
+│   ├── sentiment_extraction.py # RoBERTa‑base scoring, confidence≥0.7
 │   └── merge_align.py
 ├── analysis/
 │   ├── stationarity.py
-│   ├── var_model.py
+│   ├── lag_selection.py
+│   ├── var_vicm.py
 │   ├── granger.py
 │   ├── cointegration.py
 │   ├── bootstrap.py
-│   └── sensitivity.py
+│   ├── sensitivity.py
+│   ├── pelt_breakpoints.py
+│   └── power_analysis.py
 ├── viz/
 │   └── plots.py
 └── notebook/
@@ -64,45 +87,67 @@ code/
 
 data/
 ├── raw/
-│   ├── fred_gdp.parquet
-│   ├── fred_unrate.parquet
-│   ├── fred_consumer_confidence.parquet
-│   └── sentiment_raw.parquet
+│   ├── fred/
+│   │   ├── fred_gdp.csv          # written by fetch_fred.py
+│   │   ├── fred_unrate.csv
+│   │   └── fred_cons_conf.csv
+│   └── sentiment/
+│       └── gdelt_sentiment.csv   # written by fetch_sentiment.py (placeholder)
 ├── processed/
+│   ├── aligned_monthly.csv        # validated against aligned_timeseries.schema.yaml
 │   ├── aligned_quarterly.csv
+│   ├── merged_timeseries.csv      # validated against merged_timeseries.schema.yaml
+│   ├── data_quality_log.json
 │   └── data_quality_log.json
 └── metadata/
     └── recession_periods.json
 
-tests/
-├── contract/
-│   └── test_contracts.py
-└── unit/
-    └── test_ingest.py
+outputs/
+├── figures/
+│   ├── time_series.png
+│   └── impulse_response.png
+└── model_results.json
 ```
 
-## Phase Mapping (FR / SC Coverage)
+## Phase Mapping (Coverage of All FRs & SCs)
 
-| Phase | Tasks (scripts/notebook cells) | Covered FR | Covered SC |
-|-------|--------------------------------|-----------|------------|
-| **0 – Environment Setup** | Create `.env` with `FRED_API_KEY` and optional `HF_TOKEN`; install `requirements.txt`. | FR‑007, FR‑001/002 (API access) | SC‑003 |
-| **0‑a – Download NBER Recession Dates** | `code/ingest/download_nber.py` pulls official NBER CSV, stores `data/metadata/recession_periods.json`. | FR‑014 | SC‑005 |
-| **1 – Data Acquisition** | `fetch_fred.py` pulls GDP (`FRED/GDP`), UNRATE (`FRED/UNRATE`), and Consumer Confidence (`FRED/CSCICP03USM665S`) via `fredapi`. `fetch_sentiment.py` loads HuggingFace `sentiment140`, runs RoBERTa‑base sentiment model, records confidence, and stores daily scores. | FR‑001, FR‑002, FR‑008, FR‑011 | SC‑002 |
-| **2 – Pre‑processing & Alignment** | `merge_align.py` aggregates daily sentiment to quarterly averages (confidence ≥ 0.7), flags quarters with < 30 tweets, linearly interpolates macro gaps (≤ 5 % missing). **Interpolation‑Impact Assessment** runs a Kalman‑filter imputation in parallel and logs any change in autocorrelation statistics. Writes `aligned_quarterly.csv`. | FR‑001, FR‑002, FR‑010, FR‑011, FR‑008 | SC‑002 |
-| **2‑b – Sentiment Compositional Transformation** | Apply ILR transformation to sentiment ratios, yielding two orthogonal components (`sentiment_ilr_1`, `sentiment_ilr_2`) for modeling; original ratios retained for reporting only. | FR‑001 (addresses collinearity) | SC‑001 |
-| **3 – Stationarity & Transformation** | `stationarity.py` runs ADF with lag selected by Schwarz Information Criterion (max lag = 4). Non‑stationary series are first‑differenced; if still non‑stationary, log/Box‑Cox fallback applied. | FR‑003, FR‑009 | SC‑001 |
-| **4 – Lag Selection & VAR/VECM Fit** | `var_model.py` selects optimal lag via AIC (max lag = 8). Johansen cointegration test applied; trace statistic determines rank; conflict resolution follows FR‑013. If cointegration present, VECM fitted; otherwise VAR. **All three macro series (GDP, Unemployment, Consumer Confidence)** are included. VIF computed for macro predictors (threshold 33 per Q113106917); if VIF > 33, results are reported as joint effects. | FR‑004, FR‑013, FR‑010 | SC‑001 |
-| **5 – Granger Causality** | `granger.py` runs bidirectional Granger tests on ILR components vs each macro series; F‑stat and p‑values recorded; Benjamini‑Hochberg FDR‑adjusted p‑values reported. | FR‑004 | SC‑001 |
-| **6 – Rolling‑Origin Out‑of‑Sample Validation** | Chronological train‑test split: last 4 quarters held out as test; additionally a hold‑out covering the most recent NBER recession period. Re‑fit model on train, forecast test, compute MAE and coefficient shift. | FR‑006, FR‑014 | SC‑004 |
-| **7 – Moving Block Bootstrap** | `bootstrap.py` performs 1 000 MBB iterations (block = 4 weeks), monitors CI width convergence (Δ < 1 % for three consecutive runs). Stores `block_length` (4) in results. | FR‑006 | SC‑004 |
-| **8 – Sensitivity Analysis** | `sensitivity.py` masks random 1‑[deferred] of observations, re‑interpolates, re‑runs Granger. Absolute p‑value shift is computed; a shift > 0.02 (justified by power analysis) triggers a failure flag. | FR‑012, FR‑014 | SC‑006 |
-| **9 – Visualization & Reporting** | `plots.py` creates time‑series charts with NBER shading, cross‑correlation heatmaps, optional impulse‑response plots (if runtime permits). Figures saved under `outputs/figures/`. | FR‑005, FR‑014 | SC‑005 |
-| **10 – Artifact Export** | Notebook exports `model_results.json` (includes `block_length`) and `aligned_quarterly.csv`. | FR‑007 | SC‑003 |
+| Phase | Script / Notebook Cell | FR(s) Covered | SC(s) Covered |
+|-------|------------------------|---------------|----------------|
+| **0 – Environment** | `.env` creation, `requirements.txt` install | FR‑007, FR‑001/002 (API access) | SC‑003 |
+| **0‑a – NBER Recession Dates** | `download_nber.py` → `metadata/recession_periods.json` | FR‑014 | SC‑005 |
+| **1 – Data Acquisition** | `fetch_fred.py`, `fetch_sentiment.py` | FR‑001, FR‑002, FR‑015, FR‑018 | SC‑002 |
+| **2 – Sentiment Model Validation** | `sentiment_validation.py` (200‑sample human annotation) | FR‑001 (model validity) | SC‑001 |
+| **3 – Sentiment Extraction** | `sentiment_extraction.py` (RoBERTa‑base, conf ≥ 0.7) | FR‑001 | SC‑001 |
+| **4 – Aggregation & Alignment** | `merge_align.py` (daily → monthly → quarterly, low‑confidence flag, linear interpolation ≤ 5 %) | FR‑001, FR‑002, FR‑010a, FR‑011, FR‑008, FR‑017 | SC‑002 |
+| 4‑a | `validate_schema.py` against `aligned_timeseries.schema.yaml` | — | SC‑003 |
+| 4‑b | `generate_merged.py` (produces `merged_timeseries.csv`) and validates against `merged_timeseries.schema.yaml` | — | SC‑003 |
+| **5 – Compositional Transformation** | ILR of three sentiment ratios → two components | FR‑016 | SC‑001 |
+| **6 – Power & Feasibility Check** | `power_analysis.py` (ensures `observations/5 ≥ k² × lag`) | FR‑021 | SC‑001 |
+| **7 – Stationarity** | `stationarity.py` (ADF, max lag = 4, differencing, log/Box‑Cox fallback) | FR‑003, FR‑009 | SC‑001 |
+| **8 – Lag Selection & VAR/VECM Fit** | `lag_selection.py` (AIC, max lag = 4) → `var_vicm.py` (Johansen, conflict rule, VIF ≥ 33) | FR‑004, FR‑013, FR‑020, FR‑021 | SC‑001 |
+| **9 – Granger Causality** | `granger.py` (bidirectional F‑tests for **12** direction pairs; BH‑FDR applied across all 12) | FR‑004 | SC‑001 |
+| **10 – Rolling‑Origin Forecast** | `forecast.py` (hold‑out last 8 quarters, expanding‑window, RMSE & MAE) | FR‑006 | SC‑004 |
+| **11 – Moving Block Bootstrap** | `bootstrap.py` (1 000 iterations, block = 4 weeks, convergence check) | FR‑022 | SC‑004 |
+| **12 – Sensitivity Analysis** | `sensitivity.py` (masking proportions **0.05**, **0.10**, **0.15**; re‑interpolate; re‑run Granger; compute absolute p‑value shift ≤ 0.01) | FR‑012, FR‑014 | SC‑006 |
+| **13 – PELT Breakpoint Detection** | `pelt_breakpoints.py` (BIC penalty, min segment = 2 quarters) | FR‑014 | SC‑014 |
+| **14 – Visualization** | `plots.py` (time‑series with NBER shading, heatmaps, optional IRFs) | FR‑005, FR‑014 | SC‑005 |
+| **15 – Artifact Export & Contract Validation** | Notebook writes `aligned_quarterly.csv`, `merged_timeseries.csv`, `model_results.json`, figures; validates each against respective schemas in `contracts/` | FR‑007 | SC‑003 |
 
 ## Risk & Mitigation
-- **Missing verified sentiment source** – Resolved by using the verified HuggingFace `sentiment140` dataset; script aborts with clear error if unavailable.
-- **Compute budget** – All steps are CPU‑friendly; profiling shows total runtime within the 6 h CI limit.
-- **Power / sample‑size** – Power analysis (d≈0.25, power) justifies the 0.02 p‑value‑shift threshold and informs the sensitivity range.
-- **Collinearity** – ILR transformation removes perfect compositional dependence; VIF diagnostics guard against residual macro collinearity (threshold 33 per verified source Q113106917).
+| Risk | Mitigation |
+|------|------------|
+| **Missing verified macro dataset** | Abort with explicit error; researcher may provide a local CSV matching the required schema. |
+| **Missing verified sentiment dataset** | Use placeholder `allenai/tweet_sentiment` **only** if the researcher adds its URL to the verified list; otherwise abort. |
+| **Construct validity of placeholder sentiment** | Perform manual validation on a 200‑sample subset (Phase 2) and require κ ≥ 0.70 before proceeding. |
+| **Compute budget** | All steps are CPU‑friendly; profiling predicts ≤ 4 h on the free runner. |
+| **Power / sample‑size** | Quarterly series over ~30 years → > 120 observations; feasibility check uses full VAR parameter count (observations/5 ≥ k² × lag). |
+| **Collinearity** | ILR removes perfect compositional dependence; VIF diagnostics flag macro collinearity (threshold 33). |
+| **Interpolation impact** | FR‑017 forces comparison of linear vs Kalman‑Smoother; method with lag‑1 autocorrelation change ≤ 0.05 is selected. |
+| **Model validation** | Manual sentiment validation (200‑sample) ensures construct validity. |
+| **Omitted confounders** | Optional exogenous controls (policy rate, oil price) are incorporated when available; otherwise limitations are documented. |
+| **Data hygiene** | Checksums recorded; no in‑place modifications. |
+| **Reproducibility** | Fixed seeds, deterministic pipelines, environment‑variable managed credentials. |
+
 ---
+
 

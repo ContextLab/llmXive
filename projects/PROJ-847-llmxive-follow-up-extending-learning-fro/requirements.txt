@@ -1,0 +1,4 @@
+torch==2.3.0
+transformers
+datasets==2.19.0
+pyarrow

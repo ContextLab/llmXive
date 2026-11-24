@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.08893",
+  "judged_at": "2026-10-13T23:18:15Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting corrosion rates of common metals using machine learning on public databases chemistry",
+  "rationale": "The paper surveys active‑learning techniques for data streams and does not address corrosion rates, metal chemistry, or the use of public databases for predicting corrosion, nor does it provide a foundational method specifically relevant to that domain. Hence it lacks any of the inclusion criteria (a‑f).",
+  "relevant": false
+}

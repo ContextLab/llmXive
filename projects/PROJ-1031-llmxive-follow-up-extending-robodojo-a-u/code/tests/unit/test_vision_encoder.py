@@ -68,16 +68,8 @@ class TestVisionEncoder:
         # B=1, T=5
         frames = torch.rand(1, 5, 3, 224, 224)
         
-        with patch.object(encoder, 'forward', return_value=torch.zeros(1, 5, encoder.EMBED_DIM)):
-            # Note: The forward method handles the reshaping internally if input is 5D
-            # But our mock returns (B, T, E) which matches the expectation after reshaping
-            # The actual forward implementation:
-            # if 5D: reshape to (B*T, C, H, W) -> extract -> (B, T, E) -> mean -> (B, E)
-            # So the mock should return (B*T, E) if we patch _extract_features, or (B, T, E) if we patch forward?
-            # The forward method calls _extract_features.
-            # Let's patch _extract_features to return (B*T, E)
-            with patch.object(encoder, '_extract_features', return_value=torch.zeros(5, encoder.EMBED_DIM)):
-                embedding = encoder.forward(frames)
+        with patch.object(encoder, '_extract_features', return_value=torch.zeros(5, encoder.EMBED_DIM)):
+            embedding = encoder.forward(frames)
         
         assert embedding.shape == (1, encoder.EMBED_DIM)
 

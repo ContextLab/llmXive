@@ -1,17 +1,10 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 2 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T001a` (rejected 1x): No evidence was presented showing that a `code/` directory exists in the repository (e.g., a directory listing or file path). Without such proof, we cannot confirm the required artifact was created.
-- `T001b` (rejected 1x): No evidence of the required `data/raw/` and `data/processed/` directories being created is provided; the artifact list is empty, so the claim that the directories exist cannot be verified. The implementer must create those directories (or provide proof they exist) to satisfy the task.
-- `T001c` (rejected 1x): No evidence of the required `results/plots/` and `results/reports/` directories was provided; the claim lacks any artifact showing that these folders were created (e.g., a directory listing or screenshot). The implementer must supply proof that the two directories exist in the repository.
-- `T001d` (rejected 1x): No evidence of the required `tests/unit/` and `tests/integration/` directories being present in the repository is provided; the artifact list is empty, so we cannot confirm the directories were actually created. The implementer must add these directories (and optionally placeholder files) to satisfy the task.
-- `T030` (rejected 1x): No `quickstart.md` file or any documentation artifact was provided; the claim contains only feature specifications and test scenarios, but lacks the required markdown file with execution instructions for $N=5{,}000{,}000$. The task’s core deliverable is missing.
-- `T031` (rejected 1x): No `run_analysis.py` file or any refactored code was provided; the evidence consists only of the task description and specifications, without the required artifact demonstrating a clean separation of orchestration logic. The implementer must supply the refactored `run_analysis.py` source code (non‑empty) for verification.
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan tests the observed residues against the *theoretically biased* expectations (Lebowitz‑Lockard 2021, Pollack & Roy 2024) rather than the uniform null hypothesis stated in the original specification (FR‑003). This mis‑alignment means the analysis will not answer the research question as originally posed – whether the residues are uniformly distributed.
+- A chi‑squared goodness‑of‑fit test assumes that the observations are independent draws from the underlying distribution. Here each observation is a deterministic function φ(n) of the integer n, so successive residues are not independent. Using the chi‑squared (or its Monte‑Carlo/Exact fallback) without accounting for this dependence may invalidate the p‑values and the resulting pass/fail decision.

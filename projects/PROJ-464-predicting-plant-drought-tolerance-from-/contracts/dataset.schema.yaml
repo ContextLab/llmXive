@@ -1,54 +1,20 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: Dataset Schema
-description: Validates merged data structure for the pipeline.
+description: Schema for the raw dataset containing species identifiers and raw trait columns.
 type: object
-properties:
-  type:
-    type: string
-    const: "application/json"
-  data:
-    type: array
-    items:
-      type: object
-      required:
-        - species_id
-        - depth
-        - branching_density
-        - surface_area
-        - conductance
-        - photosynthesis
-      properties:
-        species_id:
-          type: string
-          description: Unique species identifier
-        depth:
-          type: number
-          description: Root depth in cm
-          minimum: 0
-        branching_density:
-          type: number
-          description: Branching density metric
-          minimum: 0
-        surface_area:
-          type: number
-          description: Root surface area in cm^2
-          minimum: 0
-        conductance:
-          type: number
-          description: Stomatal conductance
-        photosynthesis:
-          type: number
-          description: Photosynthetic rate
-        pca_depth:
-          type: number
-          description: PCA transformed depth
-        pca_branching_density:
-          type: number
-          description: PCA transformed branching density
-        pca_surface_area:
-          type: number
-          description: PCA transformed surface area
-      additionalProperties: false
 required:
-  - type
-  - data
+  - species_id
+  - species_name
+properties:
+  species_id:
+    type: string
+    description: Unique identifier for the species (e.g., TRY accession).
+  species_name:
+    type: string
+    description: Canonical scientific name of the species.
+  other_traits:
+    type: object
+    description: Additional trait fields (free‑form key/value pairs).
+    additionalProperties:
+      type: [string, number, null]
+additionalProperties: false

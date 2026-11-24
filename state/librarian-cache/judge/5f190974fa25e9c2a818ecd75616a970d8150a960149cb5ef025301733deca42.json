@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1503.07557",
+  "judged_at": "2026-10-24T08:24:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available bird migration patterns and climate change statistics",
+  "rationale": "The paper studies precipitation extremes under climate change and does not involve bird migration patterns, nor does it provide baseline or methodological insight relevant to statistical analysis of migration data; it is off‑domain for the user's question.",
+  "relevant": false
+}

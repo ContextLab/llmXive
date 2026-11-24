@@ -1,297 +1,160 @@
-# Tasks: Evaluating the Impact of Data Scaling on Robustness of Statistical Tests
+# Tasks: Evaluating the Impact of Data Scaling on Robustness of Statistical Tests  
 
-**Input**: Design documents from `/specs/001-evaluating-data-scaling-on/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `specs/001-evaluating-data-scaling-robustness/spec.md`, `plan.md`, `data-model.md`, `contract` schemas in `specs/001-evaluating-data-scaling-robustness/contracts/`.  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001a [P] Create root project directories: `code/`, `data/`, `results/`, `logs/`
-- [X] T001b [P] Create `code/simulation/`, `code/preprocessing/`, `code/analysis/`, `code/visualization/` subdirectories. **Deliverable**: Verify directories exist: `code/simulation`, `code/preprocessing`, `code/analysis`, `code/visualization`.
-- [X] T001c [P] Create `data/raw/`, `data/scaled/`, `data/config/` subdirectories
-- [X] T001d [P] Create `results/figures/` and `data/scaled/{standardized,minmax,robust}/` subdirectories
-- [X] T002 Initialize Python project with pinned dependencies in `code/requirements.txt` (numpy, scipy, pandas, scikit-learn, statsmodels, matplotlib, seaborn)
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+The list below follows the canonical checklist format required by the platform.  
+All tasks are ordered to respect data flow; each task’s verification step can be
+checked deterministically by the verifier (real files, schema‑conformant
+contents, or successful command‑line execution).
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Project scaffolding & core simulation engine  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes data hygiene, configuration, and streaming adaptations.
+- [ ] **T001** [P] **Create project scaffolding, linting, and dependency lock**   <!-- FAILED-IN-EXECUTION: code/verify_scaffolding.py exit=1 -->
+  - **Files created / updated**: `README.md`, `code/__init__.py`, `code/requirements.txt` (pinned versions), `pyproject.toml` (Black config), `ruff.toml` (ruff lint config), `.pre-commit-config.yaml` (pre‑commit hooks), `code/tests/__init__.py`.  
+  - **Verification**:  
+    1. All listed files exist.  
+    2. `pip install -r code/requirements.txt` succeeds in a fresh venv.  
+    3. `ruff check .` returns exit code 0.  
+    4. `black --check .` returns exit code 0.  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] **T002** [P] **Implement synthetic data generator and unit tests (FR‑001)**  
+  - **File**: `code/simulation/generator.py` (functions `generate_null`, `generate_alternative`).  
+  - **Tests**: `code/tests/unit/test_generator.py` checking:  
+    * Null dataset mean difference `< 0.01`.  
+    * Alternative dataset mean difference within `±0.05` of the requested effect size.  
+    * Skewed data achieves target skewness `±0.1`.  
+  - **Verification**: `pytest code/tests/unit/test_generator.py` passes; generated CSVs (if any) conform to `SimulationConfig` schema.  
 
-- [X] T004 Setup configuration management for `SimulationConfig` entity in `code/simulation/config.py`
-- [X] T005a [P] **Create Logger Stub**: Create `code/simulation/logger.py` file with stub functions (`setup_logger`, `inject_batch_context`) that raise `NotImplementedError`. **Deliverable**: Empty file with function signatures. **Dependency**: None.
-- [X] T005d [P] **Define Seed Config Schema**: Create `data/config/seed_schema.json` defining the schema for `data/config/seed_config.json`. **Requirement**: The schema must be an object where keys are `batch_id` and values are objects containing `seed`, `timestamp`, and `config_hash`. **Target File**: Explicitly reference `data/config/seed_config.json` in the schema comments. **Rotation Policy**: The file must be append-only; new batches add new keys, existing keys are never overwritten. **Deliverable**: A JSON Schema definition file `data/config/seed_schema.json` explicitly referencing the target file path. **Dependency**: None.
-- [X] T005e [P] **Implement Seed Validation Function**: Implement `validate_seed_config` in `code/simulation/schema.py`. **Requirement**: Use `jsonschema` library to validate against `data/config/seed_schema.json`. **Error Handling**: Must raise `ValidationError` with a clear message if the config is invalid. **Deliverable**: Function `validate_seed_config(config)` returning boolean. **Dependency**: Must be completed after T005d.
-- [ ] T005b **Implement Logger and Seed Persistence**: Implement `setup_logger` and `save_seed_config` in `code/simulation/logger.py`. **Requirement**: Must use the schema defined in T005d and validation from T005e. The function must append the new batch's seed to `data/config/seed_config.json` without overwriting existing entries. The JSON structure MUST be `{ "batch_id": { "seed": int, "timestamp": str, "config_hash": str } }`. **File Path**: `data/config/seed_config.json`. **Error Handling**: Must raise `RuntimeError` if file is locked or missing. **Return**: Must return the updated config object. **Verification**: Unit test `code/tests/unit/simulation/test_logger.py` asserting the file is created and populated with the seed. **Dependency**: Must be completed after T005d, T005e, and T005a.
-- [X] T005c [P] **Inject Batch ID into Log Context**: Create a function `inject_batch_context` in `code/simulation/logger.py` that wraps the logger to include `batch_id` and `seed` in every log record. **Requirement**: This function must be called at the start of every simulation batch. **Verification**: Unit test `code/tests/unit/simulation/test_logger.py` asserting the log output contains the batch ID. **Dependency**: Must be completed after T005b.
-- [X] T006 [P] Create base test fixtures and seed management in `code/tests/conftest.py` (independent of T005, using standard library logging for fixtures)
-- [X] T007 Setup environment configuration for CPU-only constraints (disable GPU, set parallelism limits) in `code/utils/env.py`
-- [X] T024 [US4] **Implement Smart Streaming Loader**: Refactor `code/preprocessing/ingestion.py` to use `datasets.load_dataset(..., streaming=True)` for large public datasets. **Requirement**: Check dataset size. If size < 7GB, load fully into memory. If size >= 7GB, stream and process in chunks to compute statistics or sample a fixed number of rows (e.g., a representative subset). **Logic**: If streaming, iterate in chunks to compute statistics or sample a fixed number of rows. **Constraint**: If a full dataset cannot be processed within the specified time limit, the code must explicitly sample a well-defined subset (e.g., `itertools.islice` first N rows with a fixed seed) and log the sample size and limitation. **Prohibition**: Do NOT use `generate_synthetic_data` as a fallback if streaming fails. **CRITICAL PREREQUISITE**: This task MUST be completed before T035 and T038.
-- [X] T025 [US4] **Enforce Fail-Loudly Data Fetch**: Remove any `try/except` blocks in `code/preprocessing/ingestion.py` that catch download errors and substitute synthetic data. **Action**: If `datasets.load_dataset` or a URL fetch fails, the function must raise a `RuntimeError` with a clear message identifying the missing source. **Rationale**: Prevents silent fabrication where real data fails and the pipeline continues with fake data. **CRITICAL PREREQUISITE**: This task MUST be completed before T035 and T038.
-- [X] T026 [US4] Adapt `code/analysis/tests.py` to accept chunked/streamed data via a `data_stream` or `sample_size` argument. Implement a 'sample-and-test' strategy: stream N=5000 rows, then run the standard test. [UNRESOLVED-CLAIM: c_c96e9fe5 — status=not_enough_info]
-- [X] T027 [US4] **Implement Dataset Verification and Ingestion Pipeline**: Consolidate metadata fetching, filtering, logging, config creation, and ingestion into a single robust pipeline in `code/preprocessing/ingestion.py`. **Steps**: 1. Fetch metadata for all candidate datasets in `research.md`. 2. Filter to accessible datasets. 3. Log warnings if <10 available. 4. Generate `data/config/datasets.yaml` with verified entries (ID, URL, checksum, status). 5. Ingest only verified datasets using the logic from T024. **Deliverable**: `results/real_world_ingestion_log.csv` and `data/config/datasets.yaml`. **Dependency**: Requires T024 and T025. **Verification**: Unit tests for each step (fetch, filter, log, config, ingest) within `code/tests/unit/preprocessing/test_ingestion.py`.
-- [X] T028 [US4] **Add Verification Task for Real Data**: Create a task `code/tests/unit/preprocessing/test_real_data_integrity.py` that asserts the loaded data is not synthetic by checking for specific statistical properties or source ID verification.
-- [X] T065 [US1] **Define Configuration Matrix with Explicit Moments**: Define the `CONFIG_MATRIX` in `code/simulation/config.py` as a list of `SimulationConfig` objects. **Requirement**: Each config must explicitly specify `distribution_type` (as a string label), `mean`, `variance`, `skewness`, and `kurtosis`. **Mandatory Configurations**: The matrix MUST include at least three distinct configurations: 1. `{'type': 'Normal', 'skew': 0, 'kurt': 3}`, 2. `{'type': 'Skewed', 'skew': non-zero, 'kurt': 3}`, 3. `{'type': 'Heteroscedastic', 'skew': 0, 'kurt': 3, 'group_variance_ratio': non-unity}`. **Deliverable**: A constant `CONFIG_MATRIX` in `code/simulation/config.py` containing these configurations. **Dependency**: Must be completed before T028a.
-- [X] T065b [US1] **Implement Distribution Factory**: Implement `get_distribution_class` in `code/simulation/generator.py`. **Requirement**: Map the `distribution_type` string from `SimulationConfig` to the correct `scipy.stats` function. **Mapping**: `Normal` -> `scipy.stats.norm`, `Skewed` -> `scipy.stats.skewnorm`, `Heteroscedastic` -> `scipy.stats.norm` (with group-specific scale). **Deliverable**: Function `get_distribution_class(config)` returning the scipy distribution object. **Dependency**: Must be completed before T011.
-- [X] T065c [US1] **Implement Parameter Mapper**: Implement `get_distribution_params` in `code/simulation/generator.py`. **Requirement**: Calculate the exact `loc`, `scale`, and `shape` parameters for the scipy distribution based on the `SimulationConfig` moments. **Logic**: For `Skewed`, set `a=skewness` (or derived from skewness). For `Heteroscedastic`, calculate group-specific `scale` based on `group_variance_ratio`. **Deliverable**: Function `get_distribution_params(config)` returning a dict of parameters. **Dependency**: Must be completed before T011.
-- [X] T070 [US1] **Implement Dynamic Configuration Loading**: Implement `load_user_config` in `code/simulation/config.py` to support user-defined moments. **Requirement**: Accept CLI arguments (`--mean`, `--variance`, `--skewness`, `--kurtosis`) and a JSON config file path. **Schema**: Define a JSON schema for user input moments. **Logic**: If CLI args are provided, override `CONFIG_MATRIX` with a single dynamic config. If JSON file is provided, load and validate. **Deliverable**: Function `load_user_config()` returning a `SimulationConfig` object or list. **Verification**: Unit test asserting CLI args and JSON file are parsed correctly. **Dependency**: Must be completed before T011.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Simulation Engine for Null and Alternative Hypotheses (Priority: P1) 🎯 MVP
-
-**Goal**: Generate synthetic datasets with controlled distributional properties where ground truth is known.
-
-**Independent Test**: Generate a dataset with null hypothesis (mean diff = 0) and verify mean difference < 0.01 [UNRESOLVED-CLAIM: c_b0f01f43 — status=not_enough_info]; generate alternative (mean diff = 1.0) and verify |mean_diff - 1.0| < 0.05 [UNRESOLVED-CLAIM: c_e521724b — status=not_enough_info].
-
-### Tests for User Story 1
-
-- [X] T008 [P] [US1] Contract test for null hypothesis generation in `code/tests/unit/simulation/test_generator.py`
-- [X] T009 [P] [US1] Contract test for alternative hypothesis generation in `code/tests/unit/simulation/test_generator.py`
-- [X] T010 [P] [US1] Test for skewness/heteroscedasticity parameter accuracy in `code/tests/unit/simulation/test_generator.py`
-
-### Implementation for User Story 1
-
-- [X] T011 [US1] Implement `generate_synthetic_data` function in `code/simulation/generator.py` that accepts `SimulationConfig` and uses `get_distribution_class` (T065b) and `get_distribution_params` (T065c) to generate data. **Deliverable**: Function signature `generate_synthetic_data(config, n, seed)`. **Dependency**: Must use dynamic config from T070 if available.
-- [X] T012 [US1] Implement ground truth validation logic in `code/simulation/generator.py` that returns a boolean and logs assertion failures if `mean_diff >= 0.01` for null or `|mean_diff - 1.0| >= 0.05` for alternative. **Deliverable**: Function returns `(bool, str)` where bool indicates validity and str contains error message if invalid.
-- [X] T013 [US1] Add logic to handle zero-variance edge cases in `code/simulation/generator.py`: Log `WARNING` with message "Skipping iteration: zero variance detected" if `std_dev < 1e-9 ` and skip the specific iteration. **Condition**: `if std_dev < 1e-9 `. **Log Level**: `WARNING`.
-- [X] T014 [US1] Implement data persistence to `data/synthetic/` with metadata. **Deliverable**: Save each batch as `data/synthetic/batch_{batch_id}_{seed}.parquet`. Columns must include: `seed` (int), `config_json` (string, JSON serialized config), `ground_truth_label` (string: 'null' or 'alternative'), and the generated data columns.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] **T003** **Implement scaling algorithms, chi‑squared binning, logging, and unit tests (FR‑002, FR‑003)**  
+  - **File**: `code/preprocessing/scaling.py` exposing `standardize`, `min_max_scale`, `robust_scale`.  
+  - **File**: `code/analysis/tests.py` exposing `run_t_test`, `run_anova`, `run_chi_squared` (includes binning logic).  
+  - **Logging & Preservation**: Each scaling function writes a structured entry to `logs/scaling_<method>.log` (method name, parameters, timestamp) and saves a copy of the **pre‑scaled** dataframe to `data/pre_scaled/<method>/original_<uuid>.csv` before transformation.  
+  - **Tests**: `code/tests/unit/test_scaling.py` and `code/tests/unit/test_stat_tests.py` verifying:  
+    * Standardization yields mean ≈ 0, std ≈ 1 (tolerance 1e‑5).  
+    * Min‑max yields min 0, max 1.  
+    * Robust scaling handles zero IQR without NaNs.  
+    * Chi‑squared runs without error and returns expected columns.  
+  - **Verification**: All pytest modules pass; functions raise on invalid input (no silent fallback).  
 
 ---
 
-## Phase 4: User Story 2 - Scaling Application and Statistical Testing Pipeline (Priority:P2)
+## Phase 2 – Simulation orchestration & aggregation  
 
-**Goal**: Apply scaling methods (Standardization, Min-Max, Robust) and run parametric tests (t-test, ANOVA, Chi-squared).
+- [ ] **T004** **Build simulation driver, config loader, checkpointing, and produce `results/simulation_results.csv` (FR‑004, FR‑007)**  
+  - **Files**:  
+    * `code/simulation/config.py` – loads a YAML/JSON matrix of `SimulationConfig` objects and validates against `simulation_config.schema.yaml`.  
+    * `code/main.py` – CLI entry point `python -m code.main`. Supports `--smoke` (200 iterations per config) and `--iterations=10000` (full run). Implements checkpoint file `data/checkpoints/sim_checkpoint.json` that records last completed iteration and resumes on restart.  
+    * `code/analysis/metrics.py` – helper `write_simulation_results` that streams rows to `results/simulation_results.csv`.  
+  - **Verification**:  
+    1. `python -m code.main --smoke` finishes within 5 min and creates `results/simulation_results.csv` with at least one row per configuration.  
+    2. `python -m code.main --iterations=10000` completes all 10,000 iterations per configuration, and the CSV row count equals `num_configs × 10000`.  
+    3. Runtime of the full run is asserted to be ≤ the predefined budget (see T012).  
+    4. Running the same command a second time resumes from the checkpoint (row count increases, no duplicate `iteration_id`).  
 
-**Independent Test**: Apply Standardization to a fixed dataset, verify (Wikipedia: Standard normal table), and confirm t-test p-value stability compared to unscaled data.
+- [ ] **T005** **Aggregate error‑rate and power metrics into schema‑conformant CSVs (FR‑005, SC‑004)**  
+  - **File**: `code/analysis/metrics.py` – functions `aggregate_error_rate` → `results/aggregate_error_rate.csv` and `aggregate_power` → `results/aggregate_power.csv`. Both obey `AggregateMetrics` schema (no extra columns).  
+  - **Verification**:  
+    1. Unit test `code/tests/unit/test_metrics.py` runs on a miniature `simulation_results.csv` and asserts exact values for `total_iterations`, `rejected_count`, CI bounds (using `statsmodels.stats.proportion.proportion_confint(method='beta')`).  
+    2. Additionally asserts that for normal‑distribution configs the empirical error rate deviates from the nominal 0.05 by ≤ 0.005.  
+    3. CSV files validate against the JSON‑schema using `jsonschema.validate`.  
 
-### Tests for User Story 2
+- [ ] **T006** **Run alpha‑sensitivity analysis and generate comparative plot (FR‑006)**  
+  - **File**: `code/analysis/metrics.py` – `run_sensitivity_analysis` writes `results/sensitivity_analysis.csv` with columns `alpha,scaling_method,test_type,error_rate,power`.  
+  - **File**: `code/visualization/plots.py` – `plot_error_rates` reads `aggregate_error_rate.csv` and `sensitivity_analysis.csv`, produces `results/figures/error_rate_vs_alpha.png` (and a separate `power_vs_alpha.png`).  
+  - **Verification**:  
+    1. CSV contains three distinct alpha rows (0.01, 0.05, 0.10) per scaling method.  
+    2. PNG files exist, have non‑zero file size, and the script exits with code 0.  
 
-- [X] T015 [P] [US2] Contract test for Standardization scaling properties (mean=0, std=1) in `code/tests/unit/preprocessing/test_scaling.py`
-- [X] T016 [P] [US2] Contract test for Min-Max scaling properties (min=0, max=1) in `code/tests/unit/preprocessing/test_scaling.py`
-- [X] T017 [P] [US2] Contract test for Robust scaling (median/IQR) and zero-IQR handling in `code/tests/unit/preprocessing/test_scaling.py`
-- [X] T018 [P] [US2] Test for p-value invariance under linear scaling transformations in `code/tests/unit/analysis/test_tests.py`
+- [ ] **T012** **Benchmark total simulation runtime against fixed budget (SC‑003)**  
+  - **File**: `code/analysis/benchmark.py` – runs the full simulation (`--iterations=10000`) and records wall‑clock time in `results/runtime_benchmark.json`.  
+  - **Verification**: Unit test asserts that recorded runtime ≤ the budget (e.g., 6 hours on 2 CPU cores). Failure causes task to fail, enforcing FR‑007.  
 
-### Implementation for User Story 2
+- [ ] **T013** **Compute error‑rate inflation and power reduction metrics for non‑normal/heteroscedastic configs (SC‑005)**  
+  - **File**: `code/analysis/inflation.py` – compares aggregate error rates (and power) of non‑normal & heteroscedastic configurations against the baseline normal configuration, outputs `results/inflation_metrics.csv` with columns `scaling_method,config_type,error_rate_inflation,power_reduction`.  
+  - **Verification**: Unit test validates that inflation values are correctly calculated and that they exceed a minimal detectable threshold, satisfying SC‑005.  
 
-- [X] T019 [P] [US2] Implement `standardize_data` function in `code/preprocessing/scaling.py`
-- [X] T020 [P] [US2] Implement `min_max_scale` function in `code/preprocessing/scaling.py`
-- [X] T021 [P] [US2] Implement `robust_scale` function in `code/preprocessing/scaling.py` with explicit zero-IQR handling: Log `WARNING` and skip the iteration if IQR is zero. **Action**: Do not return a constant; skip iteration entirely. **Rationale**: Skipping is a necessary data hygiene step to prevent NaNs and division-by-zero errors, ensuring robust scaling handles edge cases as per Edge Case 2.
-- [X] T022 [US2] Implement `run_t_test` and `run_anova` in `code/analysis/tests.py`
-- [X] T023 [US2] Implement `run_chi_squared` in `code/analysis/tests.py` with binning logic based on theoretical quantiles derived from the null hypothesis distribution (mean=0, variance=1) to ensure alignment with the mean-shift alternative hypothesis. **Edge Case Handling**: Explicitly check for zero variance in the data. If zero variance is detected OR if bin merging fails (both neighbors fail), log `WARNING: Edge Case: Zero Variance / Bin Merge Failed` and skip the iteration. **Logic**: If a bin has an expected count < 5, merge with the left neighbor; if the left neighbor is empty or < 5, merge with the right neighbor. If both fail, log "Bin merge failed" and skip. **Traceability**: This skip condition must be explicitly linked to the spec's Edge Case requirement for handling zero variance. **Verification**: Unit test `code/tests/unit/analysis/test_tests.py` asserting the skip logic triggers correctly on zero variance and merge failure. **Dependency**: Requires T019, T020, T021.
+- [ ] **T015** **Validate `TestResult` records against the (to‑be‑updated) schema, including chi‑squared**  
+  - **File**: `code/tests/integration/test_result_schema.py` – loads `results/simulation_results.csv` (and real‑world CSVs) and runs `jsonschema.validate` against the `TestResult` schema (which must be extended with a `chi_squared` enum value).  
+  - **Verification**: Test passes only if all rows conform; failures surface missing enum.  
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Aggregation, Mixed-Effects, and Visualization (Priority: P3)
-
-**Goal**: Aggregate iterations, fit mixed-effects models, and visualize results.
-
-**Independent Test**: Feed a set of pre-calculated p-values into aggregation logic and verify that the calculated empirical error rate matches the proportion of p-values < 0.05, and that the confidence interval calculation runs successfully.
-
-### Tests for User Story 3
-
-- [X] T060 [P] [US3] Contract test for empirical error rate calculation (count < alpha / total) in `code/tests/unit/analysis/test_metrics.py`
-- [X] T061 [US3] **Production CI Implementation**: Implement `calculate_confidence_interval` in `code/analysis/metrics.py` using the Clopper-Pearson exact method. **Verification**: Must pass T062's specific test case (n=100, p=0.05).
-- [X] T062 [US3] **Verification Test**: Implement a test in `code/tests/unit/analysis/test_metrics.py` that verifies the Clopper-Pearson implementation against known binomial values for n=100, p=0.05 (expected range: a low-order magnitude to a small threshold).
-
-### Implementation for User Story 3
-
-- **CRITICAL PATH BLOCKER**: The following tasks (T028a, T028b, T028c, T028d) MUST be completed before any downstream analysis (T029, T030, T053, T057) can proceed.
-- [X] T028b [US3] **Implement Checkpoint Logic**: In `code/main.py`, implement the `save_checkpoint` function. **Requirement**: Save partial results to `results/partial_checkpoint.csv` and log the iteration count. **Dependency**: None (Producer).
-- [X] T028a [US3] **Implement Simulation Loop Orchestration**: In `code/main.py`, implement the iteration loop to iterate over all combinations defined in `code/simulation/config.py` (T065). **Algorithm**: For each config in `CONFIG_MATRIX`, loop `target_iterations` times. In each iteration: 1. Generate data (T011). 2. Apply scaling (T019-T021). 3. Run tests (T022-T023). 4. Record results. **Hard Constraint**: {{claim:c_2b875c51}} (FR-004, Constitution Principle VI). **Fallback**: If elapsed time > 5.5 hours and [deferred] iterations have not been reached, the run MUST FAIL with exit code indicating an unspecified error condition. and log "FIDELITY VIOLATION: Insufficient iterations (<10,000) due to time limit". DO NOT reduce target iterations. **Checkpoint**: Call `save_checkpoint` (T028b) at regular intervals. **Exit Code**: Code Success = Success, Code 99 = Fidelity Violation. **Dependency**: Requires T011, T019-T021, T022-T023, T065, T028b, T028d.
-- [X] T028d [US3] **Implement Iteration Logic Enforcement**: In `code/main.py`, implement the logic to enforce a minimum iteration threshold sufficient for convergence. **Requirement**: If time permits, run a sufficient number of iterations. If time limit (a fixed duration) is approached BEFORE [deferred] iterations are complete, the run MUST FAIL. **Logic**: `if elapsed_time < 5.5h and iterations < 10000: continue; else if iterations < 10000: fail_run [UNRESOLVED-CLAIM: c_818d63e1 — status=not_enough_info]`. **Deliverable**: Function `enforce_iteration_logic` returning target iterations (always [deferred]) or raising error. **Verification**: Unit test asserting target is 10k and run fails if time limit is hit before 10k. **Dependency**: Requires T028a.
-- [ ] T028c [US3] **Implement Result Aggregation & CSV Writing**: In `code/main.py`, implement the logic to aggregate results and write to `results/simulation_results.csv` after each configuration or at the end. **Schema**: `iteration_id` (int), `config_id` (string), `scaling_method` (string), `test_type` (string), `p_value` (float), `statistic` (float), `ground_truth` (string), `scaling_params` (string), `seed` (int). **Verification**: Unit test `code/tests/unit/simulation/test_main.py` asserting file exists, contains valid schema, and no null values in critical columns. **Dependency**: Requires T028a.
-- [ ] T029 [US3] Implement `calculate_aggregate_metrics` in `code/analysis/metrics.py` to compute Type I error and Power. **Formula**: Type I error = count(p < 0.05) / total_iterations (for null hypothesis). Power = count(p < 0.05) / total_iterations (for alternative hypothesis). **CI Method**: Use Clopper-Pearson exact method for confidence intervals. **Input Format**: Expects a DataFrame or path to `results/simulation_results.csv`. **Deliverable**: `results/aggregate_metrics.csv` with schema: `config_id` (string), `scaling_method` (string), `test_type` (string), `error_rate` (float), `power` (float), `ci_lower` (float), `ci_upper` (float). **Verification**: Assert that implementation matches `statsmodels.stats.proportion.proportion_confint` with `method='beta'` output. **Dependency**: Requires T028c to produce `results/simulation_results.csv`.
-- [X] T030 [US3] Implement `generate_error_rate_plot` in `code/visualization/plots.py` showing empirical rate vs with confidence intervals (using Clopper-Pearson). **Input**: Expects a DataFrame with columns `[scaling_method, error_rate, ci_lower, ci_upper]`. **Requirements**: Use `seaborn` to plot error bars for confidence intervals. and a horizontal reference line at the conventional significance threshold. **Dependency**: Requires T029 to produce aggregate metrics.
-- [ ] T053b [US3] **Update Plan for Mixed-Effects**: Edit `plan.md` to update the "Complexity Tracking" section. **Action**: Remove the statement "Mixed-effects model is inappropriate for synthetic data" and replace it with "Mixed-effects models are used for synthetic data with `config_id` as a fixed effect to satisfy FR-010, and `dataset_id` for real-world data." **Deliverable**: Updated `plan.md`. **Dependency**: Must be completed before T053.
-- [ ] T053 [US3/US4] **Implement Mixed-Effects Model Analysis**: In `code/analysis/metrics.py`, implement a function `fit_mixed_effects_model` using `statsmodels`. **Requirement**:
- - **For Real-World Data**: Model `deviation ~ scaling_method + (1 | dataset_id)` where `dataset_id` is a random effect.
- - **For Synthetic Data**: Model `deviation ~ scaling_method + (1 | config_id)` where `config_id` is a FIXED effect (experimental condition), not a random effect, to align with the experimental design. **Rationale**: This implementation satisfies FR-010 and SC-007. **Note**: This requirement overrides the previous plan rejection; see T053b for plan update.
- - **Deviation Definition**: `deviation = |p_value - alpha|`.
- - **Input Data**: Use `results/aggregate_metrics.csv` (from T029) with columns `error_rate`, `power`, `scaling_method`, `config_id`.
- - **Deliverable**: Function `fit_mixed_effects_model` in `code/analysis/metrics.py` returning a model summary object.
- - **Verification**: Test asserting p-value < 0.05 for scaling_method on real-world data and that synthetic data is included in the analysis with the correct fixed-effect structure for `config_id`.
- - **Dependency**: Requires T029 to produce aggregate metrics and T056 to produce real-world data. **Requires T002** (statsmodels).
-- [ ] T057 [US3] **Implement Sensitivity Analysis for Alpha Thresholds**: In `code/analysis/metrics.py`, add a function `run_sensitivity_analysis` that re-calculates Type I error rates and power for a range of alpha levels. **Requirement**: This addresses the assumption about threshold justification in the spec and satisfies SC-007. **Logic**: Read `results/simulation_results.csv` (raw data) and re-calculate error rates by counting p-values < alpha for each alpha level. **Explicit Alpha Levels**: Test a range of significance thresholds, including stringent levels: `[0.01, 0.05, 0.10]`. **Input Format**: Expects a path to `results/simulation_results.csv`. **Deliverable**: A new CSV `results/sensitivity_analysis.csv` containing error rates and power for each alpha level and scaling method. **Schema**: `alpha` (float), `scaling_method` (string), `error_rate` (float), `power` (float). **Verification**: Unit test asserting the output CSV contains rows for representative alpha levels. **Dependency**: Requires T028c to produce base simulation results.
-- [ ] T067 [US3] **Correct Alpha Threshold Specification**: Edit `code/analysis/metrics.py` in task T057 to explicitly define the alpha levels as a list of varying significance thresholds: `[0.01, 0.05, 0.10]`. **Rationale**: The previous task description was vague ("a range of significance thresholds") which led to implementation ambiguity. **Verification**: Unit test asserting `alpha_levels` as a set of representative significance thresholds. **Dependency**: Requires T057.
-- [ ] T068 [US3] **Correct Confidence Interval Method Specification**: Edit `code/analysis/metrics.py` in task T029 to explicitly specify the `method='exact'` argument for the Clopper-Pearson implementation, ensuring the test in T062 validates the correct algorithm. **Rationale**: Ambiguity in CI method led to potential implementation drift. **Verification**: Unit test asserting `method='exact'` is used in Clopper-Pearson call within `calculate_confidence_interval` function. **Dependency**: Requires T029.
-- [ ] T069 [US3] **Analyze and Report Mixed-Effects Significance**: In `code/analysis/metrics.py`, add a function `analyze_mixed_effects_significance` that extracts the p-value for the fixed effect `scaling_method` from the model summary (T053) and reports if it is < 0.05. **Requirement**: Generate a report `results/mixed_effects_significance_report.md` with a table containing columns: `p_value`, `significant` (bool), `scaling_method`. **Logic**: If p-value >= 0.05, explicitly report "SC-007 FAILED: Scaling method not significant" and log the cause (e.g., low power, small effect). **Verification**: Unit test asserting the report is generated with the correct p-value extraction and handles non-significant results as failures. **Dependency**: Requires T053.
-- [ ] T071 [US3] **Generate Simulation Validity Report**: In `code/analysis/metrics.py`, add a function `generate_validity_report` that explicitly compares measured deviations (error rate vs theoretical baseline) against theoretical expectations. **Requirement**: Generate a report `results/simulation_validity_report.md` with a table comparing `config_id`, `scaling_method`, `measured_error_rate`, `theoretical_error_rate` (0.05), and `deviation`. **Verification**: Unit test asserting the report is generated with the correct schema. **Dependency**: Requires T029.
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] **T021** **Extend TestResult schema to include chi_squared test type (FR‑003)**  
+  - **File**: `specs/001-evaluating-the-impact-of-data-scaling-on/contracts/test_result.schema.yaml` – add `"chi_squared"` to the `enum` of `test_type`.  
+  - **Verification**: Load the schema with `jsonschema` and assert that `"chi_squared"` is an allowed value; unit test `code/tests/unit/test_schema_update.py` passes.  
 
 ---
 
-## Phase 6: User Story 4 - Real-World Dataset Validation (Priority: P4)
+## Phase 3 – Real‑world data ingestion & validation  
 
-**Goal**: Ingest public datasets (UCI/OpenML) and validate simulation findings on real data.
+- [ ] **T007** **Implement streaming ingestion pipeline, fail‑loudly, and build dataset catalog (FR‑008)**  
+  - **File**: `code/preprocessing/ingestion.py` – function `stream_dataset(url, dest_path, checksum)` that uses `datasets.load_dataset(..., streaming=True)` or `urllib.request` streaming download, computes SHA‑256 on‑the‑fly, raises `RuntimeError` if checksum mismatches or download fails.  
+  - **File**: `data/config/datasets.yaml` – lists at least 10 verified UCI/OpenML datasets with `source_url`, `dataset_id`, and expected `checksum`.  
+  - **File**: `results/real_world_ingestion_log.csv` – logs each successful ingestion (`dataset_id, status, timestamp, checksum_verified`).  
+  - **File**: `results/real_world_dataset_catalog.csv` – conforms to `RealWorldDataset` schema (one row per dataset).  
+  - **Verification**:  
+    1. Running `python -m code.preprocess.ingest_all` processes all entries, creates files under `data/raw/`, and writes the log and catalog.  
+    2. If any download fails, the script aborts with a non‑zero exit code (no silent fallback).  
+    3. The catalog validates against its JSON‑schema.  
 
-**Independent Test**: Run pipeline on Iris dataset, verify scaling, testing, and report generation without crashing.
-
-### Tests for User Story 4
-
-- [X] T033 [P] [US4] Contract test for dataset ingestion (handle missing values, output clean DF) in `code/tests/unit/preprocessing/test_ingestion.py`
-- [X] T034a [P] [US4] Integration test for full real-world pipeline on Iris dataset in `code/tests/integration/test_real_world.py`
-
-### Implementation for User Story 4
-
-- [X] T035 [US4] Implement `download_dataset` function in `code/preprocessing/ingestion.py` using specific verified URLs or `datasets.load_dataset`. **Requirement**: Must use the smart loader from T024. **Logic**: If dataset size < 7GB, load fully. If size >= 7GB, stream and process in chunks or sample (e.g., a subset of the initial rows) if full processing exceeds time limits. **CRITICAL**: If full ingestion fails due to time/memory, sample a well-defined subset and LOG the limitation explicitly. **Deliverable**: Function returning DataFrame and metadata (size, sample_flag). **Dependency**: Requires T024 and T027.
-- [X] T035b [US4] **Log Sampling Justification**: Extend T035 to log a warning if sampling is performed on a large dataset. **Requirement**: Log message must include "Sampling applied due to dataset size > 7GB" and the sample size. **Dependency**: Requires T035.
-- [X] T036 [US4] Implement data cleaning and preprocessing (imputation/removal) in `code/preprocessing/ingestion.py`
-- [X] T037 [US4] Create `RealWorldDataset` entity and metadata storage in `code/preprocessing/ingestion.py`
-- [X] T051 [US4] **Implement Explicit Dataset Sampling Logic**: In `code/preprocessing/ingestion.py`, add a dedicated function `sample_streamed_data` that takes a `stream` object and a `max_rows` integer (default a substantial number of samples). **Requirement**: Use `itertools.islice` to strictly limit rows. **Deliverable**: Function `sample_streamed_data` in `code/preprocessing/ingestion.py` returning a DataFrame and metadata dict. **Verification**: Unit test `code/tests/unit/preprocessing/test_ingestion.py` asserting correct sampling and metadata. **Dependency**: Must be completed before T038 and T056.
-- [X] T056 [US4] **Ingest Full Dataset Set**: Implement ingestion and processing of all public datasets listed in `data/config/datasets.yaml`. **Requirement**: Prioritize full ingestion. If full ingestion fails, sample and log the limitation. **Deliverable**: `results/real_world_ingestion_log.csv` with schema: `dataset_id`, `source_url`, `status`, `row_count`, `checksum`, `sampling_applied`. **Verification**: Script `code/tests/unit/preprocessing/test_ingestion.py` asserting all datasets are processed and the log file contains the correct schema. **Dependency**: Requires T027 and T051.
-- [X] T056b [US4] **Enforce Minimum Full Dataset Count**: Add a verification step to T056 that counts the number of fully processed (non-sampled) datasets. **Requirement**: If the count of fully processed datasets is < 10, the run MUST FAIL with exit code 99 [UNRESOLVED-CLAIM: c_735a35fe — status=not_enough_info] and log "FIDELITY VIOLATION: Less than 10 full datasets ingested". **Rationale**: Ensures FR-008 is not silently relaxed by sampling all large datasets. **Dependency**: Requires T056.
-- [X] T038 [US4] **Reuse Scaling and Testing Pipeline on Real Data**: Apply the scaling and testing pipeline to real data using the sampling logic from T035/T051. **Deliverable**: `results/real_world_results.csv` with p-values and effect sizes for each dataset. **Verification**: Script `code/tests/integration/test_real_world.py` asserting file exists and contains p-values for multiple datasets. **Dependency**: Requires T035, T051, and T056.
-- [X] T039 [US4] **Implement Comparison Report Generation**: Generate `results/comparison_report.md` comparing synthetic vs real-world results. **Schema**: Markdown table with columns: `Metric`, `Synthetic_Value`, `Real_Value`, `Mean_Absolute_Difference`, `Correlation_Coefficient`. **Metrics**: Calculate `Mean_Absolute_Difference` (mean of |synthetic_p - real_p|) and `Correlation_Coefficient` (Pearson correlation between synthetic and real p-values). **Content**: Must include a table comparing synthetic vs real-world error rates and effect sizes. **Verification**: Script `code/tests/unit/analysis/test_metrics.py` asserting the report is generated with the correct schema and metrics. **Dependency**: Requires T038 to produce real-world results, T029 to produce synthetic results, and T057 to produce sensitivity analysis.
-- [X] T052 [US4] **Add Real-World Data Source Verification**: In `code/tests/unit/preprocessing/test_real_data_integrity.py`, add an assertion that checks the `source_id` in the loaded DataFrame metadata matches one of the IDs in `data/config/datasets.yaml`. **Rationale**: Ensures the data loader is not accidentally falling back to a default or cached synthetic dataset if the network fetch fails or times out.
-- [X] T059 [US4] **Implement Real-World Dataset Metadata Enrichment**: In `code/preprocessing/ingestion.py`, extend the `RealWorldDataset` entity to include a `source_verified` boolean flag that is set to `True` only if the dataset was successfully fetched from the verified URL in `data/config/datasets.yaml`. **Requirement**: This flag must be propagated to `results/real_world_results.csv`. **Deliverable**: Updated schema for `results/real_world_results.csv`: `dataset_id`, `source_url`, `p_value`, `effect_size`, `source_verified`. **Verification**: Unit test asserting the flag is set correctly for verified and unverified sources. **Dependency**: Requires T027 and T056.
-- [X] T066 [US4] **Enforce Real Data Source Selection**: Update `code/preprocessing/ingestion.py` to strictly prioritize any `VERIFIED REAL DATA SOURCE` injected by the execution stage over local `datasets.load_dataset` guesses. **Requirement**: Check for an environment variable `VERIFIED_DATA_SOURCE` or a file `data/config/verified_source.json`. If present, use that exact path/recipe. **Rationale**: Ensures compliance with the rule "If a verified real data source is injected, USE it," preventing the system from ignoring verified sources in favor of guessed URLs. **Dependency**: Requires T025 (Fail-Loudly) to ensure no fallback occurs if the verified source is unavailable.
+- [ ] **T008** **Apply scaling & statistical tests to each real dataset, produce `results/real_world_results.csv` (FR‑009)**  
+  - **File**: `code/main_realworld.py` – loads the catalog, streams each dataset, applies the three scaling methods via `scaling.py`, runs t‑test, ANOVA, and chi‑squared (where applicable), writes a flattened CSV with the same schema as `TestResult` (plus `dataset_id`).  
+  - **Verification**:  
+    1. After execution, `results/real_world_results.csv` exists and contains ≥ 1 row per `(dataset_id, scaling_method, test_type)` combination.  
+    2. The CSV validates against an extended `TestResult` schema that includes `dataset_id`.  
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+## Phase 4 – Mixed‑effects modeling & consistency checks  
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] **T009** **Fit mixed‑effects model on real‑world results and generate report (FR‑010)**  
+  - **File**: `code/analysis/mixed_effects.py` – uses `statsmodels.MixedLM` to fit `deviation ~ scaling_method + (1|dataset_id)` on `results/real_world_results.csv`.  
+  - **Outputs**:  
+    * `results/mixed_effect_model.json` (conforms to `MixedEffectModelOutput` schema).  
+    * `results/mixed_effects_significance_report.md` – table of scaling methods, p‑values, and a bold “SIGNIFICANT” flag when `p < 0.05`. If none are significant, the report notes **SC‑007 FAILED**.  
+  - **Verification**: Unit test `code/tests/unit/test_mixed_effects.py` checks JSON fields exist and that the report contains the required table and flag.  
 
-- [X] T040 [P] Documentation updates in `docs/` and `quickstart.md`.
-- [X] T041 Code cleanup and refactoring of `code/simulation/generator.py` for performance.
-- [X] T042a [P] Vectorize `generate_synthetic_data` in `code/simulation/generator.py` using NumPy array operations instead of Python loops.
-- [X] T042b [P] Parallelize simulation loop in `code/main.py` using `multiprocessing`.
-- [X] T043 [P] Additional unit tests for edge cases.
-- [X] T044 [P] Run quickstart.md validation.
-
----
-
-## Phase 8: Review Resolution & Data Integrity (Revision Pass)
-
-**Purpose**: Improvements to ensure data integrity and compliance with specific review concerns.
-
-### Implementation for Review Resolution
-
-- [X] T046 [US4] Implement Streaming Loaders (Consolidated into T024/T026)
-- [X] T047 [US4] Enforce Fail-Loudly Data Fetch (Consolidated into T025)
-- [X] T048 [US4] Update Dataset Configuration (using verified IDs from research.md) (Consolidated into T027)
-- [X] T034b [US4] Validate the configuration in `data/config/datasets.yaml` created by T027.
-- [X] T049 [US4] Add Verification Task for Real Data (Consolidated into T028)
-- [X] T050 [US4] Refine Real-World Pipeline Logic (Consolidated into T038)
+- [ ] **T010** **Compute synthetic‑vs‑real consistency metric (SC‑006)**  
+  - **File**: `code/analysis/consistency.py` – aligns synthetic aggregate error rates with real‑world deviations per scaling method, computes mean absolute deviation (MAD) of p‑values, writes `results/consistency_metric.json` with fields `scaling_method, mad_p_value, passes_threshold` (threshold 0.02).  
+  - **Verification**: Test `code/tests/unit/test_consistency.py` asserts JSON matches schema and that the `passes_threshold` flag is correct for a known small synthetic sample.  
 
 ---
 
-## Dependencies & Execution Order
+## Phase 5 – Documentation, reproducibility hand‑off & final verification  
 
-### Phase Dependencies
+- [ ] **T011** **Write reproducible quick‑start guide and full summary report (Phase 3 hand‑off)**  
+  - **Files**:  
+    * `quickstart.md` – step‑by‑step commands:  
+      1. `python -m code.main --smoke` (verify early end‑to‑end).  
+      2. `python -m code.main --iterations=10000` (full simulation).  
+      3. `python -m code.main_realworld` (real‑world pipeline).  
+      4. `python -m code.analysis.run_all` (aggregations, plots, mixed‑effects, consistency).  
+    * `results/summary_report.md` – sections: Methods (generator, scaling, tests), Results (tables from `aggregate_error_rate.csv`, `aggregate_power.csv`, `real_world_results.csv`, mixed‑effects p‑values, consistency metric), Limitations (sampling of real datasets, checkpoint‑induced partial runs, numerical‑precision framing).  
+  - **Verification**:  
+    1. CI script `run_all.sh` executes the four commands above on a fresh runner and then runs `git diff --quiet` against the committed `results/` artifacts; exit 0 indicates reproducibility.  
+    2. The markdown files contain required headings (`## Methods`, `## Results`, `## Limitations`).  
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] **T016** **Create CI helper script `run_all.sh`**  
+  - **File**: `run_all.sh` – bash script that sequentially runs the four commands listed in T011 with `set -e` and logs timestamps to `logs/run_all.log`.  
+  - **Verification**: Script executes without error and produces the expected log file.  
 
-### User Story Dependencies
+- [ ] **T017** **Create Python entry point `code/analysis/run_all.py`**  
+  - **File**: `code/analysis/run_all.py` – imports and invokes functions for aggregation, plotting, mixed‑effects modeling, and consistency metric. Provides a CLI `python -m code.analysis.run_all`.  
+  - **Verification**: Running the module completes all downstream steps and exits with code 0.  
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+- [ ] **T018** **Refactor simulation driver CLI into focused module**  
+  - **File**: `code/main.py` – now only parses arguments and delegates to `code/simulation/driver.py`.  
+  - **Verification**: CLI still works as before; unit test ensures delegation.  
 
-### Within Each User Story
+- [ ] **T019** **Implement dedicated config loader module**  
+  - **File**: `code/simulation/config_loader.py` – loads and validates the simulation matrix, separate from `config.py`.  
+  - **Verification**: Loader unit test checks proper schema validation and error handling.  
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
+- [ ] **T020** **Implement checkpoint manager module**  
+  - **File**: `code/simulation/checkpoint.py` – encapsulates read/write of `data/checkpoints/sim_checkpoint.json`, provides atomic updates.  
+  - **Verification**: Integration test confirms that a resumed run continues from the saved iteration without duplication.  
 
-### Parallel Opportunities
+- [ ] **T014** **Persist pre‑scaled copies and emit scaling logs**  
+  - **File**: `code/preprocessing/scaling.py` (updated) now writes each original dataframe to `data/pre_scaled/<method>/original_<uuid>.csv` before scaling and appends a structured log entry to `logs/scaling_<method>.log`.  
+  - **Verification**: After scaling, both the log file and the pre‑scaled copy exist; log format is validated by a simple parser test.  
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
-
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence

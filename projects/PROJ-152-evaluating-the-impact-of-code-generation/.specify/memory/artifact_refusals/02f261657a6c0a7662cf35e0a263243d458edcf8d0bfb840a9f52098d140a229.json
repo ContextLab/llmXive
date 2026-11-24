@@ -1,0 +1,7 @@
+{
+  "task_id": "T000d",
+  "fingerprint": "7a44e468dca4da0e16f485cf3f317cff2d976ca90bc6c3a8243bc5b0bb23539e",
+  "count": 1,
+  "model": "zai-org.glm-5.3",
+  "reason": "[implementer] refused pipeline control evidence or reviewed requirements: 'specs/001-evaluating-the-impact-of-code-generation/plan.md'"
+}

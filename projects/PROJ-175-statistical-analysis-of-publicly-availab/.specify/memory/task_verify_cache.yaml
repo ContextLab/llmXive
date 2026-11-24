@@ -1,13 +1,11 @@
 T001a:
   c: true
-  h: 7a599af7e6cd774daa5aa16dcab01f2c2aea5dc48760a7b1d3d3e615162a55aa
-  r: 'The three required directories (`code/`, `data/`, `tests/`) exist and are non-empty,
-    and `data/setup_log.json` contains exactly the required structure (`status: "SUCCESS"`,
-    `paths_verified` listing the three directories, ISO8601 timestamp), corroborated
-    by a historical execution log showing `create_project_structure.py` exited 0 and
-    wrote the setup log. The other data files'' quality issues belong to later tasks,
-    not this directory-structure task.'
-  sig: 5b939d95642889a79f6fe765751b3b3e73cf2024f8c30ad1c246957b479a6b95
+  h: 31007ab7b21d525ef32622a86bb484e99f3c11eac8829be0f5292061fe162442
+  r: "Checked that `projects/PROJ-175-statistical-analysis-of-publicly-availab/code/`,\
+    \ `data/`, and `tests/` directories exist and that `data/setup_log.json` contains\
+    \ a SUCCESS status with the required `paths_verified` list and an ISO\u20118601\
+    \ timestamp."
+  sig: a33b6a935e471061673f0a5f8ef727867798dddbde713a690326d5c8fc5838d3
 T001b:
   c: true
   h: f0435afed2a59144b1f60e02bde1e644a7c4009d41ca3e2a59c72e6482836f64

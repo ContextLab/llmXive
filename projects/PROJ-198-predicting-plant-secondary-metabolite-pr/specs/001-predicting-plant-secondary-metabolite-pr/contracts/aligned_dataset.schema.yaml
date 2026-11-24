@@ -9,27 +9,33 @@ properties:
       species_count:
         type: "integer"
         minimum: 1
-        description: "Total number of valid species in the dataset (real or mock)."
+        description: "Number of species with complete genome and metabolite data."
       clade_count:
         type: "integer"
         minimum: 1
-        description: "Number of distinct phylogenetic clades."
+        description: "Distinct phylogenetic clades represented."
       bgc_columns:
         type: "array"
         items:
           type: "string"
-        description: "List of BGC type column names."
+        description: "Names of BGC type columns."
       metabolite_columns:
         type: "array"
         items:
           type: "string"
-        description: "List of metabolite InChIKey column names."
+        description: "InChIKey identifiers for metabolite columns."
       is_mock:
         type: "boolean"
         description: "True if the dataset is synthetic/mock for CI validation."
+    required:
+      - species_count
+      - clade_count
+      - bgc_columns
+      - metabolite_columns
+      - is_mock
   data:
     type: "array"
-    description: "Array of species records."
+    description: "Array of aligned records, one per species."
     items:
       type: "object"
       required:
@@ -40,22 +46,21 @@ properties:
       properties:
         species_id:
           type: "string"
-          description: "Unique species identifier."
+          description: "Unique identifier (scientific name)."
         clade:
           type: "string"
-          description: "Phylogenetic family or clade."
+          description: "Phylogenetic clade."
         bgc_features:
           type: "object"
-          description: "Map of BGC type to presence (0/1) or count."
+          description: "Mapping BGC type → count (integer ≥ 0)."
           additionalProperties:
             type: "integer"
             minimum: 0
         metabolite_targets:
           type: "object"
-          description: "Map of InChIKey to log‑transformed abundance."
+          description: "Mapping InChIKey → log‑transformed abundance (finite float)."
           additionalProperties:
             type: "number"
-            description: "Finite float value (no NaN/Inf)."
             minimum: -1000
             maximum: 1000
 required:

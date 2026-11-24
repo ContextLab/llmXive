@@ -1,0 +1,111 @@
+T001a:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 19d2fece628e0478f093f03a8d028e31b8eb86f499f42d8514c529e0c907e7ed
+T001b:
+  task: 6fcaffe6009f6c2304cde4debdf7433d1890b9b47aa8931041abec3f5095f10c
+T002:
+  reason: "The evidence contains only the project root path and no linting configuration\
+    \ files (e.g.,\u202F`.flake8`, `pyproject.toml` with Black settings, or a pre\u2011\
+    commit hook). Without these artifacts the requirement to \u201Cconfigure linting\
+    \ (flake8/black) and formatting tools\u201D is not satisfied. Adding the appropriate\
+    \ config files and confirming they are non\u2011empty will be needed."
+  task: 9d1f279efe1e1408f34738dfe7550954d0efd8b073b5434d0b15d1ab049c4195
+T003:
+  reason: "The repository contains the required `code/data/search_sources.py`, which\
+    \ implements ENCODE queries and writes a JSON with the correct fields, but the\
+    \ expected output file `data/candidate_sources.json` is missing, indicating the\
+    \ script was never run (or failed to produce the file). Additionally, the GEO/SRA\
+    \ search functions are stubs that return empty results, so the script does not\
+    \ actually query those repositories as required. The missing JSON file and incomplete\
+    \ external\u2011repository querying mean the task is not fully satisfied."
+  task: 601703775f9fc8e56b59ce8b6beaf1194fb088619189701e1de40bad37c59cd0
+T004:
+  task: 3c099009237f126552df4ea1ce47ee0320d74bbc17c15282d12cddcc8d5a92d5
+T005:
+  reason: "The provided `retrieve_checksum.py` exists and contains download/checksum\
+    \ logic, but it expects each manifest entry to have top\u2011level `url` and `file_type`\
+    \ fields. The actual `data/manifest.json` stores those fields inside nested `chip_seq`,\
+    \ `atac_seq`, and `h3k27ac` objects, so the script will fail to find URLs, skip\
+    \ all entries, and exit with an error, never updating the manifest as required.\
+    \ The implementation must be adapted to the manifest\u2019s nested structure (or\
+    \ the manifest reshaped) for the task to be fulfilled."
+  task: 2502d6dfb40a3fdd827ac4b87787b00b450835de64da34598d34a25ef112e019
+T006:
+  task: bb1a3097573eaaa459bfbae9ce0bfe514cf96baf357b2c3cadd6ab75638a45f4
+T007:
+  task: 46de9e2ca412360c572f22d93edf5baa63fb4f53e39b4a96c6a38da8b8693426
+T008:
+  task: e1daf5db019a467356a7c31eab8484b2f04f6eb56a8389170617715c5c3a82b8
+T009:
+  task: be6d75999530cc1f5dbd06e6f0c2c162ac7a3ec58ff1a26a64f3a5d9f32e7ee2
+T010:
+  task: fceaa9d067538183881cb45ebe8013aca4b6073fa07c575c70b2be767d5847b6
+T011:
+  task: 5aede0908de3e91fcc58cfa2e4dfe8ac286415c42a8b1260b37503b790d56761
+T012:
+  task: e0b984c3db9d2fa8ce83f71112b2b616720fc2117803466a1417bf7ea5b750df
+T013:
+  task: c7823c1ffbada20499c18dfdf6ec5d2d7e7b06162051c0bf59b444b0540e0339
+T014:
+  task: 1b266e581d7225a04679a379f8a72e7a22bb8523ba61dab382282f961820742d
+T015:
+  reason: 'Requested task execution failed; rerun successfully: code/data/save_dataset.py
+    exit=1'
+  task: d3fb972b395b9afa0323006728a403877eb8624927f5a1caff26a1db46993438
+T016:
+  task: 5e2ab79b8e44cbe3faae98f114339377d87ae36a5c4f0ef1afe87db8b058f4ad
+T017:
+  task: da2c152f7cd0741dc590ab9a7c9766098ff77bf6ffaf08122ce7b5c993354058
+T018:
+  task: 8469089b608690946d30963f675a672669a4635234ce26e98449d9cea4e4f43f
+T019:
+  task: b987ea7da828540f1fc321c3cbc9325dc6c223244990e4f248155d8fea81c4ee
+T020:
+  task: 94780aa021c93b18dd5bea8831887141ba3f6a344c7c3130f2356962a4983594
+T021:
+  task: cbc26652f15ee19338b29078a2a91e921e74a55c416da0a98aea98a899eafeaa
+T022:
+  task: a4095048a462e71288332e59da89079c56d11054dd23a5469f5bf3d866778fc3
+T023:
+  task: cd00a82d4263debaa61828b93efe3352287116fd5223b7eaf63989d3d4bd97b7
+T024:
+  task: e2291e86068bd234628c267f682c4339e7b0916c562bc654c82dd10f3804a895
+T025:
+  task: dd43ce8ab34ff0df435a5f8274763e091471214da9af8df6120dd3d20069b305
+T026:
+  task: 71a983a32f6ccacdecedfeba389fc866196c17f513d8e526e46e1118e2d69bd4
+T027:
+  task: 17b26b5f647192c6f2ae04e78ea657f099d60c604ead62abdf9090681237a560
+T028:
+  task: b75cc1a7c41f21e5fc3c7cd7cc0779f6a3a43687ddc9bec0f5b71241f100a32f
+T029:
+  task: 8cc8e0f18f6554ed0f8f0f97f01948a1ce9e0fc3fa39ed77b0788321e2830dc0
+T030:
+  task: c7f52f8e4d135fe8103a5132147114d8045f63d48116879d11c520d36986027e
+T031:
+  task: 5150be75b33b244c0818679cd61232a287f925e9e0442299db3496049de1d1cd
+T032:
+  task: 8d6d9b7437dfd53e36e4f31e9cbb39f6474caffaf9e921ab1db1acb984dc6f10
+T033:
+  task: 70d391464d6be3c1d5bc772b4567375fb57717cc130f27c58f841d3bc3515b6d
+T034:
+  task: 025f8f80f7bbabe03c45998bca3e1d98257b0b201bb334f05de4e851e56b5bda
+T035:
+  task: d839d17cc037a93ea72f2cf370073b85bf820b226479dfde0ae7f5d37ef2205c
+T036:
+  task: 2cec63c4123d25ca0190d936d545425ea3a7a2a9658bfa963e60601c4c2de9b9
+T037:
+  task: 4fafd94fa267656935eaf7f0b6c202606a7e1599011cb0fef098467d065f4a00
+T038:
+  task: 304903705d460938b3aa443709b944b989f428a27b1aee1504e8e1673af6c993
+T039:
+  task: 67a6c5f5767d85f653837ad9cfc3270b68e167bd68066c5bf4e17b94ac9b3fe4
+T040:
+  task: b9fa621d31782ede4a15e68035014542bf3dfe989d50bf98c1df7ddbe78f27c8
+T041:
+  task: 9e933e6939226231d0bceaab442f137dafbf9a93fb7f4858ab6c7953e20476e9
+T042:
+  task: 5735e9aab965e199b360d6de1bf4320302cee9235cd54b1ad8fae991c43e236a

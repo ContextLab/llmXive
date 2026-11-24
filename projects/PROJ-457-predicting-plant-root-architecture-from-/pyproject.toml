@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "predict-root-architecture"
 version = "0.1.0"
 description = "Predicting Plant Root Architecture from Soil Nutrient Availability"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = [
     "pandas",
     "scikit-learn",
@@ -15,25 +15,27 @@ dependencies = [
     "matplotlib",
     "pyyaml",
     "geopandas",
+    "black",
+    "flake8",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
-include = '\.pyi?$'
+target-version = ['py311']
+include = '\\.pyi?$'
 exclude = '''
 /(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
+    \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
   | _build
   | buck-out
   | build
   | dist
-  | \.eggs
-  | \.egg-info
+  | \\.eggs
+  | \\.egg-info
 )/
 '''
 
@@ -41,6 +43,11 @@ exclude = '''
 profile = "black"
 line_length = 88
 known_first_party = ["config", "data_ingestion", "logging_integration", "modeling", "models", "preprocessing", "reporting", "sensitivity_analysis", "setup_project", "spec_deviation_handler", "visualization"]
+
+[tool.flake8]
+max-line-length = 200
+select = "E9,F63,F7,F82"
+exclude = ".git,__pycache__,build,dist,venv,.venv"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

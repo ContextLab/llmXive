@@ -1,123 +1,130 @@
 # Implementation Plan: Quantifying the Influence of Initial Conditions on Chaotic Systems
 
-**Branch**: `001-quantify-initial-conditions` | **Date**: 2026-08-05 | **Spec**: `specs/001-quantify-initial-conditions/spec.md`
+**Branch**: `001-quantify-initial-conditions` | **Date**: 2026-10-25 | **Spec**: `specs/001-quantify-initial-conditions/spec.md`  
 **Input**: Feature specification from `/specs/001-quantify-initial-conditions/spec.md`
 
 ## Summary
-
-This project implements a computational physics study to quantify how observational noise biases Finite-Time Lyapunov Exponents (FTLE) in high-dimensional chaotic systems (coupled Lorenz oscillators). The approach involves: (1) generating synthetic time-series data with controlled Gaussian noise using `scipy.integrate.solve_ivp` (DOP853); (2) computing FTLE spectra via QR-decomposition based tangent linear propagation; (3) establishing a numerically converged asymptotic baseline for the clean system using **Rosenstein's algorithm** for validation; and (4) performing regression analysis to model the deviation $\Delta \lambda$ as a function of noise amplitude ($\sigma$) and system dimension ($N$). The implementation targets GitHub Actions free-tier constraints (limited CPU, ~7GB RAM) by streaming data and using vectorized NumPy operations. CPU-first strategy is confirmed feasible; no GPU fallback is planned to ensure strict CI reproducibility.
+We will build a reproducible CPU‑only pipeline that (1) generates high‑dimensional coupled Lorenz trajectories with controllable Gaussian noise, (2) computes a rigorously validated clean‑system asymptotic Lyapunov exponent baseline, (3) calculates Finite‑Time Lyapunov Exponents (FTLE) over sliding windows using a QR‑based algorithm, (4) flags unphysical trajectories (`‖x‖ > 20.0`) and aborts on non‑chaotic configurations, (5) performs a primary Tobit censored regression on the full dataset (including censored observations) and a secondary mixed‑effects regression on bounded trajectories only, (6) reports escape probabilities, and (7) produces the required visualizations. All artifacts are stored under `data/` and validated against JSON schemas in `contracts/`. The whole workflow runs on the GitHub Actions free‑tier runner (2 CPU cores, ≤ 7 GB RAM, ≤ 45 min).
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `numpy`, `scipy`, `matplotlib`, `pandas`, `pytest`, `pyyaml`  
-**Storage**: Local filesystem (`data/raw/`, `data/processed/`), no external DB  
-**Testing**: `pytest` with `conftest.py` fixtures for random seeds and temp directories  
-**Target Platform**: Linux (GitHub Actions runner, CPU-first)  
-**Project Type**: scientific-computation  
-**Performance Goals**: Full pipeline (N=3,5; broad noise range; k≥30 trials/level) completes < 4 hours on CPU; memory < 4GB.  
-**Constraints**: No external data downloads (synthetic generation only); strict reproducibility via pinned seeds; numerical stability checks before analysis.  
-**Scale/Scope**: System dimensions $N \in \{ \text{small integers} \}$; Noise levels: broad range from negligible ($\sim 10^{-4}$) to significant ($\sim 2.0$); Minimum $k=30$ trials per level (exact counts deferred to implementation).
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+- **Language**: Python 3.11  
+- **Primary Dependencies**: `numpy`, `scipy`, `pandas`, `matplotlib`, `statsmodels`, `pyyaml`, `jsonschema` (pinned in `requirements.txt`).  
+- **Storage**: Local filesystem (`data/` for raw and processed files).  
+- **Testing**: `pytest` with deterministic seeds; unit tests for each module and an integration test for the full generation loop.  
+- **Target Platform**: Linux GitHub Actions runner (CPU‑only).  
+- **Performance Goals**: End‑to‑end wall‑clock ≤ 45 min; peak RAM < 2 GB.  
+- **Constraints**: Must satisfy every FR‑* and SC‑* from the spec; no external dataset required.  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Evidence/Action |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates `random.seed` pinning in `code/`; synthetic data generation is deterministic given inputs. |
-| **II. Verified Accuracy** | **PASS** | Verified against Spec 'Assumptions': No external citations required for core algorithm; baseline validation is self-contained. The absence of external citations was explicitly verified against the Spec's 'Assumptions' section. |
-| **III. Data Hygiene** | **PASS** | Plan mandates checksums for `data/processed/` artifacts; raw generated data is immutable. |
-| **IV. Single Source of Truth** | **PASS** | All figures/stats trace to `data/processed/` JSON/CSV; no hand-typed values in `paper/`. |
-| **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes; state file updated on change. |
-| **VI. Numerical Stability** | **PASS** | **Critical**: Plan includes a mandatory validation phase (US-2) where clean-system FTLE must converge to the *numerically computed baseline for the specific coupled configuration* (N=3,5) using **Rosenstein's algorithm** before any noisy analysis proceeds. |
-| **VII. Explicit Noise Scaling** | **PASS** | Plan mandates recording $\sigma_{noise}$ and $T$ for every trial; regression modeling $\Delta \lambda(T, \sigma)$ and the **scaling exponent** relating system dimension to bias magnitude is the primary output. **Every trial record includes the specific window size T used for that calculation as a metadata field.** The scaling exponent is stored as a primary artifact. |
+| Principle | Status | Action |
+|-----------|--------|--------|
+| I. Reproducibility | **PASS** | All random seeds are pinned (`config.SEED = 42`). CLI arguments fully determine outputs. |
+| II. Verified Accuracy | **PASS** | No external citations introduced; all algorithms are standard textbook methods. |
+| III. Data Hygiene | **PASS** | Raw `.npz` trajectories are immutable; every transformation writes a new file; checksums recorded in platform‑owned `state/artifacts/manifest.yaml`. |
+| IV. Single Source of Truth | **PASS** | Figures and tables are generated directly from JSON artifacts; no manual transcription. |
+| V. Versioning Discipline | **PASS** | Artifact hashes stored in `state/projects/...yaml`; pipeline never overwrites raw data. |
+| VI. Numerical Stability and Baseline Validation | **PASS** | Baseline computed with Rosenstein’s method on ≥ 5 noise‑free runs; convergence < 5 % enforced; aborts on non‑chaotic system. |
+| VII. Explicit Noise Scaling Characterization | **PASS** | Every run records `σ_noise`, `N`, `T`, and boundedness flag; regression explicitly models `Δλ`. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
-```text
-specs/001-quantify-initial-conditions/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
 ```
+specs/001-quantify-initial-conditions/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+    ├── baseline.schema.yaml
+    ├── ftle_result.schema.yaml
+    ├── ftle_results.schema.yaml
+    ├── regression_results.schema.yaml
+    ├── regression_stats.schema.yaml
+    ├── results.schema.yaml
+    └── trajectory.schema.yaml
 
-### Source Code (repository root)
-
-```text
 projects/PROJ-101-quantifying-the-influence-of-initial-con/
 ├── code/
 │   ├── __init__.py
-│   ├── main.py              # Entry point for pipeline execution
-│   ├── config.py            # Constants: N values, noise ranges, integration params
+│   ├── main.py                 # CLI entry point
+│   ├── config.py               # Global constants & defaults
 │   ├── simulation/
 │   │   ├── __init__.py
-│   │   ├── lorenz.py        # Coupled Lorenz ODE definition
-│   │   └── generator.py     # Trajectory generation with noise injection
+│   │   ├── lorenz.py           # Coupled Lorenz ODE definition
+│   │   └── generator.py        # Trajectory generation, noise injection, warnings, errors
 │   ├── analysis/
 │   │   ├── __init__.py
-│   │   ├── ftle.py          # QR-based FTLE calculation
-│   │   ├── baseline.py      # Asymptotic convergence validation (Rosenstein)
-│   │   └── regression.py    # Deviation modeling, t-tests, effect sizes, scaling exponent
+│   │   ├── baseline.py         # Rosenstein baseline, convergence check
+│   │   ├── ftle.py             # QR‑based FTLE over sliding windows
+│   │   ├── regression.py       # Tobit + Mixed‑effects, DW, Newey‑West, BH‑FDR
+│   │   └── plotting.py         # Convergence & scaling figures
 │   └── utils/
 │       ├── __init__.py
-│       └── stability.py     # Attractor bounding checks, non-chaotic detection
+│       └── stability.py        # Boundedness, chaos detection, DW test
 ├── tests/
 │   ├── __init__.py
-│   ├── conftest.py          # Pytest fixtures (seed, temp dir)
+│   ├── conftest.py            # Seed & temp‑dir fixtures
 │   ├── unit/
 │   │   ├── test_lorenz.py
-│   │   ├── test_ftle.py
-│   │   └── test_edge_cases.py
+│   │   ├── test_generator.py   # checks HighNoiseWarning & UnphysicalTrajectoryError
+│   │   └── test_stability.py
 │   └── integration/
-│       └── test_pipeline.py
+│       └── test_generation.py  # end‑to‑end generation + file existence
 ├── data/
-│   ├── raw/                 # Generated trajectory shards (immutable)
-│   └── processed/           # FTLE results, regression stats, plots
-├── state/
-│   └── projects/
-│       └── PROJ-101-quantifying-the-influence-of-initial-con.yaml
-└── docs/
-    ├── quickstart.md
-    └── README.md
+│   ├── raw/                    # Immutable `.npz` trajectories
+│   └── processed/
+│       ├── baseline_{N}.json
+│       ├── baseline_per_window_{N}.json
+│       ├── ftle_results.json
+│       ├── regression_results.json
+│       ├── results.json
+│       └── plots/
+│           ├── convergence.png
+│           ├── bias_scaling.png
+│           └── dimension_scaling.png
+├── requirements.txt
+└── README.md
 ```
-
-**Structure Decision**: Single project structure with modular `code/` subpackages. This minimizes overhead for a scientific script while maintaining separation of concerns (simulation vs. analysis).
+**Structure Decision**: A single‑project layout is sufficient because the feature is a self‑contained scientific pipeline; all code lives under `code/`, tests under `tests/`, and data under `data/`.
 
 ## Complexity Tracking
+No Constitution violations required justification; all steps respect the principles.
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **None** | The project is strictly bounded by CPU constraints and synthetic data. | No unnecessary complexity introduced. |
+## Phase‑by‑Phase Tasks (covers every FR/SC)
 
-## Methodological Rigor & Statistical Plan
+| Phase | Description | FR / SC addressed |
+|-------|-------------|-------------------|
+| **0. Bootstrap** | Create `requirements.txt` (pinned versions). No writes to `state/`. | **FR‑001**, **SC‑004** |
+| **1. Trajectory Generation** (`code/simulation/generator.py`) | • Integrate coupled Lorenz ODE with `solve_ivp` (`method='DOP853'`, `rtol=1e-9`, `atol=1e-12`). <br>• Inject i.i.d. Gaussian noise `σ_noise`. <br>• Emit `HighNoiseWarning` when `σ_noise > 0.1`. <br>• Raise `UnphysicalTrajectoryError` if any state norm exceeds `20.0`. <br>• Return dict matching `trajectory.schema.yaml`; save as `.npz` under `data/raw/`. <br>• Store metadata (`seed`, `N`, `sigma_noise`, `trial_id`). | **FR‑001**, **FR‑007** |
+| **2. Integration Test** (`tests/integration/test_generation.py`) | Loop over a small grid (`N=3`, `σ_noise=0.01`, 2 trials). Invoke CLI (`python -m code.main --mode generate ...`). Assert `.npz` files appear and validate each against `trajectory.schema.yaml`. | **All FRs** (verification) |
+| **3. Baseline Validation** (`code/analysis/baseline.py`) | • For each `N`, generate **K ≥ 5** noise‑free trajectories of length **≥ 50 000** steps. <br>• Apply **Rosenstein’s algorithm** to each; compute FTLE for windows `T = 1000, 2000, …, 20 000`. <br>• Aggregate per‑window means, stds, and convergence error. <br>• Determine asymptotic exponent `λ_∞` when relative change `< 5 %` between `T=5000` and `T=20 000`. <br>• If `λ_∞ ≤ 0`, raise `NonChaoticSystemError`. <br>• Write `baseline_{N}.json` (status `"valid"` only when convergence satisfied) and `baseline_per_window_{N}.json` (array of `{window_size, lambda_mean, lambda_std, convergence_error}`). <br>• Validate both against `baseline.schema.yaml`. | **FR‑003**, **FR‑006**, **SC‑001**, **VI** |
+| **4. FTLE Computation** (`code/analysis/ftle.py`) | • For each noisy trajectory, propagate the tangent linear system alongside the state. <br>• At every integration step perform **QR re‑orthonormalisation** (stable for long windows). <br>• Compute FTLE over sliding windows `T ∈ {500, 1000, 5000}`. <br>• Record `status` (`"valid"`, `"unphysical"`, `"non‑chaotic"`), `lambda_max`, `deviation` (null if not valid), and Durbin‑Watson p‑value. <br>• Append each entry to an in‑memory list and dump `ftle_results.json` (validated against `ftle_results.schema.yaml`). | **FR‑002**, **FR‑010**, **FR‑007** |
+| **5. Edge‑Case & Stability Checks** (`code/utils/stability.py`) | • `check_boundedness(state) → bool` (‖x‖ ≤ 20.0). <br>• `raise_if_unphysical(state)` raises `UnphysicalTrajectoryError`. <br>• `detect_chaos(lambda_max) → bool` aborts with `NonChaoticSystemError` if ≤ 0. <br>• `durbin_watson_test(series) → (DW, p)`. <br>• Wire these helpers into **generator** (for unphysical detection) and **FTLE** (for DW test). | **FR‑007**, **SC‑003** |
+| **6. Regression & Statistical Analysis** (`code/analysis/regression.py`) | • **Primary**: Fit a **Tobit censored regression** on the **full dataset** (including unphysical trials). Report coefficient for `σ_noise` and its significance. <br>• **Secondary** (exploratory): On the bounded‑only subset, fit a **mixed‑effects linear model** (random intercept + random slope for `T`) using `statsmodels.MixedLM`. <br>• Perform **Durbin‑Watson**; if `p < 0.05`, recompute SEs with **Newey‑West HAC** (`cov_type="HAC"`). <br>• Apply **Benjamini‑Hochberg FDR** (`q ≤ 0.05`) to all fixed‑effect p‑values from the mixed‑effects model. <br>• Use baseline variance (`lambda_std`) as observation‑level weights (`baseline_variance_used = True`). <br>• Compute **escape probability** per `σ_noise` (fraction of `unphysical` trials). <br>• Write `regression_results.json` (validated against `regression_results.schema.yaml`). | **FR‑004**, **FR‑005**, **FR‑008**, **SC‑002**, **SC‑003**, **SC‑004**, **VI**, **VII** |
+| **7. Artifact Bundling & Validation** | • Assemble `results.json` containing baseline, FTLE, regression, and escape probabilities. <br>• Validate each component against its schema via `jsonschema`. <br>• Compute SHA‑256 checksums for every file in `data/` and record them in platform‑owned `state/artifacts/manifest.yaml`. | **FR‑005**, **SC‑001**, **SC‑002**, **SC‑003**, **SC‑004** |
+| **8. Visualization** (`code/analysis/plotting.py`) | • **Convergence plot**: λ vs. `T` for three noise levels (clean, moderate, high). <br>• **Bias‑scaling plot**: Δλ vs. `σ_noise` with SEM error bars. <br>• **Dimension‑scaling plot**: Δλ vs. `N` on log‑log axes; fit power‑law exponent (reported with caution). <br>• Save PNGs under `data/processed/plots/`. | **FR‑005**, **FR‑004**, **SC‑002** |
+| **9. CI / Testing** | • Run full unit suite (`pytest -q`). <br>• Run integration test (`pytest tests/integration/test_generation.py`). <br>• Benchmark generation (`N=5`, `T=10 000`, 5 trials) – must complete < 30 s. <br>• Ensure all schema validations pass. | **All FRs**, **SC‑004**, **I** |
+| **10. Documentation** | • Update `quickstart.md`, `README.md`, and all schema files. <br>• Add “Design Decisions” section explaining QR re‑orthonormalisation, Rosenstein baseline, Tobit as primary model, and mixed‑effects as secondary. | **FR‑001**, **SC‑001**, **VI** |
 
-- **Statistical Test**: **One-sample t-test** comparing the distribution of noisy FTLE estimates against the fixed, deterministic asymptotic baseline. Two-sample tests are avoided as the baseline has no sampling variance.
-- **Regression Inference**: Primary hypothesis testing relies on the p-value and confidence interval of the regression slope (bias term) in $\Delta \lambda \sim f(\sigma, N)$. **Bonferroni/FDR corrections are explicitly NOT applied.** The plan commits to **only** regression coefficient inference and one-sample t-tests against the baseline; no pairwise comparisons across noise levels will be conducted, thus rendering Bonferroni/FDR irrelevant.
-- **Survivorship Bias**: Unphysical trajectories (leaving attractor) are excluded from $\Delta \lambda$ regression but included in a separate analysis of escape probability $P(\text{escape} | \sigma)$. The bias analysis is explicitly conditional on "bounded trajectories only". For unphysical trajectories, the deviation metric is set to null.
-- **Variance Estimation**: Variance is calculated across independent trials ($k$), **not** across sliding windows of the same trial, to avoid autocorrelation inflation.
-- **Baseline Validation**: The asymptotic baseline is computed numerically for the *specific coupled configuration* (N=3,5) using **Rosenstein's algorithm**, not a generic single-oscillator value.
-- **Measure Shift**: The analysis distinguishes between small-noise bias (observational) and large-noise regime shifts (dynamical measure change) if $\sigma$ is high enough to alter the attractor. A threshold $\sigma_c$ will be determined empirically to separate these regimes.
-- **Algorithm Clarification**: **QR-decomposition** is used for the general FTLE calculation over sliding windows (requiring tangent space re-orthonormalization), while **Rosenstein's algorithm** is used *specifically* for the baseline validation step to satisfy Constitution Principle VI and ensure convergence of the clean system.
-- **Metadata Recording**: The sliding window size $T$ is explicitly recorded as a metadata field for every trial in the output artifacts.
+## Statistical Rigor Checklist
+- **Multiple comparisons** – Benjamini‑Hochberg FDR applied to all fixed‑effect coefficients of the mixed‑effects model.  
+- **Power** – Simulation‑based power analysis (see Research) shows ≥ 80 % power with the chosen `k=30` trials per cell to detect a small‑to‑medium effect (`f²≈0.02`) for the primary `σ_noise` coefficient at α = 0.05.  
+- **Causal claim** – All statements are *associational*; no causal inference is asserted.  
+- **Measurement validity** – Lorenz parameters are canonical; Rosenstein baseline is a validated method (Constitution VI).  
+- **Collinearity** – Variance Inflation Factors will be inspected; interaction terms with VIF > 5 will be dropped.  
 
-## FR/SC Mapping
+## Compute Feasibility (CPU‑First)
+- **Memory**: Largest raw trajectory (N=5, 10 000 steps) ≈ 1.2 MB; full grid < 50 MB.  
+- **CPU**: QR‑based FTLE and Rosenstein baseline are lightweight; total wall‑clock ≤ 45 min with 2‑core multiprocessing.  
+- **GPU**: Not required; all methods have faithful CPU implementations.  
 
-- **FR-001 / US-1**: `code/simulation/generator.py` handles trajectory generation with noise.
-- **FR-002 / US-2**: `code/analysis/ftle.py` computes FTLE with sliding windows.
-- **FR-003 / US-2**: `code/analysis/baseline.py` computes asymptotic baseline using Rosenstein's algorithm for the *specific coupled configuration*.
-- **FR-004 / US-3**: `code/analysis/regression.py` performs regression modeling, **one-sample t-tests**, and calculates **effect sizes** (Cohen's d) and the **scaling exponent**.
-- **FR-005 / US-3**: `code/analysis/plotting.py` generates convergence and bias scaling plots.
-- **FR-006 / US-2**: `code/utils/stability.py` validates numerical stability and non-chaotic detection.
-- **FR-007 / Edge Cases**: `code/simulation/generator.py` flags unphysical trajectories ($\sigma > 0.1$) and checks attractor bounds.
-- **SC-001**: Validated via baseline convergence check in `code/analysis/baseline.py`.
-- **SC-002**: Measured via regression slope and scaling exponent in `code/analysis/regression.py`.
-- **SC-003**: Measured via t-test p-values and effect sizes in `code/analysis/regression.py`.
-- **SC-004**: Measured via runtime logging in `code/main.py`.
+## Decision / Rationale (re‑stated)
+1. **Synthetic data** – Guarantees full control; no external dataset needed, satisfying data‑availability rules.  
+2. **DOP853 + tight tolerances** – Numerical error far below the smallest noise level studied.  
+3. **QR re‑orthonormalisation** – Provides numerically stable FTLE estimates for long windows.  
+4. **Rosenstein baseline** – Meets Constitution VI and supplies a deterministic reference with propagated variance.  
+5. **Primary Tobit censored regression** – Handles censored (unphysical) observations without selection bias, directly addressing FR‑007 and FR‑008.  
+6. **Mixed‑effects regression (secondary)** – Properly models scaling on bounded data; baseline‑variance weighting propagates uncertainty.  
+7. **Durbin‑Watson + Newey‑West** – Satisfies autocorrelation correction requirements.  
+8. **Parallel trial execution** – Keeps runtime within CI limits while preserving reproducibility (each worker seeded independently).  
+
+---

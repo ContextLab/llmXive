@@ -487,3 +487,25 @@ def test_raise_for_backend_error_preserves_model_down_and_transient(monkeypatch)
         dartmouth._raise_for_backend_error(
             "the model produced a malformed schema", RuntimeError("x")
         )
+
+
+def test_missing_or_rejected_key_is_a_credential_error_the_router_skips(monkeypatch, tmp_path):
+    """Final review A5: a missing key (backend construction or catalog fetch) and a key
+    the gateway definitively rejects raise BackendCredentialError, so the router SKIPs
+    to a peer backend instead of aborting the chain."""
+    from llmxive.backends import dartmouth
+    from llmxive.backends.base import BackendCredentialError
+    from llmxive.backends.router import CandidateDisposition, disposition_of
+
+    monkeypatch.setattr(dartmouth, "_gateway_rejects_key", lambda **_: True)
+    with pytest.raises(BackendCredentialError) as rejected:
+        dartmouth._raise_for_backend_error("'api key invalid!'", RuntimeError("x"))
+    assert disposition_of(rejected.value) is CandidateDisposition.SKIP
+
+    monkeypatch.delenv("DARTMOUTH_CHAT_API_KEY", raising=False)
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "no-config"))
+    with pytest.raises(BackendCredentialError) as missing:
+        dartmouth.DartmouthBackend()
+    assert disposition_of(missing.value) is CandidateDisposition.SKIP
+    with pytest.raises(BackendCredentialError):
+        dartmouth._fetch_cloud_models()

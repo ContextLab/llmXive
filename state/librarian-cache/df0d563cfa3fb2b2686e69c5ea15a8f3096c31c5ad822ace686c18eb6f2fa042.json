@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-31T15:44:55Z",
+  "fetched_at": "2026-10-19T15:23:59Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training for Coding Agent Fou\"",
       "target_n": 5
     },
-    "duration_seconds": 46.543,
-    "ended_at": "2026-08-31T15:44:55Z",
+    "duration_seconds": 381.204,
+    "ended_at": "2026-10-19T15:23:59Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "fill-in-the-middle training for coding agents"
+          "fill-in-the-middle pretraining for code"
         ],
         [
           2,
-          "function-aware code generation mid-training"
+          "function-aware code infilling"
         ],
         [
           3,
-          "code completion with fill-in-the-middle objective"
+          "mid-training objectives for large language models"
         ],
         [
           4,
-          "mid-training strategies for software development agents"
+          "code infilling language models"
         ],
         [
           5,
-          "function-aware pre-training for LLMs in code"
+          "span corruption objectives for source code"
         ],
         [
           6,
-          "infilling-based instruction tuning for coding"
+          "coding agent fine-tuning"
         ],
         [
           7,
-          "context-aware code synthesis using fill-in-the-middle"
+          "LLM software engineering training"
         ],
         [
           8,
-          "intermediate training phases for programming language models"
+          "program repair pretraining"
         ],
         [
           9,
-          "bidirectional code modeling for agent capabilities"
+          "masked span prediction code generation"
         ],
         [
           10,
-          "enhancing code agents via fill-in-the-middle fine-tuning"
+          "repository-level code completion"
         ],
         [
           11,
-          "function-oriented code completion techniques"
+          "causal language modeling versus infilling objectives"
         ],
         [
           12,
-          "mid-training augmentation for software engineering LLMs"
+          "code large language model pretraining strategies"
         ],
         [
           13,
-          "fill-in-the-middle as a pre-training objective for coding"
+          "agentic coding benchmarks"
         ],
         [
           14,
-          "agent-based code generation with masked span prediction"
+          "function-level code generation evaluation"
         ],
         [
           15,
-          "improving coding agents through function-aware infilling"
+          "curriculum learning for code models"
         ],
         [
           16,
-          "span prediction methods for software development assistants"
+          "denoising autoencoding source code"
         ],
         [
           17,
-          "domain-specific mid-training for programming large language models"
+          "next-token prediction alternatives for code LLMs"
         ],
         [
           18,
-          "function-aware masked language modeling for code"
+          "code completion middle-of-file prediction"
         ],
         [
           19,
-          "iterative refinement of coding agents via infilling"
+          "instruction tuning for programming assistants"
         ],
         [
           20,
-          "code agent alignment using fill-in-the-middle objectives"
+          "transfer learning from code pretraining to downstream agents"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "fill-in-the-middle training for coding agents": 5,
+        "fill-in-the-middle pretraining for code": 5,
         "llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training for Coding Agent Fou\" computer science": 0
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "fill-in-the-middle training data contamination memorization",
-      "code completion benchmark SWE-bench HumanEval-FIM",
-      "function-aware instruction tuning agent alignment",
-      "intermediate pretraining coding agent evaluation metrics",
-      "data leakage mid-training agent capability degradation"
+      "fill-in-the-middle code infilling pretraining",
+      "function-level span corruption objective",
+      "mid-training curriculum code language model",
+      "downstream code generation pass@k evaluation",
+      "coding agent repository-level completion benchmark"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -124,12 +124,12 @@
       ]
     },
     "per_query_hit_count": {
-      "code completion benchmark SWE-bench HumanEval-FIM": 3,
-      "data leakage mid-training agent capability degradation": 0,
-      "fill-in-the-middle training data contamination memorization": 3,
-      "function-aware instruction tuning agent alignment": 3,
-      "intermediate pretraining coding agent evaluation metrics": 3,
-      "llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training for Coding Agent Fou\" computer science": 3
+      "coding agent repository-level completion benchmark": 3,
+      "downstream code generation pass@k evaluation": 3,
+      "fill-in-the-middle code infilling pretraining": 3,
+      "function-level span corruption objective": 3,
+      "llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training for Coding Agent Fou\" computer science": 3,
+      "mid-training curriculum code language model": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -137,14 +137,14 @@
       "rejected_count": 1,
       "rejections": [
         {
-          "primary_pointer": "2401.01673",
-          "rationale": "The paper focuses on \"coded beam training\" in 6G wireless communication systems (XL-MIMO), which is a distinct engineering domain from the user's question about Large Language Models (LLMs) and coding agents. The shared term \"coded\" refers to channel coding theory in the candidate paper versus code generation or function-aware tasks in the user's query, representing a case of distinct constructs sharing only homonym keywords.",
-          "title": "Coded Beam Training"
+          "primary_pointer": "2303.12869",
+          "rationale": "The paper is about natural-language-to-Java code generation, not fill-in-the-middle (FIM) objectives, mid-training strategies, or coding-agent fine-tuning — it shares only the broad \"code LLM\" domain without touching the mechanism or variables of the question. It is off-topic for a literature review on function-aware FIM mid-training.",
+          "title": "JaCoText: A Pretrained Model for Java Code-Text Generation"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-31T15:44:08Z",
+    "started_at": "2026-10-19T15:17:38Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"function-aware fill-in-the-middle as mid-training for coding agent fou\" computer science",
       "raw": "llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training for Coding Agent Fou\" computer science"
@@ -163,7 +163,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-08-31T15:44:40Z",
+        "failed_at": "2026-10-19T15:18:42Z",
         "reason": "query_irrelevant"
       },
       {
@@ -182,7 +182,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-08-31T15:44:40Z",
+        "failed_at": "2026-10-19T15:18:42Z",
         "reason": "query_irrelevant"
       },
       {
@@ -200,319 +200,337 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-08-31T15:44:40Z",
+        "failed_at": "2026-10-19T15:18:42Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_abstract": "This work introduces self-infilling code generation, a general framework that incorporates infilling operations into auto-regressive decoding. Our approach capitalizes on the observation that recent infilling-capable code language models can self-infill: whereas infilling operations aim to fill in the middle based on a predefined prefix and suffix, self-infilling sequentially generates both such surrounding context and the infilled content. We utilize this capability to introduce novel interruption and looping mechanisms in conventional decoding, evolving it into a non-monotonic process. Interruptions allow for postponing the generation of specific code until a definitive suffix is established, enhancing control over the output. Meanwhile, the looping mechanism, which leverages the complementary nature of self-infilling and left-to-right decoding, can iteratively update and synchronize each piece of generation cyclically. Extensive experiments are conducted to demonstrate that our proposed decoding process is effective in enhancing both regularity and quality across several code generation benchmarks.",
           "claimed_authors": [
-            "Deepesh Data",
-            "Linqi Song",
-            "Suhas Diggavi"
+            "Lin Zheng",
+            "Jianbo Yuan",
+            "Zhi Zhang",
+            "Hongxia Yang",
+            "Lingpeng Kong"
           ],
-          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_title": "Self-Infilling Code Generation",
           "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1907.02664"
+          "claimed_year": 2023,
+          "primary_pointer": "2311.17972"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
-        "failed_at": "2026-08-31T15:44:40Z",
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Self-Infilling Code Generation')",
+        "failed_at": "2026-10-19T15:18:42Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_abstract": "Fill-in-the-Middle (FIM) is a common pretraining method for code LLMs, where models complete code segments given surrounding context. However, existing LLMs treat code as plain text and mask random character spans. We propose and evaluate AST-FIM, a pretraining strategy that leverages Abstract Syntax Trees (ASTs) to mask complete syntactic structures at scale, ensuring coherent training examples better aligned with universal code structures and common code editing patterns such as blocks, expressions, or functions. To evaluate real-world fill-in-the-middle (FIM) programming tasks, we introduce Real-FIM-Eval, a benchmark derived from 30,000+ GitHub commits across 12 languages. On infilling tasks, experiments on 1B and 8B parameter models show that AST-FIM is particularly beneficial for real-world code editing as it outperforms standard random-character FIM by up to 5 pts on standard FIM benchmarks. Our code is publicly available at https://github.com/gonglinyuan/ast_fim.",
           "claimed_authors": [
-            "Deepesh Data",
-            "Suhas Diggavi"
+            "Linyuan Gong",
+            "Alvin Cheung",
+            "Mostafa Elhoushi",
+            "Sida Wang"
           ],
-          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2005.07866"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
-        "failed_at": "2026-08-31T15:44:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
-          "claimed_authors": [
-            "Data Mania",
-            "Bharat Ratra"
-          ],
-          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1110.5626"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
-        "failed_at": "2026-08-31T15:44:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The issue-resolving task, where a model generates patches to fix real-world bugs, has emerged as a critical benchmark for evaluating the capabilities of large language models (LLMs). While SWE-bench and its variants have become standard in this domain, they suffer from key limitations: they have not been updated since their initial releases, cover a narrow set of repositories, and depend heavily on manual effort for instance construction and environment setup. These factors hinder scalability and introduce risks of overfitting and data contamination. In this work, we present SWE-bench-Live, a live-updatable benchmark designed to overcome these challenges. Our initial release consists of 1,319 tasks derived from real GitHub issues created since 2024, spanning 93 repositories. Each task is accompanied by a dedicated Docker image to ensure reproducible execution. Central to our benchmark is \\method, an automated curation pipeline that streamlines the entire process from instance creation to environment setup, removing manual bottlenecks and enabling scalability and continuous updates. We evaluate a range of state-of-the-art agent frameworks and LLMs on SWE-bench-Live, revealing a substantial performance gap compared to static benchmarks like SWE-bench, even under controlled evaluation conditions. To better understand this discrepancy, we perform detailed analyses across repository origin, issue recency, and task difficulty. By providing a fresh, diverse, and executable benchmark grounded in live repository activity, SWE-bench-Live facilitates rigorous, contamination-resistant evaluation of LLMs and agents in dynamic, real-world software development settings.",
-          "claimed_authors": [
-            "Linghao Zhang",
-            "Shilin He",
-            "Chaoyun Zhang",
-            "Yu Kang",
-            "Bowen Li",
-            "Chengxing Xie",
-            "Junhao Wang",
-            "Maoquan Wang",
-            "Yufan Huang",
-            "Shengyu Fu",
-            "Elsie Nallipogu",
-            "Qingwei Lin",
-            "Yingnong Dang",
-            "Saravan Rajmohan",
-            "Dongmei Zhang"
-          ],
-          "claimed_title": "SWE-bench Goes Live!",
+          "claimed_title": "Structure-Aware Fill-in-the-Middle Pretraining for Code",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2505.23419"
+          "primary_pointer": "2506.00204"
         },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='SWE-bench Goes Live!')",
-        "failed_at": "2026-08-31T15:44:40Z",
+        "details": "query-relevance 0.286 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Structure-Aware Fill-in-the-Middle Pretraining for Code')",
+        "failed_at": "2026-10-19T15:18:42Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Real-world software development requires coding agents to operate in shared workspaces where users may inspect and modify code during an ongoing task, yet existing repository-level benchmarks typically evaluate agents working alone or restrict user participation to messages. This leads us to ask: how do coding agents understand and respond to code changes in a shared workspace? We introduce SWE-Touch, a framework that stress-tests this setting through validated Counter-Edits: plausible edits to task-relevant code that conflict with task completion. SWE-Touch mines task-critical regions from multiple repair trajectories, uses a separate User Patch Generator to construct the edits, and injects them with contextual user messages when agents reach the relevant code. We evaluate nine coding models on SWE-bench Verified, with additional experiments on longer-horizon tasks from SWE-Bench Pro and DeepSWE. Counter-Edit lowers average resolve rate by 7.7 percentage points on SWE-bench Verified, with degradation also persisting on both longer-horizon benchmarks. Trajectory analysis links these failures to limited awareness of the evolving workspace: agents may retain conflicting code or replace it without sufficiently re-inspecting the repository and validating the revised code with targeted tests. These findings show that strong autonomous performance does not yet ensure the state awareness and adaptive behavior needed for shared-workspace collaboration, and point to detecting workspace changes, reconciling conflicting edits with the task, and verifying the affected behavior as key capabilities for future optimization.",
+          "claimed_abstract": "Fill-in-the-middle (FIM) is a pretraining objective widely used to equip causal language models with infilling ability, yet its effect on verbatim memorization remains underexplored. We study the memorization dynamics of FIM in a controlled setting by pretraining matched Llama 3.2 models with FIM and standard left-to-right (LTR) objectives on a FineWeb-Gutenberg corpus containing repeated Gutenberg excerpts. With prefix-based probes, FIM more often recovers short or partially matching spans, while LTR more often assigns high confidence to long exact continuations. We observe that verbatim extraction under FIM-training grows approximately linearly with repetitions over the tested range. Evaluating native FIM-format probes reveals that suffix context is not sufficient: verbatim recall under FIM-training remains strongly anchored in prefix context. Our results also show that evaluating only one span length or probing format can miss important nuances in memorization behavior.",
           "claimed_authors": [
-            "Yuqiao Tan",
-            "Jinxiang Meng",
-            "Fangyu Lei",
-            "Minzheng Wang",
-            "Shizhu He",
-            "Jun Zhao",
-            "Kang Liu"
+            "Tobias von Arx",
+            "Tanguy Dieudonné"
           ],
-          "claimed_title": "SWE-Touch: Benchmarking Coding Agents When Users Touch the Code",
+          "claimed_title": "Memorization Dynamics of Fill-in-the-Middle Pretraining",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2608.02499"
+          "primary_pointer": "2605.22981"
         },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='SWE-Touch: Benchmarking Coding Agents When Users Touch the Code')",
-        "failed_at": "2026-08-31T15:44:40Z",
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Memorization Dynamics of Fill-in-the-Middle Pretraining')",
+        "failed_at": "2026-10-19T15:18:42Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The SWE-Bench Verified leaderboard is approaching saturation, with the top system achieving 78.80%. However, we show that this performance is inflated. Our re-evaluation reveals that one in five \"solved\" patches from the top-30 agents are semantically incorrect, passing only because weak test suites fail to expose their errors. We present SWE-ABS, an adversarial framework that strengthens test suites through a two-stage pipeline: (1) coverage-driven augmentation using program slicing to target untested code regions, and (2) mutation-driven adversarial testing that synthesizes plausible but incorrect patches to expose semantic blind spots. On SWE-Bench Verified (500 instances), SWE-ABS strengthens 50.2% of instances, a 25.1x improvement over prior work, and rejects 19.71% of previously passing patches. As a result, the top agent's score decreases from 78.80% to 62.20%, leading to significant leaderboard reshuffling, with the previous top-ranked agent dropping to fifth place.",
+          "claimed_abstract": "Invariance to a broad array of image corruptions, such as warping, noise, or color shifts, is an important aspect of building robust models in computer vision. Recently, several new data augmentations have been proposed that significantly improve performance on ImageNet-C, a benchmark of such corruptions. However, there is still a lack of basic understanding on the relationship between data augmentations and test-time corruptions. To this end, we develop a feature space for image transforms, and then use a new measure in this space between augmentations and corruptions called the Minimal Sample Distance to demonstrate a strong correlation between similarity and performance. We then investigate recent data augmentations and observe a significant degradation in corruption robustness when the test-time corruptions are sampled to be perceptually dissimilar from ImageNet-C in this feature space. Our results suggest that test error can be improved by training on perceptually similar augmentations, and data augmentations may not generalize well beyond the existing benchmark. We hope our results and tools will allow for more robust progress towards improving robustness to image corruptions. We provide code at https://github.com/facebookresearch/augmentation-corruption.",
           "claimed_authors": [
-            "Boxi Yu",
-            "Yang Cao",
-            "Yuzhong Zhang",
-            "Liting Lin",
-            "Junjielong Xu",
-            "Zhiqing Zhong",
-            "Qinghua Xu",
-            "Guancheng Wang",
-            "Jialun Cao",
-            "Shing-Chi Cheung",
-            "Pinjia He",
-            "Lionel Briand"
+            "Eric Mintun",
+            "Alexander Kirillov",
+            "Saining Xie"
           ],
-          "claimed_title": "SWE-ABS: Adversarial Benchmark Strengthening Exposes Inflated Success Rates on Test-based Benchmark",
+          "claimed_title": "On Interaction Between Augmentations and Corruptions in Natural Corruption Robustness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.11273"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='On Interaction Between Augmentations and Corruptions in Natural Corruption Robustness')",
+        "failed_at": "2026-10-19T15:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite the significant interest and progress in reinforcement learning (RL) problems with adversarial corruption, current works are either confined to the linear setting or lead to an undesired $\\tilde{O}(\\sqrt{T}ζ)$ regret bound, where $T$ is the number of rounds and $ζ$ is the total amount of corruption. In this paper, we consider the contextual bandit with general function approximation and propose a computationally efficient algorithm to achieve a regret of $\\tilde{O}(\\sqrt{T}+ζ)$. The proposed algorithm relies on the recently developed uncertainty-weighted least-squares regression from linear contextual bandit and a new weighted estimator of uncertainty for the general function class. In contrast to the existing analysis that heavily relies on the linear structure, we develop a novel technique to control the sum of weighted uncertainty, thus establishing the final regret bounds. We then generalize our algorithm to the episodic MDP setting and first achieve an additive dependence on the corruption level $ζ$ in the scenario of general function approximation. Notably, our algorithms achieve regret bounds either nearly match the performance lower bound or improve the existing methods for all the corruption levels and in both known and unknown $ζ$ cases.",
+          "claimed_authors": [
+            "Chenlu Ye",
+            "Wei Xiong",
+            "Quanquan Gu",
+            "Tong Zhang"
+          ],
+          "claimed_title": "Corruption-Robust Algorithms with Uncertainty Weighting for Nonlinear Contextual Bandits and Markov Decision Processes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.05949"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Corruption-Robust Algorithms with Uncertainty Weighting for Nonlinear Contextual Bandits and Markov Decision Processes')",
+        "failed_at": "2026-10-19T15:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Corruption is embedded in networks of access, coordination, and protection, yet little is known about how gender shapes actors' positions within them. This article examines whether corruption networks in Colombia's territorial press reproduce gendered patterns of exclusion. Drawing on an access-to-power perspective, we argue that women's lower presence may reflect unequal incorporation into the spaces where exchanges are organized. Empirically, we use Transparencia por Colombia's Radiografía de Hechos de Corrupción, integrating case- and actor-level information to build co-participation networks. We analyze gender differences in composition, position, recurrence, and institutional access to resources. Results show that these networks are strongly masculinized: men dominate actors and ties, and women appear less often among recurrent actors. However, women are not absent from connected or dense areas, suggesting uneven rather than absolute exclusion. The findings shift attention from whether women are ''less corrupt'' to how unequal access to power structures participation in corruption networks.",
+          "claimed_authors": [
+            "Giovanna Rodríguez-García",
+            "María Elizabeth Mesa-Pineda",
+            "José R. Nicolás-Carlock"
+          ],
+          "claimed_title": "Unequal Access to Power in Corruption Networks: Evidence from Colombia",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2603.00520"
+          "primary_pointer": "2607.00242"
         },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='SWE-ABS: Adversarial Benchmark Strengthening Exposes Inflated Success Rates on Test-based Benchmark')",
-        "failed_at": "2026-08-31T15:44:40Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Unequal Access to Power in Corruption Networks: Evidence from Colombia')",
+        "failed_at": "2026-10-19T15:18:42Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
+          "claimed_abstract": "Code Large Language Models (Code LLMs), such as StarCoder, have demonstrated exceptional performance in code-related tasks. However, most existing models are solely pre-trained on extensive raw code data without instruction fine-tuning. In this paper, we introduce WizardCoder, which empowers Code LLMs with complex instruction fine-tuning, by adapting the Evol-Instruct method to the domain of code. Through comprehensive experiments on four prominent code generation benchmarks, namely HumanEval, HumanEval+, MBPP, and DS-1000, we unveil the exceptional capabilities of our model. It surpasses all other open-source Code LLMs by a substantial margin. Moreover, our model even outperforms the largest closed LLMs, Anthropic's Claude and Google's Bard, on HumanEval and HumanEval+. Our code, model weights, and data are public at https://github.com/nlpxucan/WizardLM",
           "claimed_authors": [
-            "Renxi Wang",
-            "Haonan Li",
-            "Minghao Wu",
-            "Yuxia Wang",
-            "Xudong Han",
-            "Chiyu Zhang",
-            "Timothy Baldwin"
+            "Ziyang Luo",
+            "Can Xu",
+            "Pu Zhao",
+            "Qingfeng Sun",
+            "Xiubo Geng",
+            "Wenxiang Hu",
+            "Chongyang Tao",
+            "Jing Ma",
+            "Qingwei Lin",
+            "Daxin Jiang"
           ],
-          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
+          "claimed_title": "WizardCoder: Empowering Code Large Language Models with Evol-Instruct",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2312.10793"
+          "primary_pointer": "2306.08568"
         },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
-        "failed_at": "2026-08-31T15:44:40Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='WizardCoder: Empowering Code Large Language Models with Evol-Instruct')",
+        "failed_at": "2026-10-19T15:18:42Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Despite vision-language models' (VLMs) remarkable capabilities as versatile visual assistants, two substantial challenges persist within the existing VLM frameworks: (1) lacking task diversity in pretraining and visual instruction tuning, and (2) annotation error and bias in GPT-4 synthesized instruction tuning data. Both challenges lead to issues such as poor generalizability, hallucination, and catastrophic forgetting. To address these challenges, we construct Vision-Flan, the most diverse publicly available visual instruction tuning dataset to date, comprising 187 diverse tasks and 1,664,261 instances sourced from academic datasets, and each task is accompanied by an expert-written instruction. In addition, we propose a two-stage instruction tuning framework, in which VLMs are firstly finetuned on Vision-Flan and further tuned on GPT-4 synthesized data. We find this two-stage tuning framework significantly outperforms the traditional single-stage visual instruction tuning framework and achieves the state-of-the-art performance across a wide range of multi-modal evaluation benchmarks. Finally, we conduct in-depth analyses to understand visual instruction tuning and our findings reveal that: (1) GPT-4 synthesized data does not substantially enhance VLMs' capabilities but rather modulates the model's responses to human-preferred formats; (2) A minimal quantity (e.g., 1,000) of GPT-4 synthesized data can effectively align VLM responses with human-preference; (3) Visual instruction tuning mainly helps large-language models (LLMs) to understand visual features.",
+          "claimed_abstract": "In this paper, we propose R$^3$: Learning Reasoning through Reverse Curriculum Reinforcement Learning (RL), a novel method that employs only outcome supervision to achieve the benefits of process supervision for large language models. The core challenge in applying RL to complex reasoning is to identify a sequence of actions that result in positive rewards and provide appropriate supervision for optimization. Outcome supervision provides sparse rewards for final results without identifying error locations, whereas process supervision offers step-wise rewards but requires extensive manual annotation. R$^3$ overcomes these limitations by learning from correct demonstrations. Specifically, R$^3$ progressively slides the start state of reasoning from a demonstration's end to its beginning, facilitating easier model exploration at all stages. Thus, R$^3$ establishes a step-wise curriculum, allowing outcome supervision to offer step-level signals and precisely pinpoint errors. Using Llama2-7B, our method surpasses RL baseline on eight reasoning tasks by $4.1$ points on average. Notebaly, in program-based reasoning on GSM8K, it exceeds the baseline by $4.2$ points across three backbone models, and without any extra data, Codellama-7B + R$^3$ performs comparable to larger models or closed-source models.",
           "claimed_authors": [
-            "Zhiyang Xu",
-            "Chao Feng",
-            "Rulin Shao",
-            "Trevor Ashby",
-            "Ying Shen",
-            "Di Jin",
-            "Yu Cheng",
-            "Qifan Wang",
-            "Lifu Huang"
+            "Zhiheng Xi",
+            "Wenxiang Chen",
+            "Boyang Hong",
+            "Senjie Jin",
+            "Rui Zheng",
+            "Wei He",
+            "Yiwen Ding",
+            "Shichun Liu",
+            "Xin Guo",
+            "Junzhe Wang",
+            "Honglin Guo",
+            "Wei Shen",
+            "Xiaoran Fan",
+            "Yuhao Zhou",
+            "Shihan Dou",
+            "Xiao Wang",
+            "Xinbo Zhang",
+            "Peng Sun",
+            "Tao Gui",
+            "Qi Zhang",
+            "Xuanjing Huang"
           ],
-          "claimed_title": "Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning",
+          "claimed_title": "Training Large Language Models for Reasoning through Reverse Curriculum Reinforcement Learning",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2402.11690"
+          "primary_pointer": "2402.05808"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning')",
-        "failed_at": "2026-08-31T15:44:40Z",
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Training Large Language Models for Reasoning through Reverse Curriculum Reinforcement Learning')",
+        "failed_at": "2026-10-19T15:18:42Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In the swiftly expanding domain of Natural Language Processing (NLP), the potential of GPT-based models for the financial sector is increasingly evident. However, the integration of these models with financial datasets presents challenges, notably in determining their adeptness and relevance. This paper introduces a distinctive approach anchored in the Instruction Tuning paradigm for open-source large language models, specifically adapted for financial contexts. Through this methodology, we capitalize on the interoperability of open-source models, ensuring a seamless and transparent integration. We begin by explaining the Instruction Tuning paradigm, highlighting its effectiveness for immediate integration. The paper presents a benchmarking scheme designed for end-to-end training and testing, employing a cost-effective progression. Firstly, we assess basic competencies and fundamental tasks, such as Named Entity Recognition (NER) and sentiment analysis to enhance specialization. Next, we delve into a comprehensive model, executing multi-task operations by amalgamating all instructional tunings to examine versatility. Finally, we explore the zero-shot capabilities by earmarking unseen tasks and incorporating novel datasets to understand adaptability in uncharted terrains. Such a paradigm fortifies the principles of openness and reproducibility, laying a robust foundation for future investigations in open-source financial large language models (FinLLMs).",
+          "claimed_abstract": "Large language models (LLMs) are typically developed through large-scale pre-training followed by task-specific fine-tuning. Recent advances highlight the importance of an intermediate mid-training stage, where models undergo multiple annealing-style phases that refine data quality, adapt optimization schedules, and extend context length. This stage mitigates diminishing returns from noisy tokens, stabilizes convergence, and expands model capability in late training. Its effectiveness can be explained through gradient noise scale, the information bottleneck, and curriculum learning, which together promote generalization and abstraction. Despite widespread use in state-of-the-art systems, there has been no prior survey of mid-training as a unified paradigm. We introduce the first taxonomy of LLM mid-training spanning data distribution, learning-rate scheduling, and long-context extension. We distill practical insights, compile evaluation benchmarks, and report gains to enable structured comparisons across models. We also identify open challenges and propose avenues for future research and practice.",
           "claimed_authors": [
-            "Neng Wang",
-            "Hongyang Yang",
-            "Christina Dan Wang"
+            "Kaixiang Mo",
+            "Yuxin Shi",
+            "Weiwei Weng",
+            "Zhiqiang Zhou",
+            "Shuman Liu",
+            "Haibo Zhang",
+            "Anxiang Zeng"
           ],
-          "claimed_title": "FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets",
+          "claimed_title": "Mid-Training of Large Language Models: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.06826"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Mid-Training of Large Language Models: A Survey')",
+        "failed_at": "2026-10-19T15:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Repeated sampling with a verifier is the standard way to allocate test-time compute for code generation, with pass@$K$ as the canonical metric. Yet the standard policy class draws $K$ independent samples from a single answer distribution, so attempts often collapse onto near-duplicate reasoning paths and waste the budget on redundant rollouts. This failure is costly in competitive programming, where many problems admit multiple distinct algorithmic strategies and pass@$K$ requires only one correct attempt. We propose Coordinated Pass@$K$ Policy Optimization (CPPO), which turns pass@$K$ generation into joint exploration over strategies: a planner emits a tuple of $K{=}4$ alternative high-level methods, and a shared solver attempts one solution per method. CPPO trains this joint policy with a multiplicative planner reward, $R_{\\mathrm{plan}} = J_ψ\\cdot R_{\\mathrm{out}}$, assigning credit only to valid strategy tuples that lead to verifier-confirmed pass@$K$ success. Across APPS, CodeContests, and LiveCodeBench-v6, CPPO improves pass@$4$ over direct sampling, planning baselines, planner-only SFT, and pass@$K$-oriented RL under the same $K{=}4$ solver-attempt budget, with statistically significant gains on six of nine model--benchmark cells. The largest single gain is $+0.16$ on Qwen3.5-9B LiveCodeBench-v6 over the strongest baseline, PKPO ($0.588 \\rightarrow 0.748$; paired bootstrap, $p < 0.05$).",
+          "claimed_authors": [
+            "Yilong Li",
+            "Suman Banerjee",
+            "Tong Che"
+          ],
+          "claimed_title": "Cast a Wider Net: Coordinated Pass@K Policy Optimization for Code Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.27000"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Cast a Wider Net: Coordinated Pass@K Policy Optimization for Code Reasoning')",
+        "failed_at": "2026-10-19T15:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2310.04793"
+          "primary_pointer": "2303.12869"
         },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets')",
-        "failed_at": "2026-08-31T15:44:40Z",
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-10-19T15:18:42Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Evaluation methodologies for language models increasingly combine multiple signals, from automated metrics and LLM-as-judge ratings to human assessments and benchmark suite results. When these signals are aggregated via averaging, evaluation confidence can then substantially exceed the reliability of the weakest signal: a phenomenon we call trust inflation in evaluation. We argue that evaluation scores should be treated as epistemic claims with three properties: formality (human evaluation provides stronger evidence than an automated metric), scope (a benchmark result applies to the tested distribution, not universally), and validity windows (benchmark results expire as contamination accumulates and distributions shift). Several converging research traditions (chain-of-thought analysis, possibilistic logic, and algebraic theory) establish weakest-link aggregation as the conservative endpoint of a parameterized operator family controlled by a single pessimism parameter. Drawing on those traditions, and on concrete lessons from building an evaluation harness for agentic AI, we propose that evaluation results carry explicit metadata (formality tier, scope declaration, and expiration date) to make their epistemic status transparent. We illustrate the cost of mean aggregation on the public HELM leaderboard: across 54 frontier models on ten scenarios, the top-five models ranked by mean score and by weakest-link are completely disjoint.",
+          "claimed_abstract": "Reinforcement Learning with Verifiable Rewards (RLVR) has emerged as a powerful paradigm to improve Large Language Models on reasoning tasks such as coding, math or logic. To assess the reasoning boundary (the fraction of problems a model can solve) researchers often report Pass@k at large sampling budgets. Recent results reveal a crossover phenomenon: while RLVR models outperform the base model at small k values, the base model usually outperforms them when sampling a very large number of completions. This has been interpreted as evidence that base models have a larger reasoning boundary. We argue that on tasks with discrete answer spaces, such as math with numeric outputs, Pass@k at large k reflects the increasingly higher chance of success in the limit of the number of trials rather than genuine reasoning, and can therefore be misleading. We propose Cover@tau, which measures the fraction of problems that a model can solve for which at least a tau proportion of completions are correct. Unlike Pass@k, Cover@tau captures reasoning under an explicit reliability threshold: models that rely on random guessing degrade rapidly as tau increases. We evaluate several RLVR models using Cover@tau-based metrics and illustrate how the relative rankings of popular algorithms change compared to Pass@1, offering a different perspective on reasoning boundaries.",
           "claimed_authors": [
-            "Sankalp Gilda",
-            "Shlok Gilda"
+            "Marius Dragoi",
+            "Ioana Pintilie",
+            "Florin Gogianu",
+            "Florin Brad"
           ],
-          "claimed_title": "Position: Evaluation Scores Are Perishable Knowledge Claims",
+          "claimed_title": "Beyond Pass@k: Breadth-Depth Metrics for Reasoning Boundaries",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08325"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Beyond Pass@k: Breadth-Depth Metrics for Reasoning Boundaries')",
+        "failed_at": "2026-10-19T15:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in LLM-based vulnerability detection have shown promising results, while coding agents further extend this capability from isolated code snippets to complete repositories. This shift requires agents to autonomously explore repositories and locate vulnerability-relevant code, instead of performing detection on preselected functions. However, existing benchmarks primarily focus on vulnerability classification over preselected code snippets, limiting their ability to evaluate coding agents in repository-level vulnerability detection. Moreover, without fine-grained vulnerability trace annotations, the capability limitations underlying the detection process remain difficult to explore. To address these limitations, we present \\textbf{VulnGym}, a real-world repository-level benchmark for evaluating vulnerability detection by coding agents. VulnGym aligns reviewed GitHub advisories with their corresponding vulnerable version repositories. It contains 184 advisories and 408 vulnerability entries across 23 repositories, with each entry annotated with line-level entry points, critical operations, and vulnerability traces. Using this fine-grained ground truth, VulnGym defines an end-to-end detection task and three oracle-based subtasks to jointly evaluate vulnerability detection and diagnose limitations in code localization and evidence construction. Our evaluation indicates that current coding agents remain limited in both end-to-end repository-level vulnerability detection and the construction of accurate supporting traces.",
+          "claimed_authors": [
+            "Kexing Ji",
+            "Jiachen Liu",
+            "Enze Hu",
+            "Cuiyun Gao",
+            "Keke Lian",
+            "Yongheng Liu",
+            "Lei Zhang",
+            "Tian Dong",
+            "Hao Chen",
+            "Wang Bin"
+          ],
+          "claimed_title": "VulnGym: Benchmarking Coding Agents for Repository-Level Vulnerability Detection",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2607.26191"
+          "primary_pointer": "2608.02001"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Position: Evaluation Scores Are Perishable Knowledge Claims')",
-        "failed_at": "2026-08-31T15:44:40Z",
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='VulnGym: Benchmarking Coding Agents for Repository-Level Vulnerability Detection')",
+        "failed_at": "2026-10-19T15:18:42Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Evaluating the quality and relevance of textual outputs from Large Language Models (LLMs) remains challenging and resource-intensive. Existing automated metrics often fail to capture the complexity and variability inherent in LLM-generated outputs. Moreover, these metrics typically rely on explicit reference standards, limiting their use mostly to domains with objective benchmarks. This work introduces a novel evaluation framework designed to approximate expert-level assessments of LLM-generated content. The proposed method employs pairwise comparisons of outputs by multiple LLMs, reducing biases from individual models. An Elo rating system is used to generate stable and interpretable rankings. Adjustable agreement thresholds, from full unanimity to majority voting, allow flexible control over evaluation confidence and coverage. The method's effectiveness is demonstrated through evaluating competency profiles extracted from scientific abstracts. Preliminary results show that automatically derived rankings correlate well with expert judgments, significantly reducing the need for extensive human intervention. By offering a scalable, consistent, and domain-agnostic evaluation layer, the framework supports more efficient and reliable quality assessments of LLM outputs across diverse applications.",
+          "claimed_abstract": "Large language models (LLMs) have achieved strong performance on code completion tasks in general-purpose programming languages. However, existing repository-level code completion benchmarks focus almost exclusively on software code and largely overlook hardware description languages. In this work, we present \\textbf{MHRC-Bench}, consisting of \\textbf{MHRC-Bench-Train} and \\textbf{MHRC-Bench-Eval}, the first benchmark designed for multilingual hardware code completion at the repository level. Our benchmark targets completion tasks and covers three major hardware design coding styles. Each completion target is annotated with code-structure-level and hardware-oriented semantic labels derived from concrete syntax tree analysis. We conduct a comprehensive evaluation of models on MHRC-Bench-Eval. Comprehensive evaluation results and analysis demonstrate the effectiveness of MHRC-Bench.",
           "claimed_authors": [
-            "Bertil Braun",
-            "Martin Forell"
+            "Qingyun Zou",
+            "Jiahao Cui",
+            "Nuo Chen",
+            "Bingsheng He",
+            "Weng-Fai Wong"
           ],
-          "claimed_title": "(Towards) Scalable Reliable Automated Evaluation with Large Language Models",
+          "claimed_title": "MHRC-Bench: A Multilingual Hardware Repository-Level Code Completion benchmark",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2607.28282"
+          "primary_pointer": "2601.03708"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='(Towards) Scalable Reliable Automated Evaluation with Large Language Models')",
-        "failed_at": "2026-08-31T15:44:40Z",
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='MHRC-Bench: A Multilingual Hardware Repository-Level Code Completion benchmark')",
+        "failed_at": "2026-10-19T15:18:42Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Recent advancements in visual generative models have enabled high-quality image and video generation, opening diverse applications. However, evaluating these models often demands sampling hundreds or thousands of images or videos, making the process computationally expensive, especially for diffusion-based models with inherently slow sampling. Moreover, existing evaluation methods rely on rigid pipelines that overlook specific user needs and provide numerical results without clear explanations. In contrast, humans can quickly form impressions of a model's capabilities by observing only a few samples. To mimic this, we propose the Evaluation Agent framework, which employs human-like strategies for efficient, dynamic, multi-round evaluations using only a few samples per round, while offering detailed, user-tailored analyses. It offers four key advantages: 1) efficiency, 2) promptable evaluation tailored to diverse user needs, 3) explainability beyond single numerical scores, and 4) scalability across various models and tools. Experiments show that Evaluation Agent reduces evaluation time to 10% of traditional methods while delivering comparable results. The Evaluation Agent framework is fully open-sourced to advance research in visual generative models and their efficient evaluation.",
+          "claimed_abstract": "Code completion models have made significant progress in recent years. Recently, repository-level code completion has drawn more attention in modern software development, and several baseline methods and benchmarks have been proposed. However, existing repository-level code completion methods often fall short of fully using the extensive context of a project repository, such as the intricacies of relevant files and class hierarchies. Besides, the existing benchmarks usually focus on limited code completion scenarios, which cannot reflect the repository-level code completion abilities well of existing methods. To address these limitations, we propose the R2C2-Coder to enhance and benchmark the real-world repository-level code completion abilities of code Large Language Models, where the R2C2-Coder includes a code prompt construction method R2C2-Enhance and a well-designed benchmark R2C2-Bench. Specifically, first, in R2C2-Enhance, we first construct the candidate retrieval pool and then assemble the completion prompt by retrieving from the retrieval pool for each completion cursor position. Second, based on R2C2 -Enhance, we can construct a more challenging and diverse R2C2-Bench with training, validation and test splits, where a context perturbation strategy is proposed to simulate the real-world repository-level code completion well. Extensive results on multiple benchmarks demonstrate the effectiveness of our R2C2-Coder.",
           "claimed_authors": [
-            "Fan Zhang",
-            "Shulin Tian",
-            "Ziqi Huang",
-            "Yu Qiao",
-            "Ziwei Liu"
+            "Ken Deng",
+            "Jiaheng Liu",
+            "He Zhu",
+            "Congnan Liu",
+            "Jingxin Li",
+            "Jiakai Wang",
+            "Peng Zhao",
+            "Chenchen Zhang",
+            "Yanan Wu",
+            "Xueqiao Yin",
+            "Yuanxing Zhang",
+            "Zizheng Zhan",
+            "Wenbo Su",
+            "Bangyu Xiang",
+            "Tiezheng Ge",
+            "Bo Zheng"
           ],
-          "claimed_title": "Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models",
+          "claimed_title": "R2C2-Coder: Enhancing and Benchmarking Real-world Repository-level Code Completion Abilities of Code Large Language Models",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2412.09645"
+          "primary_pointer": "2406.01359"
         },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models')",
-        "failed_at": "2026-08-31T15:44:40Z",
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Function-Aware Fill-in-the-Middle as Mid-Training ', candidate_title='R2C2-Coder: Enhancing and Benchmarking Real-world Repository-level Code Completion Abilities of Code Large Language Models')",
+        "failed_at": "2026-10-19T15:18:42Z",
         "reason": "query_irrelevant"
       }
     ],
     "verified_citations": [
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Yubo Wang",
-            "Jiarong Liang",
-            "Yuxuan Zhang",
-            "Xuye Liu",
-            "Cong Wei",
-            "Yuyu Zhang",
-            "Ping Nie",
-            "Wenhu Chen"
-          ],
-          "title": "Function-Aware Fill-in-the-Middle as Mid-Training for Coding Agent Foundation Models",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2607.12463",
-        "summary": "Coding agents must integrate external tool returns into ongoing reasoning - a capability that standard left-to-right pretraining on code exposes only in its forward direction. We observe that the action-observation-continuation loop of a coding agent is structurally isomorphic to a function call site, where a caller binds arguments, a callee returns a value computed elsewhere, and downstream code consumes that value. This conditioning structure exists at internet scale in ordinary code. We exploit it through function-aware fill-in-the-middle (FIM) mid-training: a self-supervised objective that masks functions selected via program dependency graph analysis and a complexity-inferability double criterion. We mid-train Qwen2.5-Coder-Instruct (7B/14B) and Qwen3-8B on a 2.6B-token decontaminated corpus drawn from 968 GitHub repositories, then apply existing agentic post-training pipelines. Mid-training improves SWE-Bench-Verified by +2.8/+3.0 at 7B/14B and by +3.2 on Qwen3-8B; SWE-Bench-Lite gains are +3.7/+4.0/+5.4 on the same models. The improvement holds across two post-training pipelines (R2E-Gym, SWE-Smith) and on a non-Qwen2.5 base (Qwen3-8B with SWE-Lego). Beyond in-domain gains, mid-training also mitigates the capability erosion that agentic post-training otherwise inflicts on non-agent coding (e.g., LiveCodeBench) and non-coding tool-use benchmarks (tau-bench, BFCL): although the mid-training corpus contains Python code only, the function-call inductive bias survives post-training and yields consistent gains.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2607.12463",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 1.0,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-31T15:44:47Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Zhihao Lin",
-            "Mingyi Zhou",
-            "Li Li"
-          ],
-          "title": "AtomicCommitBench: Can Coding Agents Reconstruct Commit Histories from Squashed Patches?",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2607.03332",
-        "summary": "Coding agents often finish a session by returning one squashed patch that mixes feature implementation, bug fixes, refactorings, tests, and configuration edits. While the final code may be correct, collapsing unrelated edits into one patch removes the history structure needed for review, selective revert, and later maintenance. We study retrospective commit-history reconstruction: given a completed squashed change, an agent groups its hunks into commits and materializes a replayable commit sequence. We formalize the task as hunk-to-commit partitioning with a replay requirement and build AtomicCommitBench, containing 800 real consecutive-commit episodes from 10 Python projects. Because multiple decompositions may be reasonable, we evaluate outputs using complementary metrics: PPAR for replay validity, ARI for reference-based grouping quality, and TCR for failure containment on scoreable modified-test episodes. Natural retrospective reconstruction proves substantially harder than replay checking or synthetic tangling. Although nearly all non-random methods achieve replay validity (PPAR >= 0.988), grouping quality ranges from 0.03 to 0.46 ARI. Matched synthetic composites are much easier than real same-author squashed diffs (+0.333 ARI). In our evaluation, the GPT-5.4 setup driven by Codex CLI (0.46 ARI) and the GLM-5 setup driven by Claude Code (0.43 ARI) outperform MiniMax (0.31) and Kimi (0.29). Qualitative analysis identifies same-file lumping and support-hunk drift as recurring failure modes. Dependency-Aware Commit Evidence (DACE) improves the lower-scoring setups by 0.05 to 0.08 ARI, indicating that dependency cues and hunk-role information help agents avoid locality-driven grouping errors. AtomicCommitBench enables evaluation of the commit histories produced by coding agents alongside the final code.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2607.03332",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.4,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-31T15:44:47Z"
-        }
-      },
       {
         "bibliographic_info": {
           "authors": [
@@ -533,37 +551,97 @@
           "final_url": "https://arxiv.org/abs/2506.00204",
           "http_status": 200,
           "pdf_sample_score": 0.2276,
-          "query_relevance_score": 0.6,
+          "query_relevance_score": 1.0,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-31T15:44:47Z"
+          "verified_at": "2026-10-19T15:20:49Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Stephanie Jarmak"
+            "Linyuan Gong",
+            "Sida Wang",
+            "Mostafa Elhoushi",
+            "Alvin Cheung"
           ],
-          "title": "Engineering Reliable Coding Agents: Evaluating and Operating the System Around the Model",
+          "title": "Evaluation of LLMs on Syntax-Aware Code Fill-in-the-Middle Tasks",
           "venue": "arXiv",
-          "year": 2026
+          "year": 2024
         },
-        "primary_pointer": "2608.13867",
-        "summary": "AI coding agents are commonly evaluated as models but deployed as systems. Their reliability depends not only on model capability, but on the harness, execution state, retrieval, memory and state management, permissions, review interfaces, and resource allocation. This monograph examines those boundaries and develops a framework for evaluating and operating coding agents reliably. It synthesizes 164 scholarly works, 100 practitioner records, 29 benchmark records, and 17 author-system case records through a structured multivocal review, targeted update audits, software-engineering coverage analysis, and distributed-systems evidence synthesis. Across this evidence, many apparent model failures originate elsewhere in the system, while improvements at one layer often fail to propagate to end-to-end outcomes. Evaluation and operation are treated as a dependency chain in which weaknesses in task construction, execution environments, retrieval, state management, verification, or observability can invalidate downstream conclusions. The monograph contributes a versioned catalog of 206 reliability records: 193 gated practices, including 56 developed in depth, plus 13 research leads; an evidence ledger; a framework for dependency and repair asymmetry across the agent lifecycle; measurements and failure cases from operated agent systems; runnable evaluation and reliability protocols; and five reusable agent skills with evidence maps. Together, these provide a system-level methodology for distinguishing model capability from infrastructure effects, designing defensible evaluations, and building systems that recover safely when components fail. The review is structured rather than exhaustive, evidence strength varies by topic, and results depend on workload and configuration. The methods record which search lanes were executed, which remain unexecuted, and limits on evidence-grading claims.",
+        "primary_pointer": "2403.04814",
+        "summary": "We introduce Syntax-Aware Fill-In-the-Middle (SAFIM), a new benchmark for evaluating Large Language Models (LLMs) on the code Fill-in-the-Middle (FIM) task. This benchmark focuses on syntax-aware completions of program structures such as code blocks and conditional expressions, and includes 17,720 examples from multiple programming languages, sourced from recent code submissions after April 2022 to minimize data contamination. SAFIM provides a robust framework with various prompt designs and novel syntax-aware post-processing techniques, facilitating accurate and fair comparisons across LLMs. Our comprehensive evaluation of 15 LLMs shows that FIM pretraining not only enhances FIM proficiency but also improves Left-to-Right (L2R) inference using LLMs. Our findings challenge conventional beliefs and suggest that pretraining methods and data quality have more impact than model size. SAFIM thus serves as a foundational platform for future research in effective pretraining strategies for code LLMs. The evaluation toolkit and dataset are available at https://github.com/gonglinyuan/safim, and the leaderboard is available at https://safimbenchmark.com.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2608.13867",
+          "final_url": "https://arxiv.org/abs/2403.04814",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.4,
+          "query_relevance_score": 1.0,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-31T15:44:48Z"
+          "verified_at": "2026-10-19T15:20:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tobias von Arx",
+            "Tanguy Dieudonné"
+          ],
+          "title": "Memorization Dynamics of Fill-in-the-Middle Pretraining",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.22981",
+        "summary": "Fill-in-the-middle (FIM) is a pretraining objective widely used to equip causal language models with infilling ability, yet its effect on verbatim memorization remains underexplored. We study the memorization dynamics of FIM in a controlled setting by pretraining matched Llama 3.2 models with FIM and standard left-to-right (LTR) objectives on a FineWeb-Gutenberg corpus containing repeated Gutenberg excerpts. With prefix-based probes, FIM more often recovers short or partially matching spans, while LTR more often assigns high confidence to long exact continuations. We observe that verbatim extraction under FIM-training grows approximately linearly with repetitions over the tested range. Evaluating native FIM-format probes reveals that suffix context is not sufficient: verbatim recall under FIM-training remains strongly anchored in prefix context. Our results also show that evaluating only one span length or probing format can miss important nuances in memorization behavior.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.22981",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-19T15:20:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhensu Sun",
+            "Chengran Yang",
+            "Chao Peng",
+            "Pengfei Gao",
+            "Xiaoning Du",
+            "Li Li",
+            "David Lo"
+          ],
+          "title": "Extending Fill-In-the-Middle with Instructions for Steerable Code Completion",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.24637",
+        "summary": "Code completion models often fail when the developer's intent is under-specified in the code context. To mitigate this, developers frequently use natural language comments to clarify objectives. However, current code completion models fail to prioritize these directives effectively since they are merely pre-trained using the Fill-In-the-Middle (FIM) objective. On the one hand, the natural language instructions, mixed with the noisy code comments, are just treated as part of the background context within the prefix. On the other hand, the pre-training datasets for the FIM objective are mostly sourced from open-source repositories, which results in a scarcity of high-intent instruction-to-code pairings that reflect the developers' workflow in code completion. To bridge this gap, we propose Instruction-aware Fill-In-the-Middle (IFIM), a fine-tuning method that extends the FIM structure with a dedicated, structurally separated instruction section. Our evaluation shows that IFIM substantially improves adherence to developer intent, while leaving infilling performance unchanged when no instruction is given. The gains hold on an in-the-wild benchmark of 100 instructions written by real developers and across model scales from 1.5B to 7B. IFIM thus offers a backward-compatible upgrade path for existing FIM-based code completion systems at a modest training cost.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.24637",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-19T15:20:51Z"
         }
       }
     ]

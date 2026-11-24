@@ -1,108 +1,75 @@
+"""Setup project layout for the dataset sparsity impact pipeline.
+
+This script creates the required directory structure and writes a
+`project_structure.txt` file that recursively lists all created
+directories relative to the project root.
+
+Directories created:
+  - code/
+  - data/raw/
+  - data/processed/
+  - data/results/
+  - data/metadata/
+  - tests/unit/
+  - tests/integration/
+  - docs/
+
+The script is idempotent: running it multiple times will not raise
+errors and will overwrite ``project_structure.txt`` with the current
+layout.
+"""
+
 import os
-import sys
 from pathlib import Path
+from llmxive_toolkit import paths
+
+def _create_directories(root: Path, dirs):
+    """Create each directory in ``dirs`` under ``root``."""
+    for rel_dir in dirs:
+        dir_path = root / rel_dir
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+def _list_directories(root: Path):
+    """Return a string with a recursive, sorted list of directories."""
+    lines = []
+
+    def _walk(current: Path, prefix: str = ""):
+        for child in sorted(current.iterdir()):
+            if child.is_dir():
+                rel = child.relative_to(root)
+                lines.append(str(rel) + "/")
+                _walk(child, prefix + "  ")
+
+    _walk(root)
+    return "\n".join(lines)
 
 def main():
-    """
-    Create the project directory structure and generate a listing file.
-    
-    Creates the following directories:
-    - code/utils
-    - data/raw
-    - data/processed
-    - data/results
-    - data/metadata
-    - tests/unit
-    - tests/integration
-    - docs
-    
-    Outputs:
-    - project_structure.txt: Recursive listing of all created directories
-    """
-    # Define the root directory (project root)
-    root = Path(__file__).resolve().parent.parent
-    
-    # Define the directories to create relative to the root
-    # Note: 'code/utils' is created relative to root, but 'code' itself might already exist
-    # The task asks for 'code/utils', so we ensure the full path exists
-    directories = [
-        "code/utils",
+    # Define the required project layout (relative to the project root)
+    required_dirs = [
+        "code",
         "data/raw",
         "data/processed",
         "data/results",
         "data/metadata",
         "tests/unit",
         "tests/integration",
-        "docs"
+        "docs",
     ]
-    
-    created_dirs = []
-    
-    print(f"Creating project structure in: {root}")
-    
-    for dir_path in directories:
-        full_path = root / dir_path
-        try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(full_path.relative_to(root)))
-            print(f"  Created: {full_path}")
-        except Exception as e:
-            print(f"  Error creating {full_path}: {e}")
-            sys.exit(1)
-    
-    # Generate the project_structure.txt file
-    output_file = root / "project_structure.txt"
-    try:
-        # Use 'ls -R' equivalent logic to generate the content
-        # We walk the directory tree and format it similarly to 'ls -R'
-        with open(output_file, 'w') as f:
-            f.write(f"Project Structure for: {root}\n")
-            f.write("=" * 50 + "\n\n")
-            
-            # We need to list the specific directories created
-            # To match the spirit of 'ls -R', we list the hierarchy
-            # Since we only created specific deep directories, we list them explicitly
-            # or we can walk the whole 'data', 'tests', 'code', 'docs' if they exist
-            
-            # Let's implement a simple recursive listing for the relevant folders
-            folders_to_list = ["code", "data", "tests", "docs"]
-            
-            for folder in folders_to_list:
-                folder_path = root / folder
-                if folder_path.exists():
-                    f.write(f"{folder}/:\n")
-                    for item in sorted(folder_path.iterdir()):
-                        if item.is_dir():
-                            f.write(f"  {item.name}/\n")
-                            # Check for subdirs in the specific created paths
-                            if item.name == "utils" and folder == "code":
-                                # code/utils is a leaf, but let's be safe
-                                pass
-                            elif item.name in ["raw", "processed", "results", "metadata"] and folder == "data":
-                                pass
-                            elif item.name in ["unit", "integration"] and folder == "tests":
-                                pass
-                            # We can add deeper nesting if needed, but 'ls -R' usually lists subdirs
-                            # Let's do a simple 2-level depth for clarity matching the task
-                            for sub in sorted(item.iterdir()):
-                                if sub.is_dir():
-                                    f.write(f"    {sub.name}/\n")
-                                    for subsub in sorted(sub.iterdir()):
-                                        if subsub.is_dir():
-                                            f.write(f"      {subsub.name}/\n")
-                    f.write("\n")
-            
-            f.write("\n" + "=" * 50 + "\n")
-            f.write("Directories created successfully:\n")
-            for d in created_dirs:
-                f.write(f"- {d}\n")
-                
-        print(f"\nProject structure listing written to: {output_file}")
-        print(f"Verification: {output_file.exists()}")
-        
-    except Exception as e:
-        print(f"Error writing project_structure.txt: {e}")
-        sys.exit(1)
+
+    # The root path is provided by llmxive_toolkit.paths
+    project_root = paths.root
+
+    # Create directories
+    _create_directories(project_root, required_dirs)
+
+    # Generate a recursive directory listing
+    structure_listing = _list_directories(project_root)
+
+    # Write the listing to ``project_structure.txt`` at the project root
+    output_file = project_root / "project_structure.txt"
+    output_file.write_text(structure_listing, encoding="utf-8")
+
+    print(f"Project layout established. Listing written to {output_file}")
 
 if __name__ == "__main__":
     main()

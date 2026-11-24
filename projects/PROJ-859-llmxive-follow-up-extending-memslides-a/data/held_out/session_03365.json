@@ -1,0 +1,66 @@
+{
+  "trace_id": "held_out_43_03365",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 5,
+  "tool_sequence": [
+    "update_layout",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 28.8446,
+        "padding": 65.8279
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 51.5759,
+        "saturation": 4.7419
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 58.5658,
+        "saturation": 60.166
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 1.073,
+        "saturation": 7.8382
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 15.8736,
+        "saturation": 48.8113
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.500402,
+    "tool_repetition_freq": 0.6,
+    "arg_semantic_variance": 580.814718
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 3,
+    "layout_hash": "43-3365-apply_theme"
+  },
+  "variance_multiplier": 1.5
+}

@@ -64,19 +64,8 @@
   verification_status: mismatch
   verified_against_url: https://github.com/llmXive/PROJ-302/releases/tag/v0.0.1
   verified_at: '2026-09-04T05:14:33.795666Z'
-- artifact_hash: 224cdb07fa3ad7aab201180162986d709831a4b4b2dab081e4678807b5ba9ed9
-  artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Cochran - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Cochran
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Cochran
-  verified_at: '2026-09-22T00:53:07.492336Z'
-- artifact_hash: 3f5ac1a13f20c773039fd63aad132c147ccc732837bbc2fd7b0f4968e307c6fd
-  artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+- artifact_hash: f818e428d454ad3a8b9a585c7942f6605eaf286f3b30856fd82bfbc2d97e0423
+  artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/plan.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
@@ -85,4 +74,15 @@
   value: https://en.wikipedia.org/wiki/P-value
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-09-24T15:31:08.201948Z'
+  verified_at: '2026-10-23T05:51:36.535603Z'
+- artifact_hash: b09726db8c7368511dfbef9fc5849ce02f6722f95381a606a34c4d10704def33
+  artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-10-23T05:51:59.493160Z'

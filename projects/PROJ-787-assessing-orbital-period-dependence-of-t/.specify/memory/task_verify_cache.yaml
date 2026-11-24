@@ -1,3 +1,56 @@
+T001a:
+  c: true
+  h: 3cb4ff3fad9528ec6ba5b8c8760cdac864ea3e7c2b84eb56f16e2dec26e01c23
+  r: "The collector shows that `code/`, `tests/contract/`, `tests/unit/`, `tests/integration/`,\
+    \ and all sub\u2011directories under `code/` (`ingest/`, `analysis/`, `theory/`,\
+    \ `validation/`, `utils/`) exist and contain multiple files, confirming the required\
+    \ directory hierarchy was created."
+  sig: 5a6471456f8fd34f0cb7d47ff1b0a1020f9e9fa3f0fae3ebdc075cbce7835268
+T001b:
+  c: false
+  h: 3dd2c6a91729cc99720d92fb1e457268a070ccba74df90ec9b35a18f11c70b4e
+  r: "Checked the project\u2019s `data/` folder: `data/processed/` directory exists\
+    \ (though empty, which satisfies creation), but `data/raw/` directory is missing\
+    \ entirely, so the required directory structure is not fully initialized."
+  sig: 202356214ac36237f65e6f2f05008212dbc683436290169a5fee6563320ad1cd
+T002a:
+  c: true
+  h: 7160368127d22ae552c6830870f89bed25c033b41d2d8763c0488b4fb9ed43ca
+  r: "Checked `code/requirements.txt` (resolved path `code/requirements.txt`) \u2013\
+    \ it exists, is non\u2011empty, and lists all required packages (`pandas`, `numpy`,\
+    \ `scipy`, `scikit-learn`, `astropy`, `astroquery`, `pyyaml`, `pytest`, `tqdm`).\
+    \ The extra `requests` line does not violate the requirement."
+  sig: 78e6bf8d023519288f1eb08357c291c620af54b542faf290a1b42f787e4acfa8
+T002b:
+  c: false
+  h: 6752edb27f0463c5aec250d640354c28ad59a4252fb1d96db9ccab6495059030
+  r: "Checked the presence of `code/requirements.txt`, which exists and lists packages,\
+    \ but there is no evidence that a virtual environment was created or that the\
+    \ listed dependencies were actually installed (e.g., no `venv/` directory, installation\
+    \ logs, `pip freeze` output, or scripts invoking the install). The task\u2019\
+    s core requirement\u2014installing the dependencies in a virtual environment\u2014\
+    is therefore unmet."
+  sig: f9895fb1a5a2fbbec531f096c4108e4da2a21c2a1c1875f9c9114907f9b67a4c
+T003:
+  c: false
+  h: 59608f9b27df2aa136eaabe06552f2a17e930c72ca918212f05e258c91499610
+  r: "The evidence contains no linting or formatting configuration files (e.g.,\u202F\
+    `.flake8`, `pyproject.toml` with Black settings, `setup.cfg`, or related scripts)\
+    \ and no proof that flake8/black have been set up or run. These required artifacts\
+    \ are missing, so the task is not satisfied."
+  sig: c939b95f3bacd2056f1f00ce7b3b1affda122d9ddda09a51ecd6d9b534706ca7
+T004:
+  c: false
+  h: d5c89e943fcf4665b6352d4c072d34e8ddae0984dbb08ba197f5d22d66c55b74
+  r: "The repository contains `code/models/planet_record.py` and `code/models/gap_result.py`,\
+    \ but the required contract `contracts/planet_record.schema.yaml` is missing,\
+    \ so the PlanetRecord model cannot be verified against its schema. Moreover, `gap_result.py`\
+    \ defines a `GapResult` class whose fields (e.g., `period_bin_min`, `component_1_mean`,\
+    \ `bic`) do not correspond to the structure defined in `contracts/analysis_output.schema.yaml`\
+    \ (which expects top\u2011level slope metrics and a `bin_results` array with different\
+    \ property names). Consequently, the implemented data models do not match the\
+    \ specified "
+  sig: 11ebe5ef9c5594200b9e07f123f3a1d661931a7f8bdc21b7da8287c8a879f2ec
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

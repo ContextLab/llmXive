@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-302-evaluating-the-impact-of-code-generation
-last_run_id: aacbbb1e-d155-4dbf-960c-9b42bbef5940
+last_run_id: 2868ce5a-c7f9-431e-9f18-1c3a1169f91c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation
 title: 'Evaluating the Impact of Code Generation on Code Review Time: A Large-Scale
   Study'
-updated_at: '2026-09-24T15:56:34.000395Z'
+updated_at: '2026-10-28T15:19:46.589038Z'

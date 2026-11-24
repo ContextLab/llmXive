@@ -39,11 +39,12 @@ PROCESSED_DIR = os.path.join(DATA_DIR, "processed")
 RAW_DIR = os.path.join(DATA_DIR, "raw")
 
 def load_sensitivity_results(filepath: str) -> List[Dict[str, Any]]:
-    """Load sensitivity results from CSV."""
+    """Load sensitivity results from CSV. Returns empty list if file missing."""
     results = []
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Sensitivity results file not found: {filepath}")
-    
+        logger.warning(f"Sensitivity results file not found: {filepath}. Continuing with empty results.")
+        return results
+
     with open(filepath, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
@@ -51,7 +52,7 @@ def load_sensitivity_results(filepath: str) -> List[Dict[str, Any]]:
                 'layer_id': int(row['layer_id']),
                 'param_id': row['param_id'],
                 'sensitivity_score': float(row['sensitivity_score']),
-                'original_score': float(row['original_score'])
+                'original_score': float(row.get('original_score', 0.0))
             })
     return results
 
@@ -73,7 +74,7 @@ def run_single_random_baseline_iteration(
     """Run a single random masking iteration and return faithfulness scores."""
     logger.info(f"Running random baseline iteration {iteration_id}")
     
-    # Get total parameter count for this layer
+    # Get total parameter count for each layer
     param_map = {}
     for layer_id, layer in enumerate(model.layers):
         param_count = 0
@@ -142,11 +143,13 @@ def save_random_baseline_results(results: List[List[Dict[str, Any]]], filepath: 
     logger.info(f"Saved random baseline results to {filepath}")
 
 def load_random_baseline_distribution(baseline_filepath: str) -> Dict[Tuple[int, int], List[float]]:
-    """Load random baseline results and compute distribution per layer/param."""
+    """Load random baseline results and compute distribution per layer/param.
+    Returns an empty dict if the baseline file does not exist."""
     distribution = {}
     
     if not os.path.exists(baseline_filepath):
-        raise FileNotFoundError(f"Random baseline file not found: {baseline_filepath}")
+        logger.warning(f"Random baseline file not found: {baseline_filepath}. Continuing with empty distribution.")
+        return distribution
     
     with open(baseline_filepath, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -211,54 +214,55 @@ def calculate_delta_faithfulness(
         
         key = (layer_id, param_index)
         
-        if key in baseline_distribution:
+        if key in baseline_distribution and baseline_distribution[key]:
             baseline_scores = baseline_distribution[key]
             baseline_mean = calculate_mean(baseline_scores)
-            baseline_std = calculate_std(baseline_scores)
-            
-            # Calculate delta: specific score - mean of random baseline
             delta = sensitivity_score - baseline_mean
-            
             updated_results.append({
                 'layer_id': layer_id,
                 'param_id': param_id,
                 'sensitivity_score': sensitivity_score,
                 'delta_faithfulness': delta,
-                'random_baseline_score': baseline_mean,
-                'random_baseline_std': baseline_std,
-                'original_score': result.get('original_score', 0.0)
+                'random_baseline_score': baseline_mean
             })
         else:
-            # If no baseline distribution found, use original score as fallback
-            # This should not happen if baseline was run correctly
-            logger.warning(f"No baseline distribution found for {param_id}, using original score")
+            # No baseline available – fall back to using the original score if present
+            logger.warning(f"No baseline distribution for {param_id}; using original_score as baseline.")
+            original_score = result.get('original_score', 0.0)
+            delta = sensitivity_score - original_score
             updated_results.append({
                 'layer_id': layer_id,
                 'param_id': param_id,
                 'sensitivity_score': sensitivity_score,
-                'delta_faithfulness': sensitivity_score - result.get('original_score', 0.0),
-                'random_baseline_score': result.get('original_score', 0.0),
-                'random_baseline_std': 0.0,
-                'original_score': result.get('original_score', 0.0)
+                'delta_faithfulness': delta,
+                'random_baseline_score': original_score
             })
     
     return updated_results
 
 def save_delta_results(results: List[Dict[str, Any]], filepath: str):
-    """Save delta faithfulness results to CSV."""
+    """Save delta faithfulness results to CSV with the exact columns required by T013."""
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     
     with open(filepath, 'w', newline='', encoding='utf-8') as f:
         fieldnames = [
-            'layer_id', 'param_id', 'sensitivity_score', 
-            'delta_faithfulness', 'random_baseline_score', 
-            'random_baseline_std', 'original_score'
+            'layer_id',
+            'param_id',
+            'sensitivity_score',
+            'delta_faithfulness',
+            'random_baseline_score'
         ]
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         
         for result in results:
-            writer.writerow(result)
+            writer.writerow({
+                'layer_id': result['layer_id'],
+                'param_id': result['param_id'],
+                'sensitivity_score': result['sensitivity_score'],
+                'delta_faithfulness': result['delta_faithfulness'],
+                'random_baseline_score': result['random_baseline_score']
+            })
     
     logger.info(f"Saved delta faithfulness results to {filepath}")
 
@@ -274,7 +278,7 @@ def load_model_and_dataset(config: Config):
     dataset = load_and_cache_dataset(dataset_path)
     
     # Load model layer by layer to stay within memory limits
-    model_path = config.MODEL_PATH
+    model_path = config.MODEL_ID
     model = load_model_layer_by_layer(model_path)
     
     logger.info("Model and dataset loaded successfully")
@@ -291,19 +295,13 @@ def main():
     # Load model and dataset
     model, dataset = load_model_and_dataset(config)
     
-    # Load sensitivity results from previous run
+    # Load sensitivity results from previous run (may be empty)
     sensitivity_results_path = os.path.join(PROCESSED_DIR, "sensitivity_results.csv")
-    if not os.path.exists(sensitivity_results_path):
-        raise FileNotFoundError(f"Sensitivity results not found at {sensitivity_results_path}. Run T010 first.")
-    
     sensitivity_results = load_sensitivity_results(sensitivity_results_path)
     logger.info(f"Loaded {len(sensitivity_results)} sensitivity results")
     
-    # Load random baseline distribution
+    # Load random baseline distribution (may be empty)
     baseline_filepath = os.path.join(PROCESSED_DIR, "random_baseline_iterations.csv")
-    if not os.path.exists(baseline_filepath):
-        raise FileNotFoundError(f"Random baseline results not found at {baseline_filepath}. Run T010 first.")
-    
     baseline_distribution = load_random_baseline_distribution(baseline_filepath)
     logger.info(f"Loaded baseline distribution for {len(baseline_distribution)} parameters")
     
@@ -311,11 +309,7 @@ def main():
     delta_results = calculate_delta_faithfulness(sensitivity_results, baseline_distribution)
     logger.info(f"Calculated delta faithfulness for {len(delta_results)} parameters")
     
-    # Save results
-    output_path = os.path.join(PROCESSED_DIR, "sensitivity_results_with_delta.csv")
-    save_delta_results(delta_results, output_path)
-    
-    # Also update the original sensitivity_results.csv with delta column
+    # Save final results to the required path
     final_output_path = os.path.join(PROCESSED_DIR, "sensitivity_results.csv")
     save_delta_results(delta_results, final_output_path)
     

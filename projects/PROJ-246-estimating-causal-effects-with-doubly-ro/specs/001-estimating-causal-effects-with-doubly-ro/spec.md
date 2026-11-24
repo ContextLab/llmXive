@@ -50,6 +50,21 @@ The researcher MUST be able to perform a meta-regression (ANOVA-style) on the si
 1. **Given** the full set of simulation results across the misspecification grid, **When** the meta-regression is executed, **Then** the output includes the coefficient and p-value for the interaction term between outcome and propensity misspecification types.
 2. **Given** the bias data, **When** the heatmap is generated, **Then** the visualization clearly displays bias magnitude across the grid, with distinct regions of high bias (> 0.1) highlighted.
 
+---
+
+### User Story 4 - Resource Validation (Priority: P3)
+
+The researcher MUST be able to execute the entire simulation pipeline (including the misspecification grid and Monte Carlo replications) within the memory and time constraints of a standard GitHub Actions runner.
+
+**Why this priority**: Ensures the research is reproducible and executable in an automated CI/CD environment without requiring specialized high-memory hardware.
+
+**Independent Test**: The system can be tested by running the full grid for a reduced number of replications (e.g., 10) and verifying that peak memory usage remains $\leq 7$ GB.
+
+**Acceptance Scenarios**:
+
+1. **Given** the full simulation configuration, **When** the pipeline is executed, **Then** the process completes without an Out-of-Memory (OOM) error.
+2. **Given** the simulation loop, **When** run on a standard runner, **Then** the total execution time is $\leq 6$ hours.
+
 ### Edge Cases
 
 - **What happens when** the propensity score estimates are exactly 0 or 1 (perfect separation)? The system MUST clip propensity scores to a safe range (e.g., a bounded interval strictly within the unit interval) to prevent division by zero in the IPW component.
@@ -61,10 +76,11 @@ The researcher MUST be able to perform a meta-regression (ANOVA-style) on the si
 
 - **FR-001**: System MUST generate synthetic datasets with known non-linear ground truth relationships for covariates, treatment, and outcome, ensuring the true ATE is computable (See US-1).
 - **FR-002**: System MUST implement an AIPW estimator that accepts user-defined functional forms for both the outcome model (e.g., linear, polynomial) and the propensity model (e.g., logistic, interaction-heavy) (See US-2).
-- **FR-003**: System MUST execute a simulation loop of at least 1,000 Monte Carlo replications for each configuration in the misspecification grid to ensure statistical stability (See US-2).
-- **FR-004**: System MUST calculate the bias as the absolute difference between the estimated ATE and the true ATE for every replication and aggregate results by configuration (See US-2).
+- **FR-003**: System MUST execute a simulation loop of at least 1,000 Monte Carlo replications for each configuration in the misspecification grid across sample sizes $N \in \{500, 1000, 2000\}$ to ensure statistical stability (See US-2).
+- **FR-004**: System MUST calculate the bias as the difference between the estimated ATE and the true ATE for every replication and aggregate results by configuration (See US-2).
 - **FR-005**: System MUST perform a meta-regression analysis on the aggregated bias results to isolate the interaction effect between outcome and propensity model misspecification types (See US-3).
 - **FR-006**: System MUST generate visualizations (heatmaps) mapping bias magnitude against the grid of functional form mismatches (See US-3).
+- **FR-007**: System MUST calculate 95% confidence intervals for each ATE estimate and compute the empirical coverage probability across replications (See US-2).
 
 ### Key Entities
 
@@ -76,10 +92,15 @@ The researcher MUST be able to perform a meta-regression (ANOVA-style) on the si
 
 ### Measurable Outcomes
 
-- **SC-001**: The proportion of simulations where the correctly specified model (either outcome or propensity) yields a bias < 0.05 is measured against the theoretical expectation of [deferred] consistency (See US-2).
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
+
+- **SC-001**: The proportion of simulations where the correctly specified model (either outcome or propensity) yields a bias < 0.05 is measured against a target of $\geq 95\%$ (See US-2).
 - **SC-002**: The coefficient of the interaction term in the meta-regression is measured against a null hypothesis of zero to determine if bias amplification is statistically significant (See US-3).
-- **SC-003**: The empirical coverage probability of the 95% confidence intervals under dual misspecification is measured against the nominal [deferred] level to assess validity degradation (See US-3).
-- **SC-004**: The maximum memory usage during the simulation loop is measured against the available RAM constraint to ensure feasibility on free-tier runners (See Assumptions).
+- **SC-003**: The empirical coverage probability of the 95% confidence intervals under dual misspecification is measured against the nominal [deferred] level to assess validity degradation (See US-2).
+- **SC-004**: The maximum memory usage during the simulation loop is measured against the available RAM constraint ($\leq 7$ GB) to ensure feasibility on free-tier runners (See US-4).
+- **SC-005**: The accuracy of the ground truth ATE calculation is measured against the theoretical expectation with a tolerance of $\leq 0.001$ (See US-1).
 
 ## Assumptions
 

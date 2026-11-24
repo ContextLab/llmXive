@@ -1,14 +1,17 @@
 status: none
-intent: intake-esm CMIP6 near-surface temperature precipitation ESGF catalog python
-  package dataset
+intent: download CMIP6 tas pr data from ESGF using intake-esm python package dataset
 required_fields:
-- model
+- model_id
 - ensemble_member
+- scenario
 - variable
 - time
 - latitude
 - longitude
-- value
-cache_key: ca22dc1b99f9e8ec677450792862000ac5bffed0281805c15da9c60783ba2fba
-searched_at: '2026-09-27T21:19:52.564271+00:00'
+- tas
+- pr
+- units
+- grid_type
+cache_key: 4958af33e5a614ffd0db8272dddafd9c0925eee1e0213dc0d1e4b77f125f8b7d
+searched_at: '2026-10-15T13:48:29.352202+00:00'
 retry_count: 1

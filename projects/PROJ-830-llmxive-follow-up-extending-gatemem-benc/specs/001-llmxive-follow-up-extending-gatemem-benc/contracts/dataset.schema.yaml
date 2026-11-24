@@ -1,48 +1,26 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "GateMem Episode Schema"
-description: "Schema for the raw and processed GateMem dataset episodes."
-type: "object"
-properties:
-  episode_id:
-    type: "string"
-    description: "Unique identifier for the episode."
-  domain:
-    type: "string"
-    enum: ["medical", "office", "education", "household"]
-    description: "Domain of the episode."
-  user_query:
-    type: "string"
-    description: "The user's input query."
-  memory_context:
-    type: "string"
-    description: "The retrieved or full memory context provided to the LLM."
-  leak_target:
-    type: "string"
-    description: "The specific sensitive information targeted for leakage."
-  role:
-    type: "string"
-    description: "The user's role in the context."
-  deletion_request:
-    type: "boolean"
-    description: "Indicates if this episode contains a deletion request."
-  deletion_log:
-    type: "string"
-    description: "The log of deletion actions (if applicable)."
-  ground_truth_answer:
-    type: "string"
-    description: "The human-annotated correct answer for utility calculation."
-  ground_truth_leak:
-    type: "boolean"
-    description: "Ground truth label indicating if a leak occurred in this episode."
-  ground_truth_deletion:
-    type: "boolean"
-    description: "Ground truth label indicating if deletion was successfully performed."
+title: GateMem Dataset Episode
+type: object
 required:
-  - "episode_id"
-  - "domain"
-  - "user_query"
-  - "leak_target"
-  - "role"
-  - "ground_truth_leak"
-  - "ground_truth_deletion"
-additionalProperties: true
+  - id
+  - domain
+  - leak-target
+  - role
+  - outcome
+  - authorization_boundaries
+properties:
+  id:
+    type: string
+  domain:
+    type: string
+    enum: [medical, office, education, household]
+  leak-target:
+    type: string
+  role:
+    type: string
+  outcome:
+    type: string
+    enum: [allowed, denied]
+  authorization_boundaries:
+    type: object
+    additionalProperties: true

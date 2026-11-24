@@ -1,3 +1,4 @@
+import seed
 import os
 import logging
 import time
@@ -190,10 +191,10 @@ def preprocess_merged_data(df: pd.DataFrame) -> pd.DataFrame:
                 df = df.drop(index=drop_idx)
                 excluded_count += len(drop_idx)
                 logger.warning(f"No mode found for '{col}'. Excluded {len(drop_idx)} rows.")
-    
+
     final_count = len(df)
     total_excluded = initial_count - final_count
-    
+
     if excluded_count > 0 or imputed_count > 0:
         logger.info(f"Preprocessing complete. Excluded: {excluded_count}, Imputed: {imputed_count}. Final rows: {final_count}.")
     else:
@@ -238,9 +239,6 @@ def run_orchestration() -> pd.DataFrame:
         # Split into personality and listening parts for the merge logic to work
         # The synthetic generator usually returns a combined or separate structure.
         # Based on T008, it generates a dataset matching the schema.
-        # We assume it returns a DataFrame with all columns.
-        # We need to split it for the merge logic if it's combined, or just use it directly if it's already merged.
-        # T008 says: "Generate a deterministic synthetic dataset... matching contracts/dataset.schema.yaml"
         # The schema includes all columns (personality + demographics).
         # It does NOT explicitly mention listening_minutes or genre.
         # However, T012 says: "Merge personality and listening data".
@@ -250,7 +248,7 @@ def run_orchestration() -> pd.DataFrame:
         # The schema has: user_id, openness, conscientiousness, extraversion, agreeableness, neuroticism, age, gender, country.
         # It does NOT have genre or listening_minutes.
         # So we need to generate listening data separately or extend the synthetic generator.
-        # For T016, we assume the data is already prepared or we generate it here if in validation mode.
+        # For T016, we assume the data is already prepared or we generate them here if in validation mode.
         # Let's generate listening data synthetically as well.
         
         # Create listening data
@@ -261,7 +259,7 @@ def run_orchestration() -> pd.DataFrame:
         })
         
         personality_data = synth_df
-        
+    
     else:
         # Real data path
         # In a real scenario, we would download or load from specific paths.
@@ -269,47 +267,15 @@ def run_orchestration() -> pd.DataFrame:
         # we assume the data is available or the script has failed earlier if not.
         # For this task, we assume the caller passes the data or we load from standard paths.
         # If no real source is found, we raise DataUnavailableError as per T036.
-        # But T036 says: "If a verified source is listed but fetch fails... raise DataUnavailableError".
-        # Here we just try to load.
-        # We'll assume paths are provided or environment variables are set.
-        # For now, we'll simulate loading from a path if it exists, else fail.
-        # This is a placeholder for the real loading logic which depends on T012.
-        # Since T012 is not done, we assume the data is passed or we generate synthetic if no real source is found.
-        # But the rule is: "The loader must FAIL LOUDLY — never fall back to synthetic" UNLESS in validation mode.
-        # So if not validation mode, we MUST have real data.
-        # Since we don't have real data in this environment, we will raise an error if not in validation mode.
-        # However, T036 says: "If a verified source is listed but fetch fails... raise DataUnavailableError".
-        # So we should try to fetch.
-        # Since we don't have the fetch logic implemented here (it's in T012), we'll assume the data is available.
-        # For the purpose of T016, we focus on the preprocessing logic.
-        # We'll assume the data is passed in or loaded from a standard location.
-        # If not, we raise an error.
-        # To make the code runnable for testing, we'll generate synthetic data if no real data is found,
-        # but ONLY if we are in validation mode. Otherwise, we raise.
-        # But the prompt says: "If a verified source is listed but fetch fails... raise DataUnavailableError".
-        # So we need to check for a verified source.
-        # Since we don't have the fetch logic, we'll assume the data is passed.
-        # For now, we'll just generate synthetic data if no real data is found, but we'll log a warning.
-        # This is a compromise for the task.
-        # Actually, the prompt says: "If no real source is reachable, return verdict: failed".
-        # But we are implementing T016, not the whole pipeline.
-        # We'll assume the data is available.
-        # To make the code runnable, we'll generate synthetic data if no real data is found,
-        # but we'll log a warning that this is not in validation mode.
-        # This is not ideal, but it allows the code to run for testing.
-        # A better approach is to rely on T012 to handle the data loading.
-        # Since T012 is not done, we'll generate synthetic data for testing purposes only.
-        # In a real run, T012 would handle this.
-        # We'll assume the data is passed in.
-        # For now, we'll generate synthetic data if no real data is found.
-        # This is a temporary measure.
-        # We'll generate synthetic data.
-        personality_data = generate_synthetic_data(n_rows=1000, seed=42)
-        listening_data = pd.DataFrame({
-            'user_id': personality_data['user_id'],
-            'genre': np.random.choice(['rock', 'pop', 'jazz', 'classical', 'electronic', 'hip-hop', 'country', 'r&b'], size=1000),
-            'listening_minutes': np.random.exponential(scale=1000, size=1000).astype(int)
-        })
+        # Here we just try to load from expected locations.
+        personality_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'raw', 'bfi_raw.csv')
+        listening_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'raw', 'lastfm_raw.csv')
+        
+        personality_data = load_personality_data(personality_path)
+        listening_data = load_listening_data(listening_path)
+        
+        if personality_data is None or listening_data is None:
+            raise DataUnavailableError("Real data files not found and validation mode is disabled.")
     
     # 2. Merge
     merged_df = merge_dataframes(personality_data, listening_data)

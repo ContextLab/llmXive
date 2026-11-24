@@ -1,0 +1,19 @@
+status: none
+intent: GitHub public dataset GitHub Archive GHTorrent active Python JavaScript repositories
+  python package dataset
+required_fields:
+- repo_id
+- repo_name
+- owner
+- language
+- stars
+- last_commit_date
+- recent_commit_count
+- file_path
+- code_block
+- start_line
+- end_line
+- llm_label
+cache_key: 2db0c4e08e95444785b529f1fdc77e757622b82b04dcb839dc285415902086a4
+searched_at: '2026-10-25T20:33:54.089929+00:00'
+retry_count: 1

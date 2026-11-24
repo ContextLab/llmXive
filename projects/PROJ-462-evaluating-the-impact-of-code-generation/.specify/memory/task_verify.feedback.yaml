@@ -14,12 +14,25 @@ T001b:
 T001c:
   task: 65b2b78dd776f1d8ac49945d624564a96207387fb1fff0b3ce2dddd9288a47dc
 T001d:
+  reason: "The evidence does not show a `.gitignore` file at the repository root nor\
+    \ any indication that a Git repository has been initialized (e.g., a `.git` directory).\
+    \ Without these artifacts, the task \u201CInitialize git repository and create\
+    \ `.gitignore` for Python at repository root\u201D is not satisfied."
   task: f5906d6dba45109dd27096a1891700d58a3a6559bccf4fdd42c9607721c3f41b
 T002a:
   task: 34e019c10844c9c57497ab3e48565b3e92982517bf892cd9e0d2cfb0b5823f87
 T002b:
+  reason: "The only artifact present is the `code/requirements.txt` file; there is\
+    \ no evidence of a virtual environment being created, activated, or of `pip install\
+    \ -r code/requirements.txt` being run (e.g., no logs, scripts, or environment\
+    \ snapshots). The task\u2019s core requirement\u2014to install the dependencies\
+    \ in a virtualenv\u2014is therefore unmet."
   task: bfe62e7c884b00801e6abf9c9744994fe32ef99b6586bfbf1d86a399e1e6992e
 T003a:
+  reason: "The evidence contains no files or configuration showing that the Black\
+    \ formatter was added to the development environment (e.g., no `pyproject.toml`,\
+    \ `requirements-dev.txt`, or pre\u2011commit config referencing Black). Consequently,\
+    \ the required artifact for installing Black is missing."
   task: c6063f39048e32821c6e8d27b66dfca26b42ee48b3479e0766abd139f66a6b21
 T003b:
   task: 66bfe0c6cec561306d4efdcb10a200a2a8f7e40674ef329511e53d854c15b674

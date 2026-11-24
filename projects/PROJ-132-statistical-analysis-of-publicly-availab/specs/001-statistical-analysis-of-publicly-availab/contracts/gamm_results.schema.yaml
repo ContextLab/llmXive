@@ -25,7 +25,7 @@ properties:
     type: number
     minimum: 0
     maximum: 1
-    description: "FDR-corrected p-value."
+    description: "FDR‑corrected p-value."
   is_significant:
     type: boolean
     description: "True if p_value_fdr < 0.05."
@@ -41,13 +41,16 @@ properties:
     description: "Akaike Information Criterion value."
   residual_morans_i:
     type: number
-    description: "Moran's I statistic for spatial autocorrelation in residuals (post-hoc validation only)."
+    description: "Moran's I statistic for spatial autocorrelation in residuals (post‑hoc validation only)."
   random_slope_present:
     type: boolean
     description: "True if the model includes a random slope for the climate variable."
   gp_included:
     type: boolean
     description: "True if a Gaussian Process random effect was included (always true)."
+  temporal_ar1_included:
+    type: boolean
+    description: "True if a temporal AR(1) year random effect was included."
 required:
   - species_id
   - climate_variable
@@ -58,4 +61,5 @@ required:
   - convergence_status
   - random_slope_present
   - gp_included
+  - temporal_ar1_included
 additionalProperties: false

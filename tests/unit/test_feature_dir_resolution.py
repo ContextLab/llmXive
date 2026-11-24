@@ -22,7 +22,7 @@ import pytest
 from llmxive.speckit._feature_dir import resolve_feature_dir
 from llmxive.speckit.slash_command import SlashCommandContext
 from llmxive.state import project as project_store
-from llmxive.types import BackendName, Project, Stage
+from llmxive.types import Project, Stage
 
 
 def _ctx(project_id: str, project_dir: Path, *, agent_name: str = "planner") -> SlashCommandContext:
@@ -34,9 +34,7 @@ def _ctx(project_id: str, project_dir: Path, *, agent_name: str = "planner") -> 
         inputs=[],
         expected_outputs=[],
         prompt_template_path=project_dir / "ignored.md",
-        default_backend=BackendName.DARTMOUTH,
-        fallback_backends=[],
-        default_model="m",
+        profile="standard_generation",
         prompt_version="1.0.0",
         agent_name=agent_name,
     )

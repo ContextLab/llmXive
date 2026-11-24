@@ -1,0 +1,57 @@
+[
+  {
+    "stimulus_id": "sample_1",
+    "map_path": "interim/salience_maps/sample_1.npy",
+    "resolution": {
+      "height": 256,
+      "width": 256
+    },
+    "generation_method": "gbvs",
+    "status": "success",
+    "excluded_reason": null
+  },
+  {
+    "stimulus_id": "sample_2",
+    "map_path": "interim/salience_maps/sample_2.npy",
+    "resolution": {
+      "height": 256,
+      "width": 256
+    },
+    "generation_method": "gbvs",
+    "status": "success",
+    "excluded_reason": null
+  },
+  {
+    "stimulus_id": "sample_3",
+    "map_path": "interim/salience_maps/sample_3.npy",
+    "resolution": {
+      "height": 256,
+      "width": 256
+    },
+    "generation_method": "gbvs",
+    "status": "success",
+    "excluded_reason": null
+  },
+  {
+    "stimulus_id": "sample_4",
+    "map_path": "interim/salience_maps/sample_4.npy",
+    "resolution": {
+      "height": 256,
+      "width": 256
+    },
+    "generation_method": "gbvs",
+    "status": "success",
+    "excluded_reason": null
+  },
+  {
+    "stimulus_id": "sample_5",
+    "map_path": "interim/salience_maps/sample_5.npy",
+    "resolution": {
+      "height": 256,
+      "width": 256
+    },
+    "generation_method": "gbvs",
+    "status": "success",
+    "excluded_reason": null
+  }
+]

@@ -1,0 +1,12 @@
+status: none
+intent: download OQMD magnetic release dataset and Materials Project magnetic entries
+  python package dataset
+required_fields:
+- material_id
+- composition
+- saturation_magnetization
+- structure
+- formation_energy_per_atom
+cache_key: b3fa6f8bb6ee1946c1722875c4600961102d67ce4a1794974d3280704f843c1f
+searched_at: '2026-10-26T13:52:05.982947+00:00'
+retry_count: 1

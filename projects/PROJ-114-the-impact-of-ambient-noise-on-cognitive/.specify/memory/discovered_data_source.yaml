@@ -1,0 +1,16 @@
+status: none
+intent: Cognitive Flexibility Index CFI task-switching reaction time error metrics
+  python package dataset
+required_fields:
+- participant_id
+- task_condition
+- reaction_time_ms
+- error_count
+- correct_responses
+- timestamp_epoch_ms
+- session_id
+- task_type
+- trial_number
+cache_key: 34dfc074336c572b305fc170963e7f81f4b7ecd4dfe95508c2bd58b156261f32
+searched_at: '2026-10-13T15:43:14.160839+00:00'
+retry_count: 1

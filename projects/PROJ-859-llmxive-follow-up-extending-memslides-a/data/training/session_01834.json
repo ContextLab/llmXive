@@ -1,0 +1,103 @@
+{
+  "trace_id": "training_42_01834",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "format_text",
+    "insert_text",
+    "delete_element",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "update_layout",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 15.4954,
+        "x": 43.4466,
+        "y": 80.8365
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 39.4145,
+        "y": 20.4877,
+        "length": 24.9641
+      }
+    },
+    {
+      "step": 2,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 56.4738
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 67.4535,
+        "saturation": 99.647
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 1.4259,
+        "saturation": 69.9152
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 31.2515,
+        "saturation": 52.7475
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 40.8636,
+        "saturation": 81.2295
+      }
+    },
+    {
+      "step": 7,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 82.4006,
+        "padding": 41.8519
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 70.9285,
+        "x": 33.2033,
+        "y": 64.9942
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.427061,
+    "tool_repetition_freq": 0.444444,
+    "arg_semantic_variance": 641.124825
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 5,
+    "layout_hash": "42-1834-apply_theme"
+  }
+}

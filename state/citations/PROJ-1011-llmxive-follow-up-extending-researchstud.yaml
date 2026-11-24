@@ -42,3 +42,36 @@
   verification_status: pending
   verified_against_url: https://www.python.org/downloads/
   verified_at: '2026-09-20T15:51:51.905604Z'
+- artifact_hash: 6cbe29f131827a0ab3d9faed19bdbf3d1c3a20c25a01c63d1144764de5a3ecb2
+  artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00002-3dabc2a2d6e3d70d.parquet
+  kind: url
+  value: https://huggingface.co/datasets/lsb/simplewiki2023-all-minilm-l6-v2-embedding/resolve/main/data/train-00000-of-00002-3dabc2a2d6e3d70d.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/63eb24e982b00fafa9c57662/97fbd384653fe8191df405cadbeac63e254482fb6fdddee428160f1f0d220bb5?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00002-3dabc2a2d6e3d70d.parquet%3B+filename%3D%22train-00000-of-00002-3dabc2a2d6e3d70d.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&xip=U6BFoPhOzxA&Expires=1792050548&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjNlYjI0ZTk4MmIwMGZhZmE5YzU3NjYyLzk3ZmJkMzg0NjUzZmU4MTkxZGY0MDVjYWRiZWFjNjNlMjU0NDgyZmI2ZmRkZGVlNDI4MTYwZjFmMGQyMjBiYjVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDItM2RhYmMyYTJkNmUzZDcwZC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDItM2RhYmMyYTJkNmUzZDcwZC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljJnhpcD1VNkJGb1BoT3p4QSIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMDUwNTQ4fX19XX0_&Signature=MEYCIQC9I3t2z3nAfHP4C%7EL6hICSLJYgiJt0b88x8m8vlcfX-QIhALLo0-VLQ0r4bZVe6flqencrpXZi1rf9GX4GFA9lhd6B&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-15T06:49:08.197873Z'
+- artifact_hash: 6cbe29f131827a0ab3d9faed19bdbf3d1c3a20c25a01c63d1144764de5a3ecb2
+  artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00105-5fb99383dece10fd.parquet
+  kind: url
+  value: https://huggingface.co/datasets/lsb/openwebtext-all-minilm-l6-v2-embedding/resolve/main/data/train-00000-of-00105-5fb99383dece10fd.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/63eb2b0782b00fafa9c5e09a/fae9488e184bab046b57fac9f687a917a7995c67ef0b22272115bcd3724ad770?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00105-5fb99383dece10fd.parquet%3B+filename%3D%22train-00000-of-00105-5fb99383dece10fd.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&xip=U6BFoPhOzxA&Expires=1792050574&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjNlYjJiMDc4MmIwMGZhZmE5YzVlMDlhL2ZhZTk0ODhlMTg0YmFiMDQ2YjU3ZmFjOWY2ODdhOTE3YTc5OTVjNjdlZjBiMjIyNzIxMTViY2QzNzI0YWQ3NzBcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAxMDUtNWZiOTkzODNkZWNlMTBmZC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAxMDUtNWZiOTkzODNkZWNlMTBmZC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljJnhpcD1VNkJGb1BoT3p4QSIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMDUwNTc0fX19XX0_&Signature=MEUCIQDmGo4MJ4DWLKY-PApkM-vXjxjuHzQr8s7BhPx%7Eqpqz1wIgavuSOeWbYmfCOJJGwaQfIvjggG2TEtrgRVvzDkUFqWQ_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-15T06:49:08.197873Z'
+- artifact_hash: 6cbe29f131827a0ab3d9faed19bdbf3d1c3a20c25a01c63d1144764de5a3ecb2
+  artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/lsb/sukantan/nyaya-ae-all-MiniLM-L6-v2/resolve/main/data/train-00000-of-00001-279622e5c6f82ce9.parquet
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/datasets/lsb/sukantan/nyaya-ae-all-MiniLM-L6-v2/resolve/main/data/train-00000-of-00001-279622e5c6f82ce9.parquet
+  verified_at: '2026-10-15T06:49:08.197873Z'

@@ -1,13 +1,16 @@
 status: none
-intent: Materials Project API melting point heat capacity parquet download python
+intent: Materials Project MP-API melting point heat capacity OMDB CIF NIST PCM python
   package dataset
 required_fields:
 - material_id
-- formula
+- composition
 - melting_point
 - heat_capacity
+- latent_heat_of_fusion
+- cif_file
+- has_structure
 - temperature
-- data_source
-cache_key: 28269c2b460b41208ec4b824ae0b642ad71b40b12f8f462c68a6653efdf4d7f9
-searched_at: '2026-10-07T20:43:16.771178+00:00'
+- density
+cache_key: 9c804a3dc451c6a60aee82dedef066eda1dab705db675ee784958354e7d4b387
+searched_at: '2026-10-31T13:12:05.257176+00:00'
 retry_count: 1

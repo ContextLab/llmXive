@@ -1,73 +1,64 @@
 # Data Model: Predicting Polymer Degradation Pathways with Graph Neural Networks
 
-## Key Entities
+## Core Entities
 
 ### PolymerRecord
-
-Represents a single polymer degradation entry.
-
 | Field | Type | Description | Constraints |
 |-------|------|-------------|-------------|
-| `id` | str | Unique identifier (hash of SMILES + conditions) | Required, unique |
-| `smiles` | str | SMILES string of polymer | Valid RDKit SMILES |
-| `polymer_type` | str | Detected polymer class (e.g., "polyester") | Derived from SMILES |
-| `temperature` | float | Temperature in °C | Imputed if missing (default: 25.0) |
-| `ph` | float | pH value | Imputed if missing (default: 7.0) |
-| `uv_exposure` | float | UV exposure level (0-1) | Imputed if missing (default: 0.0) |
-| `degradation_pathway` | str | Pathway label (hydrolysis, oxidation, photolysis) | Synthetic or flagged for curation |
-| `label_source` | str | "synthetic" or "curated" | Required |
-| `flagged_for_curation` | bool | True if label missing/invalid | Required |
-| `metadata` | dict | Additional info (e.g., imputation flags) | Optional |
+| `id` | string | SHA‑256 hash of (`smiles` + `temp_c` + `ph` + `uv_exposure`). | Required, unique |
+| `smiles` | string | Canonical SMILES; **must be a valid RDKit SMILES**. | Valid RDKit SMILES |
+| `is_polyester` | boolean | `True` if the SMARTS pattern `C(=O)O` (ester) is detected; otherwise `False`. | Derived from SMARTS detection |
+| `temp_c` | number | Temperature in Celsius; default 25 if imputed. | ≥ -273.15 |
+| `ph` | number | pH value; default 7 if imputed. | 0 – 14 |
+| `uv_exposure` | number | Normalised UV (0‑1); default 0 if imputed. | 0 – 1 |
+| `label` | string | Degradation pathway (`"hydrolysis"`, `"oxidation"` or `"photolysis"`). | Curated label required for training |
+| `label_source` | string | `"curated"` (used for training) **or** `"synthetic"` (used **only for augmentation**). |
+| `validation_flag` | string | `"valid"` if all fields pass checks, `"missing_env"` if any environmental variable was imputed, `"invalid_smiles"` if RDKit failed to parse. |
+| `metadata` | object | Flags for imputation, validation status, etc. |
 
 ### MolecularGraph
-
-Graph representation of a polymer record.
-
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `record_id` | str | Reference to PolymerRecord.id | Required |
-| `nodes` | list[dict] | Atom nodes with features | At least 1 node |
-| `edges` | list[dict] | Bond edges with features | At least 1 edge |
-| `global_features` | dict | Environmental conditions | Must include temp, pH, UV |
-| `graph_hash` | str | Content hash for versioning | Required |
-
-### DegradationPathway
-
-Categorical label for degradation mechanism.
-
-| Value | Description |
-|-------|-------------|
-| `hydrolysis` | Breakdown via water (e.g., ester hydrolysis) |
-| `oxidation` | Breakdown via oxidation (e.g., radical attack) |
-| `photolysis` | Breakdown via UV light |
+| Field | Type | Description |
+|-------|------|-------------|
+| `record_id` | string | FK → `PolymerRecord.id`. |
+| `nodes` | list of objects | Atom features (`atom_type`, `degree`, `hybridization`, `formal_charge`). |
+| `edges` | list of objects | Bond features (`bond_type`, `conjugation`, `aromaticity`). |
+| `global_features` | object | `{temp_c, ph, uv_exposure}`. |
+| `graph_hash` | string | SHA‑256 of the serialized graph. |
 
 ### MotifImportance
+| Field | Type | Description |
+|-------|------|-------------|
+| `motif_id` | string | Unique identifier |
+| `motif_pattern` | string | SMILES of the subgraph motif |
+| `pathway` | string | `"hydrolysis"`, `"oxidation"` or `"photolysis"` |
+| `importance_score` | number | Integrated Gradients score (0 – 1) |
+| `p_value` | number | Empirical **permutation‑test** p‑value (0 – 1) |
+| `significant` | boolean | `p_value < 0.05` |
 
-Derived metric linking subgraph patterns to degradation pathways.
+### PredictionResult (model output)
+| Field | Type | Description |
+|-------|------|-------------|
+| `record_id` | string | FK to `PolymerRecord.id`. |
+| `predicted_class` | string | One of the three pathways. |
+| `confidence` | number | Softmax probability (0 – 1). |
+| `is_low_confidence` | boolean | `confidence < 0.6` (source: 2312.01650). |
+| `motif_importance` | object | Mapping `{motif_name: score}`. |
+| `attribution_map` | array of numbers | Node‑level IG scores. |
 
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `motif_id` | str | Unique motif identifier | Required |
-| `motif_pattern` | str | SMILES subgraph pattern | Valid RDKit SMILES |
-| `pathway` | str | Associated degradation pathway | Required |
-| `importance_score` | float | Integrated Gradients score | 0.0-1.0 |
-| `p_value` | float | χ² test p-value | 0.0-1.0 |
-| `significant` | bool | True if p < 0.05 | Required |
+## Data Flow Diagram (conceptual)
 
-## Data Flow
+1. **Ingestion** → raw Parquet (`data/raw/`).  
+2. **Label Validation** → `label_flags.json` (adds `label_source`, `validation_flag`).  
+3. **Preprocess** → `PolymerRecord`s (`records.parquet`) + `MolecularGraph`s (`graphs/*.pkl`).  
+4. **Augmentation** (bond rotation + atom masking) → augmented graphs (`augmented/graphs/*.pkl`).  
+5. **Training** → model checkpoint (`code/models/model.pt`).  
+6. **Inference** → `PredictionResult`s (`output/predictions.json`).  
+7. **Attribution** → `MotifImportance`s (`output/model_output.json`).  
+8. **Statistical Validation** → permutation‑test results (`data/reports/perm_test_results.json`).  
+9. **Report** → final markdown (`docs/reports/final_report.md`).  
 
-1. **Ingestion**: `ingest.py` fetches SMILES from verified sources → `PolymerRecord` (raw).
-2. **Preprocessing**: `preprocess.py` converts SMILES to `MolecularGraph`, imputes missing values, flags for curation.
-3. **Augmentation**: `augment.py` applies edge dropout/subgraph sampling → augmented `MolecularGraph` list.
-4. **Training**: `train.py` fits GNN on augmented graphs → model weights.
-5. **Attribution**: `attribution.py` computes `MotifImportance` via Integrated Gradients.
-6. **Validation**: `validate.py` runs χ² test, generates final report.
+All artifacts are version‑hashed and listed in `state/artifact_hashes.yaml` for reproducibility.
 
-## Storage Format
+---
 
-- **Raw Data**: `data/raw/` (CSV/Parquet from verified sources).
-- **Processed Data**: `data/processed/` (JSONL: `PolymerRecord` objects).
-- **Graph Data**: `data/processed/graphs/` (Pickled `MolecularGraph` objects).
-- **Augmented Data**: `data/augmented/` (Pickled augmented graphs).
-- **Model Checkpoints**: `code/models/` (PyTorch `.pt` files).
-- **Reports**: `docs/reports/` (Markdown/JSON).
+

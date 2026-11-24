@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Manual Score Schema"
-description: "Schema for human-annotated validation scores in data/manual/scores.csv"
+description: "Schema for human‑annotated validation scores in data/manual/scores.csv"
 type: object
 properties:
   id:
@@ -19,8 +19,20 @@ properties:
   annotator_id:
     type: string
     description: "Identifier for the human annotator"
+  entity_f1_human:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Human‑rated entity‑F1 (0‑1) for the function"
+  semantic_similarity_human:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Human‑rated semantic similarity (0‑1) for the function"
 required:
   - id
   - human_score_raw
   - human_score_norm
   - annotator_id
+  - entity_f1_human
+  - semantic_similarity_human

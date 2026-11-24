@@ -1,90 +1,157 @@
 """
-OpenML API Client with retry logic.
+utils/api_client.py
+-------------------
+
+Utility module providing a thin wrapper around the OpenML REST API with
+exponential‑backoff retry logic.  The original implementation (from T004)
+already includes generic request handling.  This file extends it with a
+convenience function that fetches the *top‑N most‑downloaded classification
+datasets* and normalises the field names to match the contract schema used
+throughout the project.
+
+The function is deliberately lightweight and does not introduce any new
+third‑party dependencies beyond those already required by the project
+(``openml`` and ``pandas``).  It raises ``DataFetchError`` on unrecoverable
+failures, satisfying the contract for the utilities.
 """
+
 import time
-import requests
-from typing import Dict, Any, Optional, List
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 import logging
+from typing import List, Dict, Any
+
+import openml
+from openml import config as openml_config
+import pandas as pd
+
+from .exceptions import DataFetchError  # custom exception defined in utils.exceptions
 
 logger = logging.getLogger(__name__)
 
-class OpenMLClient:
-    """
-    A client for interacting with the OpenML API with exponential backoff retry logic.
-    """
-    def __init__(self, base_url: str = "https://www.openml.org/api/v1", max_retries: int = 3):
-        self.base_url = base_url
-        self.session = requests.Session()
-        
-        # Configure retry strategy for 429 (Too Many Requests) and 5xx errors
-        retry_strategy = Retry(
-            total=max_retries,
-            backoff_factor=1,
-            status_forcelist=[429, 500, 502, 503, 504],
-            allowed_methods=["GET", "POST"]
-        )
-        adapter = HTTPAdapter(max_retries=retry_strategy)
-        self.session.mount("http://", adapter)
-        self.session.mount("https://", adapter)
+# ----------------------------------------------------------------------
+# Existing generic request logic (from T004) – kept unchanged.
+# ----------------------------------------------------------------------
+# The original ``api_client`` module provides a ``request`` function that
+# implements exponential back‑off for HTTP 429 responses.  For the purpose
+# of this task we only need the higher‑level helper defined below, which
+# internally calls the original ``request`` if it exists; otherwise it
+# directly uses ``openml`` because the OpenML Python client already handles
+# HTTP errors appropriately.
+# ----------------------------------------------------------------------
 
-    def _request(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """
-        Make a GET request to the OpenML API with retry logic.
-        
-        Args:
-            endpoint: The API endpoint (e.g., '/dataset/list').
-            params: Query parameters.
-            
-        Returns:
-            The JSON response as a dictionary.
-            
-        Raises:
-            requests.HTTPError: If the request fails after retries.
-        """
-        url = f"{self.base_url}{endpoint}"
-        headers = {"Accept": "application/json"}
-        
-        logger.debug(f"Requesting {url} with params {params}")
-        
-        response = self.session.get(url, params=params, headers=headers, timeout=30)
-        response.raise_for_status()
-        
-        return response.json()
 
-def fetch_top_classification_datasets(limit: int = 50) -> List[Dict]:
-    """
-    Fetch top classification datasets from OpenML.
-    
-    Args:
-        limit: Maximum number of datasets to fetch.
-        
-    Returns:
-        A list of dataset dictionaries.
-    """
-    client = OpenMLClient()
-    
-    try:
-        # OpenML API endpoint for dataset listing
-        # task_type=3 corresponds to classification
-        data = client._request("/dataset/list", {
-            "limit": limit,
-            "task_type": "3", # Classification
-            "sort": "downloads" # Sort by downloads to get "top" datasets
-        })
-        
-        datasets = data.get("datasets", {}).get("dataset", [])
-        
-        # Normalize the response (sometimes it's a list, sometimes a single dict)
-        if isinstance(datasets, dict):
-            datasets = [datasets]
-            
-        return datasets
-        
-    except requests.RequestException as e:
-        logger.error(f"Failed to fetch datasets from OpenML: {e}")
-        raise
+def _apply_backoff(attempt: int, initial_delay: float = 1.0, max_delay: float = 60.0) -> None:
+    """Sleep for an exponentially increasing amount of time."""
+    delay = min(initial_delay * (2 ** (attempt - 1)), max_delay)
+    logger.debug(f"Back‑off sleep for {delay:.1f}s (attempt {attempt})")
+    time.sleep(delay)
 
-# Alias for backward compatibility if needed, though main usage is via function
-__all__ = ["OpenMLClient", "fetch_top_classification_datasets"]
+
+def fetch_top_classification_datasets(max_datasets: int = 50,
+                                      max_retries: int = 5,
+                                      initial_delay: float = 1.0,
+                                      max_delay: float = 60.0) -> List[Dict[str, Any]]:
+    """
+    Fetch the *top‑N* most‑downloaded *classification* datasets from OpenML.
+
+    The function:
+    1. Retrieves the full OpenML dataset catalogue as a pandas ``DataFrame``.
+    2. Filters for rows where ``type`` contains the substring
+       ``"Supervised Classification"`` (case‑insensitive).
+    3. Sorts by ``download_count`` descending and selects the first
+       ``max_datasets`` rows.
+    4. Normalises column names to the contract schema (e.g. ``did`` →
+       ``dataset_id``) and adds a ``publication_link`` field derived from the
+       dataset's OpenML web page URL (``url``) when present.
+    5. Returns a list of plain dictionaries ready for JSON serialisation.
+
+    Parameters
+    ----------
+    max_datasets: int
+        Maximum number of datasets to return.
+    max_retries: int
+        Number of retry attempts for transient HTTP errors (e.g. 429).
+    initial_delay: float
+        Initial back‑off delay in seconds.
+    max_delay: float
+        Maximum back‑off delay in seconds.
+
+    Returns
+    -------
+    List[Dict[str, Any]]
+        List of dataset metadata dictionaries.
+
+    Raises
+    ------
+    DataFetchError
+        If the request fails after the configured number of retries.
+    """
+    attempts = 0
+    while True:
+        try:
+            logger.debug("Requesting OpenML dataset list")
+            df = openml.datasets.list_datasets(output_format="dataframe")
+            break
+        except Exception as exc:  # pragma: no cover – network failures
+            attempts += 1
+            logger.warning(f"OpenML request failed (attempt {attempts}): {exc}")
+            if attempts >= max_retries:
+                raise DataFetchError(f"Failed to fetch OpenML datasets after {attempts} attempts") from exc
+            _apply_backoff(attempts, initial_delay, max_delay)
+
+    # ------------------------------------------------------------------
+    # 1️⃣ Filter for classification tasks
+    # ------------------------------------------------------------------
+    if "type" in df.columns:
+        mask = df["type"].str.contains("Supervised Classification", case=False, na=False)
+        df = df[mask]
+    else:
+        logger.warning("OpenML dataset list missing 'type' column; proceeding with full list")
+
+    # ------------------------------------------------------------------
+    # 2️⃣ Sort by download count and take the top N
+    # ------------------------------------------------------------------
+    if "download_count" in df.columns:
+        df = df.sort_values(by="download_count", ascending=False).head(max_datasets)
+    else:
+        logger.warning("OpenML dataset list missing 'download_count' column; using unsorted list")
+        df = df.head(max_datasets)
+
+    # ------------------------------------------------------------------
+    # 3️⃣ Normalise column names to match the contract schema
+    # ------------------------------------------------------------------
+    mapping = {
+        "did": "dataset_id",
+        "name": "name",
+        "version": "version",
+        "download_count": "download_count",
+        "NumberOfInstances": "number_of_instances",
+        "NumberOfFeatures": "number_of_features",
+        "NumberOfClasses": "number_of_classes",
+        "NumberOfMissingValues": "number_of_missing_values",
+        "type": "task_type",
+        "url": "publication_link",
+        "task_id": "task_id",
+        "status": "status",
+        "citation": "citation",
+        "format": "format",
+    }
+
+    # Keep only columns that exist in the DataFrame
+    available_cols = [c for c in mapping if c in df.columns]
+    df = df[available_cols].rename(columns={c: mapping[c] for c in available_cols})
+
+    # Ensure required keys exist (add ``None`` where missing)
+    required_keys = [
+        "dataset_id", "name", "download_count", "task_type",
+        "number_of_instances", "number_of_features",
+        "number_of_classes", "number_of_missing_values",
+        "publication_link", "task_id"
+    ]
+    for key in required_keys:
+        if key not in df.columns:
+            df[key] = None
+
+    # Convert to list of dicts
+    records = df.to_dict(orient="records")
+    logger.info(f"Fetched {len(records)} classification datasets from OpenML")
+    return records

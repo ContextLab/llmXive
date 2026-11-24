@@ -1,0 +1,7 @@
+{
+  "task_id": "T001g",
+  "fingerprint": "3f792e66fe0d4231363c06c1445937fac36dcdedc317d89d895aa1ffe93803d0",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused 'config.py': `code/config.py` already exists. Edit that file; do not add a second copy or a re-exporting wrapper at the project root."
+}

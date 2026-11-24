@@ -1,15 +1,19 @@
 status: none
-intent: Misleading Headlines Eye-Tracking dataset fixation ROI bounding boxes belief
-  ratings python package dataset
+intent: "download Misleading Headlines eye\u2011tracking dataset CSV fixation ROI\
+  \ python package dataset"
 required_fields:
-- headline_text
-- belief_rating
-- cognitive_reflection_score
-- fixation_duration
-- roi_type
-- bounding_box_coordinates
 - participant_id
+- trial_id
 - timestamp
-cache_key: 46fa4c173911a9c813329ca6ac85be1031db22ab50b74858109114edf6825222
-searched_at: '2026-10-09T02:12:15.220985+00:00'
+- gaze_x
+- gaze_y
+- fixation_flag
+- fixation_duration
+- roi_id
+- roi_type
+- roi_bbox_x
+- roi_bbox_y
+- roi_bbox_width
+cache_key: e5cadc8ad269dc84ec568e2eae3c9d39e1825a5c0d16fefc9da1ec53f3123f95
+searched_at: '2026-10-25T09:55:14.735708+00:00'
 retry_count: 1

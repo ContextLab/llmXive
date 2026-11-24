@@ -1,0 +1,107 @@
+{
+  "trace_id": "training_42_01297",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 8,
+  "tool_sequence": [
+    "apply_theme",
+    "apply_theme",
+    "update_layout",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 32.2188,
+        "saturation": 71.8838
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 49.6855,
+        "saturation": 74.2856
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 14.6495,
+        "padding": 14.6785
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 5.6065,
+        "y": 61.4837,
+        "width": 52.2981,
+        "height": 79.9266,
+        "data_points": 40.3177
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 92.782,
+        "y": 65.9762,
+        "width": 86.625,
+        "height": 86.8469,
+        "data_points": 44.4058
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 5.7489,
+        "y": 1.335,
+        "width": 26.9419,
+        "height": 77.2945,
+        "data_points": 55.4314
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 80.9753,
+        "y": 1.3396,
+        "width": 9.1372,
+        "height": 3.9442,
+        "data_points": 87.3249
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 91.3485,
+        "y": 11.4869,
+        "width": 36.9643,
+        "height": 90.038,
+        "data_points": 46.1871
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.900256,
+    "tool_repetition_freq": 0.625,
+    "arg_semantic_variance": 994.726225
+  },
+  "final_state": {
+    "dominant_tool": "insert_chart",
+    "slide_element_count": 6,
+    "layout_hash": "42-1297-insert_chart"
+  }
+}

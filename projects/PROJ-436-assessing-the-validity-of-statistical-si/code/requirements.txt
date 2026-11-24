@@ -1,0 +1,4 @@
+# Project requirements
+# Core scientific stack is already provided by the platform.
+# Additional third‑party dependency required for data loading:
+datasets>=2.0.0

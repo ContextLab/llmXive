@@ -1,0 +1,12 @@
+status: none
+intent: download HCP 1200 resting state fMRI minimal preprocessing ConnectomeDB Schaefer
+  atlas python package dataset
+required_fields:
+- subject_id (string)
+- rsfc_value (float)
+- age (integer)
+- sex (string)
+- dccs_score (float)
+cache_key: 31c00b3303e7d9d9bd7965a728737de9c0b880ccc654f3a88801f226de99c5f2
+searched_at: '2026-10-22T10:37:55.405581+00:00'
+retry_count: 1

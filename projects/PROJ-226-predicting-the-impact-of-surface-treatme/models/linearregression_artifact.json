@@ -1,0 +1,9 @@
+{
+  "model_type": "LinearRegression",
+  "hyperparameters": {},
+  "validation_r2": null,
+  "validation_rmse": null,
+  "test_r2": 0.9881355273436607,
+  "test_rmse": 0.11338650259206558,
+  "test_mae": 0.0917763613317768
+}

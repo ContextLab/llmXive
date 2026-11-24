@@ -1,43 +1,29 @@
-%YAML 1.2
----
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Structural Metric Schema
-description: >
-  Schema for validating structural metrics extracted from code artifacts.
-  Implements the fallback logic: if semantic_complexity_score is missing,
-  lines_of_code must be present.
+title: "StructuralMetric"
 type: object
+properties:
+  task_id:
+    type: string
+  dependency_depth:
+    type: integer
+  cyclomatic_complexity:
+    type: integer
+  semantic_complexity_score:
+    type: number
+  lines_of_code:
+    type: integer
 required:
   - task_id
   - dependency_depth
   - cyclomatic_complexity
-properties:
-  task_id:
-    type: string
-    description: Unique identifier for the task
-  dependency_depth:
-    type: integer
-    description: Maximum depth of the dependency graph
-    minimum: 0
-  cyclomatic_complexity:
-    type: integer
-    description: Cyclomatic complexity of the code
-    minimum: 1
-  semantic_complexity_score:
-    type: number
-    description: >
-      Semantic complexity score derived from AST node analysis.
-      OPTIONAL: If missing, lines_of_code MUST be present.
-    minimum: 0.0
-  lines_of_code:
-    type: integer
-    description: >
-      Fallback metric: Total lines of code.
-      REQUIRED if semantic_complexity_score is missing.
-    minimum: 0
-anyOf:
-  - required:
-      - semantic_complexity_score
-  - required:
-      - lines_of_code
-additionalProperties: false
+if:
+  properties:
+    semantic_complexity_score:
+      type: number
+  required: ["semantic_complexity_score"]
+then:
+  # When semantic_complexity_score is present, lines_of_code is optional
+  # No additional required fields
+  {}
+else:
+  required: ["lines_of_code"]

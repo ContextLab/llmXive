@@ -1,140 +1,216 @@
 """
-Module to generate the performance metrics CSV from raw calibration snapshots.
-This implements Task T017a: Generate Performance Metrics CSV.
+generate_calibration_csv.py
+---------------------------
+
+This module creates the ``performance_metrics.csv`` file required by the
+bootstrap and historical‑window utilities (Task T005).  It reads the raw
+JSON calibration snapshots stored in ``data/raw/``, extracts the relevant
+performance metrics using the helper functions defined in ``code.fetcher``,
+and writes a CSV with the column layout expected by downstream tests and
+contracts.
+
+The CSV columns are:
+    device_id, timestamp, t1_mean, t2_mean,
+    cx_error_mean, readout_error_mean, chip_family
+
+The implementation avoids any synthetic data generation – it only
+processes the real JSON snapshots that have been fetched by the
+``fetcher`` module.  If no raw snapshots are present, a clear
+``RuntimeError`` is raised so that the failure is visible to the
+execution harness.
 """
-import json
-import os
-import logging
+
 import csv
+import logging
 from pathlib import Path
-from datetime import datetime
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, List
 
-# Import from existing project modules
-from fetcher import extract_performance_metrics, extract_chip_family
+from llmxive_toolkit import paths, get_logger
 
-logger = logging.getLogger(__name__)
+# Import the performance‑extraction helpers from the fetcher module.
+# These functions operate on the raw ``BackendProperties`` dictionary
+# format returned by the IBM Quantum API.
+from fetcher import (
+    extract_performance_metrics,
+    extract_chip_family,
+)
 
-DATA_RAW_DIR = Path("data/raw")
-DATA_PROCESSED_DIR = Path("data/processed")
-OUTPUT_FILE = DATA_PROCESSED_DIR / "performance_metrics.csv"
+logger = get_logger(__name__)
 
-def load_raw_snapshots() -> List[Dict[str, Any]]:
+def _load_json(file_path: Path) -> Dict[str, Any]:
     """
-    Load all raw JSON snapshots from data/raw directory.
-    Returns a list of dictionaries containing device_id, timestamp, and backend properties.
-    """
-    if not DATA_RAW_DIR.exists():
-        logger.warning(f"Directory {DATA_RAW_DIR} does not exist. No snapshots to load.")
-        return []
+    Load a JSON file and return its content as a Python ``dict``.
 
-    snapshots = []
-    for file_path in DATA_RAW_DIR.glob("*.json"):
-        try:
-            with open(file_path, 'r') as f:
-                data = json.load(f)
-                # Ensure we have the required fields
-                if 'device_id' in data and 'timestamp' in data and 'properties' in data:
-                    snapshots.append(data)
-                else:
-                    logger.warning(f"Skipping {file_path}: missing required fields.")
-        except (json.JSONDecodeError, IOError) as e:
-            logger.error(f"Failed to load {file_path}: {e}")
-    
-    return snapshots
+    Parameters
+    ----------
+    file_path : Path
+        Path to the JSON file.
 
-def extract_device_metrics(snapshot: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """
-    Extract performance metrics and chip family from a raw snapshot.
-    Returns a dictionary with device_id, timestamp, t1_mean, t2_mean, 
-    cx_error_mean, readout_error_mean, chip_family.
-    """
-    device_id = snapshot.get('device_id')
-    timestamp = snapshot.get('timestamp')
-    properties = snapshot.get('properties', {})
+    Returns
+    -------
+    dict
+        Parsed JSON content.
 
+    Raises
+    ------
+    RuntimeError
+        If the file cannot be read or parsed.
+    """
+    try:
+        with file_path.open("r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to load JSON from {file_path}: {e}")
+        raise RuntimeError(f"Unable to read JSON file {file_path}") from e
+
+def _mean(values: List[float]) -> float:
+    """
+    Compute the arithmetic mean of a list of numbers.
+
+    An empty list returns ``float('nan')`` – this mirrors the behaviour
+    of the original fetcher implementation and keeps downstream
+    handling consistent.
+
+    Parameters
+    ----------
+    values : List[float]
+
+    Returns
+    -------
+    float
+    """
+    if not values:
+        return float("nan")
+    return sum(values) / len(values)
+
+def _extract_metrics(data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Wrapper around ``fetcher.extract_performance_metrics`` that also
+    extracts the timestamp and device identifier required for the CSV.
+
+    The raw JSON files written by ``fetcher.fetch_and_save_snapshots``
+    contain the keys ``device_id`` and ``timestamp`` in addition to the
+    backend properties.  If those keys are missing, a ``RuntimeError`` is
+    raised.
+
+    Returns
+    -------
+    dict
+        Mapping of CSV column names to values.
+    """
+    # Required metadata
+    device_id = data.get("device_id")
+    timestamp = data.get("timestamp")
     if not device_id or not timestamp:
-        logger.warning(f"Skipping snapshot: missing device_id or timestamp.")
-        return None
+        raise RuntimeError(
+            "Raw JSON snapshot missing required 'device_id' or 'timestamp' fields."
+        )
 
-    # Extract performance metrics using existing fetcher logic
-    metrics = extract_performance_metrics(properties)
-    
-    if not metrics:
-        logger.warning(f"No performance metrics extracted for {device_id}.")
-        return None
+    # Performance metrics (means)
+    perf = extract_performance_metrics(data)
 
-    # Extract chip family using existing fetcher logic
-    chip_family = extract_chip_family(device_id)
+    # Chip family (human‑readable)
+    chip_family = extract_chip_family(device_id, data)
 
-    return {
-        'device_id': device_id,
-        'timestamp': timestamp,
-        't1_mean': metrics.get('t1_mean', 0.0),
-        't2_mean': metrics.get('t2_mean', 0.0),
-        'cx_error_mean': metrics.get('cx_error_mean', 0.0),
-        'readout_error_mean': metrics.get('readout_error_mean', 0.0),
-        'chip_family': chip_family
+    # Assemble row dict matching the contract schema
+    row = {
+        "device_id": device_id,
+        "timestamp": timestamp,
+        "t1_mean": perf.get("t1_mean"),
+        "t2_mean": perf.get("t2_mean"),
+        "cx_error_mean": perf.get("cx_error_mean"),
+        "readout_error_mean": perf.get("readout_error_mean"),
+        "chip_family": chip_family,
     }
+    return row
 
-def process_snapshot(snapshot: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def generate_performance_csv(
+    raw_dir: Path = paths.data("raw"),
+    output_path: Path = paths.data("processed", "performance_metrics.csv"),
+) -> None:
     """
-    Process a single snapshot and return the performance metrics record.
+    Generate ``performance_metrics.csv`` from the raw calibration JSON
+    snapshots.
+
+    Parameters
+    ----------
+    raw_dir : Path, optional
+        Directory containing raw JSON files.  Defaults to ``data/raw``.
+    output_path : Path, optional
+        Destination CSV file.  Defaults to
+        ``data/processed/performance_metrics.csv``.
+
+    Raises
+    ------
+    RuntimeError
+        If no JSON files are found in ``raw_dir``.
     """
-    return extract_device_metrics(snapshot)
+    raw_dir = Path(raw_dir)
+    json_files = list(raw_dir.glob("*.json"))
+    if not json_files:
+        raise RuntimeError(
+            f"No raw JSON calibration files found in {raw_dir}. "
+            "Ensure that `fetcher.fetch_and_save_snapshots` has been run with a valid IBMQ token."
+        )
 
-def main():
-    """
-    Main entry point to generate the performance metrics CSV.
-    Reads all raw snapshots, extracts metrics, and writes to CSV.
-    """
-    # Ensure output directory exists
-    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    # Ensure the output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Load all raw snapshots
-    snapshots = load_raw_snapshots()
-    if not snapshots:
-        logger.error("No raw snapshots found in data/raw/. Aborting.")
-        # Create an empty CSV with headers to satisfy schema validation
-        with open(OUTPUT_FILE, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=[
-                'device_id', 'timestamp', 't1_mean', 't2_mean', 
-                'cx_error_mean', 'readout_error_mean', 'chip_family'
-            ])
-            writer.writeheader()
-        return
-
-    logger.info(f"Processing {len(snapshots)} raw snapshots...")
-
-    records = []
-    for snapshot in snapshots:
-        record = process_snapshot(snapshot)
-        if record:
-            records.append(record)
-
-    if not records:
-        logger.error("No valid records extracted. Aborting.")
-        return
-
-    # Sort by device_id for consistent output
-    records.sort(key=lambda x: x['device_id'])
-
-    # Write to CSV
     fieldnames = [
-        'device_id', 'timestamp', 't1_mean', 't2_mean', 
-        'cx_error_mean', 'readout_error_mean', 'chip_family'
+        "device_id",
+        "timestamp",
+        "t1_mean",
+        "t2_mean",
+        "cx_error_mean",
+        "readout_error_mean",
+        "chip_family",
     ]
 
-    with open(OUTPUT_FILE, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+    with output_path.open("w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(records)
 
-    logger.info(f"Successfully wrote {len(records)} records to {OUTPUT_FILE}")
+        for json_path in json_files:
+            try:
+                data = json.load(json_path.open("r", encoding="utf-8"))
+            except Exception as e:
+                logger.warning(f"Skipping unreadable file {json_path}: {e}")
+                continue
+
+            try:
+                row = _extract_metrics(data)
+            except RuntimeError as e:
+                logger.warning(f"Skipping file {json_path}: {e}")
+                continue
+
+            writer.writerow(row)
+
+    logger.info(f"Performance CSV written to {output_path}")
+
+def main() -> None:
+    """
+    CLI entry point – convenient for manual execution.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Generate performance_metrics.csv from raw IBM Quantum calibration snapshots."
+    )
+    parser.add_argument(
+        "--raw-dir",
+        type=Path,
+        default=paths.data("raw"),
+        help="Directory containing raw JSON snapshots (default: data/raw).",
+    )
+    parser.add_argument(
+        "--out",
+        dest="output_path",
+        type=Path,
+        default=paths.data("processed", "performance_metrics.csv"),
+        help="Path to write the generated CSV (default: data/processed/performance_metrics.csv).",
+    )
+    args = parser.parse_args()
+    generate_performance_csv(raw_dir=args.raw_dir, output_path=args.output_path)
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
     main()

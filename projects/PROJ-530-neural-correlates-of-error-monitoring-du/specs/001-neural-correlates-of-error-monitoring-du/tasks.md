@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 [P] Create root directory `projects/PROJ-530-neural-correlates-of-error-monitoring-du/`
-- [X] T002 [P] Create data directories: `projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/raw/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/processed/` <!-- ATOMIZE: requested -->
+- [ ] T002 [P] Create data directories: `projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/raw/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/processed/` <!-- ATOMIZE: requested -->
 - [X] T003 [P] Create results and code directories: `projects/PROJ-530-neural-correlates-of-error-monitoring-du/results/models/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/results/figures/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/results/diagnostics/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/code/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/tests/`
 - [ ] T004 [P] Initialize Python 3.11 project with dependencies: `mne`, `pandas`, `numpy`, `scipy`, `statsmodels`, `pymer4`, `pingouin`, `matplotlib`, `seaborn`, `pyyaml`, `psutil`, `pytest`, `pygam`
 - [ ] T005 [P] Configure linting (flake8/black) and formatting tools
@@ -58,9 +58,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T006 [P] Create `code/__init__.py` and base configuration loader
-- [~] T007 [P] Implement random seed pinning utility in `code/utils.py` (global seed for numpy, python random, torch if used)
-- [~] T008 Create `state/projects/PROJ-530-neural-correlates-of-error-monitoring-du.yaml` for artifact tracking
-- [~] T009 Setup logging infrastructure to `data/preprocessing.yaml` and console
+- [ ] T007 [P] Implement random seed pinning utility in `code/utils.py` (global seed for numpy, python random, torch if used)
+- [ ] T008 Create `state/projects/PROJ-530-neural-correlates-of-error-monitoring-du.yaml` for artifact tracking
+- [ ] T009 Setup logging infrastructure to `data/preprocessing.yaml` and console
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,7 +74,7 @@
 
 ### Implementation for User Story 1
 
-- [~] T010 [US1] Implement `code/download.py` (FR-001): Fetch Navigation Error Corpus from Zenodo URL. **CRITICAL**: If the Zenodo URL is missing or invalid, generate a synthetic EEG/trajectory dataset for local testing purposes only, log a clear warning, and proceed. Do NOT halt the pipeline. Verify checksum and cache in `data/raw/` if real data is available. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T010 [US1] Implement `code/download.py` (FR-001): Fetch Navigation Error Corpus from Zenodo URL. **CRITICAL**: If the Zenodo URL is missing or invalid, generate a synthetic EEG/trajectory dataset for local testing purposes only, log a clear warning, and proceed. Do NOT halt the pipeline. Verify checksum and cache in `data/raw/` if real data is available. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [~] T011 [US1] Implement `code/preprocess.py` (FR-002): Apply bandpass and line-frequency notch filters to raw EEG data.
 - [ ] T012 [US1] Implement `code/preprocess.py` (FR-002): Run ICA to remove ocular/muscular artifacts; log components removed to `data/preprocessing.yaml`. <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=1 -->
 - [~] T013 [US1] Implement `code/preprocess.py` (FR-003): Calculate directional error magnitude (angular deviation in degrees) for each error event using heading vs. optimal path vectors.

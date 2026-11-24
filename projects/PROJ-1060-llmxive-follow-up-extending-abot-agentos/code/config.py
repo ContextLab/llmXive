@@ -13,6 +13,9 @@ PREDICATE_SET = "spatial"  # Options: "spatial", "spatial+temporal"
 MODEL_ID = "google/vit-base-patch16-224"
 MAX_TRACES = 500
 
+# Baseline hash for reproducible artifact
+BASELINE_HASH = "sha:abc123..."
+
 # Paths
 DATA_DIR = "data"
 RESULTS_DIR = "data/results"

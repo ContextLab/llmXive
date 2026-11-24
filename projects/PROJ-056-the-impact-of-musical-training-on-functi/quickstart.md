@@ -1,61 +1,55 @@
-# Quickstart Guide: The Impact of Musical Training on Functional Connectivity
+# Quickstart Guide
 
-This guide explains how to run the pipeline in **Verification Mode** (using synthetic data for code validation) and **Analysis Mode** (requiring real neuroimaging data).
+## 1. Prerequisites
+- **Python 3.11+**
+- Git
+- An active internet connection (required for downloading the Schaefer atlas)
 
-## Prerequisites
+## 2. Installation
+```bash
+# Clone the repository
+git clone <REPO_URL>
+cd PROJ-056-the-impact-of-musical-training-on-functi
 
-- Python 3.11+
-- Install dependencies:
- ```bash
- pip install -r code/requirements.txt
- ```
+# Create a virtual environment
+python -m venv venv
+source venv/bin/activate # Windows: venv\Scripts\activate
 
-## Running Verification Mode (Synthetic Data)
+# Install dependencies
+pip install -r code/requirements.txt
+```
 
-Use this mode to validate the pipeline logic, check memory constraints, and ensure all modules execute without errors. No real data is required.
+## 3. Running the Pipeline
 
-1. **Generate Synthetic Data**:
- The pipeline automatically generates synthetic data when running in verification mode if no real data path is provided.
-2. **Execute the Pipeline**:
- ```bash
- cd code
- python main.py --mode verification
- ```
-3. **Expected Outputs**:
- - `data/processed/subjects_cleaned.csv`
- - `data/processed/connectivity_results.csv`
- - `data/processed/nbs_results.csv`
- - `data/processed/correlation_results.csv`
- - `data/processed/sensitivity_analysis.csv`
+### Verification Mode (synthetic data)
+This mode runs the full pipeline on generated synthetic data. It validates code paths, memory limits, and output generation without requiring any real neuroimaging files.
 
-**Note**: Results in this mode are **simulation results** and do not represent biological findings. They are intended solely for code verification.
+```bash
+python -m code.main --mode verification
+```
 
-## Running Analysis Mode (Real Data)
+Expected outputs (written under `data/processed/`):
+- `subjects_cleaned.csv`
+- `connectivity_matrices.npy`
+- `connectivity_results.csv`
+- `nbs_results.csv`
+- `correlation_results.csv`
+- `sensitivity_analysis.csv`
 
-Use this mode to process real fMRI data (e.g., ABCD, HCP). **Real data is strictly required.**
+### Analysis Mode (real data)
+When you have a verified dataset (e.g., ABCD or HCP-Adolescents) that includes resting-state fMRI NIfTI files and behavioural metadata, run:
 
-1. **Prepare Real Data**:
- Ensure your raw data (NIfTI files and subject metadata) is accessible. You must provide the path to the data directory.
-2. **Execute the Pipeline**:
- ```bash
- cd code
- python main.py --mode analysis --data-path /path/to/real/data
- ```
-3. **Data Requirements**:
- - **Minimum Subjects**: At least 50 subjects in the "musician" group and 50 in the "non-musician" group.
- - **File Format**: Valid NIfTI files for fMRI scans and CSV/JSON for metadata.
- - **Confounders**: Metadata must include `age`, `sex`, `motion_score`, `ses_score`, and `years_of_training`.
+```bash
+python -m code.main --mode analysis --data-path /path/to/real/data
+```
 
-**Failure Condition**: If the `--data-path` is invalid, missing, or contains fewer than 50 subjects per group, the pipeline will raise a `DataAccessError` or `ValueError` and halt execution. **No synthetic fallback is provided in Analysis Mode.**
+The script will load and validate the real data, perform preprocessing, confound matching, and execute the full statistical analysis.
 
-## Troubleshooting
+**Important:** If the real dataset does not contain at least 50 subjects per group, the pipeline will abort with a clear `DataAccessError('Insufficient Data for Power')`.
 
-- **Memory Limit Exceeded**: The pipeline enforces a 7GB RAM limit. If you encounter `MemoryLimitExceeded`, ensure your data chunks are small enough or increase system RAM.
-- **Data Access Errors**: In Analysis Mode, verify that the `--data-path` points to a directory containing valid subject data.
-- **Missing Modules**: Ensure all dependencies in `code/requirements.txt` are installed.
-
-## Next Steps
-
-- Review `data/processed/` for output files.
-- Consult `specs/001-the-impact-of-musical-training-on-functi/` for detailed design documents.
-- Run unit tests: `pytest tests/`
+## 4. Testing
+After installation, run the full test suite to ensure everything is working:
+```bash
+pytest tests/
+```
+The unit test `tests/unit/test_quickstart.py` specifically verifies that this guide and the README are up-to-date.

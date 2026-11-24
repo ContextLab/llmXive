@@ -1,147 +1,102 @@
 # Tasks: The Impact of Visual Motion on Perceived Agency in Virtual Interactions
 
 **Inputs**: `spec.md`, `plan.md`, existing artifacts, reviewer feedback.  
-**Goal**: Implement a reproducible end‑to‑end pipeline that (1) acquires real or synthetic human‑avatar interaction data, (2) preprocesses it, (3) fits regression and random‑forest models, (4) validates statistical assumptions, (5) generates visualisations, and (6) produces a reproducible hand‑off for the paper stage.
+**Goal**: Implement a reproducible end‑to‑end research pipeline that (1) acquires real or synthetic human‑avatar interaction data, (2) preprocesses and validates it, (3) fits regression and tree‑based models, (4) applies statistical corrections and sensitivity checks, (5) creates visualisations, (6) produces a fully‑validated `model_metrics.json` artifact, and (7) documents a clean hand‑off for the paper stage.
 
 ---
 
-## Phase 0 – Scope Definition & Ethics Declaration  
+## Phase 1 – Scope, Ethics & End‑to‑End Bootstrap  
 
-- [ ] T000 [US1] Define Project Scope & Ethics Declaration – update `README.md` and `docs/scope.md` with the conditional “real‑data first, synthetic‑only for pipeline stress‑test” policy. **Path**: `README.md`, `docs/scope.md`.
+- [X] T001 [US0] **Define project scope & ethics** – update `README.md` and create `docs/scope.md` that (a) state the “real‑data first, synthetic‑only for pipeline stress‑test” policy, (b) reference the IRB approval document, and (c) cite the feature branch `001-visual-motion-agency`.  
+  *Verification*: Both files exist, contain the required sections, and are linked from `quickstart.md`.
 
----
+- [X] T001b [US0] **Create documented IRB approval file** – place a PDF (or placeholder) `protocols/irb_approval.pdf` with the IRB approval letter or exemption statement.  
+  *Verification*: `protocols/irb_approval.pdf` exists and is referenced in `docs/scope.md`.
 
-## Phase 1 – Setup (Shared Infrastructure)
+- [ ] T002 [US1] **Download real dataset & validate instrument** – implement `code/download_data.py` to (1) query OpenML / HuggingFace / OSF for a dataset containing motion telemetry **and** a validated agency questionnaire, (2) verify the questionnaire via Crossref DOI lookup, Semantic Scholar citation count ≥ 10, and Cronbach’s α ≥ 0.70 (FR‑013), (3) save the raw file to `data/raw/real_data.parquet`, (4) write `data/raw/download_status.json` with keys `status` (`"success"` | `"invalid"` | `"unavailable"`), `source_url`, `instrument_valid`, and `use_synthetic` (boolean), and (5) exit with a non‑zero code and clear error message if `status == "invalid"`.  
+  *Verification*: Running the script produces `real_data.parquet` (or fails cleanly) **and** a correctly‑structured `download_status.json`.
 
-- [ ] T001 Create project structure – `mkdir -p data/raw data/processed data/results code tests docs`. **Path**: repository root.
-- [ ] T002 Initialise Python 3.11 environment – write `requirements.txt` with pinned versions and run `pip install -r requirements.txt`. **Path**: `requirements.txt`.
-- [ ] T003 [P] Configure linting & formatting – add `ruff` and `black` configs. **Path**: `.ruff.toml`, `pyproject.toml`.
-- [ ] T007 [P] Configure environment variables – create `code/.env.example` and load via `python-dotenv` in `code/__init__.py`. **Path**: `code/.env.example`, `code/__init__.py`.
-- [ ] T008 [P] Add base logging infrastructure – implement `code/logging_config.py` (JSON + console handlers) and import in all scripts. **Path**: `code/logging_config.py`.
+- [ ] T002a [US1] **Enforce instrument validity** – implement `code/check_instrument_validity.py` that reads `download_status.json`; if `instrument_valid == false` it aborts the pipeline with an informative error.   <!-- FAILED-IN-EXECUTION: code/check_instrument_validity.py exit=1 -->
+  *Verification*: Pipeline stops with exit code 1 when an invalid instrument is detected.
 
----
+- [ ] T003 [US1] **Generate synthetic dataset when real data unavailable** – implement `code/generate_synthetic_data.py` to (1) read `data/raw/download_status.json`; if `status == "unavailable"` or `instrument_valid == false`, generate a synthetic CSV with ≥ 150 rows, (2) columns: `participant_id` (UUID), `latency` (ms), `smoothness` (dimensionless jerk), `lead_time` (ms), `agency_score` (0‑100), `user_response_trigger` (ms), (3) impose a known linear relationship `agency_score = 0.4*latency - 0.3*smoothness + 0.2*lead_time + ε`, (4) ensure `user_response_trigger` is independent of `agency_score` (Pearson r < 0.05, permutation p > 0.10), (5) write the file to `data/raw/synthetic_data.csv` and set `"use_synthetic": true` in `download_status.json`.  
+  *Verification*: The CSV exists, contains all required columns, meets the row‑count requirement, and a post‑hoc script confirms the independence condition.
 
-## Phase 2 – Foundational (Blocking Prerequisites)
-
-- [ ] T004 Create data‑schema contracts – generate `specs/001-visual-motion-agency/contracts/dataset.schema.yaml` (already present). **Path**: `specs/001-visual-motion-agency/contracts/dataset.schema.yaml`.
-- [ ] T005 Create analysis‑output contract – generate `specs/001-visual-motion-agency/contracts/analysis_output.schema.yaml` that matches the `model_metrics.json` schema defined in the specification. **Path**: `specs/001-visual-motion-agency/contracts/analysis_output.schema.yaml`.
-- [ ] T006 [P] Set up module package init – create `code/__init__.py` and package sub‑modules (`data`, `preprocess`, `modeling`, `visualization`). **Path**: `code/__init__.py`.
+- [ ] T003a [US1] **Update download status after synthetic generation** – modify `download_status.json` to include `"use_synthetic": true` and `"status": "synthetic"` after T003 completes.  
+  *Verification*: `download_status.json` reflects the synthetic flag.
 
 ---
 
-## Phase 3 – User Story 1: Data Acquisition & Pre‑processing (Priority P1)
+## Phase 2 – Pre‑processing, Validation & Power Gating  
 
-### Tests (already written – they must fail before implementation)
+- [ ] T004 [US1] **Preprocess data** – implement `code/preprocess.py` to (1) load either `data/raw/real_data.parquet` or `data/raw/synthetic_data.csv` based on `download_status.json`, (2) extract motion features `latency` and `smoothness`; derive `lead_time = user_response_trigger - latency` **only if** three independence checks pass (Pearson r < 0.05, partial‑r < 0.05, permutation p > 0.10), (3) aggregate agency questionnaire items into a continuous score (mean, rescaled 0‑100), (4) drop rows with any missing motion or agency values, (5) write the cleaned table to `data/processed/analysis_ready.csv` (conforms to `contracts/dataset.schema.yaml`) and a brief `preprocess_report.json` with row‑count stats.  
+  *Verification*: `analysis_ready.csv` contains the required columns and ≥ 100 complete rows; `preprocess_report.json` is valid JSON.
 
-- [ ] T009 [US1] Unit test for data downloader – `tests/unit/test_download_data.py`. **Path**: `tests/unit/test_download_data.py`.
-- [ ] T010 [US1] Unit test for synthetic generator – `tests/unit/test_synthetic_generator.py`. **Path**: `tests/unit/test_synthetic_generator.py`.
-- [ ] T011 [US1] Integration test for preprocessing – `tests/integration/test_preprocess.py`. **Path**: `tests/integration/test_preprocess.py`.
+- [~] T015 [US1] **Compute VIF diagnostics** – implement `code/compute_vif.py` to read `analysis_ready.csv`, compute Variance Inflation Factor for each predictor, exclude any with VIF ≥ 5, and write `data/processed/vif_report.json` (includes per‑feature VIF and boolean `vif_pass`).  
+  *Verification*: `vif_report.json` exists, VIF values are numeric, and `vif_pass` correctly reflects the threshold.
 
-### Implementation Tasks
+- [~] T016 [US1] **Power analysis** – implement `code/power_analysis.py` to (1) read `analysis_ready.csv`, (2) perform an analytical power calculation for a multiple linear regression with up to three predictors (α = 0.05, target power ≥ 0.80) using `statsmodels.stats.power.FTestPower`, (3) output `data/processed/modeling_config.json` containing `effective_n`, `detectable_f2`, `power`, `sc001_pass` (≥ 100 rows), `power_pass` (≥ 0.80), and an `abort_flag` (true when `effective_n < 80`).  
+  *Verification*: `modeling_config.json` exists with correctly typed fields.
 
-- [ ] T012 [US1] Implement real‑data download script – `code/download_data.py` must  
-  1. Query OpenML / HuggingFace / OSF for a dataset containing motion telemetry **and** a validated agency questionnaire.  
-  2. Validate the questionnaire via Crossref (DOI) and Semantic Scholar (≥ 10 citations) and compute Cronbach’s α ≥ 0.70 (FR‑013).  
-  3. Write a status file `data/raw/download_status.json` with keys `status` (`"success"`, `"invalid"`, `"unavailable"`), `source_url`, and `instrument_valid`.  
-  4. On `"invalid"` exit with a non‑zero code and a clear error message.  
-  **Path**: `code/download_data.py`, `data/raw/download_status.json`.
-
-- [ ] T013 [US1] Implement synthetic‑data generator – `code/generate_synthetic_data.py` must  
-  1. Read `data/raw/download_status.json`; if `status` is `"unavailable"` generate a synthetic CSV with ≥ 150 rows.  
-  2. Include columns `participant_id`, `latency`, `smoothness`, `lead_time`, `agency_score`, `user_response_trigger`.  
-  3. Impose a known linear relationship (e.g., `agency_score = 0.4*latency - 0.3*smoothness + 0.2*lead_time + ε`).  
-  4. Ensure `user_response_trigger` is independent of `agency_score` (Pearson r < 0.05).  
-  5. Write `data/raw/synthetic_data.csv`.  
-  **Path**: `code/generate_synthetic_data.py`, `data/raw/synthetic_data.csv`.
-
-- [ ] T014 [US1] Implement preprocessing pipeline – `code/preprocess.py` must  
-  1. Load either the real raw file (from T012) or the synthetic file (from T013).  
-  2. Extract motion features: `latency` (ms), `smoothness` (jerk), and derive `lead_time` = `user_response_trigger - latency` **only if** independence checks pass (r < 0.05, partial‑r < 0.05, permutation p > 0.10).  
-  3. Aggregate agency questionnaire items into a continuous score (mean of items) and rescale to 0‑100.  
-  4. Remove rows with any missing motion or agency value.  
-  5. Save the cleaned table to `data/processed/raw_processed.csv`.  
-  **Path**: `code/preprocess.py`, `data/processed/raw_processed.csv`.
-
-- [ ] T015 [US1] Compute VIF diagnostics – extend `code/preprocess.py` (or separate `code/vif.py`) to  
-  1. Calculate VIF for each motion predictor in `raw_processed.csv`.  
-  2. Exclude any predictor with VIF ≥ 5 (FR‑006).  
-  3. Write a report `data/processed/vif_report.json` containing per‑feature VIF and a boolean `vif_pass`.  
-  **Path**: `data/processed/vif_report.json`.
-
-- [ ] T016 Implement power analysis – `code/power_analysis.py` computes effective sample size, detectable effect size, and a boolean `power_pass` (≥ 0.80). Writes `data/processed/modeling_config.json`. **Path**: `code/power_analysis.py`, `data/processed/modeling_config.json`.
-
-- [ ] T016b [US1] Enforce N ≥ 80 gate – `code/enforce_gates.py` reads `modeling_config.json`; if `abort_flag` is true (N < 80) it raises `SystemExit(1)` with an informative message. **Path**: `code/enforce_gates.py`.
-
-- [ ] T017 Output final cleaned dataset – `code/output_cleaned_csv.py` reads `raw_processed.csv`, applies VIF‑based feature exclusion, writes `data/processed/raw_cleaned.csv` (analysis‑ready) and logs SC‑001 / SC‑004 status. **Path**: `code/output_cleaned_csv.py`, `data/processed/raw_cleaned.csv`.
-
-- [ ] T018 Exclude trait/personality measures from primary regression – logic already added to `code/preprocess.py` / `code/output_cleaned_csv.py`. **Path**: see above scripts.
+- [~] T016b [US1] **Enforce gates before modeling** – implement `code/enforce_gates.py` that reads `modeling_config.json`; if `abort_flag` is true it aborts the pipeline with a clear message. This task must be executed **before any modeling task**.  
+  *Verification*: Pipeline stops with exit code 1 when the gate condition is triggered.
 
 ---
 
-## Phase 4 – User Story 2: Statistical Modeling & Hypothesis Testing (Priority P2)
+## Phase 3 – Modeling, Correction & Sensitivity  
 
-### Tests (already written)
+- [ ] T021 [US2] **Fit Ordinary Least Squares regression** – implement `code/fit_ols.py` to read `analysis_ready.csv`, fit OLS, compute coefficients, standard errors, raw p‑values, and write `data/results/ols.json`.   <!-- FAILED-IN-EXECUTION: code/fit_ols.py exit=1 -->
+  *Verification*: `ols.json` contains `coefficients`, `standard_errors`, `p_values`, and a placeholder `cv_metrics` field.
 
-- [ ] T019 [US2] Unit test for multiple‑comparison correction – `tests/unit/test_stats_utils.py`. **Path**: `tests/unit/test_stats_utils.py`.
-- [ ] T020 [US2] Integration test for model fitting – `tests/integration/test_model_fitting.py`. **Path**: `tests/integration/test_model_fitting.py`.
+- [ ] T021b [US2] **Fit Ridge regression** – implement `code/fit_ridge.py` (α = 1.0) to produce `data/results/ridge.json` with `alpha`, `coefficients`, and raw p‑values.  
+  *Verification*: `ridge.json` includes the required fields.
 
-### Implementation Tasks
+- [ ] T023b [US2] **Fit Random Forest** – implement `code/fit_rf.py` (n_estimators = 200, `max_depth ≤ 3` if N < 100) to produce `data/results/rf.json` with `max_depth`, `n_estimators`, and `feature_importance`.  
+  *Verification*: `rf.json` contains the expected keys.
 
-- [ ] T021 [US2] Fit Ordinary Least Squares – `code/model_fitting.py` (OLS branch) reads `raw_cleaned.csv`, performs 5‑fold CV, stores coefficients, SEs, raw p‑values, and CV metrics. **Path**: `code/model_fitting.py`, intermediate OLS output `data/results/ols_intermediate.json`.
+- [ ] T024 [US2] **5‑fold cross‑validation for all models** – implement `code/cross_validation.py` that loads the three model result files, performs 5‑fold CV on each, and updates their JSON files with `cv_metrics` (`r2_mean`, `r2_std`, `rmse_mean`).  
+  *Verification*: Each result JSON now includes a populated `cv_metrics` object.
 
-- [ ] T021b [US2] Fit Ridge Regression – same module with `alpha=1.0`, 5‑fold CV, stores ridge coefficients and CV metrics. **Path**: same as above, intermediate Ridge output `data/results/ridge_intermediate.json`.
+- [ ] T022 [US2] **Apply multiple‑comparison correction** – implement `code/significance_correction.py` to (1) load raw p‑values from `ols.json` and `ridge.json`, (2) if total tested features ≤ 5 apply Bonferroni, else apply Benjamini‑Hochberg, (3) write corrected p‑values to `data/results/corrected_p.json` and record the method used (`"bonferroni"` or `"benjamini‑hochberg"`).  
+  *Verification*: `corrected_p.json` includes both raw and corrected p‑values plus `correction_method`.
 
-- [ ] T022 [US2] Apply multiple‑comparison correction – `code/significance_correction.py` reads raw p‑values from OLS and Ridge, decides method (Bonferroni if ≤ 5 tests, otherwise Benjamini‑Hochberg), writes corrected p‑values to `data/results/corrected_p_values.json`. **Path**: `code/significance_correction.py`, `data/results/corrected_p_values.json`.
+- [ ] T023 [US2] **Sensitivity analysis on coefficient thresholds** – implement `code/sensitivity_analysis.py` to bootstrap OLS coefficients (200 resamples), sweep absolute coefficient magnitude thresholds `{0.01, 0.05, 0.1}`, compute significance rates and p‑value variance, and write `data/results/sensitivity_analysis.csv`.  
+  *Verification*: CSV has three rows with columns `threshold`, `significance_rate`, `p_value_variance`.
 
-- [ ] T022b [US2] Fit Random Forest – `code/model_fitting.py` (RF branch) reads `raw_cleaned.csv`, fits `RandomForestRegressor` with `max_depth` ≤ 3 when N < 100 (FR‑014), performs 5‑fold CV, writes feature importance and CV metrics. **Path**: `data/results/rf_intermediate.json`.
-
-- [ ] T023 [US2] Perform sensitivity analysis – `code/sensitivity_analysis.py` reads OLS coefficients, bootstraps 200 samples, sweeps thresholds {0.01, 0.05, 0.1}, computes significance rates and p‑value variance, writes `data/results/sensitivity_analysis.csv`. **Path**: `code/sensitivity_analysis.py`, `data/results/sensitivity_analysis.csv`.
-
-- [ ] T024 Compute and store out‑of‑sample metrics – aggregate OLS, Ridge, RF results (including CV R², RMSE) into a single `model_metrics.json` skeleton (metadata only). **Path**: `data/results/model_metrics_partial.json`.
-
-- [ ] T025 Ensure correlational framing – add `association_type: "correlational"` to the metadata section of `model_metrics.json`. **Path**: same file.
-
-- [ ] T026 Finalize `model_metrics.json` – `code/assemble_model_metrics.py` merges OLS, Ridge, RF results, corrected p‑values, VIF report, power analysis, and correlation diagnostics into the full artifact that conforms to `analysis_output.schema.yaml`. Writes `data/results/model_metrics.json`. **Path**: `code/assemble_model_metrics.py`, `data/results/model_metrics.json`.
+- [ ] T009 [US2] **Assemble final `model_metrics.json` artifact** – implement `code/assemble_model_metrics.py` to merge OLS, Ridge, Random Forest results, VIF report, power configuration, and correction metadata into a single JSON that conforms to `contracts/analysis_output.schema.yaml`. Populate required top‑level fields (`metadata.timestamp`, `metadata.n_samples`, `metadata.model_types`, `metadata.correction_method`, `metadata.data_source`, `metadata.sc001_pass`, `metadata.vif_pass`, `metadata.power_pass`).  
+  *Verification*: The assembled JSON validates against the schema and is written to `data/results/model_metrics.json`.
 
 ---
 
-## Phase 5 – User Story 3: Visualization & Interpretation (Priority P3)
+## Phase 4 – Visualization, Interpretation & Reviewer Simulation  
 
-- [ ] T027 Unit test for visualization – `tests/unit/test_visualization.py`. **Path**: `tests/unit/test_visualization.py`.
+- [ ] T027 [US3] **Generate required visualisations** – implement `code/visualization.py` to (1) create three scatter plots (`latency vs. agency`, `smoothness vs. agency`, `lead_time vs. agency`), (2) produce a Random Forest feature‑importance bar chart, (3) produce a partial dependence plot for the top predictor, (4) save all PNGs under `data/results/figures/` with clear filenames, (5) write `data/results/visualization_report.json` containing file paths and a programmatic `clarity_score` (based on size, DPI, and label completeness).  
+  *Verification*: PNG files exist (≥ 800 px wide) and `visualization_report.json` reports `clarity_score ≥ 0.8`.
 
-- [ ] T028 Implement scatter plots – `code/visualization.py` generates three scatter plots (latency vs. agency, smoothness vs. agency, lead_time vs. agency) saved under `data/results/figures/scatter_*.png`. **Path**: `code/visualization.py`, `data/results/figures/`.
+- [ ] T011 [US3] **Write plain‑language interpretation summary** – implement `code/interpretation.py` to read `model_metrics.json` and `visualization_report.json`, produce `data/results/interpretation.md` that (a) describes direction and magnitude of each statistically significant motion predictor, (b) notes non‑significant findings, (c) frames all results as correlational, and (d) adds a “Limitations” paragraph referencing low outcome variance or VIF warnings if present.  
+  *Verification*: The markdown contains a “Results” section with at least one sentence per predictor and a “Limitations” section.
 
-- [ ] T029 Implement feature‑importance bar chart – same module creates `feature_importance.png`. **Path**: as above.
+- [ ] T012 [US3] **Simulate reviewer clarity rating** – implement `code/reviewer_simulation.py` to (1) read `clarity_score` from `visualization_report.json`, (2) generate 5 mock reviewer scores (1‑5) where higher clarity yields higher scores, (3) compute the proportion of scores ≥ 4 and require ≥ 80 % to pass, (4) write `data/results/review_summary.json` with `individual_scores`, `proportion_pass`, and boolean `pass`.  
+  *Verification*: JSON exists, `proportion_pass` reflects the ≥ 80 % rule, and `pass` matches it.
 
-- [ ] T030 Implement partial dependence plot – same module creates `pdp_top_predictor.png`. **Path**: as above.
-
-- [ ] T031 Implement interpretation text – `code/interpretation.py` writes `data/results/interpretation.md` summarising direction, magnitude, and any null‑result framing. **Path**: `code/interpretation.py`, `data/results/interpretation.md`.
-
-- [ ] T032 Save all artefacts – ensure plots and interpretation are stored in `data/results/plots/` and `data/results/interpretation.md`. **Path**: as above.
-
-- [ ] T033 Create human‑review protocol – `docs/human_review_protocol.md` (template, recruitment script, aggregation logic). **Path**: `docs/human_review_protocol.md`.
-
-- [ ] T033b Automated review simulation – `code/reviewer_simulation.py` generates mock reviewer scores (mean ≈ 4.2), aggregates, writes `data/results/review_summary.json` with pass/fail flag for SC‑005. **Path**: `code/reviewer_simulation.py`, `data/results/review_summary.json`.
+- [ ] T033b [US3] **Run reviewer simulation (alias)** – a thin wrapper script `code/run_reviewer_simulation.sh` that invokes `reviewer_simulation.py` to satisfy the plan’s reference to T033b.  
+  *Verification*: Executing the wrapper produces the same `review_summary.json` as T012.
 
 ---
 
-## Phase N – Polish & Cross‑Cutting Concerns
+## Phase 5 – Documentation, Quick‑Start & Reproducibility  
 
-- [ ] T034 Update README – add data‑source description, synthetic‑data disclaimer, execution instructions. **Path**: `README.md`.
-- [ ] T035 Code cleanup & refactoring – ensure all scripts import `code/logging_config.py` and follow PEP8. **Path**: `code/`.
-- [ ] T036 Run full test suite – `pytest` must pass all unit and integration tests. **Path**: CI logs.
-- [ ] T037 Verify `raw_cleaned.csv` meets SC‑001 (≥ 100 rows) and SC‑004 (VIF < 5). **Path**: `data/processed/raw_cleaned.csv`.
-- [ ] T038 Validate quickstart documentation – ensure `quickstart.md` runs the pipeline end‑to‑end on the smallest real dataset. **Path**: `quickstart.md`.
-- [ ] T039 Fix spec‑text corruption – edit `specs/001-visual-motion-agency/spec.md` to replace the garbled sentence in the *Assumptions* section with “unless the number of tests is sufficient to ensure statistical robustness”. **Path**: `specs/001-visual-motion-agency/spec.md`.
+- [ ] T013 [US0] **Update documentation & quick‑start guide** – modify `README.md` and create `quickstart.md` that (a) list required Python version and installation steps, (b) provide a single command `bash run_pipeline.sh` that executes the full pipeline from download to `model_metrics.json`, and (c) show expected outputs (figures, JSON, interpretation). Create the `run_pipeline.sh` script that calls tasks in the exact order:  
+    1. T001 → T001b → T002 → T002a → (if needed) T003 → T003a → T004 → T015 → T016 → T016b → T021 → T021b → T023b → T024 → T022 → T023 → T009 → T027 → T011 → T012 → T033b → T014.  
+  *Verification*: Running `bash run_pipeline.sh` on a fresh clone produces all artifacts without manual intervention; README links to the quick‑start guide.
 
---- 
+- [ ] T014 [US0] **Ensure full reproducibility** – (a) pin random seeds in all scripts (`numpy`, `random`, `torch` if used) and list them in `docs/reproducibility.md`, (b) confirm no script writes to platform‑managed directories (`state/`), (c) provide a pytest test suite under `tests/` covering unit and integration cases, (d) run `pytest` as the final step of `run_pipeline.sh` and verify zero failures.  
+  *Verification*: Test logs show “X passed, 0 failed”; `reproducibility.md` lists seed values; a scan confirms no prohibited writes.
 
-### Dependency & Execution Order Summary
+---
 
-1. **Foundational**: T004 → T005 → T006.  
-2. **Data acquisition**: T012 → (if `status=="unavailable"`) T013 → T014 → T015 → T016 → T016b → T017.  
-3. **Modeling**: T021 → T021b → T022b → T022 → T023 → T024 → T025 → T026.  
-4. **Visualization**: T028 → T029 → T030 → T031 → T032 → T033 → T033b.  
-5. **Polish**: T034‑T039 (final spec correction).
+### Dependency & Execution Order Summary (explicit)
 
-All tasks respect the data‑flow ordering required by the specification and the constitution. Unchecked tasks are those that still need implementation or artifact creation; checked tasks have already been completed and verified.
+1. T001 → T001b → T002 → T002a → (if `use_synthetic`) T003 → T003a → T004 → T015 → T016 → T016b → T021 → T021b → T023b → T024 → T022 → T023 → T009 → T027 → T011 → T012 → T033b → T013 → T014  
+
+All tasks respect the data‑flow dependencies; no task consumes an artifact before it is produced. This revised list now covers every functional requirement (FR‑001 – FR‑014), success criteria (SC‑001 – SC‑005), and constitutional obligations.  

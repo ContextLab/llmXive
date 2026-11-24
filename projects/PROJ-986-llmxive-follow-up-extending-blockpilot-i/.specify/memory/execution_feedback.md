@@ -18,51 +18,93 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/sweep.py --dataset gsmk --block-sizes 1,2,4,8,16,32 --samples 500 --seed 42 -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/sweep.py", line 51, in <module>
-    from main import handle_oom_error, PipelineError
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/main.py", line 14, in <module>
-    from sweep import run_sweep, save_checkpoint, load_checkpoint
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/sweep.py", line 51, in <module>
-    from main import handle_oom_error, PipelineError
-ImportError: cannot import name 'handle_oom_error' from partially initialized module 'main' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/main.py)
+ive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/sweep.py", line 49, in <module>
+    from utils.data_loader import load_gsm8k_streaming, load_humaneval_streaming
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/utils/data_loader.py", line 12, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-986-llmxive-follow-up-extending-blockpilot-i/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Column, Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-986-llmxive-follow-up-extending-blockpilot-i/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-986-llmxive-follow-up-extending-blockpilot-i/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/features.py --dataset gsm8k --input data/processed/gsm8k_ground_truth.jsonl --output data/processed/gsm8k_features.jsonl -> rc=1
 
-2026-10-10 15:50:52,658 - INFO - Starting feature extraction pipeline...
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/features.py", line 180, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/features.py", line 177, in main
-    run_feature_extraction(config, "data/processed/features.jsonl", logger)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/features.py", line 114, in run_feature_extraction
-    dataset_name = config.dataset.get("name", "gsm8k")
-                   ^^^^^^^^^^^^^^^^^^
-AttributeError: 'DatasetConfig' object has no attribute 'get'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/features.py", line 10, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-986-llmxive-follow-up-extending-blockpilot-i/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Column, Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-986-llmxive-follow-up-extending-blockpilot-i/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-986-llmxive-follow-up-extending-blockpilot-i/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python train.py --input data/processed/gsm8k_features.jsonl --target B_star --models xgboost,random_forest,decision_tree --split 0.8 --task classification -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/train.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-986-llmxive-follow-up-extending-blockpilot-i/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/train.py': [Errno 2] No such file or directory
 
 - python code/evaluate.py --models data/models/ --test-data data/processed/humaneval_features.jsonl --metrics accuracy,f1,correlation,generalization -> rc=1
+home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/evaluate.py", line 10, in <module>
+    from utils.data_loader import load_dataset_streaming
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/utils/data_loader.py", line 12, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-986-llmxive-follow-up-extending-blockpilot-i/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Column, Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-986-llmxive-follow-up-extending-blockpilot-i/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-986-llmxive-follow-up-extending-blockpilot-i/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/evaluate.py", line 276, in <module>
-    exit(main())
-         ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/evaluate.py", line 251, in main
-    features_path = config.get('paths', {}).get('features', 'data/processed/features.jsonl')
-                    ^^^^^^^^^^
-AttributeError: 'Config' object has no attribute 'get'
+- python -m pytest tests/contract/ -> rc=2
+, pytest-8.2.0, pluggy-1.7.0
+rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collected 4 items / 1 error
 
-- python -m pytest tests/contract/ -> rc=1
+==================================== ERRORS ====================================
+_______________ ERROR collecting tests/contract/test_schemas.py ________________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/tests/contract/test_schemas.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/contract/test_schemas.py:8: in <module>
+    from pydantic import ValidationError
+E   ModuleNotFoundError: No module named 'pydantic'
+=========================== short test summary info ============================
+ERROR tests/contract/test_schemas.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 0.10s ===============================
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/.venv/bin/python: No module named pytest
 
-- python -m pytest tests/integration/ -> rc=1
+- python -m pytest tests/integration/ -> rc=2
+7/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/integration/test_sweep_logic.py:23: in <module>
+    from datasets import load_dataset
+../../.llmxive-venvs/PROJ-986-llmxive-follow-up-extending-blockpilot-i/lib/python3.11/site-packages/datasets/__init__.py:17: in <module>
+    from .arrow_dataset import Column, Dataset
+../../.llmxive-venvs/PROJ-986-llmxive-follow-up-extending-blockpilot-i/lib/python3.11/site-packages/datasets/arrow_dataset.py:59: in <module>
+    import pyarrow as pa
+../../.llmxive-venvs/PROJ-986-llmxive-follow-up-extending-blockpilot-i/lib/python3.11/site-packages/pyarrow/__init__.py:59: in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+pyarrow/lib.pyx:42: in init pyarrow.lib
+    ???
+E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+=========================== short test summary info ============================
+ERROR tests/integration/test_sweep_logic.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 0.50s ===============================
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/code/.venv/bin/python: No module named pytest
 
 
 ## Declared deliverables still missing

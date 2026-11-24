@@ -1,0 +1,12 @@
+# Default simulation configuration
+#
+# steps: Number of simulation steps per run
+# seeds: List of random seeds to use for reproducibility
+# agent: Which simulation engine to run (ca_eco_director or neural_baseline)
+#
+steps: 10000
+seeds:
+  - 42
+  - 43
+  - 44
+agent: ca_eco_director

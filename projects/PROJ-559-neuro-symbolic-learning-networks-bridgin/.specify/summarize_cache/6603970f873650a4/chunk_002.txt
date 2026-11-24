@@ -1,0 +1,3 @@
+Consider a student presented with a neural network's 'explanation' for a math problem. It looks coherent. System 1 accepts it. But does System 2 engage? In my work with Amos Tversky, we found that coherence is often mistaken for truth (WYSIATI). If the neuro-symbolic approach merely adds a fluent narrative layer without demanding logical verification, it may increase confidence without improving accuracy. I suggest revising the evaluation metrics to measure not just performance, but the *depth* of cog
+
+*[truncated]*

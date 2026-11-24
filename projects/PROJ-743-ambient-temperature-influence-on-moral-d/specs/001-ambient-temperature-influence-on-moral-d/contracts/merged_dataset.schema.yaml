@@ -6,12 +6,15 @@ properties:
   record_id:
     type: "string"
     description: "Unique identifier for the merged record."
+  response_id:
+    type: "string"
+    description: "Original Moral Machine response identifier."
   participant_id:
     type: "string"
     description: "Anonymous participant identifier."
   country:
     type: "string"
-    description: "Country of the participant."
+    description: "Country code of the participant (used as random effect)."
   latitude:
     type: "number"
     description: "Latitude of the response location."
@@ -22,30 +25,49 @@ properties:
     description: "Longitude of the response location."
     minimum: -180
     maximum: 180
-  response_time_log:
+  response_time_ms:
+    type: "integer"
+    description: "Response latency in milliseconds (required for primary analysis)."
+  log_rt:
     type: "number"
-    description: "Log-transformed response time in milliseconds."
-    minimum: -10
-    maximum: 10
+    description: "Natural log of response_time_ms."
   temperature_c:
     type: "number"
-    description: "Ambient temperature in Celsius."
-    minimum: -40
+    description: "Hourly temperature (°C) from ERA5 2014‑2018 (primary predictor)."
+    minimum: -50
     maximum: 50
+  temperature_c_squared:
+    type: "number"
+    description: "Square of temperature_c for non‑linearity testing."
   distance_km:
     type: "number"
-    description: "Distance to the nearest temperature grid point in kilometers."
+    description: "Haversine distance to nearest ERA5 grid cell."
     minimum: 0
     maximum: 100
   dilemma_complexity:
     type: "number"
-    description: "Derived complexity score of the dilemma."
+    description: "Static complexity score derived from scenario attributes."
     minimum: 0
+  difficulty_score:
+    type: "integer"
+    description: "Categorical difficulty (Low=0, Medium=1, High=2)."
+    minimum: 0
+    maximum: 2
   time_of_day:
-    type: "number"
-    description: "Hour of the day (0-23)."
+    type: "integer"
+    description: "Hour of day (0‑23)."
     minimum: 0
     maximum: 23
+  age_group:
+    type: "string"
+    description: "Age bracket (optional)."
+  gender:
+    type: "string"
+    description: "Gender (optional)."
+  urban_rural_proxy:
+    type: "string"
+    description: "Urban or rural classification based on GHSL density (optional)."
+    enum: ["urban", "rural"]
   quality_flag:
     type: "string"
     description: "Data quality status."
@@ -53,16 +75,22 @@ properties:
       - "OK"
       - "LOW_CONF"
       - "EXCLUDED"
+  exclusion_flag:
+    type: "boolean"
+    description: "True if the record was excluded due to distance or other quality issue."
 required:
   - record_id
+  - response_id
   - participant_id
   - country
   - latitude
   - longitude
-  - response_time_log
+  - response_time_ms
+  - log_rt
   - temperature_c
   - distance_km
   - dilemma_complexity
+  - difficulty_score
   - time_of_day
   - quality_flag
 additionalProperties: false

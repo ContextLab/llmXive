@@ -1,0 +1,16 @@
+type: object
+required:
+  - subject_id
+  - roi
+  - timepoint
+  - signal
+properties:
+  subject_id:
+    type: string
+  roi:
+    type: string
+  timepoint:
+    type: integer
+    minimum: 0
+  signal:
+    type: number

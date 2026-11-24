@@ -1,0 +1,8 @@
+huggingface_hub
+rdkit
+torch-geometric
+torch-scatter
+torch-sparse
+torch-cluster
+torch-spline-conv
+# The 'datasets' package is no longer required for the download step.

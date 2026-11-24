@@ -1,0 +1,213 @@
+{
+  "trace_id": "held_out_43_03455",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "resize_element",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "format_text",
+    "insert_image",
+    "insert_image",
+    "update_layout",
+    "format_text",
+    "format_text",
+    "format_text",
+    "apply_theme",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "update_layout",
+    "update_layout",
+    "apply_theme",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 96.5864,
+        "height": 32.7632
+      }
+    },
+    {
+      "step": 1,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 25.6274,
+        "padding": 12.8296
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 61.0776,
+        "padding": 55.5268
+      }
+    },
+    {
+      "step": 3,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 42.7829,
+        "padding": 8.8216
+      }
+    },
+    {
+      "step": 4,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 61.3343,
+        "x": 42.8475,
+        "y": 95.0631
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 39.5299,
+        "y": 44.2931,
+        "width": 77.1158,
+        "height": 64.6906
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 28.1677,
+        "y": 10.6495,
+        "width": 42.2878,
+        "height": 91.8042
+      }
+    },
+    {
+      "step": 7,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 46.8378,
+        "padding": 45.2047
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 50.1003,
+        "x": 0.4419,
+        "y": 3.7667
+      }
+    },
+    {
+      "step": 9,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 23.8309,
+        "x": 70.9289,
+        "y": 88.1498
+      }
+    },
+    {
+      "step": 10,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 69.0013,
+        "x": 32.8582,
+        "y": 97.9382
+      }
+    },
+    {
+      "step": 11,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 36.2397,
+        "saturation": 77.0667
+      }
+    },
+    {
+      "step": 12,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 98.07,
+        "y": 69.9411,
+        "length": 96.0807
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 30.3646,
+        "y": 50.2901,
+        "length": 30.4193
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 92.5412,
+        "y": 16.4468,
+        "length": 32.3907
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 6.437,
+        "y": 63.1861,
+        "length": 51.553
+      }
+    },
+    {
+      "step": 16,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 89.2791,
+        "padding": 66.204
+      }
+    },
+    {
+      "step": 17,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 10.4155,
+        "padding": 21.0273
+      }
+    },
+    {
+      "step": 18,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 5.1502,
+        "saturation": 33.6029
+      }
+    },
+    {
+      "step": 19,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 27.4802,
+        "saturation": 66.5393
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.66958,
+    "tool_repetition_freq": 0.7,
+    "arg_semantic_variance": 820.539079
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 5,
+    "layout_hash": "43-3455-update_layout"
+  },
+  "variance_multiplier": 1.5
+}

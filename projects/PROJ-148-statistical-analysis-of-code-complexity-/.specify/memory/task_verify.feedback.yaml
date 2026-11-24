@@ -1,0 +1,62 @@
+T001:
+  task: 243049479a0f67c65757398117c25bb8dbd09c7d79314ec5d1126dae92226318
+T002:
+  reason: "The provided `code/data/download_gh.py` falls back to a GitHub search instead\
+    \ of downloading the GHTorrent Java dataset from the required AWS mirror, skips\
+    \ checksum verification for fallback archives, extracts whole archives (not just\
+    \ `*.java` files), and the run log shows only 9 successful project directories\
+    \ (one download failed), violating the \u2265\u202F10 projects requirement. The\
+    \ script also does not abort on checksum failures as mandated."
+  task: 1837918ac53390b63a732775c61613a4d44a627ceaa372f51445b9e4d5377eeb
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/data/label_bug_fixes.py
+    exit=1'
+  task: 89bae9ff2216e27fff1a7002a57310acbdf716f0798654a2a05117b4fe4e81b4
+T004:
+  task: b6b49630d41f725e2c49dbf574d973e25faf9380117bf3337729bfef5a501fc4
+T005:
+  task: 59a916397274024121c5e6724f535fc0f27270e75ae550ad90e3d7b14e19a3e0
+T006:
+  task: 0b255599438134c13a3b0bd10bff90174214310f532af92105472c2925c6be39
+T007:
+  task: 2caa83ba82c2a26f7c0a42a6c8649214eb523dfdf9c2ba92f346109fd8cab4d4
+T008:
+  task: 2a1f19d8e5e3162fdac46edbaa352d66e7386b52b02d9370197ab5a14999cf5d
+T009:
+  task: 0937e77b8930c042b318a286b2a4814aed716cca438b4c480a748e6155b5c409
+T010:
+  task: 30a6aa1aca056547a231022569c4499056b29129a2ace7dfc5b58d52bd5cbb09
+T011:
+  task: be89dd340631fa7ecac1427ab35eba3e365f183f3e450fb61187f96bc5f09546
+T012:
+  task: 9c6e729938f68ce5e2ad5c85c4640cd4f48a2a269f2ad8af7f798f72755b955d
+T013:
+  task: 9c110fb675e90cf9329230ee257492bbf08e62e1ef615d78fd3f041ed32b9749
+T014:
+  task: b17ab84e8ee0fe41a651b6a0f1a60f4b14d5f36101d4a61ae1c4a93c85ea0406
+T015:
+  task: 41dad8a0f3761686c623fab1a13b7753646bcc24bcfa0c69ab57561e98f171d8
+T016:
+  task: 74e3d414e1176bc64b39284ad8ad61d871e8d61a0d8137846f55294352d4d03e
+T017:
+  task: 006fcab19d25368944b09d0e0df06333708da0813d8c816dddaa0558297394bd
+T018:
+  task: 3812254fcec3aa761c03d96ce0a07b034bd2f048951ce89fa74d1ef9d1218bc5
+T019:
+  task: f3a45d2d37da646203c0a2d42fb07d5a955d9c76b65698a5b18ee60ba5d35538
+T020:
+  task: 76b7fe7691ce74cc1b3e11286c4c133d2f22a733ceec418b2002e429ac60e8e7
+T021:
+  task: 2e6bf338a00834636290c4ef2b2b508d961580546e63fe29a4f81d826924c2d7
+T022:
+  task: eeab9ba2547eb8906bb43a9c4850b5a27056961e2d3dcad5d3f1bb6e69320079
+T023:
+  task: 143c15772be66a0e1b28266ab57380d9b4fe7ade63e21843ef13c14d5b8146e7
+T024:
+  task: 39b20a8b7041ae0b5dba2693478ac279c9de642a024d31490c98560cb1e298d6
+T025:
+  task: e9c79628fb794df8f8df6c8ffd4413bfeab91b1c68a0ec46b813dd1dc1b46dd0
+T026:
+  task: 2b15be794cae774e08cfda6455587995c864c74cad1fc24ec1756062bc4af2f0
+T027:
+  task: 3dcb436bb0d661b0bce9c1025b0cdca6b530fd7b433cd5f0fea8ba9aa5546655

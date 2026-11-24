@@ -1,0 +1,105 @@
+{
+  "trace_id": "training_42_03266",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "update_layout",
+    "update_layout"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 12.3179,
+        "x": 10.7915,
+        "y": 56.688
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 22.4326,
+        "x": 79.0246,
+        "y": 83.7935
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 57.9117,
+        "x": 2.6149,
+        "y": 27.8204
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 10.9122,
+        "x": 2.7158,
+        "y": 91.0233
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 38.7908,
+        "saturation": 97.8642
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 44.0433,
+        "saturation": 9.0171
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 10.3196,
+        "saturation": 75.3275
+      }
+    },
+    {
+      "step": 7,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 95.5114,
+        "padding": 33.8579
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 18.1809,
+        "padding": 40.4026
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.060857,
+    "tool_repetition_freq": 0.666667,
+    "arg_semantic_variance": 1014.837353
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 6,
+    "layout_hash": "42-3266-format_text"
+  }
+}

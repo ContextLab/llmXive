@@ -5,58 +5,97 @@ type: object
 properties:
   model_name:
     type: string
-    description: "Name of the LLM model used"
+    description: "Name of the LLM model used (codegen-350M or starcoderbase-1b)"
   correlation_length:
     type: number
-    description: "Spearman correlation for function length"
+    description: "Partial Spearman ρ for function length"
   p_value_length:
     type: number
-    description: "Raw p-value for length correlation"
+    description: "Raw p‑value for length correlation"
   p_value_length_adj:
     type: number
-    description: "Bonferroni-adjusted p-value for length"
+    description: "Bonferroni‑adjusted p‑value for length"
   correlation_naming:
     type: number
-    description: "Mann-Whitney U statistic or Point-Biserial correlation for naming style"
+    description: "Mann‑Whitney U statistic or Point‑Biserial ρ for naming style"
   p_value_naming:
     type: number
-    description: "Raw p-value for naming correlation"
+    description: "Raw p‑value for naming correlation"
   p_value_naming_adj:
     type: number
-    description: "Bonferroni-adjusted p-value for naming"
+    description: "Bonferroni‑adjusted p‑value for naming"
   correlation_complexity:
     type: number
-    description: "Spearman correlation for cyclomatic complexity"
+    description: "Partial Spearman ρ for cyclomatic complexity"
   p_value_complexity:
     type: number
-    description: "Raw p-value for complexity correlation"
+    description: "Raw p‑value for complexity correlation"
   p_value_complexity_adj:
     type: number
-    description: "Bonferroni-adjusted p-value for complexity"
+    description: "Bonferroni‑adjusted p‑value for complexity"
   regression_coefficients:
     type: object
-    description: "Coefficients from multiple linear regression (controlled for source length)"
+    description: "Mapping predictor → β coefficient (with 95 % CI encoded as a string \"β±CI\")"
+    additionalProperties:
+      type: string
   vif_scores:
     type: object
-    description: "Variance Inflation Factors for predictors"
+    description: "Predictor → Variance Inflation Factor"
+    additionalProperties:
+      type: number
   sensitivity_data:
     type: array
-    description: "List of threshold sweep results"
+    description: "Threshold sweep results"
     items:
       type: object
       properties:
         threshold:
           type: number
-        rate:
+        high_hallucination_rate:
           type: number
+      required:
+        - threshold
+        - high_hallucination_rate
   manual_validation_correlation:
     type: number
-    description: "Correlation between automated F1 and manual behavioral score"
+    description: "Pearson r between automated entity‑F1 and median manual score"
   validation_flag:
     type: string
-    description: "pass if correlation >= 0.7, otherwise needs_review"
+    enum: ["PASS", "NEEDS_REVIEW"]
+    description: "Result of the calibration check (FR‑011)"
+  model_comparison:
+    type: object
+    description: "Absolute differences of regression coefficients between models"
+    additionalProperties:
+      type: object
+      properties:
+        codegen_coeff:
+          type: number
+        starcoder_coeff:
+          type: number
+        diff:
+          type: number
+      required:
+        - codegen_coeff
+        - starcoder_coeff
+        - diff
+  disclaimer:
+    type: string
+    const: "correlation observed"
+    description: "Required phrase to satisfy SC‑007"
 required:
   - model_name
   - correlation_length
   - p_value_length_adj
+  - correlation_naming
+  - p_value_naming_adj
+  - correlation_complexity
+  - p_value_complexity_adj
+  - regression_coefficients
+  - vif_scores
+  - sensitivity_data
+  - manual_validation_correlation
   - validation_flag
+  - model_comparison
+  - disclaimer
+additionalProperties: false

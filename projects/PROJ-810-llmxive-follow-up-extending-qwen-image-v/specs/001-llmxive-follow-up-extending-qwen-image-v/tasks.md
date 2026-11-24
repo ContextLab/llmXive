@@ -7,12 +7,12 @@
 
 ## Phase 0 – Project bootstrap & verification  
 
-- [ ] T001 [P] Establish external‑resource verification and quick‑start guide.   <!-- FAILED-IN-EXECUTION: code/boot/verify_resources.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/boot/verify_resources.py exit=1 -->
+- [~] T001 [P] Establish external‑resource verification and quick‑start guide.
   *Implement a script `code/boot/verify_resources.py` that HEAD‑checks the dataset URL (`https://huggingface.co/datasets/omnineura/Omni-Doc-1`) and the VAE model URL (`https://huggingface.co/Qwen/Qwen-Image-VAE-2.0`).*  
   *Write `quickstart.md` with the command `python -m code.main --config config.yaml` and a description of the required environment.*  
   *Verification*: `verify_resources.py` exits with status 0 and creates `data/raw/download_status.json`; `quickstart.md` exists and contains the command line.
 
-- [ ] T002 [P] Create `requirements.txt` with exact pinned versions (fixes previously missing file).  
+- [~] T002 [P] Create `requirements.txt` with exact pinned versions (fixes previously missing file).  
   *File path*: `requirements.txt` (project root).  
   *Contents* must match the plan’s Technical Context:  
 
@@ -37,7 +37,7 @@
 
   *Verification*: `grep -E "torch|transformers|datasets|scikit-learn|opencv-python|paddleocr|paddlepaddle-cpu|pyyaml|scipy|statsmodels|pandas|numpy|matplotlib|seaborn|pillow|pytest" requirements.txt` returns all lines.
 
-- [ ] T003 [P] Initialise project‑wide logger and random seeds.  
+- [~] T003 [P] Initialise project‑wide logger and random seeds.  
   *Add `code/utils/logger.py` exposing `get_logger(name: str)`. Set deterministic seeds for `numpy`, `torch`, and `random`.*  
   *Verification*: Running `python -c "import code.utils.logger as l; l.get_logger('test')"` produces a logger without errors; a file `data/raw/logger_init.json` records the seed values.
 
@@ -45,12 +45,12 @@
 
 ## Phase 1 – Feasibility & power analysis  
 
-- [ ] T004 [P] Implement power‑analysis utility.  
+- [~] T004 [P] Implement power‑analysis utility.  
   *File*: `code/analysis/power.py` – computes minimum sample size `N` for a two‑sample t‑test with effect size `d=0.8`, power ≥ 0.8, α = 0.05 using `statsmodels.stats.power.tt_ind_solve_power`.*  
   *Run*: `python -m code.analysis.power --output data/results/power_analysis.json`.  
   *Verification*: `power_analysis.json` contains fields `N_required`, `effect_size`, `achieved_power`, and `status` (`conclusive` or `inconclusive`).  
 
-- [ ] T005 [P] Implement runtime‑budget estimator.  
+- [~] T005 [P] Implement runtime‑budget estimator.
   *File*: `code/analysis/runtime_estimate.py` – estimates total wall‑clock time as `N_required * 60 s` (per‑image budget) and flags if > 6 h. Outputs `data/results/runtime_estimate.json`.  
   *Verification*: `runtime_estimate.json` includes `estimated_seconds`, `exceeds_budget` (bool), and `status`.
 
@@ -58,11 +58,11 @@
 
 ## Phase 2 – Data acquisition & deterministic sampling  
 
-- [ ] T006 [P] Download Omni‑Doc‑1 TokenBench subset.  
+- [~] T006 [P] Download Omni‑Doc‑1 TokenBench subset.
   *Script*: `code/data/download.py` uses `datasets.load_dataset("omnineura/Omni-Doc-1", split="train", streaming=False)` and writes the parquet file to `data/raw/omnidoc_tokenbench.parquet`.*  
   *Verification*: After run, `data/raw/download_status.json` records `success: true` and file checksum; the parquet file exists and can be opened without error.
 
-- [ ] T007 [P] Deterministic sampling based on feasibility results.  
+- [~] T007 [P] Deterministic sampling based on feasibility results.  
   *Script*: `code/data/sample.py` reads `power_analysis.json` → `N_required`, caps `N_final = min(N_required, floor(6*3600/60))` (respecting the 6 h budget), and draws a fixed‑seed (`seed=42`) sample of `N_final` crops, writing `data/interim/sample.parquet`.*  
   *Verification*: `sample.parquet` contains exactly `N_final` rows; `data/results/sampling_report.json` logs the seed and final size.
 
@@ -70,11 +70,11 @@
 
 ## Phase 3 – Model loading & ground‑truth preprocessing  
 
-- [ ] T008 [P] CPU‑only Qwen‑Image‑VAE‑2.0 loader (no fallback).  
+- [~] T008 [P] CPU‑only Qwen‑Image‑VAE‑2.0 loader (no fallback).  
   *File*: `code/models/vae_wrapper.py` implements `load_vae_cpu()` that **attempts to load `Qwen/Qwen-Image-VAE-2.0` on CPU only**. If loading fails (e.g., requires GPU), the script raises a fatal error and aborts the pipeline, fulfilling FR‑002. No fallback to tiny‑vae is performed.*  
   *Verification*: Unit test `tests/unit/test_vae_loader.py` asserts that the loaded model’s device is `"cpu"` and that a loading failure triggers a `RuntimeError`.
 
-- [ ] T009 [P] Extract ground‑truth region annotations.  
+- [ ] T009 [P] Extract ground‑truth region annotations.   <!-- FAILED-IN-EXECUTION: code/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/preprocess.py exit=1 -->
   *File*: `code/data/preprocess.py` reads `sample.parquet`, filters crops with modality “text” or “image”, computes overlap ratio, discards any with `overlap_ratio > 0.1`, and writes `data/interim/ground_truth.parquet`.*  
   *Verification*: `ground_truth.parquet` contains only rows with `modality` in {text, image} and `overlap_ratio ≤ 0.1`; a checksum file `data/results/ground_truth_checksum.json` is generated.
 

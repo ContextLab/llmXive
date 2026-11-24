@@ -1,4 +1,6 @@
 """
-Simulation module for the GPE (Gross-Pitaevskii Equation) solver and related
-simulation components.
+Simulation subpackage.
+
+Provides the Gross‑Pitaevskii solver, initial‑condition generators,
+and batch runner utilities for rotating dipolar Bose‑Einstein condensates.
 """

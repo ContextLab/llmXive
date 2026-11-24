@@ -1,20 +1,20 @@
 {
   "name": "ingest_contract",
-  "description": "Contract for the data ingestion pipeline",
+  "description": "Contract for the data ingestion pipeline. `user_tenure` is derived from `created_utc` (account creation timestamp) before the raw timestamp is removed, satisfying FR‑003 while preserving privacy.",
   "inputs": {
-    "source": "jplu/tf-reddit-comments-2020",
+    "source": "fddemarco/pushshift-reddit-comments",
     "subreddits": ["AskReddit", "science", "relationships"],
     "min_group_size": 4000
   },
   "outputs": {
     "file": "data/processed/anonymized.csv",
-    "columns": ["comment_id", "thread_id", "user_id_hash", "body", "thread_type", "subreddit"],
+    "columns": ["comment_id", "thread_id", "user_id_hash", "body", "thread_type", "subreddit", "user_tenure"],
     "constraints": [
       "No plaintext usernames",
       "No raw timestamps (created_utc) in output",
       "At least 3 distinct subreddits",
       "raw_vs_fetched_count metric included in raw_counts.json",
-      "user_tenure is NOT included"
+      "user_tenure derived and included; raw timestamps omitted"
     ]
   }
 }

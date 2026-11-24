@@ -1,43 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "CorrelationResult"
-description: "Schema for statistical correlation results between complexity and loss (based on Repository Aggregates)."
-type: "object"
+description: "Schema for statistical correlation results between complexity and loss (repository aggregates)."
+type: object
 properties:
-  metric:
-    type: "string"
-    description: "Name of the complexity metric (e.g., 'cyclomatic_complexity')."
+  metric_name:
+    type: string
+    description: "Complexity metric (e.g., 'cyclomatic_complexity')."
   language:
-    type: "string"
+    type: string
     description: "Language subset analyzed."
-  coefficient:
-    type: "number"
-    description: "Pearson or Spearman correlation coefficient."
-  p_value:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Raw p-value from permutation test."
-  adjusted_p_value:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "P-value after FDR correction."
-  n:
-    type: "integer"
-    minimum: 1
-    description: "Number of repositories (unit of analysis)."
   method:
-    type: "string"
+    type: string
     enum:
-      - "pearson"
-      - "spearman"
-    description: "Correlation method used."
+      - pearson
+      - spearman
+    description: "Correlation method."
+  correlation_coefficient:
+    type: number
+    description: "Correlation value."
+  p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Raw permutation p‑value."
+  p_value_adjusted:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "FDR‑corrected p‑value."
+  sample_size:
+    type: integer
+    minimum: 1
+    description: "Number of repositories."
 required:
-  - metric
+  - metric_name
   - language
-  - coefficient
-  - p_value
-  - adjusted_p_value
-  - n
   - method
+  - correlation_coefficient
+  - p_value
+  - p_value_adjusted
+  - sample_size
 additionalProperties: false

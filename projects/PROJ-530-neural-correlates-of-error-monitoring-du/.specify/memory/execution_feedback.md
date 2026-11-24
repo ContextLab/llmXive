@@ -63,7 +63,9 @@ usage: viz.py [-h] --data DATA [--sensitivity-data SENSITIVITY_DATA] --output
 viz.py: error: the following arguments are required: --data, --output
 
 - python -m pytest tests/ -v -> rc=3
-NALERROR>   File "/home/runner/work/llmXive/llmXive/projects/PROJ-530-neural-correlates-of-error-monitoring-du/code/.venv/lib/python3.11/site-packages/_pytest/debugging.py", line 66, in pytest_configure
+impl.function(*args)
+INTERNALERROR>           ^^^^^^^^^^^^^^^^^^^^^^^^^
+INTERNALERROR>   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/_pytest/debugging.py", line 72, in pytest_configure
 INTERNALERROR>     import pdb
 INTERNALERROR>   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/pdb.py", line 77, in <module>
 INTERNALERROR>     import code
@@ -75,3 +77,8 @@ INTERNALERROR>   File "/home/runner/work/llmXive/llmXive/projects/PROJ-530-neura
 INTERNALERROR>     from .logging_config import get_logger
 INTERNALERROR> ImportError: attempted relative import with no known parent package
 
+## Platform-owned paths written inside the project
+
+A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

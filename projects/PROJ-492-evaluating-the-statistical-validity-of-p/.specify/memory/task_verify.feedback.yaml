@@ -1,0 +1,44 @@
+T001:
+  reason: "Checked the `code/src/audit/` directory (modules for extraction, reconstruction,\
+    \ Monte\u2011Carlo, power\u2011analysis, synthetic generation are present) and\
+    \ the `specs/.../quickstart.md` file (contains the exact command `python -m code.src.audit.run_audit\
+    \ data/input/urls.csv output/`). However, there is no evidence that running `python\
+    \ -m code.src.audit.run_audit --help` actually exits with status\u202F0, as required\
+    \ for verification. Provide execution logs or test output confirming the command\
+    \ runs successfully."
+  task: 452685b003fc653514689cac6a9c8be21d41fdb927a53a3d343b134eaa3e2681
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/src/audit/monte_carlo_validation.py
+    exit=1'
+  task: 9d0192935a8b8534f6c8ab46a95001fda9bc50dfb68b6e84cf408e267bb905ef
+T005:
+  task: 1d4ea015173edb2e5fd61cf9234a49d3e213e43ca5c0549cdc63e4c25a0a5c98
+T006:
+  task: 0084b6944026291f1824c8dfbb9969dd1ea8b03fc62c9d427a0805107933bac4
+T007:
+  task: 4edb9ed554b2d424f34c2d02ee9ca8b8bb226524bb47b0b9643bcf1738941ebf
+T008:
+  task: 23b3784f8cc8c5a14681097739ca29445ba88699bbf756a3213bddb5015d56ee
+T010:
+  task: 4dded3d1014f868cd8b6b5c965b232cbf5423b1edc7f92e29d82dcd14dc72b03
+T011:
+  task: fda080c57fa61f4ca21c935a941acf7d219e5624be56789d706095456d9e702e
+T012:
+  task: 91b37923708f7abff9f6a943158471f783e12a992e833ca0ce347482a25ecf38
+T013:
+  task: 37ca182ef26e7ebf0ae38f9fff390c1948f5366b41f11e6ce0d2cbec51d0ea0d
+T017:
+  reason: "The provided `urls.csv` does contain 300 distinct entries and `data/raw/`\
+    \ holds 300 HTML files with matching entries in `data/checksums.txt`, but there\
+    \ is no concrete evidence that each URL returned an HTTP\u202F200 response with\
+    \ HTML content, nor proof that the URLs actually point to *public A/B\u2011test\
+    \ summaries* (they appear to be generic blog posts about A/B testing). To satisfy\
+    \ the task, include logs or a manifest confirming successful 200 responses for\
+    \ every URL and verify that each URL is a genuine A/B\u2011test summary page."
+  task: 58411f9f695d38ffcd8e809d7af9bd8a5fabb7f918c7c0dedab6002ac4a68bd3
+T018:
+  task: 6c5ba3d3461a4ab6c85ae83bfd6364156841befa05a8bada4f4e14e5246f9aa4
+T019:
+  task: 3cc90327c46b04ddb7fd3a978beb55561fcf01b7373e8e0cd039e07f517fee8a
+T099:
+  task: 491e7ed85eea1eabb32ffac46d2cfd0da14607fc3b8f8ec917de6bbbe69ec2d7

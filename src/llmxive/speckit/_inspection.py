@@ -99,8 +99,8 @@ def capture(
     project_id: str,
     agent_name: str,
     agent_version: str,
-    model: str,
-    backend: str,
+    model: str | None,
+    backend: str | None,
     started_at: datetime,
     ended_at: datetime,
     outcome: str,
@@ -123,8 +123,10 @@ def capture(
         project_id: ``PROJ-NNN-<slug>``.
         agent_name: ``"specifier"`` or ``"clarifier"`` (Phase 3 set).
         agent_version: prompt_version from agents/registry.yaml.
-        model: resolved model id from chat_with_fallback.
-        backend: e.g., ``"dartmouth"``.
+        model: resolved model id from chat_with_fallback, or ``None`` when
+            the run failed before any ``ChatResponse`` came back (spec 026
+            slice 7 / D4 — never a fabricated placeholder).
+        backend: e.g., ``"dartmouth"``, or ``None`` (see ``model`` above).
         started_at, ended_at: tz-aware datetimes; ``ended_at >= started_at``.
         outcome: one of :data:`_VALID_OUTCOMES`.
         prompts: ``{"system": "...", "user": "..."}``. Either may be empty

@@ -1,15 +1,16 @@
 status: none
-intent: EmpatheticDialogues dataset for emotional support ratings python package dataset
+intent: emotional support rating dataset text messages with emoji punctuation length
+  relationship python package dataset
 required_fields:
 - stimulus_id
-- message_text
-- emoji_count
-- punctuation_pattern
+- text
+- emoji_level
+- punctuation_level
 - length_category
 - relationship_type
-- prolific_participant_id
-- rating_score_1_to_7
-- rating_timestamp
-cache_key: 0d6aeefde1e7de425f82eda5a8f433c90139823e316ee78a231a62bbec892208
-searched_at: '2026-08-08T10:23:47.090262+00:00'
+- rating_score
+- participant_id
+- timestamp
+cache_key: 72a47638503df1421af0b88ea3391f8b42e32c2e177fdd527fd679e5634eedbc
+searched_at: '2026-10-12T18:35:02.380580+00:00'
 retry_count: 1

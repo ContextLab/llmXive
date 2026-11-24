@@ -1,13 +1,6 @@
 T001:
   task: 9082468bdb3438f7fea6f9e10b33b3f08e3a0b2e7addde5874dfa35d8834e811
 T002:
-  reason: "The repository contains a `requirements.txt` file with the required packages,\
-    \ but the versions are specified with `>=` rather than exact pins (e.g., `nilearn==0.10.0`).\
-    \ The task explicitly required \u201Cpinning\u201D those dependencies, which is\
-    \ not satisfied. Additionally, no evidence of a Python\u202F3.11 project configuration\
-    \ (e.g., `pyproject.toml` or a version\u2011specific environment file) is provided.\
-    \ The implementer must replace the version specifiers with exact versions and\
-    \ optionally include a Python\u2011version declaration."
   task: c4706396802209143c34c9cda16e37c29ad1ce626fc08f36b8f0ad24e8ffb37b
 T003:
   reason: The evidence provides only the project root path and contains no configuration
@@ -17,18 +10,21 @@ T003:
     to configure linting and formatting is not satisfied.
   task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
 T004:
-  reason: 'declared artifact(s) missing/empty/invalid: code/utils.py'
   task: e082299e825cfc33c71e4d41ea1a58350c078752f884079a85b79d1526c0272c
 T005:
-  reason: 'declared artifact(s) missing/empty/invalid: code/config.py'
   task: 5ef18d8d1761c6c1f226e37435711528c3bdf8901242b84d3c42b63425c20425
 T006:
-  reason: 'declared artifact(s) missing/empty/invalid: code/download_data.py'
+  reason: 'Requested task execution failed; rerun successfully: code/download_data.py
+    exit=1'
   task: f1a90462ec518a482bc63ef4a84506972a5ef13917d3f4099e6db54b84bd417d
 T007:
   reason: 'declared artifact(s) missing/empty/invalid: tests/test_utils.py'
   task: d04bb7447a459d70f6a6768961eb1f5ecbeca12495d0f425305631a4c055c09c
 T008:
+  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/research.yml`
+    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 3e2f1b67a5057957751078660b0b13f69a3c7c35ab50a320e59af01ec71d2f61
 T009:
   reason: "The required unit\u2011test file `tests/test_download_data.py` is missing\
@@ -55,8 +51,15 @@ T014:
   reason: 'declared artifact(s) missing/empty/invalid: code/preprocess_fmri.py'
   task: fa94ef6f13f263eb1c7cad4d422269c8d6f1cd2f687406606a149ed77ae109f7
 T016:
+  reason: "The required unit\u2011test file `tests/test_build_graphs.py` is missing\
+    \ from the project, so the adjacency\u2011matrix thresholding logic is not exercised\
+    \ by any test. The task\u2019s core deliverable does not exist."
   task: d719e12545a9222acc415543d56e354713a4740bc9a3c69a2bddaa17cc6a7438
 T017:
+  reason: "The required unit\u2011test file `tests/test_build_graphs.py` is missing\
+    \ from the project, so the task\u2019s core deliverable does not exist. Without\
+    \ this test the Louvain convergence and seed\u2011stability verification cannot\
+    \ be satisfied."
   task: a6978db989805d68e2e8be10097889e56cef8f7e4cc57977519a875420f6ff2b
 T018:
   task: 4203a0893b525cdac9156c91a742936ad435a192859b887277508fd10168994e

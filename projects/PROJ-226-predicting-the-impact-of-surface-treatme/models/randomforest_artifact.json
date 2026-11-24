@@ -1,0 +1,9 @@
+{
+  "model_type": "RandomForest",
+  "hyperparameters": {},
+  "validation_r2": null,
+  "validation_rmse": null,
+  "test_r2": 0.0,
+  "test_rmse": 0.3303548597089701,
+  "test_mae": 0.2941111111111114
+}

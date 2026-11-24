@@ -2,6 +2,8 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T014b** — No artifact (e.g., script output, log file, or computed value) showing the mean framewise displacement of the final retained dataset was provided, nor any evidence that the value was logged and checked against the ≤0.2 mm threshold. Without such concrete output, the task requirement is not satisfied.
-- **T015** — declared artifact(s) missing/empty/invalid: state/projects/PROJ-190-investigating-the-relationship-between-b.yaml
-- **T019** — No code, script, or generated binary graph files for the specified densities (0.20, 0.25) were provided; the claim lacks any tangible artifact demonstrating the thresholding logic implementation. The required output is missing.
+- **T001a** — the task writes platform-owned path(s) inside the project: `state/` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T001b** — Checked `projects/PROJ-190-investigating-the-relationship-between-b/requirements.txt`: the file exists but lists version constraints with `>=` (e.g., `numpy>=1.24.0`) instead of pinned exact versions (`==`), and therefore does not satisfy the task’s requirement for pinned versions of the specified packages.
+- **T002b** — Checked the repository for any evidence of a Python 3.11 virtual environment (e.g., a `venv/` directory, `pyproject.toml`, `requirements.txt`, or activation scripts) and found none; the collector only listed the project root without any concrete artifact confirming that a virtual environment was created. The required artifact for task T002b is missing.
+- **T003** — The evidence contains no linting or formatting configuration files (e.g., ruff, flake8, black settings, pre‑commit hooks) or any documentation that they have been set up; thus the required artifacts for task T003 are missing.
+- **T014b** — Requested task execution failed; rerun successfully: code/data/verify_quality_run.py exit=1

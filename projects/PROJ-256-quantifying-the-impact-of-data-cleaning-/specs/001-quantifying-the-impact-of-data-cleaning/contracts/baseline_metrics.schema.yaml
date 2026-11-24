@@ -1,34 +1,37 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Baseline Metrics Schema"
+description: "Validates baseline statistical results on raw data."
 type: object
 required:
-  - dataset
+  - dataset_id
   - test_type
   - p_value
   - ci_lower
   - ci_upper
   - effect_size
+  - assumptions_met
 properties:
-  dataset:
+  dataset_id:
     type: string
-    description: "Dataset name matching entry in dataset_metadata.json."
+    description: "Identifier matching an entry in dataset_metadata.json."
   test_type:
     type: string
-    enum: [chi2, fisher, logistic_regression, welch_t, ols]
-    description: "Statistical test performed."
+    enum: ["t_test", "welch_t", "linear_regression"]
+    description: "Statistical test performed on the raw data."
   p_value:
     type: number
     minimum: 0
     maximum: 1
-    description: "P‑value rounded to at least three decimal places."
+    description: "P‑value rounded to ≥ 3 decimal places."
   ci_lower:
     type: number
-    description: "Lower bound of the confidence interval at a conventional confidence level."
+    description: "Lower bound of the 95 % confidence interval."
   ci_upper:
     type: number
-    description: "Upper bound of the confidence interval at a conventional confidence level."
+    description: "Upper bound of the 95 % confidence interval."
   effect_size:
     type: number
-    description: "Cohen's d for t‑tests or standardized coefficient for regression."
+    description: "Cohen's d for t‑tests or R² for regressions."
   assumptions_met:
     type: boolean
+    description: "True if all pre‑test assumptions were satisfied."

@@ -26,11 +26,10 @@ properties:
       - "Cohen's d"
       - "F"
   degrees_of_freedom:
-    type: array
+    type: ["array", "null"]
     items:
       type: integer
     description: Degrees of freedom (df1, df2) for F-statistics. Optional, null for Cohen's d.
-    nullable: true
   source_url:
     type: string
     format: uri

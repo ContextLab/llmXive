@@ -1,108 +1,56 @@
-T020b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or documentation were supplied showing that `log_exclusion`\
-    \ is invoked with the required standardized reason codes in the exclusion logic\
-    \ of T018 and T019. The artifact required to verify the implementation (e.g.,\
-    \ updated source files, unit\u2011test results, or log samples) is missing."
-T022:
+T002:
   c: true
-  h: 502321bfc3687c81fdd5671b64444e875238c929eab8c76dfe9c24b3bafb8a32
-  r: "The repository contains a non\u2011empty `code/viz/plots.py` with a correctly\
-    \ defined `plot_flexibility_vs_creativity` function that creates a scatter plot,\
-    \ adds a regression line and a 95\u202F% confidence band, ensures the output directory\
-    \ exists, and saves the figure to `docs/outputs/flexibility_vs_creativity.png`.\
-    \ The required code artifact is present and implements the specified behavior."
-T023:
+  h: e6fae1c651927e3093c42e8bb50254bd407283473684acb57fee5eeab57a8ca9
+  r: "The `requirements.txt` file (205\u202Fbytes) was found at `projects/PROJ-518-investigating-the-relationship-between-b/requirements.txt`\
+    \ and contains pinned versions (`==`) for all required packages: nilearn, networkx,\
+    \ scikit-learn, numpy, pandas, matplotlib, scipy, brainconn, and statsmodels.\
+    \ Extra entries (e.g., safety, pyyaml, black, flake8) do not violate the task,\
+    \ which only mandates the presence and pinning of the listed dependencies."
+  sig: 0188a323a75a54bb4baa367e16f2c6471cb663d85dbcec608a0887255d86e6d5
+T005:
+  c: true
+  h: d8ab08e525ee3c41c39d3b6ef542eca45e53bbbe974cf5a8fc0b2d9ea0b063c1
+  r: Checked `code/config.py`, which defines `WINDOW_SIZES` (default `[20,30,40]`),
+    `STEP` (default `5`), `FWE_METHOD` (default `"max-t"`), and provides a working
+    `validate_fwe_config()` that raises on invalid methods. The file exists and contains
+    the required functionality.
+  sig: 217a42ea7dbe6f5881390cf88ec1b4a2e48241179cfc705acffd12ebf4978e6f
+T006:
+  c: true
+  h: 04ff7928ad0667ccbe1700f7f641d04e74c4081b3ea417ed3cbcfb5d80116f22
+  r: Checked `code/utils/logging.py`, which defines `log_exclusion(reason, subject_id)`,
+    validates the reason against a set that includes the required codes (`MISSING_SCAN`,
+    `MISSING_SCORE`, `HIGH_MOTION`), and appends a CSV row (subject_id, reason, timestamp)
+    to `data_interim/data_exclusion_log.txt`. The function and its behavior meet the
+    task specification.
+  sig: 874fd9819e8049b7880d31c20be4e2abc52eeffc24098ec7acec6842d6a86477
+T101:
+  c: true
+  h: 5afd48df9c896c912fbeb0b98b04d39b98c726541dad4fa0c9fcab1830fb94b4
+  r: 'I have verified the following:
+
+    1. `code/errors.py` defines the `DataMissingCreativityError` class.
+
+    2. `code/data/loader.py` implements `validate_caq_availability`, which imports
+    the error class and raises `DataMissingCreativityError("DATA_MISSING_CREATIVITY")`
+    when the CAQ field is missing or null.
+
+    3. `code/main.py` implements `run_validation`, which imports the error class,
+    catches it, logs the error, and calls `sys.exit(1)`.
+
+    4. `code/tests/contract/test_loader.py` contains tests for the success case, the
+    exception raising case, and the system exit case, all of which passed according
+    to the p'
+  sig: f8e6058bc6c343a1b857dc362d00d1dbb0909171d92b91ded9435aa8502b2ee3
+T103:
   c: false
-  h: 36d080b9b399e971c6e343768f2e02dced39031f4f9fdec4d8ecd750a79adf6c
-  r: "The `plot_residuals` function in `code/viz/plots.py` is truncated and references\
-    \ a non\u2011existent `model.fitted` attribute (the dataclass defines `fitted_values`).\
-    \ Moreover, the required output files `docs/outputs/model_residuals.png` and `docs/outputs/model_qq.png`\
-    \ are not present, indicating the plots were never generated. The task\u2019s\
-    \ requirement is therefore not satisfied."
-T026:
-  c: false
-  h: 574e045362ad32b361607a91f1c348b33efa6511b2569335dc87e46cd4d8509b
-  r: The required file `tests/contract/test_permutation.py` does not exist, so the
-    contract test `test_permutation_counts` is missing. No test code or related artifacts
-    are present to satisfy the task.
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No sensitivity DataFrame was presented; there is no file, code snippet, or output
-    showing a DataFrame that lists `correlation` and `p_value` for each window length.
-    The required artifact is missing, so the task is not satisfied.
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides no visible `README.md` changes nor any files under `docs/outputs/`
-    that describe the generated artifacts and their filenames. Without those documentation
-    artifacts present, the task requirement is not satisfied. The next implementer
-    must add the appropriate sections to `README.md` and create the documentation
-    files in `docs/outputs/` detailing each output (e.g., `flexibility_vs_creativity.png`,
-    `model_residuals.png`, etc.).
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No formatted source files, black configuration, or flake8 linting reports are
-    present; the implementer provided only the original project specification without
-    any evidence that code cleanup or refactoring was performed. The required artifacts
-    (e.g., reformatted code, style check output) are missing.
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No profiling logs, memory\u2011usage measurements, or optimisation code/artifacts\
-    \ were supplied. The claim provides only the original feature specification; there\
-    \ is no evidence that performance profiling was performed, that memory consumption\
-    \ was measured to be under 7\u202FGB, or that any code changes were made to achieve\
-    \ the optimisation. Consequently the task requirement is not satisfied."
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No unit\u2011test files or code snippets for `calculate_flexibility`, `fit_regression`,\
-    \ or `run_permutation_test` are present; the claim lacks any concrete artifacts\
-    \ (e.g., pytest files, test functions, or test results) to demonstrate that additional\
-    \ tests were written and pass. The required test suite is therefore missing."
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No logs, screenshots, or output files showing that the `quickstart.md` commands
-    were executed in a fresh virtual environment are present; the claim lacks any
-    concrete artifact confirming successful completion.
-T045:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code file or function definition for `apply_fwe_correction` is present, and\
-    \ there is no evidence (e.g., source file, test results, documentation) showing\
-    \ that a max\u2011T permutation based FWE correction was implemented. The required\
-    \ artifact is missing, so the task is not satisfied."
-T046:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code defining `run_sensitivity_analysis` is present, nor any generated DataFrame\
-    \ with the required columns (`window_length`, `correlation`, `p_value`). The implementer\
-    \ provided no artifact to verify that the function exists or produces the specified\
-    \ output. The missing implementation must be added and demonstrated with a non\u2011\
-    empty DataFrame."
-T057:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code or script was provided that shows the plot\u2011saving functions invoking\
-    \ `compress_image(path, max_mb=5.0)`. Without an artifact demonstrating the post\u2011\
-    save compression step, we cannot verify that the \u2264\u202F5\u202FMB size enforcement\
-    \ is implemented. The required change is missing."
-T058:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or documentation were provided showing that plot functions now\
-    \ catch NaN values, skip them, log appropriate warnings, and continue execution.\
-    \ Without any artifact demonstrating the added error\u2011handling logic, the\
-    \ requirement is not satisfied."
-T060:
-  c: false
-  h: 1808fed72de4f18ef3962f6ad6fa719e3f073624cbd0345660677b0a092a3584
-  r: "The profiling report file is present, but the required dummy NIfTI file `tests/fixtures/dummy_fmri.nii.gz`\
-    \ is missing, and the benchmark test `tests/benchmark/test_runtime.py` is truncated\
-    \ (syntax\u2011incomplete), so the verification step cannot run. Both missing\
-    \ artifacts must be provided/fixed for the task to be considered complete."
+  h: cf8f01c8eb64ba0786624a24f2ad757bcf27b994dc56bd34ea435482c26316ee
+  r: "The recorded pytest run of `code/tests/unit/test_filter_subjects.py` FAILED\
+    \ (exit 1): the test asserts `participant.fmri_path == fmri_004` but `filter_subjects`\
+    \ returns a toolkit-resolved absolute path while the test builds a relative one,\
+    \ so the single test covering all three exclusion codes does not pass. Additionally,\
+    \ the required output `data/interim/included_subjects.csv` does not exist, and\
+    \ the exclusion log contains only unrelated `FILE_NOT_FOUND`/SYSTEM entries rather\
+    \ than the MISSING_SCAN/MISSING_SCORE/HIGH_MOTION rows the tests should have produced\
+    \ \u2014 fix the path comparison (e.g., re"
+  sig: ff4cf64e898ad73c59a603f68312d3db6af1e0361f08e65956920c622eb035e4

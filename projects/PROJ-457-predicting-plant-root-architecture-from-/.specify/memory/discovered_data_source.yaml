@@ -1,13 +1,14 @@
 status: none
-intent: download RootReader PlantPheno ISRIC World Soil Information root phenotype
-  soil nutrient dataset python package dataset
+intent: PlantPheno root phenotype with phosphorus nitrogen RootReader OpenSoilNutrient
+  MergedDataset LiteratureNutrientRanges ISRICWorldSoil python package dataset
 required_fields:
 - species
 - root_length
-- branching_density
-- surface_area
-- phosphorus
-- nitrogen
-cache_key: 0d13223c2fd5339d22f9b23461b4e2cce783b7f0c98983dd3ecf289260d4511f
-searched_at: '2026-09-27T18:24:59.507972+00:00'
+- root_depth
+- root_volume
+- phosphorus_ppm
+- nitrogen_ppm
+- observation_id
+cache_key: 04bf49cf0f1c10b5ac991bf56711e6fd96f080d90f8a443ca8c2c6bb18d61b6d
+searched_at: '2026-10-26T01:45:28.929665+00:00'
 retry_count: 1

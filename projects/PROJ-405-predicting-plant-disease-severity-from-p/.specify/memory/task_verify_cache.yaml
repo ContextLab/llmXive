@@ -22,6 +22,48 @@ T003:
     Without these artifacts, the requirement to configure linting and formatting tools
     is not satisfied.
   sig: a35c23ef45ebb07dbde82235f5001b9f45ba1b7f7967f7477412b516fe806c00
+T004:
+  c: true
+  h: 1d3e725fd71c0f875bf500f86755fc6af1d2adc65528b618dc4b36f09b335864
+  r: "Checked the provided `code/config.py` (2724\u202Fbytes) which defines project\
+    \ path entries, seed constants, weather\u2011window and RAM limits, pulls API\
+    \ keys from environment variables, and includes helper functions for path retrieval\
+    \ and directory creation. All required elements (paths, seeds, API keys, constant\
+    \ definitions) are present and implemented."
+  sig: 06ab2f7a8f30c8d0cfc45b3d33750a998f923523b560cf2d4202ebd5fe9a92d1
+T005:
+  c: false
+  h: 3f9dd44fa8c8950c42e379dc90c7aa79664dce54bca6187694122aac90751326
+  r: "The required files `code/__init__.py` and `code/utils/logging_config.py` are\
+    \ present, but `logging_config.py` contains an incorrect import statement (`from\
+    \ config import get_path`) that will raise an ImportError when the module is loaded,\
+    \ preventing the logging infrastructure from being usable. The import should reference\
+    \ the project\u2019s config module (e.g., `from ..config import get_path` or `from\
+    \ code.config import get_path`). Fix this import (and any related path handling)\
+    \ for the logging setup to function as intended."
+  sig: 6aa441ec6202484406500cfb6a3c7559da19b494b4812056536b1d999b3e1aaf
+T006a:
+  c: false
+  h: bee690371bc02d87b14357e497bf524b6ae6817453900bfcac361c8ea620a7b9
+  r: The required `dataset.schema.yaml` file is missing from `specs/001-predict-plant-disease-severity/contracts/`;
+    without this schema definition the task is not fulfilled.
+  sig: be6d8e93baa0aeedc397a4328a1efeefdc30e91f08f3af13e391929a1b4723ea
+T006b:
+  c: false
+  h: 54bbbf7a91c071e23cd30087e47e5841bac971d2006201c866577e2d9b31eae6
+  r: The collector reports `weather.schema.yaml` as MISSING, so the required schema
+    file does not exist in `specs/001-predict-plant-disease-severity/contracts/`.
+    Without the file, the task of defining the specified fields with PyYAML is not
+    fulfilled.
+  sig: ca88a0ca07691b7240d0533d792e8c07635a30e56f914ee9bc3c6ca324698286
+T006c:
+  c: false
+  h: a4c7675c5c735ce52157525c6443aae819b6d77a4658effcede88b6f3a8e3725
+  r: "The required file `specs/001-predict-plant-disease-severity/contracts/model_output.schema.yaml`\
+    \ is reported as missing, so the schema defining the fields `baseline_r2`, `baseline_mae`,\
+    \ `augmented_r2`, `p_value`, and `sensitivity_analysis` does not exist. Without\
+    \ this file the task\u2019s core requirement is unmet."
+  sig: 7fadb66b18a61a39b51e5ebc8a0ae6a30724e803c426aa41e65851bfdaaa477b
 T016a:
   c: false
   h: ed51aed7b8a9851df65b25380f7b9e5cdea8924c7780409c902da5307acae8b2
@@ -66,9 +108,9 @@ T049:
     \ The mandated statement is missing."
   sig: bf6f1e426b5aaaf8319c588db473c2db0d91569d50b463efa76d99695d20fae5
 T050:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `plan.md` file (or updated version) was presented, and there is no evidence\
-    \ that the document now contains the required clarification about the 7\u2011\
-    day window being a fixed parameter in `config.py`. The implementer must provide\
-    \ the updated `plan.md` with the specified sentence."
+  c: true
+  h: a8ee30afae40799cece3bd7ec1ab0793034db00bf8e86890dcd4ee5954fcc015
+  r: "Checked `plan.md` (5985\u202Fbytes) which contains the required clarification\
+    \ that the 7\u2011day weather window is a fixed parameter defined in `config.py`\
+    \ and is not dynamically adjusted."
+  sig: 6647dbc8362c0e47ab2e2b4ab92f201590708855a6b2e3f31e0d103a77913ea0

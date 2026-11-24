@@ -1,12 +1,12 @@
 status: none
-intent: HumanEval dataset HuggingFace download and sentence-transformers all-MiniLM-L6-v2
-  python package dataset
+intent: download HumanEval dataset from HuggingFace and sentence-transformers all-MiniLM-L6-v2
+  model python package dataset
 required_fields:
 - task_id
 - prompt
 - canonical_solution
 - test_cases
 - entry_point
-cache_key: 286195923a09ddca44571eb8df0fb629cf8384434a22151e35025020da928ac0
-searched_at: '2026-10-09T23:35:38.381908+00:00'
+cache_key: 961f7131263b4633b5feac0d217940a8282ebef1745dac7bdcf6a15973b5a006
+searched_at: '2026-10-30T18:26:44.802989+00:00'
 retry_count: 1

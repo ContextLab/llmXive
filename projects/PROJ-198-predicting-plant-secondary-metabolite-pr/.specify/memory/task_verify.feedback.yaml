@@ -1,42 +1,54 @@
 T001:
-  task: 7c2825e128f6cb3d57fc0a572a0276aff451d540d0ba9e3743a5891469a4d0fb
+  task: d83bc269745b8f87625151982a3cd2551c354fbab94e61a02b41f8e330f419c0
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/scripts/apply_formatting.sh
-    exit=1'
-  task: ac252081749a22a4ccb6489180b1dbdf5d0ff608f1b1a4c7227c078b1b97efae
+  reason: "The evidence includes `.ruff.toml` and `pyproject.toml`, but the required\
+    \ `.flake8` file and `.env.example` (with the placeholder keys) are missing, so\
+    \ the linting/formatting and env\u2011variable template requirements are not fully\
+    \ satisfied."
+  task: a72a9d3083ccff6edfdbfd03c5b613cf08986f0239bbcf940acdfb266f4c6413
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/scripts/run_lint_check.py
-    exit=2'
-  task: 8e7f82b684dfa083eab5e43e12f5c56e6dc6a8dab73b43a149d0f65f69ad9945
+  task: 70c3a6076013af70ca88953d5eeb0eebfdfb224dc36471144dd9e4a9cca83f32
 T004:
-  task: e8468989b9a16520402e43f5f289f5146a35cd652e4d06fff345ea325c53a01d
+  task: 7366c60ac2e8dccea1eb3ce47cbd663380d5df4b332250e30cc34ccb648af4b7
 T005:
-  reason: 'Requested task execution failed; rerun successfully: code/scripts/run_lint_check.py
-    exit=2'
-  task: 027e56ebc23548e1425df2666f9617d98e029d9f7f5cdbb343128db6ff42b167
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 738e70b6e41b782f50676c8dab6a851da28c74885cac8b5327233fbe083bc6e1
 T006:
-  task: 8d6affb841f6efc3e4fce2a63f151808fd01d79a18a266be67201d0c69b14fc9
+  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
+    exit=1'
+  task: d416287bb5fdde07ba2fd48bb8b1bb99a810fb51bb183ebe746d9f201ef1327d
 T007:
-  task: 349c1ebe8413031ba391bc4a1b5a08dcb90f6fceaccff9f121376be64fbcca77
+  task: 0f0a21f5a86ecb0b58f398df6d0f9bd1ad917849fba919d2d76a473817069280
 T008:
-  task: 874dfbaee39e16814c7b217f83b997e8befbe1e3da181f1711211a6505ded188
+  task: 9c15b7bd566d17fa303434f31ebcc5f1e6305a44b5d67b8ab3149e0cfc3781ab
 T009:
-  task: b40966269ffd670f3611cb2aeb86caee5ef9dee77b70371cab45ebe50b30a471
+  task: d149bb70aad5fa598ab3beeb0edb78d026f386f5833f30d66ebf5e5caf2bb3b8
 T010:
-  task: 241ba0957f66e47348a62a111bbcd85f950d596b80ffd1b125dfba5a45ed885d
+  task: 9a963c041f1b931d65fbcfb3544ede1db08908a88db7a0c66044a5a3fef31d30
 T011:
-  task: 9b0df91c50fcfdf85c707b8c4b1d944ef4721f2b3ab5ffccc5f235f69f2b467c
+  task: 7d160b6ab2e3740ef497ed8d40e246ca5cec7c74cd7697f16a83c395f7a4906f
 T012:
-  task: e8efe5ff037b5a71b5192eaa9eb66b2ac747776210114310ce1a631033dbcd20
+  task: 7153f9b92d5323262ca3902962c6a1a2eb7a5642f290c86273a7e4c377ccba4b
 T013:
-  task: 56924e4dd9962147eea9bfc817b890d13ae8befda3b28348dd30a403ef800246
+  task: 7910b5608d58431c2d620406d884773b01bd4c973afaf9e3909163075ed31f41
 T014:
-  task: a4196aeea9f79731d7f82ae227c1c97501b6054d2ed575c143700b0bf004f818
-T015:
-  task: aa744d9f982f2f89e7bede179dd977b7fe559deb00fac5492cdd520650c5e50e
+  task: 04bf3b2659835f81725a80a013a19a56b19a894dee7c76a500812ad1ae28eaa7
+T015a:
+  task: 2a92e12f78cd2dfc42a7c27ef13a720e5f112d909cea2ce4dc08cd4b3cc3f030
+T015b:
+  task: 5a01127c4f0137936edb8046fdbdb0d8b7d352efba89d5808041cc4e6fb0c5ba
+T015c:
+  task: a9c04ea8bf5c71c9a1b5cb6beceb28796e2535349f5fed942dbf52387fbba527
 T016:
-  task: b7e859786b676236c9a90eff804b5e432a63ac58ee7be1da2283e020ea5d9b81
+  task: e71ad303cae5d29defb75fa82954b03d9c52fa3f1ae0115f4221f4930c954eb9
 T017:
-  task: f3dff7267905da6bc74285deb384b667f4408662028d40a7725dfe1afcccef9e
+  task: 26749d4a83f1dd280e168b4598c51d570406d9c2a839d729000d7ed35c4316c3
 T018:
-  task: b5993bb2be9247ec80457c52e59e63374386dcb2b2845b2c382439b23cb16d2b
+  task: ba117d51adda3dfcc9ada9fcda21af9954a9bf98f171c7708ab30b34f48d2fbc
+T020:
+  task: ecb6d7917f120e90fa312fac13075d4ae0a1173a4bee67d10da898ff9af9a49a
+T021:
+  task: 7801429e262324e28cc7f166e240e94526bbff4b92b2414382fdd791de216835

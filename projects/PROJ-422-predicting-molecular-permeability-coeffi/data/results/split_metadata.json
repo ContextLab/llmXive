@@ -1,0 +1,8 @@
+{
+  "split_strategy": "leave_one_out",
+  "stratify_column": null,
+  "train_size": 4,
+  "test_size": 1,
+  "max_distribution_diff": null,
+  "retention_rate": 1.0
+}

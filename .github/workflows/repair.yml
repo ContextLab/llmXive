@@ -1,9 +1,11 @@
 name: Platform repair candidates
 
 on:
-  schedule:
-    - cron: '0 7 * * *'
-    - cron: '0 19 * * *'
+  # SCHEDULE PAUSED 2026-11-23: manual dispatch only until reliable performance and
+  # quality are verified. To restore, uncomment the block below.
+  # schedule:
+  #   - cron: '0 7 * * *'
+  #   - cron: '0 19 * * *'
   workflow_dispatch:
     inputs:
       source:

@@ -1,190 +1,133 @@
+# Tasks: Extending "Mega-ASR" – Semantic Collapse Thresholds
+
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contract schemas, and reviewer feedback.
+
+The list below follows the canonical checklist format `- [ ] T### [P?] [USx?] description …`. All file paths are relative to the project root. Tasks are ordered to respect data‑flow dependencies; each task includes concrete verification steps. This revision consolidates the prior task list into the smallest complete study and reopens the requirements rejected by the independent verifier (missing test scaffolding, truncated orchestration, missing `collapse_points.parquet`).
+
 ---
-description: "Task list template for feature implementation"
----
 
-# Tasks: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
+## Phase 1: Setup and first end‑to‑end analysis
 
-**Input**: Design documents from `/specs/001-semantic-collapse-threshold/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+- [ ] T001 [P] **Establish project layout, test scaffolding, and quickstart command** –   <!-- FAILED-IN-EXECUTION: code/run_quickstart.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_quickstart.py exit=1 -->
+  Create `code/`, `data/raw/`, `data/derived/`, `data/validation/`, `tests/unit/` (with `tests/__init__.py` and `tests/unit/__init__.py`) and `pytest.ini` / `conftest.py`. Add `code/config.py` with pinned constants (FR‑023): `SEED=42`, `SAMPLE_SIZE=50000`, SNR levels (9 values, −10 dB … 30 dB), RT60 levels (6 values, 0.1 s … 0.6 s), CCM threshold 0.5, SSS absolute threshold 0.5, WER multiplier 2.0, FDR 0.05, R² target 0.6. Write `docs/quickstart.md` documenting a runnable pilot command on 10 real clips producing `data/derived/stress_curves.parquet`, `data/derived/collapse_points.parquet`, and `data/derived/critical_vector.parquet`.  
+  **Verification**: `pytest --collect-only` exits 0; `python -c "import code.config"` succeeds; the documented quickstart command runs end‑to‑end on real inputs and all three Parquet files contain ≥ 1 row each.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only if explicitly requested in the feature specification.
+- [ ] T002 [US1] **Download and stratify the Voices‑in‑the‑Wild‑2M subset (FR‑001)** –  
+  Implement `code/data_loader.py::load_viw_subset()` that streams the dataset via `datasets.load_dataset("voices-in-the-wild/2M", split="train", streaming=True)`, stratifies by `speaker_id` and `environment_id` (seed 42), selects ≥ 50 000 clean clips, writes `data/raw/viw_subset.parquet` and records SHA‑256 checksums in `data/raw/viw_checksums.txt`. The loader MUST fail loudly (raise) on any fetch or checksum failure — no synthetic/mock fallback. Also record the exact streaming/sampling rule (split, chunk size, row count) in the manifest.  
+  **Verification**: `data/raw/viw_subset.parquet` has ≥ 50 000 rows with required metadata columns; `tests/unit/test_viw_loader.py` asserts stratification proportions within ±0.02 tolerance and that a failed fetch raises.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+- [ ] T012 [US1] **Compute SSS embeddings for subset (FR‑003)** –  
+  Using `sentence-transformers/all-MiniLM-L6-v2`, compute semantic similarity scores for each clean clip and store in `data/derived/clean_sss.parquet`. This provides the `ss_score` needed for downstream human‑validation AUC‑ROC.  
+  **Verification**: `tests/unit/test_sss_embeddings.py` checks that the file exists, contains a `clip_id` column, and that all scores lie in [0, 1].
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T013 [US1] **Power analysis and verification (FR‑011, FR‑016, FR‑023, FR‑032, FR‑032‑VERIF)** –  
+  Implement `code/power_analysis.py` reproducing the G*Power calculation (linear multiple regression, f² = 0.02, α = 0.05, power = 0.80 → N ≈ 395) and write `logs/power_analysis.txt`. After the final subset size from T002 is fixed, re‑run with actual N and log achieved power (≥ 0.99) to `logs/power_analysis_verif.txt`.  
+  **Verification**: `tests/unit/test_power_analysis.py` asserts that both log files exist and contain the expected numeric values.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T014 [US1] **Create human‑validation annotation tool** –  
+  Provide `code/annotation_tool.py` with a simple CLI that ingests a CSV of clip IDs, presents audio via a Streamlit web UI, collects binary intelligibility labels from ≥ 3 raters per clip, enforces ≥ 2/3 agreement, and writes `data/validation/human_annotations.parquet`.  
+  **Verification**: `tests/unit/test_annotation_tool.py` checks that the script creates the Parquet file with required columns and that disagreement handling works as specified.
 
-## Path Conventions
+- [ ] T015 [US1] **Human validation & AUC‑ROC computation (FR‑016, FR‑022)** –  
+  Run `code/human_validation.py` to compute AUC‑ROC between `ss_score` (from T012) and the binary intelligibility label. Require AUC‑ROC ≥ 0.85; if fails for high‑reverb clips (RT60 > 0.5 s, ≥ 500 clips), switch to Montreal Forced Aligner phoneme‑edit distance and require Pearson r ≥ 0.6. Abort with `RuntimeError` if both fail.  
+  **Verification**: `tests/unit/test_human_validation.py` asserts the AUC‑ROC threshold and the fallback path.
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T016 [US1] **Distortion engine implementation (FR‑002, FR‑024)** –  
+  Implement `code/distortion_engine.py` using **pyroomacoustics** to apply the Cartesian product of 9 SNR × 6 RT60 levels (54 compound vectors) per clip. No in‑task scaling discretion; the task must process the full ≥ 50 k subset. If resources are insufficient, the task will abort and trigger amendment task T019.  
+  **Verification**: `tests/unit/test_distortion_vectors.py` asserts exactly 54 vectors per clip; a log `logs/distortion_engine.log` records start/end timestamps.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T017 [US1] **ASR inference & stress‑curve generation (FR‑003, FR‑017, FR‑026)** –  
+  Run ASR inference on five small models (`whisper_tiny`, `whisper_base`, `distil_whisper`, `wav2vec2_small`, `whisper_medium`) with `device="cuda"` (auto‑offloaded to Kaggle GPU). Compute SSS via the embeddings from T012 and WER, log all provenance, and write `data/derived/stress_curves.parquet` conforming to `contracts/stress_curves.schema.yaml`. Also produce `data/derived/distortion_coverage_report.json`.  
+  **Verification**: `tests/unit/test_stress_curves.py` validates schema, column ranges, and that each clip has entries for all 5 models × 54 vectors.
 
-**Purpose**: Project initialization and basic structure
+- [ ] T018 [P] **Validate stress‑curve artifact schema (FR‑034)** –  
+  Execute `code/validate_artifacts.py` to validate `stress_curves.parquet` against `contracts/stress_curves.schema.yaml`; abort on any violation.  
+  **Verification**: CI logs “Stress‑curve schema validation passed”.
 
-- [ ] T001a [P] Create `code/` directory at repository root per plan.md
-- [ ] T001b [P] Create `data/raw/` directory at repository root per plan.md
-- [ ] T001c [P] Create `data/derived/` directory at repository root per plan.md
-- [ ] T001d [P] Create `tests/` directory at repository root per plan.md
-- [ ] T002a [P] Create `ruff.toml` configuration file with specific rules for linting
-- [ ] T002b [P] Create `pyproject.toml` configuration file with specific rules for black formatting
-- [ ] T003a Resolve Deferred Parameters: Read `research.md` and `plan.md` to explicitly resolve all `[deferred]` parameters (sample size=500, correlation threshold=0.6, SNR/RT60 ranges). Write these values as hardcoded constants in `code/config.py`. (Resolves FR-023; Depends on plan.md/research.md availability)
-- [ ] T003 Implement `code/config.py` with paths, random seeds, and hyperparameters (thresholds, distortion counts) (Depends on T003a)
-- [ ] T003b Document Power Limitation: Update `docs/research.md` to explicitly state that the study is powered for **medium-to-large effects (f² ≥ 0.05)** only, and that the original small effect requirement (f² ≥ 0.02) is unachievable with the available data (AMI+LibriSpeech). (Resolves FR-001 power conflict; Depends on T003a)
-- [ ] T003c Re‑scope US‑3 Hypothesis: Explicitly update the US‑3 acceptance criteria (R² ≥ 0.6) and the research hypothesis in `docs/research.md` to state that the regression analysis is **valid only for detecting medium-to-large interaction effects**, explicitly excluding small effects. (Resolves FR‑001/US‑3 conflict; Depends on T003b)
-- [ ] T004 Implement `code/monitor_resources.py` to track peak RSS and wall‑clock time (SC‑004)
-- [ ] T005 Implement `code/hash_updater.py` to compute content hashes for `data/derived/` and update state YAML (Principle V)
-- [ ] T006 Create base entity classes (`AudioClip`, `DistortionVector`, `StressCurve`) in `code/models.py` (or dataclasses)
-- [ ] T008c Create `tests/unit/` directory for unit tests (new)
-- [ ] T008d Create `pytest.ini` (or configure in `pyproject.toml`) for pytest discovery and enable `tests/unit/` (new)
-- [ ] T008_test Verify that `pytest.ini` exists and is syntactically valid
-- [ ] T008d_test Verify that `tests/unit/` directory is present and contains at least one placeholder test
-- [ ] T009 Unit test for distortion vector generation: verify that a collection of distinct vectors is produced from the defined SNR and RT60 ranges. (Moved to Phase 3 after T012c)
-- [ ] T010 Implement `code/monitor_resources.py` unit tests (ensuring resource monitor works) (optional)
+- [ ] T019 [P] **Spec amendment request for resource constraints** –  
+  If T016 aborts due to GPU budget, automatically open a PR proposing a formal spec amendment to relax FR‑001/FR‑002 or to allocate additional GPU resources.  
+  **Verification**: Presence of a PR comment log `logs/spec_amendment_request.txt`.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T020 [US1] **Baseline normalization, CCM, and deterministic collapse points (FR‑010, FR‑012, FR‑020, FR‑021, FR‑036)** –  
+  Implement `code/collapse.py`: extract per‑clip baseline SSS/WER from the clean scenario; compute `norm_sss`, `norm_wer`, and `CCM = 0.7 × (1 − norm_sss) + 0.3 × norm_wer` into `data/derived/stress_curves_normalized.parquet`; apply deterministic algorithm (first step where CCM ≥ 0.5, linear interpolation per FR‑020, “None”/“Max Tested” when never crossed, early‑collapse flag from spline’s maximum negative derivative); compute the **Universal Collapse Intensity** at absolute SSS ≤ 0.5 (FR‑036); fit splines and store curve‑shape descriptors in `data/derived/curve_shape.parquet`. Write `data/derived/collapse_points.parquet` conforming to `contracts/collapse_points.schema.yaml`.  
+  **Verification**: `tests/unit/test_collapse.py` checks collapse identification including edge cases; schema validation passes.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes data fetching, stratification, and distortion engine setup.
+- [ ] T021 [US1] **Prepare regression input (FR‑005, regression_input.schema.yaml)** –  
+  Build `data/derived/regression_input.parquet` containing `clip_id`, `model_name`, `snr`, `rt60`, `snr_sq`, `rt60_sq`, `snr_rt60`, `baseline_wer`, `transcript_perplexity`, and **`universal_collapse_intensity`** (the Universal Collapse Intensity from T020) as the target variable.  
+  **Verification**: Schema validation against `contracts/regression_input.schema.yaml` (field `universal_collapse_intensity` added via task T033) and `tests/unit/test_regression_input.py`.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T022 [US1] **Train hierarchical regression model (FR‑005, FR‑025)** –  
+  Use `statsmodels.MixedLM` on the input from T021, 80/20 stratified split, 5‑fold CV, achieve out‑of‑sample R² ≥ 0.6 and MAE reported.  
+  **Verification**: `tests/unit/test_regression_fit.py` asserts metrics meet thresholds.
 
-- [ ] T007a Fetch and verify checksums for **LibriSpeech** subset (`openslr/librispeech_asr`, split='test.clean') in `code/data_loader.py`; implement **streaming=True** and **chunked iteration** to prevent OOM (>7 GB RAM) as per FR‑001; **Apply stratification by speaker ID and SNR bucket** (adapted from Voices‑in‑the‑Wild‑2M logic). (Resolves coverage‑a79c0482; Depends on T003a)
-- [ ] T007a_test Validate LibriSpeech fetch, checksum file existence, and streaming behavior.
-- [ ] T007b Fetch and verify checksums for **AMI** subset (`hf-audio/ami`, split='test') in `code/data_loader.py`; implement **streaming=True** and **chunked iteration** to prevent OOM (>7 GB RAM) as per FR‑001; **Apply stratification by speaker ID and SNR bucket**. (Resolves coverage‑3941c0cc; Depends on T003a)
-- [ ] T007b_test Validate AMI fetch, checksum file existence, and streaming behavior.
-- [ ] T007c Document Spec Deviation: Create `docs/dataset_substitution_rationale.md` explicitly stating that the plan deviates from FR‑001 (CHiME‑5, 50k clips) to LibriSpeech/AMI (approximately several thousand clips) due to availability constraints, and that this document serves as the approved exception for the project. Must include exact dataset IDs and stratification mapping. (Resolves constraint‑preservation‑6834b210)
-- [ ] T008a Fetch & Generate DNS‑Challenge Data: Implement `code/data_loader.py` function `fetch_dns_challenge` to download an appropriate number of clips from `hf-audio/dns-challenge` (train split). Output: `data/raw/dns_reference.parquet`. (Resolves FR‑018)
-- [ ] T008b Distortion Realism Validation (FR‑018): Implement `code/realism_validator.py` to compare synthetic distortion parameters against DNS‑Challenge using Log‑Mel Spectral Distance ≤ 0.15. (Resolves FR‑018)
-- [ ] T012d Validate Distortion Vector Definition: Ensure the The SNR list contains exactly nine numeric entries, covering a range from a low negative SNR value up to +30. with no empty placeholder. Fail fast with clear error if definition is incorrect. (New validation task)
-- [ ] T012c Implement `code/distortion_engine.py` to apply **exactly 54** distinct compound distortion vectors (Cartesian product of SNR: [-10, -5, 0, 5, 10, 15, 20, 25, 30] dB and RT60: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6] s). Enforce count and fail if mismatched. (Resolves FR‑002, executability‑f121ccd7)
-- [ ] T012b Implement `code/realism_validator.py` (depends on T012c) to validate synthetic distortion realism. (Resolves executability‑d99914bb)
-- [ ] T012_test Verify exactly 54 scenarios are generated and saved. (New)
-- [ ] T015a Generate Stress Curves: Extend `code/main.py` to iterate clips → apply 54 distortions (T012c) → run Whisper‑tiny ASR → compute SSS/WER → write `data/derived/stress_curves.parquet`. (Resolves CRITICAL T015)
-- [ ] T015a_test Verify `data/derived/stress_curves.parquet` exists, is non‑empty, and matches `contracts/stress_curve.schema.yaml`.
-- [ ] T015c Verify Artifact Non‑Emptiness: Add check in `code/main.py` to raise RuntimeError if `stress_curves.parquet` is empty. (Resolves executability‑46e3ca9a)
-- [ ] T016 Validation Logic in `code/metrics.py` to handle hysteresis (K=3 consecutive steps below threshold), empty ASR output mapping, and missing distortion scenarios (log warning). (Resolves FR‑001 edge cases)
-- [ ] T042 Distortion Coverage Validator: Log which distortion scenarios were applied or skipped; output `data/derived/distortion_coverage_report.json`. (Resolves FR‑017)
+- [ ] T023 [US1] **Permutation baseline & interaction significance (FR‑027, FR‑028)** –  
+  Generate a permutation baseline by shuffling the target `universal_collapse_intensity`; require ΔR² ≥ 0.20. Compute interaction term significance, apply Benjamini‑Hochberg FDR ≤ 0.05, output `data/derived/permutation_baseline.json` and `data/derived/corrected_pvalues.json`.  
+  **Verification**: `tests/unit/test_permutation.py` asserts ΔR² ≥ 0.20; `tests/unit/test_fdr_correction.py` checks FDR threshold.
 
-## Phase 3: User Story 1 – Generate Compound Distortion Stress Curves (Priority: P1)
+- [ ] T024 [US1] **Partial‑correlation controlling for transcript difficulty (FR‑035)** –  
+  Compute partial‑correlation between acoustic predictors and `universal_collapse_intensity` while controlling for transcript perplexity; store results in `data/derived/partial_correlation.json`.  
+  **Verification**: `tests/unit/test_partial_corr.py` validates numeric output and that transcript difficulty is the control variable.
 
-**Goal**: Systematically apply a diverse range of compound acoustic distortions to a stratified subset of audio data to generate stress curves mapping distortion intensity to semantic integrity.
+- [ ] T025 [US1] **Export critical interaction vector & out‑of‑sample R² (FR‑005, FR‑033, FR‑051)** –  
+  From the fitted model, export `critical_vector.parquet` matching `contracts/critical_vector.schema.yaml` (coefficients, CIs, R², MAE, universal vector, similarity to others). Additionally, compute out‑of‑sample R² against the 500‑expert‑labeled collapse intensities (FR‑033) and store in `data/derived/expert_r2.json`.  
+  **Verification**: `tests/unit/test_critical_vector.py` checks schema; `tests/unit/test_expert_r2.py` asserts R² is computed and recorded.
 
-- [ ] T010 [US1] Extend `code/data_loader.py` to add US1‑specific stress‑curve generation logic (building on T012c). (Depends on T007a‑b, T012c)
-- [ ] T011 [US1] Integration test for `code/data_loader.py` verifying stratified sampling and stress‑curve generation workflow. (Depends on T010)
-- [ ] T013 [US1] Implement `code/metrics.py` to compute SSS using `all‑MiniLM‑L6‑v2` (CPU‑only) per FR‑003.
-- [ ] T014 [US1] Implement `code/metrics.py` to compute WER using `jiwer` per FR‑009.
-- [ ] T017 [US1] Unit test for SSS computation correctness. (New)
-- [ ] T018 [US1] Unit test for WER computation correctness. (New)
-- [ ] T019 [US1] Verify that `data/derived/stress_curves.parquet` contains rows for all 54 scenarios per clip. (New verification task)
-- [ ] T019_test Verify the per‑clip scenario count in `stress_curves.parquet`.
-- [ ] T009_test Verify distortion vector generation produces the full Cartesian product of 9 SNR × 6 RT60 levels (54 vectors). (Moved from Phase 2)
+- [ ] T026 [P] **Update data‑model.md and designate canonical schemas (FR‑039)** –  
+  Edit `data-model.md` to reference the **plural** schema files (`contracts/stress_curves.schema.yaml`, `contracts/collapse_points.schema.yaml`, `contracts/critical_vector.schema.yaml`) and to point the module layout to `code/` (`distortion_engine.py`, `collapse.py`, `train_regressor.py`). Commit the updated file.  
+  **Verification**: `git diff --quiet data-model.md` passes; CI lints the file for consistency.
 
-## Phase 4: User Story 2 – Identify Semantic Collapse Points (Priority: P2)
+- [ ] T027 [P] **Revise dependency table to include all SC‑001 – SC‑009** –  
+  Add missing rows for SC‑003 (FDR‑corrected interaction p‑values) and SC‑005 (sensitivity analysis CV) and ensure each task tags the corresponding SC IDs.  
+  **Verification**: Table now contains a row for every SC‑001…SC‑009; CI checks the table format.
 
-**Goal**: Automatically identify the precise "collapse intensity" for each model/scenario where SSS drops below a normalized threshold and WER spikes > 2× baseline.
+- [ ] T028 [US3] **Model‑agnostic SHAP analysis of interaction (US‑3)** –  
+  Run SHAP on the final regression model to quantify feature importance and visualize the interaction effect between SNR and RT60. Store plots in `figures/shap_interaction.png` and summary JSON `data/derived/shap_summary.json`.  
+  **Verification**: `tests/unit/test_shap.py` asserts files exist and that SHAP values for the interaction term are non‑zero.
 
-- [ ] T022b Mock Stress Curves: Generate a minimal synthetic `stress_curves.parquet` (e.g., Multiple clips × 54 scenarios) to enable independent US2 testing without requiring full US1 pipeline. (Moved earlier to satisfy ordering‑d93bf3ba)
-- [ ] T020b Compute `baseline_sss.json`: average SSS of clean audio subset per model/scenario. (Resolves FR‑010)
-- [ ] T020b_test Validate `baseline_sss.json` schema and checksum. (New)
-- [ ] T020c Compute `baseline_wer.json`: average WER of clean audio subset per model/scenario. (Resolves FR‑010)
-- [ ] T020c_test Validate `baseline_wer.json` schema and checksum. (New)
-- [ ] T020d Normalize Stress Curves: Divide SSS by baseline values, output `data/derived/stress_curves_normalized.parquet`. (Resolves FR‑010)
-- [ ] T020d_test Verify normalized file exists and schema matches. (New)
-- [ ] T021 Handle "No Collapse": Record `collapse_type: 'max_tested'` when no drop detected. (Resolves US‑2 Acceptance 2)
-- [ ] T022a Generate Collapse Points: Using normalized curves, identify intensity where `normalized_sss` < 0.5 **and** WER > 2× baseline; output `data/derived/collapse_points.parquet`. (Resolves CRITICAL missing artifact)
-- [ ] T022a_test Verify `collapse_points.parquet` exists, non‑empty, and contains required columns. (New)
-- [ ] T023 Compute Phoneme‑Edit‑Distance Fallback (FR‑022): When SSS fails, compute phoneme edit distance using `g2p_en` and `editdistance`; store fallback values in `data/derived/collapse_points_phoneme.parquet`. (Resolves FR‑022)
-- [ ] T023_test Verify phoneme fallback artifact exists and matches its schema.
+- [ ] T029 [US1] **Realism validation against DNS‑Challenge (FR‑018)** –  
+  Fetch the DNS‑Challenge dataset, compute Log‑Mel Spectral Distance (LMSD) between synthetic distortions and matched real clips (±1 dB / ±0.1 s), record results in `data/derived/realism_validation.parquet`, and require mean LMSD ≤ 0.15. Document the validation procedure and limitation note in the final report.  
+  **Verification**: `tests/unit/test_realism_dns.py` checks the parquet file exists, LMSD values are numeric, and mean ≤ 0.15.
 
-## Phase 5: Human Annotation & HVCM (Priority: P2 – Dependent on US1)
+- [ ] T030 [P] **Record wall‑time for pilot and full runs (SC‑004)** –  
+  Instrument the pipeline (T016‑T025) to log start/end timestamps to `logs/run_timing.json`. Verify pilot run ≤ 48 h and full run ≤ 72 h on the GPU cluster. Abort if limits exceeded.  
+  **Verification**: `tests/unit/test_timing.py` parses the JSON and asserts the limits.
 
-**Goal**: Generate human‑annotated validation set and derive Human‑Validated Collapse Margin (HVCM) to break circularity.
+- [ ] T031 [P] **Create report compliance check script (FR‑007)** –  
+  Implement `code/check_report_compliance.py` that parses `docs/final_report.md`, ensures every required metric is present, and flags any prohibited causal verbs (“causes”, “leads to”, “drives”).  
+  **Verification**: `tests/unit/test_report_compliance.py` runs the script on a sample report and expects zero violations.
 
-- [ ] T050 Draft Human Annotation Protocol (`docs/annotation_protocol.md`) defining 0‑5 Likert scale and sampling strategy. (Resolves FR‑011)
-- [ ] T050a Implement `code/annotation_tool.py` CLI to present clips and collect scores into `data/validation/human_annotations.csv`. (Depends on T015a)
-- [ ] T050b **MANUAL** Execute annotation tool on pilot set (N=100 high‑reverb AMI clips) to produce real human labels. (Critical path)
-- [ ] T050c Generate synthetic placeholder annotations for CI verification; mark file with metadata `SYNTHETIC`. (CI path)
-- [ ] T050d Document manual execution steps in `docs/manual_annotation_steps.md`. (Supports reproducibility)
-- [ ] T050e Compute synthetic correlation report (`data/validation/synthetic_correlation_report.json`) and assert `r ≥ 0.6`. (New verification)
-- [ ] T050e_test Verify synthetic correlation meets threshold.
-- [ ] T050f Implement HALT Logic in `code/main.py`: If real human validation (T050b) yields AUC‑ROC < 0.85 **or** correlation r < 0.6, raise RuntimeError and block downstream US2/US3. (Resolves FR‑016)
-- [ ] T050g Spec Amendment for FR‑011 Pilot Reduction: Create `docs/spec_amendment_FR011.md` documenting amendment to N=100 pilot, bump constitution version to 1.0.1, and record PR approval. (Resolves constraint‑preservation‑282f8ac7)
-- [ ] T050g_approval Task to record amendment approval workflow (PR link, version bump). (New)
-- [ ] T118 Compute AUC‑ROC on real human annotations and verify ≥ 0.85 (SC‑006). (New)
-- [ ] T118_test Verify AUC‑ROC meets threshold.
+- [ ] T032 [P] **Canonicalize schema references and SSoT (FR‑038, FR‑039)** –  
+  Remove singular schema files (`contracts/stress_curve.schema.yaml`, `contracts/collapse_point.schema.yaml`) from the repository; ensure only plural versions remain. Update all task descriptions, validation scripts, and data‑model.md to reference the plural schemas. Add a short note in `data-model.md` that the source‑of‑truth for schema definitions is now the plural files and that the pipeline code resides under `code/`.  
+  **Verification**: CI checks that singular schema files are absent, that all import paths point to plural schemas, and that `data-model.md` contains the updated SSoT statement.
 
-## Phase 6: User Story 3 – Predict Collapse via Critical Interaction Vector (Priority: P3)
+- [ ] T033 [US1] **Align regression target to Universal Collapse Intensity (FR‑005)** –  
+  Modify `code/prepare_regression_input.py` to set `target = universal_collapse_intensity` (from T020) instead of `inflection_step`. Update `contracts/regression_input.schema.yaml` to replace `inflection_step` with `universal_collapse_intensity` (type string, same format as in `collapse_point.schema.yaml`). Adjust downstream tasks (T022‑T025) to consume the new target field.  
+  **Verification**: `tests/unit/test_regression_input.py` validates the new field; schema validation passes; regression training scripts reference the correct column name.
 
-**Goal**: Train a lightweight regression model to predict collapse intensities using acoustic parameter vectors + interaction terms, and validate the “critical interaction vector” hypothesis.
+- [ ] T034 [US1] **Implement robust annotation UI and import contract** –  
+  Build `code/annotation_ui.py` using Streamlit that loads a CSV of clip IDs, streams audio from `data/raw/viw_subset.parquet`, records binary intelligibility labels, and writes `data/validation/human_annotations.parquet` following the contract `contracts/human_annotations.schema.yaml` (new contract to be added). Provide a CLI wrapper `code/run_annotation.sh` for batch execution.  
+  **Verification**: `tests/unit/test_annotation_ui.py` checks that the UI script produces a Parquet file adhering to the contract and that missing input raises an error.
 
-- [ ] T026c_mock Generate Mock Collapse Points: Produce a synthetic `collapse_points.parquet` (e.g., 200 rows) to enable independent US3 testing without US2 outputs. (Moved earlier to satisfy ordering‑184fa7b0)
-- [ ] T023a Unit test for interaction term generation (SNR×RT60, SNR², RT60²). (Ensures correct features)
-- [ ] T025a Implement `code/models.py` function `generate_interaction_terms` to create engineered interaction terms. (Depends on T023a)
-- [ ] T026a Regression Training (CI Path): Train CPU‑tractable regression (Linear/Polynomial degree≤3 or DecisionTree max_depth≤5) using features from T025a and target `normalized_inflection_coord` from `collapse_points.parquet`. Output `data/derived/regression_results.json`. (Depends on T022a)
-- [ ] T026b Regression Training (Final Path): Same as T026a but target is HVCM from `hvcm_targets.parquet`. Raise RuntimeError if HVCM missing. (Depends on T050b)
-- [ ] T026a_test Verify regression results file exists and contains R², MAE fields.
-- [ ] T026b_test Verify final regression respects HVCM target presence.
-- [ ] T026d Additive Baseline Comparison (FR‑013): Fit additive baseline model (no interaction terms), perform F‑test with FDR correction, output `data/derived/baseline_comparison.json`. (Depends on T026a/b)
-- [ ] T024 Implement multiple‑comparison correction in `code/statistics.py` (Bonferroni/FDR) for interaction effects. (Resolves FR‑008)
-- [ ] T025 Generate `data/derived/corrected_pvalues.json` with corrected p‑values. (Resolves SC‑003)
-- [ ] T025_test Verify corrected p‑values file exists and contains expected keys. (New)
-- [ ] T030b Compute Human‑Validated Collapse Margin (HVCM): Using human annotations, calculate HVCM per clip and store `data/derived/hvcm_targets.parquet`. (Addresses executability‑9931f5cf)
-- [ ] T030b_test Verify `hvcm_targets.parquet` exists, matches schema, and contains non‑null values.
-- [ ] T053 Sensitivity & Morphology Stability Verification (FR‑006, SC‑002): Sweep inflection detection thresholds, classify curve morphology, compute critical interaction vector variance; raise RuntimeError if variance > 10 %. Output `data/derived/sensitivity_analysis.csv` and `morphology_stability_report.json`. (Enhanced to also output inflection points per FR‑012)
-- [ ] T053_test Verify sensitivity outputs exist and variance constraints satisfied. (New)
-- [ ] T095 Verify R² ≥ 0.6 (SC‑001) and fail pipeline if not met. (New)
-- [ ] T095_test Verify R² check passes or fails as expected. (New)
-- [ ] T102 Aggregate Missing Scenario Warnings into final report (`data/derived/missing_scenarios_report.json`). (Resolves FR‑017)
-- [ ] T103 Generate comprehensive audit log (`audit.log`) covering all intermediate artifacts, timestamps, and hashes. (Resolves FR‑026)
-- [ ] T104 Compute and store the “critical interaction vector” per scenario in `data/derived/critical_vectors_detail.parquet`. (Addresses Principle VI granularity)
-- [ ] T104_report_per_scenario Add a reporting step that outputs a human‑readable CSV summarizing the critical interaction vector for each of the 54 compound scenarios. (Ensures explicit reporting)
-- [ ] T105 Cross‑model similarity calculation: Compute cosine similarity of critical vectors across selected ASR models; output `data/derived/cross_model_similarity.csv`. (Depends on T104)
-- [ ] T106 Validate HVCM against human annotations: Correlate HVCM with `human_annotations.csv` and report Pearson r in `data/derived/hvcm_validation.json`. (Depends on T050b)
-- [ ] T107 Generate final report (`docs/final_report.md`) aggregating regression results, sensitivity analysis, critical vectors, and validation metrics. (Resolves unspecified final‑report concern)
+- [ ] T035 [US1] **Stratification tolerance verification (FR‑001)** –  
+  Extend `tests/unit/test_viw_loader.py` to compute the proportion of each `speaker_id` and `environment_id` stratum in the sampled subset and assert that the absolute deviation from the source distribution is ≤ 0.02 for both dimensions.  
+  **Verification**: Test passes only when the tolerance condition holds.
 
-## Phase 7: Execution Verification & Safety Gates
+- [ ] T011 **Final report and reproducibility check (FR‑007, SC‑001–SC‑009)** –  
+  `code/report_generator.py` creates `docs/final_report.md` with figures and tables plotted directly from the Parquet artifacts (stress curves, collapse‑point histograms, coefficient plots, SHAP visualisation, timing summary, realism validation, etc.). Every result statement uses associational phrasing only (FR‑007). Re‑run the documented workflow from `quickstart.md` inputs, confirm `pytest -q` passes in full, and document the paper‑stage handoff.  
+  **Verification**: A CI step runs `code/check_report_compliance.py` (produced by T031); all checks pass; the report includes all required metrics.
 
-**Purpose**: Address execution feedback regarding CPU feasibility, data integrity, and statistical rigor.
+## Dependency Table
 
-- [ ] T037 Defensive CPU Enforcement: Raise RuntimeError if any CUDA device is detected. (Resolves executability‑e06b5979)
-- [ ] T037_test Simulate CUDA detection and verify RuntimeError.
-- [ ] T038 Pre‑flight Dataset Check: Verify datasets are fully downloadable before distortion loop; raise if download fails. (Resolves executability‑3c0bf3da)
-- [ ] T038_test Force dataset download failure and verify RuntimeError.
-- [ ] T039 Memory‑Streaming Wrapper in `code/data_loader.py` to process stress‑curve data in chunks, ensuring RSS < 7 GB. (Resolves executability‑6f9d332f)
-- [ ] T039_test Run wrapper on sample and assert RSS limit.
-- [ ] T040 Unit test for correct Bonferroni correction factor based on number of interaction terms. (Resolves executability‑3f58211d)
-- [ ] T041 Causality Warning: Assert regression target includes human intelligibility scores; raise if missing. (Resolves executability‑68d2167a)
-- [ ] T041_test Provide training data without human scores and verify RuntimeError.
-- [ ] T042 Distortion Coverage Validator (already added in Phase 2). (Resolves executability‑a3568198)
-- [ ] T042_test Verify coverage report includes all 54 scenarios.
-- [ ] T090 Enforce A short wall‑clock deadline via timeout wrapper; raise if exceeded. (Resolves SC‑004)
-- [ ] T090_test Simulate long‑running run and verify timeout.
-- [ ] T090c Additional check to assert total runtime ≤ 48 h after pipeline completes. (Redundant safety)
-- [ ] T090c_test Verify final runtime check passes.
-
-## Phase 8: Specification Amendments & Governance
-
-- [ ] T115 Formal Spec Amendment for Dataset Substitution (FR‑001): Create amendment document, bump constitution version to 1.0.1, and record PR approval. (Resolves constraint‑preservation‑6834b210)
-- [ ] T116 Provision Distributed Execution Environment (FR‑002): Set up Ray cluster on GitHub Actions using `ray[default]`; add task to run heavy steps (distortion generation, ASR inference) within Ray actors. (Resolves FR‑002)
-- [ ] T117 Formal Amendment Approval for FR‑011 Pilot Reduction: Record PR link, version bump, and update constitution. (Resolves constraint‑preservation‑282f8ac7)
-
-## Phase 9: Contracts & Validation
-
-- [ ] T080 Create contract schema files (`contracts/*.schema.yaml`) for stress curves, collapse points, critical vectors, regression input, regression result, dataset metadata. (Resolves missing contracts)
-- [ ] T080b Validate each contract against generated artifacts using `jsonschema`. (Resolves coverage‑f9816e2b)
-- [ ] T080b_test Verify contract validation passes for a sample artifact.
-- [ ] T059_test Cross‑validate final sample size against power‑analysis parameters defined in FR‑023.
-
-## Phase 10: Polishing & Cross‑Cutting Concerns
-
-- [ ] T031 Documentation updates in `docs/` including `research.md` citations for LibriSpeech/AMI.
-- [ ] T033 Performance optimization: Parallelize ASR inference and distortion application where safe, using Ray actors (from T116).
-- [ ] T034 Additional unit tests in `tests/unit/` for edge cases and statistical corrections (including all newly added verification tests).
-- [ ] T035 Run `quickstart.md` validation to ensure end‑to‑end reproducibility on GitHub Actions free tier.
-- [ ] T036 Generate final report section and code comments in `research.md` and `code/models.py` explicitly framing all predictive findings as ASSOCIATIONAL, avoiding causal claims per FR‑007.
+| Requirement | Task(s) | Order |
+|---|---|---|
+| FR‑001, FR‑023, FR‑026 | T001 → T002 | T001 → T002 |
+| FR‑011, FR‑016, FR‑022, FR‑032, FR‑032‑VERIF | T013 | after T002 |
+| FR‑002, FR‑003, FR‑017, FR‑024 | T016 → T017 | after T002 |
+| FR‑010, FR‑012, FR‑020, FR‑021, FR‑036 | T020 | after T004/T017 |
+| FR‑033, SC‑009 | T025 | after T023 |
+| FR‑005, FR‑008, FR‑013, FR‑025, FR‑027, FR‑028, FR‑029, FR‑035 | T022 → T023 → T024 → T025 | after T020 |
+| FR‑006, FR‑051, SC‑002, SC‑005 | T028 | after T025 |
+| FR‑018 (real DNS‑Challenge) | T029 | after T004 |
+| SC‑004 (pilot/full timing) | T030 | after T025 |
+| SC‑001, SC‑003, SC‑006, SC‑007, SC‑008 | T031, T025, etc. | throughout |
+| FR‑007, SC‑001–SC‑009 | T011 | after T025 |

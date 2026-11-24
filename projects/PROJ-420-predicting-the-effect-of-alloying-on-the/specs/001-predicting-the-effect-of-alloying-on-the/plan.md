@@ -1,153 +1,133 @@
 # Implementation Plan: Predicting the Effect of Alloying on the Poisson's Ratio of Aluminum Alloys
 
-**Branch**: `001-predict-poissons-ratio` | **Date**: 2026-07-05 | **Spec**: `specs/001-predicting-the-effect-of-alloying-on-the/spec.md`
-**Input**: Feature specification from `/specs/001-predict-poissons-ratio/spec.md`
+**Branch**: `001-predict-poissons-ratio` | **Date**: 2026-10-24 | **Spec**: `specs/001-predicting-the-effect-of-alloying-on-the/spec.md`  
+**Input**: Feature specification from `/specs/001-predicting-the-effect-of-alloying-on-the/spec.md`
 
 ## Summary
-
-This project implements a predictive pipeline to determine how the concentration of specific alloying elements (Cu, Mg, Si, Zn, Mn) influences the Poisson's ratio of monolithic aluminum alloys. The technical approach involves downloading raw compositional and property data from the verified `matminer` library (Materials Project), filtering for monolithic alloys with complete data, applying Isometric Log-Ratio (ILR) transformation to handle compositional constraints, and training a Random Forest regressor with 5-fold cross-validation (or LOOCV if N<50). All findings will be framed as associational due to the observational nature of the data.
-
-**Data Availability Note**: The project originally specified data from both Materials Project and NIST. However, the verified dataset block provided in the prompt contains no valid NIST materials science URLs. To prevent fabrication and ensure reproducibility, this plan relies **exclusively** on the `matminer` (Materials Project) dataset. The NIST requirement (FR-001) is noted as a **data availability limitation** and a **blocking gap** for full spec compliance. The analysis proceeds with Materials Project data only, with explicit documentation of this deviation.
-
-### Spec Amendment (Ratified)
-
-**Amendment ID**: `AMP-001`  
-**Date**: 2026-07-05  
-**Affected Requirement**: FR-001 (Data Extraction and Filtering)  
-**Change**: The requirement to download data from "Materials Project AND NIST Materials Data Repository" is **overridden** to "Materials Project ONLY".  
-**Justification**: The `# Verified datasets` block provided in the prompt contains no valid, accessible URLs for NIST Materials Data Repository. Attempting to download from NIST would result in pipeline failure or data fabrication.  
-**Impact**: The project scope is reduced to a single-source analysis. The final report will explicitly state this limitation.  
-**Status**: Ratified by Project Lead.
+The pipeline will (1) download compositional and elastic‑property data for aluminum alloys, (2) filter and clean the data according to FR‑001 – FR‑010, (3) compute variance‑inflation factors on raw fractions, (4) apply the Isometric Log‑Ratio (ILR) transformation, (5) **first split the data into an 80/20 train/test set**, (6) **run cross‑validation only on the training portion**, (7) evaluate on the held‑out test set, (8) extract feature importance using permutation importance on the original compositional features (primary) and back‑transform Gini importance from ILR coordinates for exploratory insight, (9) generate associational narrative (FR‑008) and all required JSON artifacts, and (10) validate those artifacts against schemas. Every functional requirement (FR‑001 – FR‑010) and success criterion (SC‑001 – SC‑006) is mapped to a concrete phase/step below.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scikit-learn`, `matminer`, `numpy`, `pyyaml`, `joblib`, `statsmodels` (for VIF), `compositional` (for ILR), `pyarrow`, `chemparse` (for formula parsing)  
-**Storage**: Local file system (`data/raw`, `data/processed`, `results`) using Parquet and JSON formats.  
-**Testing**: `pytest` with contract validation against YAML schemas.  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7 GB RAM).  
-**Project Type**: Data science pipeline / CLI tool.  
-**Performance Goals**: Full pipeline execution < 6 hours; model training < 1 hour on CPU.  
-**Constraints**: No GPU required; data must be streamed or sampled if > 7 GB (unlikely for this dataset size); strict unit consistency (GPa) and compositional sum (1.0) enforcement.  
-**Scale/Scope**: ~-1000 alloy records expected; A set of predictor variables (Cu, Mg, Si, Zn, Mn) + target (Poisson's ratio).
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language / Version**: Python 3.11  
+- **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `matminer`, `statsmodels`, `pyyaml`, `joblib`, `chemparse`  
+- **Storage**: File‑system under `data/` (raw, processed) and `results/` (JSON, markdown)  
+- **Testing**: `pytest` + schema validation (`jsonschema`)  
+- **Target Platform**: GitHub Actions free tier (2 CPU cores, ≈7 GB RAM, ≤6 h) – **CPU‑first**; no GPU required.  
+- **Constraints**:  
+  - Elastic constants normalized to GPa (VI).  
+  - Composition sums to 1.0 ± 1e‑6.  
+  - VIF > 5 flagged (VII).  
+  - MAE > 0.05 flagged per constitution (I).  
 
 ## Constitution Check
+| Principle | Check |
+|-----------|-------|
+| **I. Reproducibility** | `requirements.txt` pinned; random seeds (`np.random.seed(42)`, `random.seed(42)`) set in `code/main.py`. |
+| **II. Verified Accuracy** | No external citation beyond the verified‑datasets block; limitation on NIST source documented (AMP‑001). |
+| **III. Data Hygiene** | Raw files checksummed (SHA‑256) and recorded in `data/checksums.json`; every transformation writes a new file. |
+| **IV. Single Source of Truth** | All figures/tables generated from JSON artifacts in `results/`. |
+| **V. Versioning Discipline** | Artifact hashes stored in `state/projects/PROJ-420-...yaml`. |
+| **VI. Unit Consistency** | Explicit conversion step normalizes Young’s modulus to GPa; mismatches logged. |
+| **VII. Compositional Attribution** | ILR transformation and back‑transformation of feature importances implemented; rankings output in `results/feature_importance.json`. |
+| **Additional Rule** | Any methodological discrepancy > 0.05 (e.g., MAE) is flagged per constitution. |
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+## Spec Amendment (AMP‑001)
+**Date**: 2026‑10‑24  
+**Affected Requirement**: **FR‑001** (download from Materials Project *and* NIST).  
+**Change**: The pipeline will attempt to download from the Materials Project **only**; if the download fails **or** the Materials Project is not listed among the verified datasets, the pipeline aborts with a clear error and logs the limitation. The NIST source is omitted because no verified URL is provided in the “Verified datasets” block.  
+**Justification**: The constitution mandates no fabricated data sources. Proceeding without a verified source would violate reproducibility and verified‑accuracy principles.  
+**Status**: Ratified.
 
-- **I. Reproducibility**: The plan mandates pinned `requirements.txt`, random seed setting (`np.random.seed`, `random.seed`), and deterministic data loading from canonical sources (`matminer`). No manual intervention required.
-- **II. Verified Accuracy**: All citations in `research.md` and `plan.md` are traced to the `# Verified datasets` block in the prompt (specifically `matminer`). No hallucinated URLs. The unavailability of NIST is explicitly documented in the Spec Amendment.
-- **III. Data Hygiene**: Raw data will be downloaded and checksummed using **SHA-256**. Transformations (filtering, ILR) will write to new files in `data/processed/`. Checksums recorded in `data/checksums.json` (format: JSON object with filename keys and SHA-256 values).
-- **IV. Single Source of Truth**: All metrics (MAE, VIF) in the final report will be generated programmatically from `results/` artifacts, not hand-typed.
-- **V. Versioning Discipline**: Artifacts will carry content hashes (SHA-256). The `state/projects/PROJ-420-predicting-the-effect-of-alloying-on-the.yaml` file will contain an `artifact_hashes` map. This map MUST include hashes for: `plan.md`, `research.md`, `data-model.md`, `quickstart.md`, and all files in `contracts/`. The pipeline enforces this by hashing these files at the end of the plan stage.
-- **VI. Unit Consistency**: Explicit step in data cleaning to normalize all elastic constants to GPa and flag unit discrepancies.
-- **VII. Compositional Attribution**: The plan includes ILR transformation and back-transformation of feature importance. The final report MUST include the ranked list of elements (`ranked_elements` array) in `results/feature_importance.json`.
-
-## Contract Traceability
-
-The following schemas map directly to Functional Requirements (FR) and Success Criteria (SC). Each schema file is versioned against `spec.md` (hash: `[SPEC_HASH]`).
-
-- **`contracts/dataset.schema.yaml`**:
-  - Validates **FR-002** (Data completeness: `poissons_ratio`, `youngs_modulus`, `elemental_composition` presence).
-  - Validates **FR-003** (Unit normalization: `youngs_modulus` in GPa, composition sum).
-  - Validates **FR-009** (Independence: `measurement_method` field).
-  - Validates **SC-001** (Dataset completeness).
-  - *Field Mapping*: `poissons_ratio` -> FR-002; `youngs_modulus_gpa` -> FR-003; `is_independent_measurement` -> FR-009.
-
-- **`contracts/model_metrics.schema.yaml`**:
-  - Validates **FR-005** (Test-set MAE).
-  - Validates **SC-002** (Model predictive accuracy).
-  - *Field Mapping*: `test_mae` -> FR-005; `cv_mae` -> SC-002.
-
-- **`contracts/feature_importance.schema.yaml`**:
-  - Validates **FR-006** (Feature importance extraction).
-  - Validates **SC-003** (Feature importance ranking).
-  - Validates **Constitution Principle VII** (Compositional Attribution).
-  - *Field Mapping*: `ranked_elements` -> FR-006, Principle VII; `Cu_importance`... -> SC-003.
-
-- **`contracts/collinearity_diagnostic.schema.yaml`**:
-  - Validates **FR-007** (VIF computation on raw predictors).
-  - Validates **SC-004** (Collinearity risk measurement).
-  - *Field Mapping*: `Cu_vif`... -> FR-007; `is_flagged` -> SC-004.
-
-- **`contracts/model_output.schema.yaml`**:
-  - Validates **FR-008** (Associational framing).
-  - Validates **SC-005** (Methodological framing).
-  - *Field Mapping*: `associational_framing` -> FR-008, SC-005.
+## Data Source Limitation (Addressing FR‑009)
+The Materials Project provides Poisson's ratio derived from DFT elastic tensors rather than independent experimental measurements. No open, programmatically accessible dataset with independently measured Poisson's ratio (e.g., ultrasonic) is available in the verified datasets block. Consequently, **FR‑009 cannot be fully satisfied**. The pipeline will:
+1. Filter for records where the metadata field `poisson_source` is one of `ultrasonic`, `direct_measurement`, or `laser_ultrasonics`.  
+2. If **zero** records remain after this filter, the pipeline aborts with a clear error message and records the limitation in the provenance log and final report.  
+This limitation is explicitly documented in the final report and flagged for scope revision.
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-predicting-the-effect-of-alloying-on-the/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
-```
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   └── dataset.schema.yaml
+└── tasks.md   # generated later
 
-### Source Code (repository root)
-
-```text
 projects/PROJ-420-predicting-the-effect-of-alloying-on-the/
 ├── code/
 │   ├── __init__.py
 │   ├── data/
-│   │   ├── __init__.py
-│   │   ├── download.py          # Downloads from matminer
-│   │   ├── clean.py             # Filtering, unit normalization, exclusion logging
-│   │   └── transform.py         # ILR transformation, VIF calculation (raw)
+│   │   ├── download.py      # fetches raw data
+│   │   ├── clean.py         # filtering, unit conversion, exclusion logging
+│   │   └── transform.py     # ILR, VIF, back‑transformation utilities
 │   ├── analysis/
-│   │   ├── __init__.py
-│   │   ├── train.py             # Random Forest training, CV, test split
-│   │   └── interpret.py         # Feature importance back-transformation
+│   │   ├── train.py         # Random Forest CV & test split
+│   │   └── interpret.py     # importance extraction, ranking
 │   ├── utils/
-│   │   ├── __init__.py
-│   │   ├── logger.py            # RotatingFileHandler setup
-│   │   └── validators.py        # Schema validation helpers
-│   └── main.py                  # Orchestration script
+│   │   ├── logger.py        # RotatingFileHandler → data/logs/app.log
+│   │   └── validators.py    # schema validation helpers
+│   └── main.py              # orchestrates the pipeline
 ├── data/
 │   ├── raw/
-│   │   └── mp_raw.json          # Raw Materials Project dump
+│   │   └── mp_raw.json       # Materials Project dump (if download succeeds)
 │   ├── processed/
-│   │   ├── alloys_clean.parquet # Filtered & normalized data
-│   │   └── alloys_ilr.parquet   # ILR-transformed features
-│   └── checksums.json           # SHA-256 checksums (Format: { "filename": "sha256_hash" })
+│   │   ├── alloys_clean.parquet   # **AlloyRecord** objects after cleaning
+│   │   └── alloys_ilr.parquet
+│   └── logs/
+│       ├── app.log
+│       └── exclusion_log.txt
 ├── results/
-│   ├── model_metrics.json       # MAE, VIF scores
-│   ├── feature_importance.json  # Ranked elements
-│   └── final_report.md          # Associational findings
+│   ├── model_metrics.json
+│   ├── feature_importance.json
+│   ├── collinearity_diagnostic.json
+│   └── final_report.md
 ├── tests/
 │   ├── test_data.py
 │   ├── test_analysis.py
 │   └── test_contracts.py
-├── contracts/
-│   ├── dataset.schema.yaml
-│   ├── model_metrics.schema.yaml
-│   ├── feature_importance.schema.yaml
-│   └── collinearity_diagnostic.schema.yaml
-└── requirements.txt
+├── contracts/                # copies of schema files
+├── requirements.txt
+└── README.md
 ```
 
-**Structure Decision**: Single project structure with modular `code/` subdirectories. This minimizes overhead for a data pipeline and aligns with the "CPU-first" compute constraint. The separation of `data`, `analysis`, and `utils` ensures clear dependency ordering (Download -> Clean -> Transform -> Train -> Interpret).
+## Contract Traceability
+| Contract | FR(s) Covered | SC(s) Covered |
+|----------|---------------|----------------|
+| `contracts/dataset.schema.yaml` | FR‑001, FR‑002, FR‑003, FR‑009, FR‑010 | SC‑001 |
+| `contracts/model_metrics.schema.yaml` | FR‑004, FR‑005 | SC‑002 |
+| `contracts/feature_importance.schema.yaml` | FR‑006 | SC‑003 |
+| `contracts/collinearity_diagnostic.schema.yaml` | FR‑007 | SC‑004 |
+| (implicit) associational framing documented in `final_report.md` | FR‑008 | SC‑005, SC‑006 |
 
-## Complexity Tracking
+## Phase / Task Breakdown (maps FR / SC) – **operating on `AlloyRecord` objects**
 
-No violations identified. The plan strictly adheres to the spec's scope (Random Forest, ILR, VIF) and rejects the "Computational Universe Exploration" scope creep flagged in previous reviews. Tasks T050-T053 have been removed.
+| Phase | Script(s) | Outputs | FR(s) | SC(s) | Notes |
+|-------|-----------|---------|-------|-------|-------|
+| **0 – Spec Amendment** | Draft `AMP-001` (see above) | – | FR‑001 | SC‑001 | Documents data‑source limitation. |
+| **1 – Data Extraction** | `code/data/download.py` → `data/raw/mp_raw.json` | – | FR‑001 | SC‑001 | Uses `matminer`; aborts on network error. |
+| **2 – Cleaning & Filtering** | `code/data/clean.py` → `data/processed/alloys_clean.parquet`; writes `exclusion_log.txt` & `app.log` | `AlloyRecord` objects in `alloys_clean.parquet` | FR‑002, FR‑003, FR‑009, FR‑010 | SC‑001, SC‑006 | Enforces composition sum, unit conversion, Poisson‑ratio independence. |
+| **3 – Abort on Tiny Dataset** | Size check after cleaning | – | FR‑004 (power safeguard) | – | If `<20` records, pipeline logs error and exits. |
+| **4 – Diagnostics** | `code/data/transform.py` computes VIF on raw fractions → `collinearity_diagnostic.json` | `results/collinearity_diagnostic.json` | FR‑007 | SC‑004 | Flags VIF > 5. |
+| **5 – ILR Transformation** | `code/data/transform.py` adds ILR columns → `alloys_ilr.parquet` | `data/processed/alloys_ilr.parquet` | FR‑004 | SC‑002 | Chooses 5‑fold CV or LOOCV based on N. |
+| **6 – Train/Test Split** | `code/analysis/train.py` creates an 80/20 split (stratified by ν) **before** any CV. | `train_set.parquet`, `test_set.parquet` (intermediate) | FR‑004, FR‑005 | SC‑002 | Ensures no leakage. |
+| **7 – Model Training (CV)** | `code/analysis/train.py` runs 5‑fold CV **on the training set only** (or LOOCV if N < 50). | `results/model_metrics.json` | FR‑004, FR‑005 | SC‑002 | Logs CV MAE; flags MAE > 0.05. |
+| **8 – Test‑Set Evaluation** | `code/analysis/train.py` evaluates the fitted model on the held‑out test set. | `results/model_metrics.json` (updated) | FR‑005 | SC‑002 | Records test‑set MAE separately. |
+| **9 – Primary Feature Importance** | `code/analysis/interpret.py` computes permutation importance on the **original compositional features** (by permuting, ILR‑transforming each permutation, and measuring MAE drop). | `results/feature_importance.json` (permutation scores) | FR‑006, FR‑008 | SC‑003, SC‑005 | Provides the definitive element ranking. |
+| **10 – Exploratory Back‑Transformation** | `code/analysis/interpret.py` back‑transforms Gini‑based ILR importances using `B⁻¹` (Appendix A) for exploratory insight only. | `results/feature_importance.json` (adds `exploratory_ilr_backtransform` field) | FR‑006 | SC‑003 | Marked as exploratory, not primary. |
+| **11 – Reporting** | `code/main.py` assembles the final markdown report (`final_report.md`). | `results/final_report.md` | FR‑008 | SC‑005, SC‑06 | Uses explicit associational language and notes the data‑source limitation. |
+| **12 – Validation** | `pytest tests/test_contracts.py` | – | All contracts | All SC | Fails fast if any artifact violates schema. |
+| **13 – Reproducibility** | Record SHA‑256 checksums in `data/checksums.json`; update `state/...yaml` | – | – | – | Supports Constitution I. |
 
-## Compute Feasibility
+### Compute & Data Feasibility
+- **CPU‑first**: Random Forest on ≤ 1 000 rows with 5 features finishes < 1 min on 2 cores.  
+- **Memory**: < 200 MB for all pandas dataframes.  
+- **Disk**: Raw Materials Project dump ≈ a few GB; all intermediate parquet files ≤ 200 MB.  
+- **GPU**: Not required; no CUDA‑dependent libraries used.  
 
-- **CPU-First**: The Random Forest model on <1000 samples with 5 features is trivially solvable on 2 CPU cores and 7 GB RAM.
-- **Data Size**: The `matminer` elastic tensor dataset is approximately 1GB in size., well within the 14 GB disk limit. No streaming required, but the code will support it if the dataset grows.
-- **No GPU Needed**: No transformer or diffusion models are used. `scikit-learn` and `statsmodels` are CPU-optimized.
+### Data Availability
+- No verified URL provides the required alloy composition + Poisson’s ratio measured independently. Consequently, the pipeline will **abort** if the Materials Project download fails (see Spec Amendment AMP‑001). No synthetic stand‑in is used.
 
-## Data Availability
+---
 
-- **Materials Project**: Accessed via `matminer` library (verified in prompt).
-- **NIST**: **Unavailable**. The verified dataset block contains no valid NIST materials science URLs. The plan proceeds with `matminer` as the sole source. **This is a known spec gap (FR-001 unmet)**, resolved by Spec Amendment `AMP-001`.
-- **No Gated Data**: All sources are open and programmatically accessible without credentials.
+

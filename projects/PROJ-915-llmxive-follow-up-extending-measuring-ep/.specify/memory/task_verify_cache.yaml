@@ -8,43 +8,58 @@ T001:
     \ implementer must create the directories and supply the `tree` command output\
     \ showing the expected layout."
 T002:
-  c: false
-  h: 81d9dcc83d6e9cbea4fd2a6a7e458cddb2e8e915d2ca15a10a1e78ba51a779eb
-  r: The `requirements.txt` file exists and lists the required packages, but the required
-    local module `code/agents/reference_validator.py` is missing, so the project initialization
-    does not fully meet the specification. The implementer must add the `reference_validator.py`
-    file at the specified path.
-T006a:
-  c: false
-  h: 00674801b7a41c4dd556f2f032a8d745291cf26db08c50656b1e35550577c0d4
-  r: 'The repository contains `code/validation.py` with a RuntimeTracker that would
-    create `data/results/pipeline_log.json` when invoked, but the required log file
-    does not exist on disk. The task explicitly demands that `data/results/pipeline_log.json`
-    be generated (even if empty) as an output artifact, which is missing. The implementer
-    must create the file (e.g., by initializing it with `{ "stages": [], "total_elapsed_seconds":
-    0.0 }`) and ensure it is updated during pipeline execution.'
+  c: true
+  h: fa6d7f8c62443f43c0a870801870ee49c61ba55020467c14886cd9da5514f6f7
+  r: '`requirements.txt` exists with all 13 required packages pinned to exact versions,
+    and `tests/unit/test_requirements.py` checks each package name at line start;
+    the recorded pytest run (exit 0, Python 3.11 venv) shows the test passed. No evidence
+    of `pip install -r requirements.txt` conflict-free run was provided, but the core
+    artifacts and verification test are present and passing.'
+  sig: 320f84299848281af10a48b8cb83d8a8cce0786f8ed96e47435f5135325c9fe0
+T003a:
+  c: true
+  h: def7fe570afc054ff5dcd995f866bd30ce4488ddd6058651ee2cbaf2b1be56f4
+  r: The `code/.ruff.toml` exists with the required settings (line-length 100, ANN
+    selected, `__init__.py` per-file-ignored), and `tests/unit/test_ruff_config.py`
+    parses the file and asserts those settings; the platform execution log shows all
+    5 tests passing with exit code 0. The pipeline_log.json ingestion failure is unrelated
+    to this lint-configuration task.
+  sig: 44a8fe714e901938652ca1f06f69478738db490d5e1eaafb6559ecd488935d2b
+T003b:
+  c: true
+  h: 3841abf3cb69f3ca7e65a4817c2679eb94a78adc899e9ad53b9f8da126efaa72
+  r: "The artifact `pyproject.toml` exists at the project root and contains a correct\
+    \ `[tool.black]` section with `line-length = 100` and `target-version = ['py311']`,\
+    \ exactly as required. The pytest log showing `black --check code/` failing (rc=1)\
+    \ predates the `format_code.py` execution, whose stderr shows Black actually reformatting\
+    \ those same 23 files with exit code 0 \u2014 so the formatting violations the\
+    \ check flagged were subsequently fixed, and the two unit tests confirming line-length\
+    \ 100 and py311 target passed."
+  sig: 90851750496c9dc4d6b2cb3adab59401a3248249bb535ea06ef22a983593c0b2
+T003c:
+  c: true
+  h: 1a1b5502ea24de397654851353b7b9ace3b1371dbac678e0405763546262aa49
+  r: '`code/validation.py` contains `verify_ruff_config()` which raises a clear `FileNotFoundError`
+    naming the missing file and task T003a, and its `main()` exits with code 1 on
+    failure; `code/.ruff.toml` exists (566 bytes). Unit tests covering both the pass
+    and fail-loudly cases passed (exit 0), and the script itself ran successfully
+    with the check passing.'
+  sig: 31ca13b9323fe50492ee9fc993d98d227364866bfd64a998805f93c6210ebf68
+T004:
+  c: true
+  h: 8db20735ed46042dabdedc23fdc0fa5497c490fd8fa183a7abf19ff716d76ace
+  r: '`code/config.py` exists and defines exactly the required constants (`SEED =
+    42`, `MAX_RUNTIME_HOURS = 6`, `DATA_ROOT = Path("../data")`, `RESULTS_ROOT = Path("../data/results")`),
+    and `tests/unit/test_config.py` asserts `MAX_RUNTIME_HOURS == 6` (plus the other
+    constants). The pytest execution log shows all 5 tests passing with exit code
+    0, confirming the module imports and the constants are correct.'
+  sig: 15cf37912471997f3f0b4741bf152b62099a86b7e870314414e10b06301ccadc
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No code, configuration, or documentation for an error\u2011handling framework\
     \ (e.g., retry logic for dataset download or timeout handling for inference) was\
     \ provided. The required artifact is missing, so the task is not satisfied."
-T017b:
-  c: false
-  h: 31580bfbdf693f1d3cb5f660186bbf2861eef67e5384a38f6a030c01f9b1cd65
-  r: "The repository contains `code/annotation.py`, but the file is truncated and\
-    \ does not show any implementation that removes raters with <80\u202F% agreement\
-    \ or writes `data/interim/human_pilot_cleaned.csv`. Moreover, the required output\
-    \ file `data/interim/human_pilot_cleaned.csv` is absent. The task\u2019s core\
-    \ deliverable is therefore missing."
-T017d:
-  c: false
-  h: 76a39bcdf8ec14c3cfa35f32c9396b7d21a5735bdfd4bedee107414a08348033
-  r: "The repository contains a partially implemented `code/annotation.py`, but the\
-    \ file is truncated and does not show any function that computes the Pearson/Spearman\
-    \ correlation or Cohen\u2019s \u03BA, nor does it write `data/results/feature_correlation_and_kappa.json`.\
-    \ Moreover, the required JSON output file is absent. The task\u2019s core computational\
-    \ and output requirements are therefore not satisfied."
 T020:
   c: false
   h: 632acb947e9d6d77c288b6913d0d0bfa244f9625d6109bec8376aa5a7221608f
@@ -52,16 +67,6 @@ T020:
     \ does not exist, and the provided `code/labeling.py` is truncated and lacks the\
     \ full caching, error\u2011handling, and retrieval\u2011rate logic described in\
     \ the task. The implementation is therefore incomplete."
-T020a:
-  c: false
-  h: 2f3f701c01c5904c2e2eb9d2b445e6f686919aed30eab0c07f823b4debeda009
-  r: "The provided `code/inference.py` stops at \u201C# Start the generation\u201D\
-    \ and does not show the logic that actually starts the generation thread, enforces\
-    \ the timeout, calls `log_timeout_failure`, or skips the prompt on timeout. Additionally,\
-    \ the required `data/interim/timeout_failures.log` file is absent, indicating\
-    \ the timeout\u2011logging behavior has not been demonstrated. The missing continuation\
-    \ of the function prevents verification that the cross\u2011platform timeout enforcement\
-    \ meets the task\u2019s specifications."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -76,14 +81,3 @@ T027:
     \ so there is no evidence that two expert raters were recruited or that any labels\
     \ were produced. The task\u2019s deliverable is missing, making the requirement\
     \ unmet."
-T044:
-  c: false
-  h: 39d7a6e7b69d41726816b4163d03ba81ab63ae26823180aa403abb6621fc6803
-  r: "The provided `code/main.py` exists, but the displayed excerpt stops mid\u2011\
-    function and never shows the logic that (a) runs the full sequence of stages,\
-    \ (b) invokes the compute\u2011time guard from Constitution Principle\u202FVII,\
-    \ or (c) is referenced as the entry point in `quickstart.md`. Additionally, the\
-    \ required `data/results/pipeline_log.json` file is absent (the script can create\
-    \ it, but the task expects the artifact to be present after execution). The implementer\
-    \ must supply the complete script showing all stage calls, enforce the time\u2011\
-    limit checks, and ensure `quickstart.md` points to this script."

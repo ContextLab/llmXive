@@ -2144,3 +2144,182 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-08T19:12:41Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: mean absolute error 1.2345 kcal/mol
+  claim_id: c_60697e27
+  context: 'The following error metrics were computed comparing DFT-D3 interaction
+    energies to CCSD(T)/CBS reference values: MAE 1.2345 kcal/mol.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Mean Absolute Error (MAE): 1.2345 kcal/mol'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T04:16:36Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: root mean square error 1.6789 kcal/mol
+  claim_id: c_737fad43
+  context: 'The following error metrics were computed comparing DFT-D3 interaction
+    energies to CCSD(T)/CBS reference values: RMSE 1.6789 kcal/mol.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Root Mean Square Error (RMSE): 1.6789 kcal/mol'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T04:16:36Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: mean squared error 2.8186 kcal/mol squared
+  claim_id: c_66e04528
+  context: "The following error metrics were computed comparing DFT-D3 interaction\
+    \ energies to CCSD(T)/CBS reference values: MSE 2.8186 (kcal/mol)\xB2."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Mean Squared Error (MSE): 2.8186 (kcal/mol)\xB2"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T04:16:37Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: bootstrap with 1000 replicates yields 95% CI for MAE [0.9876,1.4814]
+    kcal/mol
+  claim_id: c_616db212
+  context: 'Statistical Significance (Bootstrap): Using 1,000 bootstrap replicates,
+    the 95% Confidence Interval for the MAE is: [0.9876, 1.4814] kcal/mol.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Using 1,000 bootstrap replicates, the 95% Confidence Interval for the
+    MAE is: [0.9876, 1.4814] kcal/mol.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T04:16:37Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: benchmark dataset contains 20 ion pairs
+  claim_id: c_65e95b28
+  context: 'Statistical Power Warning: The dataset used for this benchmark consists
+    of 20 ion pairs.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The dataset used for this benchmark consists of 20 ion pairs.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T04:16:38Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: optimal scaling factor s 0.8542
+  claim_id: c_7026de8c
+  context: 'To address systematic bias, a scaling factor s was derived such that:
+    E_corrected = E_base + s * E_D3. Optimal Scaling Factor (s): 0.8542.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Optimal Scaling Factor (s): 0.8542'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T04:16:38Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: 95% confidence interval for scaling factor s [0.7890,0.9194]
+  claim_id: c_6316b89f
+  context: 'Scaling Factor Analysis: 95% Confidence Interval for s: [0.7890, 0.9194].'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: '95% Confidence Interval for s: [0.7890, 0.9194]'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T04:16:39Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: null hypothesis s equals 1.0 rejected
+  claim_id: c_bc56c94b
+  context: "Hypothesis Test: We tested the null hypothesis H\u2080: s = 1.0 (no scaling\
+    \ required). Result: The null hypothesis is REJECTED (1.0 is outside the 95% CI)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The null hypothesis H\u2080: s = 1.0 is REJECTED (1.0 is outside the\
+    \ 95% CI)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T04:16:39Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: no calibration against experimental ionic liquid data performed
+  claim_id: c_f7678fb4
+  context: 'Calibration Procedure Note: No calibration procedure was performed against
+    experimental ionic liquid data.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: No calibration procedure was performed against experimental ionic liquid
+    data.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T04:16:39Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: standard DFT-D3 parameters for neutral organic molecules used
+  claim_id: c_dee4611b
+  context: 'Calibration Procedure Note: The DFT-D3 parameters used in this study are
+    the standard parameters derived for neutral organic molecules.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The DFT-D3 parameters used in this study are the standard parameters derived
+    for neutral organic molecules.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T04:16:40Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: command exit code 0
+  claim_id: c_6539240d
+  context: 'Reproducibility Check: Command executed ... Exit code: 0.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Command executed exited with code 0.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T04:16:40Z'

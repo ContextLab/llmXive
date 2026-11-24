@@ -21,14 +21,35 @@ T003:
 T004:
   task: 97d35211bd5053e6176d747429b4d8228da41b5e79169c757bc305bae08a995b
 T005:
+  reason: "The required files `code/__init__.py` and `code/utils/logging_config.py`\
+    \ are present, but `logging_config.py` contains an incorrect import statement\
+    \ (`from config import get_path`) that will raise an ImportError when the module\
+    \ is loaded, preventing the logging infrastructure from being usable. The import\
+    \ should reference the project\u2019s config module (e.g., `from ..config import\
+    \ get_path` or `from code.config import get_path`). Fix this import (and any related\
+    \ path handling) for the logging setup to function as intended."
   task: 222f852aac85e62fcdb63d3bd78641dde104d0ca86c4016b98f38130c43f9f2f
 T006a:
+  reason: The required `dataset.schema.yaml` file is missing from `specs/001-predict-plant-disease-severity/contracts/`;
+    without this schema definition the task is not fulfilled.
   task: 54fd268b1b5991b22faaf617d08e6c05c303d4837606b2922866e67e1774d869
 T006b:
+  reason: The collector reports `weather.schema.yaml` as MISSING, so the required
+    schema file does not exist in `specs/001-predict-plant-disease-severity/contracts/`.
+    Without the file, the task of defining the specified fields with PyYAML is not
+    fulfilled.
   task: 15dc6253ec189627fc04a4d047761a603013b3de86a46e0b65a31ab4c24de6c5
 T006c:
+  reason: "The required file `specs/001-predict-plant-disease-severity/contracts/model_output.schema.yaml`\
+    \ is reported as missing, so the schema defining the fields `baseline_r2`, `baseline_mae`,\
+    \ `augmented_r2`, `p_value`, and `sensitivity_analysis` does not exist. Without\
+    \ this file the task\u2019s core requirement is unmet."
   task: 268de671f95d8d88e8e57b23c1e109e3cc1b97a551c62f24cabaa63f218b3020
 T007:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
   task: 9348d5754435f794c8e56a3e1318140fc129972a0fefbf7df4d1468ea0ed100b
 T008:
   task: 4d8cb7f751ac919dd33f0573b29bd5cd3f07b05990a10b995a46eb5b8424dc7f
@@ -105,6 +126,10 @@ T040:
 T041:
   task: e6bbffe02d0e70bce021b619466c346777b87a3cbd27e4f7259e0098f4d9325d
 T042:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-405-predicting-plant-disease-severity-from-p.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: af8097c59c8a39dad4a98e699aafed829ca77bfb96148f4f4496f892a241533f
 T043a:
   task: f4dc6f9876b6c5b86b0d9776fdce0df5fb3542767e4bbe2b44426f042d16d2b8

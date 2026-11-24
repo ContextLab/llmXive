@@ -1,92 +1,75 @@
-# Quickstart: llmXive follow-up: extending "Mellum2 Technical Report"
+# Quickstart: llmXive follow‑up – extending "Mellum2 Technical Report"
 
 ## Prerequisites
-- Python 3.11+
-- 8 GB RAM (minimum for CPU inference of Mistral-7B; 4 GB for TinyLlama fallback)
-- Access to HuggingFace Hub (for dataset and model download)
+- Python 3.11 or newer  
+- At least **8 GB RAM** (≥ 4 GB required for TinyLlama fallback)  
+- Internet access (to download the verified code dataset and model)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech
-    ```
-
-2.  **Create virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins all versions to ensure reproducibility.*
-
-## Running the Pipeline
-
-**CRITICAL**: The pipeline is orchestrated to enforce strict dependencies. **Do not** run scripts individually unless you understand the data flow. Use `main.py` to ensure `ngram.py` (Phase 3) completes before `engine.py` (Phase 4).
-
-### 1. Full Pipeline Execution (Recommended)
-Runs all phases in the correct order: Power Analysis -> Download -> Static Analysis -> N-Gram Model -> Inference -> Analysis -> Validation Fallback.
 ```bash
-python code/main.py --model mistral-7b --device cpu --timeout 60
-```
-*Note: If `mistral-7b` exceeds memory, the orchestrator will automatically switch to `tinyllama` and log a warning.*
+# Clone the repository (replace <repo-url> with the actual URL)
+git clone <repo-url>
+cd projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech
 
-### 2. Manual Step Execution (Advanced)
-If running manually, you **MUST** follow this order:
+# Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-#### Step 0: Power Analysis
-```bash
-python code/main.py --phase power-analysis
+# Install pinned dependencies
+pip install -r code/requirements.txt
 ```
 
-#### Step 1: Data Download & Sampling
+## Running the full pipeline
+
 ```bash
-python code/data/download.py --lang python --lang java --sample-size 500
+# Execute the orchestrated pipeline (all phases)
+python -m code.main --phase all
 ```
 
-#### Step 2: Static Analysis
+- The orchestrator runs phases 0 → 13 in order, respecting the CPU‑only constraint.  
+- If the primary Mistral‑7B model exceeds memory, the pipeline automatically falls back to **TinyLlama‑1.1B** (`https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v0.1`, cited from arXiv 2401.02385) and logs a warning.  
+- All results are written under `data/results/` and figures under `data/figures/`.
+
+### Quick sanity‑check run (small sample)
+
 ```bash
-python code/data/preprocess.py --input data/raw/sample.parquet --output data/processed/labeled.parquet
+python -m code.main --phase all --sample small
 ```
 
-#### Step 3: N-Gram Model (Producer)
-**MUST COMPLETE BEFORE STEP 4**.
-```bash
-python code/data/ngram.py --input data/processed/labeled.parquet --output data/models/ngram.arpa
-```
+The `--sample small` flag forces `N = 50` repositories per language, enabling a fast end‑to‑end test (< 15 min). The log `logs/power_analysis.log` will show the sampled `N`.
 
-#### Step 4: LLM Inference (Consumer)
-**Requires `data/models/ngram.arpa` to exist.**
-```bash
-python code/inference/engine.py --model mistral-7b --input data/processed/labeled.parquet --output data/processed/inferred.parquet --device cpu --timeout 60
-```
-
-#### Step 5: Analysis & Visualization
-```bash
-python code/analysis/correlation.py --input data/processed/inferred.parquet
-python code/analysis/thresholds.py --input data/processed/inferred.parquet
-python code/analysis/significance.py --input data/processed/inferred.parquet
-python code/viz/plots.py --input data/results/analysis_results.json
-```
-
-### 3. Validation Fallback
-If no human-labeled benchmark is found, the pipeline automatically generates a limitation report in `data/results/validation_report.json`. No manual intervention is required.
-
-## Expected Output
+## Expected Outputs
 - `data/results/correlation_results.parquet`
 - `data/results/threshold_results.parquet`
-- `data/results/significance_report.json`
-- `data/results/validation_report.json` (if benchmark missing)
+- `data/results/final_report.json`
 - `data/figures/correlation_scatter.png`
-- `data/figures/threshold_sensitivity.png`
+- `data/figures/piecewise_fit.png`
+- `data/checksums.txt` (SHA‑256 hashes of all artifacts)
+
+## Verification Steps (addressing previous failures)
+
+1. **Language‑count verification** – after Phase 1 the file `logs/phase1_counts.log` contains a table like:
+   ```
+   language  count
+   python    a significant quantity
+   java      a substantial quantity
+   ```
+   The pipeline aborts if any language does not have exactly `N` rows.
+
+2 **Static‑analysis success check** – after Phase 2 the script validates `code_chunks.parquet` against `contracts/code_chunk.schema.yaml`. Any schema violations (e.g., missing `language` column) cause a fatal error with a clear message.
+
+3. **Checksum logging** – every generated Parquet/JSON file is hashed and appended to `data/checksums.txt`; the final report lists these hashes for reproducibility.
+
+4. **Human‑benchmark requirement** – the pipeline will abort if the CodeXGLUE dataset cannot be loaded, ensuring the primary construct‑validity claim is always tested.
 
 ## Troubleshooting
-- **OOM Error**: The pipeline automatically falls back to `tinyllama`. If that fails, reduce `--sample-size` in `download.py`.
-- **Timeout**: Increase `--timeout` or switch to a smaller model (e.g., `phi-2`).
-- **Parsing Errors**: The pipeline skips files that cannot be parsed; check `data/logs/parsing_errors.log`.
-- **Missing N-Gram Model**: Ensure `code/data/ngram.py` has run successfully before running `code/inference/engine.py`.
+- **Missing language counts**: Inspect `logs/phase1_counts.log`. If counts are off, adjust the `--sample-size` flag or increase the streaming window.  
+- **Out‑of‑memory**: The pipeline will automatically switch to TinyLlama; check `logs/model_load.log` for the switch message.  
+- **Static analysis failures**: Review `logs/static_analysis_errors.log`. Chunks with parse errors are skipped but counted in the final summary.  
+- **Benchmark unavailable**: The run aborts with a clear error; provide the CodeXGLUE dataset or resolve access issues.  
+
+---
+
+
+

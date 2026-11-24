@@ -1,25 +1,25 @@
 T001:
-  reason: The evidence shows only a `tests/` directory (with its contents) exists;
-    there is no evidence that the required `src/data_synthesis`, `src/feature_extraction`,
-    `src/baseline`, or `src/scheduler` directories were created in the project root.
-    These missing source folders mean the project structure does not meet the task
-    specification.
   task: 79c2f856f52da6324a3cefeac446b9ec0022f947408a6101a3fd57ebfc032451
 T002:
   task: 30920510b660945cc2e72953e004b2d2dd671bc3c10fb4e6429ad720a198db99
 T003:
-  reason: "The evidence contains no configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
-    \ `.pre-commit-config.yaml`) or scripts that set up Ruff linting or Black formatting,\
-    \ nor any logs showing these tools were run. Without those artifacts, the task\
-    \ \u201CConfigure linting (ruff) and formatting (black) tools\u201D is not satisfied.\
-    \ Adding the appropriate config files and/or documentation of their integration\
-    \ is required."
+  reason: 'The only evidence is a historical execution log of `code/lint_setup.py`
+    claiming "ruff: ran, black: ran" and writing a `lint_report.json`, but no actual
+    configuration artifacts (e.g., `pyproject.toml`, `ruff.toml`, `.ruff.toml`, or
+    black config) are shown to exist on disk, and no lint/format output or the generated
+    `results/lint_report.json` content was provided to verify the tools genuinely
+    ran against the project''s code. The task is to *configure* ruff and black; a
+    script that merely reports "ran" without verifiable config files or lint results
+    does not demonstrate configuration. The impleme'
   task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
 T004:
-  reason: "No pytest configuration file (e.g.,\u202Fpytest.ini or conftest.py) defining\
-    \ CPU\u2011resource\u2011limit markers was found in the provided artifact list;\
-    \ without such a file the requirement \u201CSetup `pytest` configuration with\
-    \ CPU resource limit markers\u201D is not satisfied."
+  reason: "The only execution evidence (tests/unit/test_pytest_config.py run via `python\
+    \ -m pytest -v`) failed with exit code 2: `'memory_limit' not found in `markers`\
+    \ configuration option`, meaning the pytest configuration (tests/pytest.ini) does\
+    \ not register the CPU resource limit markers the task requires. The task's core\
+    \ deliverable \u2014 a working pytest config with CPU resource limit markers \u2014\
+    \ is demonstrably broken, since pytest cannot even collect the test that validates\
+    \ it."
   task: a860a400733053c33dda5a80886e92cb5bcd1d422032e93eece203dec300c9f8
 T005:
   task: 39159e887a24deb1daacb6054adb5a1cb0d39bee863e98cf09439f7a917f2cdc
@@ -30,6 +30,14 @@ T007:
 T008:
   task: 10cc6850a071b77dd4b025d2b606bbf185b130b1398856ac3779d0c20d58dd79
 T009:
+  reason: "The task requires configuring environment variables `JOYAI_VL_MODEL_PATH`\
+    \ and `DATA_SEED`, but the evidence collector found no artifacts at all \u2014\
+    \ no `.env` file, config module, settings documentation, or any other file demonstrating\
+    \ these variables are defined, defaulted, or wired into the project. With zero\
+    \ on-disk evidence, the claim of completion cannot be verified; the implementer\
+    \ should add a concrete configuration artifact (e.g., a `.env`/config file or\
+    \ documented settings module) that defines both variables and shows how they are\
+    \ consumed by the pipeline."
   task: 2d6059a865055dd68bd2c06c90e6a2a29646e991fc6cd4e0ffbbfeffbea3a30b
 T010:
   task: 534e7a7bf50c411af1669968b53440e561e36e1727c16569b05417e68321c2be
@@ -50,7 +58,8 @@ T015:
 T016:
   task: 79067a7cb404878ce3532f0cdfc974c374f346613152fc48b8866bf663a0bb65
 T017:
-  reason: 'declared artifact(s) missing/empty/invalid: data/raw/, data/manifest.jsonl'
+  reason: 'Requested task execution failed; rerun successfully: code/src/data_synthesis/run_export.py
+    exit=1'
   task: a287223f9e37df96b5f6e407ed170c9ca90d8983196136cab2671cd02c46a736
 T018:
   task: 96479f320e0f2e8c68906976c7e24d0b7ed461a8e1335581068985701b43c2b9

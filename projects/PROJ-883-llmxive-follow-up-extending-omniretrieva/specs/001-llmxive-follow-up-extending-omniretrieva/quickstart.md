@@ -1,81 +1,84 @@
-# Quickstart: llmXive Follow-up: Structural Mismatch Cost in Heterogeneous Retrieval
+# Quickstart: Structural Mismatch Cost in Heterogeneous Retrieval
 
 ## Prerequisites
-
-- Python 3.11+
-- Access to a Linux environment (GitHub Actions or local Linux).
-- 7GB+ RAM, 2+ CPU cores.
-- Internet access to download HuggingFace datasets and DBpedia.
+- Python 3.11 or newer
+- Linux environment (GitHub Actions runner or local Linux VM)
+- Internet access (to download the open datasets)
 
 ## Installation
+```bash
+# Clone the repository (if not already)
+git clone https://github.com/your-org/llmxive-follow-up-extending-omniretrieva.git
+cd llmxive-follow-up-extending-omniretrieva
 
-1. **Clone and Setup**:
-   ```bash
-   cd projects/PROJ-883-llmxive-follow-up-extending-omniretrieva
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
+# Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate
 
-2. **Verify Dependencies**:
-   ```bash
-   python -c "import pandas, scipy, statsmodels, networkx, rdflib; print('All dependencies OK')"
-   ```
+# Install exact dependencies
+pip install -r requirements.txt
+```
 
-3. **Linting Configuration**:
-   Ensure `.ruff.toml` and `pyproject.toml` are present.
+## Verify the Environment
+These commands must succeed; the integration test `tests/integration/test_skeleton.py` checks them and stores the outputs under `artifacts/`.
+
+1. **Lint the codebase**
    ```bash
    ruff check code/
    ```
+   *Expected:* exit code 0 and a non‑empty `artifacts/ruff_output.txt`.
 
-## Running the Benchmark
+2. **Show the CLI help**
+   ```bash
+   python -m code.main --help
+   ```
+   *Expected:* help text printed and saved to `artifacts/help_output.txt`.
 
-### 1. Data Preparation
-The system will automatically download and verify datasets from the verified URLs upon the first run.
+3. **Run the CLI with no arguments (defaults to full benchmark)**
+   ```bash
+   python -m code.main
+   ```
+   *Expected:* the full pipeline runs (datasets download, query generation, benchmark, analysis, plot) and finishes within the CI time limit.
+
+If any of the above steps fail, re‑run the command manually to see the error; the `.ruff.toml` file has been corrected to a valid TOML configuration.
+
+## Full Benchmark Execution
 ```bash
-python code/data_loader.py --prepare
+# Run the entire study (includes optimal planner on sampled subset)
+python -m code.main --run-optimal-planner --baseline-reps=5
 ```
-*Output*: `data/raw/` populated with parquet and RDF files. Checksums recorded.
+- `--run-optimal-planner` enables Phase 0 (exhaustive optimal planning on the sampled subset).  
+- `--baseline-reps=5` repeats the trivial‑query baseline measurement five times (default is five).  
 
-### 2. Generate Queries & Ground Truth
-Generates synthetic queries with known complexity levels and computes ground truth plans.
-```bash
-python code/query_generator.py --levels 1 2 3 4 --count 500 --seed 42
-python code/ground_truth_engine.py --input data/processed/generation_log.json --output data/processed/generation_log.json
-```
-*Output*: `data/processed/generation_log.json` (with `ground_truth_plan` populated).
+All outputs are written under `data/processed/` and `data/results/`. The interaction plot will appear at `data/results/interaction_plot.png`.
 
-### 3. Execute Benchmark
-Runs the queries against simulated engines with CPU throttling.
-```bash
-python code/benchmark_runner.py --throttle cgroups --timeout 60
-```
-*Note*: If `cgroups` fails (no root), it falls back to `time_only` and logs the mode.
-*Output*: `data/processed/execution_logs.csv`.
+## Re‑Running Specific Phases (optional)
+- **Only data download & checksum**
+  ```bash
+  python -m code.main --stage data_download
+  ```
+- **Only query generation**
+  ```bash
+  python -m code.main --stage generate_queries
+  ```
+- **Only statistical analysis (after execution logs exist)**
+  ```bash
+  python -m code.main --stage analyze
+  ```
 
-### 4. Statistical Analysis
-Performs ANCOVA and sensitivity analysis.
-```bash
-python code/stats.py --input data/processed/execution_logs.csv
-```
-*Output*: `data/results/anova_results.json`, `data/results/sensitivity_analysis.json`.
+## Expected Artifacts
+| Artifact | Location |
+|----------|----------|
+| Raw datasets (`ms_marco.parquet`, `dbpedia_triples.parquet`) | `data/raw/` |
+| Checksums | `data/raw/checksums.txt` |
+| Generated queries | `data/processed/generation_log.json` |
+| Optimal ground‑truth (sampled) | `data/processed/optimal_ground_truth.json` |
+| Baseline overhead | `data/processed/baseline_overhead.json` |
+| Execution logs (CSV) | `data/processed/execution_logs.csv` |
+| Aggregated execution metric (JSON) | `data/processed/execution_metric.json` |
+| Statistical results (JSON) | `data/results/*.json` |
+| Interaction plot | `data/results/interaction_plot.png` |
 
-### 5. Visualization (Optional)
-Generates the interaction plot.
-```bash
-python code/visualize.py --input data/processed/execution_logs.csv --output data/results/interaction_plot.png
-```
+All files are version‑hashed and reproducible on a fresh runner, satisfying Constitution Principle I.
 
-## Troubleshooting
-
-- **Error: "cgroups not available"**: The runner will log a warning and proceed with `time_only` mode. This is acceptable for relative latency comparisons but not absolute CPU constraints.
-- **Error: "Dataset missing"**: Ensure you have network access. The script uses `datasets.load_dataset` with the verified URLs.
-- **Error: "Complexity level non-integer"**: The generator enforces integer depth. If this occurs, check the `query_generator.py` logic.
-- **Error: "Depth insufficient"**: The run aborted because real data (Spider/DBpedia) did not support the required depth. Check the dataset source.
-
-## Reproducibility
-
-To reproduce the exact results:
-1. Set `SEED=42` in `code/config.py`.
-2. Use the same dataset versions (checksums in `state/...yaml`).
-3. Run the full pipeline in order.
+---

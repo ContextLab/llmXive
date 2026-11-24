@@ -4,6 +4,7 @@ Unit tests for energy parsing logic in run_psi4.py.
 Tests the extraction of total energy and D3 dispersion contribution
 from Psi4 output strings.
 """
+
 import pytest
 import numpy as np
 from pathlib import Path
@@ -29,9 +30,9 @@ class TestParsePsi4Output:
         D3 dispersion energy: -0.12345
         ...
         """
-        
+
         result = parse_psi4_output(psi4_output)
-        
+
         assert result is not None
         assert "total_energy" in result
         assert "d3_energy" in result
@@ -46,9 +47,9 @@ class TestParsePsi4Output:
         Final Energy: -100.54321
         ...
         """
-        
+
         result = parse_psi4_output(psi4_output)
-        
+
         assert result is not None
         assert "total_energy" in result
         assert "d3_energy" in result
@@ -66,9 +67,9 @@ class TestParsePsi4Output:
         D3 dispersion energy: -0.12345
         ...
         """
-        
+
         result = parse_psi4_output(psi4_output)
-        
+
         assert result is not None
         assert "total_energy" in result
         assert "d3_energy" in result
@@ -83,9 +84,9 @@ class TestParsePsi4Output:
         Calculation failed
         ...
         """
-        
+
         result = parse_psi4_output(psi4_output)
-        
+
         assert result is None
 
     def test_parse_output_with_different_energy_formats(self):
@@ -98,9 +99,9 @@ class TestParsePsi4Output:
         D3 dispersion energy: -1.234567e-01
         ...
         """
-        
+
         result = parse_psi4_output(psi4_output)
-        
+
         assert result is not None
         assert "total_energy" in result
         assert "d3_energy" in result
@@ -117,9 +118,9 @@ class TestParsePsi4Output:
         D3 dispersion energy  :  -0.12345
         
         """
-        
+
         result = parse_psi4_output(psi4_output)
-        
+
         assert result is not None
         assert "total_energy" in result
         assert "d3_energy" in result
@@ -129,23 +130,23 @@ class TestParsePsi4Output:
     def test_parse_output_with_empty_string(self):
         """Test parsing an empty output string."""
         psi4_output = ""
-        
+
         result = parse_psi4_output(psi4_output)
-        
+
         assert result is None
 
     def test_parse_output_with_none(self):
         """Test parsing None input."""
         result = parse_psi4_output(None)
-        
+
         assert result is None
 
     def test_parse_output_with_corrupted_data(self):
         """Test parsing corrupted or malformed output."""
         psi4_output = "This is not a valid Psi4 output file"
-        
+
         result = parse_psi4_output(psi4_output)
-        
+
         assert result is None
 
     def test_parse_output_with_partial_d3_info(self):
@@ -158,11 +159,13 @@ class TestParsePsi4Output:
         D3 dispersion: -0.12345
         ...
         """
-        
+
         result = parse_psi4_output(psi4_output)
-        
+
         assert result is not None
         assert "total_energy" in result
         # The parser should handle variations in D3 labeling
         assert "d3_energy" in result
-        assert result["d3_energy"] is not None or np.isclose(result["d3_energy"], -0.12345)
+        assert result["d3_energy"] is not None or np.isclose(
+            result["d3_energy"], -0.12345
+        )

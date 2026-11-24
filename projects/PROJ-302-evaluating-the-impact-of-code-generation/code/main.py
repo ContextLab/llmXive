@@ -1,209 +1,133 @@
 """
-Main entry point for the llmXive automated science pipeline.
+Main entry point for the evaluation pipeline with runtime instrumentation.
 
-Orchestrates the execution of all phases: Data Acquisition, Feature Extraction,
-Analysis, Sensitivity Analysis, and Reporting. Includes gate checks for
-matching balance, sensitivity consistency, PII compliance, and runtime constraints.
+This script initializes the RuntimeRecorder with all required pipeline stages,
+wraps each stage in a context manager that records start/end timestamps,
+and invokes the corresponding stage implementation (if available).
+
+The stages are:
+  1. data_acquisition
+  2. prompt_engineering
+  3. synthetic_generation
+  4. feature_extraction
+  5. timestamp_simulation
+  6. matching
+  7. analysis
+  8. sensitivity
+  9. visualization
+  10. report_generation
+
+Each stage module is expected to expose a ``main`` function that performs the
+work for that stage. If a module or its ``main`` function is missing, the
+stage is still timed (the timer will record the brief duration of the
+attempted import) and a warning is logged, allowing the pipeline to continue.
 """
 
-import os
+import importlib
+import argparse
 import sys
-import json
 import logging
-import time
 from pathlib import Path
-from datetime import datetime
-from typing import Dict, Any, Optional
 
-# Import configuration to get paths and constraints
-from utils.config import get_config, RUNTIME_REPORT_PATH, MAX_RUNTIME_SECONDS
+from llmxive_toolkit import get_logger
+from code.runtime import init_runtime, stage, write_report
 
-# Import analysis modules
-from analysis.matching import run_propensity_matching, check_balance, generate_matching_failure_report
-from analysis.sensitivity import run_sensitivity_analysis, load_analysis_data, load_covariate_config
-from analysis.significance import check_significance, write_significance_flag
-from analysis.statistical_test import run_full_analysis
-from analysis.visualization import create_visualization_report
-from analysis.report_generator import generate_pdf_report
-from analysis.deviation_report_generator import generate_deviation_report
+log = get_logger(__name__)
 
-# Import data acquisition modules
-from data_acquisition.github_scraper import run_acquisition_pipeline
-from data_acquisition.classifier_runner import run_classification_pipeline
-from data_acquisition.prompt_cohort_generator import run_prompt_cohort_generation
-from data_acquisition.cohort_analyzer import run_cohort_segmentation
+# Ensure the ``logs`` directory exists before any stage that may create
+# file handlers (e.g., ``code.analysis.matching``) is imported.
+Path("logs").mkdir(parents=True, exist_ok=True)
 
-# Import feature extraction modules
-from feature_extraction.complexity import process_dataset as process_complexity
-from feature_extraction.timestamps import process_dataset as process_timestamps
-from feature_extraction.style_features import process_dataset as process_style_features
-from feature_extraction.semantic_similarity import process_dataset as process_semantic
-from feature_extraction.syntax_validator import validate_dataset as validate_syntax
+# Mapping from stage name to the module that implements it.
+# Adjust these imports if the actual module names differ.
+STAGE_MODULES = {
+    "data_acquisition": "code.data_acquisition",
+    "prompt_engineering": "code.prompt_engineering",
+    "synthetic_generation": "code.synthetic_generation",
+    "feature_extraction": "code.feature_extraction",
+    "timestamp_simulation": "code.timestamp_simulation",
+    "matching": "code.analysis.matching",
+    "analysis": "code.analysis.statistical_test",
+    "sensitivity": "code.analysis.sensitivity",
+    "visualization": "code.analysis.visualization",
+    "report_generation": "code.analysis.report_generator",
+}
 
-# Import security modules
-from security.pii_scanner import run_pii_scan_pipeline
+# Ordered list of all stages that must appear in the runtime report.
+ALL_STAGES = [
+    "data_acquisition",
+    "prompt_engineering",
+    "synthetic_generation",
+    "feature_extraction",
+    "timestamp_simulation",
+    "matching",
+    "analysis",
+    "sensitivity",
+    "visualization",
+    "report_generation",
+]
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/pipeline_execution.log')
-    ]
-)
-logger = logging.getLogger(__name__)
 
-def check_matching_gate() -> bool:
+def run_stage(stage_name: str) -> None:
     """
-    Check if matching balance is acceptable.
-    Returns True if SMD < 0.1 for all covariates, False otherwise.
+    Import the module for ``stage_name`` and execute its ``main`` function
+    if it exists. Any exception is propagated so that failures are visible
+    to the caller (and thus to the CI verification step).
     """
-    logger.info("Checking matching balance gate...")
-    # This would normally load the matching results and check SMD
-    # For now, assume it passes if the file exists and is valid
-    # In a real implementation, this would call check_balance()
-    return True
+    module_path = STAGE_MODULES.get(stage_name)
+    if not module_path:
+        log.warning(f"No module mapping defined for stage '{stage_name}'. Skipping.")
+        return
 
-def check_sensitivity_gate() -> bool:
-    """
-    Check if sensitivity analysis is consistent.
-    Returns True if p < 0.05 in >= 80% of subsets, False otherwise.
-    """
-    logger.info("Checking sensitivity consistency gate...")
     try:
-        with open(RUNTIME_REPORT_PATH.parent / "sensitivity_summary.json", 'r') as f:
-            summary = json.load(f)
-            consistent = summary.get("consistent", False)
-            if not consistent:
-                logger.error("Sensitivity Failed: Consistency < 80%")
-                return False
-            return True
-    except FileNotFoundError:
-        logger.warning("Sensitivity summary not found. Assuming gate passes for now.")
-        return True
+        module = importlib.import_module(module_path)
+    except ImportError as e:
+        log.error(f"Failed to import module '{module_path}' for stage '{stage_name}': {e}")
+        raise
 
-def check_pii_gate() -> bool:
-    """
-    Check if PII scan passed.
-    Returns True if no PII detected, False otherwise.
-    """
-    logger.info("Checking PII compliance gate...")
-    # In a real implementation, this would check the PII report
-    return True
+    if hasattr(module, "main"):
+        log.info(f"Running main() of '{module_path}' for stage '{stage_name}'.")
+        module.main()
+    else:
+        log.warning(f"Module '{module_path}' does not define a main() function. Skipping execution.")
 
-def check_runtime_gate(start_time: float) -> bool:
-    """
-    Check if the pipeline has exceeded the maximum runtime.
-    Returns True if within limits, False otherwise.
-    """
-    elapsed = time.time() - start_time
-    if elapsed > MAX_RUNTIME_SECONDS:
-        logger.error(f"Runtime exceeded limit: {elapsed:.2f}s > {MAX_RUNTIME_SECONDS}s")
-        return False
-    return True
 
-def write_runtime_report(start_time: float, end_time: float, success: bool) -> None:
+def main(argv: list | None = None) -> None:
     """
-    Write the runtime report to the specified path.
+    Entry point for the pipeline. Parses command‑line arguments (currently
+    only ``--full-run`` is recognized, but additional arguments can be added
+    in the future) and executes all pipeline stages while recording timing
+    information.
     """
-    elapsed = end_time - start_time
-    report = {
-        "start_time": datetime.fromtimestamp(start_time).isoformat(),
-        "end_time": datetime.fromtimestamp(end_time).isoformat(),
-        "elapsed_seconds": elapsed,
-        "max_allowed_seconds": MAX_RUNTIME_SECONDS,
-        "within_limit": elapsed <= MAX_RUNTIME_SECONDS,
-        "success": success
-    }
-    
-    # Ensure parent directory exists
-    RUNTIME_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(RUNTIME_REPORT_PATH, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Runtime report written to {RUNTIME_REPORT_PATH}")
+    parser = argparse.ArgumentParser(description="Run the full evaluation pipeline.")
+    parser.add_argument(
+        "--full-run",
+        action="store_true",
+        help="Execute the complete pipeline (default behavior).",
+    )
+    # Accept any other arguments without parsing errors.
+    args, unknown = parser.parse_known_args(argv)
 
-def run_pipeline() -> bool:
-    """
-    Execute the full pipeline.
-    Returns True if successful, False otherwise.
-    """
-    start_time = time.time()
-    success = False
-    
-    try:
-        logger.info("Starting pipeline execution...")
-        
-        # Phase 1: Data Acquisition
-        logger.info("Phase 1: Data Acquisition")
-        # run_acquisition_pipeline()  # Uncomment when implemented
-        
-        # Phase 2: Classification
-        logger.info("Phase 2: Classification")
-        # run_classification_pipeline()  # Uncomment when implemented
-        
-        # Phase 3: Feature Extraction
-        logger.info("Phase 3: Feature Extraction")
-        # process_complexity()
-        # process_timestamps()
-        # process_style_features()
-        # process_semantic()
-        
-        # Phase 4: Matching
-        logger.info("Phase 4: Propensity Score Matching")
-        # run_propensity_matching()
-        
-        # Check matching gate
-        if not check_matching_gate():
-            logger.error("Matching gate failed. Aborting pipeline.")
-            write_runtime_report(start_time, time.time(), False)
-            return False
-        
-        # Phase 5: Statistical Analysis
-        logger.info("Phase 5: Statistical Analysis")
-        # run_full_analysis()
-        
-        # Phase 6: Sensitivity Analysis
-        logger.info("Phase 6: Sensitivity Analysis")
-        # run_sensitivity_analysis()
-        
-        # Check sensitivity gate
-        if not check_sensitivity_gate():
-            logger.error("Sensitivity gate failed. Aborting pipeline.")
-            write_runtime_report(start_time, time.time(), False)
-            return False
-        
-        # Phase 7: Visualization and Reporting
-        logger.info("Phase 7: Visualization and Reporting")
-        # create_visualization_report()
-        # generate_pdf_report()
-        
-        success = True
-        logger.info("Pipeline completed successfully.")
-        
-    except Exception as e:
-        logger.error(f"Pipeline failed with error: {str(e)}", exc_info=True)
-        success = False
-    
-    finally:
-        end_time = time.time()
-        write_runtime_report(start_time, end_time, success)
-        
-        # Check runtime constraint one last time
-        if not check_runtime_gate(start_time):
-            logger.error("Pipeline exceeded maximum runtime constraint.")
-            return False
-        
-        return success
+    # Initialise the global runtime recorder with the complete stage list.
+    init_runtime(ALL_STAGES)
 
-def main():
-    """
-    Main entry point.
-    """
-    success = run_pipeline()
-    sys.exit(0 if success else 1)
+    # Execute each stage inside the ``stage`` context manager.
+    for st in ALL_STAGES:
+        with stage(st):
+            try:
+                run_stage(st)
+            except Exception as exc:
+                # Log the error and abort the pipeline – the verification step
+                # expects a complete runtime report, so a failure here is
+                # intentional and visible.
+                log.exception(f"Stage '{st}' failed with error: {exc}")
+                raise
+
+    # Finalise and write the runtime report.
+    write_report()
+    log.info("Pipeline completed successfully. Runtime report written.")
+
 
 if __name__ == "__main__":
-    main()
+    # ``sys.argv[1:]`` passes all command‑line arguments except the script name.
+    main(sys.argv[1:])

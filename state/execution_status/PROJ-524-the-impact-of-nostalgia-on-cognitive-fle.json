@@ -10,8 +10,8 @@
   "fix_rounds": 0,
   "model_tier": 0,
   "total_attempts": 1,
-  "replan_rounds": 1,
+  "replan_rounds": 2,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-10-12T00:16:16Z"
+  "updated_at": "2026-10-21T00:13:54Z"
 }

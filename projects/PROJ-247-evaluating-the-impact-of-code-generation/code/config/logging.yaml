@@ -1,0 +1,13 @@
+version: 1
+formatters:
+  simple:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+handlers:
+  file_handler:
+    class: logging.FileHandler
+    formatter: simple
+    level: INFO
+    filename: "${LOG_PATH}/pipeline.log"
+root:
+  level: INFO
+  handlers: [file_handler]

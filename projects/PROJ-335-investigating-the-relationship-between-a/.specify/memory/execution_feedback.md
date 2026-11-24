@@ -20,23 +20,23 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/01_download_preprocess.py --dataset ds000248 --output data/processed -> rc=1
 
-2026-10-10T02:30:15 [INFO] root: Logging initialized
-2026-10-10T02:30:15 [INFO] __main__: Loaded configuration from code/config.yaml
-2026-10-10T02:30:15 [INFO] __main__: Step 1: Downloading ds000248
-2026-10-10T02:30:15 [INFO] __main__: Step 2: Validating dataset structure
-2026-10-10T02:30:15 [ERROR] __main__: Dataset directory does not exist: data/raw
-2026-10-10T02:30:15 [ERROR] __main__: Dataset validation failed. Exiting.
+2026-10-12T15:31:20 [INFO] root: Logging initialized
+2026-10-12T15:31:20 [INFO] __main__: Loaded configuration from code/config.yaml
+2026-10-12T15:31:20 [INFO] __main__: Step 1: Downloading ds000248
+2026-10-12T15:31:20 [INFO] __main__: Step 2: Validating dataset structure
+2026-10-12T15:31:20 [ERROR] __main__: Missing required BIDS file: dataset_description.json
+2026-10-12T15:31:20 [ERROR] __main__: Dataset validation failed. Exiting.
 
 - python code/02_extract_metrics.py --input data/processed/epochs.h5 --output data/metrics -> rc=1
 ject S0048
-2026-10-10T02:30:15 [INFO] __main__: Processing subject: S0049
-2026-10-10T02:30:15 [WARNING] __main__: Skipping subject S0049: No epoch files found for subject S0049
-2026-10-10T02:30:15 [INFO] __main__: Processing subject: S0050
-2026-10-10T02:30:15 [WARNING] __main__: Skipping subject S0050: No epoch files found for subject S0050
-2026-10-10T02:30:15 [INFO] __main__: Processing subject: S0051
-2026-10-10T02:30:15 [WARNING] __main__: Skipping subject S0051: No epoch files found for subject S0051
-2026-10-10T02:30:15 [INFO] __main__: Processing subject: S0052
-2026-10-10T02:30:15 [WARNING] __main__: Skipping subject S0052: No epoch files found for subject S0052
+2026-10-12T15:31:21 [INFO] __main__: Processing subject: S0049
+2026-10-12T15:31:21 [WARNING] __main__: Skipping subject S0049: No epoch files found for subject S0049
+2026-10-12T15:31:21 [INFO] __main__: Processing subject: S0050
+2026-10-12T15:31:21 [WARNING] __main__: Skipping subject S0050: No epoch files found for subject S0050
+2026-10-12T15:31:21 [INFO] __main__: Processing subject: S0051
+2026-10-12T15:31:21 [WARNING] __main__: Skipping subject S0051: No epoch files found for subject S0051
+2026-10-12T15:31:21 [INFO] __main__: Processing subject: S0052
+2026-10-12T15:31:21 [WARNING] __main__: Skipping subject S0052: No epoch files found for subject S0052
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-335-investigating-the-relationship-between-a/code/02_extract_metrics.py", line 270, in <module>
     main()
@@ -47,9 +47,9 @@ AttributeError: 'AlphaPowerCollection' object has no attribute 'to_csv'
 
 - python code/03_correlation_analysis.py --power data/metrics/alpha_power.csv --plv data/metrics/plv.csv --output data/results -> rc=1
 
-2026-10-10T02:30:16 [INFO] root: Logging initialized
-2026-10-10T02:30:16 [INFO] __main__: Starting correlation analysis with split-half reliability
-2026-10-10T02:30:16 [ERROR] __main__: Required metric file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-335-investigating-the-relationship-between-a/data/metrics/alpha_power.csv
+2026-10-12T15:31:22 [INFO] root: Logging initialized
+2026-10-12T15:31:22 [INFO] __main__: Starting correlation analysis with split-half reliability
+2026-10-12T15:31:22 [ERROR] __main__: Required metric file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-335-investigating-the-relationship-between-a/data/metrics/alpha_power.csv
 
 
 ## Declared deliverables still missing

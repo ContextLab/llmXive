@@ -11,12 +11,10 @@ dependencies = [
     "pandas",
     "scikit-learn",
     "shap",
-    "magpie",
     "datasets",
     "numpy",
     "scipy",
     "pyyaml",
-    "cvxpy",
     "ruff",
     "black",
     "pytest",
@@ -25,6 +23,25 @@ dependencies = [
 [tool.ruff]
 target-version = "py311"
 line-length = 88
+exclude = [
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "data",
+    "artifacts",
+    "state",
+    "logs",
+    "specs",
+]
+
+[tool.ruff.lint]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
@@ -36,14 +53,18 @@ select = [
 ]
 ignore = [
     "E501", # line too long (handled by black)
+    "E722", # bare except (used in defensive error handling in research scripts)
+    "E741", # ambiguous variable name
+    "F401", # unused imports (kept for re-export surface stability)
     "B008", # do not perform function calls in argument defaults
     "C901", # too complex
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+"tests/**" = ["F401"]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["code"]
 force-sort-within-sections = true
 
@@ -58,9 +79,14 @@ exclude = '''
     | \.mypy_cache
     | \.tox
     | \.venv
+    | venv
     | _build
     | buck-out
     | build
     | dist
+    | data
+    | artifacts
+    | state
+    | logs
 )/
 '''

@@ -1,0 +1,13 @@
+status: none
+intent: Zenodo corrosion dataset pH salinity temperature material composition corrosion
+  rate mm/year python package dataset
+required_fields:
+- pH
+- salinity
+- temperature
+- material_composition
+- corrosion_rate
+- source_id
+cache_key: 2062dcc6cd12a046693806b82f6ca9d2166ef61a8c99b9e4cf975cb81a6a03ad
+searched_at: '2026-10-26T05:48:31.718106+00:00'
+retry_count: 1

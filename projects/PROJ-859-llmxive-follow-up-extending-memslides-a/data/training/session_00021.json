@@ -1,0 +1,111 @@
+{
+  "trace_id": "training_42_00021",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_text",
+    "apply_theme",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 29.9154,
+        "padding": 96.2029
+      }
+    },
+    {
+      "step": 1,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 69.0314,
+        "padding": 45.6836
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 30.2122,
+        "padding": 99.9374
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 85.3335,
+        "y": 10.6653,
+        "width": 38.1364,
+        "height": 35.8959,
+        "data_points": 29.5872
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 69.9279,
+        "y": 2.194,
+        "width": 83.0038,
+        "height": 39.5806,
+        "data_points": 0.8098
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 86.5067,
+        "y": 77.8312,
+        "width": 97.3603,
+        "height": 91.0617,
+        "data_points": 74.5172
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 83.2839,
+        "y": 90.2935,
+        "length": 77.5741
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 23.0118,
+        "saturation": 80.1932
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 21.9005,
+        "saturation": 19.0132
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.310784,
+    "tool_repetition_freq": 0.555556,
+    "arg_semantic_variance": 996.571175
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 8,
+    "layout_hash": "42-21-update_layout"
+  }
+}

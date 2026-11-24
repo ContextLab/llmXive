@@ -1,0 +1,7 @@
+{
+  "task_id": "T006",
+  "fingerprint": "79c70589b6c405b6c0dd56106c04b523d59490339598051b2626c6649572ba2a",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/ingestion/tng_loader.py': imports nonexistent names from sibling files: `from utils.config import RANDOM_SEED, TNG_API_URL` (available: Any, Dict, Optional, Path, _project_root, _random_seed, get_data_processed_path, get_data_raw_path...); `from utils.io import write_csv_with_flag` (available: Any, BinaryIO, Dict, Iterator, List, Optional, Path, Tuple...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list.\n[implementer] refusing to write 'code/tests/test_t006_galaxy_extraction.py': imports nonexistent names from sibling files: `from ingestion.tng_loader import extract_and_write_galaxy_properties` (available: Any, Dict, List, Optional, Path, TNG_API_BASE, TNG_SNAPSHOT, calculate_sha256...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

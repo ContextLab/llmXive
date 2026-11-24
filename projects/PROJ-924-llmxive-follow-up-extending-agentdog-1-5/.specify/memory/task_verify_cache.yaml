@@ -1,15 +1,11 @@
-? 'T-002-AmendUS03 [S] **Amend US-03 Acceptance Criteria**: Update `specs/PROJ-924/spec.md`
-  US-03 to explicitly state: "The system runs a zero-shot LLM classifier (google/flan-t-small)
-  on a subset of logs. " Update AUC-ROC comparison criteria to: "The drift-based method
-  is flagged as a ''computationally efficient alternative'' if its AUC is within 0.10
-  of the Flan-T5 baseline." **Action**: Modify `specs/PROJ-924/spec.md` text to reflect
-  the new model and criteria. **DEPENDS ON**: T-000-RatifySpecAmendment.'
-: c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `specs/PROJ-924/spec.md` file content is provided; the claim that\
-    \ the acceptance criteria were amended is not substantiated by any artifact. The\
-    \ required modification to mention the `google/flan-t-small` model and the new\
-    \ AUC\u2011ROC comparison clause is missing."
+T001:
+  c: true
+  h: f8e32cf0bf6fa43bc966347dc8fa7422932e5fba7853d7aea1769b495b878e47
+  r: "Checked `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/tests/test_setup.py`\
+    \ for the required test, verified `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/processed/pytest_setup_log.txt`\
+    \ contains the \u201C1 passed\u201D output, and confirmed the listed project directories\
+    \ exist."
+  sig: 41c52c249143d6550512c30a7e0a877e04a21916cc910a6fcbd3c904781507eb
 T011a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -17,23 +13,3 @@ T011a:
     and therefore we cannot confirm the presence of the required constants (`RANDOM_SEED=42`,
     `MAX_RAM_GB=7`, `BATCH_SIZE = 64`). The implementer must supply the actual file
     with the specified contents.
-T011c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No pytest execution log, test report, or any indication that `test_config.py`
-    was run and passed is provided. The required artifact (evidence of a successful
-    pytest run) is missing, so the acceptance criterion is not demonstrated.
-T018:
-  c: false
-  h: 0bcc00718215f2042393535a57903cf3a656d3c16cb414b0638b9c8748451444
-  r: "The test file `tests/unit/test_contracts.py` is present, but it relies on the\
-    \ schema file `specs/001-llmxive-drift-detection/contracts/drift_result.schema.yaml`,\
-    \ which is missing. Without this schema the test cannot perform the required validation,\
-    \ so the task\u2019s requirement is not met. The missing `drift_result.schema.yaml`\
-    \ must be added (with the correct fields) for the implementation to be complete."
-T028:
-  c: false
-  h: 30a52141b20216f592d275c9c9c8599387b1a43f4b4ee4edf2549acce3b976d8
-  r: "The required unit test file `tests/unit/test_kappa.py` does not exist in the\
-    \ repository, so no test code is provided to verify the Kappa statistic calculation.\
-    \ The task\u2019s primary artifact is missing."

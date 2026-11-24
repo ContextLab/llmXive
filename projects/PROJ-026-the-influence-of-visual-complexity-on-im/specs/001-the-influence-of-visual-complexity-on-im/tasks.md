@@ -47,7 +47,7 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T000 [FR-003] [Plan: Amendment 001] **Create Amendment File: ANOVA to Permutation Test**. **Action**: Write `specs/001-the-influence-of-visual-complexity-on-im/amendment-001.md` with the content below, replacing `<CURRENT_DATE>` with the actual execution date. **Execute**: Write the file. **Verify**: File exists and contains the text below, specifically verifying the line "Status: Ratified" is present. **Versioning**: CRITICAL: After writing the amendment, update `state/projects/PROJ-026-the-influence-of-visual-complexity-on-im.yaml` to set `updated_at` to the current timestamp. **Rationale**: Resolves legal disconnect between spec FR-003 and plan T033. **Note**: This task is a 'Write Action'. Once completed, the automated pipeline (T033) can proceed by checking for the file's existence and the 'Ratified' status.
+- [ ] T000 [FR-003] [Plan: Amendment 001] **Create Amendment File: ANOVA to Permutation Test**. **Action**: Write `specs/001-the-influence-of-visual-complexity-on-im/amendment-001.md` with the content below, replacing `<CURRENT_DATE>` with the actual execution date. **Execute**: Write the file. **Verify**: File exists and contains the text below, specifically verifying the line "Status: Ratified" is present. **Versioning**: CRITICAL: After writing the amendment, update `state/projects/PROJ-026-the-influence-of-visual-complexity-on-im.yaml` to set `updated_at` to the current timestamp. **Rationale**: Resolves legal disconnect between spec FR-003 and plan T033. **Note**: This task is a 'Write Action'. Once completed, the automated pipeline (T033) can proceed by checking for the file's existence and the 'Ratified' status. <!-- FAILED-IN-EXECUTION: code/utils/write_amendment.py exit=1 -->
 ```markdown
 # Amendment 001: Replacement of FR-003
 
@@ -67,7 +67,7 @@ The original ANOVA requirement is methodologically invalid because 'Stimulus Set
 ```
 
 - [ ] T001 Create project structure per implementation plan. **Execute**: Run `mkdir -p code/{data,stimuli,analysis,viz,tests} data/{raw/stimuli,raw/responses,processed,results} docs`. **Verify**: Directory tree exists exactly as defined in plan.md.
-- [X] T002 [P] Initialize Python project with `code/requirements.txt`. **Execute**: Create file with exact content:
+- [ ] T002 [P] Initialize Python project with `code/requirements.txt`. **Execute**: Create file with exact content:
 ```
 numpy>=1.24.0
 pandas>=2.0.0
@@ -118,8 +118,8 @@ testpaths = ["tests"]
 ```
 - [ ] T004 [P] Create `code/config.py` to manage paths, random seeds, and constants. **Execute**: Define variables: `SEED = 42`, `DATA_ROOT = "data"`, `CODE_ROOT = "code"`, `RESULTS_ROOT = "data/results"`.
 - [ ] T005 [P] Implement `code/__init__.py` and package structure for `data`, `stimuli`, `analysis`, `viz`.
-- [~] T007 Create base data models/entities in `code/data/models.py`. Fields: `ImageStimulus` (path: str, edge_density: float, entropy: float, fractal_dim: float), `ParticipantResponse` (participant_id: str, session_id: str, reaction_time: float, is_correct: bool, timestamp: datetime), `AggregatedScore` (participant_id: str, session_id: str, d_score: float, n_trials_valid: int, status: str). Implement as Pydantic BaseModel classes with explicit type hints.
-- [~] T008 [P] Configure logging infrastructure in `code/utils/logging.py`. **Execute**: Set log level to `INFO`, format to `'%(asctime)s - %(name)s - %(levelname)s - %(message)s'`, output to `logs/app.log`.
+- [X] T007 Create base data models/entities in `code/data/models.py`. Fields: `ImageStimulus` (path: str, edge_density: float, entropy: float, fractal_dim: float), `ParticipantResponse` (participant_id: str, session_id: str, reaction_time: float, is_correct: bool, timestamp: datetime), `AggregatedScore` (participant_id: str, session_id: str, d_score: float, n_trials_valid: int, status: str). Implement as Pydantic BaseModel classes with explicit type hints.
+- [X] T008 [P] Configure logging infrastructure in `code/utils/logging.py`. **Execute**: Set log level to `INFO`, format to `'%(asctime)s - %(name)s - %(levelname)s - %(message)s'`, output to `logs/app.log`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -131,9 +131,9 @@ testpaths = ["tests"]
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T016 [P] Implement image validation and error handling in `code/stimuli/validate.py`. Validates *input images* for corruption before batch processing. Skips corrupted files, logs filenames to `logs/validation.log`. **Note**: Must run before T017a-1. **Execute**: Create script that iterates `data/raw/stimuli/`, attempts to open each image, and writes valid/invalid status to `logs/validation.log`. **Verify**: Run script on a mix of valid/corrupt images; verify `logs/validation.log` contains correct entries.
+- [ ] T016 [P] Implement image validation and error handling in `code/stimuli/validate.py`. Validates *input images* for corruption before batch processing. Skips corrupted files, logs filenames to `logs/validation.log`. **Note**: Must run before T017a-1. **Execute**: Create script that iterates `data/raw/stimuli/`, attempts to open each image, and writes valid/invalid status to `logs/validation.log`. **Verify**: Run script on a mix of valid/corrupt images; verify `logs/validation.log` contains correct entries.
 
-- [~] T013 [P] Implement edge density (Canny) in `code/stimuli/metrics.py`. **Parameters**: Canny thresholds (low=50, high=150), kernel size=3. **Note**: Must complete before T017a-2.
+- [X] T013 [P] Implement edge density (Canny) in `code/stimuli/metrics.py`. **Parameters**: Canny thresholds (low=50, high=150), kernel size=3. **Note**: Must complete before T017a-2.
 - [~] T014 [P] Implement entropy of grayscale histograms in `code/stimuli/metrics.py`. **Note**: Must complete before T017a-2.
 - [~] T015 [P] Implement fractal dimension via box-counting in `code/stimuli/metrics.py`. **Parameters**: Box sizes: a range of scales including the smallest unit and subsequent powers of two.. **Edge Case Handling**: If calculation fails or value is out of range (valid range [lower boundary, upper boundary]), clamp to nearest valid boundary (lower boundary or upper boundary), log the filename and reason to `logs/manual_review.log`, and assign the clamped value. **DO NOT raise ValueError**. **Note**: Must complete before T017a-2.
 
@@ -256,7 +256,7 @@ testpaths = ["tests"]
 - [~] T040d [P] **REVISION**: Code cleanup and type hints for `code/viz/`. **Execute**: Run `ruff check --fix code/viz/` and `mypy code/viz/ --strict`. **Verify**: Exit code 0.
 - [ ] T041a [US1] Create memory profiling script in `code/utils/profile_memory.py`. **Action**: Script must use `memory_profiler` to measure peak memory usage of the main pipeline. **Verify**: Script exists and can be run independently.
 - [ ] T041b [US1] Run profiling and assert memory usage <7GB. **Action**: **Pre-condition**: Verify T017a-3 completed successfully (no error status). If T017a-3 failed, skip this task. Execute `python code/utils/profile_memory.py` with synthetic dataset (N=100 participants, 50 images) and assert `peak_memory < 7GB`. **Verify**: Log output confirms memory limit was not exceeded. **Depends on**: T041a, T038, T017a-3.
-- [~] T043a [CI] **REVISION**: Add CI workflow file `.github/workflows/analysis.yml`. **Execute**: Create file with exact content:
+- [ ] T043a [CI] **REVISION**: Add CI workflow file `.github/workflows/analysis.yml`. **Execute**: Create file with exact content:
 ```yaml
 name: Analysis Pipeline
 on: [push, pull_request]

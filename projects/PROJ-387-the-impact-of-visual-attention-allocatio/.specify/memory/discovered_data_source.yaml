@@ -1,0 +1,12 @@
+status: none
+intent: download eye tracking dataset fixation duration saccade amplitude gaze distribution
+  recall accuracy valence python package dataset
+required_fields:
+- fixation_duration
+- saccade_amplitude
+- gaze_distribution
+- recall_accuracy
+- valence_label
+cache_key: ab1b81ecde5059c2fbf4f451449a2dc517d395ca092d37ebeb41c2df24405026
+searched_at: '2026-10-12T04:22:15.770154+00:00'
+retry_count: 1

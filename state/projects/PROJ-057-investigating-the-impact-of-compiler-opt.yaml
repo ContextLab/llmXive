@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T20:32:55.080686Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-057-investigating-the-impact-of-compiler-opt
-last_run_id: fa1e3801-1357-404d-ab1a-d3943acba87e
+last_run_id: 21fd4e24-29c9-4386-8473-cf889d6a2c97
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-057-investigating-the-impact-of-compiler-opt/specs/001-investigating-the-impact-of-compiler-opt
 title: Investigating the Impact of Compiler Optimizations on LLM Inference Latency
-updated_at: '2026-07-18T10:11:49.539995Z'
+updated_at: '2026-11-08T18:13:52.937931Z'

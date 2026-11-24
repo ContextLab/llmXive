@@ -1,0 +1,44 @@
+T001:
+  reason: 'declared artifact(s) missing/empty/invalid: code/download_and_verify.py,
+    data/raw/nist.csv, data/raw/zenodo.csv, data/raw/materials_project.csv, data/source/availability_report.json'
+  task: 97934de6ff688eb9372b87871c72176ec3a225ba13b86fadd55f7414a283b62e
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/merge_raw.py
+    exit=1'
+  task: a39ef93a3fb2e6a4d0e191cc5c5cf7ba17a5cf809df505393b46e858e2c0cf7b
+T003:
+  task: d15129c205fb79c27d20ffde907366f031b7f4facbc68f8123bcbb8674cf49fd
+T004:
+  task: cd580afdc24f5a8a9ba933160f716f778b3f944998c2036f5db6c9c587cd9345
+T005:
+  task: a3bbdf524d840d99fc98d08b3e4eb2a3070bc12aae6ac74bc471bdfd21c37328
+T006:
+  task: 14bc75ab846fc89411a9a202ab68f3a5ff5dcdc20a78433aba830dea29575130
+T007:
+  task: 104673576d612073b37ca39b50bd9827867d4fffdcd72138f73905ddc2551c5d
+T008:
+  task: 648e48b2a19f81accc94d45045f98d62454bc3d282f15c29c2e49e45b64d857b
+T009:
+  task: 03f681daf2450daa684f03157f512443c9df11d3b68785cec0c2315061dbda15
+T010:
+  task: 65375e15881d4d833aa360b5350951c1fb8b6a73ef894c6ab842ab69ed67edf1
+T011:
+  task: 05bbafc30fce00e5734ceb64f976661e75c0eac5e20fd165f0410cb306d2897b
+T012:
+  task: cf2a3bf6bbdc75997817a2e5a9cd4f4aae72dbb4820f474ea08d7a9219fb2f1c
+T013:
+  task: 15cd2121ab2574e465018b3317f8b36f9f706048c4123d82c83085fb51e8d1a8
+T014:
+  task: 8690d8bdf2a640a1228ce5555c8dced626d7218f51fcac72e4cd2ec9c97feff8
+T015:
+  task: 4c19df9245fb7c190eac3918e93cf82c3698905e9a3ac119fa6c1154d40d9100
+T016:
+  task: fa1c6d200a2118ea46a33d46431bdfca942e8d0bb88da46623885623e6a8d26b
+T017:
+  task: dc2693adc87be05f478fec6b141345ed761569897d4bc496c98dc2ee8c32a58a
+T018:
+  task: 61eee305b30de00285029effceeb57a1d211a1f745496968287f583c6dc06da3
+T019:
+  task: 0d6263e4c1d91f0f23b581dd6f3d9230fbf788881edbbb96229e254de0843391
+T021:
+  task: 3e08c173b5e89648b1b588703ff13bf0f79c219f019eafda6176cbf8a00ce54d

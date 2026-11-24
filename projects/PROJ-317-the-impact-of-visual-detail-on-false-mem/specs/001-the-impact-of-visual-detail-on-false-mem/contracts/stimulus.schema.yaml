@@ -11,10 +11,10 @@ properties:
     description: "Relative path to the baseline image file"
   enhanced_path:
     type: "string"
-    description: "Relative path to the enhanced detail image file"
+    description: "Path to the enhanced detail image file"
   reduced_path:
     type: "string"
-    description: "Relative path to the reduced detail image file"
+    description: "Path to the reduced detail image file"
   complexity_score:
     type: "number"
     minimum: 0.0

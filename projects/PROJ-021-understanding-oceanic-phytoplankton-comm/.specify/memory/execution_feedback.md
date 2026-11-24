@@ -1,13 +1,5 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/05_versioning_state.py`
-  - script usage: `05_versioning_state.py [-h] --project PROJECT [--path PATH]`
-  - argparse error: `05_versioning_state.py: error: the following arguments are required: command, --project`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 8 command(s) failed: python code/01_data_ingestion.py (rc=1); python code/02_preprocessing.py (rc=1); python code/02_preprocessing.py --power-analysis (rc=1); 4 declared deliverable(s) absent: data/artifacts/basin_variance_viz.png; data/logs/missing_value_report.json; data/processed/split_indices.json
@@ -15,8 +7,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/01_data_ingestion.py -> rc=1
-2026-10-11 07:21:32 - __main__ - INFO - Starting data ingestion and quality filtering pipeline (T015)
-2026-10-11 07:21:32 - __main__ - ERROR - Pipeline execution failed: No MODIS data file found in data/raw/.
+2026-10-19 15:32:59 - __main__ - INFO - Starting data ingestion and quality filtering pipeline (T015)
+2026-10-19 15:32:59 - __main__ - ERROR - Pipeline execution failed: No MODIS data file found in data/raw/.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-021-understanding-oceanic-phytoplankton-comm/code/01_data_ingestion.py", line 283, in main
     modis_df = load_modis_quality_flags()
@@ -27,7 +19,7 @@ FileNotFoundError: No MODIS data file found in data/raw/.
 
 
 - python code/02_preprocessing.py -> rc=1
-2026-10-11 07:21:32 - __main__ - INFO - Starting preprocessing pipeline
+2026-10-19 15:33:00 - __main__ - INFO - Starting preprocessing pipeline
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-021-understanding-oceanic-phytoplankton-comm/code/02_preprocessing.py", line 331, in <module>
@@ -38,7 +30,7 @@ Traceback (most recent call last):
 AttributeError: 'Config' object has no attribute 'get'
 
 - python code/02_preprocessing.py --power-analysis -> rc=1
-2026-10-11 07:21:33 - __main__ - INFO - Starting preprocessing pipeline
+2026-10-19 15:33:00 - __main__ - INFO - Starting preprocessing pipeline
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-021-understanding-oceanic-phytoplankton-comm/code/02_preprocessing.py", line 331, in <module>
@@ -53,8 +45,8 @@ AttributeError: 'Config' object has no attribute 'get'
 Data not found: Aligned data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-021-understanding-oceanic-phytoplankton-comm/data/processed/aligned_dataset.nc
 
 - python code/04_evaluation.py -> rc=1
-2026-10-11 07:21:42,730 - __main__ - INFO - Starting Basin Variance Report Generation (T020a)...
-2026-10-11 07:21:42,730 - __main__ - ERROR - T020a failed: Model comparison artifact not found at data/artifacts/model_comparison.csv. Ensure T020 has been executed successfully.
+2026-10-19 15:33:05,104 - __main__ - INFO - Starting Basin Variance Report Generation (T020a)...
+2026-10-19 15:33:05,104 - __main__ - ERROR - T020a failed: Model comparison artifact not found at data/artifacts/model_comparison.csv. Ensure T020 has been executed successfully.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-021-understanding-oceanic-phytoplankton-comm/code/04_evaluation.py", line 221, in main
     calculate_basin_r2_difference()
@@ -66,12 +58,9 @@ Traceback (most recent call last):
 FileNotFoundError: Model comparison artifact not found at data/artifacts/model_comparison.csv. Ensure T020 has been executed successfully.
 
 
-- python code/05_versioning_state.py -> rc=2
+- python code/05_versioning_state.py -> rc=1
 
-usage: 05_versioning_state.py [-h] --project PROJECT [--path PATH]
-                              [--expected-hash EXPECTED_HASH]
-                              {hash,update,verify,snapshot}
-05_versioning_state.py: error: the following arguments are required: command, --project
+ERROR: Reanalysis file not found at data/raw/copernicus_global_reanalysis.nc
 
 - python -m pytest tests/contract/ -> rc=1
 : '/home/runner/work/llmXive/llmXive/projects/PROJ-021-understanding-oceanic-phytoplankton-comm/code/specs/001-understanding-oceanic-phytoplankton-comm/contracts/aligned_dataset.schema.yaml'
@@ -85,7 +74,7 @@ FAILED tests/contract/test_feature_importance_schema.py::TestFeatureImportanceSc
 FAILED tests/contract/test_feature_importance_schema.py::TestFeatureImportanceSchema::test_schema_rejects_non_unity_sum
 FAILED tests/contract/test_feature_importance_schema.py::TestFeatureImportanceSchema::test_schema_validates_importance_values
 FAILED tests/contract/test_schemas.py::test_aligned_dataset_schema - FileNotF...
-========================= 7 failed, 2 skipped in 0.14s =========================
+========================= 7 failed, 2 skipped in 0.07s =========================
 
 
 - python -m pytest tests/integration/test_pipeline.py -v --tb=short -> rc=1
@@ -102,7 +91,7 @@ E    +    where <bound method Path.exists of PosixPath('data/artifacts/basin_var
 FAILED tests/integration/test_pipeline.py::test_feature_importance_maps_generation
 FAILED tests/integration/test_pipeline.py::test_basin_variance_report - Asser...
 FAILED tests/integration/test_pipeline.py::test_kruskal_wallis_test - Asserti...
-========================= 3 failed, 1 passed in 0.45s ==========================
+========================= 3 failed, 1 passed in 0.24s ==========================
 
 
 

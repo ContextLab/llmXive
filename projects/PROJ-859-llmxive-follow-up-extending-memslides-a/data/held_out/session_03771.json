@@ -1,0 +1,213 @@
+{
+  "trace_id": "held_out_43_03771",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "apply_theme",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "update_layout",
+    "update_layout",
+    "delete_element",
+    "delete_element",
+    "apply_theme",
+    "insert_text",
+    "insert_text",
+    "update_layout",
+    "apply_theme",
+    "update_layout",
+    "resize_element",
+    "resize_element",
+    "update_layout"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 75.0713,
+        "y": 46.2882,
+        "width": 2.7298,
+        "height": 96.6772
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 66.9061,
+        "y": 54.4901,
+        "width": 88.5827,
+        "height": 63.7668
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 99.465,
+        "y": 71.6976,
+        "width": 81.334,
+        "height": 14.2022
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 76.3672,
+        "saturation": 78.8133
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 41.9378,
+        "y": 61.1201,
+        "width": 63.1623,
+        "height": 78.0566
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 68.9679,
+        "y": 49.336,
+        "width": 9.447,
+        "height": 23.3807
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 20.093,
+        "y": 63.6987,
+        "width": 20.1972,
+        "height": 17.035
+      }
+    },
+    {
+      "step": 7,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 87.1546,
+        "padding": 24.3088
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 80.2671,
+        "padding": 88.571
+      }
+    },
+    {
+      "step": 9,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 84.4346
+      }
+    },
+    {
+      "step": 10,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 42.5372
+      }
+    },
+    {
+      "step": 11,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 49.0297,
+        "saturation": 40.3739
+      }
+    },
+    {
+      "step": 12,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 45.114,
+        "y": 43.64,
+        "length": 5.8782
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 40.0,
+        "y": 94.3971,
+        "length": 2.9357
+      }
+    },
+    {
+      "step": 14,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 18.9771,
+        "padding": 90.1911
+      }
+    },
+    {
+      "step": 15,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 33.2553,
+        "saturation": 23.5651
+      }
+    },
+    {
+      "step": 16,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 31.7791,
+        "padding": 8.0609
+      }
+    },
+    {
+      "step": 17,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 87.3971,
+        "height": 1.161
+      }
+    },
+    {
+      "step": 18,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 84.3675,
+        "height": 99.824
+      }
+    },
+    {
+      "step": 19,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 42.7542,
+        "padding": 12.3318
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.891053,
+    "tool_repetition_freq": 0.65,
+    "arg_semantic_variance": 906.433199
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 6,
+    "layout_hash": "43-3771-update_layout"
+  },
+  "variance_multiplier": 1.5
+}

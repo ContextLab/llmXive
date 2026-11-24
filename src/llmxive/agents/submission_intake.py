@@ -628,9 +628,7 @@ def _triage_feedback_llm(
     )
     response = chat_with_fallback(
         [ChatMessage(role="system", content=system), ChatMessage(role="user", content=user)],
-        default_backend=entry.default_backend.value,
-        fallback_backends=[b.value for b in entry.fallback_backends],
-        model=entry.default_model,
+        profile=entry.profile,
         max_tokens=512,
     )
     text = (response.text or "").strip()

@@ -13,84 +13,161 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ableError to fallback to mock data. """  import os import r…”; code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…or("VERIFICATION FAILED: Synthetic data patterns found in ingest…”; 4 command(s) failed: python code/ingest.py --verify-only (rc=1); python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py (rc=1); python -m pytest tests/unit/ (rc=2); 3 declared deliverable(s) absent: data/processed/cleaned_mg.csv; data/processed/correlation_matrix.csv; data/processed/vif_diagnostic_log.json
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ableError to fallback to mock data. """  import os import r…”; code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…or("VERIFICATION FAILED: Synthetic data patterns found in ingest…”; 9 command(s) failed: python code/download_dataset.py   # creates data/raw/metalic_glass_raw.csv (rc=1); python code/ingest.py               # writes data/processed/cleaned_data.csv (rc=1); python code/descriptors.py (rc=1); 2 declared deliverable(s) absent: data/processed/correlation_matrix.csv; data/processed/vif_diagnostic_log.json
 
 ## Failing / missing run-book commands
 
-- python code/ingest.py --verify-only -> rc=1
+- python code/download_dataset.py   # creates data/raw/metalic_glass_raw.csv -> rc=1
+ck DOI also failed: No CSV file found in Zenodo record 10.5281/zenodo.11023456
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 195, in <module>
-    @resource_monitor(runtime_limit_h=2.0, memory_limit_gb=7.0)
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/contextlib.py", line 301, in helper
-    return _GeneratorContextManager(func, args, kwds)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/contextlib.py", line 105, in __init__
-    self.gen = func(*args, **kwds)
-               ^^^^^^^^^^^^^^^^^^^
-TypeError: resource_monitor() got an unexpected keyword argument 'runtime_limit_h'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/download_dataset.py", line 59, in main
+    download_csv_from_zenodo(fallback_doi, raw_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py", line 60, in download_csv_from_zenodo
+    raise DataUnavailableError(f"No CSV file found in Zenodo record {doi}")
+zenodo_client.DataUnavailableError: No CSV file found in Zenodo record 10.5281/zenodo.11023456
 
-- python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py -> rc=1
+The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 195, in <module>
-    @resource_monitor(runtime_limit_h=2.0, memory_limit_gb=7.0)
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/contextlib.py", line 301, in helper
-    return _GeneratorContextManager(func, args, kwds)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/contextlib.py", line 105, in __init__
-    self.gen = func(*args, **kwds)
-               ^^^^^^^^^^^^^^^^^^^
-TypeError: resource_monitor() got an unexpected keyword argument 'runtime_limit_h'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/download_dataset.py", line 67, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/download_dataset.py", line 64, in main
+    raise RuntimeError("Both primary and fallback DOIs are unavailable.") from e
+RuntimeError: Both primary and fallback DOIs are unavailable.
+
+- python code/ingest.py               # writes data/processed/cleaned_data.csv -> rc=1
+-of-alloying-on-/code/zenodo_client.py", line 60, in download_csv_from_zenodo
+    raise DataUnavailableError(f"No CSV file found in Zenodo record {doi}")
+zenodo_client.DataUnavailableError: No CSV file found in Zenodo record 10.5281/zenodo.11023456
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 222, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 219, in main
+    run_ingestion()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/resource_monitor.py", line 320, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 137, in run_ingestion
+    raise DataUnavailableError("Both primary and fallback DOIs are unavailable.") from fe
+zenodo_client.DataUnavailableError: Both primary and fallback DOIs are unavailable.
+
+- python code/descriptors.py -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/descriptors.py", line 252, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/descriptors.py", line 249, in main
+    run_descriptors()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/resource_monitor.py", line 320, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/descriptors.py", line 238, in run_descriptors
+    raise FileNotFoundError(f"Input file not found: {input_path}")
+FileNotFoundError: Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/cleaned_mg.csv
+
+- python code/train.py -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/train.py", line 222, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/train.py", line 219, in main
+    run_training_pipeline()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/train.py", line 205, in run_training_pipeline
+    raise FileNotFoundError(f"Input data file not found: {data_path}")
+FileNotFoundError: Input data file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/descriptors.csv
+
+- python code/analyze.py -> rc=1
+model_path)
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/analyze.py", line 72, in load_model
+    raise FileNotFoundError(f"Model file not found at {model_path}")
+FileNotFoundError: Model file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/artifacts/models/best_model.pkl
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/analyze.py", line 279, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/analyze.py", line 233, in main
+    model = load_model(model_path)
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/analyze.py", line 72, in load_model
+    raise FileNotFoundError(f"Model file not found at {model_path}")
+FileNotFoundError: Model file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/artifacts/models/best_model.pkl
+
+- python code/report.py -> rc=1
+elation matrix from /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/correlation_matrix.csv
+2026-10-26 16:31:09,341 - ERROR - Input file missing: Correlation matrix file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/correlation_matrix.csv
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/report.py", line 230, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/report.py", line 214, in main
+    df = load_correlation_matrix(input_path)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/report.py", line 58, in load_correlation_matrix
+    raise FileNotFoundError(f"Correlation matrix file not found: {csv_path}")
+FileNotFoundError: Correlation matrix file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/correlation_matrix.csv
+
+- python code/descriptors.py && python code/train.py && python code/analyze.py && python code/report.py -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/descriptors.py", line 252, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/descriptors.py", line 249, in main
+    run_descriptors()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/resource_monitor.py", line 320, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/descriptors.py", line 238, in run_descriptors
+    raise FileNotFoundError(f"Input file not found: {input_path}")
+FileNotFoundError: Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/cleaned_mg.csv
 
 - python -m pytest tests/unit/ -> rc=2
-ode/zenodo_client.py)
+home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/tests/unit/test_verify_resource_compliance.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_verify_resource_compliance.py:13: in <module>
+    from verify_resource_compliance import verify_resource_compliance, load_resource_usage
+E   ModuleNotFoundError: No module named 'verify_resource_compliance'
 =========================== short test summary info ============================
 ERROR tests/unit/test_analyze.py
-ERROR tests/unit/test_descriptors.py - TypeError: resource_monitor() got an u...
-ERROR tests/unit/test_descriptors_io.py - TypeError: resource_monitor() got a...
-ERROR tests/unit/test_ingest.py - TypeError: resource_monitor() got an unexpe...
-ERROR tests/unit/test_ingest_retention.py - TypeError: resource_monitor() got...
-ERROR tests/unit/test_ingest_stats.py - TypeError: resource_monitor() got an ...
-ERROR tests/unit/test_ingest_t014.py - TypeError: resource_monitor() got an u...
-ERROR tests/unit/test_train_artifacts.py - TypeError: resource_monitor() got ...
-ERROR tests/unit/test_train_lofo.py - TypeError: resource_monitor() got an un...
-ERROR tests/unit/test_train_model.py - TypeError: resource_monitor() got an u...
-ERROR tests/unit/test_train_stratification.py - TypeError: resource_monitor()...
+ERROR tests/unit/test_descriptors_io.py
+ERROR tests/unit/test_ingest.py
+ERROR tests/unit/test_ingest_retention.py
+ERROR tests/unit/test_ingest_stats.py
+ERROR tests/unit/test_ingest_t014.py
+ERROR tests/unit/test_train_artifacts.py
+ERROR tests/unit/test_train_lofo.py
 ERROR tests/unit/test_verify_resource_compliance.py
-ERROR tests/unit/test_zenodo_client.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 13 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 13 errors in 1.33s ==============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 9 errors in 1.66s ===============================
 
 
 - python -m pytest tests/integration/ -> rc=2
-_________
-tests/integration/test_train_pipeline.py:19: in <module>
-    from code.train import main
-code/train.py:17: in <module>
-    from descriptors import get_project_root, setup_logging as setup_desc_logging
-code/descriptors.py:231: in <module>
-    @resource_monitor(runtime_limit_h=2.0, memory_limit_gb=7.0)
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/contextlib.py:301: in helper
-    return _GeneratorContextManager(func, args, kwds)
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/contextlib.py:105: in __init__
-    self.gen = func(*args, **kwds)
-E   TypeError: resource_monitor() got an unexpected keyword argument 'runtime_limit_h'
+le>
+    from ingest import load_and_validate_data, clean_data
+E   ImportError: cannot import name 'load_and_validate_data' from 'ingest' (/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py)
+=============================== warnings summary ===============================
+tests/integration/test_train_pipeline.py:84
+  /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/tests/integration/test_train_pipeline.py:84: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-ERROR tests/integration/test_data_ingestion.py - TypeError: resource_monitor(...
+ERROR tests/integration/test_data_ingestion.py
 ERROR tests/integration/test_statistical_validation.py
-ERROR tests/integration/test_train_cv.py - TypeError: resource_monitor() got ...
-ERROR tests/integration/test_train_pipeline.py - TypeError: resource_monitor(...
-!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 0.96s ===============================
+ERROR tests/integration/test_train_cv.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+========================= 1 warning, 3 errors in 1.56s =========================
 
 
 
 ## Declared deliverables still missing
 
-- data/processed/cleaned_mg.csv
 - data/processed/correlation_matrix.csv
 - data/processed/vif_diagnostic_log.json
 
@@ -98,13 +175,6 @@ ERROR tests/integration/test_train_pipeline.py - TypeError: resource_monitor(...
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/processed/cleaned_mg.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analyze.py` — IS a run-book command
-    - `code/descriptors.py` — IS a run-book command
-    - `code/ingest.py` — IS a run-book command
-    - `code/run_full_pipeline.py` — NOT invoked by the run-book
-    - `code/verify_artifacts.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/cleaned_mg.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/correlation_matrix.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analyze.py` — IS a run-book command
     - `code/report.py` — IS a run-book command

@@ -1,0 +1,228 @@
+{
+  "fetched_at": "2026-10-31T09:13:30Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "Investigating the Correlation Between Circadian Gene Expression and Metabolic Syndrome Risk",
+      "target_n": 5
+    },
+    "duration_seconds": 21.423,
+    "ended_at": "2026-10-31T09:13:30Z",
+    "expansion": null,
+    "extracted_queries": [
+      "Investigating Correlation Circadian Gene Expression biology",
+      "Expression Metabolic Syndrome Risk biology",
+      "Investigating Circadian Expression Syndrome biology"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1209.3820"
+      ]
+    },
+    "per_query_hit_count": {
+      "Expression Metabolic Syndrome Risk biology": 1,
+      "Investigating Circadian Expression Syndrome biology": 2,
+      "Investigating Correlation Circadian Gene Expression biology": 2,
+      "Investigating the Correlation Between Circadian Gene Expression and Metabolic Syndrome Risk biology": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-10-31T09:13:09Z",
+    "term_input": {
+      "normalized": "investigating the correlation between circadian gene expression and metabolic syndrome risk biology",
+      "raw": "Investigating the Correlation Between Circadian Gene Expression and Metabolic Syndrome Risk biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: Many mathematical models have now been employed across every area of systems biology. These models increasingly involve large numbers of unknown parameters, have complex structure which can result in substantial evaluation time relative to the needs of the analysis, and need to be compared to observed data. The correct analysis of such models usually requires a global parameter search, over a high dimensional parameter space, that incorporates and respects the most important sources of uncertainty. This can be an extremely difficult task, but it is essential for any meaningful inference or prediction to be made about any biological system. It hence represents a fundamental challenge for the whole of systems biology.\n  Results: Bayesian statistical methodology for the uncertainty analysis of complex models is introduced, which is designed to address the high dimensional global parameter search problem. Bayesian emulators that mimic the systems biology model but which are extremely fast to evaluate are embedded within an iterative history match: an efficient method to search high dimensional spaces within a more formal statistical setting, while incorporating major sources of uncertainty. The approach is demonstrated via application to two models of hormonal crosstalk in Arabidopsis root development, which have 32 rate parameters, for which we identify the sets of rate parameter values that lead to acceptable matches to observed trend data. The biological consequences of the resulting comparison, including the evaluation of gene functions, are described.",
+          "claimed_authors": [
+            "Ian Vernon",
+            "Junli Liu",
+            "Michael Goldstein",
+            "James Rowe",
+            "Jen Topping",
+            "Keith Lindsey"
+          ],
+          "claimed_title": "Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.06358"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Correlation Between Circadian Gene Expression and Metabolic Sy', candidate_title='Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions')",
+        "failed_at": "2026-10-31T09:13:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider calculation of capital requirements when the underlying economic scenarios are determined by simulatable risk factors. In the respective nested simulation framework, the goal is to estimate portfolio tail risk, quantified via VaR or TVaR of a given collection of future economic scenarios representing factor levels at the risk horizon. Traditionally, evaluating portfolio losses of an outer scenario is done by computing a conditional expectation via inner-level Monte Carlo and is computationally expensive. We introduce several inter-related machine learning techniques to speed up this computation, in particular by properly accounting for the simulation noise. Our main workhorse is an advanced Gaussian Process (GP) regression approach which uses nonparametric spatial modeling to efficiently learn the relationship between the stochastic factors defining scenarios and corresponding portfolio value. Leveraging this emulator, we develop sequential algorithms that adaptively allocate inner simulation budgets to target the quantile region. The GP framework also yields better uncertainty quantification for the resulting VaR/TVaR estimators that reduces bias and variance compared to existing methods. We illustrate the proposed strategies with two case-studies in two and six dimensions.",
+          "claimed_authors": [
+            "Michael Ludkovski",
+            "James Risk"
+          ],
+          "claimed_title": "Sequential Design and Spatial Modeling for Portfolio Tail Risk Measurement",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.05204"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Correlation Between Circadian Gene Expression and Metabolic Sy', candidate_title='Sequential Design and Spatial Modeling for Portfolio Tail Risk Measurement')",
+        "failed_at": "2026-10-31T09:13:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The downside risk of a portfolio of (equity)assets is generally substantially higher than the downside risk of its components. In particular in times of crises when assets tend to have high correlation, the understanding of this difference can be crucial in managing systemic risk of a portfolio. In this paper we generalize Merton's option formula in the presence jumps to the multi-asset case. It is shown how common jumps across assets provide an intuitive and powerful tool to describe systemic risk that is consistent with data. The methodology provides a new way to mark and risk-manage systemic risk of portfolios in a systematic way.",
+          "claimed_authors": [
+            "Alex Langnau",
+            "Daniel Cangemi"
+          ],
+          "claimed_title": "Marking Systemic Portfolio Risk with Application to the Correlation Skew of Equity Baskets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1012.4674"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Correlation Between Circadian Gene Expression and Metabolic Sy', candidate_title='Marking Systemic Portfolio Risk with Application to the Correlation Skew of Equity Baskets')",
+        "failed_at": "2026-10-31T09:13:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Gene Ontology (GO) project is the largest resource for cataloguing gene function. The combination of solid conceptual underpinnings and a practical set of features have made the GO a widely adopted resource in the research community and an essential resource for data analysis. In this chapter, we provide a concise primer for all users of the GO. We briefly introduce the structure of the ontology and explain how to interpret annotations associated with the GO.",
+          "claimed_authors": [
+            "Pascale Gaudet",
+            "Nives Škunca",
+            "James C. Hu",
+            "Christophe Dessimoz"
+          ],
+          "claimed_title": "Primer on the Gene Ontology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.01876"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Correlation Between Circadian Gene Expression and Metabolic Sy', candidate_title='Primer on the Gene Ontology')",
+        "failed_at": "2026-10-31T09:13:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Gene Ontology (GO) is a formidable resource but there are several considerations about it that are essential to understand the data and interpret it correctly. The GO is sufficiently simple that it can be used without deep understanding of its structure or how it is developed, which is both a strength and a weakness. In this chapter, we discuss some common misinterpretations of the ontology and the annotations. A better understanding of the pitfalls and the biases in the GO should help users make the most of this very rich resource. We also review some of the misconceptions and misleading assumptions commonly made about GO, including the effect of data incompleteness, the importance of annotation qualifiers, and the transitivity or lack thereof associated with different ontology relations. We also discuss several biases that can confound aggregate analyses such as gene enrichment analyses. For each of these pitfalls and biases, we suggest remedies and best practices.",
+          "claimed_authors": [
+            "Pascale Gaudet",
+            "Christophe Dessimoz"
+          ],
+          "claimed_title": "Gene Ontology: Pitfalls, Biases, Remedies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.01875"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Correlation Between Circadian Gene Expression and Metabolic Sy', candidate_title='Gene Ontology: Pitfalls, Biases, Remedies')",
+        "failed_at": "2026-10-31T09:13:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Symmetries play a major role in physics, in particular since the work by E. Noether and H. Weyl in the first half of last century. Herein, we briefly review their role by recalling how symmetry changes allow to conceptually move from classical to relativistic and quantum physics. We then introduce our ongoing theoretical analysis in biology and show that symmetries play a radically different role in this discipline, when compared to those in current physics. By this comparison, we stress that symmetries must be understood in relation to conservation and stability properties, as represented in the theories. We posit that the dynamics of biological organisms, in their various levels of organization, are not \"just\" processes, but permanent (extended, in our terminology) critical transitions and, thus, symmetry changes. Within the limits of a relative structural stability (or interval of viability), variability is at the core of these transitions.",
+          "claimed_authors": [
+            "Giuseppe Longo",
+            "Maël Montévil"
+          ],
+          "claimed_title": "From Physics to Biology by Extending Criticality and Symmetry Breakings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1103.1833"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Correlation Between Circadian Gene Expression and Metabolic Sy', candidate_title='From Physics to Biology by Extending Criticality and Symmetry Breakings')",
+        "failed_at": "2026-10-31T09:13:29Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Simone Colombara",
+            "Ilenia Epifani",
+            "Alessandra Guglielmi",
+            "Ettore Lanzarone"
+          ],
+          "title": "A warning system for risk prediction of metabolic syndrome in a healthy population of blood donors",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.26843",
+        "summary": "Metabolic syndrome is a complex clinical condition characterized by the simultaneous presence of multiple metabolic risk factors and represents a major public health concern. The syndrome develops silently and may remain undiagnosed for long periods, highlighting the importance of investigating early metabolic alterations before overt disease onset. Longitudinal monitoring of predominantly healthy individuals may help identify metabolic risk early. The paper proposes a Bayesian statistical model to estimate the probability of metabolic syndrome among blood donors during pre-donation screening, incorporating information collected at previous visits. Using longitudinal data from one of the main blood donor associations in Italy, AVIS Milan, we analyze repeated clinical and lifestyle measurements from a predominantly healthy population of donors. In particular, we fit a Bayesian multivariate model that jointly represents the logarithm of the five diagnostic components of metabolic syndrome. The model accounts for within-donor dependence across repeated visits and provides probabilistic estimates of individual risk. Our framework aims to provide clinicians at AVIS Milan with an interpretable traffic-light warning system (low, intermediate, high risk) during pre-donation screening to facilitate the identification of individuals at risk of metabolic syndrome at future visits and to support targeted preventive interventions during routine donor assessment, ultimately contributing to a long-term reduction in healthcare costs for the Italian national healthcare system.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.26843",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-31T09:13:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sean P Stromberg",
+            "Rustom Antia",
+            "Ilya Nemenman"
+          ],
+          "title": "Population-expression models of immune response",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1209.3820",
+        "summary": "The immune response to a pathogen has two basic features. The first is the expansion of a few pathogen-specific cells to form a population large enough to control the pathogen. The second is the process of differentiation of cells from an initial naive phenotype to an effector phenotype which controls the pathogen, and subsequently to a memory phenotype that is maintained and responsible for long-term protection. The expansion and the differentiation have been considered largely independently. Changes in cell populations are typically described using ecologically based ordinary differential equation models. In contrast, differentiation of single cells is studied within systems biology and is frequently modeled by considering changes in gene and protein expression in individual cells. Recent advances in experimental systems biology make available for the first time data to allow the coupling of population and high dimensional expression data of immune cells during infections. Here we describe and develop population-expression models which integrate these two processes into systems biology on the multicellular level. When translated into mathematical equations, these models result in non-conservative, non-local advection-diffusion equations. We describe situations where the population-expression approach can make correct inference from data while previous modeling approaches based on common simplifying assumptions would fail. We also explore how model reduction techniques can be used to build population-expression models, minimizing the complexity of the model while keeping the essential features of the system. While we consider problems in immunology in this paper, we expect population-expression models to be more broadly applicable.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1209.3820",
+          "http_status": 200,
+          "pdf_sample_score": 0.3349,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-31T09:13:28Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "investigating the correlation between circadian gene expression and metabolic syndrome risk biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

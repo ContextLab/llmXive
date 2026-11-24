@@ -8,7 +8,7 @@ properties:
     description: "Unique identifier for the participant."
   data_source:
     type: string
-    description: "Source dataset for dMRI (e.g., 'OpenNeuro-ds003813')."
+    description: "Source dataset for dMRI (e.g., 'OpenNeuro-ds004230')."
   is_valid:
     type: boolean
     description: "True if the participant passed quality control."
@@ -23,7 +23,7 @@ properties:
         description: "Mean clustering coefficient."
       rich_club_coefficient:
         type: number
-        description: "Rich-club coefficient."
+        description: "Rich‑club coefficient."
     required:
       - mean_degree
       - clustering_coefficient
@@ -33,16 +33,16 @@ properties:
     properties:
       size_exponent:
         type: number
-        description: "Power-law scaling exponent for avalanche size."
+        description: "Power‑law scaling exponent for avalanche size."
       duration_exponent:
         type: number
-        description: "Power-law scaling exponent for avalanche duration."
+        description: "Power‑law scaling exponent for avalanche duration."
       threshold_percentile:
         type: number
         description: "Threshold used for avalanche detection (e.g., 0.75)."
       power_law_preferred:
         type: boolean
-        description: "True if power-law model was statistically preferred."
+        description: "True if power‑law model was statistically preferred."
       likelihood_ratio_p_value:
         type: number
         description: "P-value from likelihood ratio test."

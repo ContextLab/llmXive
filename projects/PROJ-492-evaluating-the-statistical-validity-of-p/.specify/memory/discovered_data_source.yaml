@@ -1,0 +1,19 @@
+status: none
+intent: download public A/B test summary dataset with reported p-values and metrics
+  python package dataset
+required_fields:
+- url
+- title
+- reported_p_value
+- sample_size
+- effect_size
+- confidence_interval
+- variant_a_name
+- variant_b_name
+- outcome_metric
+- statistical_test_type
+- test_date
+- domain
+cache_key: 433c6da67876f7f1c3aea78856d6f8bf4d57157fdb8612e429e8030a498053a0
+searched_at: '2026-10-26T13:31:10.644434+00:00'
+retry_count: 1

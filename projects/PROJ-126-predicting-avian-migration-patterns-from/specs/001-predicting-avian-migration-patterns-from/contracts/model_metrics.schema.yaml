@@ -1,7 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 type: object
 title: Model Performance Metrics Schema
-description: "Schema for the output metrics including RMSE, correlation, and Diebold-Mariano test results."
+description: "Schema for the output metrics including RMSE, correlation, and Diebold‑Mariano test results."
 required:
   - model_type
   - threshold
@@ -21,7 +21,7 @@ properties:
   threshold:
     type: integer
     enum: [3, 5, 10]
-    description: "The first-arrival threshold used for this metric set."
+    description: "The first‑arrival threshold used for this metric set."
   rmse:
     type: number
     minimum: 0
@@ -33,7 +33,7 @@ properties:
     type: number
     minimum: 0
     maximum: 1
-    description: "p-value from the Diebold-Mariano test comparing to the naive baseline (on temporal aggregates)."
+    description: "p-value from the Diebold‑Mariano test comparing to the naive baseline (on temporal aggregates)."
   comparison_baseline:
     type: string
     description: "The baseline model used for comparison (e.g., 'naive_mean')."

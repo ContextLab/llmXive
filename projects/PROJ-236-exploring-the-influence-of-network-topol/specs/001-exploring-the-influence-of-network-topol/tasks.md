@@ -23,8 +23,8 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Implement the power analysis script and runtime monitoring.
 
-- [X] T000a [P] [FR-010] Implement `code/power_analysis.py` script to perform statistical power analysis for correlation detection (r≥0.3, power≥0.80). **Verification**: Script runs without error and outputs required sample size N.
-- [ ] T000c [P] [FR-010] Verify that the sample size N produced by `code/power_analysis.py` achieves statistical power ≥ 0.80 for effect size r ≥ 0.3. **Verification**: Unit test `tests/unit/test_power_analysis.py::test_output_power` reads N from script output and checks power using `statsmodels.stats.power` utilities.
+- [~] T000a [P] [FR-010] Implement `code/power_analysis.py` script to perform statistical power analysis for correlation detection (r≥0.3, power≥0.80). **Verification**: Script runs without error and outputs required sample size N.
+- [~] T000c [P] [FR-010] Verify that the sample size N produced by `code/power_analysis.py` achieves statistical power ≥ 0.80 for effect size r ≥ 0.3. **Verification**: Unit test `tests/unit/test_power_analysis.py::test_output_power` reads N from script output and checks power using `statsmodels.stats.power` utilities.
 - [ ] T000d [P] [FR-010] Persist calculated sample size N to `code/power_analysis_output.txt`. **Verification**: Unit test `tests/unit/test_power_output_persistence.py::test_output_file_exists_and_correct`.
 - [ ] T001b [P] [Orchestrator] Implement global runtime monitor in `code/orchestrator.py` to track total wall‑clock time of the ensemble execution and enforce a predefined temporal limit (SC-002). If total time > 6 h, log a warning and flag the sample size as potentially insufficient rather than failing the pipeline. **Verification**: CI assertion `tests/unit/test_runtime_monitor.py::test_warning_flag` that total runtime metric is logged; warning flag is set when > 6 h.
 
@@ -35,7 +35,7 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 [P] Create project structure per implementation plan in `projects/PROJ-236-exploring-the-influence-of-network-topol/` by executing: `mkdir -p code/utils code/tests/unit code/tests/integration data/raw data/networks data/transport data/analysis plots state/projects`. **Verification**: Unit test `tests/unit/test_project_structure.py::test_directories_exist` asserts that each listed directory exists after execution.
-- [X] T002 [P] Initialize Python 3 project with dependencies in `code/requirements.txt` including: `numpy`, `networkx`, `scipy`, `scikit-learn`, `pandas`, `matplotlib`, `seaborn`, `ase`, `pyyaml`, `pydantic`, `pytest`, `pytest-cov`, `ruff`, `black`, `mypy`, `pymatgen`. **Verification**: Run `pip install -r code/requirements.txt` and ensure exit code 0.
+- [~] T002 [P] Initialize Python 3 project with dependencies in `code/requirements.txt` including: `numpy`, `networkx`, `scipy`, `scikit-learn`, `pandas`, `matplotlib`, `seaborn`, `ase`, `pyyaml`, `pydantic`, `pytest`, `pytest-cov`, `ruff`, `black`, `mypy`, `pymatgen`. **Verification**: Run `pip install -r code/requirements.txt` and ensure exit code 0.
 - [~] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`. **Verification**: Unit test `tests/unit/test_linting_config.py::test_ruff_black_config` runs `ruff --quiet` and `black --check` on the codebase; both must exit with no warnings/errors.
 
 ## Phase 2: Foundational (Blocking Prerequisites)
@@ -112,7 +112,7 @@ description: "Task list template for feature implementation"
 - [~] T049 [P] Code cleanup and refactoring for type‑hint consistency. Run `mypy --strict` and assert exit code 0. **Verification**: CI step `ci/run_mypy.sh`.
 - [~] T050 [P] Performance optimization: implement multiprocessing in `code/generate_networks.py` for ensemble generation. **Verification**: Benchmark script `benchmarks/generate_networks_benchmark.py` and CI step `ci/check_performance.sh` require ≥ 10 % speedup compared to single‑process baseline.
 - [~] T051 [P] Add edge‑case unit tests (zero variance, disconnected graphs) in `tests/unit/` and verify coverage ≥ 90 % for edge‑case branches. **Verification**: CI step `ci/check_coverage.sh` must report ≥ 90 % coverage for specified files.
-- [~] T052 [P] Validate final artifact hashes and update `state/projects/PROJ-236-exploring-the-influence-of-network-topol.yaml` `artifact_hashes` map accordingly. **Verification**: Script `scripts/update_artifact_hashes.py` and CI test `ci/check_artifact_hashes.sh` ensure the map matches recomputed hashes.
+- [ ] T052 [P] Validate final artifact hashes and update `state/projects/PROJ-236-exploring-the-influence-of-network-topol.yaml` `artifact_hashes` map accordingly. **Verification**: Script `scripts/update_artifact_hashes.py` and CI test `ci/check_artifact_hashes.sh` ensure the map matches recomputed hashes.
 - [ ] T068 [P] Record random seeds, algorithm identifiers, and cutoff parameters for each generated graph in `data/metadata/graph_manifest.json` to satisfy Principle VII. **Verification**: Unit test `tests/unit/test_graph_manifest.py::test_manifest_contents`.
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->

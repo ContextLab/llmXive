@@ -1,0 +1,209 @@
+{
+  "trace_id": "training_42_04019",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 19,
+  "tool_sequence": [
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "delete_element",
+    "format_text",
+    "format_text",
+    "delete_element",
+    "delete_element",
+    "apply_theme",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "apply_theme",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "insert_image"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 5.6965,
+        "y": 99.5242,
+        "width": 13.3544,
+        "height": 10.2212,
+        "data_points": 91.3673
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 27.6581,
+        "y": 50.3408,
+        "width": 0.7791,
+        "height": 35.1472,
+        "data_points": 37.4348
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 8.7151,
+        "y": 34.0916,
+        "width": 58.9827,
+        "height": 17.8272,
+        "data_points": 48.5465
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 76.8669,
+        "y": 1.8005,
+        "width": 54.9226,
+        "height": 40.2168,
+        "data_points": 66.745
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 59.2353
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 18.181,
+        "x": 84.7332,
+        "y": 18.8041
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 26.4437,
+        "x": 88.6374,
+        "y": 49.8688
+      }
+    },
+    {
+      "step": 7,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 13.5005
+      }
+    },
+    {
+      "step": 8,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 38.9019
+      }
+    },
+    {
+      "step": 9,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 80.816,
+        "saturation": 55.7533
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 38.7185,
+        "y": 85.5413,
+        "width": 42.7489,
+        "height": 87.8339
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 20.0925,
+        "y": 65.913,
+        "width": 39.1554,
+        "height": 93.4009
+      }
+    },
+    {
+      "step": 12,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 67.0255,
+        "y": 91.7633,
+        "width": 3.3678,
+        "height": 83.908
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 59.9022,
+        "y": 68.5622,
+        "width": 65.7773,
+        "height": 81.7505
+      }
+    },
+    {
+      "step": 14,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 57.1048,
+        "saturation": 16.5897
+      }
+    },
+    {
+      "step": 15,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 72.6675
+      }
+    },
+    {
+      "step": 16,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 8.7067
+      }
+    },
+    {
+      "step": 17,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 36.0492
+      }
+    },
+    {
+      "step": 18,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 20.6782,
+        "y": 84.9327,
+        "width": 50.2188,
+        "height": 51.5664
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.517307,
+    "tool_repetition_freq": 0.736842,
+    "arg_semantic_variance": 807.732235
+  },
+  "final_state": {
+    "dominant_tool": "delete_element",
+    "slide_element_count": 10,
+    "layout_hash": "42-4019-delete_element"
+  }
+}

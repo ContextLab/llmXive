@@ -1,42 +1,56 @@
-import json
-import os
+"""
+code/01_ingest_openml.py
+-------------------------
+
+Implements the ingestion step (User Story 1):
+1. Fetch the top 50 most‑downloaded classification datasets from OpenML via the
+   ``utils.api_client`` wrapper.
+2. Filter for entries that have a non‑null ``publication_link`` **or** ``task_id``.
+3. Persist the raw response and the filtered list.
+4. Produce SHA‑256 checksums for both persisted files and append them to a
+   checksum manifest.
+5. Write a short log with totals.
+
+All output locations follow the specification in ``tasks.md``.
+"""
+
 import sys
+import json
 import hashlib
-import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 
-# Import logging configuration from the shared utility
 from utils.logging_config import setup_logging
+from utils.api_client import fetch_top_classification_datasets
 
-# Constants
+# ----------------------------------------------------------------------
+# Constants – paths are anchored to the repository root.
+# ----------------------------------------------------------------------
 RAW_DATA_DIR = Path("data/raw")
-LOG_FILE = "data/ingest.log"
-CHECKSUMS_FILE = RAW_DATA_DIR / "checksums.txt"
-RAW_OUTPUT = RAW_DATA_DIR / "openml_metadata_raw.json"
-FILTERED_OUTPUT = RAW_DATA_DIR / "openml_metadata_filtered.json"
+PROCESSED_DATA_DIR = Path("data/processed")
+LOG_FILE = Path("data/ingest.log")
+CHECKSUM_MANIFEST = PROCESSED_DATA_DIR / "checksum_manifest.json"
 
+RAW_OUTPUT = RAW_DATA_DIR / "openml_metadata_raw.json"
+FILTERED_OUTPUT = PROCESSED_DATA_DIR / "filtered_datasets.json"
+
+# ----------------------------------------------------------------------
+# Helper functions (unchanged from the previous version)
+# ----------------------------------------------------------------------
 def load_json_file(path: Path) -> List[Dict[str, Any]]:
     """Load a JSON file and return its content."""
-    with open(path, "r", encoding="utf-8") as f:
+    with path.open("r", encoding="utf-8") as f:
         return json.load(f)
 
 def save_json_file(path: Path, data: Any) -> None:
-    """Save data to a JSON file."""
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-
-def fetch_top_classification_datasets(limit: int = 50) -> List[Dict]:
-    """
-    Fetch top classification datasets from OpenML.
-    Delegates to the OpenMLClient utility for retry logic.
-    """
-    from utils.api_client import fetch_top_classification_datasets as fetch_datasets
-    return fetch_datasets(limit=limit)
+    """Save data to a JSON file, creating parent directories as needed."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
 
 def filter_datasets(datasets: List[Dict]) -> List[Dict]:
     """
-    Filter datasets that have a 'publication_link' OR a 'task_id'.
+    Keep datasets that have a non‑null ``publication_link`` **or** ``task_id``.
     """
     filtered = []
     for ds in datasets:
@@ -46,101 +60,116 @@ def filter_datasets(datasets: List[Dict]) -> List[Dict]:
 
 def deduplicate_datasets(datasets: List[Dict]) -> List[Dict]:
     """
-    Deduplicate datasets by 'dataset_id'.
-    If duplicates exist, keep the entry with the highest 'download_count'.
-    Raises ValueError if duplicates remain after resolution (T016).
+    Deduplicate by ``dataset_id`` – keep the entry with the highest
+    ``download_count``.
     """
     id_map: Dict[int, Dict] = {}
     for ds in datasets:
         ds_id = ds.get("dataset_id")
         if ds_id is None:
             continue
-        
         if ds_id in id_map:
-            existing = id_map[ds_id]
-            current_count = ds.get("download_count", 0)
-            existing_count = existing.get("download_count", 0)
-            if current_count > existing_count:
+            if ds.get("download_count", 0) > id_map[ds_id].get("download_count", 0):
                 id_map[ds_id] = ds
         else:
             id_map[ds_id] = ds
+    return list(id_map.values())
 
-    result = list(id_map.values())
-    
-    # T016: Ensure no duplicate IDs remain; raise ValueError if any remain
-    # (This is technically guaranteed by the logic above, but we assert for safety)
-    seen_ids = set()
-    for ds in result:
-        ds_id = ds.get("dataset_id")
-        if ds_id in seen_ids:
-            raise ValueError(f"Duplicate dataset_id {ds_id} found after deduplication logic.")
-        seen_ids.add(ds_id)
-    
-    return result
+def compute_file_checksum(path: Path) -> str:
+    """Return the SHA‑256 checksum of a file's contents."""
+    sha256 = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
-def generate_checksums(datasets: List[Dict], output_path: Path) -> None:
+def append_to_checksum_manifest(entries: List[Dict[str, str]]) -> None:
     """
-    Generate SHA-256 checksums for each dataset entry and write to a file.
-    Format: <sha256>  <dataset_id>
+    Append checksum entries to ``checksum_manifest.json``.
+    The manifest is a JSON list; if the file does not exist, start a new list.
+    Each entry contains:
+        {"file": "<relative path>", "sha256": "<hash>"}
     """
-    with open(output_path, "w", encoding="utf-8") as f:
-        for ds in datasets:
-            ds_id = ds.get("dataset_id", "unknown")
-            # Create a canonical string for hashing
-            canonical = json.dumps(ds, sort_keys=True)
-            checksum = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
-            f.write(f"{checksum}  {ds_id}\n")
+    CHECKSUM_MANIFEST.parent.mkdir(parents=True, exist_ok=True)
+    if CHECKSUM_MANIFEST.exists():
+        with CHECKSUM_MANIFEST.open("r", encoding="utf-8") as f:
+            try:
+                manifest = json.load(f)
+            except json.JSONDecodeError:
+                manifest = []
+    else:
+        manifest = []
+
+    if not isinstance(manifest, list):
+        manifest = []
+
+    manifest.extend(entries)
+
+    with CHECKSUM_MANIFEST.open("w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2, ensure_ascii=False)
 
 def log_extraction_statistics(total_fetched: int, filtered: int, type_dist: Dict[str, int]) -> None:
     """
-    Log extraction statistics to the ingest log file.
+    Write a JSON line with simple statistics to the ingest log.
     """
-    logger = setup_logging(LOG_FILE)
+    logger = setup_logging(str(LOG_FILE))
     stats = {
         "total_fetched": total_fetched,
         "filtered": filtered,
-        "type_distribution": type_dist
+        "type_distribution": type_dist,
     }
     logger.info(json.dumps(stats))
 
-def main():
-    """Main execution flow for US1."""
-    # Setup logging
-    logger = setup_logging(LOG_FILE)
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    logger = setup_logging(str(LOG_FILE))
     logger.info("Starting OpenML ingestion process.")
 
-    # 1. Fetch raw data
+    # 1️⃣ Fetch raw data using the shared API client.
     try:
-        raw_datasets = fetch_top_classification_datasets(limit=50)
-    except Exception as e:
-        logger.error(f"Failed to fetch datasets: {e}")
+        raw_datasets = fetch_top_classification_datasets(max_datasets=50)
+    except Exception as exc:  # pragma: no cover – network failures
+        logger.error(f"Failed to fetch datasets from OpenML: {exc}")
         sys.exit(1)
 
+    # Persist the *raw* response (before any filtering)
     save_json_file(RAW_OUTPUT, raw_datasets)
-    logger.info(f"Saved raw metadata to {RAW_OUTPUT}")
+    logger.info(f"Saved raw OpenML metadata to {RAW_OUTPUT}")
 
-    # 2. Filter datasets
-    filtered_datasets = filter_datasets(raw_datasets)
-    save_json_file(FILTERED_OUTPUT, filtered_datasets)
-    logger.info(f"Saved filtered metadata to {FILTERED_OUTPUT}")
+    # 2️⃣ Apply the required filter (publication link OR task_id)
+    filtered = filter_datasets(raw_datasets)
 
-    # 3. Deduplicate (T014 & T016)
-    deduped_datasets = deduplicate_datasets(filtered_datasets)
-    
-    # 4. Generate checksums (T014)
-    generate_checksums(deduped_datasets, CHECKSUMS_FILE)
-    logger.info(f"Generated checksums at {CHECKSUMS_FILE}")
+    # 3️⃣ Deduplicate the filtered list
+    deduped = deduplicate_datasets(filtered)
 
-    # 5. Log statistics (T015)
+    # Persist the filtered, deduplicated list
+    save_json_file(FILTERED_OUTPUT, deduped)
+    logger.info(f"Saved filtered dataset list to {FILTERED_OUTPUT}")
+
+    # 4️⃣ Compute checksums for both output files
+    raw_checksum = compute_file_checksum(RAW_OUTPUT)
+    filtered_checksum = compute_file_checksum(FILTERED_OUTPUT)
+
+    checksum_entries = [
+        {"file": str(RAW_OUTPUT), "sha256": raw_checksum},
+        {"file": str(FILTERED_OUTPUT), "sha256": filtered_checksum},
+    ]
+    append_to_checksum_manifest(checksum_entries)
+    logger.info(f"Appended checksums to {CHECKSUM_MANIFEST}")
+
+    # 5️⃣ Log summary statistics
     type_dist = {"binary": 0, "multiclass": 0}
-    for ds in deduped_datasets:
-        data_type = ds.get("data_type", "").lower()
-        if "binary" in data_type:
-            type_dist["binary"] += 1
-        elif "multiclass" in data_type:
-            type_dist["multiclass"] += 1
-    
-    log_extraction_statistics(len(raw_datasets), len(deduped_datasets), type_dist)
+    for ds in deduped:
+        n_classes = ds.get("number_of_classes")
+        if isinstance(n_classes, (int, float)):
+            if n_classes == 2:
+                type_dist["binary"] += 1
+            elif n_classes > 2:
+                type_dist["multiclass"] += 1
+
+    log_extraction_statistics(len(raw_datasets), len(deduped), type_dist)
     logger.info("Ingestion process completed successfully.")
 
 if __name__ == "__main__":

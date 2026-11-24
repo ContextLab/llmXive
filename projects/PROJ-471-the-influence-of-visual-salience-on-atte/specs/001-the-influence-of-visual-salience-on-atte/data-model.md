@@ -1,62 +1,28 @@
 # Data Model: The Influence of Visual Salience on Attentional Bias in Moral Judgements
 
-## 1. Entity-Relationship Overview
+## 1. Entities
 
-The data model consists of three primary entities: `StimulusImage`, `FixationTrial`, and `AnalysisResult`.
-
-### 1.1 StimulusImage
-Represents a single stimulus image from the moral judgment dataset.
-*   **ID**: Unique string (e.g., `img_001`).
-*   **FilePath**: Relative path to the image file.
-*   **SalienceMap**: Path to the generated `.npy` file (pixel-wise salience).
-*   **LowLevelFeatures**: Dictionary of luminance, contrast, edge density (Diagnostic Only).
-*   **Status**: `processed`, `failed`, `fallback_used`.
-
-### 1.2 FixationTrial
-Represents a single eye-tracking event.
-*   **TrialID**: Unique string (e.g., `sub-01_trial_005`).
-*   **ParticipantID**: String (e.g., `sub-01`).
-*   **StimulusID**: Reference to `StimulusImage.ID`.
-*   **RegionOfInterest**: Enum (`face`, `weapon`, `background`).
-*   **DwellTime**: Float (ms).
-*   **FirstFixation**: Boolean.
-*   **FixationLatency**: Float (ms).
-
-### 1.3 AnalysisResult
-Represents the output of the statistical model.
-*   **ModelID**: String (e.g., `LMM_v1`).
-*   **FixedEffectEstimate**: Float.
-*   **PValue**: Float.
-*   **ConfidenceInterval**: Tuple (Lower, Upper).
-*   **SensitivitySweepData**: List of results from Model A vs Model B.
-*   **Disclaimer**: String ("correlational only").
+| Entity | Key attributes | Description |
+|---|---|---|
+| **StimulusImage** | `stimulus_id`, `file_path`, `salience_map_path`, `low_level_features` (luminance, contrast, edge_density) | One moral‑scenario image. |
+| **SalienceMapMetadata** | `stimulus_id`, `map_path`, `resolution{height,width}`, `generation_method` (spectral_residual | center_surround), `status` (success | fallback_used | failed), `excluded_reason` (nullable) | Per‑image salience record. |
+| **FixationTrial** | `trial_id`, `participant_id`, `stimulus_id`, `roi_type`, `dwell_time_ms`, `first_fixation_prob`, `fixation_latency_ms` | One gaze event per ROI. |
+| **AnalysisResult** | `model_id`, `fixed_effect_estimate`, `p_value`, `p_value_fdr_corrected`, `confidence_interval`, `sensitivity_analysis`, `collinearity_report`, `power_status`, `disclaimer` | Statistical output. |
 
 ## 2. Data Flow
+1. **Raw** – `data/raw/ds003123/` (unchanged) + `data/raw/checksums.json` (SHA‑256 per file).  
+2. **Interim** – `salience_maps/*.npy`, `salience_metadata.json`, `masks/*.png`, `mask_metadata.csv`, `fixations.csv`.  
+3. **Processed** – `aligned_data.csv`, `results.json`.
 
-1.  **Raw**: `data/raw/ds003123/` (Original dataset).
-2.  **Interim**:
-    *   `data/interim/salience_maps/`: `.npy` files for each image.
-    *   `data/interim/masks/`: `.json` or `.png` masks for faces/weapons.
-    *   `data/interim/fixations.csv`: Parsed eye-tracking data.
-3.  **Processed**:
-    *   `data/processed/aligned_data.csv`: Merged `StimulusImage` + `FixationTrial`.
-    *   `data/processed/results.json`: Final statistical outputs.
+## 3. Schemas
 
-## 3. Schema Definitions
+### 3.1 Aligned dataset (`contracts/dataset.schema.yaml`)
+Columns: `trial_id` (string), `participant_id` (string), `stimulus_id` (string), `roi_type` (enum: face | weapon | background), `dwell_time_ms` (number), `first_fixation_prob` (0–1), `fixation_latency_ms` (number), `salience_score` (number), `luminance` (number), `contrast` (number), `edge_density` (number), `scene_complexity` (integer ≥ 0), `excluded` (boolean). All required.
 
-### 3.1 Aligned Data Schema (CSV)
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `trial_id` | str | Unique trial identifier |
-| `participant_id` | str | Participant ID |
-| `stimulus_id` | str | Stimulus ID |
-| `roi_type` | str | `face` or `weapon` |
-| `dwell_time_ms` | float | Dwell time in milliseconds |
-| `first_fixation_prob` | float | Probability of first fixation |
-| `salience_score` | float | Mean salience in ROI |
-| `luminance` | float | Average luminance (diagnostic only) |
-| `contrast` | float | Average contrast (diagnostic only) |
-| `excluded` | bool | `True` if trial was excluded |
+### 3.2 Analysis results (`contracts/output.schema.yaml`)
+Properties (all required): `model_id` (string), `fixed_effect_estimate` (number), `p_value` (0–1), `p_value_fdr_corrected` (0–1), `confidence_interval` (array of two numbers), `sensitivity_analysis` (object with `model_a_estimate`, `model_b_estimate`, `stability_metric`), `collinearity_report` (object with `pre_orthogonalization_vif`, `post_orthogonalization_vif`), `power_status` (`valid` | `invalid`), `power_estimate` (0–1), `disclaimer` (constant `"correlational only"`).
 
-### 3.2 Results Schema (JSON)
-See `contracts/output.schema.yaml` for full validation rules.
+### 3.3 Salience metadata (`contracts/salience.schema.yaml`)
+Properties (all required): `stimulus_id` (string), `map_path` (string), `resolution` (object with `height` ≥ 1, `width` ≥ 1), `generation_method` (`spectral_residual` | `center_surround`), `status` (`success` | `fallback_used` | `failed`), `excluded_reason` (string or null).
+
+---

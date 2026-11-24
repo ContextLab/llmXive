@@ -40,10 +40,10 @@
 - [X] T001a [P] Create `code/` directory at repository root
 - [ ] T001b [P] Create `data/` directory with subdirectories `data/raw/`, `data/processed/`, `data/output/`
 - [X] T001c [P] Create `tests/` directory with subdirectories `tests/unit/`, `tests/integration/`, `tests/contract/`
-- [~] T001d [P] Initialize git repository and create `.gitignore` for Python at repository root
-- [~] T002a [P] Create `code/requirements.txt` file with pinned dependencies (pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, scikit-learn>=1.3.0, matplotlib>=3.7.0, pyyaml>=6.0)
-- [~] T002b [P] Install dependencies using `pip install -r code/requirements.txt` in virtualenv
-- [~] T003a [P] Install black formatter in development environment
+- [ ] T001d [P] Initialize git repository and create `.gitignore` for Python at repository root
+- [X] T002a [P] Create `code/requirements.txt` file with pinned dependencies (pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, scikit-learn>=1.3.0, matplotlib>=3.7.0, pyyaml>=6.0)
+- [ ] T002b [P] Install dependencies using `pip install -r code/requirements.txt` in virtualenv
+- [ ] T003a [P] Install black formatter in development environment
 - [~] T003b [P] Install flake8 linter in development environment
 - [~] T003c [P] Configure black pre-commit hook in `.pre-commit-config.yaml`
 

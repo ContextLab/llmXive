@@ -1,0 +1,7 @@
+{
+  "task_id": "T003",
+  "fingerprint": "548e634f9de295a1270f4a92799a574d98508da48c22e7c290fcde35fed7bf8a",
+  "count": 1,
+  "model": "zai-org.glm-5.3",
+  "reason": "[implementer] refusing to write 'code/analysis/tests.py': SyntaxError at line 188: unindent does not match any outer indentation level. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 9050\n[implementer] refusing to write 'code/tests/unit/test_stat_tests.py': imports nonexistent names from sibling files: `from analysis.tests import bin_data, run_anova, run_chi_squared, run_t_test` (available: Any, Callable, Dict, Iterator, Optional, ScalingMethod, TestResult, Tuple...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

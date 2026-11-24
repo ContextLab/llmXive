@@ -1,1 +1,1 @@
-start_time: 2026-10-10T21:21:03.688604\nend_time: 2026-10-10T21:21:03.713865\nelapsed_seconds: 0.03\npeak_memory_mb: 97.91\n
+start_time: 2026-10-25T09:10:20.621750\nend_time: 2026-10-25T09:10:24.254443\nelapsed_seconds: 3.63\npeak_memory_mb: 190.10\n

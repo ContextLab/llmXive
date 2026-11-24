@@ -31,18 +31,63 @@ T012:
 T013:
   task: eb5d4e61b3a2040a6f24e13c047c79ad6e6fbd87d1bb3921f63d9b090d049dff
 T014:
+  reason: 'The test file exists but is written against a schema that does not match
+    the actual data models: it constructs `Subject(participant_id=..., motor_score_pre=...,
+    motor_score_post=..., mean_fd=...)` while `code/data/subject.py` defines `Subject(subject_id,
+    age, sex, pre_motor_score, post_motor_score, ...)` with no defaults, and it constructs
+    `ConnectivityMatrix(data=..., atlas_name=...)` while the real class signature
+    is `ConnectivityMatrix(matrix, region_names, subject_id, method)` and rejects
+    non-square matrices (which the test asserts are accepted). Every test would raise
+    `TypeError`/`ValueEr'
   task: 17f02bfdb006e8c1f2042e7526f3154e2b16e56d8ce6b2d6fa25b8ff94ba68af
 T015:
+  reason: 'The test file exists but would fail at collection/run time: it calls `validate_metadata_columns(mock_path)`
+    with one argument while the actual function in `code/data/validation_gate.py`
+    requires `required_columns` (so the missing-column test would raise TypeError,
+    not SystemExit); it imports `data.download`, `data.validation_gate`, etc., which
+    resolve to `code/data/...` only if `code/` is on the path (unverified, and the
+    fixture also sets nonexistent config attributes like `config.data_raw_dir` and
+    `config.output_paths` that don''t exist on the `Config` dataclass). Moreover,
+    the "integration" t'
   task: 418bd59fa788497ff9457bc3cc467c358550d9276ccd336cdbc17b741f96f32c
 T016:
+  reason: "The core deliverable \u2014 the fMRIPrep preprocessing wrapper with memory-efficient\
+    \ settings (float32, batch processing) \u2014 is an explicit stub: `preprocess_fmriprep`\
+    \ contains only `# Placeholder for actual fmriprep call` and `return True`, with\
+    \ no fmriprep command construction, no float32 conversion, and no batch processing\
+    \ logic. The file instead implements unrelated T017/T018 functionality (retention/power\
+    \ check logging), which does not satisfy T016's requirement."
   task: 750d04ee640384a31103361f3e70502d04ed38188c3cb7de999145be73a44c42
 T017:
   task: 52e2ac419226af3966b6f346d495d27f3aa91a332df80bace070cf3d6a7fe22b
 T018:
+  reason: 'The code in `code/data/preprocess.py` cannot run: it calls `check_power(retained_subjects,
+    threshold=50)` passing an int, but `power_check.check_power` expects the retention
+    dict and does `retention_data[''retained_subjects'']`, which would raise a TypeError;
+    it also reads `output_paths.retention_metrics`, `power_metrics`, `reproducibility_report`,
+    and `exclusion_log`, but the `OutputPaths` dataclass in `utils/config.py` defines
+    none of those attributes (AttributeError), and the imported `data.power_logging`
+    module is not present among the resolved artifacts. Additionally, there is no
+    execution'
   task: ebc853143e807b155de3b57bd665bb78129790ca1d3f47c565ee6f55ec32477b
 T021:
+  reason: 'The test file `tests/contract/test_centrality.py` exists and is substantive,
+    but it does not match the actual `code/analysis/centrality.py` / `code/utils/config.py`
+    interfaces, so it would fail at collection/run time: the `centrality_config` fixture
+    calls `CentralityConfig(top_hubs=3, centrality_types=[...], threshold=0.5)` while
+    the real dataclass only accepts `top_hubs_n`, `threshold_fd`, `vif_threshold`,
+    `min_retention_rate`, `power_threshold_n`, `hub_selection_method` (TypeError);
+    `compute_centrality_metrics` returns dict-of-numpy-arrays, not dict-of-dicts,
+    so `isinstance(metrics[key], dic'
   task: dc6f9d4d9660d2d7982e2c54873a76edab682fd891f0b6248b843801884f22c5
 T022:
+  reason: 'The test file exists and is substantial, but it is incompatible with the
+    actual `code/analysis/regression.py` it imports, so it cannot pass: it calls `load_centrality_or_pca_data(path,
+    ''Global'')` (module accepts only `file_path`), calls `run_regression_analysis`
+    with keyword args `behavioral_path/centrality_path/fd_path/formula_path/output_path/model_type`
+    (module signature is `behavioral_file/centrality_file/fd_file/model_predictors_file/output_summary_file/output_plot_file`
+    and expects a predictors CSV with `model_type`/`formula_string` columns, not a
+    `formula.txt`), and asserts a summary co'
   task: 59b6b761e5dbf5f7c2b7760c5e9d16d9f0f202f17d7e64309a436efb54f290b4
 T033:
   task: 7e7e062e2942a0ae55ac930e3d6733f34f62bb6f0743e8c34fd133556adcc0e0

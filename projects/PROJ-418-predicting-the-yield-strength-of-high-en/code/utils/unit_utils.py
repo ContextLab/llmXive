@@ -1,50 +1,105 @@
-from typing import Union
+"""
+code/utils/unit_utils.py
+------------------------
+
+Conversion utilities for yield‑strength units.  The module defines
+the public symbols required by the unit‑tests:
+
+  - SUPPORTED_UNITS: list of recognised unit strings (case‑insensitive)
+  - convert_yield_strength(value, source_unit, target_unit)
+  - normalize_to_mpa(value, source_unit)
+
+All conversions are performed via a simple factor‑to‑MPa mapping.
+"""
 import numpy as np
+from typing import Union, List
 
-def convert_yield_strength(value: Union[float, int], from_unit: str, to_unit: str = "MPa") -> float:
+# ----------------------------------------------------------------------
+# Public constants
+# ----------------------------------------------------------------------
+SUPPORTED_UNITS: List[str] = ["MPa", "GPa", "Pa", "psi", "ksi"]
+
+# Mapping from unit (lower‑cased) to a factor that converts the value
+# to MPa.
+_TO_MPA = {
+    "mpa": 1.0,
+    "gpa": 1000.0,
+    "pa": 1e-6,
+    "psi": 0.00689476,
+    "ksi": 6.89476,
+}
+
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _normalise_unit(unit: str) -> str:
     """
-    Converts yield strength values between units.
-    Supported: MPa, GPa, psi, ksi
+    Normalise a unit string to lower‑case and validate it.
+
+    Raises
+    ------
+    ValueError
+        If the unit is not in :data:`SUPPORTED_UNITS`.
     """
-    value = float(value)
-    from_unit = from_unit.lower()
-    to_unit = to_unit.lower()
-    
-    if from_unit == to_unit:
-        return value
-    
-    # Convert to MPa first
-    if from_unit == 'mpa':
-        mpa_val = value
-    elif from_unit == 'gpa':
-        mpa_val = value * 1000
-    elif from_unit == 'psi':
-        mpa_val = value * 0.00689476
-    elif from_unit == 'ksi':
-        mpa_val = value * 6.89476
+    unit_lc = unit.strip().lower()
+    if unit_lc not in _TO_MPA:
+        raise ValueError(f"Unsupported unit: {unit!r}")
+    return unit_lc
+
+def convert_yield_strength(
+    value: Union[float, int, np.ndarray],
+    source_unit: str,
+    target_unit: str,
+) -> Union[float, int, np.ndarray]:
+    """
+    Convert ``value`` from ``source_unit`` to ``target_unit``.
+
+    The conversion is performed via MPa as an intermediate step:
+    ``value * factor(source) / factor(target)``.
+
+    Parameters
+    ----------
+    value :
+        Numeric scalar or NumPy array.
+    source_unit, target_unit :
+        Unit strings; case‑insensitive.  Must be one of
+        ``SUPPORTED_UNITS``.
+
+    Returns
+    -------
+    Same type as ``value`` (scalar or ``np.ndarray``) containing the
+    converted numbers.
+
+    Raises
+    ------
+    ValueError
+        If either unit is unsupported.
+    """
+    src = _normalise_unit(source_unit)
+    tgt = _normalise_unit(target_unit)
+
+    factor_src = _TO_MPA[src]
+    factor_tgt = _TO_MPA[tgt]
+
+    # Preserve the input type.
+    if isinstance(value, np.ndarray):
+        return (value * factor_src) / factor_tgt
     else:
-        raise ValueError(f"Unsupported source unit: {from_unit}")
-    
-    # Convert from MPa to target
-    if to_unit == 'mpa':
-        return mpa_val
-    elif to_unit == 'gpa':
-        return mpa_val / 1000
-    elif to_unit == 'psi':
-        return mpa_val / 0.00689476
-    elif to_unit == 'ksi':
-        return mpa_val / 6.89476
-    else:
-        raise ValueError(f"Unsupported target unit: {to_unit}")
+        return (float(value) * factor_src) / factor_tgt
 
-def normalize_to_mpa(value: Union[float, int], unit: str) -> float:
+def normalize_to_mpa(value: Union[float, int, np.ndarray], source_unit: str) -> Union[float, int, np.ndarray]:
     """
-    Convenience wrapper to convert any unit to MPa.
+    Convenience wrapper that converts ``value`` to MPa.
+
+    Parameters
+    ----------
+    value :
+        Numeric scalar or NumPy array.
+    source_unit :
+        Unit string (case‑insensitive) from :data:`SUPPORTED_UNITS`.
+
+    Returns
+    -------
+    Converted value in MPa.
     """
-    return convert_yield_strength(value, unit, "MPa")
-
-def main():
-    print("Unit utils loaded.")
-
-if __name__ == "__main__":
-    main()
+    return convert_yield_strength(value, source_unit, "MPa")

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.19294",
+  "judged_at": "2026-10-25T15:32:57Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"indusagent: reinforcing open-vocabulary industrial anomaly detection w\" computer science",
+  "rationale": "The paper reviews multimodal large vision‑language models for open‑vocabulary object detection, covering the same underlying mechanism (LVLMs for detection) that IndusAgent builds on, making it a relevant foundational/ methodological reference for extending open‑vocabulary industrial anomaly detection.",
+  "relevant": true
+}

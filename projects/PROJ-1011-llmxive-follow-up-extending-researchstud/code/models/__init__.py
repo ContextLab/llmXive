@@ -1,9 +1,7 @@
-"""
-Data models for the llmXive research pipeline.
-"""
-from .abstract import Abstract
-from .pattern_card import PatternCard
-from .proposal import Proposal
-from .rating import Rating
+"""Data-model classes for the llmXive follow-up pipeline (T007)."""
+from models.abstract import Abstract
+from models.pattern_card import PatternCard
+from models.proposal import Proposal
+from models.rating import Rating
 
 __all__ = ["Abstract", "PatternCard", "Proposal", "Rating"]

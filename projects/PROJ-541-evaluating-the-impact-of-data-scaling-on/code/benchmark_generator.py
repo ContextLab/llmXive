@@ -5,6 +5,7 @@ This script benchmarks the generate_synthetic_data function to ensure
 performance improvements meet the target of 20% reduction in runtime
 or < 6h total runtime for large simulations.
 """
+
 import time
 import cProfile
 import pstats
@@ -15,7 +16,9 @@ from simulation.generator import generate_synthetic_data
 from simulation.logger import setup_logger
 
 
-def benchmark_single_generation(config: SimulationConfig, iterations: int = 100) -> float:
+def benchmark_single_generation(
+    config: SimulationConfig, iterations: int = 100
+) -> float:
     """
     Benchmark single generation calls.
 
@@ -50,46 +53,70 @@ def run_benchmark():
     # Test configurations
     configs = [
         # Small scale
-        get_default_config(n_samples=100, mean_diff=0.0, distribution_type="normal", seed=42),
-        get_default_config(n_samples=100, mean_diff=1.0, distribution_type="skewed", seed=42),
-        get_default_config(n_samples=100, mean_diff=0.0, distribution_type="heteroscedastic", seed=42),
-
+        get_default_config(
+            n_samples=100, mean_diff=0.0, distribution_type="normal", seed=42
+        ),
+        get_default_config(
+            n_samples=100, mean_diff=1.0, distribution_type="skewed", seed=42
+        ),
+        get_default_config(
+            n_samples=100, mean_diff=0.0, distribution_type="heteroscedastic", seed=42
+        ),
         # Medium scale
-        get_default_config(n_samples=1000, mean_diff=0.0, distribution_type="normal", seed=42),
-        get_default_config(n_samples=1000, mean_diff=1.0, distribution_type="skewed", seed=42),
-        get_default_config(n_samples=1000, mean_diff=0.0, distribution_type="heteroscedastic", seed=42),
-
+        get_default_config(
+            n_samples=1000, mean_diff=0.0, distribution_type="normal", seed=42
+        ),
+        get_default_config(
+            n_samples=1000, mean_diff=1.0, distribution_type="skewed", seed=42
+        ),
+        get_default_config(
+            n_samples=1000, mean_diff=0.0, distribution_type="heteroscedastic", seed=42
+        ),
         # Large scale
-        get_default_config(n_samples=10000, mean_diff=0.0, distribution_type="normal", seed=42),
-        get_default_config(n_samples=10000, mean_diff=1.0, distribution_type="skewed", seed=42),
-        get_default_config(n_samples=10000, mean_diff=0.0, distribution_type="heteroscedastic", seed=42),
+        get_default_config(
+            n_samples=10000, mean_diff=0.0, distribution_type="normal", seed=42
+        ),
+        get_default_config(
+            n_samples=10000, mean_diff=1.0, distribution_type="skewed", seed=42
+        ),
+        get_default_config(
+            n_samples=10000, mean_diff=0.0, distribution_type="heteroscedastic", seed=42
+        ),
     ]
 
     results = []
 
     for i, config in enumerate(configs):
-        logger.info(f"Benchmarking config {i+1}/{len(configs)}: n={config.n_samples}, type={config.distribution_type}")
+        logger.info(
+            f"Benchmarking config {i+1}/{len(configs)}: n={config.n_samples}, type={config.distribution_type}"
+        )
         avg_time = benchmark_single_generation(config, iterations=50)
-        results.append({
-            "n_samples": config.n_samples,
-            "distribution_type": config.distribution_type,
-            "mean_diff": config.mean_diff,
-            "avg_time_per_generation": avg_time
-        })
+        results.append(
+            {
+                "n_samples": config.n_samples,
+                "distribution_type": config.distribution_type,
+                "mean_diff": config.mean_diff,
+                "avg_time_per_generation": avg_time,
+            }
+        )
         logger.info(f"  Average time: {avg_time:.6f} seconds")
 
     # Print summary
     logger.info("\n=== Benchmark Summary ===")
     for result in results:
-        logger.info(f"n={result['n_samples']:5d}, type={result['distribution_type']:12s}, mean_diff={result['mean_diff']:.1f} -> {result['avg_time_per_generation']*1000:.3f}ms")
+        logger.info(
+            f"n={result['n_samples']:5d}, type={result['distribution_type']:12s}, mean_diff={result['mean_diff']:.1f} -> {result['avg_time_per_generation']*1000:.3f}ms"
+        )
 
     # Estimate total runtime for full simulation
     # Assuming 1000 iterations per config, 9 configs
     total_iterations = 1000 * len(configs)
-    estimated_total_time = sum(r['avg_time_per_generation'] for r in results) * 1000
+    estimated_total_time = sum(r["avg_time_per_generation"] for r in results) * 1000
     hours = estimated_total_time / 3600
 
-    logger.info(f"\nEstimated total runtime for full simulation (1000 iterations per config): {hours:.2f} hours")
+    logger.info(
+        f"\nEstimated total runtime for full simulation (1000 iterations per config): {hours:.2f} hours"
+    )
     logger.info(f"Target: < 6 hours")
     logger.info(f"Status: {'PASS' if hours < 6 else 'FAIL'}")
 
@@ -99,7 +126,9 @@ def run_benchmark():
 def profile_generation():
     """Profile the generation function to identify bottlenecks."""
     logger = setup_logger(__name__)
-    config = get_default_config(n_samples=10000, mean_diff=0.0, distribution_type="normal", seed=42)
+    config = get_default_config(
+        n_samples=10000, mean_diff=0.0, distribution_type="normal", seed=42
+    )
 
     profiler = cProfile.Profile()
     profiler.enable()
@@ -112,7 +141,7 @@ def profile_generation():
 
     # Print profile results
     s = io.StringIO()
-    stats = pstats.Stats(profiler, stream=s).sort_stats('cumulative')
+    stats = pstats.Stats(profiler, stream=s).sort_stats("cumulative")
     stats.print_stats(20)
 
     logger.info("\n=== Profiling Results (Top 20 functions) ===")

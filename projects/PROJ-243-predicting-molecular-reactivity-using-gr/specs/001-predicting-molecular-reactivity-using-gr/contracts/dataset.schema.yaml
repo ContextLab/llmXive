@@ -92,6 +92,7 @@ properties:
         - edge_features
         - target
         - split
+        - similarity_score
 required:
   - metadata
   - graphs

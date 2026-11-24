@@ -1,0 +1,447 @@
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline reproduces full experiment on free-tier GitHub Actions runner
+  claim_id: c_7a151813
+  context: "The opening description of the quickstart pipeline states it is a one\u2011\
+    command end\u2011to\u2011end process that reproduces the full experiment on the\
+    \ free\u2011tier GitHub Actions runner."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "One\u2011command end\u2011to\u2011end \u2013 reproduces the full experiment\
+    \ (data generation, training, evaluation, and report) on the free\u2011tier GitHub\
+    \ Actions runner."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T05:35:44Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline reproduces full experiment on free-tier GitHub Actions runner
+  claim_id: c_c3a0692f
+  context: "The Quickstart section advertises an end\u2011to\u2011end command that\
+    \ reproduces the complete experiment on the free\u2011tier GitHub Actions runner."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "One\u2011command end\u2011to\u2011end \u2013 reproduces the full experiment\
+    \ (data generation, training, evaluation, and report) on the free\u2011tier GitHub\
+    \ Actions runner."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T03:27:51Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "pipeline reproduces full experiment on free\u2011tier GitHub Actions\
+    \ runner"
+  claim_id: c_72a9ad4a
+  context: "The Quickstart description states that the pipeline reproduces the full\
+    \ experiment on the free\u2011tier GitHub Actions runner."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "One\u2011command end\u2011to\u2011end \u2013 reproduces the full experiment\
+    \ (data generation, training, evaluation, and report) on the free\u2011tier GitHub\
+    \ Actions runner."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T04:14:56Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "pipeline requires no internet download beyond Something\u2011Something\
+    \ V2 dataset"
+  claim_id: c_b772fcfc
+  context: "The prerequisites note that no internet download is required beyond the\
+    \ open\u2011source Something\u2011Something V2 dataset."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "No internet download required beyond the open\u2011source Something\u2011\
+    Something V2 dataset (automatically streamed)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T04:14:56Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline automatically checksums all files and writes hashes to manifest.csv
+  claim_id: c_44affead
+  context: The documentation mentions that all files are automatically checksummed
+    and hashes are recorded.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All files are automatically checksummed; hashes are written to data/checksums/manifest.csv.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T04:14:56Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "pipeline preserves reproducibility by recording seeds and hyper\u2011\
+    parameters in config.yaml"
+  claim_id: c_2d6ace93
+  context: "The README states that all changes preserve reproducibility due to recording\
+    \ seeds and hyper\u2011parameters."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All changes preserve reproducibility because seeds and hyper\u2011parameters\
+    \ are recorded in output/config.yaml."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T04:14:56Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline exits with status 0 on success
+  claim_id: c_738bd9c3
+  context: "The command reads default paths and hyper\u2011parameters from `configs/run.yaml`\
+    \ ..., executes the pipeline stages in order, prints a `=== Pipeline Summary ===`\
+    \ block listing the generated artifacts, and exits with status 0 on success."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: exits with status 0 on success
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:27:28Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline generates 200 deterministic synthetic videos by default
+  claim_id: c_100081a8
+  context: 'Artifact table entry: `data/videos/orig/*.mp4` | Deterministic synthetic
+    videos (200 by default)'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Deterministic synthetic videos (200 by default)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:27:28Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline run is deterministic for a fixed configuration
+  claim_id: c_f9eac59c
+  context: "All hyper\u2011parameters live in `configs/run.yaml`; the run is deterministic\
+    \ for a fixed config."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the run is deterministic for a fixed config
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:27:28Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline exits with status 0 on success
+  claim_id: c_df422c0e
+  context: "The command runs the pipeline and reports a summary before exiting with\
+    \ status\u202F0 on success."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "This command reads default paths and hyper\u2011parameters from configs/run.yaml\
+    \ (subset size, \u03BB sweep values, seeds, thresholds, output directory), executes\
+    \ the pipeline stages in order, prints a === Pipeline Summary === block listing\
+    \ the generated artifacts, and exits with status\u202F0 on success."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:28:09Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "flag\u2011based form is equivalent to config file form"
+  claim_id: c_5ef94915
+  context: The documentation states that using explicit flags or the default config
+    yields the same result.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Both forms are equivalent \u2013 the flag\u2011based form overrides the\
+    \ values in configs/run.yaml where supplied."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:28:09Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "changes preserve reproducibility by recording seeds and hyper\u2011\
+    parameters"
+  claim_id: c_47e69077
+  context: "The pipeline records seeds and hyper\u2011parameters to ensure reproducibility\
+    \ after any modification."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All changes preserve reproducibility because seeds and hyper\u2011parameters\
+    \ are recorded in output/config.yaml."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:28:09Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "pipeline auto\u2011generates placeholder patches if missing, preventing\
+    \ script failure"
+  claim_id: c_f76ac64b
+  context: Missing patch data triggers automatic generation of placeholder patches
+    to avoid failure.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: If the data/patches/ directory is missing, the pipeline will automatically
+    generate a minimal set of placeholder patches before counterfactual generation,
+    ensuring no script failure.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:28:09Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "optical flow computed after generation, cached, validates motion preservation\
+    \ and satisfies FR\u2011006"
+  claim_id: c_9679dbf6
+  context: "The pipeline computes and caches optical flow after generating counterfactual\
+    \ videos, meeting the FR\u2011006 requirement."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Optical flow for counterfactual videos is computed after generation (still\
+    \ CPU\u2011only) and cached for downstream steps, satisfying FR\u2011006 while\
+    \ validating motion preservation."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:28:09Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline exits with status 0 on success
+  claim_id: c_4c4284d7
+  context: "This command reads default paths... and exits with status\u202F0 on success."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "and exits with status\u202F0 on success."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:37:21Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline automatically generates placeholder patches if missing, preventing
+    script failure
+  claim_id: c_c6967580
+  context: If the data/patches/ directory is missing, the pipeline will automatically
+    generate a minimal set of placeholder patches before counterfactual generation,
+    ensuring no script failure.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the pipeline will automatically generate a minimal set of placeholder
+    patches before counterfactual generation, ensuring no script failure.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:37:21Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: all changes preserve reproducibility via recorded seeds and hyperparameters
+  claim_id: c_d14d3b80
+  context: "All changes preserve reproducibility because seeds and hyper\u2011parameters\
+    \ are recorded in output/config.yaml."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All changes preserve reproducibility because seeds and hyper\u2011parameters\
+    \ are recorded in output/config.yaml."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:37:21Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: optical flow for counterfactual videos is computed after generation and
+    cached
+  claim_id: c_f4db8896
+  context: "Optical flow for counterfactual videos is computed after generation (still\
+    \ CPU\u2011only) and cached for downstream steps, satisfying FR\u2011006 while\
+    \ validating motion preservation."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Optical flow for counterfactual videos is computed after generation (still\
+    \ CPU\u2011only) and cached for downstream steps, satisfying FR\u2011006 while\
+    \ validating motion preservation."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:37:21Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline driver prints a summary of generated artifacts and exits with
+    status 0
+  claim_id: c_fc8f6f0e
+  context: "The quickstart description states that the end\u2011to\u2011end command\
+    \ runs the driver, writes a SHA\u2011256 manifest, prints a summary, and exits\
+    \ with status 0."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "One\u2011command end\u2011to\u2011end \u2014 runs the pipeline driver,\
+    \ which pre\u2011computes optical\u2011flow features for the original videos,\
+    \ writes the SHA\u2011256 checksum manifest, and prints a summary of the generated\
+    \ artifacts before exiting with status 0."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:43:35Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline prints a summary block and exits with status 0 on success
+  claim_id: c_664f5a32
+  context: Running the default configuration prints a Pipeline Summary block and exits
+    with status 0.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "This command ... prints a `=== Pipeline Summary ===` block listing the\
+    \ generated artifacts, and exits with status\u202F0 on success."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:43:35Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: default number of videos is 200
+  claim_id: c_6115298e
+  context: "The flag\u2011based invocation uses a concrete integer for --num_videos,\
+    \ defaulting to 200 videos."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the placeholder `<sufficient number of videos>` ... is replaced here with
+    the default of `200` videos
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:43:36Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "config file invocation and flag\u2011based invocation are equivalent,\
+    \ with flags overriding config values"
+  claim_id: c_8fa99deb
+  context: The documentation states that using either the config file or explicit
+    flags yields the same result, with flags taking precedence.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Both forms are equivalent \u2013 the flag\u2011based form overrides the\
+    \ values in `configs/run.yaml` where supplied."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:43:36Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "pipeline auto\u2011generates placeholder patches if the patches directory\
+    \ is missing, preventing script failure"
+  claim_id: c_8ac6de60
+  context: If the data/patches/ directory is missing, the pipeline creates placeholder
+    patches to avoid failure.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the pipeline will automatically generate a minimal set of placeholder
+    patches before counterfactual generation, ensuring no script failure.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:43:36Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: optical flow is computed after video generation on CPU and cached for
+    downstream steps
+  claim_id: c_93c1aee1
+  context: The notes on required resources describe when and how optical flow is computed
+    and cached.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Optical flow for counterfactual videos is computed after generation (still\
+    \ CPU\u2011only) and cached for downstream steps"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:43:36Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "seeds and hyper\u2011parameters are recorded in output/config.yaml,\
+    \ preserving reproducibility"
+  claim_id: c_09965649
+  context: "The documentation claims that any change to the pipeline keeps reproducibility\
+    \ by recording seeds and hyper\u2011parameters."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All changes preserve reproducibility because seeds and hyper\u2011parameters\
+    \ are recorded in `output/config.yaml`."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:43:36Z'

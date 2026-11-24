@@ -1,86 +1,51 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "llmxive-follow-up"
-version = "0.1.0"
-description = "llmXive follow-up: extending ViQ Text-Aligned Visual Quantized Representations"
-readme = "README.md"
-requires-python = ">=3.11"
-dependencies = [
-    "torch==2.1.0+cpu",
-    "transformers==4.36.0",
-    "datasets==2.14.0",
-    "scikit-learn==1.3.0",
-    "pillow==10.1.0",
-    "opencv-python-headless==4.8.0",
-    "numpy>=1.24.0",
-    "pandas>=2.0.0",
-    "h5py>=3.10.0",
-    "scikit-image>=0.21.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "ruff==0.1.6",
-    "black==23.12.1",
-    "pytest==7.4.3",
-    "pytest-cov==4.1.0",
-]
+# pyproject.toml
+# Configuration for Black (code formatter) and Ruff (linter) tools.
+# This file resides at the repository root so that both tools can discover
+# their settings automatically when invoked via `black .` or `ruff check .`.
 
 [tool.black]
+# Target Python version
+target-version = ["py311"]
+# Maximum line length (default 88, matching Ruff)
 line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | data
-)/
-'''
+# Do not alter string quotes; keep original style
+skip-string-normalization = false
+# Enable experimental mode for better handling of trailing commas
+experimental-string-processing = true
 
 [tool.ruff]
-target-version = "py311"
+# Maximum line length; must match Black for consistency
 line-length = 88
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
+# Target Python version for syntax checks
+target-version = "py311"
+# Select the rule sets we want to enforce:
+#   E – pycodestyle errors
+#   F – pyflakes errors
+#   W – pycodestyle warnings
+#   C90 – McCabe complexity
+select = ["E", "F", "W", "C90"]
+# Ignore specific rules that are too noisy for this project:
+#   E501 – line too long (handled by Black)
+ignore = ["E501"]
+# Exclude generated or data directories from linting
 exclude = [
-    ".git",
-    ".venv",
-    "data/",
-    "build/",
-    "dist/",
+  "data",
+  "results",
+  "docs",
+  "tests",
+  ".git",
+  "__pycache__",
+  "build",
+  "dist",
+  "*.egg-info"
 ]
+# Enable automatic fixing where possible (e.g., formatting, unused imports)
+fix = true
 
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
+# Optional: per-file-ignores can be added here if needed, e.g.:
+# per-file-ignores = {"__init__.py" = ["F401"]}  # ignore unused imports in __init__ files
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+# Ruff can also be configured to run in parallel for speed:
+# jobs = 4  # Uncomment to set number of parallel workers
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["code*"]
+# End of configuration. Use `ruff check .` to lint and `black .` to format the codebase.

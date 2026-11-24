@@ -1,153 +1,158 @@
 # Quantifying the Influence of Initial Conditions on Chaotic Systems
 
-**Project ID**: PROJ-101-quantifying-the-influence-of-initial-con
+This repository provides a reproducible pipeline for generating synthetic chaotic trajectories, computing finite‑time Lyapunov exponents (FTLE), establishing clean‑system baselines, performing statistical analysis, and producing the final figures and report.
 
-This project investigates how initial conditions and noise levels influence the Finite-Time Lyapunov Exponents (FTLE) in coupled Lorenz oscillator systems. It implements a full scientific pipeline: data generation, baseline computation, FTLE analysis, and statistical regression.
+## Table of Contents
 
-## Prerequisites
+1. [Environment Setup](#environment-setup)
+2. [Step 1 – Generate trajectories](#step-1--generate-trajectories)
+3. [Step 2 – Compute baseline](#step-2--compute-baseline)
+4. [Step 3 – FTLE sweep](#step-3--ftle-sweep)
+5. [Step 4 – Statistical analysis](#step-4--statistical-analysis)
+6. [Step 5 – Figures](#step-5--figures)
+7. [Full pipeline command](#full-pipeline-command)
+8. [Validation](#validation)
 
-- Python 3.11+
-- pip (package manager)
-
-## Installation
-
-1. **Clone the repository**:
- ```bash
- git clone <repository-url>
- cd PROJ-101-quantifying-the-influence-of-initial-con
- ```
-
-2. **Create a virtual environment** (recommended):
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
-
-## Project Structure
-
-```
-.
-├── code/ # Source code modules
-│ ├── config.py # Configuration and hyperparameters
-│ ├── main.py # Pipeline orchestrator
-│ ├── data/ # Data generation and loading
-│ ├── analysis/ # FTLE, Baseline, Regression analysis
-│ └── utils/ # Utility functions
-├── data/
-│ ├── raw/ # Generated trajectory CSVs
-│ └── processed/ # Analysis results (JSON, PNG)
-├── tests/ # Unit and integration tests
-├── specs/ # Feature specifications
-├── requirements.txt # Python dependencies
-└── README.md # This file
-```
-
-## Quick Start
-
-The pipeline is executed via `code/main.py`.
-
-### 1. Generate Trajectories (User Story 1)
-
-Generates coupled Lorenz trajectories with varying noise levels and oscillator counts.
+## Environment Setup
 
 ```bash
-python code/main.py generate \
- --N-values 5 \
- --noise-levels 0.001 0.01 0.1 0.5 1.5 2.0
+# Clone the repository
+git clone <REPO_URL>
+cd projects/PROJ-101-quantifying-the-influence-of-initial-con
+
+# Create a virtual environment
+python -m venv.venv
+source.venv/bin/activate # Windows:.venv\Scripts\activate
+
+# Install pinned dependencies
+pip install -r requirements.txt
 ```
 
-- `--N-values`: Number of coupled oscillators (e.g., 5).
-- `--noise-levels`: List of sigma values for Gaussian noise injection.
-- **Output**: Trajectories saved to `data/raw/trajectory_N{N}_sigma{sigma}_trial{t}.csv`.
+The project relies only on the standard scientific Python stack (`numpy`, `scipy`, `pandas`, `matplotlib`, `statsmodels`, `seaborn`, `pytest`, `PyYAML`, `jsonschema`). No external data files are required – all trajectories are generated synthetically.
 
-### 2. Compute Baselines (User Story 2)
+## Step 1 – Generate trajectories
 
-Computes the asymptotic Lyapunov baseline for the clean system using Richardson extrapolation.
+The trajectory generator integrates a coupled Lorenz system using `scipy.integrate.solve_ivp` with the **DOP853** method (`rtol=1e-9`, `atol=1e-12`). Additive Gaussian noise of standard deviation `σ_noise` is injected at each time step.
 
 ```bash
-python code/main.py baseline --N 5
+python -m code.main --mode generate \
+ --N-values 3,5,7 \
+ --noise-levels 0.0001,0.001,0.01,0.05,0.1,0.2,0.5,0.8,1.0 \
+ --trials 30 \
+ --seed 42
 ```
 
-- `--N`: Number of oscillators.
-- **Output**: `data/processed/baseline_{N}.json`.
+This command writes immutable `.npz` files to `data/raw/` with the naming pattern:
 
-### 3. Run FTLE Analysis (User Story 2)
+```
+data/raw/trajectory_N{N}_sigma{σ}_trial{t}.npz
+```
 
-Computes Finite-Time Lyapunov Exponents over sliding windows for all generated trajectories.
+*High‑noise warnings* are emitted for `σ_noise > 0.1`; trajectories where any state norm exceeds `20.0` raise `UnphysicalTrajectoryError` and are skipped.
+
+## Step 2 – Compute baseline
+
+For each system dimension `N`, the pipeline generates ≥ 5 noise‑free trajectories of length ≥ 50 000 steps and computes the asymptotic Lyapunov exponent using Rosenstein’s method. The baseline is considered **valid** only when:
+
+- Relative error between the estimates at `T=5000` and `T=20 000` ≤ 1 %
+- 95 % confidence‑interval width ≤ 0.01
+
+The results are written to:
+
+- `data/processed/baseline_{N}.json` (single asymptotic exponent, `status: "valid"`)
+- `data/processed/baseline_per_window_{N}.json` (array of per‑window statistics)
 
 ```bash
-python code/main.py analyze-ftle
+python -m code.main --mode analyze --step baseline --N-values 3,5,7
 ```
 
-- **Input**: Trajectories in `data/raw/`, Baselines in `data/processed/`.
-- **Output**: `data/processed/ftle_sweep.json`.
+## Step 3 – FTLE sweep
 
-### 4. Run Regression & Visualization (User Story 3)
+Using the clean baseline, the FTLE module propagates the tangent linear system alongside each trajectory, performs QR re‑orthonormalisation at every integration step, and evaluates FTLE over sliding windows `T ∈ {500, 1000, 5000}` (ensuring `T < total_length – 10`). Results are aggregated into:
 
-Performs statistical analysis, model selection, and generates plots.
+- `data/processed/ftle_results.json` (conforms to `contracts/ftle_results.schema.yaml`)
 
 ```bash
-python code/main.py analyze-regression
+python -m code.main --mode analyze --step ftle --window-sizes 500,1000,5000
 ```
 
-- **Input**: `data/processed/ftle_sweep.json`, `data/processed/baseline_{N}.json`.
-- **Output**:
- - `data/processed/results.json` (Regression stats, p-values, effect sizes)
- - `data/processed/regression_model.json`
- - `data/processed/plot_deviation_vs_noise.png`
- - `data/processed/plot_convergence.png`
+## Step 4 – Statistical analysis
 
-## Full Pipeline Execution
+The regression module merges FTLE results with the per‑window baseline, computes the deviation Δλ, and fits:
 
-To run the complete analysis from scratch (Generation -> Baseline -> FTLE -> Regression):
+1. **Primary** Tobit censored regression on the full dataset (including unphysical trials)
+2. **Secondary** mixed‑effects linear model on the bounded‑only subset
+
+The analysis also:
+
+- Computes Pearson correlation between `|Δλ|` and `σ_noise` (asserting `r ≥ 0.8, p < 0.05`)
+- Applies Benjamini‑Hochberg FDR correction (`q ≤ 0.05`) to fixed‑effect p‑values
+- Performs Durbin‑Watson tests and, when autocorrelation is detected, recomputes standard errors with Newey‑West HAC
+- Uses baseline variance as observation‑level weights
+- Records escape probability per noise level
+
+Outputs:
+
+- `data/processed/regression_results.json`
+- `data/processed/regression_stats.json`
+- Updated `data/processed/results.json` (bundles all artifacts)
 
 ```bash
-python code/main.py full-pipeline \
- --N-values 5 \
- --noise-levels 0.001 0.01 0.1 0.5 1.5 2.0
+python -m code.main --mode analyze --step regression
 ```
 
-This command sequentially executes all stages and ensures data dependencies are met.
+## Step 5 – Figures
 
-## CLI Arguments Reference
+The plotting module creates three PNG figures under `data/processed/plots/`:
 
-| Argument | Description | Default |
-|:--- |:--- |:--- |
-| `--N-values` | Number of coupled oscillators | `5` |
-| `--noise-levels` | Noise levels (sigma) to test | `0.001, 0.01, 0.1, 0.5, 1.5, 2.0` |
-| `--timesteps` | Total integration steps | `5000` |
-| `--dt` | Integration time step | `0.01` |
-| `--output-dir` | Root directory for outputs | `data/` |
-
-## Testing
-
-Run the test suite using pytest:
+1. **Convergence plot** – λ vs. window size `T` for σ = 0, 0.01, 0.1
+2. **Bias‑scaling plot** – Δλ vs. σ_noise with SEM error bars
+3. **Dimension‑scaling plot** – Δλ vs. system dimension `N` (log‑log) with fitted power‑law exponent
 
 ```bash
-pytest tests/ -v
+python -m code.main --mode analyze --step plotting
 ```
 
-### Unit Tests
-- `tests/unit/test_generator.py`: Validates noise injection and trajectory generation.
-- `tests/unit/test_ftle.py`: Validates FTLE computation and Jacobian stability.
-- `tests/unit/test_regression.py`: Validates statistical significance checks.
+The figures are:
 
-### Integration Tests
-- `tests/integration/test_pipeline.py`: Validates the full end-to-end pipeline execution.
+- `data/processed/plots/convergence.png`
+- `data/processed/plots/bias_scaling.png`
+- `data/processed/plots/dimension_scaling.png`
 
-## Configuration
+## Full pipeline command
 
-Hyperparameters and simulation settings are defined in `code/config.py`. Key parameters include:
+The following single command runs **all** steps in the correct order, respecting gating logic and parallelisation:
 
-- **Numerical Tolerances**: `rtol=1e-9`, `atol=1e-12` (DOP853 solver).
-- **Attractor Bounds**: Max state magnitude threshold `100`.
-- **Noise Thresholds**: `sigma > 0.1` triggers `HighNoiseWarning`; `sigma > 1.0` triggers `UnphysicalTrajectoryError`.
+```bash
+python -m code.main run-all \
+ --N-values 3,5,7 \
+ --noise-levels 0.0001,0.001,0.01,0.05,0.1,0.2,0.5,0.8,1.0 \
+ --trials 30 \
+ --window-sizes 500,1000,5000 \
+ --seed 42
+```
 
-## License
+This will:
 
-[Project License]
+1. Generate trajectories (`data/raw/…`)
+2. Compute clean baselines (`data/processed/baseline_*.json`)
+3. Perform FTLE sweeps (`ftle_results.json`)
+4. Run regression and statistical checks (`regression_results.json`, `regression_stats.json`)
+5. Produce the three summary figures (`plots/…`)
+6. Assemble `data/processed/results.json` bundling all artifacts
+
+## Validation
+
+After a successful run, verify everything with the built‑in validator:
+
+```bash
+python -m code.utils.validate --check-all
+```
+
+The validator checks:
+
+- SHA‑256 checksums (`state/artifacts/manifest.yaml`)
+- Baseline convergence criteria
+- JSON schema compliance for `ftle_results.json`, `regression_results.json`, and `results.json`
+
+Any failure aborts with a non‑zero exit status, causing CI to fail.

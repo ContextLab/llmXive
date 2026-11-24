@@ -1,24 +1,74 @@
-T101:
-  reason: 'Requested task execution failed; rerun successfully: code/analysis/download_atlas.py
+T001:
+  reason: "Checked `code/main.py`, `code/data/run_synthetic_generator.py`, `code/data/real_ingest.py`,\
+    \ and `code/run_quickstart_test.py` against the task spec. While the entry\u2011\
+    point scripts parse the required arguments and implement the described logic,\
+    \ the quick\u2011start test script cannot validate schemas because the required\
+    \ `*_schema.yaml` contract files are absent, and the recorded test run (`code/.tasks/T001.code_run_quickstart_test.py.log`)\
+    \ shows the script exiting with a non\u2011zero code. Additionally, the expected\
+    \ status file `data/logs/real_ingest_status.json` is missing from the repository\
+    \ (only a s"
+  task: 70bfc20f0378c62826d0ce5a857213b151f2b7bcef46b7fac8fd6504444e8a7b
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/data/run_synthetic_generator.py
     exit=1'
-  task: ae3ae75eafe337a75fc5b9d8c16530b7f7c88cbb76fea47efccdbe91bb50dda7
-T102:
-  reason: 'Requested task execution failed; rerun successfully: code/analysis/download_atlas.py
-    exit=1'
-  task: 7c43e2bae1bcea81319b75b8258b709dde85a09ec51f0cc7bb954646f8c69788
-T103:
-  task: 4132a2d2b29199a9ef970e5e8fc05e670f130f01e5cbe9cff22f42423e217d48
-T104:
-  task: 56d10a47ec49b2868cfbc22cd491db6203514f29522b9162b0bdaf78659a4158
-T105:
-  task: 5da63521b44829f494c489d25ec5887c16fdf2511be31e3df9c0f1ad842fd491
-T106:
-  task: cbf9f1b7864496329a64e6ccc6bd79db0f2b572d1bc8a8112d76a94f87547c93
-T107:
-  task: 22bca9b5a51bee6b8d2167542cd95eaeb618d8183cd44724aa6c99dd50c639be
-T108:
-  task: e3787d39e1b00dca284c556bd5fdfc9b269c03a518f7338b7a5c462c21cce5a8
-T109:
-  task: d16e4babebb05fcfbae43525408df8795d6f1e741b97a461e357245d3abacfcf
-T110:
-  task: 12889817f5bd112a8ce9c6ffe7e734a2a81659112fff94623b26f413ab5eefb0
+  task: d27881041742fce5b94c74fb2137638328492bb12a0a8b80b3fc2b7eb3cf10ef
+T003:
+  reason: "The required output artifacts (`data/processed/subjects_cleaned.parquet`,\
+    \ `data/logs/exclusion_report.txt`, `data/processed/matching_balance_report.csv`)\
+    \ and the verification test `code/tests/test_preprocess.py` are all MISSING, and\
+    \ the only historical execution record shows the preprocessing test FAILING (exit\
+    \ 1, TypeError in `preprocess_subjects`). The script also has logic defects: it\
+    \ applies the \u22651-year cutoff before dropping missing `years_of_training`\
+    \ (so missing-data exclusions are never counted), and the NIfTI validity check\
+    \ requires files in `data/raw/mock_nifti` that don't exist, whi"
+  task: 65050f093fdad16b5407279d4014146c6ef2812ceee5ab0386b101e5864bde66
+T004:
+  reason: 'The three source modules exist, but the required outputs do not: `data/processed/connectivity/`
+    and `data/processed/network_metrics/` are missing (no per-subject JSON files),
+    the schema files (`connectivity.schema.yaml`, `network_metric.schema.yaml`) are
+    missing, and `code/tests/test_connectivity.py` is missing. The only execution
+    record (`code/.tasks/T004.tests_unit_test_connectivity.py.log`) shows the test
+    run failed with exit code 2 (`ModuleNotFoundError: No module named ''data.models''`),
+    so there is no evidence the pipeline or verification ever succeeded.'
+  task: 60461e39a54f75bb2457fad82e2885f380fe2fe0bad356eaba6c479dff83b59c
+T005:
+  reason: "The required verification test `code/tests/test_memory_monitor.py` does\
+    \ not exist, so there is no evidence that the synthetic 8 GB workload triggers\
+    \ sub-sampling or that peak RAM stays \u2264 7 GB; the log `data/logs/memory_subsampling.log`\
+    \ is also missing, confirming no sub-sampling has ever been exercised. Additionally,\
+    \ the module's `get_peak_memory_mb` uses `resource.getrusage` rather than psutil,\
+    \ and no streaming-mode fallback (e.g., `datasets.load_dataset(..., streaming=True)`)\
+    \ is implemented \u2014 only DataFrame row sub-sampling."
+  task: 2d1a25ee97c094104e389b4a74c888488846d0c78846a88cdd99dc1bb0d09e41
+T006:
+  reason: 'Requested task execution failed; rerun successfully: code/run_quickstart_test.py
+    exit=5'
+  task: 6ce9df7b3daef6193ea11ec148d8a72c26f528770a95f3e91b002d7a3a60dd48
+T007:
+  task: 41d92fab99967fddac5a0a14661699b46c863e35a048f7f107c1b63d3b140d62
+T008:
+  task: 7830ae08b96eeecf8d433fc1c6fa53d64f458ba599e2c7ec340bc3f5140ec3df
+T009:
+  task: 3de80f4f4058ba95aebafa34461f2db0aef5f5513bd61437153dc7de94ed57b6
+T010:
+  task: 12070c746323b771df4952b1b4a6c5db8708bee593303dcd85d79144b672b44e
+T011:
+  task: ceda684e78b03cc46c7ea9d885da042dfc9b18e15a38d9b2f3096e92774c37f6
+T012:
+  task: e779512658b6f75b18c983914ce21ce7bceea743fcb8497ff332924cb8b393ff
+T013:
+  task: f0bca2ad107b068e99a52f9f5babb8d7b98fa206cb64fba875009e2d3abcb585
+T014:
+  reason: "The script exists but contradicts the task's core requirements: it only\
+    \ accepts `REAL_DATA_SOURCE=OPENNEURO` (rejecting the required `ABCD`/`HCP` values),\
+    \ uses a direct OpenNeuro HTTP download instead of the required official `abcd-data`/`hcp`\
+    \ SDKs, downloads only a participants.tsv (no fMRI NIfTI files), and does not\
+    \ parse a \"Music Training\" questionnaire. Additionally, none of the required\
+    \ outputs exist on disk \u2014 `data/processed/subjects.parquet`, `data/logs/real_ingest.log`,\
+    \ `subject.schema.yaml`, and `code/tests/test_real_ingest.py` are all MISSING,\
+    \ so there is no evidence the script was e"
+  task: a9e0b9e6b1840973f12974f1cae1c674e3f4429dce4d565682c7804ce14c04bf
+T015:
+  task: 9ec4dd44a159e8aa526e4b067bdddc8563db87f741bba1551622349e4cf2f16f
+T016:
+  task: 81f7c7022e84c31864253eeff5a24c8f035b0f57ed4ff1bf462a35aa257b3e7e

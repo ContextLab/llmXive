@@ -1,0 +1,6 @@
+{
+  "outcome": "procrastination_score",
+  "predictors": ["log_k", "wm_accuracy"],
+  "interaction": true,
+  "covariates": ["age", "gender", "education"]
+}

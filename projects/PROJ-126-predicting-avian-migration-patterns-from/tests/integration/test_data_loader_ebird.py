@@ -19,14 +19,10 @@ class TestEBirdDataLoader:
         This test will fail loudly if the data source is unreachable or returns no data.
         """
         output_path = DATA_RAW / EBIRD_OUTPUT_FILE
-        
+
         # Ensure the file doesn't exist from a previous run to test the fetch logic
-        # (In a real CI, we might skip this deletion if we want to test caching, 
-        # but for T011 verification, we want to see the download happen)
-        # Note: In a real scenario, we might not delete it to save time, but for strict verification:
         if output_path.exists():
-            # We don't delete it here to avoid race conditions in parallel tests, 
-            # but we verify the content matches expectations.
+            # In CI we keep the file to avoid re-downloading; just ensure it is valid
             pass
 
         # Call the function
@@ -35,10 +31,9 @@ class TestEBirdDataLoader:
         # Assertions
         assert df is not None, "DataFrame should not be None"
         assert isinstance(df, pd.DataFrame), "Result should be a pandas DataFrame"
-        assert df.shape[0] > 0, "DataFrame should not be empty (real data must be fetched)"
-        
+        assert df.shape[0] > 0, "DataFrame should be empty (real data must be fetched)"
+
         # Verify columns exist (at least some expected ones)
-        # The exact columns depend on the dataset schema, but we expect basic ones
         expected_cols = ['species_common', 'year', 'duration_min', 'num_observers', 'distance_km']
         for col in expected_cols:
             assert col in df.columns, f"Expected column '{col}' not found in DataFrame"
@@ -56,7 +51,7 @@ class TestEBirdDataLoader:
 
         # Verify file exists
         assert output_path.exists(), f"Output file {output_path} was not created"
-        
+
         # Verify checksum file exists
         assert checksum_path.exists(), f"Checksum file {checksum_path} was not created"
 
@@ -74,9 +69,11 @@ class TestEBirdDataLoader:
 
         # Check species
         # Note: The dataset might have mixed case, so we check lower
-        assert (df['species_common'].str.lower() == 'setophaga ruticilla').all() or \
-               (df['scientific_name'].str.lower() == 'setophaga ruticilla').all(), \
-               "All records must be for Setophaga ruticilla"
+        species_ok = (df['species_common'].str.lower() == 'setophaga ruticilla').all()
+        if not species_ok:
+            # Some versions may use 'scientific_name' instead
+            species_ok = (df['scientific_name'].str.lower() == 'setophaga ruticilla').all()
+        assert species_ok, "All records must be for Setophaga ruticilla"
 
         # Check year range
         assert (df['year'] >= 2015).all(), "All records must be from 2015 or later"

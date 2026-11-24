@@ -1,75 +1,60 @@
 # Data Model: Quantizing GW Signals
 
 ## 1. Overview
-This document defines the data structures for the gravitational wave quantization study. All data is stored in HDF5 (for large arrays) and JSON (for metadata/results) to ensure compatibility with PyCBC/Bilby and efficient I/O on the CI runner.
+Defines canonical data structures stored as HDF5 (large arrays) and JSON (metadata, results). All files are validated against the JSON‑Schema contracts in `contracts/`. Validation steps are explicitly performed after generation and after inference (see `src/utils.py`).
 
 ## 2. Entity Definitions
 
 ### 2.1 SimulatedWaveform
-Represents the ground-truth signal before quantization.
-- **Attributes**:
-  - `waveform_id`: Unique string identifier (UUID).
-  - `params`: Dict containing `mass_1`, `mass_2`, `spin_1z`, `spin_2z`, `luminosity_distance`, `redshift`, `injection_time`.
-  - `snr`: Signal-to-Noise Ratio of the injected signal.
-  - `sampling_rate`: Float (Hz).
-  - `duration`: Float (seconds).
-  - `data_float64`: Float64 array (strain time series).
+| Field | Type | Description |
+|-------|------|-------------|
+| `waveform_id` | string (UUID) | Unique identifier |
+| `params` | object | `mass_1`, `mass_2`, `spin_1z`, `spin_2z`, `luminosity_distance` |
+| `snr` | number | Injected SNR |
+| `sampling_rate` | number | Hz |
+| `duration` | number | Seconds |
+| `data_float64` | float64 array | Strain time series (baseline) |
+| `bit_depth` | integer | 0 for baseline (float64) or 1‑16 for quantized signals |
+| `fsr` | number | Fixed full‑scale range used for quantization |
+| `step_size` | number | Quantization step size (derived from FSR and bit depth) |
+| `data_type` | string | `"float64"` for baseline, `"quantized"` for quantized signals |
+| `data_quantized` | int16/int32 array (optional) | Quantized strain (present only for bit depths > 0) |
 
-### 2.2 QuantizedSignal
-Represents the signal after bit-depth reduction.
-- **Attributes**:
-  - `waveform_id`: Links to `SimulatedWaveform`.
-  - `bit_depth`: Integer (1, 8, 10, 12, 14, 16).
-  - `quantization_levels`: Integer ($2^{bit\_depth}$).
-  - `data_quantized`: Int16 or Int32 array (discretized strain).
-  - `step_size`: Float (amplitude resolution).
-
-### 2.3 ParameterEstimationResult
-Represents the output of the inference engine.
-- **Attributes**:
-  - `waveform_id`: Links to source.
-  - `bit_depth`: Integer.
-  - `inference_method`: String ("MCMC", "Fisher", "Hybrid").
-  - `posteriors`: Dict of parameter names -> array of samples.
-  - `mean_params`: Dict of parameter names -> float (mean of posterior).
-  - `mse`: Dict of parameter names -> float (MSE vs truth).
-  - `convergence_status`: String ("success", "failed", "non-detection").
+### 2.2 ParameterEstimationResult
+| Field | Type | Description |
+|-------|------|-------------|
+| `waveform_id` | string | Links to the source waveform |
+| `bit_depth` | integer | null for float64 baseline |
+| `inference_method` | string | `"MCMC"` (uniform MCMC across all SNR ranges) |
+| `mean_params` | object | Posterior means for `chirp_mass`, `spin`, `distance` |
+| `mse` | object | Per‑parameter MSE vs. truth (`chirp_mass`, `spin`, `distance`) |
+| `convergence_status` | string | `"success"`, `"failed"`, or `"non-detection"` |
+| `snr` | number | Injected Signal‑to‑Noise Ratio |
+| `delta` | object | Per‑parameter Δₖ = E_quant,ₖ − E_inst,ₖ (null for baseline) |
+| `data_type` | string | `"float64"` for baseline results, `"quantized"` for quantized results |
 
 ## 3. Storage Schema
 
-### 3.1 HDF5 Structure (`data/processed/waveforms.h5`)
-```text
+### 3.1 HDF5 (`data/processed/waveforms.h5`)
+```
 /
 ├── waveforms/
-│   ├── {waveform_id}/
-│   │   ├── params (dataset)
-│   │   ├── data_float64 (dataset)
-│   │   └── metadata (attributes: snr, injection_time)
-│   └── ...
+│   └── {waveform_id}/
+│       ├── params            (JSON‑encoded attribute)
+│       ├── data_float64      (dataset)
+│       └── metadata          (attributes: snr, sampling_rate, duration, data_type)
 └── quantized/
-    ├── {waveform_id}_8bit/
-    │   ├── data_quantized (dataset)
-    │   └── metadata (attributes: bit_depth, step_size)
-    └── ...
+    └── {waveform_id}_{bit_depth}bit/
+        ├── data_quantized    (dataset)
+        └── metadata          (attributes: step_size, fsr, bit_depth, data_type)
 ```
 
-### 3.2 JSON Structure (`data/results/inference_results.json`)
-Array of `ParameterEstimationResult` objects.
-```json
-[
-  {
-    "waveform_id": "uuid-1234",
-    "bit_depth": 8,
-    "inference_method": "MCMC",
-    "mean_params": { "chirp_mass": 25.4, "distance": 450.2 },
-    "mse": { "chirp_mass": 0.01, "distance": 0.05 },
-    "convergence_status": "success"
-  }
-]
-```
+### 3.2 JSON (`data/results/inference_results.json`)
+Array of objects conforming to `contracts/result.schema.yaml`. Each entry contains:
+- Baseline result (`bit_depth: null`) and quantized result (`bit_depth = N`).
+- Per‑parameter MSE and Δₖ.
+- Convergence status and SNR.
 
-## 4. Data Flow
-1. **Generation**: `data_generation.py` writes `SimulatedWaveform` to HDF5.
-2. **Quantization**: `data_generation.py` reads float64, writes `QuantizedSignal` to HDF5.
-3. **Inference**: `inference_engine.py` reads quantized data, writes `ParameterEstimationResult` to JSON.
-4. **Analysis**: `analysis.py` reads JSON, computes thresholds, generates plots.
+All transformations produce new files; original raw PSD and generated waveforms remain unchanged, satisfying the Data Hygiene principle.
+
+---

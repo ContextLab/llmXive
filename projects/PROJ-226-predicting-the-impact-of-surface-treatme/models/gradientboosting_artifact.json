@@ -1,0 +1,9 @@
+{
+  "model_type": "GradientBoosting",
+  "hyperparameters": {},
+  "validation_r2": null,
+  "validation_rmse": null,
+  "test_r2": 0.6225438801937968,
+  "test_rmse": 0.23125440231117278,
+  "test_mae": 0.22366164424348237
+}

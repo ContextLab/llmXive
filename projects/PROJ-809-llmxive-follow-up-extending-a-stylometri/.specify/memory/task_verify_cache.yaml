@@ -6,12 +6,42 @@ T001:
     without visible files or a directory listing we cannot confirm the structure exists
     or is populated. The implementer must supply the actual directory layout (or a
     screenshot/manifest) showing all specified subfolders.
+T005:
+  c: true
+  h: ffe79bfabf06444e6b0d40597693ed44abefb7b483fc474c85f7132aeed57c10
+  r: "Checked `code/utils.py` (2619\u202Fbytes) which defines deterministic\u2011\
+    format logging (`get_logger`, `log_deterministic_info`), SHA\u2011256 hash helpers\
+    \ (`compute_sha256`, `compute_sha256_string`), and a character\u2011level tokeniser\
+    \ that strips punctuation (`tokenize_char_level_no_punct`). All required functionalities\
+    \ are present and implemented."
+  sig: c029d4e119400f4004ac46b3c171e51c034bad115d6650251526b3cdd5b50624
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No code, configuration file, or documentation for a \u201Cbase configuration\
     \ loader for `contracts/` schemas\u201D or for random seed management was provided.\
     \ The claim cannot be verified because the required artifact is missing."
+T009:
+  c: true
+  h: 44e3d9282e24964cdfa7db68f9342ad6fd33a030298de50af2a4eaf49291a9d7
+  r: "Checked that `tests/contract/test_corpus_schema.py` exists (8184\u202Fbytes)\
+    \ and contains a full implementation of contract tests verifying the required\
+    \ `data/processed/` schema (directory count, file counts, naming, content format,\
+    \ manifest consistency, etc.). The artifact is non\u2011empty, not a stub, and\
+    \ matches the task\u2019s specification. The absence of the actual `data/processed/`\
+    \ directory does not affect the completeness of the contract\u2011test implementation\
+    \ itself."
+  sig: 6e511161bd436a858ad76e4bfb0a7c098e7c80d9a28e9c7a0166c418d91c763a
+T010:
+  c: false
+  h: ddce34e68200b574c4742f64576a2ab57b0285dae19ef750780b95c43b377ee6
+  r: "The file `tests/integration/test_data_ingestion.py` exists, but it imports a\
+    \ non\u2011existent symbol `CRITICAL_COLLISION_THRESHOLD` from `code/data_ingestion.py`.\
+    \ Since this constant is not defined in the module, the test suite cannot be imported\
+    \ or executed, so the integration test does not actually verify the data\u2011\
+    ingestion pipeline as required. Define the missing constant (or adjust the test)\
+    \ to make the integration test runnable."
+  sig: af641525120c3e7a0480b1a17e6d0a1f67aa3494f0875d07fe3c4ffd67067bb5
 T011:
   c: false
   h: 00504013a524330810818c9d74e45aff74ad720468cef014b86340cb7ed319de
@@ -19,6 +49,34 @@ T011:
     any code that writes the filtered data to `data/raw/arxiv_subset.parquet`, and
     the expected parquet file is absent from the `data/raw` directory. Consequently,
     the required output artifact is missing.
+T012:
+  c: false
+  h: a1b606a048cd6d82fd1323027f0ad5ed97d2c1d4d553660a301edd2cac51fc37
+  r: "The `code/data_ingestion.py` script contains the intended filtering steps (author\
+    \ extraction, \u226510 abstracts, random selection of 20 authors), but it cannot\
+    \ run as\u2011is: it calls `load_state(state_path)` while `load_state` is defined\
+    \ without parameters, causing a runtime error. Moreover, the task\u2019s expected\
+    \ output (author\u2011specific folders with \u226510 normalized text files) is\
+    \ not produced\u2014only a single JSON corpus is saved. These issues prevent the\
+    \ script from genuinely delivering the required 20 lead\u2011author extraction."
+  sig: afd54e166fffa85efcce774f741bec2a061a66e81102d2e06b812a4078f7d343
+T013:
+  c: true
+  h: f19b2ca49b9d24d689ab03272b1c784dd6f1796deb3390f5be132d4f446f65ed
+  r: "Checked `code/data_ingestion.py` \u2013 it defines `write_collision_report`\
+    \ that iterates over the author map, logs a warning via `logger.warning` when\
+    \ an author appears more than 50 times, writes a JSON collision report, and is\
+    \ invoked in `main()`. This fulfills the required collision\u2011logging (FR\u2011\
+    009) and the associated author\u2011disambiguation step."
+  sig: e0a984319d4f4aac50bcfba56c685277e8a3c98ec2a7fe349d1a7c5537267b9d
+T014:
+  c: false
+  h: 68be302feb72bf2bc0e0d147eb881587747bb14d81684513b806c46b47829f72
+  r: "The `code/data_ingestion.py` script never applies the required lowercase, punctuation\u2011\
+    removal, and character\u2011level tokenization (e.g., it never calls `utils.tokenize_char_level_no_punct`\
+    \ and saves the raw abstract text unchanged). Consequently the preprocessing step\
+    \ mandated by T014 is missing."
+  sig: bedc8c06db9005e96a817b92444cebe93e429e3374adb913f2fef7c46f9bd000
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

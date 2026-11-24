@@ -1,0 +1,28 @@
+T001:
+  reason: 'Requested task execution failed; rerun successfully: code/data_pipeline/setup_data.py
+    exit=1'
+  task: d3af69753f756bdef327b0aa0e1b0d9b2f3d7950a7023627b404554f4f5a42b7
+T002:
+  reason: 'Requested task execution failed; rerun successfully: src/data_pipeline/preprocess.py
+    exit=1'
+  task: 127b959e3c2d4741617b352a9c4c37ccd53116a8ee8557cb3a326ae962ca6ece
+T003:
+  task: 9bfb8c2a9ef4324951125b115c51a24c13f5e85886c60f04a2ebb28d8efb8ea8
+T004:
+  task: 4c601797c017cf1ed6aaf8a5f265bd37b9b25b7c8b642e80c8a36f530174e508
+T005:
+  task: 2f436837ee6f22a0c31a040b0888222400d153575db98e73d45260744cddb961
+T006:
+  task: 480b86d6383d743997d635caa673ce585405911a3c18e8886d667ae6150b11a4
+T007:
+  task: d130afd6964ca427d0187d5e345ec21502a925a717aa9697d0a5ce98ac30d063
+T008:
+  task: 1f3fe5174272e0f063a19619b24c72b66b7de687b5b5834ea035679b617cfe96
+T009:
+  task: c6fe71baabdb86c5525d29a7088859f0e3a9083d906b7df7ce81005f7eb04d45
+T010:
+  task: 708ecf9c1f4a5fac4282296da3e394bc6c407b6a1816f15a58df440550357a81
+T011:
+  task: fab225ed4331a20b218f84515b5de9ac0a4ae52c90cf0561c1a93aab09dcf1dd
+T012:
+  task: 71e4e3d190ee6e850f4de3b21c4463083103cd31282379f7a581f16ed7fbaf9f

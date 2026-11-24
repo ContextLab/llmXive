@@ -1,69 +1,63 @@
-# Python bytecode and cache
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
+.pyc
+
+# Distribution / packaging
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
 *.egg
+.eggs/
 
 # Virtual environments
 venv/
-ENV/
-env/
 .venv/
+env/
+.env
 
-# IDE and editor files
+# Test / coverage artifacts
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+
+# Research data artifacts (large / regenerable via code/data/download.py)
+data/raw/
+data/processed/
+data/gold/
+data/final/
+data/intermediate/
+data/validation/
+*.jsonl.tmp
+
+# Model caches and checkpoints
+models/
+checkpoints/
+hf_cache/
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.onnx
+
+# Logs
+logs/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
 .idea/
 .vscode/
 *.swp
-*.swo
-*~
-.project
-.settings/
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Jupyter
+.ipynb_checkpoints/
 
-# Research artifacts and data (untracked by git)
-data/
-figures/
-*.log
-logs/
-.cache/
-hf_cache/
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Test coverage and profiling
-.coverage
-htmlcov/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-
-# Project specific temporary files
-tmp/
-temp/
+# Temporary files
 *.tmp
 *.bak
+~$*

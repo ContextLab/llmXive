@@ -6,8 +6,11 @@ import hashlib
 import json
 import os
 import shutil
+import argparse
 from pathlib import Path
 from typing import Union, Dict, Any, Optional, List
+
+import pandas as pd
 
 from .logging import log_info, log_error, log_warning
 
@@ -256,3 +259,132 @@ def list_files(dir_path: Union[str, Path], extension: Optional[str] = None) -> L
     
     log_info(f"Found {len(files)} files in {dir_path}")
     return sorted(files)
+
+
+# ----------------------------------------------------------------------
+# Additional CLI utilities required by the quickstart documentation
+# ----------------------------------------------------------------------
+
+def check_balance(dataset_path: Union[str, Path]) -> Dict[str, Any]:
+    """
+    Compute class‑balance metrics for a fingerprint dataset.
+
+    The function reads either a Parquet or CSV file containing a ``label``
+    column, counts occurrences of each class, and reports the max/min
+    ratio.  Results are printed as pretty‑printed JSON and also returned
+    as a dictionary.
+
+    Args:
+        dataset_path: Path to the dataset file (``.parquet`` or ``.csv``).
+
+    Returns:
+        Dictionary with ``class_counts`` and ``max_min_ratio`` keys.
+
+    Raises:
+        FileNotFoundError: If ``dataset_path`` does not exist.
+        KeyError: If the required ``label`` column is missing.
+    """
+    path = Path(dataset_path)
+    if not path.exists():
+        log_error(f"Dataset file not found: {path}")
+        raise FileNotFoundError(f"Dataset file not found: {path}")
+
+    # Load the dataset – support Parquet and CSV for flexibility.
+    if path.suffix.lower() == ".parquet":
+        df = pd.read_parquet(path)
+    else:
+        df = pd.read_csv(path)
+
+    if "label" not in df.columns:
+        log_error(f"'label' column missing in dataset {path}")
+        raise KeyError("'label' column is required in the dataset")
+
+    class_counts = df["label"].value_counts().to_dict()
+    max_count = max(class_counts.values())
+    min_count = min(class_counts.values())
+    ratio = max_count / min_count if min_count > 0 else None
+
+    result = {
+        "class_counts": class_counts,
+        "max_min_ratio": ratio,
+    }
+
+    # Emit a JSON representation to stdout – this mirrors the quickstart
+    # ``check_balance`` command behaviour.
+    print(json.dumps(result, indent=2))
+    return result
+
+
+def check_significance(metrics_path: Union[str, Path]) -> Dict[str, Any]:
+    """
+    Report the statistical significance of the model from a metrics JSON.
+
+    The function looks for a top‑level ``p_value`` or
+    ``permutation_p_value`` field (the exact key is not mandated by the
+    spec).  It prints the value as JSON and returns the dictionary.
+
+    Args:
+        metrics_path: Path to the JSON file containing model metrics.
+
+    Returns:
+        Dictionary with a single ``p_value`` key (or ``None`` if not found).
+
+    Raises:
+        FileNotFoundError: If ``metrics_path`` does not exist.
+    """
+    path = Path(metrics_path)
+    if not path.exists():
+        log_error(f"Metrics file not found: {path}")
+        raise FileNotFoundError(f"Metrics file not found: {path}")
+
+    data = read_json_file(path)
+    p_val = data.get("permutation_p_value") or data.get("p_value")
+
+    result = {"p_value": p_val}
+    print(json.dumps(result, indent=2))
+    return result
+
+
+def _parse_cli() -> None:
+    """
+    Minimal command‑line interface for ``python -m src.utils.io``.
+
+    Supported sub‑commands:
+
+    * ``check_balance <dataset_path>``
+    * ``check_significance <metrics_path>``
+    """
+    parser = argparse.ArgumentParser(
+        description="Utility commands for dataset balance and model significance."
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # ``check_balance`` sub‑command
+    bal_parser = subparsers.add_parser(
+        "check_balance", help="Compute class‑balance metrics for a dataset."
+    )
+    bal_parser.add_argument(
+        "dataset_path", type=str, help="Path to a Parquet or CSV dataset file."
+    )
+
+    # ``check_significance`` sub‑command
+    sig_parser = subparsers.add_parser(
+        "check_significance",
+        help="Report the permutation p‑value (or similar) from a metrics JSON.",
+    )
+    sig_parser.add_argument(
+        "metrics_path", type=str, help="Path to the model metrics JSON file."
+    )
+
+    args = parser.parse_args()
+
+    if args.command == "check_balance":
+        check_balance(args.dataset_path)
+    elif args.command == "check_significance":
+        check_significance(args.metrics_path)
+    else:
+        parser.print_help()
+
+
+if __name__ == "__main__":
+    _parse_cli()

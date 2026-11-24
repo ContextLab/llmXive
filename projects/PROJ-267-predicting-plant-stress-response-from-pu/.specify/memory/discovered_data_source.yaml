@@ -1,19 +1,16 @@
 status: none
-intent: Plant abiotic stress proteomics transcriptomics dataset GEO ProteomeXchange
-  PRIDE Ensembl Plants biomaRt python package dataset
+intent: Arabidopsis rice wheat drought salinity heat proteomics transcriptomics GEO
+  ProteomeXchange biomaRt dataset python package dataset
 required_fields:
 - sample_id
 - species
 - stress_condition
-- tissue_type
-- protein_id_uniprot
-- gene_id_ensembl
-- protein_abundance_normalized
-- gene_expression_normalized
-- replicate_id
-- publication_id
-- geo_accession
-- pride_accession
-cache_key: 6f0567f81d8278ade89e0905b4429a69d42728c9d1bdbdf36e215391d66901b9
-searched_at: '2026-10-11T16:29:43.576585+00:00'
+- protein_accession
+- protein_abundance
+- gene_symbol
+- gene_expression
+- detection_rate
+- biomaRt_mapped_id
+cache_key: 1c5dbffa281e306c2c57e44c464cccd7ab09d16c45cbaf0b092ed49eb565d464
+searched_at: '2026-10-26T10:45:16.434410+00:00'
 retry_count: 1

@@ -1,6 +1,7 @@
-# Project metadata for URL tracking and provenance.
-# This file is populated by the pipeline (e.g., T017a-1 potential downloads)
-# as URLs are validated and artifacts are downloaded.
-sources: []        # entries: {url, description, checksum?, timestamp?}
-potentials: []     # entries: {system_id, potential_id, url, checksum, timestamp}
+sources: []
+potentials: []
 last_updated: null
+oqmd_download:
+  sampling_rule: ''
+  materials_project_status: DATA_UNAVAILABLE
+  checksums: {}

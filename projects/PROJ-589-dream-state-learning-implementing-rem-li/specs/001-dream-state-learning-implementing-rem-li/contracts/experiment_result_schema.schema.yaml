@@ -1,31 +1,42 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-type: object
+title: "Experiment Result Summary"
+description: "Aggregated metrics for a single seed and training regime."
+type: "object"
 properties:
   seed:
-    type: integer
-    description: "Random seed used for this run"
+    type: "integer"
+    description: "Random seed used for this run."
   run_type:
-    type: string
+    type: "string"
     enum: ["wake_dream", "baseline"]
-    description: "Type of training regime"
+    description: "Training regime identifier."
   final_accuracy:
-    type: number
-    description: "Accuracy on the few-shot evaluation set"
+    type: "number"
+    description: "Accuracy on the few‑shot QNLI evaluation set."
+    minimum: 0.0
+    maximum: 1.0
   total_steps:
-    type: integer
-    description: "Total number of gradient steps"
+    type: "integer"
+    description: "Total gradient steps executed."
+    minimum: 1
   dream_steps:
-    type: integer
-    description: "Number of dream steps executed"
+    type: "integer"
+    description: "Number of dream steps actually performed."
+    minimum: 0
   peak_memory_gb:
-    type: number
-    description: "Peak RSS in GB"
+    type: "number"
+    description: "Peak RSS memory usage in GB."
+    minimum: 0.0
   wall_clock_hours:
-    type: number
-    description: "Total execution time in hours"
+    type: "number"
+    description: "Total wall‑clock time in hours."
+    minimum: 0.0
 required:
-  - seed
-  - run_type
-  - final_accuracy
-  - peak_memory_gb
+  - "seed"
+  - "run_type"
+  - "final_accuracy"
+  - "total_steps"
+  - "dream_steps"
+  - "peak_memory_gb"
+  - "wall_clock_hours"
 additionalProperties: false

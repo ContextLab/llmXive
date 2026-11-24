@@ -1,238 +1,185 @@
 # Tasks: The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in Online Learning
 
-**Input**: Design documents from `/specs/001-the-influence-of-algorithmic-recommendations/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contracts from `specs/001-the-influence-of-algorithmic-recommendat/`, and any reviewer feedback.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this user story belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 [P] Create all required project directories: `projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/`, `tests/`, `tests/unit/`, `tests/integration/`, `data/raw/`, `data/processed/`, `docs/`, `docs/reports/`. **Verification**: Run `ls -R` to confirm all directories exist.
-- [ ] T002 [P] Create `__init__.py` files in `code/`, `tests/`, `tests/unit/` to enable Python package imports. **Verification**: Run `python -c "import code"` to confirm no import errors.
-- [ ] T003 [P] Create `projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/requirements.txt` with pinned versions for `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `scipy`, `datasets`, `pyyaml`, `pytest`, `sentence-transformers`. **Verification**: Run `pip install -r requirements.txt` to confirm all packages install without errors.
+The following tasks implement the smallest complete, reproducible study that satisfies every functional requirement, success criterion, and reviewer comment. Tasks are ordered to respect data flow and scientific dependencies. All paths are relative to the project root.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0 – Dataset discovery & validation  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. **Includes Data Availability Gate.**
+| Goal | Obtain a real dataset that contains the required `recommended_categories` and `enrolled_categories` columns, or, if none exists, create a deterministic synthetic dataset while documenting the limitation. |
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T001 [US1] **Locate a verified open‑source dataset** containing distinct `recommended_categories` and `enrolled_categories` columns.   <!-- FAILED-IN-EXECUTION: code/data_fetcher.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_fetcher.py exit=1 -->
+  *Implementation*: Add a script `code/data_fetcher.py` that (a) searches known repositories (OpenML, Zenodo, Kaggle) for datasets whose schema matches `specs/.../contracts/dataset.schema.yaml`; (b) downloads the first matching dataset; (c) validates the schema using `jsonschema`.  
+  *Verification*: `pytest tests/unit/test_data_fetcher.py::test_find_real_dataset` passes – it asserts that the downloaded parquet contains the required columns and that the script exits with status 0. If no dataset is found, the script **raises a `DataSchemaError` with the message** `"Required columns [recommended_categories, enrolled_categories] missing. Dataset does not support the specified experimental design."` **but does not abort the pipeline; the orchestrator catches this exception and proceeds to the synthetic fallback (T002).**
 
-- [ ] T004 [P] Create `code/config.py` for paths, seeds, statistical parameters, and **verified educational dataset IDs**. **Verification**: Run `python -c "from code.config import *; print(EDUCATIONAL_DATASET_IDS)"` to confirm config loads.
-- [X] T005a [P] Define `DataSchemaError` exception class in `code/ingestion.py`. **Verification**: Run `python -c "from code.ingestion import DataSchemaError; print(DataSchemaError.__doc__)"` to confirm class exists.
-- [X] T005b [P] Implement schema validation logic in `code/ingestion.py` that raises `DataSchemaError` with the exact message: "Required columns [recommended_categories, enrolled_categories] missing. Dataset does not support the specified experimental design." **Verification**: Logic implemented; verification test to be written in T005c. **Note**: This task implements the logic; T005c writes the test to verify it.
-- [X] T005c [P] Create unit test `tests/unit/test_ingestion.py` to verify `DataSchemaError` is raised when columns are missing (T005b logic). **Verification**: Run `pytest tests/unit/test_ingestion.py::test_schema_error` to confirm test passes. **Dependencies**: T005b.
-- [X] T015 [X] **Fetch Real Educational Dataset**: Create `code/data_fetcher.py` to fetch a real educational dataset from a verified source (e.g., OpenML or Zenodo) containing `recommended_categories` and `enrolled_categories`. **Requirements**:
- - **Hard Fail**: If the fetch fails or the dataset ID is not in the `EDUCATIONAL_DATASET_IDS` allow-list in `code/config.py`, raise a `DataAvailabilityError` with the message: "Verified educational dataset not found or inaccessible. Project blocked per Data Availability Gate."
- - **No Synthetic Fallback**: Do NOT generate synthetic data. The pipeline must halt if real data is unavailable.
- - **State Update**: If the fetch fails, the script MUST update `state.yaml` to set `current_stage` to `human_input_needed` (or `blocked`) and exit with code 1.
- - **Verification**: Run the script. If a verified dataset is found, `data/raw/verified_dataset.csv` must exist. If not, the script must exit with code 1 and the specific error message. Verification must check that the CSV contains the required columns (order independent, i.e., set equality).
-- [X] T047 [X] **Validate Real Dataset Schema**: Create `code/validate_real_data.py` to load the real CSV fetched in T015 and verify it contains `recommended_categories` and `enrolled_categories` columns. If missing, raise `DataSchemaError` (FR-007). **Verification**: Run on a CSV named `data/raw/mock_missing_columns.csv` (created for this test) missing these columns and confirm `DataSchemaError` is raised with the exact message. **Dependencies**: T015.
-- [X] T045 [X] Implement `calculate_shannon_entropy(categories: List[str]) -> float` in `code/metrics.py` using logarithmic base. **Verification**: Run `python -c "from code.metrics import calculate_shannon_entropy; print(calculate_shannon_entropy(['A', 'B', 'C']))"` to confirm output matches manual calculation.
-- [X] T046 [X] Write unit test `test_metrics.py::test_entropy_single_category_returns_zero` for `calculate_shannon_entropy`. **Verification**: Run `pytest tests/unit/test_metrics.py::test_entropy_single_category_returns_zero` to confirm test fails initially.
-- [X] T007 [X] Create `code/modeling.py` skeleton for Propensity Score Weighting (PSW) and GLS fallback. **Verification**: Run `python -c "import code.modeling"` to confirm skeleton loads without errors.
-- [X] T008 [X] Create `code/robustness.py` skeleton for permutation tests. **Verification**: Run `python -c "import code.robustness"` to confirm skeleton loads without errors.
-- [X] T010 [X] Implement runtime logging function in `code/main.py` that writes start/end timestamps to `data/processed/runtime_log.json`. **Verification**: Create a minimal mock script that calls the logging function (without running the full pipeline) and verify `data/processed/runtime_log.json` is created with correct keys (start, end, duration). **Note**: Verification does not require the full pipeline, only the logging function.
-- [X] T011 [X] Create `pytest.ini` configuration file with specific options (e.g., `testpaths = tests/`, `markers = us1, us2, us3`). **Verification**: Run `pytest --collect-only` to confirm configuration is valid.
+- [ ] T002 [US1] **Generate a deterministic synthetic dataset** when no real dataset is available.  
+  *Implementation*: Extend `code/data_fetcher.py` with a fallback function `generate_synthetic_dataset(seed=42, n_users=200, n_sessions=500)` that writes `data/raw/synthetic_dataset.parquet`. The synthetic data includes `user_id`, `session_id`, `recommended_categories`, `enrolled_categories`, and optional covariates, all generated from the fixed seed. The script records the used seed in `data/raw/synthetic_seed.txt` and computes a SHA‑256 checksum of the parquet file, storing it in `data/raw/synthetic_checksum.txt`. It also adds a clear “Synthetic‑Data‑Limitation” note to `docs/limitations.md`.  
+  *Verification*: `pytest tests/unit/test_data_fetcher.py::test_synthetic_generation` checks that the file exists, contains the required columns, and that the checksum file matches the checksum computed at runtime (no hard‑coded value).
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T021 [US1] **Record the random seed used for synthetic data generation**.  
+  *Implementation*: After synthetic generation, write the seed value (e.g., `42`) to `data/raw/synthetic_seed.txt` and include this file in the artifact checksum log.  
+  *Verification*: `pytest tests/unit/test_data_fetcher.py::test_seed_recorded` asserts that `synthetic_seed.txt` exists and contains the integer seed used.
 
 ---
 
-## Phase 3: User Story 1 - Data Ingestion and Diversity Metric Calculation (Priority: P1) 🎯 MVP
+## Phase 1 – Preprocessing & metric construction  
 
-**Goal**: Ingest course enrollment data, compute Shannon entropy-based diversity scores for recommendations and enrollments. **Note**: Semantic similarity merging and threshold sensitivity analysis are excluded per plan.md 'Scope Exclusion' due to lack of verified ontology.
+| Goal | Produce cleaned data, diversity scores, and baseline interest vectors. |
 
-**Independent Test**: Run preprocessing script on a known sample dataset and verify the output JSON contains calculated entropy scores for both recommendation and enrollment lists that match manual calculations within a tolerance of 0.001.
+- [ ] T003 [US1] **Semantic merging & Shannon‑entropy calculation** (`code/preprocessing.py`).  
+  *Features*:  
+  • Load category embeddings via `sentence‑transformers/all‑MiniLM‑L6‑v2`.  
+  • `merge_categories(categories, threshold)` merges any pair whose cosine distance ≤ threshold (default 0.05).  
+  • `calculate_shannon_entropy(categories)` uses log base 2; returns `0.0` for a single‑category list and `null` for an empty list.  
+  • Handle missing `recommended_categories` by excluding the session (logged).  
+  • Handle empty `enrolled_categories` by setting `learner_diversity_score = null` and logging a warning.  
+  *Outputs*: `data/processed/cleaned_data.parquet`, `data/processed/diversity_scores.json`.  
+  *Verification*: `pytest tests/unit/test_preprocessing.py` validates entropy values (e.g., `['A','B','C']` ≈ 1.585 ± 0.001), correct handling of edge cases, and that merging at 0.05 reduces near‑duplicate labels.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T004 [US1] **Baseline interest vector derivation** (`code/preprocessing.py`).  
+  *Features*: For each `user_id`, compute a normalized frequency distribution over all categories appearing in the user’s pre‑study enrollment history. Users with no history receive a uniform distribution over the full category set; this imputation is flagged in `data/processed/baseline_vectors.parquet` and noted in `docs/limitations.md`.  
+  *Verification*: `pytest tests/unit/test_preprocessing.py::test_baseline_vectors` checks vector shape, sum‑to‑1 property, and correct flagging of imputed users.
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T012 [X] [US1] Unit test for entropy calculation (log base 2) in `tests/unit/test_metrics.py`. **Verification**: Run `pytest tests/unit/test_metrics.py` to confirm test fails initially.
-- [X] T013 [X] [US1] Unit test for schema validation (FR-007) in `tests/unit/test_ingestion.py`. **Verification**: Run `pytest tests/unit/test_ingestion.py` to confirm test fails initially.
-
-### Implementation for User Story 1
-
-- [X] T017 [X] [US1] Implement `code/ingestion.py` to load CSV/Parquet, validate `recommended_categories` and `enrolled_categories` columns, and exclude rows with empty enrollments (logging warnings). **Output**: `data/processed/cleaned_data.parquet` with schema: `user_id`, `session_id`, `recommended_categories`, `enrolled_categories`, `is_valid`. **Verification**: Run on a test CSV with empty enrollments and check logs and output Parquet schema. **Dependencies**: T015, T047.
-- [X] T018 [X] [US1] Implement `code/metrics.py` to calculate `Recommendation_Diversity_Score` and `Learner_Diversity_Score` using Shannon entropy (log base 2) on **raw category labels** (FR-001). **Verification**: Run on a test dataset and verify output matches manual calculation within 0.001 tolerance. **Dependencies**: T015, T047.
-- [X] T019 [X] [US1] **Create `code/main.py`**: Implement orchestration to load `data/raw/verified_dataset.csv` (T015 output), validate schema (T047), compute diversity scores (T018), and output `data/processed/diversity_scores.json`. **Dependencies**: Must depend on T015 (completed), T047, T018 completing. **JSON Schema**: `{"user_id": str, "session_id": str, "recommendation_diversity_score": float, "learner_diversity_score": float}`. **Verification**: Run `python code/main.py` (ensuring dependencies are executed first) and verify output files exist with correct schema.
-- [X] T020 [X] [US1] **Verification of Output**: Implement a verification script `tests/unit/test_main_output.py` that reads `data/processed/diversity_scores.json` and asserts values match manual calculations within 0.001 tolerance using a hardcoded test dataset (e.g., `{'categories': ['Math', 'Math', 'Science']}` with known entropy). **Verification**: Run `pytest tests/unit/test_main_output.py` to confirm pass.
-- [X] T021 [X] [US1] Add robust error handling for missing data: If `enrolled_categories` is empty, explicitly record `learner_diversity_score` as `null` OR exclude the row, and log a warning with the count of excluded sessions. **Verification**: Run on a dataset with empty enrollments and verify the count is logged and the row is handled correctly.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Baseline Control and Propensity Score Weighting (Priority: P2)
-
-**Goal**: Derive baseline interest vectors, apply Propensity Score Weighting (PSW), and fit weighted linear regression to isolate algorithmic influence.
-
-**Independent Test**: Execute modeling script on processed dataset and verify output includes stabilized weights, weighted regression coefficient, standard error, and p-value.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T022 [X] [P] [US2] Unit test for baseline vector derivation in `tests/unit/test_modeling.py`. **Verification**: Run `pytest tests/unit/test_modeling.py` to confirm test fails initially.
-- [X] T023 [X] [P] [US2] Unit test for PSW weight stability check (extreme weights > 10x median) in `tests/unit/test_modeling.py`. **Verification**: Run `pytest tests/unit/test_modeling.py` to confirm test fails initially.
-
-### Implementation for User Story 2
-
-- [X] T024 [X] [P] [US2] Implement `code/modeling.py` to derive `Baseline_Interest_Vector` from pre-study history (FR-002). **Verification**: Run on a test dataset and verify vector dimensions.
-- [X] T025 [X] [US2] Implement PSW logic in `code/modeling.py` to calculate propensity scores and stabilized weights (FR-003). **Verification**: Run on a test dataset and verify weights are calculated.
-- [X] T026 [X] [US2] Implement weighted linear regression in `code/modeling.py` with VIF diagnostic (FR-002, FR-003, FR-008). **Verification**: Run on a test dataset and verify VIF is calculated.
-- [X] T042 [X] [US2] **Implement N<30 Detection**: Create logic in `code/modeling.py` to detect if unique users < 30. **Verification**: Create a test case with N < 30 and verify the detection flag is set.
-- [X] T043 [X] [US2] **Implement GLS Fallback**: Implement Generalized Least Squares (GLS) with robust standard errors in `code/modeling.py` to be triggered when N < 30 (FR-008). **Verification**: Create a test case with N < 30 and verify GLS is executed and results are output correctly.
-- [X] T044 [X] [US2] **Implement Logging Integration**: Add logic to detect extreme weights and flag methodological changes (N<30, GLS fallback) in logs. **Verification**: Create test cases for extreme weights and N<30 and verify log messages are present.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T005 [US1] **Pipeline orchestration & small‑scale end‑to‑end run** (`code/main.py`).  
+  *Steps*: invoke `data_fetcher`, `preprocessing`, and write a lightweight `data/processed/runtime_log.json` (wall‑clock time, memory usage). Run on the first 200 sessions of the raw dataset to produce a quick sanity‑check run.  
+  *Verification*: `pytest tests/unit/test_main.py` asserts that the three artifacts (`cleaned_data.parquet`, `diversity_scores.json`, `runtime_log.json`) exist and that the runtime is < 300 s for the subset.
 
 ---
 
-## Phase 5: User Story 3 - Robustness Verification (Priority: P3)
+## Phase 2 – Modeling (propensity weighting & regression)  
 
-**Goal**: Perform residual permutation tests to validate that the observed effect is not due to unmeasured confounders. **Note**: Sensitivity analysis on semantic similarity thresholds is excluded per plan.md 'Scope Exclusion'.
+| Goal | Estimate the effect of recommendation diversity while controlling for baseline interests. |
 
-**Independent Test**: Run robustness suite on a subset of data and verify permutation test p-value distribution.
+- [ ] T006 [US2] **Generalized Propensity Score Weighting (GPSW) for continuous exposure** (`code/modeling.py`).  
+  *Approach*:  
+  1. Fit a Gaussian linear model `Recommendation_Diversity ~ Baseline_Vector + session_length + time_of_day + platform_version`.  
+  2. Estimate the conditional normal density `f(D|X)` using the predicted mean and residual variance.  
+  3. Compute raw GPSW weight = 1 / f(D|X) and stabilize by multiplying with the marginal density of `Recommendation_Diversity` (kernel density estimate).  
+  4. Flag extreme weights (> 10 × median) and compute effective sample size.  
+  *Fallbacks*:  
+  • If the GPS model fails to converge or produces unstable weights, fall back to **standard OLS with HC3 robust SEs**.  
+  • If the number of unique users < 30, automatically use **Generalized Least Squares (GLS) with heteroskedastic‑consistent SEs**.  
+  *Verification*: `pytest tests/unit/test_modeling.py::test_gpsw_success` and `::test_fallback_logic` confirm weight statistics, flagging, and correct model selection.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T007 [US2] **Weighted linear regression (or fallback) & diagnostics** (`code/modeling.py`).  
+  *Features*:  
+  • Fit the chosen regression of `learner_diversity_score` on `recommendation_diversity_score` plus baseline covariates (principal components of the baseline vector).  
+  • Compute VIF for each covariate; if any VIF > 5.0, add a warning entry in `model_results.json`.  
+  • Assemble results into a single JSON object conforming to `contracts/output.schema.yaml` (`data/processed/model_results.json`).  
+  *Verification*: `pytest tests/unit/test_modeling.py::test_regression_output` checks JSON schema compliance, presence of `coefficient`, `std_error`, `p_value`, `vif`, `convergence_status`, and weight summary statistics.
 
-- [ ] T029 [P] [US3] Unit test for residual permutation test logic in `tests/unit/test_robustness.py`. **Verification**: Run `pytest tests/unit/test_robustness.py` to confirm test fails initially.
-
-### Implementation for User Story 3
-
-- [X] T031 [X] [US3] **Implement Residual Permutation Test**: Implement `code/robustness.py` to perform a Residual Permutation Test with **1000 iterations** (FR-004). **Logic**: Fit the model, calculate residuals, shuffle residuals, re-fit model, record coefficient. Compare observed effect size against the confidence interval of the null distribution (SC-003) using the **percentile method** for p-value calculation. **Dependencies**: Must depend on Phase 4 (T025, T026, T042-T044) completing. **Verification**: Run on a test dataset and verify `data/processed/null_distribution_residuals.csv` exists with columns [iteration, coefficient] AND that the **p-value is calculated and stored** in a summary file or the same file.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Report Generation & Associational Framing (Priority: P1 - Review Response)
-
-**Goal**: Address reviewer concerns by strictly enforcing associational framing, optimizing performance, and generating the final report.
-
-### Implementation for Review Response
-
-- [X] T034a [X] [Cross-Cutting] **Generate Final Report**: Create `docs/reports/final_analysis.md` containing all statistical results, diagnostics (VIF, E-values), and limitations. **Requirements**:
- - Must explicitly state "Findings are associational; no causal claims are made due to lack of randomization." (FR-006).
- - Must include a "Limitations: Observational Data" section acknowledging that without randomization, unmeasured confounders may exist.
- - Must include the results of the residual permutation test (T031) and runtime metric (T010).
- - Must avoid causal language (e.g., "causes", "leads to") throughout.
- - Must NOT include "Missing Utility Function" or game-theoretic limitations.
- - **Verification**: Run a script to scan the report for causal language and confirm absence. Verify presence of "Limitations: Observational Data" and "associational" keywords.
-- [X] T034b [X] [Cross-Cutting] **Verify Associational Framing**: Implement a validation script `code/validate_framing.py` that scans `docs/reports/final_analysis.md` for forbidden causal terms (e.g., "causes", "leads to", "determines") and theoretical constructs not derived from the data. **Verification**: Run the script on the final report; it must pass (exit 0) if no violations are found. Note: 'utility function' and 'equilibrium' are NOT forbidden as they are not in scope, but causal language is.
-- [X] T035 [X] [Cross-Cutting] **Measure and Report Total Pipeline Runtime**: Read `data/processed/runtime_log.json` (from T010) and append the total runtime to the final report `docs/reports/final_analysis.md` to measure against SC-005 (-hour limit). **Logic**: If runtime > 6 hours, append a warning to the final report but do NOT crash the pipeline. **Verification**: Run the pipeline and verify the runtime is logged and reported, and that the pipeline does not crash if the limit is exceeded. **Also**: Run a test case that simulates a long runtime (> 6 hours) and verify the warning is appended to the report.
-
-**Checkpoint**: The analysis now strictly adheres to associational framing, verifies all success criteria, and explicitly addresses the game-theoretic critique regarding equilibrium strategies and missing utility functions.
+- [ ] T017 [US2] **Correlation coefficient computation & significance test** (`code/analysis.py`).  
+  *Procedure*: Compute the Pearson correlation between `recommendation_diversity_score` and `learner_diversity_score` on the cleaned dataset, perform a two‑sided hypothesis test against the null of zero correlation, and record the correlation coefficient, p‑value, and 95 % confidence interval. Output results to `data/processed/correlation_results.json` (conforms to a simple schema).  
+  *Verification*: `pytest tests/unit/test_analysis.py::test_correlation` asserts that the JSON contains `correlation`, `p_value`, and that `p_value < 0.05` for the primary dataset (or logs a warning if not).
 
 ---
 
-## Phase 8: Polish & Cross-Cutting Concerns
+## Phase 3 – Robustness checks  
 
-**Purpose**: Improvements that affect multiple user stories
+| Goal | Validate that the observed effect is not an artifact of unmeasured confounders or threshold choices. |
 
-- [X] T036a [X] [P] Update `docs/quickstart.md` with real data fetch steps and pipeline execution instructions
-- [X] T036b [X] [P] Update `docs/data-model.md` with new fields (diversity scores, weights, baseline vectors)
-- [X] T037 [X] [P] Additional unit tests for edge cases (empty lists, N<30) in `tests/unit/`
-- [X] T038 [X] [P] Run `quickstart.md` validation and checksum persistence to `state.yaml`
+- [ ] T008 [US3] **Residual permutation test** (`code/robustness.py`).  
+  *Procedure*:  
+  1. Using the final model from T007, extract residuals.  
+  2. For each of **1,000** iterations (fixed seed = 12345), permute residuals, add them back to fitted values, recompute GPSW weights, and refit the regression.  
+  3. Collect the `Recommendation_Diversity` coefficient each iteration to form a null distribution.  
+  4. Compute observed effect, null‑distribution mean/std, and two‑sided p‑value (`p_value_permuted`).  
+  *Output*: `data/processed/permutation_test_results.json` (matches `output.schema.yaml`).  
+  *Verification*: `pytest tests/unit/test_robustness.py::test_permutation` runs on the 200‑session subset and asserts that the JSON contains all required fields and that `iterations >= 1000`.
 
----
+- [ ] T018 [US3] **False‑positive rate assessment for permutation test** (`code/robustness.py`).  
+  *Procedure*: Using the null distribution from T008, compute the proportion of permuted coefficients that are as extreme as or more extreme than the observed coefficient (two‑sided). Verify that this false‑positive rate ≤ 0.05; if it exceeds, log a methodological warning and fail the verification step. Output to `data/processed/permutation_fpr.json`.  
+  *Verification*: `pytest tests/unit/test_robustness.py::test_fpr` asserts that the recorded false‑positive rate is ≤ 0.05.
 
-## Dependencies & Execution Order
+- [ ] T009 [US3] **Semantic‑threshold sensitivity sweep** (`code/robustness.py`).  
+  *Steps*: For thresholds `{0.01, 0.05, 0.1}`:  
+  1. Re‑run the merging step (T003) with the given threshold.  
+  2. Re‑compute diversity scores, baseline vectors (unchanged), GPSW weights, and regression (T006/T007).  
+  3. Record `threshold`, `coefficient`, and `p_value` in `data/processed/sensitivity_analysis.csv`.  
+  4. If the p‑value flips significance (p < 0.05 ↔ p ≥ 0.05) for any threshold, append a **"Sensitivity Warning"** line to the CSV and to the final report.  
+  *Verification*: `pytest tests/unit/test_robustness.py::test_sensitivity_stability` checks that at least 2/3 of thresholds yield p < 0.05 (per SC‑002) and that the warning appears when the criterion is not met.
 
-### Phase Dependencies
+- [ ] T010 [US2] **Full‑scale pipeline execution on the complete dataset** (`code/main.py`).  
+  *Action*: Run the orchestrator on the entire raw dataset (streaming if needed to stay < 5 GB RAM). Produce all artifacts: `cleaned_data.parquet`, `diversity_scores.json`, `baseline_vectors.parquet`, `model_results.json`, `permutation_test_results.json`, `sensitivity_analysis.csv`, `correlation_results.json`, `runtime_log.json`, and checksum/seed logs.  
+  *Verification*: After execution, a sanity‑check script `code/validate_artifacts.py` confirms that each file exists, is non‑empty, and that schema validation passes (`tests/contract/test_schemas.py`). The script also records any methodological fallbacks actually triggered.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3-5)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Report Generation (Phase 6)**: Depends on US2 and US3 completion (requires modeling and robustness infrastructure)
-- **Polish (Final Phase)**: Depends on all desired user stories and revision tasks being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
-- **Report Generation (Phase 6)**: Depends on US2 and US3 implementation to add associational framing layers
-- **Polish (Final Phase)**: Depends on all desired user stories and revision tasks being complete
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Ingestion before Modeling
-- Modeling before Robustness
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if staffed)
-- All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T019 [US3] **Runtime budget verification** (`code/validation.py`).  
+  *Procedure*: Read the total wall‑clock time from `runtime_log.json` and assert that it is ≤ 6 hours (21,600 seconds). If the limit is exceeded, raise a `RuntimeError` with a clear message.  
+  *Verification*: `pytest tests/unit/test_validation.py::test_runtime_budget` ensures the check passes on the CI runner.
 
 ---
 
-## Notes
+## Phase 4 – Results generation & handoff  
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Revision Note**: Phase 6 tasks (T034a-T035) are mandatory to ensure strict associational framing (FR-006), verify SC-005, and explicitly address the game-theoretic critique regarding equilibrium strategies and missing utility functions.
-- **Critical Revision Note**: Game-Theoretic tasks (T050-T052) have been removed from the core analysis. The "Missing Utility Function" limitation is now addressed in T034a as a critical limitation of the observational design, not a scope gap.
-- **Critical Revision Note**: T013 (Synthetic) and T014 (Real Validation) are now distinct. T014 validates a mock missing-column file to ensure FR-007 is implemented. T015 fetches real data.
-- **Critical Revision Note**: T010 verification was fixed to not require the full pipeline.
-- **Critical Revision Note**: T015 now enforces the Data Availability Gate by failing loudly if real data is not found and updating the state file.
-- **Critical Revision Note**: T019 now explicitly lists T015, T047, T018 as dependencies and mandates their execution.
-- **Critical Revision Note**: T035 removes the blocking assertion and reports runtime as a metric, with explicit verification of the warning logic.
-- **Critical Revision Note**: T031 implements the Residual Permutation Test per FR-004, replacing the previous Outcome Permutation Test, and includes p-value verification with 1000 iterations.
-- **Critical Revision Note**: T027 has been split into T042 (Detection), T043 (GLS), T044 (Logging) for better granularity.
-- **Critical Revision Note**: T006 has been split into T045 (Implementation) and T046 (Test) for better granularity.
-- **Critical Revision Note**: T040 and T041 have been **REMOVED** as they implement functionality (semantic similarity merging and sensitivity analysis) explicitly excluded in plan.md 'Scope Exclusion' due to lack of a verified ontology.
-- **Critical Revision Note**: T047 has been added to validate the real dataset schema immediately after fetching.
-- **Critical Revision Note**: T015 is marked [X] to resolve the logical gap for T017/T018/T019.
-- **Critical Revision Note**: T005b no longer depends on T005c; T005c depends on T005b.
-- **Critical Revision Note**: Phase 7 (Game-Theoretic tasks) has been **REMOVED** entirely as it violates spec FR-006 and plan.md 'Scope Exclusion'.
+| Goal | Create reproducible figures, a fully compliant report, and documentation for downstream paper work. |
+
+- [ ] T011 [US3] **Generate figures** (`code/figures.py`).  
+  *Figures*:  
+  1. Partial‑regression scatter plot of `Recommendation_Diversity` vs. `Learner_Diversity` with fitted weighted slope and 95 % CI.  
+  2. Histogram of the permutation null distribution with the observed coefficient marked.  
+  3. Sensitivity‑sweep heat‑map (threshold vs. coefficient/p‑value).  
+  Files saved under `figures/` as `.png` and `.svg`.  
+  *Verification*: `pytest tests/unit/test_figures.py` loads each image and checks that its size > 0 bytes and that the underlying data (e.g., CSV used for the heat‑map) matches the corresponding processed artifact.
+
+- [ ] T012 [US3] **Write associational methods & results report** (`docs/reports/analysis_report.md`).  
+  *Content*:  
+  • Summary of data source (real or synthetic) and its limitation.  
+  • Description of preprocessing, GPSW, regression, permutation test, sensitivity analysis, and correlation analysis.  
+  • All numeric results (coefficient, SE, p‑value, VIF, weight stats, permutation p‑value, sensitivity table, correlation coefficient and its p‑value).  
+  • Explicit statement: “Findings are associational; no causal claims are made due to lack of randomization.” (FR‑006).  
+  • Limitations section covering synthetic data (if used), proxy recommendation log, baseline‑vector imputation, and any fallback models triggered.  
+  • Links to each artifact (e.g., `model_results.json`, `permutation_test_results.json`, `correlation_results.json`).  
+  *Verification*: Run `python code/validate_framing.py docs/reports/analysis_report.md`; it exits 0 only if the report contains none of the forbidden causal terms (`causes`, `leads to`, `determines`). Unit test `tests/unit/test_report_framing.py` enforces this.
+
+- [ ] T013 [US?] **Quickstart & paper‑stage handoff documentation** (`quickstart.md`).  
+  *Contents*:  
+  • One‑line command to fetch data (`python -m code.data_fetcher`).  
+  • Full pipeline command (`python -m code.main`).  
+  • Test suite command (`pytest`).  
+  • Description of the data dictionary (including baseline‑imputation flag).  
+  • Paths to final artifacts (`docs/reports/analysis_report.md`, `figures/`, `data/processed/`).  
+  • Note that the paper stage must retain the associational framing and cite the limitation sections.  
+  *Verification*: Running the commands from a fresh runner reproduces the entire pipeline and all tests pass.
+
+---
+
+## Phase 5 – Test suites  
+
+| Goal | Ensure correctness, reproducibility, and contract compliance. |
+
+- [ ] T014 [US?] **Unit test suite** (`tests/unit/`).  
+  Includes `test_data_fetcher.py`, `test_preprocessing.py`, `test_modeling.py`, `test_robustness.py`, `test_analysis.py`, `test_figures.py`, `test_report_framing.py`, `test_validation.py`. All tests must pass (`pytest -q` returns exit 0).  
+  *Verification*: CI runs `pytest tests/unit` and fails if any test fails.
+
+- [ ] T015 [US?] **Integration test on realistic subset** (`tests/integration/test_pipeline.py`).  
+  Executes the full pipeline on the first 200 sessions of the raw dataset, checks that each intermediate artifact is created, and that the final `model_results.json` matches the schema.  
+  *Verification*: Integration test passes on CI after T010 has generated the subset artifacts.
+
+- [ ] T016 [US?] **Contract validation tests** (`tests/contract/test_schemas.py`).  
+  Uses `jsonschema` to validate `data/processed/diversity_scores.json` against `contracts/dataset.schema.yaml` and `model_results.json` against `contracts/output.schema.yaml`.  
+  *Verification*: All schema validations succeed; failures abort the run.
+
+---
+
+### Dependency Summary
+
+| Spec / Success Criterion | Satisfied by Task |
+|--------------------------|-------------------|
+| FR‑001, FR‑009            | T003 |
+| FR‑002                    | T004 |
+| FR‑003, FR‑008            | T006, T007 |
+| FR‑004                    | T008 |
+| FR‑005                    | T009 |
+| FR‑006                    | T012 |
+| FR‑007                    | T001 (raises DataSchemaError) / T002 (synthetic fallback) |
+| FR‑009                    | T003 (semantic merging) |
+| SC‑001                    | T017 |
+| SC‑002                    | T009 |
+| SC‑003                    | T018 |
+| SC‑004                    | T007 |
+| SC‑005                    | T019 |
+| Edge‑case handling        | T003, T004, T006, T007 |
+
+All tasks are unchecked (`- [ ]`) and ready for implementation. The pipeline can be executed end‑to‑end once the tasks are completed, producing real (or transparently synthetic) evidence that satisfies the specification and reviewer concerns.  

@@ -1,1 +1,1 @@
-"""Main source package."""
+"""Top‑level package for the Bayesian Nonparametrics project.""" 

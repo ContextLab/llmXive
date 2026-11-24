@@ -1,0 +1,60 @@
+T001:
+  c: false
+  h: beab787be5f42ba028c1e1480c6594bed781a66a801c9d9f8d769a0908288b92
+  r: "The `code/` tree (download, preprocess, centrality, analysis, viz), `tests/unit`,\
+    \ `tests/integration`, and `docs/` exist, but the `data/` directory contains only\
+    \ `.gitignore`, `__init__.py`, and `external/` \u2014 the required `data/raw`,\
+    \ `data/processed`, and `data/analysis` subdirectories are missing, and there\
+    \ is no evidence at all of the required `outputs/viz` and `outputs/reports` directories.\
+    \ The implementer must create these five missing subdirectories (e.g., via the\
+    \ existing `setup_directories.py` or manually) to satisfy the task."
+  sig: 244e479c18a684b5120228188475137e0f58130acab91deb071410213e15ed41
+T002:
+  c: true
+  h: d0cff3dc03fd036ff7d184adf223cc8596833063cae2cac570a2f0da4cbe34cf
+  r: The `requirements.txt` exists at the project root (245 bytes) and contains all
+    13 required packages (nibabel, nilearn, networkx, pandas, scikit-learn, statsmodels,
+    matplotlib, seaborn, reportlab, python-dotenv, pytest, pyunicorn, fractal-fs)
+    with sensible version pins, plus two extra dev tools (ruff, black) which don't
+    conflict with the requirement.
+  sig: aa87258e43b340e109d8d6cb03c0385da1054bcb65c5ef458b4803b0a2b6cf83
+T003:
+  c: true
+  h: 73e64ea0afcc6746254168617fa0893d29e3a6874948bec3fba2b537d5f0e214
+  r: "Both `.ruff.toml` and `pyproject.toml` exist and are non-empty. The `pyproject.toml`\
+    \ contains substantive, strict ruff configuration (line-length 88, py310 target,\
+    \ broad rule selection E/W/F/I/C/B/UP with justified ignores, per-file ignores,\
+    \ isort settings) plus black configuration, and `.ruff.toml` extends it as a compatibility\
+    \ shim \u2014 matching the task's requirement to configure ruff and black with\
+    \ strict settings."
+  sig: 1650dd1fc5cdc8fbaa608d0d26ea62d86efa33cd2d9b9639e62ee55aabeed0c6
+T004:
+  c: true
+  h: 56c2263f5a3c77cf7264107b9b92466a8a00363ae0e6d620e5b51968f6b451c1
+  r: The required `code/config/__init__.py` exists and re-exports the loader/validator,
+    and `code/config/env_config.py` implements loading ADNI_USER, ADNI_PASS, and ADNI_SUBJECT_LIST
+    from `.env` via `load_dotenv` and raises `ValueError` listing missing keys, matching
+    the task's requirements.
+  sig: bfe2132cbd925712a783312c273b06cf73e2ed5e175242652d633849d9e8929b
+T006:
+  c: true
+  h: 4b0624b3cbccc61dc70aef12ded0f9e691cb938f1f3f6d32f68c15e7a20d73cd
+  r: "The file `code/data_models.py` exists (6813 bytes) and defines all five required\
+    \ entities (Participant, ImagingSession, CentralityMetrics, CognitiveScore, RegressionResult)\
+    \ as substantive dataclasses with appropriate fields, defaults, and to_dict methods\
+    \ \u2014 no stubs, placeholders, or TODOs. The fields align well with the spec\
+    \ (QC/exclusion flags, ROI-level and network-aggregated centrality, FDR q-values,\
+    \ diagnostics)."
+  sig: e7536f74a8dec73e94333b1efe16e7c6fc37786142669f589a0b40c85d39dbf1
+T006b:
+  c: false
+  h: 29b88d4fa8840dfb8854d52bf0a85e5b1139d2f66985014ca227dcc78105f98d
+  r: "The file `code/config/network_rois.json` exists but its contents are clearly\
+    \ not AAL atlas-defined network assignments: DMN is simply ROIs 1\u201310 and\
+    \ FPN is ROIs 11\u201320, a mechanical split of the first 20 indices. The AAL\
+    \ atlas's DMN (e.g., precuneus, posterior cingulate, angular, medial prefrontal\
+    \ regions) and FPN (e.g., dorsolateral prefrontal, inferior parietal regions)\
+    \ map to specific, non-contiguous indices, so these lists are a placeholder rather\
+    \ than the explicit, correct ROI index lists the task requires. The implementer\
+    \ should populate the JSON with the actual AAL indices for each networ"
+  sig: f0b175fbff2da2981ea4915fd581cb7068b3f5e07b1676dfe0c02f23ef56ab6b

@@ -1,51 +1,50 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Experiment Log Entry
-description: Schema for a single row in the experiment log CSV (T009c).
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExperimentLogSchema"
+description: "Schema for the CSV output of the agent execution. Defines expected columns and types for validation scripts."
+type: "object"
 properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the experiment run configuration (library size, overlap, pruning flag)."
   task_id:
-    type: string
-    description: Unique identifier for the task.
-  skill_id:
-    type: string
-    description: Identifier of the skill used or attempted.
-  success:
-    type: boolean
-    description: Whether the task execution was successful.
-  latency:
-    type: number
-    description: Execution latency in seconds.
-  tokens:
-    type: integer
-    description: Number of tokens consumed.
-  retrieval_precision:
-    type: number
-    description: Jaccard similarity between retrieved and ground-truth skills.
-  retrieval_diversity:
-    type: number
-    description: Inverse variance of cosine similarities of retrieved skills.
-  pruning_risk_count:
-    type: integer
-    description: Number of high-similarity skills pruned during this interval.
+    type: "string"
+    description: "Reference to the task."
   library_size:
-    type: integer
-    description: Current size of the skill library.
+    type: "integer"
+    description: "Size of the skill library used (10, 20, 30, 40, 50, 60, 70, 80, 90, 100)."
+    enum: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
   pruning_enabled:
-    type: boolean
-    description: Whether pruning was active for this run.
+    type: "boolean"
+    description: "Whether the pruning heuristic was active."
+  success:
+    type: "boolean"
+    description: "Whether the task was completed successfully."
+  latency_ms:
+    type: "number"
+    description: "Execution latency in milliseconds."
+  tokens_used:
+    type: "integer"
+    description: "Estimated token count."
+  retrieval_precision:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Jaccard similarity between retrieved and ground‑truth skills."
+  retrieval_diversity:
+    type: "number"
+    description: "Inverse variance of cosine similarities of the top‑k (k=5) retrieved skills against the task's ground‑truth set."
   edge_case:
-    type: boolean
-    description: Flag indicating if an edge case (e.g., maximal overlap) was triggered.
+    type: "string"
+    description: "Tag for edge cases (e.g., 'missing_skill', 'memory_limit', 'max_overlap', 'null')."
 required:
+  - run_id
   - task_id
-  - skill_id
-  - success
-  - latency
-  - tokens
-  - retrieval_precision
-  - retrieval_diversity
-  - pruning_risk_count
   - library_size
   - pruning_enabled
+  - success
+  - latency_ms
+  - tokens_used
+  - retrieval_precision
+  - retrieval_diversity
   - edge_case
 additionalProperties: false

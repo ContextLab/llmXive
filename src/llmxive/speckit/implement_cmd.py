@@ -359,9 +359,10 @@ class ImplementerAgent(SlashCommandAgent):
 
         def ask(_: int) -> ChatResponse | None:
             try:
+                # The same selection as the first reply (profile + tier overrides),
+                # so every candidate is drawn from the chain the task is on.
                 return chat_with_fallback(
-                    prompt[1], default_backend=ctx.default_backend.value,
-                    fallback_backends=[b.value for b in ctx.fallback_backends], model=ctx.default_model)
+                    prompt[1], profile=ctx.profile, overrides=ctx.requirement_overrides)
             except Exception as exc:  # one missing candidate must not cost the attempt
                 print(f"[implementer] {task_id}: a further candidate reply failed: {type(exc).__name__}: {exc}"[:300])
                 return None

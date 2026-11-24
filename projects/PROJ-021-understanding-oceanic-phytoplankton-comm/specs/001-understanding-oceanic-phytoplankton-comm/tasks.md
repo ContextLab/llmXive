@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`projects/PROJ-021-understanding-oceanic-phytoplankton-comm/`)
-- [X] T002 Initialize Python 3.11 project with dependencies in `code/requirements.txt` (pandas, numpy, scikit-learn, torch, transformers, xarray, netCDF4, matplotlib, seaborn, datasets)
-- [~] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T002 Initialize Python 3.11 project with dependencies in `code/requirements.txt` (pandas, numpy, scikit-learn, torch, transformers, xarray, netCDF4, matplotlib, seaborn, datasets)
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -57,8 +57,8 @@
 
 - [X] T004 [P] Create configuration manager in `code/utils/config.py` (seeds, paths, hyperparameters, memory limits)
 - [X] T005 [P] Implement CPU-only data loader utilities in `code/utils/data_loaders.py` (streaming, sampling to fit available RAM, strict error handling: NO synthetic fallback)
-- [X] T006 Create base schema definitions in `specs/001-phytoplankton-vlm-analysis/contracts/` (phytoplankton_sample.schema.yaml, model_performance.schema.yaml)
-- [~] T007 [P] Implement versioning utility in `code/05_versioning_state.py` (SHA-256 hashing logic to be called by Advancement-Evaluator Agent, not standalone script)
+- [ ] T006 Create base schema definitions in `specs/001-phytoplankton-vlm-analysis/contracts/` (phytoplankton_sample.schema.yaml, model_performance.schema.yaml)
+- [X] T007 [P] Implement versioning utility in `code/05_versioning_state.py` (SHA-256 hashing logic to be called by Advancement-Evaluator Agent, not standalone script)
 - [~] T008 Setup logging infrastructure in `code/utils/logging_config.py` (structured logs for pipeline monitoring)
 - [~] T009a [P] Create `aligned_dataset.schema.yaml` in `specs/001-phytoplankton-vlm-analysis/contracts/`. **Definition**: Must include fields: `lat` (float), `lon` (float), `timestamp` (datetime), `basin` (string), `temp` (float), `salinity` (float), `nutrients` (float), `chlorophyll_a` (float), `quality_flags` (int). **Depends on**: None.
 - [~] T009 [P] [US1] Contract test for schema validation in `tests/contract/test_schemas.py` (validates `aligned_dataset.schema.yaml` created in T009a). **Depends on T009a**.
@@ -82,7 +82,7 @@
 ### Implementation for User Story 1
 
 - [ ] T011a [US1] Fetch NOAA/Copernicus Reanalysis data (Temperature, Salinity, Nutrients) from the verified physical oceanography source **CMEMS** to `data/raw/copernicus_global_reanalysis.nc`. **Dataset ID**: `cmems-global-analysis-forecast-phys-001-004`. **CRITICAL**: This task targets the physical drivers (Temperature, Salinity, Nutrients) as required by FR-001 and Constitution Principle VI, NOT the target variable (Chlorophyll). **Verification Step**: After download, verify the NetCDF file contains variables 'thetao' (temperature), 'so' (salinity), and 'nitrate' (or equivalent nutrient variable). **MUST ALSO VERIFY** that the variable 'chl' (chlorophyll) is ABSENT to enforce Multi-Modal Independence. If 'chl' is present or required variables are missing, raise an exception and halt. **Depends on T005**. <!-- FAILED-IN-EXECUTION: code/01_fetch_reanalysis.py exit=1 -->
-- [ ] T011a_verify [US1] Verify and checksum `data/raw/copernicus_global_reanalysis.nc` using `code/05_versioning_state.py`. Update `state/projects/PROJ-021-understanding-oceanic-phytoplankton-comm.yaml` with hash. **FAIL LOUDLY** if fetch failed or checksum mismatch (NO synthetic fallback). **Exit with code 1** and log "ERROR: Checksum mismatch for reanalysis.nc" to stderr. **Depends on T011a**.
+- [ ] T011a_verify [US1] Verify and checksum `data/raw/copernicus_global_reanalysis.nc` using `code/05_versioning_state.py`. Update `state/projects/PROJ-021-understanding-oceanic-phytoplankton-comm.yaml` with hash. **FAIL LOUDLY** if fetch failed or checksum mismatch (NO synthetic fallback). **Exit with code 1** and log "ERROR: Checksum mismatch for reanalysis.nc" to stderr. **Depends on T011a**. <!-- FAILED-IN-EXECUTION: tests/test_versioning_verify.py exit=1 -->
 - [~] T011b [US1] Fetch MODIS Aqua/Terra ocean color data from verified source `nasa/modis-aqua-l3-v6` (HuggingFace ID) to `data/raw/modis.nc`. **Depends on T005**.
 - [~] T011b_verify [US1] Verify and checksum `data/raw/modis.nc`. Update state YAML. **FAIL LOUDLY** if fetch failed or checksum mismatch. **Exit with code 1** and log "ERROR: Checksum mismatch for modis.nc" to stderr. **Depends on T011b**.
 - [~] T011c [US1] Fetch SeaBASS in-situ data (Chl-a, SST, Salinity) from verified source `noaa/seabass` (HuggingFace ID, public access, no API key required) to `data/raw/seabass.csv`. **Depends on T005**.

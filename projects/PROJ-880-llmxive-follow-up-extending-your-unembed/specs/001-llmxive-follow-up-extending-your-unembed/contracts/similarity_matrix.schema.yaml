@@ -1,11 +1,11 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Similarity Matrix Schema
+title: "Similarity Matrix Schema"
 type: object
 required:
-  - model_pairs
-  - similarity_scores
-  - bootstrap_ci
-  - generated_at
+  - "model_pairs"
+  - "similarity_scores"
+  - "bootstrap_ci"
+  - "generated_at"
 properties:
   model_pairs:
     type: array

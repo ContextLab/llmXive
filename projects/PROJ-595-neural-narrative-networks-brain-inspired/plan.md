@@ -10,9 +10,21 @@ ROCStories corpus to train and validate models that mimic human narrative proces
 The architecture consists of:
 1. A Sparse Autoencoder (SAE) implementing hippocampal pattern separation
 2. A Prefrontal Gating Module distinguishing plot coherence from episodic memory traces
-3. A baseline TinyLSTM model for comparison
+3. A baseline **TinyLSTM (quantized transformer)** for comparison
 
 All models are trained and evaluated on CPU-only hardware with strict memory constraints (<7GB RAM).
+
+## Baseline Definition (FR-004)
+
+The baseline model is a **TinyLSTM (quantized transformer)**. It is a compact
+transformer-style sequence model whose recurrent/sequential core is sized to stay within the
+CPU-only memory budget (≤ 2M trainable parameters), and it is dynamically quantized via
+`torch.quantization.quantize_dynamic` (8-bit weights) so that it runs entirely on CPU within
+the 7GB RAM limit. This baseline provides the comparison point against "standard transformer
+architectures" under constrained memory, as required by FR-004 and the spec's assumption that
+the baseline requires quantization techniques to meet the RAM limit. The implementation lives
+in `code/models/baseline_lstm.py` (task T034), and the model exposes a `quantized` attribute
+that must be `True` after quantization.
 
 ## Technical Context
 
@@ -48,12 +60,12 @@ The gating module distinguishes between:
 ### Pipeline Stages
 
 1. **Data Ingestion**: Download and preprocess fMRI and text data
-2. **Model Training**: Train SAE with sparsity constraints and baseline LSTM
+2. **Model Training**: Train SAE with sparsity constraints and baseline TinyLSTM (quantized transformer)
 3. **Generation**: Produce 1,000+ unique stories from both models
 4. **RSA Analysis**: Compute representational similarity against fMRI data
 5. **Validation**: Permutation testing and schema validation
 
-### File Structure
+## File Structure
 
 ```
 code/
@@ -70,7 +82,7 @@ code/
  ├── models/
  │ ├── sparse_autoencoder.py
  │ ├── gating_module.py
- │ └── baseline.py
+ │ └── baseline.py # TinyLSTM (quantized transformer) baseline
  ├── train_sae.py # Training loop with retry logic
  └── verify_sparsity.py # Sparsity constraint verification
 
@@ -87,17 +99,17 @@ specs/
  └── spec.md
 ```
 
-### Execution Order
+## Execution Order
 
 1. Run `code/00_setup_data_dirs.py` to initialize directories
 2. Run `code/01_data_ingestion.py` to download and preprocess data
 3. Run `code/train_sae.py` to train the sparse autoencoder
 4. Run `code/verify_sparsity.py` to validate sparsity constraints
-5. Run generation scripts to produce stories
+5. Run generation scripts to produce stories (brain-inspired model and TinyLSTM quantized baseline)
 6. Run `code/03_rsa_analysis.py` for representational similarity analysis
 7. Run `code/06_update_checksums.py` to finalize state
 
-### Dependencies
+## Dependencies
 
 See `code/requirements.txt` for pinned versions. Key packages:
 - torch (CPU-only)
@@ -106,7 +118,7 @@ See `code/requirements.txt` for pinned versions. Key packages:
 - sentence-transformers (semantic alignment)
 - scikit-learn, numpy, pandas
 
-### Verification
+## Verification
 
-All outputs are validated against schemas in `specs/001-neural-narrative-networks/contracts/`.
+All outputs are validated against schemas in `specs/001-neural-narrative-networks-brain-inspired/contracts/`.
 Checksums are computed and stored in `state/checksums.json` after each major stage.

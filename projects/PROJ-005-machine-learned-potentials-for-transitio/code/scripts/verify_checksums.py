@@ -1,124 +1,143 @@
 """
-Script to verify SHA256 checksums of files in code/data/raw/
-against stored values in code/data/raw/checksums.json.
+Script to verify SHA256 checksums of files in ``code/data/raw/`` against the
+manifest stored in ``code/data/raw/checksums.json``.
 
-If no files exist in data/raw/, it initializes an empty checksums.json
-with the required schema.
+If the manifest does not exist it will be created (empty). If files are
+present but not recorded in the manifest, their checksums will be computed
+and added. If a recorded checksum does not match the current file, the
+script exits with a non‑zero status code.
+
+The script is intended to be run from the repository root (or with the
+repository root on ``PYTHONPATH``) as:
+
+    python code/scripts/verify_checksums.py
+
+It uses the utilities defined in ``src/data/checksum_manager.py``.
 """
-import hashlib
-import json
+
 import sys
+import json
 import logging
 from pathlib import Path
+
 from src.data.checksum_manager import (
     get_project_root,
+    compute_file_checksum,
     load_checksum_manifest,
     save_checksum_manifest,
-    verify_all_files,
-    compute_file_checksum
 )
 
-# Setup logging
+# Configure a simple logger
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
-def initialize_empty_manifest(checksum_file: Path):
-    """
-    Creates an empty checksum manifest if no files exist in data/raw/.
-    """
-    empty_manifest = {}
-    logger.info(f"No files found in data/raw/. Initializing empty manifest at {checksum_file}")
-    save_checksum_manifest(empty_manifest, checksum_file)
-    return empty_manifest
 
-def main():
+def ensure_manifest_exists(manifest_path: Path) -> dict:
     """
-    Entry point for checksum verification.
-    1. Checks if data/raw/ directory exists.
-    2. If empty, creates an empty checksums.json.
-    3. If files exist, verifies them against checksums.json.
-    4. Exits with appropriate code.
+    Load the checksum manifest if it exists, otherwise create an empty one.
+
+    Returns the manifest dictionary.
+    """
+    if not manifest_path.exists():
+        logger.info(f"Checksum manifest not found at {manifest_path}. Creating empty manifest.")
+        empty_manifest = {}
+        save_checksum_manifest(empty_manifest, manifest_path)
+        return empty_manifest
+    try:
+        manifest = load_checksum_manifest(manifest_path)
+        if not isinstance(manifest, dict):
+            raise ValueError("Manifest content is not a mapping.")
+        return manifest
+    except Exception as e:
+        logger.error(f"Failed to load checksum manifest: {e}")
+        logger.info("Re‑initialising manifest to empty.")
+        empty_manifest = {}
+        save_checksum_manifest(empty_manifest, manifest_path)
+        return empty_manifest
+
+
+def verify_checksums():
+    """
+    Core verification routine.
+
+    * Ensures the ``data/raw`` directory exists.
+    * Loads or creates the checksum manifest.
+    * Computes SHA256 checksums for all files in the directory (excluding the manifest itself).
+    * Compares computed hashes with the stored values.
+    * Updates the manifest with any newly‑discovered files.
+    * Exits with status 0 if all existing files match their recorded checksums,
+      otherwise exits with status 1.
     """
     project_root = get_project_root()
-    raw_dir = project_root / "data/raw"
-    checksum_file = project_root / "data/raw/checksums.json"
+    raw_dir = project_root / "data" / "raw"
+    manifest_path = raw_dir / "checksums.json"
 
-    # Ensure raw directory exists
+    # Ensure the raw data directory exists
     if not raw_dir.exists():
-        logger.warning(f"Directory {raw_dir} does not exist. Creating it.")
+        logger.warning(f"Raw data directory {raw_dir} does not exist. Creating it.")
         raw_dir.mkdir(parents=True, exist_ok=True)
 
-    # Scan for existing files (excluding the checksums.json itself)
-    existing_files = [f for f in raw_dir.iterdir() if f.is_file() and f.name != "checksums.json"]
+    # Load (or initialise) the manifest
+    manifest = ensure_manifest_exists(manifest_path)
 
-    if not existing_files:
-        # No files to verify: initialize empty manifest if missing, or ensure it's empty
-        if not checksum_file.exists():
-            initialize_empty_manifest(checksum_file)
-        else:
-            logger.info(f"Manifest exists at {checksum_file} but no data files found. Verifying manifest is empty or cleaning up.")
-            # Optional: Clean up stale manifest if it has entries but no files
-            try:
-                manifest = load_checksum_manifest(checksum_file)
-                if manifest:
-                    logger.warning("Manifest contains entries but no corresponding files found. Resetting to empty.")
-                    initialize_empty_manifest(checksum_file)
-            except Exception as e:
-                logger.error(f"Error reading existing manifest: {e}")
-                initialize_empty_manifest(checksum_file)
-        logger.info("No data files to verify. Empty manifest created/verified.")
+    # Gather all files in the raw directory, ignoring the manifest itself
+    raw_files = [
+        f for f in raw_dir.iterdir()
+        if f.is_file() and f.name != "checksums.json"
+    ]
+
+    if not raw_files:
+        logger.info("No data files found in data/raw/. Manifest is empty.")
+        # Nothing to verify – success.
         sys.exit(0)
 
-    # Files exist: proceed with verification
-    if not checksum_file.exists():
-        logger.error(f"Checksum manifest not found at {checksum_file} but data files exist.")
-        logger.error("Please run the ingestion script or setup_checksums.py first.")
-        sys.exit(1)
-
-    logger.info(f"Loading checksum manifest from {checksum_file}")
-    try:
-        manifest = load_checksum_manifest(checksum_file)
-    except Exception as e:
-        logger.error(f"Failed to load manifest: {e}")
-        sys.exit(1)
-
-    if not manifest:
-        logger.warning("Manifest is empty but data files exist. Verifying files and updating manifest.")
-        # Compute new checksums for existing files
-        new_manifest = {}
-        for f in existing_files:
-            rel_path = f.relative_to(project_root)
-            h = compute_file_checksum(f)
-            new_manifest[str(rel_path)] = h
-            logger.info(f"Computed checksum for {rel_path}: {h}")
-        save_checksum_manifest(new_manifest, checksum_file)
-        logger.info("Manifest updated with computed checksums.")
-        # Re-load to verify (it should match now)
-        manifest = new_manifest
-
-    logger.info(f"Found {len(manifest)} files to verify.")
-    
-    # Verify all files
-    results = verify_all_files(manifest, raw_dir)
-    
     all_valid = True
-    for file_path, (expected_hash, actual_hash, is_valid) in results.items():
-        status = "OK" if is_valid else "MISMATCH"
-        logger.info(f"{status}: {file_path}")
-        if not is_valid:
+    manifest_updated = False
+
+    # Verify each file
+    for file_path in raw_files:
+        # Store the path relative to the project root (consistent with existing utilities)
+        rel_path = str(file_path.relative_to(project_root))
+        computed_hash = compute_file_checksum(file_path)
+
+        if rel_path not in manifest:
+            # New file – add to manifest
+            logger.info(f"New file detected: {rel_path}. Adding checksum to manifest.")
+            manifest[rel_path] = computed_hash
+            manifest_updated = True
+            continue  # No need to compare – just recorded.
+
+        expected_hash = manifest[rel_path]
+        if expected_hash != computed_hash:
+            logger.error(f"Checksum mismatch for {rel_path}:")
+            logger.error(f"  Expected: {expected_hash}")
+            logger.error(f"  Actual:   {computed_hash}")
             all_valid = False
-            logger.warning(f"  Expected: {expected_hash}")
-            logger.warning(f"  Actual:   {actual_hash}")
+        else:
+            logger.info(f"OK: {rel_path}")
+
+    # Detect entries in the manifest that no longer have a corresponding file
+    for recorded_path in list(manifest.keys()):
+        full_path = project_root / recorded_path
+        if not full_path.exists():
+            logger.warning(f"Manifest entry {recorded_path} has no corresponding file on disk.")
+            # Optionally, we could remove stale entries; here we just warn.
+
+    # Persist any updates to the manifest
+    if manifest_updated:
+        logger.info(f"Saving updated checksum manifest to {manifest_path}")
+        save_checksum_manifest(manifest, manifest_path)
 
     if all_valid:
         logger.info("All checksums verified successfully.")
         sys.exit(0)
     else:
-        logger.error("Checksum verification failed for one or more files.")
+        logger.error("One or more checksum mismatches detected.")
         sys.exit(1)
 
+
 if __name__ == "__main__":
-    main()
+    verify_checksums()

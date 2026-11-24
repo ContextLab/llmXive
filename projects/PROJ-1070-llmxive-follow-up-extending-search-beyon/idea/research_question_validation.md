@@ -4,31 +4,28 @@
 
 **Verdict**: pass
 
-The question investigates the intrinsic relationship between specific query properties (temporal distance, entity rarity, semantic entropy) and the theoretical "knowledge boundary" of agentic models. While the motivation discusses lightweight implementation, the core question asks *which* properties determine the boundary, not *how well* a specific model architecture performs a task, making it a substantive inquiry into model behavior rather than a benchmark evaluation.
+The question asks about an empirical relationship — which intrinsic query properties predict the need for external knowledge in visual generation, and whether that predictive signal is distinct from internal model uncertainty. The methodology (logistic regression, random forests, specific features) serves the question rather than being the question. The expected AUC > 0.85 is a success criterion, not the research question itself.
 
 ### Circularity check
 
 **Verdict**: concern
 
-The predictor (semantic entropy) is computed by running a pre-trained BERT model on the query, while the predicted variable (search necessity) is derived from the ground-truth decisions of the original co-training framework on the same query. There is a risk that the "semantic entropy" feature captures the same uncertainty signal that the original framework used to trigger search, potentially making the prediction a mechanical reflection of the original heuristic rather than a discovery of new structural properties.
+The predictor features (temporal distance, entity rarity, semantic variance) are computed from the query and external corpora, while the predicted variable is the binary "search required" label from the `SearchGen-20K` dataset. However, the control condition — internal uncertainty signals from the base model — and the ground-truth labels (derived from the co-training outcomes of that same model family) share a common source: the base model's behavior on these prompts. If the labels were themselves defined by the model's internal confidence during co-training, then showing that query features are "distinct from internal uncertainty" partially conflates measurement with ground truth. The design's correlation analysis is a reasonable mitigation, but the concern is genuine and should be addressed by clarifying how the labels were constructed relative to internal signals.
 
 ### Triviality check
 
 **Verdict**: pass
 
-A positive result would be significant by proving that static heuristics can replace expensive co-training loops for edge deployment, while a null result would be equally informative by suggesting that the knowledge boundary is too complex to be captured by simple query statistics, thus necessitating the heavy co-training approach. Neither outcome is predetermined by current domain knowledge.
+Both outcomes are informative. A positive result (static query features predict search necessity, uncorrelated with internal uncertainty) demonstrates that knowledge boundaries are query-intrinsic rather than model-reflective, enabling lightweight retrieval triggering. A null result (query features fail, or merely proxy internal uncertainty) would argue that knowledge boundaries are model-relative and cannot be captured without internal signals — a meaningful negative finding against the proposed efficiency argument.
 
 ### Question-narrowing check
 
 **Verdict**: pass
 
-The question explicitly names a relationship in the domain (the correlation between query features and knowledge boundary position) rather than focusing on implementation constraints like GPU memory or inference latency. It asks "what determines" the phenomenon, which is a valid scientific inquiry.
+The question names domain relationships (query property → search necessity; query features vs. internal uncertainty as constructs), not implementation constraints. Edge-deployment and CPU-tractability appear only in motivation and expected results, not in the question itself.
 
 ### Overall verdict
 
-**Verdict**: validator_revise
+**Verdict**: validated
 
-[REVISED]
-Which intrinsic query properties (temporal distance, entity rarity, and semantic variance) predict the necessity for external search in agentic visual generation, and can these properties be distinguished from the internal uncertainty signals of the base model itself?
-[/REVISED]
-The original question risks circularity because "semantic entropy" might simply be a proxy for the same uncertainty metric the original framework uses to decide on search; the revised question explicitly demands that the new predictors be distinguishable from the base model's internal signals to ensure the finding is non-trivial and not a restatement of the original heuristic.
+All substantive checks pass. The circularity concern is confined to the control-condition comparison rather than the core predictive relationship, and the methodology already includes a correlation analysis to address it; a minor clarification of how the SearchGen-20K labels were derived relative to model-internal signals would fully resolve it without reframing the question.

@@ -1,112 +1,111 @@
+"""
+Utility functions for the project.
+
+This module provides minimal logging utilities required by the pipeline
+without pulling in heavy dependencies (e.g., pyarrow) that caused import
+conflicts in earlier runs.
+"""
+
 import logging
-import sys
-import os
-import hashlib
-import yaml
-import pyarrow.parquet as pq
-import pandas as pd
 from pathlib import Path
-from typing import Optional, Dict, Any
+from llmxive_toolkit import get_logger as llm_get_logger
 
-from config import get_project_root
+# ----------------------------------------------------------------------
+# Logging helpers
+# ----------------------------------------------------------------------
+def setup_logging(level: int = logging.INFO) -> None:
+    """
+    Configure a basic root logger. This is called at the start of the
+    pipeline (e.g., in ``code/main.py``) to ensure that log messages are
+    emitted to stdout.
 
-logger = logging.getLogger(__name__)
-
-def setup_logging(log_level: int = logging.INFO) -> None:
-    """Configure root logger."""
+    Args:
+        level: Logging level for the root logger (default: INFO).
+    """
     logging.basicConfig(
-        level=log_level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        level=level,
+        format="%(asctime)s %(levelname)s %(name)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
 def get_logger(name: str) -> logging.Logger:
-    """Get a logger with the specified name."""
-    return logging.getLogger(name)
-
-def write_parquet(df: pd.DataFrame, output_path: str) -> None:
     """
-    Write a pandas DataFrame to a Parquet file.
+    Return a logger instance. Internally we delegate to the
+    ``llmxive_toolkit.get_logger`` implementation so that log files are
+    created in the standard ``logs/`` directory if the toolkit is
+    configured to do so.
 
     Args:
-        df: The DataFrame to write.
-        output_path: The full path to the output .parquet file.
-    """
-    root = get_project_root()
-    full_path = root / output_path
-    full_path.parent.mkdir(parents=True, exist_ok=True)
-
-    try:
-        df.to_parquet(full_path, index=False, engine='pyarrow')
-        logger.info(f"Successfully wrote parquet file to {full_path}")
-    except Exception as e:
-        logger.error(f"Failed to write parquet file to {full_path}: {e}")
-        raise
-
-def compute_sha256(file_path: str) -> str:
-    """
-    Compute the SHA-256 checksum of a file.
-
-    Args:
-        file_path: The full path to the file.
+        name: Name of the logger (typically ``__name__``).
 
     Returns:
-        The hexadecimal SHA-256 hash string.
+        A configured ``logging.Logger`` instance.
     """
-    root = get_project_root()
-    full_path = root / file_path
+    return llm_get_logger(name)
 
-    if not full_path.exists():
-        raise FileNotFoundError(f"File not found for checksum: {full_path}")
-
-    sha256_hash = hashlib.sha256()
-    try:
-        with open(full_path, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(chunk)
-        return sha256_hash.hexdigest()
-    except Exception as e:
-        logger.error(f"Failed to compute checksum for {full_path}: {e}")
-        raise
-
-def update_state_yaml(file_path: str, checksum: str, metadata: Optional[Dict[str, Any]] = None) -> None:
+# ----------------------------------------------------------------------
+# Placeholder helpers used by other modules (no‑op implementations)
+# ----------------------------------------------------------------------
+def write_parquet(df, path: Path) -> None:
     """
-    Update the state.yaml file with a new file entry.
+    Write a DataFrame to Parquet. This thin wrapper isolates the
+    ``pandas`` call and keeps the signature stable for modules that
+    expect it.
 
     Args:
-        file_path: Relative path to the file being tracked.
-        checksum: The SHA-256 checksum of the file.
-        metadata: Optional dictionary of additional metadata (e.g., timestamp, task_id).
+        df: pandas.DataFrame to write.
+        path: Destination pathlib.Path (the parent directory is created
+              automatically).
     """
-    root = get_project_root()
-    state_path = root / "state.yaml"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(path, index=False)
 
-    # Load existing state or initialize
+def compute_sha256(path: Path) -> str:
+    """
+    Compute the SHA‑256 checksum of a file.
+
+    Args:
+        path: Path to the file.
+
+    Returns:
+        Hex‑encoded SHA‑256 digest.
+    """
+    import hashlib
+
+    sha256 = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
+
+def update_state_yaml(file_path: Path, checksum: str) -> None:
+    """
+    Update ``state.yaml`` with a new artifact entry.  The function is a
+    very small wrapper around the project's ``state_manager`` utilities
+    (which are not required for the thin pipeline).  If the state file
+    does not exist it is created.
+
+    Args:
+        file_path: Path to the artifact that was just written.
+        checksum: SHA‑256 checksum of the artifact.
+    """
+    import yaml
+    from datetime import datetime
+
+    state_path = Path(__file__).parents[2] / "state.yaml"
+    state = {}
     if state_path.exists():
-        with open(state_path, 'r') as f:
-            try:
-                state = yaml.safe_load(f) or {}
-            except yaml.YAMLError as e:
-                logger.warning(f"Could not parse state.yaml: {e}. Starting fresh.")
-                state = {}
-    else:
-        state = {}
+        with state_path.open("r") as f:
+            state = yaml.safe_load(f) or {}
 
-    # Ensure 'files' key exists
-    if 'files' not in state:
-        state['files'] = {}
-
-    # Update entry
-    entry = {
-        'checksum': checksum,
-        'path': file_path
+    artifact_entry = {
+        "path": str(file_path.relative_to(state_path.parent)),
+        "checksum": checksum,
+        "updated_at": datetime.utcnow().isoformat() + "Z",
     }
-    if metadata:
-        entry.update(metadata)
 
-    state['files'][file_path] = entry
+    state.setdefault("artifact_hashes", {})
+    state["artifact_hashes"][artifact_entry["path"]] = artifact_entry
 
-    # Write back
-    with open(state_path, 'w') as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
-
-    logger.info(f"Updated state.yaml with entry for {file_path}")
+    with state_path.open("w") as f:
+        yaml.safe_dump(state, f)

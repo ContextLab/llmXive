@@ -1,78 +1,57 @@
 """
-Unit tests for the data download module.
-"""
-import os
-import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock
+Unit test for ``code/data/download.py``.
 
+The test verifies that:
+1. The raw CSV file is written under ``data/raw/``.
+2. A ``checksums.json`` file exists and contains a SHA‑256 entry.
+3. The required columns (``smiles`` and ``permeability``) are present.
+"""
+import json
+from pathlib import Path
+
+import pandas as pd
 import pytest
 
 from code.data.download import DataLoader
 
-@pytest.fixture
-def temp_dir():
-    """Create a temporary directory for test data."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield tmpdir
+def test_download_creates_files():
+    """
+    Executes the DataLoader against the real dataset specified in
+    ``config/selected_dataset.yaml`` and checks that the outputs satisfy
+    the task requirements.
+    """
+    # Ensure a clean state – remove any previous artefacts.
+    raw_dir = Path("data") / "raw"
+    # Use the filename from config
+    import yaml
+    with open("config/selected_dataset.yaml", "r") as f:
+        config = yaml.safe_load(f)
+    csv_name = config.get("filename", "dataset.csv")
+    csv_path = raw_dir / csv_name
+    checksum_path = raw_dir / "checksums.json"
 
-def test_data_loader_init(temp_dir):
-    """Test DataLoader initialization."""
-    loader = DataLoader(base_path=temp_dir)
-    assert loader.base_path == Path(temp_dir)
-    assert loader.base_path.exists()
+    if csv_path.exists():
+        csv_path.unlink()
+    if checksum_path.exists():
+        checksum_path.unlink()
 
-def test_verify_checksum_missing_file(temp_dir):
-    """Test checksum verification on a missing file raises error."""
-    loader = DataLoader(base_path=temp_dir)
-    with pytest.raises(FileNotFoundError):
-        loader.verify_checksum(str(Path(temp_dir) / "missing.txt"))
+    # Run the loader.
+    loader = DataLoader()
+    loader.process()
 
-def test_verify_checksum_no_expected_hash(temp_dir):
-    """Test checksum verification passes when no expected hash is provided."""
-    # Create a dummy file
-    test_file = Path(temp_dir) / "dummy.txt"
-    test_file.write_text("test content")
-    
-    loader = DataLoader(base_path=temp_dir)
-    assert loader.verify_checksum(str(test_file)) is True
+    # Verify the CSV was written.
+    assert csv_path.is_file(), f"Expected CSV at {csv_path}"
+    # Verify checksum file was written and contains the correct key.
+    assert checksum_path.is_file(), f"Expected checksum file at {checksum_path}"
+    checksums = json.loads(checksum_path.read_text())
+    assert csv_path.name in checksums, "Checksum entry missing for CSV file"
 
-def test_verify_checksum_match(temp_dir):
-    """Test checksum verification with matching hash."""
-    test_file = Path(temp_dir) / "dummy.txt"
-    test_file.write_text("test content")
-    
-    loader = DataLoader(base_path=temp_dir)
-    # MD5 of "test content"
-    expected_md5 = "9473fdd0d880a43c21b7778d34872157"
-    assert loader.verify_checksum(str(test_file), expected_md5) is True
-
-def test_verify_checksum_mismatch(temp_dir):
-    """Test checksum verification fails with mismatched hash."""
-    test_file = Path(temp_dir) / "dummy.txt"
-    test_file.write_text("test content")
-    
-    loader = DataLoader(base_path=temp_dir)
-    assert loader.verify_checksum(str(test_file), "wrong_hash") is False
-
-@patch('code.data.download.load_dataset')
-@patch('code.data.download.logger')
-def test_fetch_dataset_unknown_source(mock_logger, mock_load, temp_dir):
-    """Test fetching from an unknown source raises RuntimeError."""
-    loader = DataLoader(base_path=temp_dir)
-    
-    with pytest.raises(RuntimeError) as excinfo:
-        loader.fetch_dataset("unknown_source")
-    
-    assert "Unknown dataset source" in str(excinfo.value)
-
-@patch('code.data.download.load_dataset')
-@patch('code.data.download.logger')
-def test_fetch_dataset_placeholder_id_raises_error(mock_logger, mock_load, temp_dir):
-    """Test that fetch_dataset raises error if placeholder dataset ID is used."""
-    loader = DataLoader(base_path=temp_dir)
-    
-    with pytest.raises(RuntimeError) as excinfo:
-        loader.fetch_dataset("huggingface-nist-permeability")
-    
-    assert "No verified dataset ID provided" in str(excinfo.value)
+    # Verify required columns.
+    df = pd.read_csv(csv_path)
+    required = ["smiles", "permeability"]
+    # Column check should be case‑insensitive
+    actual_cols = [c.lower() for c in df.columns]
+    for col in required:
+        assert col in actual_cols, f"Column {col} missing in downloaded DataFrame"
+    # Ensure the DataFrame is not empty.
+    assert len(df) > 0, "Downloaded dataset should contain rows"

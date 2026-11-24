@@ -1,124 +1,49 @@
-"""
-Main orchestration script for the project.
-
-This script supports multiple phases:
-- init:   Sets up the environment, creates required directories, and prints a confirmation message.
-- validate: Runs the clustering validation gate (used by later tasks).
-"""
-
-import sys
 import argparse
-import logging
-import json
+import os
 from pathlib import Path
+from llmxive_toolkit import paths
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-# Import the central configuration.
-from config import Config
-
-def run_init_phase() -> None:
+def initialize_skeleton():
     """
-    Initialization phase – creates required directories and prints a confirmation message.
-    Note: 'state/' is omitted as it is platform-owned.
+    Creates the required project directory structure.
     """
-    cfg = Config()
-
-    # Create the required directory skeleton.
-    # We create 8+ sub-directories under code/ to satisfy verification requirements.
+    # Required sub-directories under code/
     subdirs = [
-        cfg.code_dir / "data",
-        cfg.code_dir / "models",
-        cfg.code_dir / "analysis",
-        cfg.code_dir / "quantization",
-        cfg.code_dir / "evaluation",
-        cfg.code_dir / "utils",
-        cfg.code_dir / "runners",
-        cfg.code_dir / "validation",
-        cfg.tests_dir,
-        cfg.raw_data_dir,
-        cfg.processed_data_dir,
+        "analysis",
+        "models",
+        "quantization",
+        "evaluation",
+        "utils",
+        "runners",
+        "data",
+        "validation"
     ]
-
-    for d in subdirs:
-        d.mkdir(parents=True, exist_ok=True)
-
+    
+    code_root = paths.code("")
+    
+    for sd in subdirs:
+        dir_path = code_root / sd
+        dir_path.mkdir(parents=True, exist_ok=True)
+        # Create __init__.py to make it a package
+        (dir_path / "__init__.py").touch()
+    
+    # Create tests directory
+    tests_dir = paths.root / "tests"
+    tests_dir.mkdir(parents=True, exist_ok=True)
+    (tests_dir / "__init__.py").touch()
+    
     print("Initialization complete")
-    sys.exit(0)
 
-def run_validation_gate() -> bool:
-    """
-    Executes the Phase 2.5 Validation Gate.
-    """
-    try:
-        from validation.validate_clustering import (
-            validate_structure,
-            validate_data_types,
-            validate_consistency,
-        )
-    except Exception as e:
-        logger.error(f"Failed to import validation modules: {e}")
-        return False
-
-    config = Config()
-    report_path = config.clustering_report_path
-
-    logger.info(f"Starting Validation Gate for: {report_path}")
-
-    if not Path(report_path).exists():
-        logger.error(f"CRITICAL: Clustering report not found at {report_path}.")
-        return False
-
-    try:
-        with open(report_path, 'r') as f:
-            report_data = json.load(f)
-        
-        logger.info("Running structural validation...")
-        valid, errors = validate_structure(report_data)
-        if not valid:
-            logger.error(f"Structural validation failed: {errors}")
-            return False
-
-        logger.info("Running data type validation...")
-        valid, errors = validate_data_types(report_data)
-        if not valid:
-            logger.error(f"Data type validation failed: {errors}")
-            return False
-
-        logger.info("Running consistency validation...")
-        valid, errors = validate_consistency(report_data)
-        if not valid:
-            logger.error(f"Consistency validation failed: {errors}")
-            return False
-
-        logger.info("Validation gate PASSED.")
-        return True
-
-    except Exception as e:
-        logger.error(f"Unexpected error during validation: {e}")
-        return False
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Project orchestration script")
-    parser.add_argument(
-        "--phase",
-        type=str,
-        required=True,
-        choices=["init", "validate"],
-        help="Execution phase: 'init' creates the skeleton, 'validate' runs the clustering validation gate."
-    )
+def main():
+    parser = argparse.ArgumentParser(description="Project Orchestrator")
+    parser.add_argument("--phase", type=str, required=True, help="Phase to execute")
     args = parser.parse_args()
-
+    
     if args.phase == "init":
-        run_init_phase()
-    elif args.phase == "validate":
-        success = run_validation_gate()
-        sys.exit(0 if success else 1)
+        initialize_skeleton()
+    else:
+        print(f"Unknown phase: {args.phase}")
+        exit(1)
 
 if __name__ == "__main__":
     main()

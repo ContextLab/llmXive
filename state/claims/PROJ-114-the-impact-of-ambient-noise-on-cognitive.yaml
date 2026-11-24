@@ -827,3 +827,22 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-13T07:19:14Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/README.md
+  attempts: 1
+  canonical: moderate ambient noise enhances cognitive flexibility compared to low
+    (<45dB) or high (>65dB) noise
+  claim_id: c_a80e2583
+  context: 'This project implements a computational pipeline to test the ''coffee
+    shop effect'' hypothesis: that moderate ambient noise levels enhance cognitive
+    flexibility in remote workers compared to low (<45dB) or high (>65dB) noise levels.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: moderate ambient noise levels enhance cognitive flexibility in remote
+    workers compared to low (<45dB) or high (>65dB) noise levels
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T15:33:35Z'

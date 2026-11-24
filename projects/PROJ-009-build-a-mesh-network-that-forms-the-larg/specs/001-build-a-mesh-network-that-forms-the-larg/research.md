@@ -1,77 +1,101 @@
 # Research: Mesh Network Supercomputer Using Pooled Idle Computing Resources
 
 ## 1. Research Question & Hypotheses
+**Primary Question**  
+What is the non‑linear relationship between task granularity, resource heterogeneity, and injected network latency in a physical Wi‑Fi mesh supercomputer, and how does the observed throughput scaling compare to the theoretical wireless capacity bound of Ong & Motani (2007)?
 
-**Primary Question**: What is the non-linear relationship between task granularity, resource heterogeneity, and network conditions in a physical mesh network supercomputer, and how does the observed scaling law compare to the theoretical capacity bounds of Ong & Motani (2007)?
-
-**Hypotheses**:
-- **H1**: Throughput scaling is non-linear; there exists an optimal task granularity that minimizes coordination overhead while maximizing parallelism gains.
-- **H2**: Resource heterogeneity (continuous variance in CPU speed and latency) significantly interacts with task granularity to affect throughput, with coarse granularity amplifying the straggler effect.
-- **H3**: Empirical efficiency (Normalized Throughput) will remain below the theoretical capacity bound derived from Ong & Motani (2007) parameterized by baseline channel capacity, with deviation increasing under high network impairment.
+**Hypotheses**  
+- **H1**: Throughput vs. granularity follows a non‑linear curve with an optimal “sweet spot” where coordination overhead is minimized.  
+- **H2**: Heterogeneity (CPU speed variance, latency variance) *associatively* interacts with granularity, amplifying straggler effects for coarse chunks.  
+- **H3**: Empirical normalized efficiency never exceeds the Ong & Motani (2007) bound; any violation indicates a measurement error.
 
 ## 2. Dataset Strategy
+The study **generates its own dataset**; no external dataset download is required.
 
-**Data Source**: Physical testbed execution logs (self-generated via orchestrated benchmark runs).  
-**No external datasets required** for the core analysis; the study generates its own data from the physical mesh.  
-**Verified datasets**: None applicable (study is self-contained).  
+| Dataset | Source | Access Method | Variables Captured |
+|---------|--------|---------------|--------------------|
+| Physical Execution Logs | Local testbed (on the order of tens of devices) | SSH‑driven instrumentation (`tcpdump`, `mpstat`) | `node_id`, `wall_clock_time`, `cpu_utilization_pct`, `packet_count`, `task_id`, `granularity`, `injected_latency`, `current_latency`, `packet_loss_rate` |
+| Baseline Channel Metrics | Pre‑run `iperf3` / `iwconfig` on each node | CLI on each node | `baseline_bandwidth_Mbps`, `baseline_snr_db` |
+| Runtime Channel Metrics | Continuous monitoring (`tcpdump`, `iwconfig`) | Same as above | `runtime_bandwidth_Mbps`, `runtime_snr_db` |
+| Calibration Data | Synthetic runs on mock nodes | Internal scripts (`calibrate_network.py`, `calibrate_cpu.py`) | Conversion factors for packet counts → throughput, mpstat % → CPU load |
+| Theoretical Bound Parameters | Ong & Motani (2007) formula | Parameterized with measured bandwidth & SNR | `bandwidth_Mbps`, `snr_db`, `node_count` |
 
-| Dataset Type | Source | Access Method | Variables Captured |
-|--------------|--------|---------------|---------------------|
-| Physical Execution Logs | Local testbed (10–20 nodes) | SSH instrumentation (`tcpdump`, `mpstat`) | `node_id`, `wall_clock_time`, `cpu_utilization_pct`, `packet_count`, `task_id`, `granularity`, `injected_latency` |
-| Baseline Channel Metrics | Local testbed (Pre-run) | `iperf`, `ping` (before load) | `baseline_bandwidth_Mbps`, `baseline_snr_db` |
-| Runtime Channel Metrics | Local testbed (During run) | `tcpdump`, `iwconfig` | `runtime_bandwidth_Mbps`, `runtime_snr_db` |
-| Theoretical Bound Parameters | Ong & Motani (2007) | Primary source citation | `bandwidth_Mbps` (baseline), `snr_db` (baseline), `node_count` |
-
-**Dataset-Variable Fit**: All required predictors (CPU variance, latency, packet loss, granularity) and outcomes (Normalized Efficiency) are captured. Missing variables (e.g., thermal throttling) are acknowledged as confounders but implicitly captured in `actual_duration`.
+*Dataset‑Variable Fit*: All predictors required by the regression (CPU variance, latency variance, injected latency, node count, granularity) and the outcome (throughput) are present. Optional covariates (CPU temperature, OS noise, Wi‑Fi interference) are also captured when available.
 
 ## 3. Statistical Analysis Plan
+### 3.1 Modeling
+- **Baseline OLS** (`statsmodels.api.OLS`)  
+  - **Outcome**: `throughput` (tasks / sec)  
+  - **Predictors**: `node_count`, `granularity` (categorical), `injected_latency`, `cpu_variance`, `latency_variance`, plus interaction terms `granularity:cpu_variance` and `granularity:latency_variance`.  
+- **Mixed‑effects extension** (`statsmodels.regression.mixed_linear_model.MixedLM`) adds a random intercept for `node_id` to account for within‑node correlation (observational heterogeneity).  
+- **Non‑Linear Extensions** (selected by AIC/BIC)  
+  - **Polynomial**: quadratic terms for `granularity` (encoded numerically) and `injected_latency`.  
+  - **GAM**: if `pygam` is installed, fit spline bases for continuous predictors.  
+- **Model Selection**: lowest AIC/BIC retains the final model.  
+- **ANOVA** (`statsmodels.stats.anova.anova_lm`) on the selected model to test overall granularity effect.  
+- **Multiple‑Comparison Correction**: Benjamini‑Hochberg FDR applied to all p‑values (`statsmodels.stats.multitest.multipletests`).  
+- **Collinearity Check**: VIF computed for continuous predictors; any VIF > 5 reported and the corresponding coefficient is not claimed as an independent effect.
 
-**Methodology**:
-- **Generalized Additive Models (GAMs)**: Model **Normalized Efficiency** (Throughput / Baseline Theoretical Max) as a function of continuous heterogeneity metrics and categorical granularity.
-  - **Equation**: `Efficiency ~ s(cpu_variance) + s(latency_variance) + s(injected_latency) + granularity_factor + s(cpu_variance):s(latency_variance)`
-  - **Non-Linearity**: Smooth terms `s()` are applied **only** to continuous variables (CPU variance, latency) to detect non-linear effects and inflection points.
-  - **Granularity Handling**: `granularity` is treated as a categorical factor. The "sweet spot" is identified via **post-hoc pairwise comparisons** (Tukey HSD) of the factor levels, not by fitting a smooth curve to the discrete levels.
-  - **Correction**: **Benjamini-Hochberg (False Discovery Rate)** correction applied to the p-values of the interaction terms and smooth terms to control for multiple comparisons within the single model.
- - **Power Justification**: Target **82 independent runs** (2 replicates per 36 unique configurations + 10 stress-test runs). Based on a simulated power analysis assuming a medium effect size (f²=0.15), alpha=0.05, and power=0.80. This sample size is sufficient to detect interaction effects and fits within the CI limit (optimized benchmark duration [deferred]/run).
-  - **Causal Framing**: Experimental factor (injected latency) treated as causal; observational covariate (heterogeneity metrics) treated as associational.
-- **ANOVA**: Test for significant differences in Normalized Efficiency across granularity settings (fine/medium/coarse).
-  - **Threshold**: p < 0.05 for statistical significance.
-- **Theoretical Validation**: Compare empirical **Normalized Efficiency** curve to Ong & Motani (2007) bound parameterized with **baseline** bandwidth and SNR (measured before load).
-  - **Metric**: Deviation ratio (Empirical Efficiency / Theoretical Max). Flag if empirical exceeds theoretical (indicates measurement error).
-  - **Non-Tautological Design**: The outcome (Normalized Efficiency) is a ratio of observed throughput to a **baseline** theoretical maximum. The predictors (heterogeneity metrics) are measured independently of the baseline capacity. This tests whether heterogeneity *degrades* efficiency relative to the channel limit, rather than correlating time components with time components.
+### 3.2 Power & Sample‑Size Justification (updated)
+- Desired **≥ 80 % power**, α = 0.05, medium effect size f² = 0.15 (G*Power convention).  
+- Required **N ≈ 82** independent runs for detecting interaction effects.  
+- **Clustering adjustment**: runs share nodes, inducing intra‑class correlation (ICC ≈ 0.05). Design effect ≈ 1 + (m − 1)·ICC, with *m* ≈ 4 runs per node ⇒ design effect ≈ 1.15. Effective N = total / 1.15.  
+- **Planned design**: 3 granularity × 3 node counts × 4 latency levels × 4 replicates = 144 runs.  
+- **Extra dropout‑recovery runs**: 36 runs (one extra per configuration) → **total 180 runs**. Effective N ≈ 180 / 1.15 ≈ 156 > 82, satisfying the power requirement even after accounting for clustering.  
+- The mixed‑effects model (node random effect) further mitigates residual intra‑node correlation.
 
-**Measurement Validity**:
-- `tcpdump` for packet counts (standard network instrumentation).
-- `mpstat` for CPU utilization (standard system monitoring).
-- Wall-clock time measured via synchronized system clocks (NTP assumed).
-- Baseline bandwidth/SNR measured via `iperf` and `iwconfig` prior to benchmark load to ensure independence from runtime traffic.
+### 3.3 Measurement Validity
+- **Network Calibration**: `iperf3` between a pair of nodes maps `tcpdump` packet counts to known throughput; linear regression is performed and R² ≥ 0.9 is required.  
+- **CPU Utilization Calibration**: `sysbench cpu --threads=1 run` provides known CPU loads; linear regression between `mpstat` % and load is performed; R² ≥ 0.9 required.  
+- **Throughput Derivation**: Primary outcome is computed from *task‑completion timestamps* (wall‑clock time per chunk) rather than raw packet counts alone. Packet‑count data are used only as a secondary consistency check against the calibrated conversion factor.  
+- All calibrations are rerun on each CI execution; failures abort the pipeline with a clear error message.
 
-**Predictor Collinearity**: Acknowledge that CPU variance and latency may be correlated in heterogeneous networks. Variance Inflation Factor (VIF) will be calculated; if VIF > 5, collinearity will be reported and independent effects will not be claimed.
+### 3.4 Causal Framing
+- **Injected latency** = experimental factor (causal manipulation).  
+- **Heterogeneity metrics** = observational covariates; coefficients are interpreted *associationally* (no claim of causality).  
+- The mixed‑effects model isolates the effect of injected latency while controlling for node‑level random effects.
 
-## 4. Compute Feasibility
+### 3.5 Predictor Collinearity
+- VIF computed for each continuous predictor; any VIF > 5 flagged and the corresponding coefficient is not claimed as an independent effect.
 
-**CPU-First Approach**:
-- All statistical analysis (GAMs, ANOVA) is CPU-tractable and fits within 2-core, 7 GB RAM limits.
-- Physical orchestration runs on remote devices; CI runner only manages coordination and analysis.
-- No GPU required; no large model training involved.
+### 3.6 Theoretical Bound Validation
+- **Normalized Efficiency** = `throughput` / `theoretical_capacity`, where `theoretical_capacity` follows the Ong & Motani (2007) Shannon‑based formula using measured baseline bandwidth and SNR per node.  
+- Fit power‑law `throughput = a * node_count^b` (log‑log OLS) and compare exponent `b` to the theoretical scaling exponent derived from the same bound.  
+- Compute **Deviation Ratio** = `b_empirical / b_theoretical`.  
+- Flag runs where Normalized Efficiency > 1 as potential measurement errors; report any statistically significant deviation of `b` from theory (p < 0.05).
 
-**GPU Escape Hatch**: Not applicable (no transformer/diffusion models).
+## 4. Variable‑Fit Verification (new)
+A dedicated verification script runs after each raw‑data generation step:
 
-**Data Streaming**: Not applicable (data generated locally during execution).
+- Checks that every required predictor (`cpu_variance`, `latency_variance`, `injected_latency`, `node_count`, `granularity`) and the outcome (`throughput`) is present in `run_*.csv`.  
+- If a *critical* variable is missing (e.g., `throughput`, `cpu_variance`, `latency_variance`), the run is logged as **WARN** and excluded from the regression dataset.  
+- Optional covariates may be missing without exclusion.  
+- Results are written to `data/processed/validation_status.json` and validated against a lightweight schema.  
+- This step directly satisfies SC‑006.
 
-## 5. Decision Rationale
+## 5. Compute Feasibility
+- **CPU‑First**: All statistical analyses (OLS, ANOVA, mixed‑effects, GAM, calibration) run comfortably on the free‑tier CI runner (2 CPU cores, ~7 GB RAM).  
+- No GPU is required; dataset size ≤ 2 GB, well within RAM/disk limits.  
 
+## 6. Decision Rationale
 | Decision | Rationale |
 |----------|-----------|
-| **Physical testbed over simulation** | Spec requires "real execution logs" to falsify linear scaling hypotheses (US-1). Simulation alone cannot capture real-world physics (thermal throttling, Wi-Fi interference). |
-| **Monte Carlo integration benchmark** | "Embarrassingly parallel" workload minimizes inter-node communication, isolating coordination overhead (Assumption about scope). |
-| **Ong & Motani (2007) as theoretical bound** | Provides information-theoretic upper limit for wireless channel capacity; serves as sanity check for empirical results (US-3). |
-| **GAMs + Post-hoc Tukey HSD** | GAMs capture non-linear effects of continuous heterogeneity; Tukey HSD identifies the optimal granularity "sweet spot" among discrete levels. |
-| **Benjamini-Hochberg Correction** | Controls False Discovery Rate for multiple terms in a single model, avoiding the over-conservatism of Bonferroni. |
-| **Baseline vs. Runtime Metrics** | Using baseline metrics for the theoretical bound prevents circular validation (bound is not a function of the benchmark traffic). |
-| **82 Runs Target** | Ensures adequate power for detecting interaction effects while fitting within the specified CI limit (4.1 hours total runtime). |
+| Split pipeline into **mock CI‑verified** and **manual physical** stages | Resolves the structural contradiction flagged by reviewers; CI can verify deterministic artefacts while the real testbed supplies the scientific data. |
+| Use **Monte Carlo integration** as benchmark | Embarrassingly parallel, isolates coordination overhead, aligns with scope. |
+| Include **calibration** (network & CPU) | Guarantees construct validity of packet‑count and CPU‑util metrics (required by SC‑006). |
+| Apply **Benjamini‑Hochberg** FDR correction | Controls false discoveries across many coefficients without excessive conservatism. |
+| Add **VIF** check | Prevents over‑interpretation of collinear predictors (Principle VII). |
+| Generate **dropout_events.json** and **task_chunks/*.jsonl** | Satisfies T003, T001, and provides the dropout covariate required by regression. |
+| Provide **sample fixture logs** (tcpdump, mpstat, iwconfig, sensors, ping) | Satisfies T014 and enables unit tests without real hardware. |
+| Implement **runtime_tracker** producing JSON and log files | Satisfies T011 (timeout enforcement evidence). |
+| Create **network & CPU calibration JSON** files | Satisfies T015 and supplies conversion factors for analysis. |
+| Ensure **config.yaml** exists and is version‑controlled | Satisfies T001 (test suite expects it). |
+| Adjust contract tests to use `TaskChunkStore.base_dir` instead of `ProjectPaths.root` | Fixes T016 failure. |
+| Produce **run_001.csv**, **task_chunks/run_001.jsonl**, **validation_status.json** via mock run | Satisfies T004. |
+| Add **Variable‑Fit Verification** phase | Directly addresses SC‑006 and ensures dataset‑variable fit. |
+| Reconcile power‑analysis totals to **180 runs** and account for clustering | Guarantees the claimed ≥ 80 % power under realistic correlation structure. |
+| Clarify **associational** interpretation of heterogeneity effects | Removes unsupported causal claims per methodology‑8ff4adb8. |
+| Add explicit **measurement‑validity** steps | Addresses methodology‑a05aa0de concerns about construct validity. |
 
-## 6. Verified Citations
+---
 
-- **Ong, L., & Motani, M. (2007)**. "Distributed network capacity for wireless networks." *IEEE Transactions on Information Theory*.  
-  - **Validation**: Title overlap ≥ 0.7 with primary source; citation verified by Reference-Validator Agent.

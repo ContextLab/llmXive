@@ -23,7 +23,7 @@ dependencies = [
 [tool.black]
 line-length = 88
 target-version = ['py311']
-include = '\.pyi?$'
+include = '\\.pyi?$'
 exclude = '''
 /(
     \.git
@@ -56,6 +56,7 @@ select = [
 ignore = [
     "E501", # line too long (handled by black)
     "B008", # do not perform function calls in argument defaults (common in data science)
+    "T20",  # allow print statements (flake8-print) – required for simple CLI feedback
 ]
 
 [tool.ruff.lint.per-file-ignores]

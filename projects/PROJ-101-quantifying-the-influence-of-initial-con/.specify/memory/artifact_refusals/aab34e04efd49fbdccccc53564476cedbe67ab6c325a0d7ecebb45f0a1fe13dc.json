@@ -1,0 +1,7 @@
+{
+  "task_id": "T008",
+  "fingerprint": "4d1a46021c2fc9b2c7de2d56a82a39491dcb96c04f7e5122c0ef02c4de4f326a",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/main.py': imports nonexistent names from sibling files: `from code.simulation.generator import generate_coupled_lorenz_trajectory` (available: Callable, HighNoiseWarning, TrajectoryData, Tuple, UnphysicalTrajectoryError, __all__, _default_lorenz_parameters, _generate_initial_conditions...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

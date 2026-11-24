@@ -1,57 +1,18 @@
-status: verified
-kind: pypi_package
-ref: pysradb
-access_python: 'import pandas as pd
-
-  from pysradb import SRAweb
-
-
-  sra = SRAweb()
-
-  df = sra.sra_metadata(''SRP041658'')
-
-  print(f"RECORDS={len(df)}")
-
-  print(''FIELDS='' + '',''.join(df.columns.tolist()))'
-record_count: 6
-sample_fields:
-- study_accession
-- study_title
-- experiment_accession
-- experiment_title
-- experiment_desc
-- organism_taxid
-- organism_name
-- library_name
-- library_strategy
-- library_source
-- library_selection
-- library_layout
-- sample_accession
-- sample_title
-- biosample
-- bioproject
-- instrument
-- instrument_model
-- instrument_model_desc
-- total_spots
-- total_size
-- run_accession
-- run_total_spots
-- run_total_bases
-field_coverage: 0.583
+status: none
+intent: NCBI GEO SRA plant herbivory RNA-seq dataset download python package dataset
 required_fields:
 - sample_id
-- study_accession
-- experiment_accession
-- run_accession
-- organism
-- tissue_type
+- accession_id
+- species
+- tissue
 - herbivory_type
-- condition
-- replicate_id
+- treatment_condition
+- biological_replicate
 - fastq_url
-- library_strategy
-- library_layout
-intent: download plant herbivory RNA-seq GEO SRA python package dataset
-cache_key: 142bff25d4350ca9ef35c21031238f8e4093c5399e8da4f816a9edf6ee219325
+- raw_reads_path
+- metadata_json
+- batch_id
+- tpm_matrix
+cache_key: 941a08c6e542be788c99847203331042eb8d8f1a380f8867c1412ef538f82bad
+searched_at: '2026-10-18T12:33:27.652982+00:00'
+retry_count: 1

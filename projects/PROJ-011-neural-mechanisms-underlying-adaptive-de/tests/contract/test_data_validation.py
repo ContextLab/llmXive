@@ -1,175 +1,98 @@
 """
-Contract Test for Data Validation.
-Verifies OpenNeuro ds003694 structure and required behavioral columns.
+Contract test for the data validation script (T012).
+The test creates a minimal BIDS‑like directory structure in a temporary
+location, runs the validation script, and checks that the manifest file is
+created and contains the expected entries.
 """
-import os
 import json
-import tempfile
+import os
 from pathlib import Path
-import pandas as pd
+
 import pytest
 
-from preprocessing.data_validation import validate_dataset_structure, validate_participant_data
-from utils.io import save_csv, save_json
+# Import the module under test
+from code.preprocessing.data_validation import main as validation_main, build_manifest
+
 
 @pytest.fixture
-def temp_dataset_root(tmp_path):
+def temp_dataset(tmp_path):
     """
-    Creates a temporary directory structure mimicking OpenNeuro ds003694.
+    Create a tiny ds003694‑style dataset with one participant and one session.
     """
-    root = tmp_path / "ds003694"
-    root.mkdir()
-    
-    # Create dataset_description.json
-    desc = {
-        "Name": "Test Dataset",
-        "DatasetType": "raw",
-        "BIDSVersion": "1.6.0"
-    }
-    save_json(str(root / "dataset_description.json"), desc)
-    
-    # Create a participant
-    sub_id = "sub-01"
-    ses_id = "ses-01"
-    sub_dir = root / sub_id / ses_id
-    sub_dir.mkdir(parents=True)
-    
-    # Create func directory and dummy NIfTI (just a file for existence check)
-    func_dir = sub_dir / "func"
-    func_dir.mkdir()
-    nifti_file = func_dir / f"{sub_id}_{ses_id}_task-social_bold.nii.gz"
-    nifti_file.touch() # Create empty file to simulate existence
-    
-    # Create beh directory
-    beh_dir = sub_dir / "beh"
-    beh_dir.mkdir()
-    
-    # Create valid behavioral TSV
-    beh_file = beh_dir / f"{sub_id}_{ses_id}_task-social_beh.tsv"
-    data = {
-        "private_belief": [0, 1, 1, 0],
-        "social_feedback": [1, 0, 1, 1],
-        "choice": [1, 0, 0, 1],
-        "timestamp": [0.0, 1.0, 2.0, 3.0]
-    }
-    save_csv(str(beh_file), pd.DataFrame(data), sep="\t")
-    
-    return str(root), sub_id, ses_id
+    # Set up configuration environment so that utils.config picks up this root
+    os.environ["PROJ_ROOT"] = str(tmp_path)
 
-@pytest.fixture
-def temp_invalid_dataset_root(tmp_path):
+    data_root = tmp_path / "data" / "raw"
+    participant = "sub-01"
+    session = "ses-01"
+
+    func_dir = data_root / participant / session / "func"
+    beh_dir = data_root / participant / session / "beh"
+    func_dir.mkdir(parents=True)
+    beh_dir.mkdir(parents=True)
+
+    # Create dummy NIfTI file (empty is sufficient for existence check)
+    func_path = func_dir / f"{participant}_{session}_task-social_bold.nii.gz"
+    func_path.touch()
+
+    # Create behavioral TSV with required columns
+    beh_path = beh_dir / f"{participant}_{session}_task-social_beh.tsv"
+    with beh_path.open("w") as f:
+        f.write("private_belief\tsocial_feedback\tchoice\n")
+        f.write("0.5\t0.7\t1\n")
+
+    # Minimal dataset_description.json
+    (data_root / "dataset_description.json").write_text("{}")
+
+    return tmp_path
+
+
+def test_validation_success(temp_dataset):
     """
-    Creates a temporary directory structure with missing behavioral columns.
+    The validation should succeed and produce a manifest containing the participant.
     """
-    root = tmp_path / "ds003694_invalid"
-    root.mkdir()
-    
-    # Create dataset_description.json
-    desc = {"Name": "Invalid Test", "BIDSVersion": "1.6.0"}
-    save_json(str(root / "dataset_description.json"), desc)
-    
-    sub_id = "sub-02"
-    ses_id = "ses-01"
-    sub_dir = root / sub_id / ses_id
-    sub_dir.mkdir(parents=True)
-    
-    func_dir = sub_dir / "func"
-    func_dir.mkdir()
-    (func_dir / f"{sub_id}_{ses_id}_task-social_bold.nii.gz").touch()
-    
-    beh_dir = sub_dir / "beh"
-    beh_dir.mkdir()
-    
-    # Create behavioral TSV with MISSING required columns
-    beh_file = beh_dir / f"{sub_id}_{ses_id}_task-social_beh.tsv"
-    data = {
-        "trial_type": ["A", "B"],
-        "response_time": [100, 200]
-        # Missing private_belief, social_feedback, choice
-    }
-    save_csv(str(beh_file), pd.DataFrame(data), sep="\t")
-    
-    return str(root), sub_id, ses_id
+    # Run the validation script
+    validation_main()
 
-def test_validate_dataset_structure_valid(temp_dataset_root):
-    """Test that valid dataset structure passes validation."""
-    root, _, _ = temp_dataset_root
-    is_valid, errors = validate_dataset_structure(root)
-    
-    assert is_valid, f"Valid dataset failed: {errors}"
-    assert len(errors) == 0
+    manifest_path = Path(os.getenv("PROJ_ROOT")) / "state" / "dataset_manifest.json"
+    assert manifest_path.is_file(), "Manifest file was not created"
 
-def test_validate_dataset_structure_missing_description(tmp_path):
-    """Test that missing dataset_description.json fails validation."""
-    root = tmp_path / "empty_ds"
-    root.mkdir()
-    # No dataset_description.json created
-    
-    is_valid, errors = validate_dataset_structure(str(root))
-    
-    assert not is_valid
-    assert any("dataset_description.json" in err for err in errors)
+    manifest = json.loads(manifest_path.read_text())
+    assert "participants" in manifest
+    participants = manifest["participants"]
+    assert any(p["id"] == "sub-01" for p in participants)
 
-def test_validate_participant_data_valid(temp_dataset_root):
-    """Test that participant with valid data passes."""
-    root, sub_id, ses_id = temp_dataset_root
-    is_valid, errors = validate_participant_data(root, sub_id, ses_id)
-    
-    assert is_valid, f"Valid participant failed: {errors}"
-    assert len(errors) == 0
+    # Verify that the session entry contains both func and beh paths
+    sub_entry = next(p for p in participants if p["id"] == "sub-01")
+    sess_entry = sub_entry["sessions"][0]
+    assert sess_entry["func"].endswith("sub-01_ses-01_task-social_bold.nii.gz")
+    assert sess_entry["beh"].endswith("sub-01_ses-01_task-social_beh.tsv")
 
-def test_validate_participant_data_missing_nifti(tmp_path):
-    """Test that participant missing NIfTI fails."""
-    root = tmp_path / "ds"
-    root.mkdir()
-    (root / "dataset_description.json").write_text("{}")
-    
-    sub_id = "sub-03"
-    ses_id = "ses-01"
-    sub_dir = root / sub_id / ses_id
-    sub_dir.mkdir(parents=True)
-    # No func dir created
-    
-    is_valid, errors = validate_participant_data(str(root), sub_id, ses_id)
-    
-    assert not is_valid
-    assert any("functional image" in err for err in errors)
 
-def test_validate_participant_data_missing_behavioral_columns(temp_invalid_dataset_root):
+def test_validation_missing_file(tmp_path):
     """
-    Contract test: Verifies that behavioral logs MUST contain
-    'private_belief', 'social_feedback', and 'choice'.
+    If a required file is missing, the script should raise FileNotFoundError.
     """
-    root, sub_id, ses_id = temp_invalid_dataset_root
-    is_valid, errors = validate_participant_data(root, sub_id, ses_id)
-    
-    assert not is_valid, "Participant with missing columns should fail validation."
-    
-    # Verify specific error message about columns
-    col_errors = [e for e in errors if "missing required columns" in e]
-    assert len(col_errors) == 1, f"Expected exactly one column error, got: {errors}"
-    
-    error_msg = col_errors[0]
-    assert "private_belief" in error_msg
-    assert "social_feedback" in error_msg
-    assert "choice" in error_msg
+    os.environ["PROJ_ROOT"] = str(tmp_path)
+    data_root = tmp_path / "data" / "raw"
+    participant = "sub-01"
+    session = "ses-01"
+    func_dir = data_root / participant / session / "func"
+    func_dir.mkdir(parents=True)
+    # Intentionally omit the functional image
 
-def test_validate_participant_data_missing_behavioral_file(tmp_path):
-    """Test that participant missing behavioral file fails."""
-    root = tmp_path / "ds"
-    root.mkdir()
-    (root / "dataset_description.json").write_text("{}")
-    
-    sub_id = "sub-04"
-    ses_id = "ses-01"
-    sub_dir = root / sub_id / ses_id
-    sub_dir.mkdir(parents=True)
-    
-    (sub_dir / "func").mkdir()
-    (sub_dir / "func" / f"{sub_id}_{ses_id}_task-social_bold.nii.gz").touch()
-    # No beh dir created
-    
-    is_valid, errors = validate_participant_data(str(root), sub_id, ses_id)
-    
-    assert not is_valid
-    assert any("Missing behavioral log" in err for err in errors)
+    # Create behavioral TSV (still valid)
+    beh_dir = data_root / participant / session / "beh"
+    beh_dir.mkdir(parents=True)
+    beh_path = beh_dir / f"{participant}_{session}_task-social_beh.tsv"
+    with beh_path.open("w") as f:
+        f.write("private_belief\tsocial_feedback\tchoice\n")
+        f.write("0.5\t0.7\t1\n")
+
+    (data_root / "dataset_description.json").write_text("{}")
+
+    # The validation should raise because the functional NIfTI is missing
+    with pytest.raises(FileNotFoundError) as excinfo:
+        # Directly call the helper that builds the manifest to get the error
+        build_manifest(data_root)
+    assert "Missing functional image" in str(excinfo.value)

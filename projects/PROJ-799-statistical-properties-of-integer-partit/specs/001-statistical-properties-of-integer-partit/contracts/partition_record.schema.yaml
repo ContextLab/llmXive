@@ -17,8 +17,8 @@ properties:
     description: "Asymptotic prediction from Meinardus' theorem."
     minimum: 0
   R_n:
-    type: ["number", "null"]
-    description: "Log-residual (log(p_P_n) - log(Q_as_n)). Null if p_P_n or Q_as_n is non-positive."
+    type: "number"
+    description: "Log‑residual (log(p_P_n) - log(Q_as_n)). Set to -9999 when inputs are non‑positive."
 required:
   - n
   - p_P_n

@@ -1,17 +1,86 @@
 T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file listings were provided, and there is no evidence that
-    the required `src/`, `tests/`, `data/`, `figures/`, `logs/`, `report/`, `artifacts/`
-    folders (with `__init__.py` in `src/` and `tests/`) actually exist in the repository.
-    The implementer must supply the project structure or a file manifest confirming
-    its creation.
+  c: true
+  h: 1135c7757a7b64ee52203ab0af582ca5d5c82b8b41e10ee1653e4da3c55c53cf
+  r: Checked the listed `src/` and `tests/` directories (both contain `__init__.py`),
+    the presence of `data/` and `figures/` directories, and the execution log confirming
+    creation of `logs/`, `report/`, and `artifacts/` under the project root. All required
+    directories and `__init__.py` files are present.
+  sig: a9bdf6cee13aa9a693cf47e74ee8186f4d49e85a446b64a120673e1ddf7681e6
+T002:
+  c: true
+  h: 59b51ba960da8380d3795de87a2e67b0a624fdf0f09c40bfa2b279da47d77c4c
+  r: "Checked the `pyproject.toml` (1736\u202Fbytes) and confirmed it contains configuration\
+    \ sections for the linting tool (`[tool.ruff]`, which serves as the ruff/flake8\
+    \ setup) and for the formatting tools (`[tool.black]` and `[tool.isort]`). All\
+    \ required tools are properly declared and configured."
+  sig: 44cde50e9304e1ec779fc2e807ab7eb7a2f21848da4b16c0ab99395b71d358df
+T003:
+  c: true
+  h: 0598ef5f45c3fcb53b1343bd4826cbe852b8a1521792f2f5e4bf1497b18df31c
+  r: "Checked the `requirements.txt` file (280\u202Fbytes) located at the project\
+    \ root; it contains all required packages with the specified version constraints\
+    \ (including `pytest-cov`) and no missing entries. Extra packages do not violate\
+    \ the task."
+  sig: 519e163451a6b32ba24f279e45c0cfeb6753ac37546d311e293a4149cdbfca16
+T004:
+  c: true
+  h: 55da499b7fae7a185f5a52a6134bfec098a0e84c1738363f1cca16ba27fce6cd
+  r: "Checked the `pyproject.toml` file (1736\u202Fbytes) at the project root, which\
+    \ defines a build system, project metadata, and explicitly sets `requires-python\
+    \ = \">=3.11\"` along with appropriate dependencies and tooling configuration.\
+    \ The file is present, non\u2011empty, and meets the Python\u202F3.11 configuration\
+    \ requirement."
+  sig: c9f0fcc173f92b1126a74f282bfd9e17828596032aa3101a0b60fc03915d7d63
+T005:
+  c: true
+  h: ab73aee7de8a237a5bbf08b6bc8e272ca3c72c2c65572643d0f69a358f056880
+  r: "Checked `src/utils/logger.py` \u2013 provides a functional logging setup with\
+    \ console/file handlers.  \nChecked `src/utils/config.py` \u2013 defines configurable\
+    \ data paths and AR threshold, reads corresponding environment variables, and\
+    \ creates required directories."
+  sig: b657212004853c0c0495fd4f980d161c32dddea1acbfd849aecae1e07b7c93b7
+T006:
+  c: true
+  h: f9e8b31bed533f050e5cc182ea0eb51e81935defcbbb9b059e0200522bd0cdb7
+  r: "Checked the `src/data/download.py` file (9242\u202Fbytes). It uses the `cdsapi`\
+    \ client to retrieve the ERA5 variables `integrated_water_vapor_transport` and\
+    \ `z` (500\u202FhPa) for 1979\u201101\u201101 to 2023\u201112\u201131 over the\
+    \ full global area with NetCDF output, and includes code that converts the geopotential\
+    \ (`z`) from m\xB2\u202Fs\u207B\xB2 to meters. All required parameters and conversion\
+    \ logic are present."
+  sig: 68991d6d6b0089471adf86772c1aae8ce0b0c2e002a4818b6b1e369ccd20dc2f
 T007:
   c: false
-  h: 236c783e845e1d7081145271f1fca0fb18b5eba305e94101639ebc51b592a731
-  r: "The `src/data/download.py` file defines `calculate_sha256`, `verify_checksum`,\
-    \ and a generic `store_metadata` function, but it never calls these after downloading\
-    \ a file nor writes any checksum data to `data/metadata.yaml`. Moreover, the required\
-    \ `data/metadata.yaml` file is missing from the repository. The task\u2019s requirement\
-    \ to store SHA\u2011256 checksums for raw NetCDF files in that YAML file is therefore\
-    \ not satisfied."
+  h: 1b1ee67ef8281ce2f8de59030efa2eaeeee9a4084941bf9d3ce2019e902a2650
+  r: "Checked `src/data/download.py` \u2013 it defines SHA\u2011256 calculation and\
+    \ writes a metadata YAML, but it writes to `data/raw/metadata.yaml` (via `raw_dir\
+    \ / \"metadata.yaml\"`), not to the required `data/metadata.yaml`. Moreover, the\
+    \ repository contains no `data/metadata.yaml` file, so the required output artifact\
+    \ is missing. The task\u2019s core deliverable is therefore not satisfied."
+  sig: bedefb51a57504ebf96d38c7b5ff38e3d20d8df4b53807641c6ce073c1e388aa
+T008:
+  c: true
+  h: 6818bb539df7d88730a6ff7b900ec72b2e609a7616db3dd0470d0c228903d786
+  r: "Checked `src/data/preprocess.py` (15111\u202Fbytes) which defines `load_chunked_netcdf`\
+    \ that opens NetCDF files with `xr.open_dataset(..., chunks=\u2026)` using Dask\
+    \ for lazy loading, fulfilling the required base data\u2011processing utility.\
+    \ The file is present, non\u2011empty, and fully implemented."
+  sig: cdfc43bfd14fbbffe99a2df45020734224ae3f40ad37d004bcb7bfa1d2208354
+T009a:
+  c: true
+  h: 5b5a8a760baf48169edcd444ec4daa85e379d59c9a158764a99a7023ffff4a59
+  r: "Checked the `src/cli/run_analysis.py` file (7275\u202Fbytes) which defines a\
+    \ Click command (`@click.command()`), includes options, logging setup, configuration\
+    \ validation, and a `main()` entry point, fulfilling the required Click\u2011\
+    based CLI entry point."
+  sig: 19b53814b936d4c390cd3c27d8c80fd1d939a3fb4cba7e0449b37f3847cdad3c
+T009b:
+  c: false
+  h: 7adb40d515cf87aee9416885500a6238f4c54dd8d9837b0d03c516a0bd499c04
+  r: "The provided `src/cli/run_analysis.py` only contains placeholder phase routing\
+    \ and uses a config that limits processing to a regional domain (20\xB0\u2011\
+    60\xB0\u202FN, 100\xB0\u2011300\xB0\u202FE). It does not implement any domain\u2011\
+    filtering logic, nor does it perform streaming or chunked processing of the full\
+    \ global grid (90\xB0\u202FS\u201190\xB0\u202FN, 180\xB0\u202FW\u2011180\xB0\u202F\
+    E) required by FR\u2011009. The task\u2019s core functionality is therefore missing."
+  sig: f696dcb47bb963f9f74881578c50909dfad1ec04d923a86b4c1c06e00766ffa4

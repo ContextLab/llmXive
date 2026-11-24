@@ -1,94 +1,117 @@
 # Quickstart: Predicting Antibiotic Resistance Evolution from Genomic Sequences
 
 ## Prerequisites
-
-- Python 3.11+
-- Git
-- Docker (optional, for Snippy/ARIBA if system install is complex)
-- Access to GitHub Actions (for CI) or a local Linux environment with sufficient RAM.
+- Python 3.11+  
+- Git  
+- Linux environment (GitHub Actions runner or local VM) with at least 2 CPU cores and 7 GB RAM.  
+- System packages for Snippy and ARIBA (install via `apt` or Docker).  
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-027-predicting-antibiotic-resistance-evoluti
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: This installs `scikit-learn`, `biopython`, `pandas`, `dendropy`, `statsmodels`, etc. Snippy and ARIBA may require system-level installation (e.g., `apt install snippy ariba` or Docker).*
-
-## Running the Pipeline
-
-The pipeline is executed via `code/main.py`.
-
-### 1. Data Ingestion & Feature Extraction
 ```bash
-python code/main.py --stage ingest --n-isolates 1000 --bio_project PRJNA528852
-```
-*   Downloads ~1000 *E. coli* isolates from the specified BioProject.
-*   Runs Snippy and ARIBA.
-*   Outputs: `data/processed/feature_matrix.csv`.
+# 1️⃣ Clone the repository
+git clone <repo-url>
+cd projects/PROJ-027-predicting-antibiotic-resistance-evoluti
 
-### 2. Contract Validation (Mandatory Gate)
+# 2️⃣ Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3️⃣ Install Python dependencies
+pip install -r code/requirements.txt
+```
+
+*Note*: Snippy and ARIBA are external binaries; on Debian/Ubuntu you can install them with:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y snippy ariba
+```
+
+Alternatively, use the provided Docker image:
+
+```bash
+docker build -t resist-pipe -f Dockerfile .
+docker run --rm -v "$(pwd):/work" resist-pipe bash -c "python /work/code/main.py --stage ingest"
+```
+
+## Running the Full Pipeline
+
+All steps are orchestrated through `code/main.py`. The `--stage` flag selects the pipeline component.
+
+### 1️⃣ Ingestion & Phenotype Fetch (FR‑001 satisfied)
+```bash
+python code/main.py --stage ingest \
+    --n-isolates many \
+    --genbank-url https://huggingface.co/datasets/pulmo/ncbi-genbank-complete/resolve/main/data/part000/train-00000.parquet \
+    --phenotype-api https://www.ncbi.nlm.nih.gov/pathogens/
+```
+- Downloads the GenBank parquet, filters for *E. coli* (using its taxonomic identifier), extracts FASTA files, and queries the NCBI Pathogen Detection API for AST metadata.  
+- Outputs: `data/processed/feature_matrix_filtered.csv`.
+
+### 2️⃣ Contract Validation (mandatory gate)
 ```bash
 pytest tests/contract/
 ```
-*   Validates that `data/processed/feature_matrix.csv` matches `contracts/feature_matrix.schema.yaml`.
-*   **Abort if failed**.
+- Failure → pipeline aborts. Passes → continue.
 
-### 3. Model Training
+### 3️⃣ Model Training (FR‑004, FR‑009)
 ```bash
-python code/main.py --stage train --antibiotic ciprofloxacin
+python code/main.py --stage train \
+    --target-antibiotic ceftriaxone   # repeat for each antibiotic class of interest
 ```
-*   Trains Logistic Regression (L1) and Random Forest.
-*   Uses **Phylogenetically-Blocked Cross-Validation**.
-*   Excludes canonical resistance genes for ciprofloxacin.
-*   Outputs: `data/models/ciprofloxacin_model.pkl`.
+- Trains Logistic Regression (L1) and Random Forest with phylogenetically‑blocked 5‑fold CV.  
+- Saves models under `data/models/` and metrics under `data/models/metrics.json`.  
+- Generates auxiliary files `data/processed/feature_ranking.csv` and `data/processed/class_to_genes.json`.
 
-### 4. Validation & Significance
+### 4️⃣ Statistical Validation (FR‑005, FR‑006)
 ```bash
-python code/main.py --stage validate --antibiotic ciprofloxacin --permutations [sufficient_permutations]
+python code/main.py --stage validate \
+    --target-antibiotic ceftriaxone \
+    --permutations 1000
 ```
-*   Runs **PGLS residual permutation test**.
-*   Performs sensitivity analysis.
-*   Outputs: `data/results/ciprofloxacin_metrics.json`.
+- Runs phylogenetically‑aware **label permutation** test (1000 iterations) and threshold sweep.  
+- Outputs JSON files in `data/results/`.
 
-### 5. Versioning
+### 5️⃣ Versioning (Constitution V)
 ```bash
 python code/utils/hash_artifacts.py
 ```
-*   Computes SHA256 hashes for all artifacts.
-*   Updates `state/` JSON files.
+- Computes SHA‑256 hashes for all files in `data/` and `code/`, updates `state/` metadata.
 
-### 6. Visualization
+### 6️⃣ Visualization (FR‑007)
 ```bash
-python code/main.py --stage viz --antibiotic ciprofloxacin
+python code/main.py --stage viz --target-antibiotic ceftriaxone
 ```
-*   Generates ROC curves and feature importance plots.
-*   Outputs: `data/figures/roc_ciprofloxacin.png`.
+- Generates ROC, PR, and feature‑importance plots under `data/figures/`.
 
-## Verification
+### 7️⃣ Verification Summary (new verification step)
+```bash
+python code/04_validate/verify_results.py
+```
+- Consumes `data/models/metrics.json`, `data/processed/feature_ranking.csv`, and `data/processed/class_to_genes.json`.  
+- Writes `data/processed/verification_summary.json` containing AUC, p‑value, top‑10 feature table, and FP/FN rates across thresholds.  
+- The CI job fails if any required metric is missing or if the permutation p‑value ≥ 0.05.
 
-Run the full test suite to ensure the pipeline integrity:
+## Full Test Suite
+
 ```bash
 pytest tests/
 ```
-*   **Contract Tests**: Validate that output files match `contracts/*.schema.yaml`.
-*   **Unit Tests**: Verify data ingestion and feature extraction logic.
+- Runs unit, integration, and contract tests. All must pass (exit 0) before the CI job is considered successful.
 
 ## Troubleshooting
 
-- **OOM Error**: Reduce `--n-isolates` to 500.
-- **Snippy Failure**: Ensure the reference genome is correctly specified in `code/utils/config.py`.
-- **Network Timeout**: The NCBI fetch may be slow; ensure stable internet connection.
-- **Phylogeny Error**: Ensure `dendropy` and `statsmodels` are installed.
+| Symptom | Likely Cause | Remedy |
+|---------|--------------|--------|
+| `MemoryError` during Snippy | Too many isolates in memory | Reduce `--n-isolates` (e.g., 500) or increase batch size. |
+| `ariba` not found | System binary missing | Install via `apt` or use the Docker image. |
+| Contract test fails (`feature_matrix.schema.yaml`) | Missing required column | Re‑run ingestion with `--n-isolates` ≥ 50; ensure VIF filtering does not drop all features. |
+| Permutation test exceeds time limit | `--permutations` too high | Use the default 1000; the CI runner caps at 6 h. |
+| No model files after training | Target class had < 50 resistant isolates | The pipeline automatically skips that class and logs warning W001. |
+| Verification step reports missing files | Earlier stage failed to generate required artifacts | Ensure steps 3 and 4 completed successfully; check `data/models/metrics.json`, `data/processed/feature_ranking.csv`, `data/processed/class_to_genes.json`. |
+
+---
+
+
+

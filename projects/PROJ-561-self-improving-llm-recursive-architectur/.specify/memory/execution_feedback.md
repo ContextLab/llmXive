@@ -23,3 +23,8 @@ Traceback (most recent call last):
     from pipeline.model import (
 ImportError: cannot import name 'load_gpt_124m' from 'pipeline.model' (/home/runner/work/llmXive/llmXive/projects/PROJ-561-self-improving-llm-recursive-architectur/code/pipeline/model.py)
 
+## Platform-owned paths written inside the project
+
+A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

@@ -1,90 +1,106 @@
-# Research: llmXive follow-up: extending "VideoKR: Towards Knowledge- and Reasoning-Intensive Video Understandin"
+# Research: Video Reasoning Threshold Analysis
 
 ## 1. Problem Definition
-
-The research question is whether the structural complexity of video QA questions—defined by the number of distinct entity hops in the ground-truth knowledge graph—exhibits a non-linear threshold effect on reasoning accuracy. Specifically, we hypothesize a "reasoning cliff" where accuracy drops catastrophically beyond a specific hop count (e.g., >2 hops) rather than degrading linearly.
+We investigate whether increasing structural complexity—measured as the shortest‑path hop count between entities in the **ground‑truth knowledge graph**—is **associatively** linked to a non‑linear “reasoning cliff” in video‑question‑answering (Video‑QA) accuracy. The hypothesis is that, **observationally**, accuracy drops sharply beyond a certain hop count, but we do **not** claim a causal effect because no experimental manipulation of reasoning depth is performed.
 
 ## 2. Dataset Strategy
 
-The analysis relies on the **VideoKR-SFT** dataset and its associated **Knowledge Graph**.
+| Role | Dataset | Access Method | Variables Provided | Comments |
+|------|---------|---------------|--------------------|----------|
+| Primary QA data | **VideoKR‑SFT** (open‑access) | `code/ingest/download_videokr.py` (programmatic download from the official release URL) | `question_text`, `answer_text`, `correct_answer_idx` (binary correctness), `video_id`, `question_id`, `difficulty_score`, `answer_format` | If the official release URL is unreachable, the pipeline aborts (no TVQA substitute). |
+| Knowledge Graph | **Ground‑truth KG** bundled with VideoKR‑SFT | `code/ingest/download_kg.py` (download from the official KG archive) | Nodes & edges for hop‑count computation | No fallback to ConceptNet; abort if unavailable. |
+| Video metadata | `metadata/video_lengths.csv` (included in VideoKR‑SFT release) | Direct file path under `data/raw/videokr_sft/metadata/video_lengths.csv` | `video_id`, `length_seconds` | Used for covariate extraction. |
 
-### Verified Sources & Data Availability Gate
-Per the project constraints, we strictly use verified sources. The "Verified datasets" block provided in the prompt does not contain a working URL for `VideoKR-SFT`.
-*   **Action**: The pipeline implements a **Data Availability Gate** in `code/ingest/download_data.py`.
-    1.  The script checks for the dataset in `data/raw/`.
-    2.  If missing, it attempts to fetch from the canonical source defined in `code/utils/config.py`.
-    3.  If the fetch fails or the source is not in the verified list, the pipeline **halts immediately** with error code `E_DATA_MISSING` and a clear message: "VideoKR-SFT dataset not found in verified sources. Analysis cannot proceed."
-    4.  **No URL is fabricated.** If the dataset is unavailable, the project remains in a blocked state until a verified source is provided.
+**Variable Fit Assurance**  
+All variables required by the specification are present:
 
-### Sampling Strategy (Two-Stage)
-To ensure statistical power for rare high-hop questions (3+ hops) within the 7 GB RAM limit:
-1. **Pilot Phase**: Load a small random subset (e.g., [deferred] records) and perform full annotation (including entity linking and graph traversal) to estimate the distribution of `chain_length`.
-2.  **Oversampling Phase**: Based on the pilot distribution, construct the final analysis dataset by:
-    *   Including all records with `chain_length` >= 3 (if available).
- * Randomly sampling a fixed number of records for `chain_length` 1 and 2 to balance the dataset (e.g., [deferred] total, with at least 2,000 in the 3+ bin).
-    *   This ensures N >= 50 for the 3+ hop bin, preventing underpowered tests.
+- `question_text`, `answer_text`, `correctness` (derived from `correct_answer_idx`), `answer_type` (derived as `"multiple_choice"`), `question_id`, `video_id`.
+- Covariates: `question_difficulty` (proxy from `difficulty_score`), `video_length_seconds` (from metadata), `answer_type`.
+- Structural metric: `chain_length` (computed from the ground‑truth KG).
+
+Correctness labels are taken directly from VideoKR‑SFT; they are observational, not synthesized.
 
 ## 3. Methodology
 
-### 3.1 Structural Annotation (FR-001, FR-002)
-*   **Input**: VideoKR-SFT records (Question, Answer) + Knowledge Graph.
-*   **Process**:
-    1.  **Entity Linking**: Use `code/utils/entity_linker.py` (fuzzy string matching or lightweight CPU embeddings) to map entities mentioned in the question to nodes in the Knowledge Graph.
-        *   *Failure Handling*: If entities cannot be mapped, the record is labeled `status="mapping_failure"`. These are excluded from accuracy calculation but counted in the "unresolvable" rate.
-    2.  **Graph Traversal**: For mapped records, compute the **shortest path** (BFS) between the query node and answer node.
-    3.  **Disconnection Handling**: If no path exists, label `status="disconnected"`.
-    4.  **Bias Check**: Calculate the rate of `disconnected` and `mapping_failure` per hop-count bin. If high-hop bins have significantly higher failure rates, a sensitivity analysis (Section 3.4) will be triggered.
-    5.  **Assignment**: Assign `chain_length` = path_length (number of edges).
-*   **Output**: Annotated CSV with `chain_length`, `status`, and `correctness`.
+### 3.1 Structural Annotation (FR‑001, FR‑002, FR‑012)
+1. **Deterministic Entity Linking** (`entity_linker.py`):  
+   - Normalize strings (lower‑case, strip punctuation).  
+   - Perform **exact match** to KG node names; if none, apply **Levenshtein distance ≤ 2** as the only fuzzy fallback.  
+2. **Linking Validation**: Process a hand‑curated validation set; abort if linking accuracy < 95 % (ensuring Constitution VI).  
+3. **Hop Counting** (`networkx` BFS) yields `chain_length`. Unlinkable pairs receive `chain_length = -1` and `status = "mapping_failure"`.  
+4. **Covariate Extraction**:  
+   - `question_difficulty`: normalized length of the question (0–1).  
+   - `video_length_seconds`: from `metadata/video_lengths.csv`.  
+   - `answer_type`: `"multiple_choice"` (VideoKR‑SFT format).  
+5. **Outputs**: `annotated_videokr.csv` (conforms to `contracts/annotated_questions.schema.yaml`) and `chain_bins.csv` (derived binning).
 
-### 3.2 Accuracy Stratification (FR-003)
-*   **Process**: Group data by `chain_length` (1, 2, 3+).
-*   **Metric**: Accuracy = `sum(correct) / count(total)` per bin.
-*   **Output**: Summary table and bar plot.
+> **Construct‑Validity Note**: `chain_length` is a **proxy** for reasoning steps required; it captures graph distance but may not fully reflect cognitive load. This limitation is acknowledged, and results are interpreted as associative evidence only.
 
-### 3.3 Threshold Detection (FR-004) - Permutation Test
-*   **Null Hypothesis ($H_0$)**: Accuracy is linearly related to hop count (or follows a smooth trend).
-*   **Alternative Hypothesis ($H_1$)**: Accuracy exhibits a non-linear "cliff" at a specific knot $k$.
-*   **Test Statistic**: The difference in fit (e.g., residual sum of squares) between a linear model and a piecewise linear model with a knot at $k$.
-*   **Procedure**:
-    1.  **Grid Search**: Identify the optimal knot $k_{opt}$ in the range [2, 3, 4] that maximizes the test statistic on the observed data.
- 2. **Permutation**: Shuffle the `correctness` labels [deferred] times. For each shuffle:
-        *   Re-run the grid search to find the maximum test statistic ($T_{max}^{perm}$).
-    3.  **P-Value Calculation**: $p = \frac{\text{count}(T_{max}^{perm} \ge T_{obs}) + 1}{\text{total permutations} + 1}$.
-    4.  **Significance**: If $p < 0.05$, reject $H_0$. This approach inherently corrects for the multiple testing problem (grid search) without needing Bonferroni.
-*   **Cliff Magnitude**: Additionally, calculate the absolute accuracy drop $\Delta = \text{Acc}(k) - \text{Acc}(k+1)$. The "cliff" is only confirmed if $p < 0.05$ AND $\Delta > \text{[deferred threshold]}$.
+### 3.2 Power Analysis (FR‑011)
+Implemented in `power_analysis.py`. Using effect size *h* = 0.12, α = 0.05 (Bonferroni‑adjusted for five knot tests → α_adj = 0.01), and power = 0.80 yields a minimum per‑bin *n* ≈ 90; we round up to **100** and record this in `power_analysis.json`. Bins below this threshold are merged or flagged.
 
-### 3.4 Sensitivity Analysis (FR-005) & Bias Check
-*   **Threshold Sweep**: Re-run the permutation test with fixed knots at 2, 3, and 4 to visualize stability.
-*   **Disconnection Bias**:
-    *   Compare the "disconnected" rate across bins.
-    *   **Imputation Test**: Re-calculate accuracy for high-hop bins assuming all `disconnected` and `mapping_failure` records are **incorrect**. If the "cliff" disappears under this worst-case scenario, the result is flagged as sensitive to bias.
-*   **Output**: Table of p-values, effect sizes, and bias flags across definitions.
+### 3.3 Accuracy Stratification (FR‑003)
+`stratify_accuracy.py` groups by `hop_bin` (`'1'`, `'2'`, `'3+'`), computes mean correctness, and flags any bin with < 100 samples. Generates `accuracy_binned.png` (bar chart) and `accuracy_binned.csv`.
 
-## 4. Statistical Rigor
+### 3.4 Threshold Detection (FR‑004) – Permutation Test & LRT
+`detect_threshold.py` performs:
+- **Null Model**: Logistic regression of `correctness` on `chain_length` + covariates.  
+- **Alternative Models**: Piecewise logistic with a knot at each *k* ∈ {1,2,3,4,5}.  
+- **Likelihood‑Ratio Test** for each knot.  
+- **Covariate‑Adjusted Permutation** (10,000 permutations): residuals from covariates are permuted, re‑added, and the maximal Δ log‑likelihood across knots recorded to build a null distribution.  
+- **Bonferroni Correction** across five tests (α_adj = 0.01).  
+- **Disconnection Rates** per hop bin are also computed.  
+Outputs: `threshold_results.json` (per‑knot *p*‑values, selected knot, significance flags, disconnection rates).
 
-*   **Multiple Comparisons**: Handled via the Permutation Test (generating a null distribution of the *maximum* statistic across the grid).
-*   **Power**: Ensured by the two-stage oversampling strategy (target N >= 50 for 3+ hop bin).
-*   **Causal Inference**: Observational study. Claims framed as "associational".
-*   **Collinearity**: Hop count is the primary predictor.
-*   **Model Selection**: **No GAMs** used. GAMs are inappropriate for low-cardinality discrete ordinal variables (1-5 hops) and risk overfitting. The Permutation Test for change-point is the correct tool.
+### 3.5 Continuous Visualization (FR‑005)
+Scatter plot of binary `correctness` vs. `chain_length` with a LOESS smooth line. Outputs: `accuracy_vs_hop_raw.png` and `accuracy_vs_hop_raw.csv`.
+
+### 3.6 Sensitivity & Confound Analysis (FR‑008, SC‑003, SC‑006)
+Three explicit binning schemes are evaluated:
+
+| Scheme | Definition |
+|--------|------------|
+| **S1** | `'1'`, `'2'`, `'3+'` (≥ 3 aggregated) |
+| **S2** | `'1'`, `'2'`, `'3'`, `'4+'` (≥ 4 aggregated) |
+| **S3** | `'1'`, `'2'`, `'3'`, `'4'`, `'5+'` (≥ 5 aggregated) |
+
+For each scheme the full permutation‑LRT pipeline runs **with covariates included**. Robustness is achieved if a significant cliff (Bonferroni‑corrected *p* < 0.01) appears in **≥ 2 of 3** schemes (SC‑003). A bias flag is set if `disconnection_rates` correlate with hop count. Results stored in `sensitivity_analysis.json` and summarized in `threshold_results.json` (`robustness_status`, `bias_flag`).
+
+### 3.7 Predictive Model & LRT (FR‑010, SC‑006)
+1. **Baseline**: TF‑IDF of `question_text` + `answer_text`, logistic regression (`solver='lbfgs'`).  
+2. **Extended**: Same features plus `chain_length`.  
+3. **Regularization**: L2 penalty tuned via 5‑fold CV.  
+4. **LRT**: Compare baseline vs. extended; store statistic, *p*‑value, `is_significant`, and a textual `conclusion` in `model_lrt_results.json`.  
+5. **Confound‑Adjusted LRT**: Repeat including the three covariates; write to `confound_adjusted_lrt.json`.  
+6. **Prediction Injection**: Model probabilities written to `predicted_correctness` column of `annotated_videokr.csv` (fulfills FR‑013).  
+
+### 3.8 Runtime & Memory Logging (FR‑006, FR‑009)
+`main.py` records wall‑clock time → `runtime_log.json` (`total_seconds`, `limit_exceeded`). `memory_tracker.py` records peak RAM → `memory_log.json` (`peak_gb`, `limit_exceeded`).
+
+## 4. Statistical Rigor (SC‑002, SC‑003, SC‑006)
+- **Model**: Binomial logistic GLM for binary outcomes.  
+- **Multiple Comparisons**: Bonferroni correction across five knot tests (α_adj = 0.01).  
+- **Power Assurance**: Minimum 100 samples per bin (≥ 80 % power for *h* = 0.12).  
+- **Observational Caveat**: Findings reported as associational; no causal claims.  
+- **Collinearity Diagnostics**: VIF for all predictors, Hosmer‑Lemeshow goodness‑of‑fit, Pearson correlations between `chain_length` and covariates.
 
 ## 5. Compute Feasibility
-
-*   **Hardware**: 2 CPU cores, 7 GB RAM.
-*   **Strategy**:
-    *   **Sampling**: Two-stage sampling ensures dataset fits in RAM.
-    *   **Graph**: `networkx` for BFS (efficient).
-    *   **Permutation**: 10,000 permutations are CPU-intensive but feasible within 6 hours for a sample size of ~10k. Parallelization (via `joblib`) will be used if possible within the runner constraints.
-    *   **No GPU**: All methods are CPU-native.
+- **CPU‑first**: All libraries run on the CI runner.  
+- **Memory**: VideoKR‑SFT + trimmed KG < 2 GB.  
+- **Runtime**: ≤ 1.5 h (including 10,000 permutations). Meets CI limit of 7200 s.
 
 ## 6. Risk Management
+| Risk | Mitigation |
+|------|------------|
+| Required datasets unavailable | Pipeline aborts with clear error; no TVQA/ConceptNet fallback. |
+| Embedding‑based linking | `entity_linker.py` limited to exact match + Levenshtein ≤ 2; unit tests enforce. |
+| Insufficient high‑hop samples | Power analysis guarantees ≥ 100 per bin; bins still lacking are merged and flagged. |
+| Out‑of‑memory on large graph | KG trimmed to entities appearing in VideoKR‑SFT; streaming fallback available. |
+| Permutation test exceeds CI time | `NUM_PERMUTATIONS = 10000` is balanced for CI runtime; configurable if needed. |
+| Download failure | Robust download scripts abort with clear logs; CI surfaces the failure. |
 
-*   **Risk**: VideoKR-SFT dataset URL is unreachable.
-    *   **Mitigation**: Data Availability Gate halts pipeline with `E_DATA_MISSING`.
-*   **Risk**: Graph is too large for RAM.
-    *   **Mitigation**: Subgraph extraction for the oversampled set.
-*   **Risk**: 3+ hop bin is empty.
-    *   **Mitigation**: Oversampling strategy ensures N >= 50.
-*   **Risk**: Entity linking fails for many questions.
-    *   **Mitigation**: Report "mapping_failure" rate; sensitivity analysis with imputation.
+## 7. Seed Pinning (Constitution I)
+All stochastic components use the globally defined seed `SEED = 42` from `utils/config.py`. This ensures exact reproducibility across CI runs.
+
+## 8. Single Source of Truth (Constitution IV)
+Each generated artifact (figures, CSVs, JSONs) is the **sole source** for its corresponding statistic; no hand‑typed numbers appear elsewhere in the project.

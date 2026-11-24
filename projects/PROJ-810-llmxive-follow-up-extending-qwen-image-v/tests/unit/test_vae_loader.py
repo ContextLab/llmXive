@@ -2,7 +2,7 @@
 Unit tests for the VAE Loader module (CPU fallback logic).
 
 This module tests the CPU-only loading constraints, memory feasibility checks,
-and fallback protocols defined in `code/models/vae_loader.py`.
+and fallback protocols defined in `code/models/vae_wrapper.py`.
 """
 import json
 import os
@@ -12,11 +12,6 @@ import pytest
 import torch
 from unittest.mock import patch, MagicMock, PropertyMock
 
-# Import the module under test
-# Note: The import path assumes this test is run from the project root
-# or that `code` is in the PYTHONPATH. The task specifies the file is at
-# projects/PROJ-810-.../code/models/vae_loader.py
-# We will import relative to the 'code' directory structure.
 import sys
 from pathlib import Path
 
@@ -28,7 +23,8 @@ code_dir = project_root / "code"
 if str(code_dir) not in sys.path:
     sys.path.insert(0, str(code_dir))
 
-from models.vae_loader import (
+# Updated import to use the wrapper as requested by T008 and T010
+from models.vae_wrapper import (
     check_model_availability,
     check_cpu_feasibility,
     trigger_model_substitution_protocol,
@@ -42,7 +38,7 @@ from models.vae_loader import (
 class TestModelAvailability:
     """Tests for check_model_availability function."""
 
-    @patch('models.vae_loader.AutoConfig')
+    @patch('models.vae_wrapper.AutoConfig')
     def test_model_accessible(self, mock_auto_config):
         """Test that a reachable model returns True."""
         mock_config = MagicMock()
@@ -57,7 +53,7 @@ class TestModelAvailability:
             trust_remote_code=True
         )
 
-    @patch('models.vae_loader.AutoConfig')
+    @patch('models.vae_wrapper.AutoConfig')
     def test_model_access_failed(self, mock_auto_config):
         """Test that a failed download returns False."""
         mock_auto_config.from_pretrained.side_effect = Exception("Connection timeout")
@@ -73,8 +69,6 @@ class TestCpuFeasibility:
 
     def test_model_within_memory_limits(self):
         """Test that a small model passes the memory check."""
-        # The function uses a hardcoded estimate of 0.8B params -> ~3GB
-        # which is < 7GB threshold.
         is_feasible, estimated_gb, message = check_cpu_feasibility()
         
         assert is_feasible is True
@@ -111,8 +105,8 @@ class TestFallbackProtocol:
 class TestRunAvailabilityCheck:
     """Tests for the full availability check suite."""
 
-    @patch('models.vae_loader.check_model_availability')
-    @patch('models.vae_loader.check_cpu_feasibility')
+    @patch('models.vae_wrapper.check_model_availability')
+    @patch('models.vae_wrapper.check_cpu_feasibility')
     def test_full_pass_scenario(self, mock_feas, mock_avail):
         """Test the scenario where both checks pass."""
         mock_avail.return_value = (True, "Model OK")
@@ -125,8 +119,8 @@ class TestRunAvailabilityCheck:
         assert result["cpu_feasibility"] is True
         assert "fallback" not in result
 
-    @patch('models.vae_loader.check_model_availability')
-    @patch('models.vae_loader.check_cpu_feasibility')
+    @patch('models.vae_wrapper.check_model_availability')
+    @patch('models.vae_wrapper.check_cpu_feasibility')
     def test_full_fail_feasibility_scenario(self, mock_feas, mock_avail):
         """Test the scenario where model is available but memory fails."""
         mock_avail.return_value = (True, "Model OK")
@@ -140,8 +134,8 @@ class TestRunAvailabilityCheck:
         assert "fallback" in result
         assert result["fallback"]["status"] == "FALLBACK_TRIGGERED"
 
-    @patch('models.vae_loader.check_model_availability')
-    @patch('models.vae_loader.check_cpu_feasibility')
+    @patch('models.vae_wrapper.check_model_availability')
+    @patch('models.vae_wrapper.check_cpu_feasibility')
     def test_full_fail_availability_scenario(self, mock_feas, mock_avail):
         """Test the scenario where model is not available."""
         mock_avail.return_value = (False, "Network Error")
@@ -151,55 +145,57 @@ class TestRunAvailabilityCheck:
         
         assert result["status"] == "FAIL"
         assert result["availability"] is False
-        # Feasibility might still be calculated or not, but status is FAIL
         assert result["availability_message"] == "Network Error"
 
 
 class TestLoadVaeCpu:
     """Tests for load_vae_cpu function."""
 
-    @patch('models.vae_loader.AutoModel')
-    @patch('models.vae_loader.torch.cuda.is_available')
+    @patch('models.vae_wrapper.AutoModel')
+    @patch('models.vae_wrapper.torch.cuda.is_available')
     def test_load_forces_cpu_device_map(self, mock_cuda, mock_auto_model):
         """Test that the model is loaded with device_map='cpu'."""
         mock_cuda.return_value = False
         
         mock_model = MagicMock()
-        mock_model.device.type = 'cpu'
+        # Mock the device property
+        mock_device = MagicMock()
+        mock_device.type = 'cpu'
+        type(mock_model).device = PropertyMock(return_value=mock_device)
+        
         mock_model.eval.return_value = mock_model
         mock_auto_model.from_pretrained.return_value = mock_model
         
         model = load_vae_cpu()
         
-        # Verify from_pretrained was called with device_map="cpu"
         call_args = mock_auto_model.from_pretrained.call_args
         assert call_args.kwargs.get("device_map") == "cpu"
         assert call_args.kwargs.get("torch_dtype") == torch.float32
         assert call_args.kwargs.get("trust_remote_code") is True
-        
-        # Verify eval was called
         mock_model.eval.assert_called_once()
 
-    @patch('models.vae_loader.AutoModel')
-    @patch('models.vae_loader.torch.cuda.is_available')
+    @patch('models.vae_wrapper.AutoModel')
+    @patch('models.vae_wrapper.torch.cuda.is_available')
     def test_load_handles_existing_gpu_model(self, mock_cuda, mock_auto_model):
-        """Test that if model ends up on GPU (hypothetically), it is moved to CPU."""
-        mock_cuda.return_value = True # GPU available but we ignore
+        """Test that if model ends up on GPU, it is moved to CPU."""
+        mock_cuda.return_value = True 
         
         mock_model = MagicMock()
         # Simulate model initially on GPU
-        type(mock_model).device = PropertyMock(return_value=MagicMock(type='cuda'))
+        mock_device_gpu = MagicMock()
+        mock_device_gpu.type = 'cuda'
+        type(mock_model).device = PropertyMock(return_value=mock_device_gpu)
+        
         mock_model.to.return_value = mock_model
         mock_model.eval.return_value = mock_model
         mock_auto_model.from_pretrained.return_value = mock_model
         
         model = load_vae_cpu()
         
-        # Verify .to('cpu') was called
         mock_model.to.assert_called_with('cpu')
         mock_model.eval.assert_called_once()
 
-    @patch('models.vae_loader.AutoModel')
+    @patch('models.vae_wrapper.AutoModel')
     def test_load_raises_on_failure(self, mock_auto_model):
         """Test that RuntimeError is raised if loading fails."""
         mock_auto_model.from_pretrained.side_effect = Exception("Download failed")

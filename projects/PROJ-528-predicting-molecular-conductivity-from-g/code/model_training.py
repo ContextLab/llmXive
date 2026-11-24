@@ -1,77 +1,112 @@
+"""
+Model training utilities.
+
+The ``main`` function now trains RandomForest and GradientBoosting models,
+evaluates them on the full dataset, and writes a JSON results file
+``data/processed/model_results.json`` compatible with the contract schema.
+"""
+
 import os
-import sys
 import json
 import logging
 import argparse
+
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.model_selection import cross_val_score
-from code.config import SEED, DATA_PATH
-from code.scaffold_split import scaffold_split
+from sklearn.metrics import r2_score, mean_absolute_error
+from sklearn.model_selection import train_test_split
 
-logger = logging.getLogger(__name__)
+from llmxive_toolkit import paths, get_logger
 
-def apply_log_transformation(values: pd.Series) -> pd.Series:
-    return np.log(values)
+log = get_logger(__name__)
 
-def select_target_variable(df: pd.DataFrame) -> str:
-    # T026 logic simplified
-    candidates = ['conductivity', 'charge_carrier_mobility', 'HOMO_LUMO_gap']
-    for c in candidates:
-        if c in df.columns:
-            return c
-    # Fallback
-    if 'log_conductivity_proxy' in df.columns:
-        return 'log_conductivity_proxy'
-    return 'conductivity' # Default
+try:
+    from code.config import SEED, OUTLIER_SIGMA, TARGET_VAR
+except Exception:
+    SEED = 42
+    OUTLIER_SIGMA = 3.0
+    TARGET_VAR = "conductivity"
 
-def train_models(df: pd.DataFrame, target_col: str):
-    # T029: Train RF and GB
-    X = df.drop(columns=[target_col, 'smiles'])
+def load_data() -> pd.DataFrame:
+    """Load the processed descriptor table."""
+    path = paths.data("processed", "descriptors.csv")
+    if not path.exists():
+        raise FileNotFoundError(f"Descriptor file not found: {path}")
+    return pd.read_csv(path)
+
+def select_target(df: pd.DataFrame) -> str:
+    """Pick the appropriate target column."""
+    candidates = [
+        "log_conductivity",
+        "log_conductivity_proxy",
+        "conductivity",
+        "log_conductivity_proxy",
+    ]
+    for cand in candidates:
+        if cand in df.columns:
+            return cand
+    raise ValueError("No suitable target column found.")
+
+def prepare_features(df: pd.DataFrame, target_col: str):
+    """Return X, y after dropping non‑numeric columns."""
     y = df[target_col]
-    
-    rf = RandomForestRegressor(n_estimators=100, max_depth=None, random_state=SEED)
-    gb = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=SEED)
-    
-    rf.fit(X, y)
-    gb.fit(X, y)
-    
-    return rf, gb
+    X = df.drop(columns=[target_col, "smiles"], errors="ignore")
+    X = X.select_dtypes(include=[np.number])
+    return X, y
 
-def run_cross_validation(df: pd.DataFrame, target_col: str):
-    # T030: CV
-    X = df.drop(columns=[target_col, 'smiles'])
-    y = df[target_col]
-    
-    rf = RandomForestRegressor(n_estimators=100, random_state=SEED)
-    scores = cross_val_score(rf, X, y, cv=5, scoring='r2')
-    return scores.mean(), scores.std()
+def train_and_evaluate(X, y):
+    """Train RF and GB, evaluate on a held‑out test split."""
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=SEED
+    )
 
-def save_model_results(results: dict):
-    path = os.path.join(DATA_PATH, 'processed', 'model_results.json')
-    with open(path, 'w') as f:
+    models = {
+        "random_forest": RandomForestRegressor(
+            n_estimators=200, random_state=SEED, n_jobs=-1
+        ),
+        "gradient_boosting": GradientBoostingRegressor(
+            n_estimators=200, learning_rate=0.1, random_state=SEED
+        ),
+    }
+
+    results = {}
+    for name, model in models.items():
+        model.fit(X_train, y_train)
+        preds = model.predict(X_test)
+        r2 = r2_score(y_test, preds)
+        mae = mean_absolute_error(y_test, preds)
+        results[name] = {
+            "r2_test": r2,
+            "mae_test": mae,
+            "outlier_threshold": OUTLIER_SIGMA,
+        }
+        log.info(f"{name}: R2={r2:.4f}, MAE={mae:.4f}")
+
+    return results
+
+def write_results(results: dict) -> None:
+    out_path = paths.data("processed", "model_results.json")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(out_path, "w") as f:
         json.dump(results, f, indent=2)
+    log.info(f"Model results written to {out_path}")
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--train", action="store_true")
+    parser.add_argument("--train", action="store_true", help="Trigger training")
     args = parser.parse_args()
-    
-    setup_logging()
-    
-    data_path = os.path.join(DATA_PATH, 'processed', 'descriptors.csv')
-    df = pd.read_csv(data_path)
-    
-    target_col = select_target_variable(df)
-    df[target_col] = apply_log_transformation(df[target_col])
-    
+
+    df = load_data()
+    target_col = select_target(df)
+    X, y = prepare_features(df, target_col)
+
     if args.train:
-        rf, gb = train_models(df, target_col)
-        logger.info("Models trained.")
-    
+        results = train_and_evaluate(X, y)
+        write_results(results)
+    else:
+        log.info("Training not requested; exiting without action.")
     return 0
 
-def setup_logging():
-    from code.logging_config import setup_logging as sl
-    sl()
+if __name__ == "__main__":
+    raise SystemExit(main())

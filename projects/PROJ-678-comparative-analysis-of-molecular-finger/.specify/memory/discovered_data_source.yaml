@@ -1,18 +1,19 @@
 status: none
-intent: download Tox21 organophosphate subset chemistry python package dataset
+intent: download Tox21 organophosphate subset SMILES toxicity labels 12 endpoints
+  python package dataset
 required_fields:
-- compound_id
-- smiles
-- inchikey
-- NR-AhR
-- NR-AR
-- NR-AR-LBD
-- NR-Aromatase
-- NR-ER
-- NR-ER-LBD
-- NR-PPAR-gamma
-- SR-ATAD5
-- SR-HSE
-cache_key: 9c91293d3cefeb69d848a2bffa84164899b7db4368672909551db18f724e2901
-searched_at: '2026-10-09T14:19:10.388114+00:00'
+- SMILES
+- Compound_ID
+- Tox21_endpoint_1
+- Tox21_endpoint_2
+- Tox21_endpoint_3
+- Tox21_endpoint_4
+- Tox21_endpoint_5
+- Tox21_endpoint_6
+- Tox21_endpoint_7
+- Tox21_endpoint_8
+- Tox21_endpoint_9
+- Tox21_endpoint_10
+cache_key: 5ab57b012a22cae6c3a244abecf535ea098cb2673d4a9ff32b2191a7292c909a
+searched_at: '2026-10-22T09:38:02.606997+00:00'
 retry_count: 1

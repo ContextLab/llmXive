@@ -22,25 +22,25 @@ properties:
     properties:
       mean_diff:
         type: "number"
-        description: "Mean difference in consensus gap closure (Adapter - Static)."
+        description: "Mean difference in consensus gap closure (Adapter − Static)."
       p_value:
         type: "number"
-        description: "P-value from the statistical test."
+        description: "Raw p‑value from the statistical test."
       is_significant:
         type: "boolean"
-        description: "Whether the result is statistically significant (p < 0.05)."
+        description: "Whether the corrected p‑value < 0.05."
       effect_size:
         type: "number"
-        description: "Effect size (Cohen's d or rank-biserial correlation)."
+        description: "Effect size (Cohen's d for t‑test or rank‑biserial for Wilcoxon)."
       test_type:
         type: "string"
         enum:
           - "t-test"
           - "wilcoxon"
-        description: "Type of statistical test used."
+        description: "Statistical test applied."
       normality_p_value:
         type: "number"
-        description: "Shapiro-Wilk p-value for normality check of difference scores."
+        description: "Shapiro‑Wilk p‑value for normality of difference scores."
   correction_applied:
     type: "boolean"
-    description: "Whether multiple-comparison correction (Holm-Bonferroni) was applied."
+    description: "Whether Holm‑Bonferroni correction was applied across models."

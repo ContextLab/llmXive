@@ -1,71 +1,67 @@
 # Data Model: Calibration of Predictive Intervals for Time‑Series Forecasts
 
 ## Overview
-
-This document defines the data structures used for loading, processing, and evaluating time-series forecasts. All data flows through the `data/raw/` (immutable) and `data/processed/` (derived) directories.
+Defines the canonical data structures that flow through the pipeline. All files are immutable under `data/raw/`; derived artifacts live under `data/processed/` and `results/`.
 
 ## Entities
 
 ### TimeSeries
-A single univariate time series.
-*   **Attributes**:
-    *   `series_id` (str): Unique identifier (e.g., "M4-1001", "UCI-E1").
-    *   `timestamp` (datetime): Sequence of timestamps.
-    *   `value` (float): Sequence of observed values.
-    *   `frequency` (str): e.g., "D", "M", "Y".
-*   **Split**:
- * `train_values` (float): First **[deferred]** of `value`.
- * `test_values` (float): Last **[deferred]** of `value`.
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `series_id` | `str` | Unique identifier (e.g., `M4-1001`, `UCI-E1`). |
+| `timestamp` | `datetime[]` | Ordered timestamps. |
+| `value` | `float[]` | Observations. |
+| `frequency` | `str` | Temporal granularity (`hourly`, `daily`, `weekly`, `monthly`, `yearly`). |
+| `train_values` | `float[]` | First [deferred] of `value`. |
+| `test_values` | `float[]` | Last [deferred] of `value`. |
 
 ### PredictiveInterval
-A tuple representing the forecast interval for a specific horizon.
-*   **Attributes**:
-    *   `series_id` (str)
-    *   `model` (str): "ARIMA", "Prophet", "LSTM".
-    *   `horizon` (int): Forecast step index.
-    *   `nominal_level` (float): e.g., 0.80, 0.95.
-    *   `lower_bound` (float)
-    *   `upper_bound` (float)
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `series_id` | `str` | Foreign key to `TimeSeries`. |
+| `model` | `str` | `ARIMA`, `Prophet`, or `LSTM`. |
+| `horizon` | `int` | Forecast step (1‑step ahead, 2‑step, …). |
+| `nominal_level` | `float` | 0.80 or 0.95. |
+| `lower_bound` | `float` | Lower predictive bound. |
+| `upper_bound` | `float` | Upper predictive bound. |
 
 ### CalibrationMetric
-Aggregated performance metrics for a model-series pair.
-*   **Attributes**:
-    *   `series_id` (str)
-    *   `model` (str)
-    *   `nominal_level` (float)
-    *   `empirical_coverage` (float): Proportion of test values within bounds.
-    *   `coverage_deviation` (float): `empirical_coverage - nominal_level`.
-    *   `pit_p_value` (float): Ljung-Box test p-value for PIT uniformity.
-    *   `crps_score` (float): Continuous Ranked Probability Score.
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `series_id` | `str` | |
+| `model` | `str` | |
+| `nominal_level` | `float` | |
+| `empirical_coverage` | `float` | Proportion of test points inside the interval. |
+| `coverage_deviation` | `float` | `empirical_coverage - nominal_level`. |
+| `pit_p_value_ks` | `float` | KS‑test p‑value (Constitution VI). |
+| `pit_p_value_lb` | `float` | Ljung‑Box p‑value (Spec FR‑004). |
+| `crps_score` | `float` | Continuous Ranked Probability Score. |
 
 ### SignificanceTestResult
-Result of a paired bootstrap test between two models.
-*   **Attributes**:
-    *   `model_a` (str)
-    *   `model_b` (str)
-    *   `metric` (str): e.g., "coverage_deviation".
-    *   `p_value` (float)
-    *   `is_significant` (bool): `p_value < 0.05`.
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `model_a` | `str` | |
+| `model_b` | `str` | |
+| `metric` | `str` | e.g., `coverage_deviation`. |
+| `p_value` | `float` | Paired bootstrap p‑value. |
+| `is_significant` | `bool` | `p_value < 0.05`. |
 
 ## File Formats
 
-### CSV: `results/coverage.csv`
+### `results/coverage.csv`
 | series_id | model | nominal_level | empirical_coverage | coverage_deviation |
-| :--- | :--- | :--- | :--- | :--- |
-| M4-1001 | ARIMA | 0.95 | 0.92 | -0.03 |
+|-----------|-------|---------------|--------------------|--------------------|
 
-### CSV: `results/distributional_metrics.csv`
-| series_id | model | pit_p_value | crps_score |
-| :--- | :--- | :--- | :--- |
-| M4-1001 | ARIMA | 0.45 | 0.12 |
+### `results/distributional_metrics.csv`
+| series_id | model | pit_p_value_ks | pit_p_value_lb | crps_score |
 
-### CSV: `results/significance_test.csv`
+### `results/significance_test.csv`
 | model_a | model_b | metric | p_value | is_significant |
-| :--- | :--- | :--- | :--- | :--- |
-| ARIMA | Prophet | coverage_deviation | 0.03 | True |
 
-### JSON: `data/processed/split_metadata.json`
-Records the split points for reproducibility.
+### `results/conformal_results.csv`
+| series_id | model | nominal_level | empirical_coverage_before | empirical_coverage_after | improvement_delta |
+
+### `data/processed/split_metadata.json`
 ```json
 {
   "series_id": "M4-1001",
@@ -77,8 +73,10 @@ Records the split points for reproducibility.
 ```
 
 ## Data Flow
-1.  **Load**: `loader.py` reads raw CSVs -> yields `TimeSeries` objects (streaming).
-2.  **Split**: `splitter.py` divides `TimeSeries` -> `train`/`test` sets (80/20).
-3.  **Fit**: `models/*.py` train on `train` -> generate `PredictiveInterval` for `test`.
-4.  **Evaluate**: `metrics/*.py` compare `PredictiveInterval` vs `test_values` -> `CalibrationMetric`.
-5.  **Aggregate**: `evaluation/runner.py` collects metrics -> writes CSVs.
+1. **Load** (`code/data/loader.py`) → streaming `TimeSeries`.  
+2. **Split** (`code/data/splitter.py`) → `train_values` / `test_values`.  
+3. **Fit** (`code/models/*.py`) → forecasts & intervals.  
+4. **Evaluate** (`code/metrics/*.py`) → `CalibrationMetric`.  
+5. **Aggregate** (`code/evaluation/runner.py`) → CSVs in `results/`.  
+
+---

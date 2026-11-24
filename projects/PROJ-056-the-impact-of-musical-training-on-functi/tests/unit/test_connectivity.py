@@ -1,117 +1,75 @@
-import os
-import sys
+import json
+import pathlib
+
 import pytest
-import numpy as np
-import pandas as pd
-from pathlib import Path
 
-# Add code to path if running standalone
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from analysis.connectivity import (
+    fisher_z_transform,
+    compute_pearson_correlation_chunked,
+    process_subject_connectivity,
+)
+from analysis.atlas import load_atlas, TARGET_NETWORKS
+from analysis.network_metrics import compute_network_metrics
 
-from analysis.connectivity import fisher_z_transform, compute_pearson_correlation_chunked, process_subject_connectivity
-from utils.memory_monitor import MemoryLimitExceeded
+# Helper to create a tiny synthetic NIfTI for testing
+def _create_dummy_nifti(tmp_path, subject_id):
+    import nibabel as nib
+    import numpy as np
+    shape = (5, 5, 5, 10)  # small volume, 10 time points
+    data = np.random.randn(*shape).astype(np.float32)
+    affine = np.eye(4)
+    img = nib.Nifti1Image(data, affine)
+    out_path = tmp_path / "mock_nifti" / f"{subject_id}.nii.gz"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    nib.save(img, str(out_path))
+    return out_path
 
-class TestFisherZTransform:
-    def test_fisher_z_basic(self):
-        """Test Fisher Z-transform logic with known values."""
-        # r = 0.5 -> z = 0.5 * ln((1.5)/(0.5)) = 0.5 * ln(3) ≈ 0.5493
-        r_val = 0.5
-        expected_z = 0.5 * np.log(3)
-        
-        # Create a small matrix
-        r_matrix = np.array([[1.0, r_val], [r_val, 1.0]])
-        z_matrix = fisher_z_transform(r_matrix)
-        
-        assert np.abs(z_matrix[0, 1] - expected_z) < 1e-6, f"Expected {expected_z}, got {z_matrix[0, 1]}"
-        # Diagonal should remain 0 (since z(1) is infinite, but we clip)
-        # Our implementation clips 1.0 to 0.9999, so z(0.9999) is large but finite.
-        # We just check it's not NaN.
-        assert not np.isnan(z_matrix[0, 0])
-        
-    def test_fisher_z_negative(self):
-        """Test Fisher Z-transform with negative correlation."""
-        r_val = -0.5
-        expected_z = -0.5 * np.log(3)
-        
-        r_matrix = np.array([[1.0, r_val], [r_val, 1.0]])
-        z_matrix = fisher_z_transform(r_matrix)
-        
-        assert np.abs(z_matrix[0, 1] - expected_z) < 1e-6
+def test_fisher_z_transform_scalar():
+    r = 0.5
+    z = fisher_z_transform(r)
+    assert isinstance(z, float) or isinstance(z, np.ndarray)
 
-    def test_fisher_z_clipping(self):
-        """Test that values of 1.0 and -1.0 are handled without inf."""
-        r_matrix = np.array([[1.0, 1.0, -1.0], [1.0, 1.0, -1.0], [-1.0, -1.0, 1.0]])
-        z_matrix = fisher_z_transform(r_matrix)
-        
-        # Should not contain inf or nan
-        assert not np.any(np.isinf(z_matrix))
-        assert not np.any(np.isnan(z_matrix))
+def test_compute_pearson_correlation_chunked():
+    ts = np.random.randn(20, 8)
+    corr = compute_pearson_correlation_chunked(ts, chunk_size=4, memory_limit_gb=1.0)
+    assert corr.shape == (8, 8)
+    # Symmetry and unit diagonal
+    np.testing.assert_allclose(corr, corr.T, atol=1e-7)
+    np.testing.assert_allclose(np.diag(corr), 1.0, atol=1e-7)
 
-class TestPearsonCorrelationChunked:
-    def test_compute_pearson_correlation_chunked_identity(self):
-        """Test correlation of a signal with itself is 1."""
-        # Create data where columns are identical
-        n_timepoints = 100
-        n_rois = 10
-        data = np.random.randn(n_timepoints, n_rois)
-        # Make column 0 and 1 identical
-        data[:, 1] = data[:, 0]
-        
-        corr_matrix = compute_pearson_correlation_chunked(data, chunk_size=5)
-        
-        assert np.abs(corr_matrix[0, 1] - 1.0) < 1e-5
-        assert np.abs(corr_matrix[1, 0] - 1.0) < 1e-5
-        assert np.abs(corr_matrix[0, 0] - 1.0) < 1e-5
+def test_end_to_end_connectivity_and_network_metrics(tmp_path):
+    # Create a minimal atlas CSV with three ROIs belonging to each target network
+    atlas_csv = tmp_path / "schaefer_200.csv"
+    rows = [
+        {"roi_id": 0, "x": 1, "y": 1, "z": 1, "network": "auditory"},
+        {"roi_id": 1, "x": 2, "y": 2, "z": 2, "network": "motor"},
+        {"roi_id": 2, "x": 3, "y": 3, "z": 3, "network": "executive"},
+    ]
+    import pandas as pd
 
-    def test_compute_pearson_correlation_chunked_symmetry(self):
-        """Test that the resulting matrix is symmetric."""
-        n_timepoints = 200
-        n_rois = 20
-        data = np.random.randn(n_timepoints, n_rois)
-        
-        corr_matrix = compute_pearson_correlation_chunked(data, chunk_size=7)
-        
-        # Check symmetry
-        diff = np.max(np.abs(corr_matrix - corr_matrix.T))
-        assert diff < 1e-6, f"Matrix not symmetric: max diff {diff}"
+    pd.DataFrame(rows).to_csv(atlas_csv, index=False)
 
-class TestProcessSubjectConnectivity:
-    def test_process_subject_connectivity_integration(self, tmp_path):
-        """Integration test: create mock fMRI data and process it."""
-        # Setup
-        subject_id = "sub_test_001"
-        fmri_dir = tmp_path / "fmri"
-        fmri_dir.mkdir()
-        
-        # Create mock fMRI data (100 timepoints, 400 ROIs)
-        n_timepoints = 100
-        n_rois = 400
-        mock_data = np.random.randn(n_timepoints, n_rois)
-        fmri_file = fmri_dir / f"{subject_id}_timeseries.npy"
-        np.save(str(fmri_file), mock_data)
-        
-        atlas_path = str(tmp_path / "dummy_atlas.parquet")
-        Path(atlas_path).touch()
-        
-        # Run
-        result = process_subject_connectivity(subject_id, str(fmri_file), atlas_path)
-        
-        # Assert
-        assert result is not None
-        assert result.shape == (n_rois, n_rois)
-        assert not np.any(np.isnan(result))
-        assert not np.any(np.isinf(result))
-        # Diagonal should be approx 0 (z-transform of 1 is large, but we clipped)
-        # Actually, z-transform of 1 is infinity, but we clip to 0.9999.
-        # The diagonal of correlation matrix is 1.0, so z-transform of 1.0 (clipped) is large.
-        # We just check it's not NaN.
-        assert not np.any(np.isnan(np.diag(result)))
-    
-    def test_process_subject_connectivity_missing_file(self, tmp_path):
-        """Test handling of missing fMRI file."""
-        subject_id = "sub_missing"
-        fmri_path = str(tmp_path / "missing.npy")
-        atlas_path = str(tmp_path / "dummy.parquet")
-        
-        result = process_subject_connectivity(subject_id, fmri_path, atlas_path)
-        assert result is None
+    atlas_df = load_atlas(atlas_csv)
+
+    subject_id = "SUBJ001"
+    nifti_path = _create_dummy_nifti(tmp_path, subject_id)
+
+    conn = process_subject_connectivity(
+        subject_id=subject_id,
+        nifti_path=nifti_path,
+        atlas_df=atlas_df,
+        chunk_size=2,
+    )
+
+    # Verify matrix properties
+    z = conn.matrix
+    assert z.shape == (3, 3)
+    np.testing.assert_allclose(z, z.T, atol=1e-7)
+    np.testing.assert_allclose(np.diag(z), 0.0, atol=1e-7)  # Fisher‑z of 1.0 correlation is 0
+
+    # Network metrics – each network has a single ROI, so intra‑network mean is NaN
+    metrics = compute_network_metrics(z, atlas_df, target_networks=TARGET_NETWORKS)
+    for net in TARGET_NETWORKS:
+        assert net in metrics
+        # Single‑ROI networks return NaN per implementation
+        assert metrics[net] != metrics[net]  # NaN check

@@ -1,10 +1,23 @@
-[tool.black]
-line-length = 88
-target-version = py311
-include = '\.pyi?$'
-exclude = '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.venv|_build|buck-out|build|dist)/'
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
 
-[tool.isort]
-profile = "black"
-line_length = 88
-skip_gitignore = true
+[project]
+name = "llmxive-follow-up"
+version = "0.1.0"
+description = "Research project implementing symbolic backward-step substitution in BES"
+authors = [{name = "Research Team", email = "team@example.com"}]
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+
+# Dependencies that are not part of the base environment
+dependencies = [
+    "jsonschema>=4.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+addopts = "-v"
+# Ensure that any plugin errors surface as failures rather than warnings
+filterwarnings = ["error"]

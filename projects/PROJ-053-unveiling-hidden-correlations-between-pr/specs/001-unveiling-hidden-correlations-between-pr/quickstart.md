@@ -1,69 +1,97 @@
 # Quickstart: Unveiling Hidden Correlations Between Processing Parameters and Mechanical Properties in Additively Manufactured Alloys
 
 ## Prerequisites
-
-- Python 3.11+
-- `pip`
-- Access to the internet (for dataset download)
+- Python 3.11 or newer
+- `git`
+- Internet connection (to download the dataset, if an appropriate open source is supplied)
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-053-unveiling-hidden-correlations-between-pr
-    ```
+```bash
+# 1. Clone the repository
+git clone <repo-url>
+cd projects/PROJ-053-unveiling-hidden-correlations-between-pr
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+# 3. Install pinned dependencies
+pip install -r code/requirements.txt
+```
 
-## Data Preparation
+## Step‑by‑Step Pipeline
 
-**Note**: The project requires a valid AM dataset. The implementation will attempt to download from the verified source **NIST AM-Bench** (Zenodo). If this dataset does not contain the required columns, the script will halt.
+All pipeline steps are invoked via `code/main.py` with the `--step` flag. Each step writes logs under `results/`.
 
-1.  **Run the data loader**:
-    ```bash
-    python code/main.py --step download
-    ```
-    *This step downloads the raw data, validates the schema, and saves it to `data/raw/`.*
+### 1. Download & Validate the Dataset
+```bash
+python code/main.py --step download
+```
+- Downloads a **public AM‑alloy dataset** that **must** contain the exact columns `laser_power`, `scan_speed`, `layer_thickness`, `alloy_composition`, `yield_strength`, and `ductility`.  
+- Verifies SHA‑256 checksum (recorded in `state/dataset_checksum.txt`).  
+- Confirms ≥ 50 rows and presence of all required columns. If any column is missing, the script aborts with a clear error: *“Insufficient or malformed dataset: required column X missing.”*  
 
-2.  **Preprocess the data**:
-    ```bash
-    python code/main.py --step preprocess
-    ```
-    *This step performs median imputation, min-max normalization, and one-hot encoding. Output saved to `data/processed/`.*
+### 2. Preprocess the Data & Create Train/Test Splits
+```bash
+python code/main.py --step preprocess
+```
+- Median imputes missing values.  
+- Min‑max normalizes all numeric columns to `[0, 1]`.  
+- Detects and drops zero‑variance columns (logged).  
+- One‑hot encodes `alloy_composition` (creates `alloy_<type>` binary columns).  
+- Splits into `data/processed/train.csv` and `data/processed/test.csv`.  
+- Writes `data/processed/preprocessing.log`.
 
-## Training & Analysis
+### 3. Train Models & Compute Metrics
+```bash
+python code/main.py --step train
+```
+- Trains GPR (RBF kernel) with 5‑fold CV and a Linear Regression baseline.  
+- Saves models under `results/model/`.  
+- Writes `results/metrics.json` (validated against `contracts/model_output.schema.yaml`), which now **includes** the permutation‑importance ranking under `feature_importance`, the `residual_analysis` object, and the `power_analysis` entry.
 
-1.  **Train the GPR model**:
-    ```bash
-    python code/main.py --step train
-    ```
-    *Trains the model with 5-fold CV and saves the artifact to `results/model.pkl`.*
+### 4. Analyse Importance (merged into metrics)
+```bash
+python code/main.py --step importance
+```
+- Computes permutation importance (30 repeats, `random_state=42`).  
+- Merges the resulting ranking directly into `results/metrics.json` as the `feature_importance` array.
 
-2.  **Generate results and plots**:
-    ```bash
-    python code/main.py --step analyze
-    ```
-    *Calculates metrics, performs permutation importance, and generates contour plots in `results/plots/`.*
+### 5. Power Analysis (integrated)
+```bash
+python code/main.py --step power_analysis
+```
+- Performs the bootstrap‑based power analysis using the **effective sample size** after preprocessing and records the minimum detectable R² (with confidence interval) inside `results/metrics.json`.
 
-## Expected Outputs
+### 6. Generate Visualizations
+```bash
+python code/main.py --step visualize
+```
+- Produces contour plot of predicted **Yield Strength** vs. **Laser Power** and **Scan Speed** (axes correspond to the normalized variables).  
+- Produces uncertainty heatmap with red zones for σ > 2 × median σ.  
+- Writes side‑car JSON metadata for each plot (`results/visualization/*.json`).
 
-- `results/metrics.json`: Performance metrics (R², RMSE, MAE).
-- `results/plots/contour_yield_strength.png`: Predicted yield strength map.
-- `results/plots/uncertainty_heatmap.png`: Uncertainty distribution.
-- `results/importance_ranking.json`: Ranked feature importance.
+### 7. Review Outputs
+- `results/metrics.json` – performance numbers, importance ranking, residual analysis, uncertainty ratio, runtime, and power‑analysis note.  
+- `results/plots/contour_yield_strength.png` – predicted surface.  
+- `results/plots/uncertainty_heatmap.png` – σ heatmap.  
+- `results/confounders.json` – any potential confounder flags (high predictor‑response correlation, VIF warnings).  
+- `state/manifest.yaml` – manifest of all primary artifacts for traceability.
+
+## Expected Runtime
+On the GitHub Actions free tier the full pipeline typically finishes **[deferred]** for a dataset of ≤ 500 samples, well within the allotted time limit (SC‑005).
 
 ## Troubleshooting
 
-- **"No verified open dataset found..."**: The pipeline cannot find the NIST AM-Bench dataset. Check `research.md` for the current dataset status.
-- **"Insufficient data for GPR training..."**: The dataset has < 50 samples. A larger dataset is required.
-- **"Zero variance detected..."**: A feature has identical values. It has been automatically removed.
+| Symptom | Likely Cause | Remedy |
+|---------|--------------|--------|
+| `Dataset download failed` | Network issue or checksum mismatch | Verify internet connectivity; delete `data/raw/<dataset>.csv` and re‑run `--step download`. |
+| `Insufficient data for GPR training; minimum 50 samples required.` | Downloaded file corrupted, missing rows, or columns filtered out during preprocessing | Re‑run the download step; the script will abort with a clear error if the row count is < 50 or required columns are absent. |
+| `Zero variance detected in column X` | All rows share the same value for a predictor | The column is automatically dropped; check `preprocessing.log` for details. |
+| `Model artifact missing` | Previous step crashed (e.g., out‑of‑memory) | Inspect `results/*.log`; ensure the CI runner has ≤ 7 GB RAM. |
+| `metrics.json missing key rmse_percentage_range` | Older version of the code; update | Re‑run `--step train`; the key is now generated correctly. |
+
+---
+
+

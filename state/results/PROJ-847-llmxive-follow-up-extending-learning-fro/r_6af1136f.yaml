@@ -1,0 +1,15 @@
+captured:
+  path: outputs/fixed_baselines.json
+  sha256: a463d6b78bc20211e88bb7a5198a39401eb75da664a557174d47ed6da610dd81
+created_at: '2026-10-19T20:09:00Z'
+env_sha: a463d6b78bc20211
+hmac: e6a9844922b7a81a0760381d706c16d54ce6cd9b0af23dcf6a4d263e251ad1d1
+inputs:
+  command: quickstart run-book
+kind: table
+output_sha256: 6af1136f0eec6a53f09df63e188fb8b9d140319fba6a6b94e54a0a6d86abc0f0
+producer:
+  artifact: outputs/fixed_baselines.json
+  stage: implementation_preview
+result_id: r_6af1136f
+value: outputs/fixed_baselines.json

@@ -1,10 +1,9 @@
 status: none
-intent: download OEOEIS distinct prime partitions sequence dataset python package
-  dataset
+intent: OEIS A000607 download csv for distinct primes python package dataset
 required_fields:
 - n
-- p_P(n)
-- Q_as(n)
-cache_key: bd8f37795c21d0effced1a66a8ac78b0e7c8b1e10690000b01c2bf0a67c058e5
-searched_at: '2026-10-08T00:42:12.137769+00:00'
+- p_P_n
+- Q_as_n
+cache_key: 2e470cb6c221fb521309c06869ac070a3996ee7cb4a06209511320d781aaa91b
+searched_at: '2026-10-25T02:29:01.675832+00:00'
 retry_count: 1

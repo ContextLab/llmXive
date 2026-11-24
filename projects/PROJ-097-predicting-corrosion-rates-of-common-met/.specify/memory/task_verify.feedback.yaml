@@ -1,0 +1,56 @@
+T000:
+  reason: "Checked `reports/citation_validation.json` (empty `[]`) and the failing\
+    \ test `tests/test_citation_validation.py` which asserts the report is non\u2011\
+    empty and contains only `\"status\": \"verified\"` entries. The citation\u2011\
+    validation report is empty, so the required JSON with verified entries was not\
+    \ produced."
+  task: 80a6ea456d8af84adfdfb795cd94c1c5ea51e6319ac5d51ec4124ab6e4b6c361
+T001:
+  reason: The script writes the raw file to `data/raw/zenodo_corrosion.csv` (and the
+    expected `data/raw/corrosion_dataset.csv` is missing), uses a completely different
+    public dataset (Penguins) instead of the deterministic corrosion dataset URL,
+    and the generated `metadata/dataset.yaml` lacks the required DOI field. Consequently
+    the required outputs and provenance information do not match the task specification.
+  task: aa75e012426f98ce161a00ee42c76eedf561ad6310dcb1eb2a49bb9cb2d7d6c1
+T002:
+  reason: "Checked `src/pipeline/clean.py`, `data/processed/cleaned_dataset.csv`,\
+    \ the JSON schema, and the missing `src/tests/test_clean.py`. The cleaning script\
+    \ never converts corrosion\u2011rate units (it only casts to numeric), the output\
+    \ CSV contains extra columns and uses lower\u2011case `ph` instead of the required\
+    \ `pH`, violating the `additionalProperties: false` schema. Moreover, the required\
+    \ pytest file is absent, so the verification step cannot pass. The task\u2019\
+    s unit\u2011conversion, schema conformity, and test\u2011suite requirements are\
+    \ not met."
+  task: a8f38541153171661d5ad111c36232078b9955df08b9a54530dd1019895d844a
+T002_val:
+  reason: 'Requested task execution failed; rerun successfully: src/pipeline/validation.py
+    exit=1'
+  task: e968ca3fa04c4e240121e376f711ab8f9b371210a24328d27ca3b9949ff840dc
+T003:
+  task: 685603ba34512fae937805db3c370d6866a3ec59a0c8400bddb8f88b8c3973a1
+T004:
+  task: 3e35dd2cff659a474d9e74f0bf54c77f966c1a454308ecf67dccaf78d5e78f0a
+T005:
+  task: d319b5fddfec761234e0ef4e1417814c630737ddca4da13f2ff379a1590566ca
+T006:
+  task: bfda5059965b0cadac25b178bd4e773b0f945e92e2d0647e376f8b90e04b10f5
+T006_baseline:
+  task: 3b564f712f865d523f02d464f69f474e9c43a0f6f93e65edf22b656fa584a892
+T007:
+  task: 435eb7e667f26925c6b827d244bd76dd43a6c606081d90e59b0d91cacfb85df2
+T008:
+  task: 1cbf4603f8a85b5d6b18f75b68df9ec015b769d572ab7a3e28baee842ff39ea8
+T009:
+  task: 21dc572043802362550b773e4fe355a33ac290efb924b9a0368dbaa4a863462e
+T010:
+  task: ef1f2d6f39dad2b21250a6dbc907cc0102a53505c821b5e329fb8897035629b9
+T011:
+  task: e1810f03ccdb1a64ff22404b8959bfc4586596163cb71f4503ca180432e80abb
+T012:
+  task: 9d97178dcf04dc44e444fa1a820c1ad92428c926776cc461aa3e663b7b4991ae
+T013:
+  task: 7a92c45b4e7ca46fb9e0604afe8341b59d9d53fdfbb358e782b47a7f97fee6ea
+T014:
+  task: 79e631d500dda87ac561a9536097f6049dedef4649a2f0c9c7a0453bed384f57
+T015:
+  task: a80ce85c2185bfdf21bd87d51af0ef15ad5c2e0fc03263e7fdc2d8a665fd57fd

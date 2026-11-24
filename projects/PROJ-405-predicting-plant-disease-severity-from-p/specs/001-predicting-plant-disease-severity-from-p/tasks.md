@@ -55,14 +55,14 @@
 - [ ] T047 [P] [Plan Correction] Update `plan.md` Step 0.4: **Replace** "expert-labeled severity scores" or "simulated ground truth" with "metadata presence and non-null feature values". **Update text** to state: "Verify non-null values for image features and weather variables. Study is observational; no ground truth exists."
 - [ ] T048 [P] [Plan Correction] Update `plan.md` Step 1.3: **Replace** "pre-processed NOAA GHCN-Daily station CSV" with "NOAA GHCN-Daily API query via `requests` library". **Update text** to state: "If Open-Meteo fails, query NOAA API for nearest station. If both fail, exclude record. No local CSVs."
 - [ ] T049 [P] [Docs] Update `research.md` to explicitly state: "No ground truth validation is performed due to absence of expert labels; findings are framed as associational."
-- [~] T050 [P] [Docs] Update `plan.md` to clarify: "7-day window is a fixed parameter in `config.py`, not dynamically adjusted."
+- [X] T050 [P] [Docs] Update `plan.md` to clarify: "7-day window is a fixed parameter in `config.py`, not dynamically adjusted."
 
-- [~] T004 [P] Implement `code/config.py` for paths, seeds, API keys, and constant definitions
-- [~] T005 [P] Setup logging infrastructure in `code/__init__.py` and `code/utils/logging_config.py`
-- [~] T006a [P] Create `dataset.schema.yaml` in `specs/001-predict-plant-disease-severity/contracts/` using `pyyaml` defining fields: `image_path`, `disease_label`, `lesion_area_ratio`, `necrosis_color_index`, `texture_entropy`, `location_lat`, `location_lon`, `image_date`.
-- [~] T006b [P] Create `weather.schema.yaml` in `specs/001-predict-plant-disease-severity/contracts/` using `pyyaml` defining fields: `location_lat`, `location_lon`, `date_start`, `date_end`, `mean_temp`, `mean_humidity`, `total_precipitation`.
-- [~] T006c [P] Create `model_output.schema.yaml` in `specs/001-predict-plant-disease-severity/contracts/` using `pyyaml` defining fields: `baseline_r2`, `baseline_mae`, `augmented_r2`, `p_value`, `sensitivity_analysis`.
-- [~] T007 Implement state management utility in `code/utils/state_manager.py` to handle SHA-256 hashing for `state/*.yaml` updates
+- [X] T004 [P] Implement `code/config.py` for paths, seeds, API keys, and constant definitions
+- [ ] T005 [P] Setup logging infrastructure in `code/__init__.py` and `code/utils/logging_config.py`
+- [ ] T006a [P] Create `dataset.schema.yaml` in `specs/001-predict-plant-disease-severity/contracts/` using `pyyaml` defining fields: `image_path`, `disease_label`, `lesion_area_ratio`, `necrosis_color_index`, `texture_entropy`, `location_lat`, `location_lon`, `image_date`.
+- [ ] T006b [P] Create `weather.schema.yaml` in `specs/001-predict-plant-disease-severity/contracts/` using `pyyaml` defining fields: `location_lat`, `location_lon`, `date_start`, `date_end`, `mean_temp`, `mean_humidity`, `total_precipitation`.
+- [ ] T006c [P] Create `model_output.schema.yaml` in `specs/001-predict-plant-disease-severity/contracts/` using `pyyaml` defining fields: `baseline_r2`, `baseline_mae`, `augmented_r2`, `p_value`, `sensitivity_analysis`.
+- [ ] T007 Implement state management utility in `code/utils/state_manager.py` to handle SHA-256 hashing for `state/*.yaml` updates
 - [~] T008 [P] Setup unit test framework (`pytest`) and integration test structure in `tests/`
 
 **Checkpoint**: Foundation ready - plan contradictions resolved - user story implementation can now begin in parallel
@@ -166,7 +166,7 @@
 - [~] T039 [P] [US1, US2, US3] Verify all metrics against acceptance criteria in `tests/integration/test_full_pipeline.py`
 - [~] T040 [P] Implement `code/utils/reporting.py`: `generate_final_report()` function to generate final `artifacts/results.json` with all metrics (R², MAE, p-value, sensitivity data).
 - [ ] T041 [P] Implement `code/utils/hash_utils.py`: `compute_artifact_hashes()` function to compute SHA-256 hashes for `results.json` and `data/processed/unified_analysis.csv`. Verify hashes match state/*.yaml.
-- [~] T042 [P] Implement `code/utils/state_manager.py`: `update_state_file()` function to update `state/projects/PROJ-405-predicting-plant-disease-severity-from-p.yaml` with the computed hashes and timestamps to satisfy Constitution Principle V (Step 5.2).
+- [ ] T042 [P] Implement `code/utils/state_manager.py`: `update_state_file()` function to update `state/projects/PROJ-405-predicting-plant-disease-severity-from-p.yaml` with the computed hashes and timestamps to satisfy Constitution Principle V (Step 5.2).
 - [~] T043a [P] Implement `code/utils/docs.py`: `generate_quickstart()` function to generate `quickstart.md` content: Include exact paths, commands, and seed values for reproduction.
 - [ ] T043b [P] Implement `code/utils/docs.py`: `verify_quickstart()` function to add steps to verify that the `state/*.yaml` hashes match the generated artifacts.
 - [~] T043c [P] Finalize `quickstart.md`: Ensure documentation aligns with the exact hashes recorded in the state file.

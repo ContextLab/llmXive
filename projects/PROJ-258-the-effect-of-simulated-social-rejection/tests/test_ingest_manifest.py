@@ -18,14 +18,22 @@ def test_ingest_creates_manifest(tmp_path, monkeypatch):
     assert that the manifest file exists and contains the expected
     structure.
     """
-    # Redirect the raw data directory to a temporary location.
+    # Redirect the raw, interim, and processed data directories to a temporary location.
     raw_dir = tmp_path / "raw"
+    interim_dir = tmp_path / "interim"
+    processed_dir = tmp_path / "processed"
     raw_dir.mkdir(parents=True, exist_ok=True)
+    interim_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
 
-    # Monkey‑patch ``get_path`` so the script writes into the temporary folder.
+    # Monkey‑patch ``get_path`` so the script writes into the temporary folders.
     def fake_get_path(key: str) -> str:
         if key == "raw":
             return str(raw_dir)
+        if key == "interim":
+            return str(interim_dir)
+        if key == "processed":
+            return str(processed_dir)
         # For any other key fall back to the real implementation.
         from config import get_path as real_get_path
         return real_get_path(key)
@@ -50,6 +58,3 @@ def test_ingest_creates_manifest(tmp_path, monkeypatch):
     for entry in manifest:
         assert required_keys.issubset(entry.keys()), f"Missing keys in manifest entry: {entry}"
         assert entry["dataset_id"] in {"ds000208", "ds003392"}, "Unexpected dataset_id"
-
-# The test can be executed with:
-#   pytest -q tests/test_ingest_manifest.py

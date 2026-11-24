@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-035-exploring-the-correlation-between-crysta",
-  "stage": "clarified",
+  "stage": "in_progress",
   "class": "transient",
-  "fingerprint": "model_chain_failed",
-  "consecutive_count": 0,
-  "first_seen": "2026-06-29T04:59:49.117528+00:00",
-  "last_seen": "2026-08-11T00:52:00.067105+00:00",
-  "retry_after": null,
-  "last_error": "every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.5-122b(model-down attempt 1): Dartmouth model 'qwen.qwen3.5-122b' hung past 360s deadline (no response received) | google.gemma-3-27b-it(model-down attempt 1): Dartmouth model 'google.gemma-3-27b-it' hung past 180s deadline (no response received) | openai.gpt-oss-120b(model-down attempt 1): Dartmouth model 'openai.gpt-oss-120b' hung past 360s deadline (no response received) | anthropic.claude-haiku-4-5-20251001(permanent): Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: credit balance unavailable (ConnectTimeout: HTTPSConnectionPool(host='chat.dartmouth.edu', port=443): Max retries exceeded with url: /api/v1/credits/balance (Caused by ConnectTimeoutError(<HTTPSConnection(host='chat.dartmouth.edu', port=443) at 0x7f2ed9104990>, 'Connection to chat.dartmouth.edu timed out. (connect timeout=",
-  "evidence": "every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.5-122b(model-down attempt 1): Dartmouth model 'qwen.qwen3.5-122b' hung past 360s deadline (no response received) | google.gemma-3-27b-it(model-down attempt 1): Dartmouth model 'google.gemma-3-27b-it' hung past 180s deadl",
+  "fingerprint": "backend_chain_failed",
+  "consecutive_count": 2,
+  "first_seen": "2026-10-12T14:23:52.296414+00:00",
+  "last_seen": "2026-11-22T00:49:31.094902+00:00",
+  "retry_after": "2026-11-22T01:09:31.094902+00:00",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(transient attempt 1): Connection error. | zai-org.glm-5.3(transient attempt 2): Connection error. | zai-org.glm-5.3(transient attempt 3): Connection error. | openai.gpt-oss-120b(transient attempt 1): Connection error. | google.gemma-4-31B-it(model-down attempt 1): Dartmouth 'google.gemma-4-31B-it' exhausted its total retry deadline | anthropic.claude-haiku-4-5-20251001(permanent): Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: credit balance unavailable (ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))) \u2014 failing closed | local: transformers is not installed; required by local backend",
+  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(transient attempt 1): Connection error. | zai-org.glm-5.3(transient attempt 2): Connection error. | zai-org.glm-5.3(transient attempt 3)",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }

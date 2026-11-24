@@ -1,0 +1,7 @@
+{
+  "task_id": "T008.0",
+  "fingerprint": "87d919f623b4e59a77d123074c80ed3b8aa30b615b9cdb97115ab8fa07b7458d",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused pipeline control evidence or reviewed requirements: 'specs/001-robustness-contamination/spec.md'"
+}

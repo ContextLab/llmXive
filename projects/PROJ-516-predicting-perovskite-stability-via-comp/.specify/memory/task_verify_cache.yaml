@@ -8,20 +8,21 @@ T001:
   sig: 37a5cb0c254564eea8d4008dbd0360ab6b67403bdedff3e13deafe49e6d000c4
 T002:
   c: false
-  h: 3a14d9249af91187c06e87c9bed12f7bd4c489866a90874648114ddb7c453fd9
-  r: The `code/requirements.txt` file exists and contains the exact pinned versions
-    required, but there is no provided evidence (e.g., command output, logs, or screenshots)
-    that `pip install -r code/requirements.txt` actually succeeds in a fresh virtual
-    environment. The verification step is missing.
-  sig: f07122ca65cbe71f07a95359ef2bdfc6e1a0eba0b41bcfc9ecf2c49b52e5c481
+  h: a24996b58b6f073e8c027b0c79176198c07bc8980455fddd759a3258d57a081c
+  r: "The `code/requirements.txt` file exists and contains the required pinned versions,\
+    \ but the recorded test (`tests/test_requirements_install.py`) shows that `pip\
+    \ install -r code/requirements.txt` fails (exit code\u202F1) because the specified\
+    \ `mp-api==0.38.5` cannot be installed in the Python\u202F3.11 environment. The\
+    \ installation must succeed in a fresh virtual environment for the task to be\
+    \ considered complete."
+  sig: 4fad9ccf8d65f1ced717ae0688a08c0581e9007fa60d48d8fe0f229f70c76a9d
 T003:
-  c: false
-  h: 983e506d14b07ce56312fe5065d68545ea212c775d225ead8440da84faa693f9
-  r: "The `docs/quickstart.md` file is present and contains the required sections,\
-    \ but the `README.md` file is missing (no artifact or content was provided). Adding\
-    \ a non\u2011empty `README.md` with at least one non\u2011comment line will be\
-    \ needed to satisfy the task."
-  sig: 77eb9e77728efa6d3636146739cdc5bf0f129d1f9da402f678ec005865dfc28b
+  c: true
+  h: 6956269e5b20733a852a8d99083c4c911e0fc8c8769033d337b07c6f1d713346
+  r: "Checked `docs/quickstart.md` and `README.md`; both files exist, contain substantive\
+    \ non\u2011comment text, and include the required sections \u201CProject overview\u201D\
+    , \u201CInstallation\u201D, and \u201CRunning the pipeline\u201D."
+  sig: 6ae04ccc28e785303da1256d556471f1c502aeb1b6449ace49b56743c3e8bf3b
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

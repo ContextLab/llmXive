@@ -11,6 +11,7 @@ properties:
       - "heterogeneous_gnn"
       - "linear_regression"
       - "gcn_baseline"
+      - "late_fusion_gcn"
       - "ablated_gnn"
   metrics:
     type: "object"
@@ -26,7 +27,7 @@ properties:
         description: "Mean Absolute Error"
       pearson_r:
         type: "number"
-        description: "Pearson Correlation Coefficient between predicted and computed log10(Geometric Proxy)"
+        description: "Pearson Correlation Coefficient between predicted and experimental permeability"
     required:
       - rmse
       - r_squared
@@ -59,12 +60,46 @@ properties:
     type: "array"
     items:
       type: "number"
-    description: "Variance in RMSE across {0.01, 0.05, 0.1} nm thresholds"
+    description: "Variance in RMSE across the swept thresholds {0.30, 0.50, 0.70} nm"
   threshold_sweep_values:
     type: "array"
     items:
       type: "number"
-    description: "The specific threshold values swept (must be [0.01, 0.05, 0.1])"
+    description: "The specific threshold values swept (must be [0.30, 0.50, 0.70])"
+  runtime_seconds:
+    type: "number"
+    description: "Wall‑clock time for the entire pipeline (download → evaluation) in seconds"
+  power_achieved:
+    type: "number"
+    description: "Statistical power computed for the final sample size (1 = 100 % power)"
+  feature_importance:
+    type: "object"
+    properties:
+      top_molecular_features:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+            shap_value:
+              type: "number"
+          required:
+            - name
+            - shap_value
+      top_framework_features:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+            shap_value:
+              type: "number"
+          required:
+            - name
+            - shap_value
+    description: "SHAP‑based ranked feature importance (top 5 each side)."
   timestamp:
     type: "string"
     format: "date-time"
@@ -76,6 +111,8 @@ required:
   - model_type
   - metrics
   - cross_validation
+  - runtime_seconds
+  - power_achieved
   - timestamp
   - seed
   - threshold_sweep_values

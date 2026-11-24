@@ -4,28 +4,28 @@
 
 **Verdict**: pass
 
-The question explicitly asks about the extent to which *experimentally measured* spectroscopic data provides *independent* predictive signal for reaction yield beyond static structural fingerprints. This frames a substantive scientific inquiry into the relationship between environmental spectral signatures (solvation, intermolecular interactions) and reaction efficiency, rather than evaluating the performance of a specific model architecture or computational budget.
+The question asks whether experimentally measured spectra carry predictive signal for reaction yield beyond structural fingerprints — a substantive question about the information content of spectroscopic measurements relative to molecular structure. The attention architecture is the instrument, not the subject; the question would survive replacing the model class.
 
 ### Circularity check
 
 **Verdict**: pass
 
-The predictor data comes from raw experimental spectra (IR, Raman, NMR) which capture dynamic environmental states and intermolecular interactions, while the predicted variable is the reaction yield, an independent experimental outcome measured as a mass balance or conversion percentage. These are distinct physical measurements derived from different experimental procedures, ensuring the predictive relationship is not mechanically guaranteed by construction.
+The predictors are IR/¹H-NMR spectra and ECFP fingerprints (both derived from molecular identity, but distinct information sources); the predicted variable is experimentally measured reaction yield from HTE datasets — an independent laboratory outcome. No mechanical construction links spectra to yield. The label-permutation protocol further guards against spurious structure.
 
 ### Triviality check
 
 **Verdict**: pass
 
-A positive result (spectra predict yield better than fingerprints) would validate a new paradigm for non-invasive reaction monitoring by proving environmental effects are encoded in spectral data. A null result (spectra add no signal) would be equally informative, suggesting that yield variations are dominated by factors not captured in equilibrium-state spectra (e.g., transient kinetics or catalyst surface states), thereby refining the theoretical understanding of yield determinants.
+Both outcomes are informative: a positive result validates spectroscopy as a cheap, non-invasive yield-screening signal and localizes the responsible spectral regions; a null result is a publishable negative constraining claims that environmental/solvation information in bench spectra is usable for yield prediction. Neither answer is predetermined by domain knowledge.
 
 ### Question-narrowing check
 
 **Verdict**: pass
 
-The question names a clear domain relationship: the predictive power of environmental spectral features versus static structural features for reaction yield. It does not constrain the inquiry to whether a specific model (like an attention mechanism) can run within a time budget, but rather uses the model as a tool to answer the underlying chemical question about signal independence.
+The question names a domain relationship (spectral information content vs. structural fingerprints for yield) and explicitly asks *which spectral regions* carry signal — a mechanistic question. Implementation constraints (CPU threads, epochs, batch size) are confined to the methodology, not the research question.
 
 ### Overall verdict
 
 **Verdict**: validated
 
-All checks pass; the research question targets a genuine gap in understanding the relationship between spectroscopic signatures and reaction outcomes without falling into implementation-narrowing or circularity traps. The focus on "independent predictive signal" ensures the project addresses a fundamental chemical inquiry rather than a benchmarking exercise.
+All four checks pass. The research question is well-framed as an information-content question independent of the modeling method, with independent predictor and target sources and informative outcomes under either result. The main residual risk is data availability (matched spectra–yield pairs may fall below the ~300-reaction threshold), but the methodology already handles that with a documented halt rather than a degraded question, so it does not undermine the question itself.

@@ -1,58 +1,75 @@
-# Data Model: The Influence of Social Media "Doomscrolling" on Anticipatory Anxiety
+# Data Model: The Influence of Social Media “Doomscrolling” on Anticipatory Anxiety
 
 ## Entity Definitions
 
-### SurveyResponse
-
-Represents a single participant record after cleaning.
+### SurveyResponse (cleaned row – only present if a verified dataset passes schema validation)
 
 | Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `participant_id` | string | Unique anonymized identifier. | Non-null, unique. |
-| `news_exposure_freq` | float | Frequency of negative news consumption (proxy: Media Exposure). | Non-null, ≥ 0. |
-| `anxiety_score` | float | Outcome anxiety score (GAD-7). | Non-null, ≥ 0. |
-| `baseline_anxiety` | float | Baseline/trait anxiety score. | Nullable. (Dropped if not distinct). |
-| `age` | integer | Participant age in years. | Non-null, 18 ≤ age ≤ 100. |
-| `gender` | string | Categorical gender. | One of: "Male", "Female", "Other". |
-| `education_level` | integer | Education level (used for robustness). | Nullable. |
-| `instrument_source` | string | Name of the anxiety instrument used. | Non-null. |
-| `measurement_timepoint` | string | "pre", "post", or "trait". | Non-null. |
-| `proxy_flag` | boolean | True if 'general_anxiety' was used as proxy. | Non-null. |
-| `coupling_risk` | boolean | True if baseline and outcome risk mathematical coupling. | Non-null. |
+|-------|------|-------------|------------|
+| `participant_id` | string | Anonymized unique identifier | non‑null, unique |
+| `news_exposure_freq` | number | Frequency of negative news consumption on social media | non‑null, ≥ 0 |
+| `news_exposure_freq_std` | number | **Standardized (z‑score) version** of `news_exposure_freq`; used for regression to make effect‑size thresholds scale‑independent. | non‑null |
+| `anxiety_score` | number | Outcome anxiety score (validated scale or flagged proxy) | non‑null, ≥ 0 |
+| `baseline_anxiety` | number \| null | Baseline/trait anxiety; may be null if instrument overlaps with outcome. Retained **only if** distinct instrument confirmed; otherwise dropped from the primary model (see FR‑003). | ≥ 0 |
+| `age` | integer | Participant age in years. | non‑null, 18 – 100 |
+| `gender` | string | Gender category. | non‑null, categorical |
+| `social_media_engagement` | number \| null | Overall social‑media engagement; required only for robustness check. | ≥ 0 |
+| `instrument_source` | string | Name of the anxiety instrument (e.g., GAD‑7) | non‑null |
+| `measurement_timepoint` | string | Timepoint of measurement (`pre`, `post`, or `trait`). | non‑null |
+| `proxy_flag` | boolean | True if the anxiety score is a proxy for anticipatory anxiety (FR‑008). | non‑null |
+| `coupling_risk` | boolean | True if baseline and outcome anxiety may be mathematically coupled. If `true`, `baseline_anxiety` is **excluded** from the primary regression (FR‑003). | non‑null |
+| `proxy_validated` | boolean | True if the proxy anxiety instrument is on the validated whitelist. | non‑null |
+| `missingness_indicator_<var>` | boolean \| null | Indicator for non‑MCAR missingness for each predictor (added when MCAR test fails). | optional |
+| `vif_score` | number \| null | VIF for the variable after model fit (added for diagnostics). | optional |
 
-### RegressionResult
-
-Represents the output of the statistical model.
+### VariableMetadata (metadata for anxiety measures)
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
-| `model_type` | string | "OLS" |
-| `n_samples` | integer | Number of observations used. |
-| `r_squared` | float | Coefficient of determination. |
-| `adj_r_squared` | float | Adjusted R-squared. |
-| `f_statistic` | float | F-statistic for the model. |
-| `f_pvalue` | float | P-value for the F-statistic. |
-| `coefficients` | object | Map of variable names to coefficient values. |
-| `std_errors` | object | Map of variable names to standard errors. |
-| `p_values` | object | Map of variable names to p-values. |
-| `vif_scores` | object | Map of variable names to VIF scores. |
-| `assumption_checks` | object | Results of linearity, homoscedasticity, normality tests. |
-| `robustness_result` | object | Optional results from the Education Level subset analysis. |
-| `flags` | array | List of warnings (e.g., "Low Power", "Proxy Used", "High VIF", "No Baseline Control"). |
-| `runtime` | number | Execution time in seconds (for SC-005). |
+|-------|------|-------------|
+| `variable_name` | string | Name of the variable (e.g., `anxiety_score`, `baseline_anxiety`) |
+| `instrument_identifier` | string | Identifier of the measurement instrument (e.g., `STAI‑Y`) |
+| `measurement_timepoint` | string | Timepoint of measurement (`pre`, `post`, `trait`) |
+
+### RegressionResult (analysis output – always a single JSON file)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `model_type` | string | `"OLS"` |
+| `data_status` | string | `"OK"` when a verified dataset passed schema validation; `"HALTED_NO_VALID_DATASET"` when the pipeline halted at ingestion (FR‑001 edge case). |
+| `n_samples` | integer | Rows used after listwise deletion or imputation (present only when `data_status = "OK"`). |
+| `r_squared` | number | Model R² (present only when `data_status = "OK"`). |
+| `adj_r_squared` | number | Adjusted R² (present only when `data_status = "OK"`). |
+| `adj_r2_pass` | boolean | **True** if `adj_r_squared` ≥ 0.10 (SC‑002); otherwise **false**. |
+| `f_statistic` | number | Overall F‑statistic (present only when `data_status = "OK"`). |
+| `f_pvalue` | number | P‑value for the overall F‑test (present only when `data_status = "OK"`). |
+| `coefficients` | object | Mapping *variable → coefficient* (real estimates only). |
+| `std_errors` | object | Mapping *variable → standard error*. |
+| `p_values` | object | Mapping *variable → p‑value*. |
+| `vif_scores` | object | Mapping *variable → VIF* (added after model fit). |
+| `assumption_checks` | object | `{linearity, homoscedasticity, normality, shapiro_wilk_p_value, linearity_p, homoscedasticity_p, normality_p}` – PASS/FAIL plus raw p‑values (required for SC‑004). |
+| `robustness_result` | object \| null | If robustness runs: `{subset_n, coefficient, p_value, status, sign_match, pvalue_match, bootstrap}`; otherwise null. |
+| `flags` | array[string] | Warnings such as `"Low Power"`, `"Proxy Used (unvalidated)"`, `"Proxy Used (validated)"`, `"High VIF"`, `"Robustness Skipped (r <= 0.3)"`, `"RobustnessSignMismatch"`, `"Associational Only"`. |
+| `runtime` | number | Execution time in seconds (SC‑005). |
+| `halt_report` | object \| null | Present only when `data_status = "HALTED_NO_VALID_DATASET"`; records sources checked, checksums, real column inventories, and missing variables. |
+| `proxy_validated` | boolean | Mirrors dataset‑level `proxy_validated` flag when a proxy is used. |
+| `associational_only` | boolean | Always `true` for observational data. |
+| `beta_standardized_pass` | boolean | **True** if the standardized β for `news_exposure_freq_std` meets the ≥ 0.10 threshold (SC‑001). |
 
 ## Data Flow
-
-1.  **Raw Data**: Downloaded from NHANES (Parquet/CSV).
-2.  **Cleaned Data**: `SurveyResponse` records after listwise deletion.
-3.  **Model Output**: `RegressionResult` JSON/CSV.
-4.  **Visualization**: PNG/SVG files generated from `RegressionResult` and `Cleaned Data`.
+1. **Ingestion** (`code/ingest.py`): download verified parquet files → `data/raw/`; compute SHA‑256; validate schema against `contracts/dataset.schema.yaml`.  
+2. **If validation fails** (current reality): create `output/results/regression_results.json` with `data_status = "HALTED_NO_VALID_DATASET"` and embed a complete `halt_report`; pipeline stops.  
+3. **If validation succeeds** (future scenario): clean data → `SurveyResponse` entities (in‑memory); perform missingness assessment, factor‑analysis proxy validation, VIF‑based collinearity check; **standardize** `news_exposure_freq`; fit OLS; produce results.  
+4. **Modeling** (`code/model.py`): OLS fit, diagnostics, correlation, robustness (high‑engagement subset, alternative covariates, robust regression) → populate `RegressionResult`.  
+5. **Visualization** (`code/viz.py`): generate `output/plots/scatter_news_anxiety.png`.  
+6. **Success‑criteria validation** (`code/validate_sc.py`): read the JSON, write `outputs/success_criteria_log.txt`.  
+7. **Documentation** (`code/generate_readme.py`) and **archiving** (`code/archive.py`) run after validation.  
 
 ## Assumptions & Constraints
+- No imputation is performed unless MCAR fails **and** missingness proportion for predictor/outcome ≤ 10 %; otherwise primary analysis uses listwise deletion (FR‑009).  
+- Gender is one‑hot encoded for OLS; continuous predictors remain on original scale (except `news_exposure_freq`, which is standardized).  
+- `baseline_anxiety` is retained **only if** distinct instrument confirmed; otherwise dropped to avoid coupling bias (addresses scientific‑soundness‑8167b4cc).  
+- Robustness includes three complementary strategies (high‑engagement, alternative covariates, robust regression).  
+- All numeric computations use double precision on CPU; no GPU required.  
 
-- **Missing Data**: No imputation. Rows with nulls in key predictors are dropped.
-- **Outliers**: No automatic outlier removal; outliers are analyzed via residual plots.
-- **Categorical Encoding**: `gender` is one-hot encoded during model fitting.
-- **Scale**: All continuous variables are assumed to be on a comparable scale or standardized if required by the model (OLS does not strictly require standardization for interpretation, but it helps with VIF).
-- **Proxy**: If `anxiety_score` is derived from GAD-7, `proxy_flag` is set to True.
-- **Baseline**: If `baseline_anxiety` is not distinct, it is dropped and `coupling_risk` is True.
+---
+

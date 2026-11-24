@@ -11,11 +11,11 @@
     "python code/visualization.py --input data/results/associations.csv --output docs/figures/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-215-investigating-the-relationship-between-g/code/visualization.py\", line 178, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-215-investigating-the-relationship-between-g/code/visualization.py\", line 175, in main\n    run_heatmap_visualization()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-215-investigating-the-relationship-between-g/code/visualization.py\", line ",
     "python code/report.py --input data/results/associations.csv --output docs/report.md -> rc=1\n    Report generation failed: get_output_path() missing 1 required positional argument: 'filename'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-215-investigating-the-relationship-between-g/code/report.py\", line 200, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-215-investigating-the-relationship-between-g/code/report.py\", line 193, in main\n    output_path = run_report_generation()\n                  ^^^^^^^^^^^^^^^^^^^^^^^\n  F"
   ],
-  "fix_rounds": 2,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-10-08T11:10:47Z"
+  "updated_at": "2026-10-22T03:36:11Z"
 }

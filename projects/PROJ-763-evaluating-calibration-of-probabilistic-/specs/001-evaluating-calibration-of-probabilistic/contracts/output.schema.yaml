@@ -1,35 +1,35 @@
-$schema: https://json-schema.org/draft/2020-12/schema
-title: Output Schema for Calibration Results
-description: Schema for results CSVs and logs
-type: object
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Output Schema for Calibration Results"
+description: "Schema for results CSVs and logs"
+type: "object"
 properties:
   results_baseline:
-    type: array
+    type: "array"
     items:
-      type: object
+      type: "object"
       properties:
         metric_name:
-          type: string
+          type: "string"
           enum:
-            - Brier
-            - CRPS
-          description: Name of metric
+            - "Brier"
+            - "CRPS"
+          description: "Name of metric"
         lead_time:
-          type: integer
-          description: Lead time for this metric
+          type: "integer"
+          description: "Lead time for this metric"
         variable:
-          type: string
-          description: Variable name
+          type: "string"
+          description: "Variable name"
         method:
-          type: string
-          const: raw
-          description: Method used (raw)
+          type: "string"
+          const: "raw"
+          description: "Method used (raw)"
         value:
-          type: number
-          description: Computed metric value
+          type: "number"
+          description: "Computed metric value"
         sample_size:
-          type: integer
-          description: Number of samples used
+          type: "integer"
+          description: "Number of samples used"
       required:
         - metric_name
         - lead_time
@@ -38,32 +38,32 @@ properties:
         - value
         - sample_size
   results_isotonic:
-    type: array
+    type: "array"
     items:
-      type: object
+      type: "object"
       properties:
         metric_name:
-          type: string
+          type: "string"
           enum:
-            - Brier
-            - CRPS
-          description: Name of metric
+            - "Brier"
+            - "CRPS"
+          description: "Name of metric"
         lead_time:
-          type: integer
-          description: Lead time for this metric
+          type: "integer"
+          description: "Lead time for this metric"
         variable:
-          type: string
-          description: Variable name
+          type: "string"
+          description: "Variable name"
         method:
-          type: string
-          const: isotonic
-          description: Method used (isotonic)
+          type: "string"
+          const: "isotonic"
+          description: "Method used (isotonic)"
         value:
-          type: number
-          description: Computed metric value
+          type: "number"
+          description: "Computed metric value"
         sample_size:
-          type: integer
-          description: Number of samples used
+          type: "integer"
+          description: "Number of samples used"
       required:
         - metric_name
         - lead_time
@@ -72,41 +72,41 @@ properties:
         - value
         - sample_size
   results_bayesian:
-    type: array
+    type: "array"
     items:
-      type: object
+      type: "object"
       properties:
         metric_name:
-          type: string
+          type: "string"
           enum:
-            - Brier
-            - CRPS
-          description: Name of metric
+            - "Brier"
+            - "CRPS"
+          description: "Name of metric"
         lead_time:
-          type: integer
-          description: Lead time for this metric
+          type: "integer"
+          description: "Lead time for this metric"
         variable:
-          type: string
-          description: Variable name
+          type: "string"
+          description: "Variable name"
         method:
-          type: string
+          type: "string"
           enum:
-            - bayesian
-            - bayesian_fallback
-          description: Method used (bayesian or fallback)
+            - "bayesian"
+            - "bayesian_fallback"
+          description: "Method used (bayesian or fallback)"
         value:
-          type: number
-          description: Computed metric value
+          type: "number"
+          description: "Computed metric value"
         sample_size:
-          type: integer
-          description: Number of samples used
+          type: "integer"
+          description: "Number of samples used"
         convergence_status:
-          type: string
+          type: "string"
           enum:
-            - converged
-            - unconverged
-            - timeout
-          description: Bayesian convergence status
+            - "converged"
+            - "unconverged"
+            - "timeout"
+          description: "Bayesian convergence status"
       required:
         - metric_name
         - lead_time
@@ -116,36 +116,36 @@ properties:
         - sample_size
         - convergence_status
   results_fallback:
-    type: array
+    type: "array"
     items:
-      type: object
+      type: "object"
       properties:
         metric_name:
-          type: string
+          type: "string"
           enum:
-            - Brier
-            - CRPS
-          description: Name of metric
+            - "Brier"
+            - "CRPS"
+          description: "Name of metric"
         lead_time:
-          type: integer
-          description: Lead time for this metric
+          type: "integer"
+          description: "Lead time for this metric"
         variable:
-          type: string
-          description: Variable name
+          type: "string"
+          description: "Variable name"
         method:
-          type: string
-          const: isotonic
-          description: Method used (isotonic)
+          type: "string"
+          const: "isotonic"
+          description: "Method used (isotonic)"
         value:
-          type: number
-          description: Computed metric value
+          type: "number"
+          description: "Computed metric value"
         sample_size:
-          type: integer
-          description: Number of samples used
+          type: "integer"
+          description: "Number of samples used"
         status:
-          type: string
-          const: fallback
-          description: Fallback status
+          type: "string"
+          const: "fallback"
+          description: "Fallback status"
       required:
         - metric_name
         - lead_time

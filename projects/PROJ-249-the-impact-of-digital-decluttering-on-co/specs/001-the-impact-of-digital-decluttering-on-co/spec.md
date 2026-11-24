@@ -89,7 +89,7 @@ The system must compute change scores (post-pre) for all metrics, perform robust
 ## Assumptions
 
 - **Assumption about data source**: The study assumes that the Open Science Framework (OSF) provides valid, web-accessible versions of the SART and Ospan tasks (v2.1+) that function correctly in a standard browser without requiring local installation.
-- **Assumption about sample size**: The study assumes a sample size sufficient to detect a medium effect size (Cohen's d ≈ 0.5) with [deferred] power., acknowledging that a formal power analysis was not conducted in this design phase but this is a standard pilot target.
+- **Assumption about sample size**: The study assumes a sample size sufficient to detect a medium effect size (Cohen's d) with [deferred] power., acknowledging that a formal power analysis was not conducted in this design phase but this is a standard pilot target.
 - **Assumption about compliance**: The study assumes that self-reported digital usage logs are sufficiently accurate for the purpose of a pilot study, despite the lack of objective screen-time tracking, and that FR-011 will mitigate validity threats.
 - **Assumption about compute**: The analysis assumes that the entire dataset (a moderate number of participants × multiple metrics) will fit comfortably within the 7 GB RAM limit of the GitHub Actions free-tier runner, allowing for standard Python/scipy and bootstrapping operations.
 - **Assumption about normality**: The study assumes that bootstrapped confidence intervals provide a robust alternative to normality-dependent tests for this sample size, reducing reliance on the low-power Shapiro-Wilk test.

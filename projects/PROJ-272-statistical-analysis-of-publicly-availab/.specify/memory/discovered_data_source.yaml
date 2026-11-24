@@ -1,12 +1,14 @@
 status: none
-intent: download ADReSS Challenge raw speech transcripts dataset python package dataset
+intent: download ADReSS Challenge sentence embeddings and PII synthetic dataset python
+  package dataset
 required_fields:
-- participant_id
-- transcript_text
+- audio_id
+- transcript
+- embedding_vector
 - diagnosis_label
 - age
 - gender
-- audio_file_path
-cache_key: 5c377c2859451eebd0facf8c75b2e3eb8c11b8de6ea26ceb4bb1b20e13516b96
-searched_at: '2026-09-30T16:29:07.891785+00:00'
+- pii_entities
+cache_key: 5c7b7f7f6613494b2f5beae93ff3e74156a403bdb317a0767368e1deef039b02
+searched_at: '2026-11-02T00:44:26.917727+00:00'
 retry_count: 1

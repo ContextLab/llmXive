@@ -1,3 +1,21 @@
+T001:
+  c: false
+  h: 63209faf7b61d7035f836716f5e80cfa978aa36d2f47dc87eb6b6cdd996459be
+  r: "The required artifact `data/raw/2022/On_Time_Reporting_CSV.zip` is missing,\
+    \ and the accompanying `data/README.md` with the checksum is also absent. Moreover,\
+    \ the test suite shows the download step failing (no zip created). The task\u2019\
+    s core requirement\u2014to retrieve the full\u2011year 2022 BTS CSV via streaming\
+    \ and store the raw archive\u2014has not been fulfilled. Fix by ensuring the download\
+    \ succeeds, the zip file is saved at the specified path, and a README with the\
+    \ correct SHA\u2011256 checksum is added."
+  sig: ff03bb6dec6f18d2a99f841380865dfced5187e756fc2966df6bfca45e0b0c74
+T002:
+  c: false
+  h: c09078fbeb39a9bf6f61f6ab49aed68eaca0f95143fcf0b4c3a32aa185fbfc4b
+  r: "The required implementation file `code/preprocess.py`, the output dataset `data/processed/cleaned_delays.csv`,\
+    \ and the schema file `delay_record.schema.yaml` are all missing from the project,\
+    \ so the task\u2019s core deliverables are not present."
+  sig: 137d36f77d3027107fb3bcbde2fb75b9326aaa37f0c7b9bf9f2384f410fc2402
 T008:
   c: true
   h: 7bb8c776ab15ca16508ee31440071653888ae2b8e5895c4e7a775cc55728d398
@@ -13,10 +31,3 @@ T028:
     \ with KS tests or generates histograms, nor does it write a JSON result file.\
     \ Additionally, the required output file `data/results/component_comparison.json`\
     \ is absent. The task\u2019s core requirements are therefore not met."
-T035:
-  c: false
-  h: 30284483b3e2503aa91c1c3c9bfaedf3e80ac6182038555ad22d2f7cce4acaa9
-  r: "The provided `code/diagnostics.py` is truncated and does not contain the required\
-    \ Log\u2011Normal discrimination logic, curvature statistic comparison, or code\
-    \ to write the JSON result. Moreover, the expected output file `data/results/log_normal_test.json`\
-    \ is absent. Both the implementation and the required artifact are missing."

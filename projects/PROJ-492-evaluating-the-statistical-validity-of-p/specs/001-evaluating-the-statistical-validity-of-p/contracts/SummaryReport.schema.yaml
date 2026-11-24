@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SummaryReport"
+type: "object"
+required:
+  - "total_summaries"
+  - "inconsistent_count"
+  - "inconsistent_rate"
+  - "wilson_ci_lower"
+  - "wilson_ci_upper"
+properties:
+  total_summaries:
+    type: "integer"
+    minimum: 1
+    description: "Total number of summaries audited"
+  inconsistent_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of summaries flagged as inconsistent"
+  inconsistent_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Raw inconsistency proportion"
+  wilson_ci_lower:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Lower bound of 95 % Wilson confidence interval"
+  wilson_ci_upper:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Upper bound of 95 % Wilson confidence interval"
+additionalProperties: false

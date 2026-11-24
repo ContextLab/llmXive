@@ -8,13 +8,13 @@ T001:
     being fully satisfied.
   sig: f8b6569672ff81855bceaffea2a61a6a1d5de733eaffd2ac1945a233d4a5091f
 T002:
-  c: false
-  h: fbd596766556d2682716903ddb9fd931b4feb8785f786af893340e62636f7925
-  r: "The `requirements.txt` file is present and lists the required packages, but\
-    \ none of them are version\u2011pinned (e.g., `rpy2==...`). The task explicitly\
-    \ demanded a *pinned* requirements file, so the artifact does not meet the specification.\
-    \ Adding exact version specifiers for each listed dependency is needed."
-  sig: 75ddd7085463d760774f0083bda584d924ad1e0db14dc6de055d4ec2b43f3c58
+  c: true
+  h: f03c8b2f6f1767cdbd59544b687b5d1f2e1696effcd005d274af9abcb8d1c309
+  r: "The `requirements.txt` file was found at `projects/PROJ-463-predicting-plant-defense-allocation-from/requirements.txt`\
+    \ (841\u202Fbytes) and contains pinned versions of all required packages (`rpy2`,\
+    \ `biopython`, `scikit-learn`, `seaborn`, `matplotlib`, `ete3`, `pydantic`, `requests`,\
+    \ `tqdm`, `pyyaml`). No missing or placeholder entries were detected."
+  sig: 376a4ad52584809c7ee9647692bea8459d6917bb42e903d1525bbda68eab753c
 T003a-fix:
   c: false
   h: 89c9338c112da3405ddf9b240cc4ee21638c738f342167ac65fa0272f7906008
@@ -42,12 +42,52 @@ T004-fix:
   sig: cc2e368f8e595ec217517af7ecbd8ee82c50729fd27f3423bec0a3c0bce11cdb
 T005-fix:
   c: true
-  h: 25a127e846c496a6444841a301cbc19f7bf208712e4d33f51dc275e004a21fc0
-  r: Checked `src/utils/logger.py` and `src/utils/provenance.py`; both files exist,
-    contain full implementations of a pipeline logger (singleton, setup, handlers,
-    level control) and a provenance tracking system (artifact records, run management,
-    JSON export), satisfying the logging and provenance tracking requirements.
-  sig: 9a80d8d0ba550ffae722f7c4fd1785d135bff7ce95e85840c59ab775a192f10a
+  h: 63a8b34e0c69620913a856d9f39648cca0afe7000495dfecce370df4e35c9762
+  r: "The `src/utils/logger.py` file provides a full logging setup with singleton\
+    \ access, configurable log directory, level, and handlers, while `src/utils/provenance.py`\
+    \ implements a comprehensive provenance tracking system (records, runs, tracker,\
+    \ and convenience functions). Both artifacts exist, are non\u2011empty, and contain\
+    \ functional code matching the task\u2019s logging and provenance requirements."
+  sig: ee53675641c315fd8d980354005ff77cc67369000753b1466778db0d0b521390
+T006-fix:
+  c: true
+  h: ad6fd1ede936fd8e62db6b78ff2e65bd769d140d41c031f85252842b2506c88e
+  r: "The `src/utils/schemas.py` file exists (6417\u202Fbytes) and defines the four\
+    \ required Pydantic models\u2014`RNASeqStudy`, `HerbivoreResponseVector`, `DefenseAllocationIndex`,\
+    \ and `Species`\u2014with exactly the specified field names and types (str, int,\
+    \ float, List[str]), matching the task specification. No required schema is missing\
+    \ or incorrectly defined."
+  sig: 53f586b1f8d7cc0d045f21bcacdb044e837183041eeaa8758e85e0413b55be67
+T008:
+  c: false
+  h: b0a631edefc21db36e45b09015a306a2d51723d9de89463659e39db3589e2a46
+  r: "The `tests/unit/test_download.py` file exists, but it imports a non\u2011existent\
+    \ function `validate_fastq_download` (no such function is defined in either `src/data/download.py`\
+    \ or `code/src/data/download.py`) and uses a `ManifestEntry` schema that does\
+    \ not match the actual `ManifestEntry` model in `src/utils/schemas.py`. Consequently\
+    \ the unit test cannot run or validate FASTQ downloads as required. The missing/incorrect\
+    \ implementation must be added and the test adjusted to the real schema."
+  sig: 87d0a0496a45c9975d873bbcb32fddcdf3c4339c2c816eebcdaf331f17209a20
+T009:
+  c: false
+  h: 79dda34a707e5ad4c0488cebd74c8ac076b99b250edc8b132f2eebd8df382a96
+  r: "The `tests/unit/test_batch_correction.py` file exists and contains many relevant\
+    \ test cases, but it is not a runnable unit test because it references `os.path.exists`\
+    \ without importing the `os` module, causing a `NameError` during execution. This\
+    \ missing import prevents the test suite from actually verifying the batch\u2011\
+    correction metric calculations. Adding the missing `import os` (and ensuring the\
+    \ test runs without errors) is required to satisfy the task."
+  sig: 5da7ee9e78effeb2f57628fb001a6826d3109357d1392b082eddabbd23323b77
+T010:
+  c: false
+  h: 11227b2ae003c60fa82afa7bc5f77168d4a1a478bf2a602c59951667004daa91
+  r: "The `tests/integration/test_preprocess.py` file is present, but it never generates\
+    \ synthetic FASTQ files nor invokes the full `run_preprocessing_pipeline` function;\
+    \ it manually creates a counts matrix and computes TPM, so the test does not actually\
+    \ exercise the complete preprocessing pipeline as required. The integration test\
+    \ therefore fails to satisfy the \u201Cfull preprocessing pipeline\u201D requirement\
+    \ (step\u202F1) and is incomplete."
+  sig: e4956c171e1c398e3d5301cea3299b80fb733fb9b3859892fcb9dd656218d696
 T011a:
   c: false
   h: 4453c61b2dd66745b5c0b9a2118c82c58cbe1bb4da052861fe3000a2483e648b

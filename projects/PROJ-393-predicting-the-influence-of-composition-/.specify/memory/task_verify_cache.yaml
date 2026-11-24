@@ -1,3 +1,19 @@
+T001:
+  c: false
+  h: 87310329665de76a688ac192ee40c501ed59c3b529dd1495b5b6857754824a2e
+  r: "The `docs/reports/` directory is missing, the `requirements.txt` uses loose\
+    \ \u201C>=\u201D version specifiers instead of exact pins, and there is no execution\
+    \ evidence that `python -m src.main --help` produces the required \u201CSetup\
+    \ OK\u201D help message."
+  sig: 2d5a336e7971df204c89031aae6ee78e2bd78e83ff88336b5d45377b4b064ed9
+T002:
+  c: false
+  h: 1b56ed4984447322727cd0854a5ff1ba89f47c064e87ef52fbf3e7f8ab375175
+  r: The required file `data/raw/elemental_properties_v1.csv` is missing, `src/features/descriptors.py`
+    is absent, and `data/checksums.txt` contains no checksum entry for the CSV. Additionally,
+    the provided test script looks for `data/raw/elemental_properties.csv` with a
+    different column set, so it does not verify the required schema.
+  sig: 1b90d08ceafb41683b854728c82a1707eebdc4f23aa8d73fe7e8566abcb4cae8
 T012:
   c: false
   h: 3901afc96271d248b56ed875487409e9329086db4feddbb36981310e2a6e1986
@@ -5,27 +21,3 @@ T012:
     \ missing from the repository, so no test code exists to verify that the composition\
     \ parser correctly converts \"Co2MnGa\" to atomic fractions. The task\u2019s primary\
     \ artifact is absent."
-T018:
-  c: true
-  h: 7e265118f107f76b2a3b6c766f4b8d741d35adf85c4135f52381cea2f4d7b2f3
-  r: "The `manual_curator.py` file defines `load_manual_curated_data` that checks\
-    \ for `data/raw/manual_curated.csv`, logs a warning when it is absent, and returns\
-    \ an empty DataFrame, fulfilling the graceful\u2011degradation requirement. The\
-    \ required artifact is present and implements the specified behavior."
-T028b:
-  c: false
-  h: 13ceee65977a9b32efa09f441387de6d20f154aed21f3c5444fb8f7cf0a7cde8
-  r: "The required data file `data/processed/alloys_raw.csv` is missing, so the checker\
-    \ cannot count rows, and the script only logs an error (not a critical error)\
-    \ when the file is absent. Moreover, the implementation is truncated/incomplete,\
-    \ does not correctly call `check_and_warn` with the required arguments, and writes\
-    \ a flag file containing extra fields instead of the exact `{\"n\": N, \"threshold\"\
-    : 50}` JSON. These issues prevent the task\u2019s specifications from being satisfied."
-T072:
-  c: false
-  h: 9818ba6b2bc615d09b0add639da73bb715ba489a0944e6fb673dd2d9eb780412
-  r: The required `data/raw/elemental_properties.csv` file is absent, so the descriptor
-    calculator cannot look up element properties. Moreover, while the code logs warnings
-    for missing elements, it does not implement logic to skip or exclude the entire
-    composition entry from analysis as the task specifies. Both the missing data file
-    and the incomplete exclusion behavior need to be addressed.

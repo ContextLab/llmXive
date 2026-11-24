@@ -1,13 +1,16 @@
 status: none
-intent: download diffusion coefficients water ethanol acetone NIST Chemistry WebBook
-  dataset python package dataset
+intent: download experimental diffusion coefficient dataset NIST ThermoML IUPAC database
+  python package dataset
 required_fields:
-- compound
-- diffusion_coefficient
-- units
+- solute_name
+- solvent_name
 - temperature_K
 - pressure_atm
-- source
-cache_key: 2d918211c06184384a8c70210887630fe640ed93661fd4994b1c8ba04fa137a5
-searched_at: '2026-09-20T19:47:22.741313+00:00'
+- diffusion_coefficient_m2_per_s
+- measurement_method
+- uncertainty
+- reference_citation
+- doi
+cache_key: f3019ba1307c02e579e16d5e19889a280abb5d0f3e5e175578b8f7badffd0e82
+searched_at: '2026-10-23T11:28:15.192437+00:00'
 retry_count: 1

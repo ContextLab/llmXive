@@ -2,6 +2,7 @@
 Tests for T029, T057, T061, T062, T068.
 Includes tests for aggregate metrics, sensitivity analysis, and Clopper-Pearson.
 """
+
 import pytest
 import pandas as pd
 import numpy as np
@@ -12,7 +13,11 @@ import os
 # Add code to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from analysis.metrics import calculate_aggregate_metrics, calculate_confidence_interval, run_sensitivity_analysis
+from analysis.metrics import (
+    calculate_aggregate_metrics,
+    calculate_confidence_interval,
+    run_sensitivity_analysis,
+)
 from main import TARGET_ITERATIONS
 
 
@@ -27,7 +32,10 @@ class TestClopperPearsonVerification:
         # Here we just check the function runs and returns valid floats
         try:
             from statsmodels.stats.proportion import proportion_confint
-            lower, upper = proportion_confint(count=5, nobs=100, alpha=0.05, method='beta')
+
+            lower, upper = proportion_confint(
+                count=5, nobs=100, alpha=0.05, method="beta"
+            )
             # Our function should return similar
             lower_res, upper_res = calculate_confidence_interval(5, 100, alpha=0.05)
             assert isinstance(lower_res, float)
@@ -48,12 +56,9 @@ class TestEmpiricalErrorRate:
     def test_error_rate_calculation(self):
         """Test that error rate is count(p < alpha) / total."""
         # Create mock results
-        data = {
-            "p_value": [0.01, 0.04, 0.06, 0.10, 0.02],
-            "ground_truth": ["null"] * 5
-        }
+        data = {"p_value": [0.01, 0.04, 0.06, 0.10, 0.02], "ground_truth": ["null"] * 5}
         df = pd.DataFrame(data)
-        
+
         # Expected: 3 values < 0.05 -> 3/5 = 0.6
         # We rely on calculate_aggregate_metrics to do this
         # Since we can't easily mock the file write in a unit test without temp dir,
@@ -66,14 +71,16 @@ class TestFullPipeline:
     def test_aggregate_metrics_runs(self):
         """Test that calculate_aggregate_metrics runs without crashing on a sample DF."""
         # Create a sample DF matching the schema
-        df = pd.DataFrame({
-            "config_id": ["Normal", "Normal", "Skewed"],
-            "scaling_method": ["standardize", "standardize", "standardize"],
-            "test_type": ["t_test", "t_test", "t_test"],
-            "p_value": [0.01, 0.06, 0.03],
-            "ground_truth": ["null", "null", "null"]
-        })
-        
+        df = pd.DataFrame(
+            {
+                "config_id": ["Normal", "Normal", "Skewed"],
+                "scaling_method": ["standardize", "standardize", "standardize"],
+                "test_type": ["t_test", "t_test", "t_test"],
+                "p_value": [0.01, 0.06, 0.03],
+                "ground_truth": ["null", "null", "null"],
+            }
+        )
+
         # This should write to results/aggregate_metrics.csv
         # We don't assert the file content here to avoid I/O dependency in unit test,
         # but we assert no exception is raised.
@@ -86,16 +93,18 @@ class TestFullPipeline:
 class TestSensitivityAnalysis:
     def test_sensitivity_analysis_runs(self):
         """Test that run_sensitivity_analysis runs and creates output."""
-        df = pd.DataFrame({
-            "p_value": [0.01, 0.04, 0.06, 0.10, 0.02],
-            "ground_truth": ["null"] * 5,
-            "scaling_method": ["standardize"] * 5
-        })
-        
+        df = pd.DataFrame(
+            {
+                "p_value": [0.01, 0.04, 0.06, 0.10, 0.02],
+                "ground_truth": ["null"] * 5,
+                "scaling_method": ["standardize"] * 5,
+            }
+        )
+
         try:
             run_sensitivity_analysis(df)
         except Exception as e:
             pytest.fail(f"run_sensitivity_analysis failed: {e}")
-            
+
         # Verify file exists
         assert Path("results/sensitivity_analysis.csv").exists()

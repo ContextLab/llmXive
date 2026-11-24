@@ -1,47 +1,47 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Processed Graph Dataset Schema"
-description: "Schema for data/processed/graphs_v1.parquet"
+description: "Row schema for data/processed/graphs_v1.parquet"
 type: "object"
 properties:
   material_id:
     type: "string"
-    description: "Unique identifier for the material"
   num_nodes:
     type: "integer"
-    description: "Number of atoms in the structure"
+    minimum: 1
   num_edges:
     type: "integer"
-    description: "Number of bonds in the graph"
+    minimum: 0
   node_features:
     type: "array"
-    description: "List of atomic feature vectors"
     items:
       type: "array"
       items:
         type: "number"
   edge_index:
     type: "array"
-    description: "Connectivity matrix [2, num_edges]"
     items:
       type: "array"
       items:
         type: "integer"
+        minimum: 0
   edge_features:
     type: "array"
-    description: "List of bond feature vectors"
     items:
       type: "array"
       items:
         type: "number"
   target_young:
     type: "number"
-    description: "Young's modulus in GPa"
+    description: "Young's modulus (GPa), strictly positive for MAPE eligibility"
   target_shear:
     type: "number"
-    description: "Shear modulus in GPa"
+    description: "Shear modulus (GPa), strictly positive for MAPE eligibility"
   target_poisson:
     type: "number"
-    description: "Poisson's ratio (dimensionless)"
+    description: "Poisson's ratio (dimensionless, may be zero or negative)"
+  family:
+    type: "string"
+    description: "Chemical family = space group + stoichiometry class"
 required:
   - material_id
   - num_nodes
@@ -52,4 +52,5 @@ required:
   - target_young
   - target_shear
   - target_poisson
+  - family
 additionalProperties: false

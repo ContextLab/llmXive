@@ -74,12 +74,14 @@ def test_run_deviation_test_with_biased_data():
     N = 1000
     prime = 5
     # Biased sequence: 0 appears more often
-    seq = [0]*400 + [i % prime for i in range(600)]
+    biased_sequence = [0]*400 + [i % prime for i in range(600)]
+    random.shuffle(biased_sequence)
     
-    # Counts: 0->400, others->150
-    counts = {0: 400, 1: 150, 2: 150, 3: 150, 4: 150}
-    
-    D_obs, p_val = run_deviation_test(counts, prime, seq, N, num_samples=200)
+    biased_counts = {k: 0 for k in range(prime)}
+    for val in biased_sequence:
+        biased_counts[val] += 1
+
+    D_obs, p_val = run_deviation_test(biased_counts, prime, biased_sequence, N, num_samples=200)
     
     # D_obs should be large
     expected = 200

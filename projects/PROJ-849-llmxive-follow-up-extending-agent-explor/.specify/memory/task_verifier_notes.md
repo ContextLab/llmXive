@@ -2,11 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T003** — No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings, or pre‑commit hook definitions) were provided, nor any evidence that ruff/flake8 and Black have been set up and run. The required artifacts are missing, so the task is not satisfied.
-- **T004** — declared artifact(s) missing/empty/invalid: src/lib/config.py
-- **T005** — declared artifact(s) missing/empty/invalid: src/lib/data_loader.py
-- **T006** — The required file `src/lib/tool_mapper.py` does not exist, so the functionality to load the JSON, extract per‑problem `tool_descriptions`, and raise `ERR_TOOL_MAPPING_MISSING` cannot be verified. The missing artifact must be added and contain the described logic.
-- **T014** — declared artifact(s) missing/empty/invalid: src/services/retrieval_service.py, src/lib/tool_mapper.py
-- **T015** — declared artifact(s) missing/empty/invalid: src/models/divergence_model.py
-- **T016** — declared artifact(s) missing/empty/invalid: src/cli/run_diagnostic.py, results/error_log.txt
-- **T017** — No code, test, or log artifact was provided showing that records lacking a “thinking” prefix are now skipped and that the error `ERR_MISSING_THINKING` is logged. The implementer’s claim cannot be verified without such implementation evidence.
+- **T001-struct-src** — The `projects/PROJ-849-llmxive-follow-up-extending-agent-explor/code/src/models/` package lacks the required `__init__.py` file (marked MISSING), and there is no evidence that `__init__.py` exists in the other subdirectories (`services/`, `lib/`, `cli/`). The task’s critical requirement of creating these init files to make each subdirectory a valid Python package is therefore not met.
+- **T011** — The provided `tests/unit/test_retrieval.py` contains a `test_zero_retrieval_edge_case` that calls a non‑existent `retrieve_tools` method and only asserts an empty list, not that a zero‑vector embedding and a score of 1.0 are returned. The required behavior (zero vector and score = 1.0) is not tested, and the service implementation does not expose the needed API. The task’s unit test is therefore missing or incorrect.

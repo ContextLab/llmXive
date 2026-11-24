@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360  # FR‑001 guard: enforce hard 6‑hour limit
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements.txt
+      - name: Verify data integrity
+        run: |
+          source .venv/bin/activate
+          python -m code.ingest --check
+      - name: Run full pipeline
+        run: |
+          source .venv/bin/activate
+          python -m code.run_all --seed 42 --max-memory-gb 6 --timeout-hours 5
+      - name: Contract tests
+        run: |
+          source .venv/bin/activate
+          pytest -m contract

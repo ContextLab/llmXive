@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelSummary"
+description: "Schema defining the expected columns, types, and constraints for the model_summary.csv artifact."
+type: object
+properties:
+  columns:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Column name in the CSV (includes '(Associational Analysis)' suffix)."
+        type:
+          type: string
+          enum: [float, int, string, boolean]
+          description: "Expected data type."
+        description:
+          type: string
+          description: "Human‑readable description of the column."
+        required:
+          type: boolean
+          description: "Whether the column must be present."
+      required: [name, type, description, required]
+    minItems: 0
+additionalProperties: false

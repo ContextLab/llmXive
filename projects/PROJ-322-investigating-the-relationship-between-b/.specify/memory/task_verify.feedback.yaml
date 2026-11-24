@@ -40,6 +40,11 @@ T007:
     GB RAM constraint."
   task: 7ca8b7db35abb98fc0d860868d6d2dde5c1fa8b4613f8f86f864390aa167ec24
 T008a:
+  reason: 'The file `code/synthetic_data.py` exists, but it cannot run: it constructs
+    `Subject` objects with fields (`time_point`, `cognitive_score`) that are not defined
+    in `entities.Subject` (which requires a `group` field). This mismatch will raise
+    a `TypeError` and prevents the synthetic data generator from producing any output,
+    so the requirement for a functional, seeded synthetic data generator is not met.'
   task: 9e3b02d51eb9b8b63eb8156b2f2d6a1a721801471d806586b868c85318ef3a2f
 T008b:
   task: dcfec9f3aeedc027107bc48377d1ccb8ef7609c1ba73a6af1baeabeddece62c8
@@ -52,12 +57,24 @@ T011:
     exit=1'
   task: a2eee1be1e925980da6734057ee45d70b384c92bc54011dd5502a223406bf27a
 T012:
+  reason: "The provided `code/preprocessing.py` file exists and contains Nilearn\u2011\
+    based AAL masking and confound regression logic, but it does not implement the\
+    \ full ingestion pipeline required by the user story (no OpenNeuro download, no\
+    \ manifest CSV output, no \u201CMemory OK\u201D log). Moreover, it attempts to\
+    \ instantiate a `Subject` with nonexistent fields (`matrices`, `metadata`), which\
+    \ will raise a TypeError given the `Subject` dataclass definition in `entities.py`.\
+    \ These issues mean the script does not correctly fulfill the task\u2019s requirements."
   task: c83dabfae25b5750b1b6f739a2f5103a1787ff49bda085a90c79a17b0d673be1
 T013:
   task: cbdbaa0d02b1319474bcf3de3293bacab614e0f5f7e70ca39dcd47cec1c9b5d7
 T014:
   task: af1ebbbf08d2fded708261a67acf2d8b352e788d377b7f32cad81a24a5c7a599
 T016:
+  reason: "Checked `code/bootstrapping.py` \u2013 the script is present and contains\
+    \ the contingency check and 1000\u2011iteration bootstrapping logic. However the\
+    \ required output file `data/results/bootstrapped_ci.json` is missing; no execution\
+    \ evidence shows it was created. The task\u2019s artifact generation requirement\
+    \ is not satisfied."
   task: b30c04e18d0f03dfde92035b1d51dcc386b99baae00551cb02db4278bc7e4e6d
 T017:
   task: 10c5f1cf4ff7b3bb1c0affcf43cdee477ac3736a4400415c638a8aa60f5d1d05

@@ -1,3 +1,12 @@
+T001:
+  c: false
+  h: 9ff5e8a1f37d716bc23d9ef29640c6d169a356f6cae5ac81e16ff8c04aed75cf
+  r: "The `PROJ-240-predicting-the-impact-of-cold-work-on-re.yaml` file is missing,\
+    \ and there is no evidence that the required directories (`code`, `tests`, `data/raw`,\
+    \ `data/processed`, `data/split`, `artifacts/models`, `artifacts/reports`, `artifacts/figures`)\
+    \ and their `.gitkeep` placeholder files have been created. The task\u2019s directory\u2011\
+    structure requirement is therefore not satisfied."
+  sig: 920b1c011ccbaba3713d43e2bb7e16d95b225b6a7b9e9ca2cb90ef669f115c3a
 T011:
   c: false
   h: bacc719c749df84750a4ef35b1af82fa9d185c4b7f7e5d4fa0d59c6aee093cf1
@@ -9,6 +18,26 @@ T011:
     generation requirement is unverified. The next implementer must create the missing\
     \ state YAML with the correct checksum entry and ensure the generator produces\
     \ precisely 10\u202F000 rows using the fixed seed."
+T012:
+  c: true
+  h: 7b4452ebb1b345adc2bee1c128ff0b11440a7448eb309c0da8dacc8c7463e8bb
+  r: "Checked `artifacts/reports/baseline_stats.json` \u2013 it exists, contains a\
+    \ single key `baseline_mean` with a float value, and the value (\u2248482.61)\
+    \ is consistent with the mean of the `time_to_peak_min` column in the provided\
+    \ raw `data/raw/synthetic_baseline.csv`."
+  sig: a62516f89dde96629c1f2a0883320ccc83e3a98eabeb467c90927f9da8c68802
+T015:
+  c: false
+  h: beda5d75c2bb3af5d7dda4290a425fca086f40d90b8614f15dc801dbde51656f
+  r: "The repository contains a `tests/unit/test_validation.py`, but it defines a\
+    \ class with many test methods (e.g., `test_cold_work_below_zero_fails`) rather\
+    \ than a single function named `test_physical_bounds_validation`. Moreover, the\
+    \ tests check boolean results from `validate_physical_bounds` instead of asserting\
+    \ that out\u2011of\u2011range cold\u2011work or negative time\u2011to\u2011peak\
+    \ values raise a `ValueError`, which is exactly what the task required. Consequently\
+    \ the required test function and its expected exception\u2011based assertion are\
+    \ missing."
+  sig: 023ac357d112e1a46b20c0c44c83ba4e0cf2a3b01c55963c2a96a071fed09c70
 T019:
   c: false
   h: 8807bc63010d7d1f68e7677b670820df714f05ae1c67ddbe98d4f8bb9cf5080a
@@ -35,12 +64,27 @@ T022:
     essential artifacts and logic are missing.
 T026:
   c: false
-  h: 7e31c490e711755d1f9329434e877a39d2ea1bf28c9c6620b3557d3c3f2f5547
-  r: "The provided `code/train.py` is truncated and does not contain any logic that\
-    \ computes MAE/R\xB2 on a held\u2011out test set, nor does it read `artifacts/reports/baseline_stats.json`\
-    \ or compare the test MAE to a threshold. Moreover, the required `reports/baseline_stats.json`\
-    \ file is absent from the repository. Both the implementation and the dependent\
-    \ artifact are missing, so the task is not satisfied."
+  h: 01398e9435dead09ea60675a733ecf460f2b16cee88348361911d58c58c1161b
+  r: The provided `tests/unit/test_vif.py` contains a class with several test methods,
+    but none is named `test_vif_calculation` as required. Consequently the specific
+    unit test the task demands is missing.
+  sig: 651a3b3b8806ec59c279844759e8277f18e9b1d05dc637213f38e8d725939b24
+T027:
+  c: false
+  h: 5310fde078d0691b4d494cfa4a74dd5986159c91428d1adefdee43a09d08038f
+  r: "The provided `tests/unit/test_train.py` does not contain a function named `test_model_training_small_subset`,\
+    \ and the sample data fixture creates 100 rows instead of the required 10\u2011\
+    row subset. A correctly named test that trains on a 10\u2011row dataset and asserts\
+    \ no error is missing."
+  sig: 4ac5a33433bca7a1a9dc06abec09c683afaf63bbcb5b7dfda24677b2cd6d3285
+T028:
+  c: false
+  h: a10c784c3dd8b2af1c694ad0c5a8e200f00ce937226e348748ccaf34ab17f9bc
+  r: "The `code/train.py` only performs a plain `train_test_split` and does not stratify\
+    \ on binned `time_to_peak_min` as required, and the expected `data/split_indices.npy`\
+    \ file is absent. The task\u2019s core requirement\u2014implementing a stratified\
+    \ split with seed\u202F42 and persisting the indices\u2014is not met."
+  sig: 8b15b348aa948f63d256030b0f299a82f52d12d3e10c94bb0137655c39ef9d15
 T029:
   c: false
   h: e992b71e5f11b624ca17d2527eef41e47be12f10fea1d163c3577e8e17a64c6c

@@ -25,7 +25,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create code and tests directory structure: `mkdir -p code tests/unit tests/integration data/raw data/interim data/processed`. **Verify**: `code/`, `tests/unit/`, `tests/integration/`, `data/raw/`, `data/interim/`, `data/processed/` directories exist.
+- [X] T001 [P] Create code and tests directory structure: `mkdir -p code tests/unit tests/integration data/raw data/interim data/processed`. **Verify**: `code/`, `tests/unit/`, `tests/integration/`, `data/raw/`, `data/interim/`, `data/processed/` directories exist.
 
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (nibabel, numpy, scikit-image, scipy, pandas, statsmodels, nilearn, matplotlib, requests, tqdm, pyfd, wget, Pillow). **Verify**: Run `pip install -r requirements.txt` and verify `python -c "import nibabel; import numpy"` succeeds.
 

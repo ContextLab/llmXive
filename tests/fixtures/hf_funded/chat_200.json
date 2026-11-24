@@ -1,0 +1,30 @@
+{
+ "captured_at": "2026-11-23",
+ "source_url": "https://router.huggingface.co/v1/chat/completions",
+ "status": 200,
+ "provenance": "recorded",
+ "payload": {
+  "choices": [
+   {
+    "index": 0,
+    "message": {
+     "role": "assistant",
+     "content": "ok",
+     "reasoning": "The user wants me to reply with the single word \"ok\"."
+    },
+    "finish_reason": "stop"
+   }
+  ],
+  "created": 1795447722,
+  "model": "DeepSeek-V4.1-Flash-1017",
+  "object": "chat.completion",
+  "usage": {
+   "prompt_tokens": 37,
+   "completion_tokens": 16,
+   "total_tokens": 53,
+   "completion_tokens_details": {
+    "reasoning_tokens": 13
+   }
+  }
+ }
+}

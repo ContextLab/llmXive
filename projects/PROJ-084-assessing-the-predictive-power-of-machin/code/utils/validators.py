@@ -2,69 +2,78 @@
 Data and Output Schema Validators using Pydantic.
 
 This module provides validation logic for dataset records and model output records
-based on the YAML schema definitions.
+based on the YAML schema definitions. It exposes two primary functions that are
+used by the contract tests and by downstream pipeline code:
+
+- ``validate_output_schema(payload: dict, schema_path: str)`` validates a model
+  output dictionary against the ``output.schema.yaml`` contract.
+- ``validate_dataset_schema(payload: dict, schema_path: str)`` validates a single
+  dataset record against the ``dataset.schema.yaml`` contract.
+
+Both functions raise ``pydantic.ValidationError`` on mismatch and ``FileNotFoundError``
+if the supplied schema file does not exist.
 """
 import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union, Type, Tuple
+from typing import Any, Dict, List
+
 import yaml
 import pydantic
-from pydantic import BaseModel, Field, field_validator, ValidationError, validator
-from typing import List as TypedList, Dict as TypedDict, Any as AnyType
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure module‑level logger
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# Path constants
-SCHEMA_DIR = Path("specs/001-assess-ml-predictive-power/contracts")
-DATASET_SCHEMA_PATH = SCHEMA_DIR / "dataset.schema.yaml"
-OUTPUT_SCHEMA_PATH = SCHEMA_DIR / "output.schema.yaml"
-
-# --- Pydantic Models for Dataset Validation (T007b) ---
+# ---------------------------------------------------------------------------
+# Pydantic models that mirror the contract schemas
+# ---------------------------------------------------------------------------
 
 class FingerprintECFP(BaseModel):
     """Validator for ECFP fingerprint vector (2048 bits)."""
-    __root__: TypedList[bool] = Field(..., description="ECFP fingerprint vector (binary bits: true/false)")
-    
-    @field_validator('__root__')
+    __root__: List[bool] = Field(..., description="ECFP fingerprint vector (binary bits)")
+
+    @field_validator("__root__")
     @classmethod
-    def check_length(cls, v):
+    def check_length(cls, v: List[bool]) -> List[bool]:
         if len(v) != 2048:
             raise ValueError(f"ECFP fingerprint must have exactly 2048 bits, got {len(v)}")
         return v
 
+
 class FingerprintMACCS(BaseModel):
     """Validator for MACCS key fingerprint vector (167 bits)."""
-    __root__: TypedList[bool] = Field(..., description="MACCS key fingerprint (binary bits: true/false)")
-    
-    @field_validator('__root__')
+    __root__: List[bool] = Field(..., description="MACCS fingerprint vector (binary bits)")
+
+    @field_validator("__root__")
     @classmethod
-    def check_length(cls, v):
+    def check_length(cls, v: List[bool]) -> List[bool]:
         if len(v) != 167:
             raise ValueError(f"MACCS fingerprint must have exactly 167 bits, got {len(v)}")
         return v
 
+
 class DatasetRecord(BaseModel):
     """Schema for a single row in the processed dataset."""
     smiles: str = Field(..., min_length=1, description="SMILES string of the reaction")
+    # ``yield`` is the alias used in the contract; we store it internally as ``yield_value``.
     yield_value: float = Field(..., ge=0.0, le=100.0, alias="yield", description="Yield percentage")
     reaction_class: str = Field(..., min_length=1, description="Reaction class label")
     fingerprint_ecfp: FingerprintECFP
     fingerprint_maccs: FingerprintMACCS
 
     class Config:
-        populate_by_name = True
+        populate_by_name = True  # Allows both ``yield`` and ``yield_value`` keys
 
-# --- Pydantic Models for Output Validation (T008a) ---
 
 class MetricsRecord(BaseModel):
     """Schema for model evaluation metrics."""
     R2: float = Field(..., description="R-squared score")
     RMSE: float = Field(..., description="Root Mean Squared Error")
     MAE: float = Field(..., description="Mean Absolute Error")
+
 
 class OutputRecord(BaseModel):
     """Schema for the model output artifact."""
@@ -73,148 +82,153 @@ class OutputRecord(BaseModel):
     metrics: MetricsRecord
     split_ratios: Dict[str, float] = Field(..., description="Train/Val/Test split ratios")
 
-# --- Helper Functions ---
+# ---------------------------------------------------------------------------
+# Helper utilities
+# ---------------------------------------------------------------------------
 
-def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load a YAML schema file."""
-    if not schema_path.exists():
+def _load_schema(schema_path: Path) -> Dict[str, Any]:
+    """
+    Load a YAML schema file and return its contents as a Python dict.
+
+    Parameters
+    ----------
+    schema_path: Path
+        Path to the YAML schema file.
+
+    Returns
+    -------
+    dict
+        Parsed YAML content.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the schema file does not exist.
+    yaml.YAMLError
+        If the file cannot be parsed as valid YAML.
+    """
+    if not schema_path.is_file():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    with open(schema_path, 'r') as f:
+    with schema_path.open("r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
-def validate_fingerprint_dimensions(ecfp_len: int, maccs_len: int) -> Tuple[bool, str]:
-    """Validate fingerprint lengths against expected dimensions."""
-    if ecfp_len != 2048:
-        return False, f"ECFP length {ecfp_len} != 2048"
-    if maccs_len != 167:
-        return False, f"MACCS length {maccs_len} != 167"
-    return True, "Dimensions valid"
+# ---------------------------------------------------------------------------
+# Public validation functions required by T001
+# ---------------------------------------------------------------------------
 
-def validate_sample_row(row_dict: Dict[str, Any]) -> bool:
-    """Validate a single row dictionary against the DatasetRecord schema."""
-    try:
-        # Handle potential alias 'yield' vs 'yield_value' if needed, 
-        # but Pydantic handles alias if defined in model. 
-        # Here we assume the input dict keys match the model fields or aliases.
-        # The model expects 'yield' as alias for 'yield_value' in the input if we use populate_by_name
-        # However, standard dict keys usually match the alias if coming from JSON/CSV.
-        # Let's ensure the key 'yield' is present if the model expects it via alias.
-        # In the model: yield_value: float = Field(..., alias="yield")
-        # Pydantic V2 with populate_by_name=True allows both, but typically input uses alias.
-        
-        # If the input dict has 'yield', we map it to 'yield_value' for validation if needed,
-        # or rely on Pydantic's alias handling.
-        # To be safe, let's just pass the dict as is.
-        validated = DatasetRecord(**row_dict)
-        logger.info("Sample row validation successful.")
-        return True
-    except ValidationError as e:
-        logger.error(f"Sample row validation failed: {e}")
-        return False
-
-def validate_dataset_file(file_path: Path) -> bool:
-    """Validate a dataset file (Parquet/CSV) against the schema."""
-    # This would typically involve reading chunks and validating rows
-    # For now, we assume the schema is loaded and we check structure
-    if not file_path.exists():
-        raise FileNotFoundError(f"Dataset file not found: {file_path}")
-    # Implementation would go here to iterate rows
-    return True
-
-def validate_output_sample(output_dict: Dict[str, Any]) -> bool:
-    """Validate a dictionary against the OutputRecord schema."""
-    try:
-        validated = OutputRecord(**output_dict)
-        logger.info("Output sample validation successful.")
-        return True
-    except ValidationError as e:
-        logger.error(f"Output sample validation failed: {e}")
-        return False
-
-# --- Main Entry Points for Verification ---
-
-def validate_dataset_schema() -> bool:
+def validate_output_schema(payload: Dict[str, Any], schema_path: str) -> None:
     """
-    Load and validate the dataset schema file.
-    This function is called to verify T007a/T007b.
+    Validate a model output dictionary against the output contract.
+
+    The function loads the schema file (to guarantee its existence) and then
+    validates ``payload`` using the :class:`OutputRecord` Pydantic model.
+    If validation fails, a ``pydantic.ValidationError`` is raised.
+
+    Parameters
+    ----------
+    payload: dict
+        The model output payload to validate.
+    schema_path: str
+        Path to the ``output.schema.yaml`` file.
+
+    Raises
+    ------
+    FileNotFoundError
+        If ``schema_path`` does not point to an existing file.
+    pydantic.ValidationError
+        If ``payload`` does not satisfy the contract.
+    """
+    schema_file = Path(schema_path)
+    # Ensure the schema file exists – we don't actually need its contents
+    # for Pydantic validation, but the contract explicitly requires the file.
+    _load_schema(schema_file)
+
+    logger.debug("Validating output payload against OutputRecord model.")
+    # Pydantic will raise ValidationError on mismatch.
+    OutputRecord(**payload)
+    logger.info("Output payload validation successful.")
+
+def validate_dataset_schema(payload: Dict[str, Any], schema_path: str) -> None:
+    """
+    Validate a single dataset record against the dataset contract.
+
+    Parameters
+    ----------
+    payload: dict
+        A dictionary representing one row of the processed dataset.
+    schema_path: str
+        Path to the ``dataset.schema.yaml`` file.
+
+    Raises
+    ------
+    FileNotFoundError
+        If ``schema_path`` does not point to an existing file.
+    pydantic.ValidationError
+        If ``payload`` does not satisfy the contract.
+    """
+    schema_file = Path(schema_path)
+    _load_schema(schema_file)
+
+    logger.debug("Validating dataset record against DatasetRecord model.")
+    DatasetRecord(**payload)
+    logger.info("Dataset record validation successful.")
+
+# ---------------------------------------------------------------------------
+# Existing convenience entry points (kept for backward compatibility)
+# ---------------------------------------------------------------------------
+
+def validate_dataset_schema() -> bool:  # pragma: no cover
+    """
+    Backward‑compatible wrapper that validates the dataset schema file itself.
+    Returns ``True`` if the schema file exists and a mock row passes validation.
     """
     try:
-        if not DATASET_SCHEMA_PATH.exists():
-            raise FileNotFoundError(f"Dataset schema file missing: {DATASET_SCHEMA_PATH}")
-        
-        schema = load_schema(DATASET_SCHEMA_PATH)
-        logger.info(f"Loaded dataset schema from {DATASET_SCHEMA_PATH}")
-        
-        # Basic check to ensure it's a valid schema structure
-        if 'properties' not in schema:
-            raise ValueError("Invalid schema: missing 'properties'")
-        
-        # Test validation with a mock row
+        if not Path("specs/001-assessing-the-predictive-power-of-machin/contracts/dataset.schema.yaml").exists():
+            raise FileNotFoundError("Dataset schema file missing")
         mock_row = {
             "smiles": "CC(=O)O",
             "yield": 50.0,
             "reaction_class": "esterification",
             "fingerprint_ecfp": [True] * 2048,
-            "fingerprint_maccs": [True] * 167
+            "fingerprint_maccs": [True] * 167,
         }
-        
-        if not validate_sample_row(mock_row):
-            logger.error("Mock row validation failed.")
-            return False
-            
-        logger.info("Dataset schema validation passed.")
+        validate_dataset_schema(mock_row, "specs/001-assessing-the-predictive-power-of-machin/contracts/dataset.schema.yaml")
         return True
     except Exception as e:
         logger.error(f"Dataset schema validation failed: {e}")
         return False
 
-def validate_output_schema() -> bool:
+def validate_output_schema() -> bool:  # pragma: no cover
     """
-    Load and validate the output schema file.
-    This function is called to verify T008a.
+    Backward‑compatible wrapper that validates the output schema file itself.
+    Returns ``True`` if the schema file exists and a mock output passes validation.
     """
     try:
-        if not OUTPUT_SCHEMA_PATH.exists():
-            raise FileNotFoundError(f"Output schema file missing: {OUTPUT_SCHEMA_PATH}")
-        
-        schema = load_schema(OUTPUT_SCHEMA_PATH)
-        logger.info(f"Loaded output schema from {OUTPUT_SCHEMA_PATH}")
-        
-        # Basic check to ensure it's a valid schema structure
-        if 'properties' not in schema:
-            raise ValueError("Invalid schema: missing 'properties'")
-        
-        # Test validation with a mock output object
+        if not Path("specs/001-assessing-the-predictive-power-of-machin/contracts/output.schema.yaml").exists():
+            raise FileNotFoundError("Output schema file missing")
         mock_output = {
             "model_type": "RandomForest",
             "hyperparameters": {"n_estimators": 100, "max_depth": 10},
-            "metrics": {
-                "R2": 0.85,
-                "RMSE": 12.5,
-                "MAE": 8.2
-            },
-            "split_ratios": {"train": 0.7, "val": 0.15, "test": 0.15}
+            "metrics": {"R2": 0.85, "RMSE": 12.5, "MAE": 8.2},
+            "split_ratios": {"train": 0.7, "val": 0.15, "test": 0.15},
         }
-        
-        if not validate_output_sample(mock_output):
-            logger.error("Mock output validation failed.")
-            return False
-            
-        logger.info("Output schema validation passed.")
+        validate_output_schema(mock_output, "specs/001-assessing-the-predictive-power-of-machin/contracts/output.schema.yaml")
         return True
     except Exception as e:
         logger.error(f"Output schema validation failed: {e}")
         return False
 
-if __name__ == "__main__":
-    # Run verification if executed directly
-    success = True
-    if not validate_dataset_schema():
-        success = False
-    if not validate_output_schema():
-        success = False
-    
-    if not success:
+if __name__ == "__main__":  # pragma: no cover
+    # Simple CLI for manual sanity checks
+    if len(sys.argv) != 3:
+        print("Usage: python validators.py <payload_json> <schema_path>")
         sys.exit(1)
-    logger.info("All schema validations passed.")
-    sys.exit(0)
+    payload_path = Path(sys.argv[1])
+    schema_path = sys.argv[2]
+    payload = json.loads(payload_path.read_text(encoding="utf-8"))
+    # Heuristically decide which validator to call based on schema filename
+    if "output" in schema_path:
+        validate_output_schema(payload, schema_path)
+    else:
+        validate_dataset_schema(payload, schema_path)
+    print("Validation succeeded.")

@@ -7,12 +7,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
-    p": "2026-09-07T15:19:38.750583", "level": "INFO", "logger": "us1", "message": "Starting User Story 1 Pipeline", "module": "main_us1", "function": "run_us1_pipeline", "line": 31}
-{"timestamp": "2026-09-07T15:19:38.750623", "level": "INFO", "logger": "us1", "message": "Step 1: Downloading ADNI data...", "module": "main_us1", "function": "run_us1_pipeline", "line": 36}
-{"timestamp": "2026-09-07T15:19:38.750673", "level": "INFO", "logger": "downloader", "message": "Starting ADNI Downloader", "module": "adni_downloader", "function": "run_downloader", "line": 83}
-{"timestamp": "2026-09-07T15:19:38.750724", "level": "ERROR", "logger": "downloader", "message": "ADNI Credentials missing or invalid: Missing required ADNI credentials: ADNI_USER, ADNI_PASS, ADNI_SUBJECT_LIST", "module": "adni_downloader", "function": "run_downloader", "line": 89}
-{"timestamp": "2026-09-07T15:19:38.750777", "level": "ERROR", "logger": "us1", "message": "Download failed.", "module": "main_us1", "function": "run_us1_pipeline", "line": 39}
-{"timestamp": "2026-09-07T15:19:38.750823", "level": "ERROR", "logger": "main", "message": "US1 failed. Aborting pipeline.", "module": "main", "function": "main", "line": 63}
+rali/code/main.py", line 21, in <module>
+    from code.main_us2 import run_us2_pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-299-assessing-the-impact-of-network-centrali/code/main_us2.py", line 20, in <module>
+    from code.analysis.regression import run_regression_analysis
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-299-assessing-the-impact-of-network-centrali/code/analysis/regression.py", line 18, in <module>
+    import statsmodels.api as sm
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/statsmodels/api.py", line 76, in <module>
+    from . import datasets, distributions, iolib, regression, robust, tools
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/statsmodels/distributions/__init__.py", line 7, in <module>
+    from .discrete import (
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/statsmodels/distributions/discrete.py", line 5, in <module>
+    from scipy._lib._util import _lazywhere
+ImportError: cannot import name '_lazywhere' from 'scipy._lib._util' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-299-assessing-the-impact-of-network-centrali/lib/python3.11/site-packages/scipy/_lib/_util.py)
+
 
 ## Declared deliverables still missing
 
@@ -27,30 +35,30 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/analysis/centrality_metrics.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/main_us1.py` — NOT invoked by the run-book
-    - `code/data_models.py` — NOT invoked by the run-book
-    - `code/centrality/metrics.py` — NOT invoked by the run-book
     - `code/analysis/data_merger.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/analysis/centrality_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/centrality/metrics.py` — NOT invoked by the run-book
+    - `code/data_models.py` — NOT invoked by the run-book
+    - `code/main_us1.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/analysis/centrality_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/analysis/diagnostics.json` is declared but was NOT written. Scripts referencing it:
-    - `code/main_us2.py` — NOT invoked by the run-book
     - `code/analysis/diagnostics.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/analysis/diagnostics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/main_us2.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/analysis/diagnostics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/analysis/qc_log.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/qc_validator.py` — NOT invoked by the run-book
+    - `code/centrality/connectivity.py` — NOT invoked by the run-book
+    - `code/centrality/metrics.py` — NOT invoked by the run-book
     - `code/main_us1.py` — NOT invoked by the run-book
     - `code/preprocess/fMRI_pipeline.py` — NOT invoked by the run-book
-    - `code/centrality/metrics.py` — NOT invoked by the run-book
-    - `code/centrality/connectivity.py` — NOT invoked by the run-book
-    - `code/analysis/qc_validator.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/analysis/qc_log.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+  Make ONE of these WRITE `data/analysis/qc_log.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/analysis/regression_results.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/diagnostics.py` — NOT invoked by the run-book
+    - `code/analysis/regression.py` — NOT invoked by the run-book
     - `code/main_us2.py` — NOT invoked by the run-book
     - `code/viz/plotting.py` — NOT invoked by the run-book
-    - `code/analysis/regression.py` — NOT invoked by the run-book
-    - `code/analysis/diagnostics.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/analysis/regression_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+  Make ONE of these WRITE `data/analysis/regression_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/participant_list.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/download/adni_downloader.py` — NOT invoked by the run-book
     - `code/main_us1.py` — NOT invoked by the run-book
     - `code/preprocess/fMRI_pipeline.py` — NOT invoked by the run-book
-    - `code/download/adni_downloader.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/participant_list.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+  Make ONE of these WRITE `data/raw/participant_list.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

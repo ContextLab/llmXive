@@ -1,12 +1,10 @@
-# Project dependencies
-numpy
-pandas
-requests
+datasets
 pymatgen
 ase
 scikit-learn
 statsmodels
-tqdm
-# Additional utilities used by the pipeline
-tqdm
-# Note: Versions are not pinned to keep the environment lightweight for the CI runner.
+numpy
+pandas
+matplotlib
+pyyaml
+pytest

@@ -42,7 +42,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/PROJ-072-investigating-the-predictive-power-of-br
   verified_at: '2026-07-11T12:37:21.947174Z'
-- artifact_hash: f4fa8fc4d027c6e26401f9ea5e1758291eb7664959abf7f4015b8a149ec9ddaf
+- artifact_hash: 66ba066c31d18a10919a9ef987f1a1d25b373ba9d2bac70bbe62a2428eb6cccd
   artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://arxiv.org/abs/1411.7565
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1411.7565
-  verified_at: '2026-10-11T05:13:26.891325Z'
+  verified_at: '2026-10-24T03:31:38.865519Z'

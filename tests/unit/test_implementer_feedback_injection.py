@@ -25,9 +25,7 @@ def _ctx(repo: Path, project_dir: Path) -> SlashCommandContext:
         inputs=["implementation_plan"],
         expected_outputs=["code", "data"],
         prompt_template_path=Path("agents/prompts/implementer_research.md"),
-        default_backend="dartmouth",
-        fallback_backends=["local"],
-        default_model="qwen.qwen3.5-122b",
+        profile="standard_generation",
         prompt_version="1.0.0",
         agent_name="implementer",
     )

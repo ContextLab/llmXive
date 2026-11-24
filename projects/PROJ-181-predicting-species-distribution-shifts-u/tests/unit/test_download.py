@@ -1,107 +1,55 @@
-"""
-Unit tests for the download module.
-"""
-import unittest
-from unittest.mock import patch, MagicMock
-import pandas as pd
-from pathlib import Path
+import json
 import os
+from pathlib import Path
 
-# Mock the config module to avoid file system dependencies in tests
-import sys
-from unittest.mock import MagicMock
+import pytest
 
-mock_config = MagicMock()
-mock_config.PROJECT_ROOT = Path("/tmp/test_project")
-mock_config.DATA_RAW_DIR = Path("/tmp/test_project/data/raw")
-mock_config.SPECIES_LIST = ["Turdus migratorius"]
-mock_config.HISTORICAL_START_YEAR = 1970
-mock_config.HISTORICAL_END_YEAR = 2000
-mock_config.RECENT_START_YEAR = 2005
-mock_config.RECENT_END_YEAR = 2020
-mock_config.GBIF_BASE_URL = "https://api.gbif.org/v1/occurrence/search"
-mock_config.GBIF_MAX_RESULTS_PER_REQUEST = 300
-mock_config.LOGS_DIR = Path("/tmp/test_project/logs")
-mock_config.THINNING_DISTANCE_KM = 10.0
+# Import the download main function directly
+from code.download import main as download_main
+from code.manifest_manager import load_manifest
 
-sys.modules['config'] = mock_config
+@pytest.mark.timeout(300)
+def test_download_climate_historical(tmp_path, monkeypatch):
+    """
+    Run the download script in a mode that only fetches the historical
+    WorldClim bioclimatic rasters. Verify that the expected number of
+    raster files are written and that manifest entries are created.
+    """
+    # Use a temporary data directory to avoid polluting the real project data
+    # The config module reads DATA_DIR from the project root; we monkeypatch it
+    # to point to the temporary directory for this test run.
+    from code import config
 
-# Mock logging config
-mock_logging_config = MagicMock()
-mock_logger = MagicMock()
-mock_logging_config.get_download_logger.return_value = mock_logger
-sys.modules['logging_config'] = mock_logging_config
+    monkeypatch.setattr(config, "DATA_DIR", tmp_path, raising=False)
 
-from download import fetch_gbif_occurrences
+    # Run the download script with arguments to only download historical rasters
+    # The script parses sys.argv; we simulate the CLI call by providing the args.
+    import sys
 
-class TestDownload(unittest.TestCase):
+    test_argv = ["download.py", "--climate", "historical"]
+    monkeypatch.setattr(sys, "argv", test_argv)
 
-    @patch('download.requests.get')
-    def test_fetch_gbif_occurrences_pagination(self, mock_get):
-        """Test that pagination works correctly."""
-        # Mock response for first page
-        mock_response1 = MagicMock()
-        mock_response1.json.return_value = {
-            "results": [
-                {"scientificName": "Turdus migratorius", "decimalLatitude": 40.0, "decimalLongitude": -75.0, "eventDate": "1990-01-01", "basisOfRecord": "OCCURRENCE", "datasetKey": "test-dataset"},
-                {"scientificName": "Turdus migratorius", "decimalLatitude": 41.0, "decimalLongitude": -76.0, "eventDate": "1990-02-01", "basisOfRecord": "OCCURRENCE", "datasetKey": "test-dataset"}
-            ]
-        }
-        mock_response1.raise_for_status = MagicMock()
+    # Execute the download workflow
+    download_main()
 
-        # Mock response for second page (empty)
-        mock_response2 = MagicMock()
-        mock_response2.json.return_value = {"results": []}
-        mock_response2.raise_for_status = MagicMock()
+    # Verify that the historical climate directory exists and contains 19 .tif files
+    climate_dir = tmp_path / "raw" / "climate_historical"
+    assert climate_dir.is_dir(), "Historical climate directory was not created"
+    tif_files = list(climate_dir.glob("*.tif"))
+    assert len(tif_files) == 19, f"Expected 19 raster files, found {len(tif_files)}"
 
-        mock_get.side_effect = [mock_response1, mock_response2]
+    # Load the manifest and check that an entry for the collection exists
+    manifest = load_manifest()
+    datasets = manifest.get("datasets", {})
+    # The collection entry is recorded with the directory path as the key
+    collection_key = str(climate_dir)
+    # Because the manifest records the relative path, we look for any entry whose
+    # file_path starts with the climate directory.
+    matching = [
+        v for v in datasets.values()
+        if v.get("file_path", "").startswith("data/raw/climate_historical")
+    ]
+    assert matching, "No manifest entry found for the historical climate collection"
 
-        output_path = Path("/tmp/test_output.csv")
-        df = fetch_gbif_occurrences(
-            species_list=["Turdus migratorius"],
-            year_start=1970,
-            year_end=2000,
-            output_path=output_path
-        )
-
-        self.assertEqual(len(df), 2)
-        self.assertIn("species", df.columns)
-        self.assertIn("decimalLatitude", df.columns)
-        self.assertIn("download_timestamp", df.columns)
-        self.assertIn("source_identifier", df.columns)
-        self.assertIn("original_dataset_name", df.columns)
-
-        # Clean up
-        if output_path.exists():
-            output_path.unlink()
-
-    @patch('download.requests.get')
-    def test_fetch_gbif_occurrences_missing_coordinates(self, mock_get):
-        """Test that records with missing coordinates are filtered out."""
-        mock_response = MagicMock()
-        mock_response.json.return_value = {
-            "results": [
-                {"scientificName": "Turdus migratorius", "decimalLatitude": 40.0, "decimalLongitude": -75.0, "eventDate": "1990-01-01", "basisOfRecord": "OCCURRENCE", "datasetKey": "test-dataset"},
-                {"scientificName": "Turdus migratorius", "decimalLatitude": None, "decimalLongitude": -75.0, "eventDate": "1990-01-01", "basisOfRecord": "OCCURRENCE", "datasetKey": "test-dataset"},
-                {"scientificName": "Turdus migratorius", "decimalLatitude": 40.0, "decimalLongitude": None, "eventDate": "1990-01-01", "basisOfRecord": "OCCURRENCE", "datasetKey": "test-dataset"}
-            ]
-        }
-        mock_response.raise_for_status = MagicMock()
-        mock_get.return_value = mock_response
-
-        output_path = Path("/tmp/test_output2.csv")
-        df = fetch_gbif_occurrences(
-            species_list=["Turdus migratorius"],
-            year_start=1970,
-            year_end=2000,
-            output_path=output_path
-        )
-
-        self.assertEqual(len(df), 1)
-
-        # Clean up
-        if output_path.exists():
-            output_path.unlink()
-
-if __name__ == "__main__":
-    unittest.main()
+    # Clean up: the temporary directory will be removed automatically by pytest
+    # (no explicit cleanup needed)

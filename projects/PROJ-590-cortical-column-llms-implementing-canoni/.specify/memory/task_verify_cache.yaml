@@ -1,16 +1,31 @@
 T001b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that `__init__.py` files were added to each
-    `src/` and `tests/` directory created in T001a; the required package initialization
-    files are missing from the provided artifacts.
+  h: 56c6d78497d368326ebe10d5859707403bf53bf8e2c247529009a5531503b405
+  r: "Checked `src/__init__.py` and `tests/__init__.py` \u2013 they exist, but none\
+    \ of the sub\u2011directories created under `src/` (e.g., `data/`, `experiments/`,\
+    \ `models/`, `training/`, `utils/`) or under `tests/` (e.g., `integration/`, `unit/`)\
+    \ contain an `__init__.py`. The task requires an `__init__.py` in **every** `src/`\
+    \ and `tests/` directory, so the missing package markers make the implementation\
+    \ incomplete."
+  sig: 57cf57a5605b1468d40add93928ea4b54a7d5664f0d26d20342d3c070409f22f
 T001c:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` file content or path was provided, so we cannot verify that a
-    file exists and contains the required exclusion patterns (`data/` except the three
-    subfolders, `__pycache__`, `*.pyc`, `*.log`). The implementer must supply the
-    actual `.gitignore` file with the specified entries.
+  h: 86acfa65527314304a3994bccbf91f4f75f4641ee68be86329897d2766fe67c9
+  r: The repository lacks a `.gitignore` file (or it was not found by the collector),
+    so the required ignore patterns for `data/` (with the specified exceptions) and
+    for `__pycache__`, `*.pyc`, `*.log` are not present. Adding a correctly configured
+    `.gitignore` is needed to satisfy task T001c.
+  sig: 58a129e8589f38966e92f3d38a7eedaf965c3ba853f6050e0739959a402cfea1
+T005:
+  c: false
+  h: e05302eb361476f529d3760a9aeab6e71462b8ede2dd92a5080afef5f3c5bcf1
+  r: "The provided `tests/conftest.py` exists and includes pytest-timeout configuration\
+    \ and a psutil\u2011based memory monitor, but it does not **atomically** set both\
+    \ the timeout and `psutil.Process.cpu_affinity` in a single step (it only reads\
+    \ affinity and logs warnings) and the memory limit is enforced only when `--strict-memory`\
+    \ is passed rather than being an unconditional assertion of RSS\u202F<\u202F7\u202F\
+    GB. These gaps mean the task\u2019s critical requirements are not fully met."
+  sig: 64c5f583bb3c45270eae2cffe691c9ae1cd49a9302fb32bc2fabefe9c995ea44
 T008c:
   c: false
   h: a5eea4278bb9e9f6f7d43fcf558774d23d57cafd0364a2d099c7e6a9eeb190aa
@@ -19,6 +34,16 @@ T008c:
     \ Moreover, the verification script `scripts/hash_artifacts.sh` is absent, so\
     \ the required checksum check cannot be performed. The task\u2019s critical output\
     \ file and verification steps are missing."
+T010b:
+  c: false
+  h: 465e3fff4a419e9acb74abde4cd1b1c88c32015e90e5ea0b547c4d808b0fccda
+  r: "The `log_gradient_norms` function in `src/training/homeostasis.py` does not\
+    \ match the required specification: it uses a `log_path` argument instead of the\
+    \ mandated `output_file` name, computes only a single total L2 norm rather than\
+    \ a dictionary of per\u2011parameter\u2011group norms, does not employ `model.register_full_backward_hook`,\
+    \ and lacks any file\u2011locking or atomic\u2011write mechanism for concurrent\
+    \ safety. These omissions mean the task\u2019s core requirements are not satisfied."
+  sig: 9a4cef717018956c024602f4006296660dc083c18e6ec49da6672c77abf523a7
 T011b:
   c: true
   h: 7665ec6ebdc3b6889a3be8a25687eb519f9bf6f9c9ba7a34047970e3ad862d23

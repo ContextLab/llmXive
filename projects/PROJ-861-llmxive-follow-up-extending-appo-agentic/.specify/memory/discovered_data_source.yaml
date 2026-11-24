@@ -1,0 +1,32 @@
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import datasets, json, sys
+
+
+  ds = datasets.load_dataset("thesven/gsm8k-reasoning", split="train")
+
+  records = len(ds)
+
+  fields = list(ds[0].keys())
+
+  print(f"RECORDS={records}")
+
+  print("FIELDS=" + ",".join(fields))'
+record_count: 6914
+sample_fields:
+- system_prompt
+- question
+- answer
+- short_answer
+- generation
+- messages
+field_coverage: 0.5
+required_fields:
+- id
+- question
+- answer
+- solution
+intent: download GSM8K reasoning traces and MATH problem solutions python package
+  dataset
+cache_key: 304c2ae6016588a766d4fa23700ea12eeff615f4024fd099803732524500ac79

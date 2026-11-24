@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Battery Sequence Dataset"
+description: "Tensor dataset produced after ingestion and preprocessing, ready for model training."
+type: object
+required:
+  - version
+  - generated_at
+  - sequences
+  - targets
+  - cell_ids
+  - protocols
+properties:
+  version:
+    type: string
+    description: "Semantic version of the processing pipeline (e.g., 'v1.0.0')."
+  generated_at:
+    type: string
+    format: date-time
+    description: "UTC timestamp (ISO 8601) when the dataset was created."
+  sequences:
+    type: array
+    description: "List of input tensors, each of shape (L, 100, 3), where L denotes the variable sequence length."
+    items:
+      type: array
+      items:
+        type: number
+  targets:
+    type: array
+    description: "Target fade values corresponding to each sequence."
+    items:
+      type: number
+  cell_ids:
+    type: array
+    description: "Unique identifiers for each cell."
+    items:
+      type: string
+  protocols:
+    type: array
+    description: "Cycling protocol label for each cell."
+    items:
+      type: string
+  provenance:
+    type: object
+    description: "Metadata about source files and processing."
+    properties:
+      source_urls:
+        type: array
+        items:
+          type: string
+      raw_checksums:
+        type: object
+        additionalProperties:
+          type: string
+      pipeline_version:
+        type: string
+      generated_at:
+        type: string
+        format: date-time

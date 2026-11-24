@@ -18,7 +18,7 @@ Cost Effectiveness (Free-First), Fail Fast, and Convergent Review.
 ## Repository Architecture
 
 - **`src/llmxive/`**: the Python package — agents, backends (Dartmouth Chat +
-  local transformers), pipeline/state machinery, claims verification layer
+  Hugging Face Inference Providers + local transformers), pipeline/state machinery, claims verification layer
   (specs 016–020), librarian, convergence engine, audits. Installable via
   `pip install -e ".[dev]"` (Python ≥ 3.11).
 - **`agents/registry.yaml`**: the SINGLE source of truth for agent → prompt /
@@ -80,9 +80,14 @@ Cost Effectiveness (Free-First), Fail Fast, and Convergent Review.
   `return Stage.HUMAN_INPUT_NEEDED`). Infeasible ideas archive + bounded
   re-brainstorm → `validator_rejected` terminal. When the execution OR
   convergence fix-loop exhausts its per-tier round cap it ESCALATES the
-  model tier (`execution_status` `model_tier` ladder: registered default →
-  `openai.gpt-oss-120b` → optional `LLMXIVE_EXECUTION_PAID_TIERS` via the
-  paid opt-in + credit guard) and retries the cap; when ALL tiers exhaust it
+  model tier (`execution_status` `model_tier` ladder of selection constraints,
+  not model names: the profile's default chain → exclude the free leader → exclude
+  the top two free candidates; each free rung also raises the strength level asked
+  of funded Hugging Face models by one (rung 0 asks for the profile's default),
+  saturating at `strongest`, and a funded leader is never excluded → an optional
+  paid rung enabled by
+  `LLMXIVE_EXECUTION_PAID_ESCALATION` via the paid opt-in + credit guard) and
+  retries the cap; when ALL tiers exhaust it
   routes back to `planned`/`paper_planned` with a DETERMINISTIC (no-LLM)
   re-plan report (artifacts produced + failing commands / unresolved panel
   concerns + an "adjust the approach" note) the planner ingests. Task-verifier

@@ -1,116 +1,60 @@
-# Quick Start Guide
-
-This guide walks you through executing the full pipeline on the test dataset.
+# Quickstart: Exploring the Correlation Between Atmospheric Pressure and Earthquake Precursors
 
 ## Prerequisites
+- Python 3.11+
+- Git
+- Internet access (for data download)
+- ~Adequate free disk space (on the order of gigabytes) is required for streaming pressure data.
 
-- Python 3.11+
-- pip
-- Git (for cloning)
-
-## Installation
-
-1. Clone the repository and navigate to the project root:
- ```bash
- git clone <repo-url>
- cd exploring-the-correlation-between-atmosp
- ```
-
-2. Create a virtual environment and activate it:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. Install dependencies:
- ```bash
- pip install -r code/requirements.txt
- ```
-
-## Execution
-
-The pipeline consists of the following stages. Run them in order:
-
-### 1. Download and Validate Data
-
-Fetches USGS earthquake data and verifies the absence of global pressure sources (per FR-001 deviation).
-
+## Setup
 ```bash
-python code/download.py
+# 1. Clone the repository
+git clone <repo-url>
+cd projects/PROJ-252-exploring-the-correlation-between-atmosp
+
+# 2. Create and activate a virtual environment
+python -m venv.venv
+source.venv/bin/activate # Windows:.venv\Scripts\activate
+
+# 3. Install pinned dependencies
+pip install -r requirements.txt
 ```
 
-**Output**: `data/raw/earthquake_*.csv`, `data/raw/pressure_*.csv`
-
-### 2. Preprocess Data
-
-Interpolates pressure grids, calculates anomalies, and filters events.
-
+## Run the Full Pipeline
 ```bash
-python code/preprocess.py
+# Step 0 – Verify installation (optional)
+pytest tests/ # should exit with a successful status
+
+# Step 0b – Initialise random seed (creates logs/seed_initialization.log)
+python -m code.seed_init
+
+# Verify seed log exists
+if [ ! -f logs/seed_initialization.log ]; then
+ echo "Seed initialization failed" >&2
+ exit 1
+fi
+
+# Step 1 – Download the verified USGS earthquake catalog
+python -m code.download_usgs
+
+# Step 2 – Stream and download NOAA pressure reanalysis (verified URL)
+python -m code.download_pressure # streams data, no large disk footprint
+
+# Step 3 – Preprocess: clean earthquakes, apply ocean mask, interpolate pressure,
+# compute anomalies, generate simple random control windows
+python -m code.preprocess
+
+# Step 4 – Primary statistical analysis (block‑permutation test, bootstrap CI, power analysis)
+python -m code.analysis
+
+# Step 5 – Generate the short Markdown report
+python -m code.report
 ```
 
-**Output**: `data/interim/processed_earthquakes.csv`, `data/interim/pressure_anomalies.csv`, `data/interim/validation_report.json`
-
-### 3. Generate Master Dataset
-
-Pairs earthquakes with pressure anomalies and assigns control labels.
-
-```bash
-python code/generate_master_dataset.py
-```
-
-**Output**: `data/processed/master_dataset.csv`
-
-### 4. Run Statistical Analysis
-
-Performs KS tests, permutation tests, and calculates effect sizes.
-
-```bash
-python code/analysis.py
-```
-
-**Output**: `data/processed/statistical_results.json`
-
-### 5. Run Robustness and Sensitivity Analysis
-
-Stratifies by magnitude/region and sweeps anomaly cutoffs.
-
-```bash
-python code/generate_robustness_report.py
-```
-
-**Output**: `data/processed/robustness_report.json`
-
-### 6. Generate Final Report
-
-Compiles all findings into a pilot report.
-
-```bash
-python code/generate_pilot_report.py
-```
-
-**Output**: `docs/pilot_report.md`
-
-## Validation
-
-To verify the pipeline execution:
-
-1. Check that `data/processed/master_dataset.csv` contains exactly 12 rows (the Alaska 2018 test subset).
-2. Verify `docs/pilot_report.md` exists and references `docs/deviations.md`.
-3. Run the test suite:
- ```bash
- pytest tests/ -v
- ```
-
-## Troubleshooting
-
-- **Missing Dependencies**: Ensure you are using Python 3.11 and have installed all packages from `code/requirements.txt`.
-- **Data Download Failures**: The pipeline explicitly checks for the absence of global NOAA sources. If it fails to download the test subset, verify your internet connection and USGS API availability.
-- **Permission Errors**: Ensure you have write access to the `data/` and `docs/` directories.
-
-## Notes on Scope
-
-- This is a **pilot study** validating the methodology.
-- Global data (FR-001) is blocked; only the 2018 Alaska subset (N=12) is used.
-- Climate indices (ENSO/PDO) are not stratified (FR-011).
-- Refer to `docs/deviations.md` for full details on limitations.
+### Expected Outputs
+- `data/raw/usgs_2013_2023.csv` – raw USGS catalog.
+- `data/raw/pressure.nc` – streamed NOAA pressure dataset (NetCDF).
+- `logs/download_success.log` – contains download confirmation lines.
+- `data/processed/config.yaml` – records checksums and expected counts.
+- `logs/seed_initialization.log` – records the fixed random seed (required by Constitution I).
+- `docs/report.md` – report summarizing data validation, pressure‑anomaly statistics, primary permutation‑test results (p‑value, Cohen’s d, 95 % CI), power analysis outcome, hierarchical FDR‑adjusted secondary results, and limitations.

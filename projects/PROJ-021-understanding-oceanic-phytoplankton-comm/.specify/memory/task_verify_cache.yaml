@@ -1,50 +1,48 @@
 T001:
   c: true
-  h: 985fa985590d0d847bcb0961012423075adbe22c819deb4a268c1866accde8ed
-  r: "The project root `projects/PROJ-021-understanding-oceanic-phytoplankton-comm/`\
-    \ exists with the expected sub\u2011directories and files (code/, data/, specs/,\
-    \ tests/, README, etc.), satisfying the requirement to create the prescribed project\
-    \ structure."
-  sig: 0ed7d0bd2d8748b7c7347a80f45463a785ef7a4dd12e46f4e568e76f9a105e47
+  h: 953c0cb7a2d44c58ad646ba25f63c6594f18d79324e7775b45db0f9171c568af
+  r: Checked the existence of the project root `projects/PROJ-021-understanding-oceanic-phytoplankton-comm/`
+    and its full directory tree (code/, data/, specs/, tests/, README, setup files,
+    etc.), confirming that the required project structure per the implementation plan
+    is present.
+  sig: 4a527c18f6067b6cfc234b43a320dcc33bc4518b17048322f7a4d80a9ef0ff30
 T002:
   c: false
-  h: 164fd4ed408e24ebdba703d08d74732364c7dfb8b1691170f5532b66d312fa46
-  r: "The only artifact found is `code/requirements.txt`, which correctly lists all\
-    \ required packages (and a few extras), but there is no evidence that the project\
-    \ is explicitly set up for Python\u202F3.11 (e.g., no `pyproject.toml`, `setup.cfg`,\
-    \ or other version\u2011specifying file) nor any other initialization files (e.g.,\
-    \ `__init__.py`, starter script). Adding a manifest that declares `requires\u2011\
-    python = \">=3.11\"` (or equivalent) would satisfy the task."
-  sig: 09874dc7d094d5113aca6b08dfda65698717e222b9d53c8c9c362382646e1fb6
+  h: 53d626c049b750435f72c12b1290f9947dcd498f25fbb1a5b3a8af5b55deb762
+  r: "The only provided artifact is `code/requirements.txt`, which lists the required\
+    \ packages (and even extra ones) but there is no evidence of a Python\u202F3.11\
+    \ project configuration (e.g., a `pyproject.toml`, `setup.cfg`, or similar file\
+    \ specifying `requires-python = \">=3.11\"`). Without an explicit Python\u2011\
+    version declaration, the claim of initializing a Python\u202F3.11 project is not\
+    \ substantiated."
+  sig: a2b55d229a8eb50273cc23e3557e8f49273f708718fffd61ab9f0755ec3f0476
+T003:
+  c: false
+  h: 340973ca98ec651a65ad10fe8a4e04a76a7ac1bb9706a463cecafd0f52bd08ae
+  r: "The evidence only shows the project root path; no linting or formatting configuration\
+    \ files (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or a `ruff`\
+    \ section, or a `.pre-commit-config.yaml` invoking ruff/black) are present or\
+    \ referenced. Without these artifacts, the requirement to configure ruff and black\
+    \ is not satisfied. Adding the appropriate config files and confirming they are\
+    \ non\u2011empty will be needed."
+  sig: a4886dd745e1a8451ba587fcecbcb8871715d2b56fcdd766af9c6020681d1161
 T004:
   c: true
-  h: 24afce4cf26964a8b8808ab8a851ebfa22f8dd3283959582c8ee8cda62fab73d
-  r: 'The artifact `code/utils/config.py` exists, is non-empty (2342 bytes), and contains
-    a fully functional configuration manager that addresses all stated requirements:
-
-
-    1. **Seeds**: `random_seed` field (default 42) with environment variable override
-    support via `RANDOM_SEED`.
-
-    2. **Paths**: Multiple path fields (`project_root`, `data_root`, `code_root`,
-    `specs_root`, `state_root`) with a `get_path()` method for resolving relative
-    paths.
-
-    3. **Hyperparameters**: Model-specific settings including `rf_max_trees` (500),
-    `vlm_patience` (3), `vlm_fallback_threshold` (0.05), and dataset parameters (`min_'
-  sig: 6b1f8d70a627fcaa0d775e4a77470267feeda3840fc19361e909c596e0b0ee3b
+  h: 8be5788e636cd138d3d8cebbaf72e547b325c609b39b6eb7a0213a34a02cd21f
+  r: "The `code/utils/config.py` file (2342\u202Fbytes) is present and implements\
+    \ a `Config` dataclass exposing project paths, a random seed, hyperparameters\
+    \ (e.g., `rf_max_trees`, `vlm_patience`), and memory limits (`memory_limit_gb`,\
+    \ `runtime_limit_hours`). Helper functions (`get_config`, `reset_config`, `get_available_ram_gb`)\
+    \ and a simple CLI test confirm it functions as a configuration manager."
+  sig: 916512dae20b5d639769e78a4f4a5fa325aea907121a334d80adb71575074a3e
 T005:
-  c: false
-  h: 4657283f842272cd42c90a07752b57da6e0d6f4bf9c75c1de57966ad428e0e84
-  r: "The `code/utils/data_loaders.py` file exists but contains only placeholder/stub\
-    \ implementations that do not satisfy the task requirements. Specifically:\n\n\
-    1. **`stream_netcdf_by_chunk()`**: Contains only a comment saying \"Implementation\
-    \ would use xarray's open_dataset with chunks\" and yields an empty `xr.Dataset()`.\
-    \ This is a non-functional stub, not a working streaming implementation.\n\n2.\
-    \ **`sample_to_ram_limit()`**: Marked as a placeholder with no actual sampling\
-    \ logic\u2014it simply returns the dataset unchanged. The task requires \"sampling\
-    \ to fit available RAM,\" which is not implemented.\n\n3. **`"
-  sig: 605ab2b0dea4da22f20856b22529cc92ba32782297fe193767a45d8a5f6c068e
+  c: true
+  h: 78bdb50fae7ea2b08c77381404806cd60032c0b8597af404815131736feed927
+  r: "Checked the `code/utils/data_loaders.py` file (8913\u202Fbytes) which provides\
+    \ streaming of NetCDF files, RAM\u2011aware sampling for both CSV and NetCDF datasets,\
+    \ and strict error handling without any synthetic data fallback, fulfilling the\
+    \ CPU\u2011only data loader utilities requirement."
+  sig: 16296b5908169758a30c6e76b83a4d680d7227f6e2a5b451cfff25306a5361d4
 T006:
   c: false
   h: 86c41453f988c63accb9f9097b2aaeb07906a5c4339ad0349c20f217db52e0f6
@@ -56,6 +54,15 @@ T006:
     files specified in the task are absent. Without these schema definitions, the
     task is incomplete regardless of whether other schema files exist in the directo'
   sig: 4373e1548bbb1512c903ec667837a7b760759a2b93817c0b8f77f6ff477402a5
+T007:
+  c: true
+  h: 1a0fcb0d5c593f262a4f2b6fd7dcff9a2dc5001e37d01c26a2029e602122c2c8
+  r: "Checked `code/05_versioning_state.py`, which defines `compute_file_hash`, `compute_directory_hash`,\
+    \ and related version\u2011state functions that can be imported and called by\
+    \ another agent, fulfilling the SHA\u2011256 hashing utility requirement. The\
+    \ file is non\u2011empty and implements the needed logic (despite also providing\
+    \ a CLI entry point)."
+  sig: 3e70ec69ae2d84099687de32b0a7115e7580311226614408bace13538d492323
 T011c:
   c: false
   h: e98e0724f5968e24bf4b6c8e766ccb627c47f89c3f45710ff0e4b31f5f541b16

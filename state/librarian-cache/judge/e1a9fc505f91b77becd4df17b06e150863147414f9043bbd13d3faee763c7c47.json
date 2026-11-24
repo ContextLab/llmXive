@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2609.37148",
+  "judged_at": "2026-10-13T21:33:15Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of self-compassion on resilience to negative feedback psychology",
+  "rationale": "The paper directly measures self-compassion (the user's independent variable) in the context of responding to setbacks and socio-emotionally demanding situations, satisfying criterion (a) — same-construct evidence. It also provides methodological grounding for how self-compassion manifests in reflective dialogue about negative events, which is relevant prior work for a lit review on self-compassion and resilience to negative feedback, even though it does not test the resilience correlation itsel",
+  "relevant": true
+}

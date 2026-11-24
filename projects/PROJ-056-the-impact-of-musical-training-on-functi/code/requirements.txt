@@ -1,4 +1,14 @@
-# Project dependencies
-# Existing dependencies are available in the base environment.
-# Adding nilearn for atlas fetching in analysis/download_atlas.py
-nilearn
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+nibabel
+networkx
+tqdm
+pyyaml
+jsonschema
+pyarrow
+# Existing environment already provides: requests, psutil, etc.

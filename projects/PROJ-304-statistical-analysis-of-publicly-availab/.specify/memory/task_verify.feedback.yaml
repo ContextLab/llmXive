@@ -17,8 +17,16 @@ T003:
     \ and black are actually configured anywhere in the project."
   task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
 T004b:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-304-statistical-analysis-of-publicly-availab.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 99ff8b92861d383a404576aff618ef727a80d2865674560937ce18085520539a
 T005:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-304-statistical-analysis-of-publicly-availab.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: a54b84bdfe2f792d86eebac623aca6974b861d7b8f385ea869c120543240b19a
 T005b:
   task: 816846617466910c3613da06e13e53a122f22340c27b8bb637fc1d8b698a2c7a
@@ -27,10 +35,34 @@ T006:
 T007:
   task: 5fc47e9d3eedd2a54962a39566144cddbb2952958d4dfeb1daa6c1fb82b6e06a
 T009:
+  reason: "The test file exists and is substantive, but `test_iqr_filter_removes_outliers`\
+    \ is mathematically inconsistent with the actual `apply_iqr_filter` implementation:\
+    \ for data [40,42,45,48,50,52,55,150,160], pandas linear quantiles give Q1=45,\
+    \ Q3=150, IQR=105, so the upper bound is 307.5 \u2014 the values 150 and 160 are\
+    \ NOT removed, and the assertion `len(filtered_df) < len(df)` (and the 40\u2013\
+    55 range check) would fail. No execution evidence (pytest output) was supplied\
+    \ either, so there is no proof any of these tests pass; the implementer must fix\
+    \ the test data (e.g., use more inliers so 150/160 fall out"
   task: a404943e15fd69b4cae2db9fa0c6013c27fcfbb54fbbc87696c8aa9b4cc09cc8
 T010:
+  reason: 'The test file `tests/integration/test_ingestion.py` exists and is substantive,
+    but it is incompatible with the actual code it imports and would fail immediately:
+    it calls `generate_synthetic_data_chunked(n_cells=100, n_days=5, chunk_size=25,
+    ...)` while the real function signature is `(output_dir=None, seed=42)` (TypeError
+    on every test); it expects a `(noise_df, covariate_df)` tuple return while the
+    function returns a list of parquet file paths; `load_synthetic_data_chunked` globs
+    `noise_*.csv`/`covariates_*.csv` but the generator writes `synthetic_data_chunk_*.parquet`
+    (FileNotFoundError); `'
   task: fce0a961e384efcb0b0ffdc2222ae0bb7fe26a4401121ef6678ebcb7bee6a7c8
 T011:
+  reason: 'The file `code/ingestion.py` exists and loads noise/covariate CSVs, but
+    its core harmonization is a fabricated stand-in: `generate_geometry` invents coordinates
+    from `grid_id` arithmetic with an explicit comment "In a real scenario, this would
+    use actual grid definitions," producing fake 200m-spaced points mislabeled as
+    EPSG:4326 (a degree-based CRS), which violates the spec''s requirement of a real
+    200m grid in a standard geographic CRS with no missing coordinates. There is also
+    no execution evidence (no `data/processed/harmonized.parquet`, no logs) showing
+    the script ever ran successfully, an'
   task: d3406645e18051ba7ff3ce6cafdb0632b53cdc4c67d06f70b85c71656968da20
 T012:
   task: b9a56b9de0e72e91fb65c65ab7e0535ad10f36e6f44c8535be459fe21537a206

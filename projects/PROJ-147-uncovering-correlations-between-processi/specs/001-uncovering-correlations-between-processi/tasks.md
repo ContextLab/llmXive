@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `docs/`)
+- [~] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `docs/`)
 - [X] T002 Initialize Python 3.11 project with dependencies (`scikit-learn`, `pandas`, `numpy`, `pymtex`, `pyyaml`, `pytest`) in `requirements.txt`
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `.pre-commit-config.yaml`
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `.pre-commit-config.yaml`
 
 ---
 
@@ -56,19 +56,19 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create `code/config.py` for hyperparameters, paths, and random seeds
-- [X] T005 [P] Implement `code/utils/logging.py` for `pipeline.log` and structured warnings (FR-007, FR-012)
-- [ ] T006 [P] Create `code/data/` directory structure (`raw/`, `processed/`)
-- [ ] T007 [P] Define data schemas in `docs/contracts/` (`dataset.schema.yaml`, `input.schema.yaml`, etc.)
-- [X] T008 Implement `code/utils/texture.py` wrapper for `pymtex` to compute ODF intensities ({100}, {110}, {111}) in MRD (FR-003)
-- [X] T009 Implement `code/data/synthetic.py` physics-based generator ensuring ≥50 samples/alloy family with known ground truth (FR-001, FR-011)
-- [X] T009a Implement `code/data/synthetic.py` configuration to generate at least 3 distinct alloy families with ≥50 samples each and output `ground_truth.json` validating family counts (FR-009) <!-- SKIPPED: YAML+regex parse failed (while scanning for the next token
+- [ ] T005 [P] Implement `code/utils/logging.py` for `pipeline.log` and structured warnings (FR-007, FR-012)
+- [X] T006 [P] Create `code/data/` directory structure (`raw/`, `processed/`)
+- [~] T007 [P] Define data schemas in `docs/contracts/` (`dataset.schema.yaml`, `input.schema.yaml`, etc.)
+- [~] T008 Implement `code/utils/texture.py` wrapper for `pymtex` to compute ODF intensities ({100}, {110}, {111}) in MRD (FR-003)
+- [~] T009 Implement `code/data/synthetic.py` physics-based generator ensuring ≥50 samples/alloy family with known ground truth (FR-001, FR-011)
+- [~] T009a Implement `code/data/synthetic.py` configuration to generate at least 3 distinct alloy families with ≥50 samples each and output `ground_truth.json` validating family counts (FR-009) <!-- SKIPPED: YAML+regex parse failed (while scanning for the next token
 found character '`' that cannot start any token
  in "<unicode string>", line 3, column 17:
  - Public names: `generate_synthetic_dataset`, `v...
  ^) -->
-- [X] T010 Implement `code/data/loader.py` to attempt real data ingestion (Materials Project/OMDB/NIST) and fallback to synthetic (FR-001, FR-008); **MUST validate that the combined dataset (Real + Synthetic) contains at least 3 distinct alloy families** before training proceeds.
-- [X] T011a Implement `code/data/processor.py` for unit standardization, median imputation (≤20% NaN), 3σ outlier removal, and derivation of physics-based features (strain rate, Zener-Hollomon) per spec formulas (FR-002); **depends on T008** (Texture Utils) for ODF-based feature derivation if applicable.
-- [X] T011b Create unit tests `tests/test_preprocessing.py` to validate mathematical correctness of derived features (strain rate, Zener-Hollomon) against spec definitions **explicitly listing the mathematical formulas as docstrings in test_preprocessing.py** before model ingestion (FR-002)
+- [~] T010 Implement `code/data/loader.py` to attempt real data ingestion (Materials Project/OMDB/NIST) and fallback to synthetic (FR-001, FR-008); **MUST validate that the combined dataset (Real + Synthetic) contains at least 3 distinct alloy families** before training proceeds.
+- [~] T011a Implement `code/data/processor.py` for unit standardization, median imputation (≤20% NaN), 3σ outlier removal, and derivation of physics-based features (strain rate, Zener-Hollomon) per spec formulas (FR-002); **depends on T008** (Texture Utils) for ODF-based feature derivation if applicable.
+- [~] T011b Create unit tests `tests/test_preprocessing.py` to validate mathematical correctness of derived features (strain rate, Zener-Hollomon) against spec definitions **explicitly listing the mathematical formulas as docstrings in test_preprocessing.py** before model ingestion (FR-002)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -84,13 +84,13 @@ found character '`' that cannot start any token
 
 > **NOTE**: The spec requires an independent test execution. We will create integration tests to verify the pipeline runs end-to-end.
 
-- [X] T012 [P] [US1] Create integration test `tests/test_pipeline.py` to run full pipeline on synthetic data and verify artifact existence
+- [~] T012 [P] [US1] Create integration test `tests/test_pipeline.py` to run full pipeline on synthetic data and verify artifact existence
 
 ### Implementation for User Story 1
 
-- [X] T013 [P] [US1] Implement `code/models/trainer.py` for multi-output RandomForestRegressor training with 5-fold CV grid search (≤30 mins) (FR-004)
-- [X] T014 [US1] Implement `code/models/predictor.py` for inference logic handling out-of-range warnings (Edge Case)
-- [X] T015 [US1] Implement `code/main.py` entry point to orchestrate: Load -> Preprocess -> Train -> Predict -> Save (FR-001, FR-004, FR-005)
+- [~] T013 [P] [US1] Implement `code/models/trainer.py` for multi-output RandomForestRegressor training with 5-fold CV grid search (≤30 mins) (FR-004)
+- [~] T014 [US1] Implement `code/models/predictor.py` for inference logic handling out-of-range warnings (Edge Case)
+- [~] T015 [US1] Implement `code/main.py` entry point to orchestrate: Load -> Preprocess -> Train -> Predict -> Save (FR-001, FR-004, FR-005)
 - [ ] T016 [US1] Add validation logic in `main.py` to abort if <50 samples/alloy family (FR-008)
 - [ ] T017 [US1] Implement logic to save `predictions.csv` and `new_predictions.csv` (FR-005)
 - [ ] T018 [US1] Implement logic to save `pipeline.log` with all warnings and hyper-params (FR-007)
@@ -107,13 +107,13 @@ found character '`' that cannot start any token
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T019 [P] [US2] Create unit test `tests/test_evaluation.py` to verify metric calculations and threshold checks (FR-010)
+- [~] T019 [P] [US2] Create unit test `tests/test_evaluation.py` to verify metric calculations and threshold checks (FR-010)
 
 ### Implementation for User Story 2
 
-- [X] T020 [P] [US2] Implement `code/models/evaluator.py` to compute R², MAE, RMSE per texture coefficient and per alloy family (FR-009, FR-010)
+- [~] T020 [P] [US2] Implement `code/models/evaluator.py` to compute R², MAE, RMSE per texture coefficient and per alloy family (FR-009, FR-010)
 - [ ] T021 Implement permutation importance calculation and ranking logic (FR-005)
-- [X] T021a [US2] Implement validation logic in `code/models/evaluator.py` to check SC-002 (at least one variable importance ≥0.10 for EVERY AlloyFamily); **log failure and record metrics in the evaluation report if failed, do NOT halt the pipeline**; proceed to sensitivity analysis (FR-010, SC-002)
+- [~] T021a [US2] Implement validation logic in `code/models/evaluator.py` to check SC-002 (at least one variable importance ≥0.10 for EVERY AlloyFamily); **log failure and record metrics in the evaluation report if failed, do NOT halt the pipeline**; proceed to sensitivity analysis (FR-010, SC-002)
 - [ ] T022 [US2] Implement `importance_plot.png` generation (≤5 MB) with ranked feature list (FR-005)
 - [ ] T023 [US2] Implement `sensitivity_analysis.py` to sweep R² and importance thresholds from **0.01 to 0.50 in steps of 0.01** to report stability across low to moderate magnitudes (FR-010)
 - [ ] T024 [US2] Generate `evaluation_report.json` including `data_source_type` (Real/Synthetic); **logic: Set data_source_type to "Synthetic" if the synthetic generator was invoked or if real data count < threshold, else "Real"**; include per-family metrics and missing confounds warning (SC-004, FR-012)
@@ -131,14 +131,14 @@ found character '`' that cannot start any token
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T026 [P] [US3] Create `tests/test_ci.py` (mock) to validate resource constraints in local environment; **MUST be conditional on `ENABLE_DOCKER` flag and skipped if false** (optional)
+- [~] T026 [P] [US3] Create `tests/test_ci.py` (mock) to validate resource constraints in local environment; **MUST be conditional on `ENABLE_DOCKER` flag and skipped if false** (optional)
 
 ### Implementation for User Story 3
 
-- [X] T027 [P] [US3] Create `Dockerfile` based on `python:3.11-slim` with all dependencies; implement conditional check for `ENABLE_DOCKER` config flag to skip build if false (FR-006)
+- [~] T027 [P] [US3] Create `Dockerfile` based on `python:3.11-slim` with all dependencies; implement conditional check for `ENABLE_DOCKER` config flag to skip build if false (FR-006)
 - [ ] T028 [US3] Create `.github/workflows/ci.yml` to build image (if `ENABLE_DOCKER=true`), run pipeline, and verify exit code 0; skip containerization step if flag is false (FR-006)
 - [ ] T029 [US3] Add error handling in CI workflow to log missing resources clearly; ensure workflow respects `ENABLE_DOCKER` flag (Edge Case)
-- [X] T030 [US3] Document local run instructions in `docs/quickstart.md` including `ENABLE_DOCKER` configuration
+- [~] T030 [US3] Document local run instructions in `docs/quickstart.md` including `ENABLE_DOCKER` configuration
 
 **Checkpoint**: All user stories should now be independently functional
 

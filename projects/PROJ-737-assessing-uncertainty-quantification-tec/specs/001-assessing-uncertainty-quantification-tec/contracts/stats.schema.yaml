@@ -1,57 +1,55 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "StatisticalTestResultSchema"
-description: "Schema for the statistical significance test results."
+description: "Schema for paired statistical test outcomes."
 type: object
 properties:
   dataset_id:
     type: string
-    description: "Dataset context."
-  method_a:
-    type: string
-    description: "First method compared."
-  method_b:
-    type: string
-    description: "Second method compared."
+    description: "Dataset identifier."
   metric_type:
     type: string
     enum:
-      - "calibration_error"
-      - "sharpness"
-    description: "Metric being compared."
+      - "abs_error"
+      - "interval_width"
+      - "coverage"
+    description: "Metric on which the test was performed."
+  method_a:
+    type: string
+    description: "First UQ method in the pair."
+  method_b:
+    type: string
+    description: "Second UQ method in the pair."
+  test_name:
+    type: string
+    enum:
+      - "wilcoxon"
+      - "mcnemar"
+    description: "Statistical test used."
   p_value:
     type: number
     minimum: 0
     maximum: 1
-    description: "P-value from the test."
-  test_type:
-    type: string
-    enum:
-      - "wilcoxon_signed_rank"
-      - "welch_t"
-      - "mann_whitney_u"
-    description: "Type of statistical test used."
+    description: "Two‑sided p‑value."
   significant:
     type: boolean
-    description: "True if p < alpha."
-  alpha:
+    description: "True if p_value < Bonferroni‑adjusted α."
+  alpha_adj:
     type: number
     minimum: 0
     maximum: 1
-    description: "The significance level used for the test (e.g., 0.05)."
-  correction:
+    description: "Adjusted significance threshold."
+  timestamp:
     type: string
-    enum:
-      - "bonferroni"
-      - "none"
-    description: "Multiple comparison correction applied."
+    format: date-time
+    description: "ISO‑8601 timestamp of test execution."
 required:
   - dataset_id
+  - metric_type
   - method_a
   - method_b
-  - metric_type
+  - test_name
   - p_value
-  - test_type
   - significant
-  - alpha
-  - correction
+  - alpha_adj
+  - timestamp
 additionalProperties: false

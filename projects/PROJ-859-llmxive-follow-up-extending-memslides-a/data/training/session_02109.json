@@ -1,0 +1,129 @@
+{
+  "trace_id": "training_42_02109",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 11,
+  "tool_sequence": [
+    "update_layout",
+    "insert_chart",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "insert_chart",
+    "format_text",
+    "apply_theme",
+    "insert_chart",
+    "delete_element",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 2.9609,
+        "padding": 97.7426
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 88.8806,
+        "y": 29.9508,
+        "width": 37.2107,
+        "height": 55.5917,
+        "data_points": 38.2037
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 26.6693,
+        "saturation": 71.5733
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 94.9983,
+        "saturation": 25.8716
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 31.4892,
+        "saturation": 18.6106
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 84.6636,
+        "y": 68.6157,
+        "width": 29.2631,
+        "height": 70.4632,
+        "data_points": 53.3413
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 99.3085,
+        "x": 71.3542,
+        "y": 32.8118
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 39.6854,
+        "saturation": 95.8864
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 20.5636,
+        "y": 90.9099,
+        "width": 31.0909,
+        "height": 75.665,
+        "data_points": 65.7085
+      }
+    },
+    {
+      "step": 9,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 61.6584
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 83.257,
+        "y": 71.9347,
+        "length": 50.1776
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.594167,
+    "tool_repetition_freq": 0.454545,
+    "arg_semantic_variance": 736.058194
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 12,
+    "layout_hash": "42-2109-apply_theme"
+  }
+}

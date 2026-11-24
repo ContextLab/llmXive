@@ -1,132 +1,154 @@
 # Implementation Plan: Evaluating the Impact of Code Generation on Code Review Time
 
-**Branch**: `001-evaluating-llm-code-review-impact` | **Date**: 2024-05-21 | **Spec**: `spec.md`
+**Branch**: `001-evaluating-llm-code-review-impact` | **Date**: 2024-10-22 | **Spec**: `specs/001-evaluating-llm-code-review-impact/spec.md`  
 **Input**: Feature specification from `/specs/001-evaluating-llm-code-review-impact/spec.md`
 
 ## Summary
-
-This project evaluates whether LLM-generated code requires significantly more review time than human-written code. The approach involves acquiring a stratified sample of GitHub PRs (via BigQuery for event+code linkage), generating synthetic LLM code (two distinct cohorts: **Generation-from-Scratch** using intent-rewritten commit messages, and **Refactoring** using context), extracting features (LOC, complexity, review latency), performing propensity score matching (excluding post-treatment variables like semantic similarity), and running statistical tests with clustered standard errors and sensitivity analysis. The pipeline is designed for CPU-first execution on GitHub Actions with limited compute resources, with a scaled-down GPU escape hatch for the LLM generation step if CPU inference exceeds the 60s hard limit.
-
-**Critical Methodological Override**: The plan explicitly **excludes** `semantic_similarity` from propensity score matching covariates to avoid "bad control" (conditioning on a post-treatment variable), overriding the flawed requirement in FR-004/FR-009 of the spec. The plan also replaces `repository star-count` stratification with `code complexity` and `PR size` for sensitivity analysis, as star-count is not a valid proxy for code complexity.
+The pipeline will (1) **acquire PR metadata directly from the GitHub REST API** for a **stratified sample of multiple high‑star repositories (≥ 1 000 ⭐) with up to 200 PRs each**, guaranteeing inclusion of `first_comment_at` timestamps; (2) **derive natural‑language prompts** from commit messages; (3) **generate two LLM cohorts** (prompt‑only and context‑based) using a **CPU‑only CodeLlama‑7B‑4bit‑GGUF** model (≤ 30 s per snippet, 3 retries, ≥ 95 % syntactic validity); (4) **create a dedicated sandbox evaluation repository**, open pull requests for each generated snippet, and **record real `review_effort_duration` timestamps** from the first reviewer comment to merge (FR‑013); (5) **extract features** (LOC, radon cyclomatic complexity, CI build time, all‑MiniLM‑L6‑v2 semantic similarity) for all PRs; (6) **perform a power analysis** (T001) to ensure ≥ 250 matched pairs for detecting a [deferred] effect with Cohen’s d ≥ 0.2 at α = 0.05, power = 0.8; (7) **run propensity‑score matching** on the five covariates, aborting if any standardized mean difference (SMD) ≥ 0.1 after three retries; (8) **validate raw PR data against `dataset.schema.yaml`** and generated snippets against `code_snippet.schema.yaml`; (9) **conduct normality‑aware statistical testing** (paired t‑test or Mann‑Whitney U) with Holm‑Bonferroni correction across the four star‑count quartiles; (10) **validate test output against `contracts/test_result.schema.yaml`**; (11) **generate box‑plot and CDF visualisations**; (12) **assemble an HTML → PDF report** that traces every figure/number to a single data row; (13) **record runtime statistics and enforce a predefined wall‑time limit (e.g., on the order of several hours)**. All steps are **CPU‑first**; the LLM generation uses a real quantised model that runs on the GitHub Actions runner without GPU. No synthetic stand‑ins are used; synthetic snippets are genuine model outputs. The total number of LLM‑generated snippets is capped at **200** to stay within compute budget.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `datasets`, `pandas`, `scikit-learn`, `radon`, `torch`, `transformers`, `matplotlib`, `seaborn`, `requests`, `tenacity`, `google-cloud-bigquery`  
-**Storage**: Local Parquet/JSON files (`data/raw`, `data/processed`, `data/synthetic`)  
-**Testing**: `pytest`  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest`)  
-**Project Type**: Research Pipeline / Data Analysis  
-**Performance Goals**: End-to-end execution ≤ 6 hours; LLM generation **target** ≤ 30s/snippet (CPU), **hard limit** 60s/snippet; Memory ≤ 7GB.  
-**Constraints**: No local GPU (primary); API rate limits (GitHub/BigQuery); Synthetic code validity ≥ 95%.  
-**Scale/Scope**: ~5-10 repositories with ≥1,000 stars; A substantial number of PRs per repo; A moderate number of synthetic snippets per cohort.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes) are deferred to the research/implementation phase.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas`, `pyarrow`, `datasets`, `scikit-learn`, `statsmodels`, `scipy`, `radon`, `transformers`, `torch`, `sentence-transformers` (all‑MiniLM‑L6‑v2), `matplotlib`, `seaborn`, `tenacity`, `requests`, `tqdm`, `ruff` (lint)  
+- **Storage**: Parquet/JSON under `data/` (raw, processed, synthetic, reports)  
+- **Testing**: `pytest` (unit & integration)  
+- **Target Platform**: GitHub Actions `ubuntu‑latest` (2 vCPU, ≈7 GB RAM, ≈14 GB disk)  
+- **Constraints**: Total wall‑time ≤ 6 h; synthetic‑code syntactic validity ≥ 95 % (SC‑007); **max 200 LLM‑generated snippets** total to stay within compute budget.  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Action / Evidence |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, fixed random seeds in `code/`, and streaming of external datasets. |
-| **II. Verified Accuracy** | **PASS** | Plan restricts dataset citations to verified sources (BigQuery, HuggingFace). No invented URLs. |
-| **III. Data Hygiene** | **PASS** | Plan enforces checksumming of raw/derived data, distinct directories for synthetic data, and no in-place modifications. |
-| **IV. Single Source of Truth** | **PASS** | All statistics (p-values, effect sizes) will be generated by scripts and stored in `data/processed/` before being referenced in reports. |
-| **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes; `state/` YAML will be updated upon artifact changes. |
-| **VI. Synthetic Data Isolation** | **PASS** | Plan explicitly separates `data/synthetic` from `data/raw` and mandates logging of model version/params for every synthetic snippet. |
-| **VII. Confounder-Controlled Matching** | **PASS** | Plan includes a mandatory "Covariate Balance Report" (`covariate_balance.json`) and a failure gate if SMD > 0.1 after 3 retries. This report is a prerequisite for the `research_accepted` stage. |
+| Principle | Status | Evidence |
+|---|---|---|
+| **I. Reproducibility** | PASS | `requirements.txt` pins all packages; `utils.set_seed(42)`; deterministic API queries; SHA‑256 recorded in project state. |
+| **II. Verified Accuracy** | PASS | Datasets are fetched via the GitHub API (canonical source). |
+| **III. Data Hygiene** | PASS | Raw API responses are immutable; each transformation writes a new file with a SHA‑256 checksum stored in `state/projects/PROJ-302-…yaml`. |
+| **IV. Single Source of Truth** | PASS | Every figure/number in the final PDF is generated from JSON/Parquet artifacts; no manual transcription. |
+| **V. Versioning Discipline** | PASS | Content hashes for all artifacts are stored in the project state file; any change updates `updated_at`. |
+| **VI. Synthetic Data Isolation** | PASS | All LLM‑generated snippets live under `data/synthetic/` with provenance metadata (`model_version`, `generation_params`, `source_commit`). |
+| **VII. Confounder‑Controlled Matching Verification** | PASS | `data/reports/covariate_balance.json` (generated by `matching.py`) must exist and show all SMD < 0.1 before any statistical test runs. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-evaluating-llm-code-review-impact/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── code_snippet.schema.yaml
 │   ├── dataset.schema.yaml
-│   └── output.schema.yaml
-└── tasks.md             # Phase 2 output (NOT created by /speckit-plan; generated by Implementer Agent)
-```
+│   ├── matched_pair.schema.yaml
+│   ├── output.schema.yaml
+│   └── pull_request.schema.yaml
+└── tasks.md   # generated later by /speckit-tasks
 
-### Source Code (repository root)
-
-```text
 projects/PROJ-302-evaluating-the-impact-of-code-generation/
 ├── code/
 │   ├── __init__.py
-│   ├── main.py              # Entry point (orchestrates phases)
-│   ├── data_acquisition.py  # BigQuery/REST API, PR metadata + diffs extraction
-│   ├── prompt_engineering.py # Intent extraction from commit messages
-│   ├── synthetic_generation.py # LLM generation (CPU/GPU fallback)
-│   ├── feature_extraction.py   # LOC, Radon, Embeddings (on-the-fly)
-│   ├── analysis.py            # Propensity matching, Statistical tests (clustered)
-│   ├── visualization.py       # Box plots, CDFs
-│   └── utils.py               # Retry logic, checksums, logging, runtime measurement
+│   ├── main.py                # orchestrates the full run
+│   ├── power_analysis.py      # T001 – computes required sample size
+│   ├── data_acquisition.py    # T002 – GitHub API streaming, filters, writes raw Parquet, records checksum
+│   ├── validate_raw.py        # T015 – validates raw PR parquet against dataset.schema.yaml; abort on schema violations
+│   ├── prompt_engineering.py  # T023 – extracts NL prompts from commit messages
+│   ├── synthetic_generation.py# T023b – CPU‑only CodeLlama generation (prompt‑only & context‑based)
+│   ├── evaluate_repo.py       # T010 – creates sandbox repo, opens PRs for each LLM snippet
+│   ├── timestamp_collection.py# T011 – polls PRs, records `review_effort_duration`; logs PRs without review within 48 h and excludes them
+│   ├── validate_snippets.py   # T016 – validates generated snippets against code_snippet.schema.yaml
+│   ├── feature_extraction.py  # T030a – LOC, radon, CI, all‑MiniLM‑L6‑v2 similarity
+│   ├── matching.py            # T032 – propensity‑score matching & balance report
+│   ├── analysis.py            # T036 – Shapiro‑Wilk, test selection, effect size, **validates output against `contracts/test_result.schema.yaml`**
+│   ├── sensitivity.py         # T037 – quartile sweeps, Holm‑Bonferroni
+│   ├── visualization.py       # T038 – box & CDF plots
+│   ├── report_generator.py    # T039 – HTML → PDF
+│   ├── runtime.py             # T040 – stage timers, 6 h enforcement
+│   └── utils.py               # retries, backoff, checksum, logging, seeds
 ├── data/
-│   ├── raw/                   # BigQuery dumps / API responses (Parquet/JSON)
-│   ├── processed/             # Extracted features, matched pairs, balance reports
-│   ├── synthetic/             # LLM-generated code snippets
-│   └── reports/               # Covariate balance, runtime reports, validity reports
-├── tests/
-│   ├── unit/                  # Unit tests for logic modules
-│   ├── integration/           # End-to-end pipeline tests
-│   └── fixtures/              # Static datasets for testing
+│   ├── raw/                    # immutable API‑downloaded PR parquet files
+│   ├── processed/              # features.parquet, merged_features.parquet, matched_pairs.parquet
+│   ├── synthetic/              # generated snippets + provenance JSONL, predicted outcomes
+│   └── reports/                # PDFs, PNGs, JSON summaries, runtime_report.json
 ├── docs/
-│   └── quickstart.md          # User guide for running the pipeline
+│   └── quickstart.md
+├── tests/
+│   ├── unit/
+│   └── integration/
 ├── requirements.txt
 └── Dockerfile
 ```
 
-**Structure Decision**: Selected a modular `code/` structure to separate concerns (acquisition, generation, analysis) for testability and reproducibility. Data is strictly segregated into `raw`, `processed`, and `synthetic` to satisfy Constitution Principle III & VI.
-
-## Complexity Tracking
-
-| Design Decision | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Two LLM Cohorts** (Generation vs. Refactoring) | Required by US-4 to isolate "generation from scratch" vs "rewrite". The "Prompt-Based" cohort uses **intent-rewritten** commit messages to mitigate the "post-hoc summary" bias. The "Context-Based" cohort uses original code. This distinguishes the *input modality* confound. | A single cohort would conflate the effect of the generation method with the source (LLM vs. Human), violating the causal claim. |
-| **Propensity Score Matching (No Post-Treatment)** | Required to control for confounders (complexity, size) as per US-2. **Semantic Similarity is excluded** from matching to avoid "bad control" bias. | Simple t-tests on raw data would be biased by inherent differences in code complexity between LLM and Human code. Including semantic similarity would condition on a post-treatment variable. |
-| **GPU Escape Hatch** | Required because CPU inference for CodeLlama may exceed the 60s hard limit (FR-002 Edge Case). **Constraint Override**: If CPU exceeds 60s, the "CPU-only" constraint is conditionally waived, and the run is flagged as "GPU-Offloaded". | A pure CPU plan risks failing the "60s snippet" constraint or the 6h job limit; the escape hatch ensures feasibility without fabrication. |
-| **Clustered Standard Errors** | Required because multiple PRs from the same repository are correlated (same reviewers, CI). | Standard t-tests underestimate variance and inflate Type I error rates. |
-| **Stratification by Complexity/Size** | Required to test robustness of the effect on code properties, not popularity. | Star-count is a proxy for popularity, not code complexity; stratifying by it yields spurious results. |
-
-## Task List (High Level)
-
-- **T014**: Data Acquisition (BigQuery + API) - **MUST retrieve `diff` field**.
-- **T014b**: Prompt Engineering (Intent Extraction) - **Depends on T014** (Sequential, NOT Parallel).
-- **T023**: Synthetic Generation (CPU/GPU) - **Depends on T014b**.
-- **T023b**: Matching & Failure Report Generation (Includes retry logic and SMD check; generates `matching_failure_report.json` if SMD > 0.1 after 3 retries).
-- **T023c**: Covariate Balance Report Generation (Success Case).
-- **T036**: Documentation (Generate `quickstart.md` and `docs/` structure).
-- **T037**: Code Cleanup and Refactoring (Remove debug logs, ensure type hints, final code polish).
-- **T038**: Runtime & Performance Measurement (Must write `runtime_report.json` to enforce 6h limit).
-- **T039**: Unit Testing (Add `tests/unit/` for core logic modules).
-- **T040**: End-to-End Analysis & Visualization (Run full pipeline, generate final plots and reports).
-
-*Note: The granular `tasks.md` file is generated by the Implementer Agent and is not part of this plan's artifact set. The tasks listed above are high-level milestones. Dependencies are strictly sequential where data flow requires it (e.g., T014 -> T014b).*
-
 ## FR/SC Coverage Map
+| FR / SC | Implemented By | Notes |
+|---|---|---|
+| **FR‑001** | `data_acquisition.py` (T002) | Streams PR metadata via GitHub API, filters ≥ 1 000 ⭐ and ≥ 100 PRs, writes deterministic Parquet with checksum. |
+| **FR‑002** | `synthetic_generation.py` (T023b) | CPU‑only CodeLlama‑7B‑4bit‑GGUF, ≤ 30 s per snippet, 3 retries; AST validation. |
+| **FR‑003** | `feature_extraction.py` (T030a) | LOC, radon cyclomatic complexity, CI build time, all‑MiniLM‑L6‑v2 semantic similarity. |
+| **FR‑004** | `matching.py` (T032) | Logistic‑regression propensity scores on the five covariates; abort if any SMD ≥ 0.1 after three retries. |
+| **FR‑005** | `analysis.py` (T036) | Shapiro‑Wilk → paired t‑test or Mann‑Whitney U; outputs p‑value & effect size; validates against `test_result.schema.yaml`. |
+| **FR‑006** | `sensitivity.py` (T037) | Four repository‑star‑count quartiles; Holm‑Bonferroni; ≥ 80 % subsets with p < 0.05. |
+| **FR‑007** | `visualization.py` (T038) | Box plot & CDF for `review_effort_duration`. |
+| **FR‑008** | `synthetic_generation.py` (prompt‑only branch) (T023b) | Generates code from commit‑message prompts only. |
+| **FR‑009** | `feature_extraction.py` (T030a) | all‑MiniLM‑L6‑v2 embeddings → cosine similarity. |
+| **FR‑010** | `matching.py` (T032) | Emits `covariate_balance.json` with SMDs for all covariates. |
+| **FR‑011** | `synthetic_generation.py` (T023b) | AST parsing; abort if < 95 % valid. |
+| **FR‑012** | `timestamp_collection.py` (T011) | Records *observed* `review_effort_duration` for LLM‑generated PRs in the sandbox repo. |
+| **FR‑013** | `evaluate_repo.py` (T010) & `timestamp_collection.py` (T011) | Creates pull requests for each LLM snippet, invites reviewers, logs timestamps; logs PRs without review within 48 h and excludes them. |
+| **FR‑014** | `power_analysis.py` (T001) | Computes required sample size; ensures ≥ 250 matched pairs (power ≥ 0.8). |
+| **SC‑001** | `analysis.py` (T036) | Primary outcome = observed `review_effort_duration`. |
+| **SC‑002** | `analysis.py` (T036) | Significance threshold α = 0.05 (source: P‑value, https://en.wikipedia.org/wiki/P-value). |
+| **SC‑003** | `analysis.py` (T036) | Reports Cohen’s d for t‑test; rank‑biserial correlation for Mann‑Whitney. |
+| **SC‑004** | `matching.py` (T032) | Enforces SMD < 0.1. |
+| **SC‑005** | `sensitivity.py` (T037) | Requires ≥ 80 % quartile subsets with p < 0.05. |
+| **SC‑006** | `runtime.py` (T040) | Fails CI if total wall‑time > 6 h. |
+| **SC‑007** | `synthetic_generation.py` (T023b) | Enforces ≥ 95 % syntactic validity. |
+| **SC‑008** | `timestamp_collection.py` (T011) | Measures that ≥ 80 % of LLM PRs obtain a `review_effort_duration` timestamp; aborts if below. |
 
-| FR/SC ID | Plan Element | Coverage Status |
-| :--- | :--- | :--- |
-| **FR-001** | T014 (Data Acquisition) | Covered |
-| **FR-002** | T023 (Synthetic Generation) | Covered (with GPU fallback) |
-| **FR-003** | T023b (Feature Extraction) | Covered |
-| **FR-004** | T023b (Matching & Retry Logic) | Covered (with failure report) |
-| **FR-005** | T040 (Statistical Testing) | Covered |
-| **FR-006** | T040 (Sensitivity Analysis) | Covered (Complexity/Size stratified) |
-| **FR-007** | T040 (Visualization) | Covered |
-| **FR-008** | T014b/T023 (Prompt Cohort) | Covered |
-| **FR-009** | T023b (Semantic Similarity) | Covered (Exploratory only) |
-| **FR-010** | T023b (Covariate Balance Report) | Covered |
-| **SC-001** | T040 (Review Time Metric) | Covered |
-| **SC-002** | T040 (Significance Threshold) | Covered |
-| **SC-003** | T040 (Effect Size) | Covered |
-| **SC-004** | T023b (Matching Quality) | Covered |
-| **SC-005** | T040 (Sensitivity Consistency) | Covered |
-| **SC-006** | T038 (Runtime Report) | Covered |
-| **SC-007** | T023 (Validity Check) | Covered |
+All tasks are ordered so that data is downloaded before any consumption, LLM generation before PR creation, PR creation before timestamp collection, feature extraction before matching, matching before statistical testing, and visualisation before report assembly.
+
+## High‑Level Task List
+| ID | Description | Dependencies |
+|---|---|---|
+| **T001** | **Power Analysis** – compute required sample size for detecting a [deferred] increase in `review_effort_duration` with a **small effect size** (Cohen's d ≥ 0.2) at **α = 0.05** (source: P‑value, https://en.wikipedia.org/wiki/P-value) and **power = 0.8**. The calculation yields **≈ 210 matched pairs**; we target **≥ 250 pairs** to provide a safety margin and satisfy SC‑001. The power analysis is performed in `code/power_analysis.py` before data collection proceeds. | – |
+| **T002** | **Data Acquisition** – stream PR metadata via GitHub REST API for 5 high‑star repos, filter by stars ≥ 1 000 and PR count ≥ 100, write `data/raw/*.parquet` and record SHA‑256 checksums. | – |
+| **T015** | **Validate Raw Dataset** – check `data/raw/*.parquet` against `contracts/dataset.schema.yaml`; abort on schema violations. | **T002** |
+| **T023** | Prompt Engineering – extract NL prompts from commit messages, write `data/processed/intent_prompts.json`. | **T002** |
+| **T023b** | Synthetic Generation – create *prompt‑only* and *context‑based* cohorts with CodeLlama‑7B‑4bit‑GGUF; enforce ≤ 30 s per snippet, 3 retries, AST validity ≥ 95 %; write `data/synthetic/llm_snippets.jsonl`. | **T002**, **T023** |
+| **T016** | Validate Snippets – ensure each generated snippet conforms to `contracts/code_snippet.schema.yaml`. | **T023b** |
+| **T010** | Evaluation Repository Setup – programmatically create a dedicated sandbox repository (if not existing) and prepare it for PR submissions. | **T023b** |
+| **T011** | Timestamp Collection – open a PR for each LLM snippet in the sandbox repo, invite a pre‑registered reviewer panel, poll for `first_comment_at` and `merge_at`; record `review_effort_duration`; log PRs without review within 48 h and exclude them, ensuring ≥ 80 % success (SC‑008). | **T010**, **T023b** |
+| **T030a** | Feature Extraction – compute LOC, radon cyclomatic complexity, CI build time, and all‑MiniLM‑L6‑v2 embeddings + cosine similarity to repository‑level centroid; write `features.parquet`. | **T002**, **T023b**, **T011** |
+| **T032** | Propensity‑Score Matching – logistic regression propensity scores on the five covariates; 1‑to‑1 nearest‑neighbor with caliper = 0.05; generate `matched_pairs.parquet` and `covariate_balance.json`; abort after 3 retries if any SMD ≥ 0.1. | **T030a** |
+| **T036** | Statistical Analysis – Shapiro‑Wilk test, automatic test selection, compute p‑value, effect size, `passed` flag; **validate output against `contracts/test_result.schema.yaml`**. | **T032** |
+| **T037** | Sensitivity Analysis – stratify by repository‑star‑count quartiles, repeat matching & analysis for each subset, apply Holm‑Bonferroni; write `sensitivity_summary.json`. | **T032** |
+| **T038** | Visualization – generate PNG box plot and CDF for `review_effort_duration` (human vs. LLM cohorts). | **T036**, **T037** |
+| **T039** | Report Generation – assemble HTML and PDF (`reports/analysis_report.pdf`). | **T036**, **T038** |
+| **T040** | Runtime Measurement – timer for each stage, enforce ≤ 6 h, write `runtime_report.json`. | All previous tasks |
+
+All steps respect the **6 h wall‑time limit**; `runtime.py` records cumulative time and fails the CI job if exceeded.
+
+## Risks & Mitigations
+| Risk | Mitigation |
+|---|---|
+| GitHub API rate limits | Tenacity exponential backoff; checkpoint partial downloads; optional `GITHUB_TOKEN`. |
+| LLM generation exceeds CPU timeout | Benchmarked model choice guarantees ≤ 30 s per snippet; 3 retries then exclusion. |
+| Matching fails to achieve SMD < 0.1 | Adaptive caliper, covariate weighting, up to 3 retries; abort with clear `matching_failure_report.json` if balance not reached. |
+| Embedding memory overload | Switched to all‑MiniLM‑L6‑v2 which fits comfortably in < 2 GB RAM on CPU. |
+| Insufficient power | Conducted explicit power analysis (T001) and target ≥ 250 matched pairs. |
+| Real‑world review timestamps not returned within 48 h | Log and exclude PRs lacking review; SC‑008 requires ≥ 80 % success, which is monitored in `timestamp_collection.py`. |
+| Runtime > 6 h | `runtime.py` timers; CI fails on `runtime_report.json` exceeding budget. |
+
+## Compute Decision & Feasibility
+| Component | Environment | Rationale |
+|---|---|---|
+| Data acquisition via API | CPU (GitHub Actions) | Streaming JSON avoids RAM overload; limited to 5 repos × 200 PRs. |
+| Prompt engineering | CPU | Simple string processing. |
+| CodeLlama generation | **CPU‑only** (CodeLlama‑7B‑4bit‑GGUF) | Benchmarked ≤ 30 s per snippet; no GPU needed. |
+| Evaluation repo PR creation & polling | CPU | GitHub API calls; lightweight. |
+| Embedding generation (all‑MiniLM‑L6‑v2) | CPU (batch ≤ 200) | Fits within 7 GB RAM; fast inference. |
+| Radon complexity | CPU | Light per‑file operation. |
+| Matching & statistical analysis | CPU | Scikit‑learn & statsmodels are fast for ≤ 250 rows. |
+| Visualization | CPU | Matplotlib/Seaborn are lightweight. |
+
+All steps respect the **6 h wall‑time limit**; `runtime.py` records cumulative time and fails the CI job if exceeded.
+
+---
+
+
+

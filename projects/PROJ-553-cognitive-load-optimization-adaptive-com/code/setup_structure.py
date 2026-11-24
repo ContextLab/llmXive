@@ -1,84 +1,71 @@
 """
-Setup script to initialize the project directory structure and core files.
-Creates all required directories and placeholder files as per T001.
+Setup script for initializing the project skeleton.
+
+This script creates the required top-level directories and core files
+for the cognitive load optimization project. It is idempotent and can be
+run multiple times without error.
 """
-import os
 import sys
 from pathlib import Path
+import logging
 
-def main():
-    """Create directory structure and core files."""
-    root = Path(__file__).resolve().parent.parent
-    
-    # Define required directories relative to project root
-    required_dirs = [
-        "data/raw",
-        "data/processed",
-        "data/explanation_tiers",
-        "data/simulation_results",
-        "code",
-        "tests",
-        "docs"
+def main() -> None:
+    """
+    Create the required directory structure and core files.
+    """
+    # Determine the project root (parent of the `code` directory)
+    project_root = Path(__file__).resolve().parent.parent
+
+    # List of directories to create
+    dirs_to_create = [
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "explanation_tiers",
+        project_root / "data" / "simulation_results",
+        project_root / "code",
+        project_root / "tests",
+        project_root / "docs",
+        project_root / "logs",
     ]
-    
-    # Create directories
-    print(f"Creating directories in: {root}")
-    for dir_name in required_dirs:
-        dir_path = root / dir_name
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"  Created: {dir_path}")
-    
-    # Define core files to ensure existence
+
+    for d in dirs_to_create:
+        d.mkdir(parents=True, exist_ok=True)
+
+    # Core files that must exist
     core_files = {
-        "code/__init__.py": """\"\"\"
-Code module for the Cognitive Load Optimization project.
-Contains data loading, model training, tier generation, simulation, and analysis modules.
-\"\"\"
-""",
-        "tests/__init__.py": """\"\"\"Test package for the Cognitive Load Optimization project.\"\"\"
-""",
-        "README.md": """# Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning
-
-This project implements an adaptive learning system that adjusts explanation complexity based on estimated cognitive load.
-
-## Project Structure
-
-- `code/`: Source code for data loading, model training, tier generation, and simulation.
-- `data/`: Data storage (raw, processed, tiers, results).
-- `tests/`: Unit and integration tests.
-- `docs/`: Documentation.
-
-## Setup
-
-1. Install dependencies: `pip install -r requirements.txt`
-2. Run the pipeline: `python code/run_pipeline.py`
-""",
-        "requirements.txt": """# Core dependencies
-pandas>=2.0.0
-numpy>=1.24.0
-scikit-learn>=1.3.0
-lightgbm>=4.0.0
-textstat>=0.7.0
-datasets>=2.14.0
-statsmodels>=0.14.0
-pytest>=7.4.0
-requests>=2.31.0
-ruff>=0.1.0
-black>=23.0.0
-"""
+        project_root / "README.md": "Adaptive complexity scaling for personalized learning research.\n",
+        project_root / "requirements.txt": (
+            "scikit-learn\n"
+            "lightgbm\n"
+            "pandas\n"
+            "numpy\n"
+            "textstat\n"
+            "datasets\n"
+            "statsmodels\n"
+            "pytest\n"
+            "requests\n"
+            "transformers>=4.30.0\n"
+            "torch>=2.0.0\n"
+            "sentencepiece\n"
+        ),
+        project_root / "code" / "__init__.py": "# Code package\n",
+        project_root / "tests" / "__init__.py": "\"\"\"Tests package for cognitive-load-optimization project.\"\"\"\n",
+        project_root / "docs" / "README.md": (
+            "# Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning\n\n"
+            "## Overview\n\n"
+            "This repository implements an adaptive learning system that adjusts the complexity "
+            "of instructional content based on real‑time estimates of a student's cognitive load.\n"
+        ),
     }
-    
+
     for file_path, content in core_files.items():
-        full_path = root / file_path
-        # Only write if file doesn't exist or content differs
-        if not full_path.exists() or full_path.read_text() != content:
-            full_path.write_text(content)
-            print(f"  Created/Updated: {full_path}")
-        else:
-            print(f"  Exists (skipped): {full_path}")
-    
-    print("\nProject structure initialization complete.")
-    return 0
+        if not file_path.exists():
+            file_path.write_text(content, encoding="utf-8")
+
+    # Log success
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    logger = logging.getLogger(__name__)
+    logger.info("Project skeleton initialized successfully.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

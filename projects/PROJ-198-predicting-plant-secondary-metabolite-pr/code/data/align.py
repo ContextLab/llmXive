@@ -1,81 +1,142 @@
+"""
+Data alignment utilities.
+Provides functions to merge BGC feature tables with metabolite abundance tables,
+write the aligned matrix to disk, compute alignment success statistics,
+and enforce a minimum success rate threshold.
+"""
+
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Tuple
 
+import json
 import pandas as pd
+
 from utils.logging import get_logger
-
-from config import get_data_path
-
-logger = get_logger(__name__)
+from code.config import get_data_path
+from utils.artifact import track_path  # <-- new import for artifact hygiene
 
 
-def align_data(genomes_df: pd.DataFrame, metabolites_df: pd.DataFrame) -> pd.DataFrame:
+def align_data(
+    genomes_df: pd.DataFrame,
+    metabolites_df: pd.DataFrame,
+    species_list: Optional[List[dict]] = None,
+) -> Tuple[pd.DataFrame, float]:
     """
-    Merge genomic and metabolomic data by species.
-    Filters partial rows and logs warnings.
+    Merge genomic (BGC) and metabolomic data by species.
+
+    Parameters
+    ----------
+    genomes_df : pd.DataFrame
+        DataFrame containing BGC feature columns. Must include a ``species`` column.
+    metabolites_df : pd.DataFrame
+        DataFrame containing metabolite columns. Must include a ``species`` column.
+    species_list : list of dict, optional
+        Optional list of species dictionaries (as used throughout the project).
+        If provided, the function will ensure that only those species are considered.
+
+    Returns
+    -------
+    aligned_df : pd.DataFrame
+        The merged DataFrame.
+    success_rate : float
+        Alignment success rate (see :func:`calculate_alignment_success_rate`).
     """
-    logger.info("Aligning genomic and metabolomic data...")
+    logger = get_logger(__name__)
 
-    # Ensure species column is string and normalized
-    genomes_df = genomes_df.copy()
-    metabolites_df = metabolites_df.copy()
+    # Verify required columns
+    required_genome_cols = {"species", "total_bgc_count"}
+    required_metabo_cols = {"species", "log_abundance"}
 
-    genomes_df["species"] = genomes_df["species"].astype(str).str.strip().str.lower()
-    metabolites_df["species"] = (
-        metabolites_df["species"].astype(str).str.strip().str.lower()
-    )
+    missing_genome = required_genome_cols - set(genomes_df.columns)
+    missing_metabo = required_metabo_cols - set(metabolites_df.columns)
 
-    # Merge on species
+    if missing_genome:
+        logger.warning(f"Genomes data missing columns: {missing_genome}")
+    if missing_metabo:
+        logger.warning(f"Metabolites data missing columns: {required_metabo_cols}")
+
+    # If a species list is supplied, restrict to those species
+    if species_list is not None:
+        allowed = {sp["name"] for sp in species_list}
+        genomes_df = genomes_df[genomes_df["species"].isin(allowed)]
+        metabolites_df = metabolites_df[metabolites_df["species"].isin(allowed)]
+
+    # Inner join on species
     aligned = pd.merge(
         genomes_df,
         metabolites_df,
         on="species",
         how="inner",
-        suffixes=("_genome", "_metabo"),
+        suffixes=("_bgc", "_meta"),
     )
 
-    total_genomes = len(genomes_df)
-    total_metabolites = len(metabolites_df)
-    total_aligned = len(aligned)
+    # Log any species that were dropped
+    dropped = set(genomes_df["species"]) ^ set(aligned["species"])
+    if dropped:
+        logger.info(f"Dropped species due to missing data: {dropped}")
 
-    logger.info(
-        f"Genomes input: {total_genomes}, Metabolites input: {total_metabolites}"
-    )
-    logger.info(f"Aligned species count: {total_aligned}")
+    # Compute success rate
+    success_rate = calculate_alignment_success_rate(aligned)
 
-    if total_aligned == 0:
-        logger.warning("No species found in both datasets.")
-
-    return aligned
+    return aligned, success_rate
 
 
 def save_aligned_matrix(
     df: pd.DataFrame, output_path: Optional[Union[str, Path]] = None
 ) -> None:
     """
-    Write the final aligned matrix to CSV.
+    Write the aligned matrix to CSV and generate alignment statistics.
 
-    If output_path is not provided, defaults to data/processed/aligned_matrix.csv
-    as specified in the task requirements.
-
-    Args:
-        df: The aligned DataFrame to save.
-        output_path: Optional path to write the CSV. Defaults to project config.
+    If *output_path* is ``None`` the matrix is written to
+    ``data/processed/aligned_matrix.csv``.
     """
+    logger = get_logger(__name__)
     if output_path is None:
-        data_root = get_data_path()
-        output_path = Path(data_root) / "processed" / "aligned_matrix.csv"
+        output_path = get_data_path(Path("processed") / "aligned_matrix.csv")
     else:
         output_path = Path(output_path)
 
-    # Ensure parent directory exists
+    # Ensure parent directories exist
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if df.empty:
-        logger.warning("DataFrame is empty. Saving empty CSV.")
-
+    # Write the aligned matrix
     df.to_csv(output_path, index=False)
     logger.info(f"Aligned matrix saved to {output_path}")
+
+    # Register the matrix artifact
+    track_path(output_path)
+
+    # ------------------------------------------------------------------
+    # Alignment statistics generation
+    # ------------------------------------------------------------------
+    success_rate = calculate_alignment_success_rate(df)
+
+    stats = {
+        "success_rate": success_rate,
+        "total_species": int(df["species"].nunique()),
+        "valid_species": int(
+            df.dropna(
+                subset=[
+                    c for c in df.columns if c != "species"
+                ]
+            )["species"].nunique()
+        ),
+    }
+
+    stats_path = get_data_path(Path("processed") / "alignment_stats.json")
+    stats_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(stats_path, "w", encoding="utf-8") as f:
+        json.dump(stats, f, indent=2, sort_keys=True)
+    logger.info(f"Alignment statistics saved to {stats_path}")
+
+    # Register the statistics artifact
+    track_path(stats_path)
+
+    # Enforce the success‑rate threshold (≥ 80 %)
+    if success_rate < 0.8:
+        raise AssertionError(
+            f"Alignment success rate {success_rate:.2%} is below the required 80 % threshold."
+        )
 
 
 def calculate_alignment_success_rate(
@@ -84,88 +145,57 @@ def calculate_alignment_success_rate(
     required_columns: Optional[List[str]] = None,
 ) -> float:
     """
-    Calculate, log, and report the percentage of species with valid data (N>=min_species_count).
+    Calculate the percentage of species with complete data.
 
-    This implements SC-004 success criteria.
+    Parameters
+    ----------
+    aligned_df : pd.DataFrame
+        The aligned DataFrame.
+    min_species_count : int, default 5
+        Minimum number of species required for a valid alignment.
+    required_columns : list of str, optional
+        Columns that must be non‑null for a species to be counted as valid.
+        If ``None`` all columns except ``species`` are required.
 
-    Args:
-        aligned_df: The merged DataFrame containing genomic and metabolomic data.
-        min_species_count: Minimum number of valid data points required to count as 'success'.
-        required_columns: Optional list of columns that must be non-null for a row to be valid.
-                          If None, checks if any data column exists.
-
-    Returns:
-        float: The success rate (0.0 to 1.0).
+    Returns
+    -------
+    float
+        Success rate as a fraction (0‑1).
     """
-    if aligned_df.empty:
-        logger.warning("Aligned DataFrame is empty. Success rate: 0.0")
-        return 0.0
+    logger = get_logger(__name__)
+    if required_columns is None:
+        required_columns = [c for c in aligned_df.columns if c != "species"]
 
-    # Determine validity of each row
-    # A row is valid if it has non-null values in the key data columns.
-    # Typically, we expect BGC counts and Metabolite abundances.
+    valid_rows = aligned_df.dropna(subset=required_columns)
+    total_species = aligned_df["species"].nunique()
+    valid_species = valid_rows["species"].nunique()
 
-    # Identify candidate data columns (exclude metadata like 'species')
-    all_cols = aligned_df.columns.tolist()
-    metadata_cols = ["species"]
-    data_cols = [c for c in all_cols if c not in metadata_cols]
-
-    if not data_cols:
-        logger.error("No data columns found in aligned DataFrame.")
-        return 0.0
-
-    if required_columns:
-        # Use specific columns if provided
-        check_cols = [c for c in required_columns if c in aligned_df.columns]
-        if not check_cols:
-            logger.warning(
-                f"None of the required columns {required_columns} found in DataFrame."
-            )
-            return 0.0
-    else:
-        check_cols = data_cols
-
-    # Check for non-null values in the specified columns
-    valid_mask = aligned_df[check_cols].notna().all(axis=1)
-    valid_count = valid_mask.sum()
-    total_count = len(aligned_df)
-
-    success_rate = valid_count / total_count if total_count > 0 else 0.0
-
-    # Log the result
-    logger.info("Alignment Success Rate Calculation:")
-    logger.info(f"  Total species: {total_count}")
-    logger.info(f"  Valid species (non-null in {check_cols}): {valid_count}")
-    logger.info(f"  Success Rate: {success_rate:.2%}")
-
-    if success_rate < 1.0:
-        logger.warning(
-            f"{total_count - valid_count} species have missing data in key columns."
-        )
-
+    success_rate = valid_species / total_species if total_species > 0 else 0.0
+    logger.info(
+        f"Alignment success rate: {valid_species}/{total_species} species ({success_rate:.2%})"
+    )
     return success_rate
 
 
-def main():
+def main() -> None:
     """
-    Main entry point for alignment and saving the matrix.
-
-    This function demonstrates the full pipeline:
-    1. Load genomic and metabolomic data (simulated here for standalone execution)
-    2. Align them
-    3. Save to data/processed/aligned_matrix.csv
+    Demonstration entry point – loads mock data, aligns, saves, and reports success.
     """
-    logger.info("Starting alignment process...")
+    logger = get_logger(__name__)
+    # Load mock data files (used when CI_MODE=1)
+    genomes_path = get_data_path(Path("raw") / "mock_bgc_counts.csv")
+    metabolites_path = get_data_path(Path("raw") / "mock_metabolite_abundance.csv")
 
-    # NOTE: In a real pipeline, data would be loaded from data/raw or data/interim
-    # For this task, we assume the data exists or is passed in via a higher-level orchestrator.
-    # If running this script directly without data, it will log a warning.
+    try:
+        genomes_df = pd.read_csv(genomes_path)
+        metabolites_df = pd.read_csv(metabolites_path)
+    except FileNotFoundError as e:
+        logger.error(f"Mock data not found: {e}")
+        return
 
-    # Placeholder for actual data loading logic
-    # In a real run, these would be loaded from data/raw or data/processed
-    # For this task, we assume the data exists or is passed in
-    pass
-
+    aligned_df, success = align_data(genomes_df, metabolites_df)
+    save_aligned_matrix(aligned_df)
+    logger.info(f"Alignment completed with success rate {success:.2%}")
 
 if __name__ == "__main__":
     main()

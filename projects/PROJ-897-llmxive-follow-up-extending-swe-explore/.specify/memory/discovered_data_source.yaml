@@ -1,17 +1,19 @@
 status: none
-intent: download SWE-Explore dataset with issue_id, problem_statement, code_context
-  python package dataset
+intent: download SWE-Explore dataset from SWE-bench GitHub or HuggingFace python package
+  dataset
 required_fields:
 - issue_id
-- repo
-- repo_path
-- problem_statement
-- solution
-- code_context
-- ground_truth_lines
-- initial_coverage
-- cyclomatic_complexity
-- lines_of_code
-cache_key: d8f66ee6f6386f7c1e02c57cce87ea3dfa46650efc77973ef00d4004eb261eb2
-searched_at: '2026-08-07T05:38:55.935256+00:00'
+- repository_name
+- issue_title
+- issue_body
+- code_snippet
+- initial_coverage_score
+- coverage_percentile
+- difficulty_label
+- is_hard
+- synthetic_issue_id
+- original_issue_id
+- mutated_code
+cache_key: 970beb41a028dac24a74d8835d916a6b5eb24ff36bdd6beb1775255aa92c9c1e
+searched_at: '2026-11-02T09:21:28.301990+00:00'
 retry_count: 1

@@ -1,100 +1,106 @@
 # Quickstart: Assessing the Impact of Data Heterogeneity on Meta-Analysis Results
 
 ## 1. Prerequisites
-*   Python 3.11+
-*   `pip` (Python package manager)
-*   Access to a terminal or GitHub Actions runner.
+* Python 3.11 or newer  
+* `git` (to clone the repository)  
+* Access to a terminal (local machine or GitHub Actions runner)
 
 ## 2. Installation
 
-1.  **Clone the repository** (or navigate to the project directory).
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    (For running the test suite, install `pytest` separately:
-    `pip install pytest`.)
-
-## 3. Base Data
-
-Fetch the base dataset (T001). The script first attempts the real
-Cochrane data from Zenodo DOI ``; if that fetch
-fails it raises loudly and then writes the verified synthetic base
-(mu=0.0, sigma=1.0, N=20, parameters cited from Jackson et al., 2010):
-
 ```bash
-bash code/scripts/setup_project.sh
-python code/scripts/fetch_cochrane.py
+# Clone the repository (or navigate to the project root if already present)
+git clone <repository-url>
+cd PROJ-417-assessing-the-impact-of-data-heterogeneity
+
+# Create a clean virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+
+# Install the exact, CPU‑only dependencies
+pip install -r code/requirements.txt
 ```
 
-The pipeline resolves its base dataset from `data/raw/` in this order:
+`code/requirements.txt` contains:
 
-1. `data/raw/cochrane_base.csv` — real Cochrane data from Zenodo,
-   produced by `python code/scripts/fetch_cochrane.py`.
-2. `data/raw/cochrane_base_synthetic.csv` — the **verified synthetic
-   base** documented in T001 (mu=0.0, sigma=1.0, N=20, parameters cited
-   from Jackson et al., 2010). If neither file exists, the pipeline
-   generates this verified base via
-   `python code/scripts/generate_synthetic_base.py` so a fresh
-   environment is reproducible.
-
-## 4. Running the Simulation
-
-### 4.1 Full Execution
-To run the full simulation (5 levels $\times$ 500 replicates):
-```bash
-python code/main.py --mode full --seed 42
 ```
-*   **Output**: `data/results/simulation_raw.json`,
-    `data/results/estimation_results.csv`,
-    `data/results/reml_failures.json`, and
-    `data/results/run_summary.json`.
-
-### 4.2 Dry Run (Small Subset)
-To test the pipeline with a small subset (2 levels $\times$ 10 replicates)
-for quick verification (this is the T005 end-to-end trial,
-$\tau^2 \in \{0, 0.1\}$):
-```bash
-python code/main.py --mode dry-run --seed 42
+numpy
+pandas
+scipy
+matplotlib
+pyyaml
+jsonschema
+pytest
 ```
-*   **Expected**: Exit code 0 within 2 minutes. Output files created in
-    `data/results/`, including `estimation_results.csv` with non-null
-    `pooled_effect`, `i_squared`, and `q_statistic` for all replicates.
 
-## 5. Verification Steps
+## 3. Prepare the Synthetic Base Dataset
 
-1.  **Check Output Files**:
-    ```bash
-    ls -lh data/results/
-    ```
-    Ensure JSON and CSV files are generated.
-2.  **Validate Schemas**:
-    ```bash
-    python code/main.py --validate-contracts
-    ```
-    This validates `data/results/estimation_results.csv` against the
-    T005 schema (required columns `pooled_effect`, `ci_lower`,
-    `ci_upper`, `estimator_type`, `sweep_type`, `convergence_warning`,
-    and non-null `i_squared` / `q_statistic`).
-3.  **Run Unit Tests**:
-    ```bash
-    pytest tests/unit/
-    ```
-    Ensure all estimator, generator, and metrics tests pass.
+The pipeline creates a deterministic synthetic base that mimics realistic study‑size and SE distributions.
 
-## 6. Troubleshooting
+```bash
+python code/scripts/generate_base.py --seed 42 --out data/processed/base_template.csv
+```
 
-*   **Memory Error**: If running out of RAM, reduce the `--replicates`
-    flag or run in batch mode (default behavior).
-*   **REML Convergence Warnings**: These are expected in high
-    heterogeneity/low N scenarios. The system logs them to
-    `data/results/reml_failures.json` and continues.
-*   **Missing Base Data**: If `data/raw/cochrane_base.csv` is absent,
-    the pipeline uses the verified synthetic base
-    (`data/raw/cochrane_base_synthetic.csv`, Jackson et al., 2010),
-    generating it first if necessary.
+The script uses a fixed random seed; if the file already exists it will be overwritten only after user confirmation.
+
+## 4. Run the Full Simulation
+
+```bash
+# Full primary sweep (several τ² levels × many replicates) + sensitivity sweep (several τ² levels × 900 replicates)
+python code/main.py --mode full \
+    --replicates 900 \
+    --batch-size 100 \
+    --seed 12345
+```
+
+**What happens**
+1. `simulation/generator.py` creates replicates and writes `data/results/simulation_raw.jsonl`.  
+2. `analysis/metrics.py` computes bias & coverage for each estimator.  
+3. `analysis/stats.py` performs exact binomial tests (Bonferroni‑adjusted α = 0.01) and Shapiro‑Wilk → ANOVA/Kruskal‑Wallis tests for bias.  
+4. `visualization/plots.py` writes `coverage_vs_tau2.png` and `mean_bias_vs_tau2.png`.  
+5. `reporting/report_gen.py` creates `data/results/report.md` with the required “associational” label and a summary of REML failures from `reml_failures.json`.  
+6. `analysis/stats.py` also writes `data/results/coverage_tests.json` containing the raw binomial test results per estimator/τ².
+
+## 5. Run a Quick Dry‑Run (Sanity Check)
+
+```bash
+python code/main.py --mode dry-run \
+    --replicates 10 \
+    --tau-squared 0.5 1.0 \
+    --batch-size 5 \
+    --seed 42
+```
+
+*Creates only a few levels × 10 replicates* and finishes within seconds. Use this to verify that all files are produced and schemas pass.
+
+## 6. Verify Outputs
+
+```bash
+# 1. List result files
+ls -lh data/results/
+
+# 2. Validate schemas
+python code/main.py --validate-contracts
+
+# 3. Run unit and integration tests
+pytest tests/unit/
+pytest tests/integration/
+```
+
+All commands should exit with status code 0. The validation step confirms that:
+* `simulation_raw.jsonl` contains records matching the three contract schemas.  
+* `aggregated_metrics.csv` matches `contracts/aggregated_metric.schema.yaml`.  
+* `coverage_tests.json` matches `contracts/coverage_test.schema.yaml`.  
+* PNG plots exist in `data/results/`.  
+
+## 7. Troubleshooting
+
+| Symptom | Likely Cause | Fix |
+|---------|--------------|-----|
+| **MemoryError** | Batch size too large for the runner. | Reduce `--batch-size` or run in dry‑run mode. |
+| **REML convergence warnings** | Very high τ² with few studies. | Expected; failures are logged in `reml_failures.json` and counted as non‑coverage. |
+| **Missing PNGs** | Plot script not executed. | Re‑run `python code/visualization/plots.py` or the full pipeline. |
+| **Schema validation fails** | Schema changed after data generation. | Re‑run the full pipeline to regenerate files matching the updated schema. |
+| **Base‑data generation fails** | Unhandled exception in `generate_base.py`. | Check write permission to `data/processed/` and that `--seed` is an integer. |
+
+---
+

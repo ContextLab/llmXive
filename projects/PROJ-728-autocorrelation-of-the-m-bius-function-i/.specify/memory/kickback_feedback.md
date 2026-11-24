@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T012` (rejected 1x): Requested task execution failed; rerun successfully: code/sensitivity.py exit=-1 (TIMEOUT)
+- `T003` (rejected 1x): Requested task execution failed; rerun successfully: code/pack.py exit=1
 
 ## Required change
 

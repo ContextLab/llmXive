@@ -1,0 +1,108 @@
+{
+  "trace_id": "training_42_01226",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "format_text",
+    "format_text",
+    "format_text",
+    "resize_element",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 41.6148,
+        "x": 12.7854,
+        "y": 23.6886
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 20.6307,
+        "x": 84.1651,
+        "y": 67.3956
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 10.9871,
+        "x": 49.8763,
+        "y": 58.0861
+      }
+    },
+    {
+      "step": 3,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 3.4802,
+        "height": 45.2295
+      }
+    },
+    {
+      "step": 4,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 92.0948,
+        "x": 67.9957,
+        "y": 64.1779
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 86.8008,
+        "x": 73.9018,
+        "y": 58.4602
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 25.4152,
+        "x": 72.5456,
+        "y": 98.2891
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 97.3511,
+        "x": 19.5601,
+        "y": 48.845
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 32.72,
+        "saturation": 14.7155
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.683739,
+    "tool_repetition_freq": 0.666667,
+    "arg_semantic_variance": 827.562846
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 9,
+    "layout_hash": "42-1226-format_text"
+  }
+}

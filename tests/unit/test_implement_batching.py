@@ -24,9 +24,7 @@ from llmxive.types import Project, Stage
 def _stub_entry(name: str):
     return SimpleNamespace(
         prompt_path=Path("prompts/x.md"),
-        default_backend="dartmouth",
-        fallback_backends=[],
-        default_model="m",
+        profile="deep_code",
         prompt_version="1.0.0",
         name=name,
     )

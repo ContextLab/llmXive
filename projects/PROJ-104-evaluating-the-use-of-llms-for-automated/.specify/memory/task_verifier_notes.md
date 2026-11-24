@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — Checked `docs/quickstart.md` (exists and contains the required package list, bitsandbytes install notes, GITHUB_TOKEN instructions, and the `python -m code.run_pipeline --sample 5` command) and `tests/test_quickstart.py` (invokes the pipeline via subprocess and checks output files). However, the test suite fails when the `--sample 5` argument is used because `code.run_pipeline` does not accept that flag (exit code 2), causing one of the two parametrized test cases to fail and preventing the required `logs/quickstart_run.log` from being written. The verification test therefore does not fully pa
+- **T013** — The `code/data_hygiene.py` module writes checksum entries with a `"checksum"` field, but the existing `data/metadata.yaml` uses `"sha256"` keys, causing a `KeyError` in the tests and leaving many data files without entries. Consequently, the test `test_metadata_covers_all_data_files` and the immutability test both fail, so the checksum‑recording requirement is not met. The `SEED = 42` implementation is present, but the overall task is incomplete.
+- **T003** — Requested task execution failed; rerun successfully: code/run_data_extraction.py exit=1

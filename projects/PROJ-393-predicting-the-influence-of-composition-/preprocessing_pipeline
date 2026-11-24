@@ -1,0 +1,7 @@
+2026-10-24 16:27:03,817 - src.preprocessing.preprocess_pipeline - INFO - Source file not found: data/raw/nist_data.csv
+2026-10-24 16:27:03,817 - src.preprocessing.preprocess_pipeline - INFO - Source file not found: data/raw/journal_data.csv
+2026-10-24 16:27:03,817 - src.preprocessing.preprocess_pipeline - INFO - Source file not found: data/raw/manual_curated.csv
+2026-10-24 16:27:03,817 - src.preprocessing.preprocess_pipeline - WARNING - No raw data sources found. Creating empty DataFrame.
+2026-10-24 16:27:03,817 - src.preprocessing.preprocess_pipeline - WARNING - Input data is empty. Saving empty CSV with headers.
+2026-10-24 16:27:03,818 - src.preprocessing.preprocess_pipeline - INFO - Saved processed data to data/processed/alloys_raw.csv (0 rows).
+2026-10-24 16:27:03,818 - scripts.run_preprocessing - INFO - Preprocessing Pipeline Script completed.

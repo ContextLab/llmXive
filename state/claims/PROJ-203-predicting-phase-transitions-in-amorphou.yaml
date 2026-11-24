@@ -983,7 +983,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-18T17:15:56Z'
 - artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
   attempts: 1
@@ -3479,3 +3479,19 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-06T04:50:31Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/plan.md
+  attempts: 1
+  canonical: pilot sample of 24 compositions stratified by chemical family
+  claim_id: c_42566e8e
+  context: "Scale/Scope: Pilot Sample: 24 compositions (Stratified: Oxides, Sulfides,\
+    \ Organics). Target 500 is a long\u2011term goal (FR\u2011001 unmet in this phase)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Pilot Sample: 24 compositions (Stratified: Oxides, Sulfides, Organics).'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T22:24:16Z'

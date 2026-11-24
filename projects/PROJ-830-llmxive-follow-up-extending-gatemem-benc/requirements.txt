@@ -1,16 +1,19 @@
-# Core dependencies
-datasets>=2.14.0
-transformers>=4.30.0
-scikit-learn>=1.3.0
-statsmodels>=0.14.0
-pandas>=2.0.0
-pyyaml>=6.0
-pytest>=7.0.0
-huggingface_hub>=0.16.0
-torch>=2.0.0
-scipy>=1.11.0
-numpy>=1.24.0
-tabulate>=0.9.0
-psutil>=5.9.0
-mypy>=1.0.0
-ruff>=0.0.290
+# Core dependencies (already provided in the environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional dependencies required for the LLM CPU‑only test
+transformers==4.41.2
+datasets==2.20.0
+bitsandbytes==0.43.1
+torch==2.3.0  # Ensure a CPU‑compatible torch version is available

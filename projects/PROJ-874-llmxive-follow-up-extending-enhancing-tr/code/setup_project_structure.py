@@ -1,75 +1,72 @@
+"""Create and verify the PROJ-874 project directory structure (T001a).
+
+Creates the required directories:
+  code/, data/raw/, data/processed/, data/results/, tests/, docs/, contracts/
+and prints an `ls -R` style listing of the full hierarchy as the task's
+deliverable evidence.
+"""
+
 import os
 import sys
 from pathlib import Path
 
-def create_directory_structure(base_dir: str) -> None:
-    """
-    Create the required project directory structure for PROJ-874.
-    
-    Creates:
-    - code/
-    - data/raw/
-    - data/processed/
-    - data/results/
-    - tests/
-    - docs/
-    - contracts/
-    
-    Args:
-        base_dir: The root directory where the project structure will be created.
-    """
-    project_root = Path(base_dir)
-    
-    # Define the required directories relative to the project root
-    required_dirs = [
-        "code",
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "tests",
-        "docs",
-        "contracts"
-    ]
-    
-    created_count = 0
-    for dir_name in required_dirs:
-        dir_path = project_root / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-            print(f"Created directory: {dir_path}")
-        else:
-            print(f"Directory already exists: {dir_path}")
-    
-    print(f"\nProject structure verification complete.")
-    print(f"Base directory: {project_root}")
-    print(f"Total directories created in this run: {created_count}")
-    
-    # Verify structure by listing all created directories
-    print("\nVerifying directory structure:")
-    for dir_name in required_dirs:
-        dir_path = project_root / dir_name
-        if dir_path.exists() and dir_path.is_dir():
-            print(f"  [OK] {dir_path}")
-        else:
-            print(f"  [FAIL] {dir_path} - does not exist or is not a directory")
-            raise RuntimeError(f"Directory verification failed for {dir_path}")
-    
-    print("\nAll required directories verified successfully.")
+from llmxive_toolkit import paths
 
-def main():
-    """Main entry point for the project structure setup script."""
-    # Default to the project root relative to this script's location
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent  # Go up one level from code/ to project root
-    
-    # Allow override via command line argument
-    if len(sys.argv) > 1:
-        project_root = Path(sys.argv[1]).resolve()
-    
-    print(f"Setting up project structure at: {project_root}")
-    create_directory_structure(str(project_root))
-    print("\nSetup complete. Run 'ls -R' to inspect the structure.")
+REQUIRED_DIRS = [
+    "code",
+    "data/raw",
+    "data/processed",
+    "data/results",
+    "tests",
+    "docs",
+    "contracts",
+]
+
+
+def create_directory_structure(base_dir: Path) -> None:
+    """Create the required project directory structure for PROJ-874.
+
+    Args:
+        base_dir: The root directory where the project structure is created.
+    """
+    for rel in REQUIRED_DIRS:
+        (base_dir / rel).mkdir(parents=True, exist_ok=True)
+
+
+def verify_structure(base_dir: Path) -> None:
+    """Verify all required directories exist; abort loudly otherwise."""
+    missing = [rel for rel in REQUIRED_DIRS if not (base_dir / rel).is_dir()]
+    if missing:
+        raise RuntimeError(f"Missing required directories: {missing}")
+
+
+def print_listing(base_dir: Path) -> None:
+    """Print an `ls -R` style listing of the project tree."""
+    print(f"$ ls -R {base_dir}")
+    for root, dirs, files in os.walk(base_dir):
+        dirs[:] = sorted(
+            d for d in dirs if d not in {"venv", "__pycache__", ".git"}
+        )
+        rel_root = Path(root).relative_to(base_dir)
+        label = "." if str(rel_root) == "." else str(rel_root)
+        print(f"\n{base_dir / rel_root}:" if str(rel_root) != "." else f"{base_dir}:")
+        entries = sorted(dirs + files)
+        if entries:
+            print("  " + "  ".join(entries))
+        else:
+            print("  (empty)")
+
+
+def main() -> None:
+    base_dir = paths.root
+    create_directory_structure(base_dir)
+    verify_structure(base_dir)
+    print_listing(base_dir)
+    print("\nAll required directories exist:")
+    for rel in REQUIRED_DIRS:
+        print(f"  {rel}/")
+    print("T001a directory structure verified.")
+
 
 if __name__ == "__main__":
     main()

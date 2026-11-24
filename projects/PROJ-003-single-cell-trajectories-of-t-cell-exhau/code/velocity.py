@@ -1,14 +1,15 @@
 """Run scVelo dynamical model on a preprocessed AnnData object.
 
 This script loads a `.h5ad` file that contains the required
-``spliced`` and ``unspliced`` layers, computes RNA velocity using 
-the dynamical model on CPU, adds a pseudotime (latent time) 
-annotation, and writes the enriched AnnData object to the 
+``spliced`` and ``unspliced`` layers, computes RNA velocity using
+the dynamical model on CPU, adds a pseudotime (latent time)
+annotation, and writes the enriched AnnData object to the
 specified output path.
 
-It handles both direct file paths and directories (searching for 
+It handles both direct file paths and directories (searching for
 GSE136103_processed.h5ad).
 """
+
 import argparse
 import logging
 import sys
@@ -26,6 +27,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
@@ -33,11 +35,10 @@ def _check_layers(adata) -> bool:
     """Ensure the AnnData object has the required spliced/unspliced layers."""
     missing = [layer for layer in ("spliced", "unspliced") if layer not in adata.layers]
     if missing:
-        logger.error(
-            f"Input AnnData is missing required layers: {', '.join(missing)}"
-        )
+        logger.error(f"Input AnnData is missing required layers: {', '.join(missing)}")
         return False
     return True
+
 
 # ----------------------------------------------------------------------
 # Main entry point
@@ -147,6 +148,7 @@ def main() -> None:
     except Exception as exc:
         logger.error(f"Failed to write output file: {exc}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

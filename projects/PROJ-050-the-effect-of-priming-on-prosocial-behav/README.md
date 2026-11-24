@@ -1,21 +1,29 @@
-# PROJ-050: The Effect of Priming on Prosocial Behavior in Online Communities
+# PROJ-050 – The Effect of Priming on Prosocial Behavior
 
-## Project Overview
-This project investigates the effect of priming (specifically, exposure to negative sentiment) on prosocial behavior in online Reddit communities.
-It implements a reproducible data pipeline for ingestion, classification, anonymization, scoring, and statistical analysis.
+This directory contains the full code, data, documentation, and results for the
+research project *The Effect of Priming on Prosocial Behavior in Online Communities*.
 
 ## Directory Structure
-- `specs/`: Research design documents, user stories, and data models.
-- `code/`: Python implementation of the research pipeline.
-- `data/`: Raw and processed datasets (generated during execution).
-- `results/`: Statistical reports and visualizations.
-- `tests/`: Unit and integration tests.
 
-## Execution Flow
-1. **Power Analysis**: `code/00_power_analysis.py`
-2. **Ingestion**: `code/01_ingest.py`
-3. **Scoring**: `code/02_score.py`
-4. **Analysis**: `code/03_analyze.py`
+```
+PROJ-050-the-effect-of-priming-on-prosocial-behav/
+├── code/ # Pipeline scripts
+├── data/
+│ ├── raw/ # Raw streamed data (not persisted)
+│ ├── processed/ # Processed CSV/JSON outputs
+│ ├── validation/ # Human‑annotation files and logs
+│ └── results/ # Final result files (JSON, PNG, etc.)
+├── docs/ # Documentation (dataset acquisition, feasibility, etc.)
+├── specs/ # Schema contracts and analysis specifications
+├── tests/
+│ ├── unit/ # Unit tests
+│ └── integration/ # Integration tests for the full pipeline
+├── results/ # Top‑level results folder (mirrors data/results)
+├── figures/ # Generated figures (symlinked from data/results if needed)
+├── paper/ # Draft manuscript sections
+└── logs/ # Per‑process log files
+```
 
-## Dependencies
-See `code/requirements.txt` for the pinned dependency list.
+The layout follows the conventions defined in the project’s `tasks.md` and
+`quickstart.md`. All pipeline stages read from and write to the paths
+described in those documents.

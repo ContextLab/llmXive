@@ -1,17 +1,17 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-type: "object"
-title: "HEALPix Map Schema"
+title: "HEALPix Map"
 description: "Schema for the HEALPix projection FITS file containing aggregated residuals and mask values."
+type: "object"
 required:
-  - "pixel_index"
-  - "nside"
-  - "mean_residual"
-  - "count"
-  - "mask_value"
+  - pixel_index
+  - nside
+  - mean_residual
+  - count
+  - mask_value
 properties:
   pixel_index:
     type: "integer"
-    description: "HEALPix pixel index (Nside=32)."
+    description: "HEALPix pixel index (Nside = 32)."
     minimum: 0
   nside:
     type: "integer"
@@ -19,13 +19,13 @@ properties:
     const: 32
   mean_residual:
     type: "number"
-    description: "Mean residual of all SNe in this pixel."
+    description: "Mean residual of all SNe in this pixel (mag)."
   count:
     type: "integer"
-    description: "Number of SNe in this pixel."
+    description: "Number of supernovae in this pixel."
     minimum: 0
   mask_value:
     type: "integer"
-    description: "1 if pixel is valid, 0 if masked."
+    description: "1 if pixel is used in analysis, 0 if masked."
     enum: [0, 1]
 additionalProperties: false

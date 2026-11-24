@@ -1,0 +1,7 @@
+{
+  "task_id": "T048",
+  "fingerprint": "736f6004b4117d6efbff5d90af4092bea35a2c85700d99a663355c4300c2bc62",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/data/validate.py': imports nonexistent names from sibling files: `from config import MIN_SAMPLE_SIZE` (available: Any, DATASET_CONFIG, DATASET_IDS_PRIMARY, DATA_DIR, DIRS, DatasetConfig, Dict, ENV_CONSTRAINTS...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

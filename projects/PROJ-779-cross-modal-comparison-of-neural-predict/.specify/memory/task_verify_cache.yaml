@@ -1,10 +1,10 @@
 T001a:
   c: true
-  h: 36b799f73cc90d407c92d7e3615baf382af0905af77ab0ecab917060c4db61c0
-  r: "The evidence shows a `code/` directory (14 entries) and a non\u2011empty `code/__init__.py`\
-    \ file (270\u202Fbytes) present in the project root. This directly fulfills the\
-    \ task\u2019s requirement to create the directory and its `__init__.py`."
-  sig: 722e87f458e642bb0e9a247a74bfb88b3bd9d6be5b009b0c322c8e1ec17f6708
+  h: 018245a9c4d8b524b0c51c2531ff326cdf2d39fefdc80cbc3c098b39ed9abf51
+  r: "The evidence shows a `code/` directory (15 entries) and a non\u2011empty `code/__init__.py`\
+    \ file (270\u202Fbytes) present in the project root, satisfying the task\u2019\
+    s requirement to create the directory and its `__init__.py`."
+  sig: d5aaaada4b3315c20e302222cd2cca46ff40214f484ae3e75f46a7639d9297c2
 T001b:
   c: true
   h: d6729511f6e26e6cda617340851eb946a1991fb9beda112033ab6dc3a82bcbc5
@@ -20,21 +20,22 @@ T001c:
     \ with code\u202F0, satisfying the task\u2019s requirement."
   sig: 04ad0a2bcbce35c3884d76ac5084c416a0df383fc9b9888599a0ef0a3b8e0a1c
 T002:
-  c: false
-  h: c0ca299073b52977ee7bd44bf3b10277b0a3c445c2abf33d5911d0f048d38079
-  r: 'The provided `requirements.txt` exists but does not meet the task: it uses open-ended
-    `>=` version specifiers instead of exact pinned versions, includes extra unrelated
-    packages, and lists `h5py` rather than the required `hpy`. The file therefore
-    fails to satisfy the specification.'
-  sig: 0af29a308157026f20f5425b8133242e9441959752a02df8bdbcd073a8465432
+  c: true
+  h: e316f8487679f6ff523c725b2085a327cd310928e919781b3016c1b75e0d34f5
+  r: "Checked the `requirements.txt` file (projects/PROJ-779\u2011cross\u2011modal\u2011\
+    comparison\u2011of\u2011neural\u2011predict/requirements.txt) which lists all\
+    \ ten required packages with exact version pins using `==`. The file is non\u2011\
+    empty and matches the task specification."
+  sig: dd37e61ad050baa346ff53bfa932967f16b2376e7e21bbbc4378fe1a1135f7fd
 T003:
   c: false
-  h: 25bbbabf48cf8fd50f6a7c18bef291dedb3d89615d180f69020075b9e6fb5089
-  r: The evidence only includes a `requirements.txt` file; there is no `.venv` directory,
-    no record of a virtual environment being created, and no `pip list` output showing
-    that the listed packages (with the required versions) are installed. These required
-    artifacts are missing, so the task is not satisfied.
-  sig: 7f679bad02cfa6f1bbd4d838ec983683b98d61ec96cf62c066d2ad9720140324
+  h: cb41fc96a1f69d2824c7afab5591d59a9f0e9581dbecccd7248a92f81b1832d9
+  r: The log shows that a virtual environment was created and `pip install -r requirements.txt`
+    was executed, but it does not include the resulting `pip list` output (or the
+    contents of `data/venv_setup_done.txt`) to prove that all required packages were
+    installed with the exact versions specified. Without that evidence the verification
+    step is missing.
+  sig: fe35f94109dda7ee2f7556be5291acda00e323cedfc9fe2c5b7d4d98d6eaa6c7
 T004:
   c: false
   h: 4ce8480c16bdd358b362c362bd4a894642f4e970c98c5a40d21942d183e5ac5c
@@ -42,6 +43,30 @@ T004:
     section as required, and there is no execution evidence showing that `ruff check
     code/` and `black --check code/` were run successfully without errors.
   sig: 011b0e6394b640a4d3fa148544f4cce94c5a6488e498a876f00087342680cd39
+T005:
+  c: true
+  h: f323073cabc236b93e624fb5407c1ed0be46aabf5378cbbc1a1a542954a65739
+  r: "Checked `code/config.py` (4928\u202Fbytes) which defines project and data paths,\
+    \ a random seed, `MIN_SAMPLING_RATE_HZ = 500`, `MIN_ODDBALL_TRIALS = 100`, `MIN_STANDARD_TRIALS\
+    \ = 300`, and auditory/visual time windows. All required constants are present\
+    \ and meet the specified thresholds."
+  sig: 799c34acfccdf6ce29f0597c0cb5960c2849e1f2c8863dce6892dea5a5c43c24
+T006:
+  c: true
+  h: e549390bd6714f422ea9890fe1a029d582a2257a1292acbc8fc770e2b65d7863
+  r: "Checked the `code/__init__.py` file (270\u202Fbytes) which imports the configuration\
+    \ and logger utilities, defines `__version__` and `__all__`, fulfilling the required\
+    \ module initialization. The file is present, non\u2011empty, and contains functional\
+    \ code rather than a placeholder."
+  sig: b77c5e07d19d068077f0ddfa97e3a93e9a60e31f6b4de232da5d339b77d45ea0
+T010:
+  c: false
+  h: 97e7e846c786216e5337dc3c75257d5d152d05b03703f251b7dfe3bc99c9c52e
+  r: "Checked `code/config_loader.py` (3541\u202Fbytes). It loads variables from a\
+    \ `.env` file (or defaults) but never reads `.env.example`, so it does not meet\
+    \ the requirement to load placeholder keys from that file. The import runs without\
+    \ error, but the core functionality is incomplete."
+  sig: 0a6d35055688f3ad3d7cf37831433bf4111af22ff35ac295b2a5178cdd9f051c
 T030:
   c: false
   h: a66a1a5756e88f40a34378c80d11ca63323544ac1914a083b016d9a8b8f1cab8

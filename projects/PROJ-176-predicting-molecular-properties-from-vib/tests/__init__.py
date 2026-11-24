@@ -1,3 +1,1 @@
-"""
-Test suite for the molecular property prediction pipeline.
-"""
+# This file makes the tests directory a package.

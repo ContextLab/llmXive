@@ -1,0 +1,3 @@
+# This auxiliary artifact triggers execution of the power analysis script.
+# It contains no code; the runner will execute `python code/power_analysis.py`
+# as specified by the `execute: true` flag. No additional arguments are needed.

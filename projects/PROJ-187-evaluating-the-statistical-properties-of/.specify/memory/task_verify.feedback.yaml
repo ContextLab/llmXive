@@ -1,0 +1,38 @@
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: c7492a9576c85fc760e7cba1f364d4de1ac8719184bc3a3deac8b6272eca1390
+T002:
+  reason: 'Requested task execution failed; rerun successfully: src/data/loader.py
+    exit=1'
+  task: d3fbb927599e1c5cc8ba785e56c439d65310098ba4b92c6c253e444384576ef0
+T003:
+  reason: 'Requested task execution failed; rerun successfully: src/cli/run_fidelity.py
+    exit=2'
+  task: f932fa404340ee5f5b7cafe07b8c219ff3f17169c0ca7fef1b62a7a495b9df13
+T004:
+  reason: 'Requested task execution failed; rerun successfully: src/cli/run_fidelity.py
+    exit=1'
+  task: cf57c73a851a86898146ffd49b2fb6121f0c7f08e2f738158f378947ecd0beea
+T005:
+  task: 66c2e9bcc425effe20fb9b8b8d84e5c56c477cd9e64eb72003442a5154e0fe2b
+T006:
+  task: 51f26cd5b35d8308242f89ebd146a3d0a9d2ea519fbe8d413f86a2199a8a1120
+T007:
+  task: d7f0445b85fac9ec70aad9e20093141d00b7c2256858a2bb1373e48c9459d9f8
+T008:
+  task: 1707b7d67648f7c9dcf135fa804de47229f16b72cb53365624d2aa20496ff670
+T009:
+  task: aca9c68e6f40b0ae60a0f09a1d77c213fbf3f737950725e44251204758490568
+T010:
+  task: d3b09500d01c3bb572251c0517110bdde5355246b6eef3d55dbe442d8f47f5b9
+T011:
+  task: a4cbc9cc6f02d81c33bd22eb7b48820418f7a92f73cd7cde721c7719ba815c63
+T012:
+  task: cf8708cacde0f6eef20477c5bdaa123ce1eaf987d42ff14c3956c3d7bef1a994
+T013:
+  task: 5c721266387fd871c59a86068aded88bc50d0a902a9e9fd80122766748ccdfcf
+T014:
+  task: fd5fa6b8bab361ef51be5b4ab14e726cf7d01f52c6d8ab2156433b454ab48450

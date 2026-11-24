@@ -1,7 +1,4 @@
-data/
-*.log
+data/raw/*.log
 __pycache__/
 *.pyc
 .env
-venv/
-.pytest_cache/

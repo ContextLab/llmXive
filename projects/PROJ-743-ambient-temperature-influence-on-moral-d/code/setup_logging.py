@@ -1,39 +1,47 @@
+"""
+Centralized logging configuration for the research pipeline.
+"""
 import logging
 import sys
 from pathlib import Path
-import os
+from config import RESULTS_LOG_DIR
 
-def setup_logging(name: str, log_file: str = None, level: int = logging.INFO) -> logging.Logger:
-    """
-    Setup a logger with console and optional file handler.
-    """
+def _get_base_logger(name: str, log_file: str = None):
+    """Internal helper to configure loggers with consistent formatting."""
     logger = logging.getLogger(name)
-    logger.setLevel(level)
+    logger.setLevel(logging.INFO)
     
-    if logger.handlers:
-        return logger
-
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    # Console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(level)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-
-    # File handler (if specified)
-    if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        fh = logging.FileHandler(log_file)
-        fh.setLevel(level)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-
+    if not logger.handlers:
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        
+        # Console handler for real-time visibility
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+        
+        if log_file:
+            log_path = RESULTS_LOG_DIR / log_file
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                fh = logging.FileHandler(log_path)
+                fh.setFormatter(formatter)
+                logger.addHandler(fh)
+            except Exception as e:
+                # Fallback to console if file writing fails
+                print(f"Warning: Could not create log file {log_path}: {e}")
+    
     return logger
 
-def get_data_quality_logger() -> logging.Logger:
-    """
-    Returns a pre-configured logger for data quality logs.
-    """
-    return setup_logging("data_quality", log_file="results/logs/data_quality_log.txt")
+def get_data_quality_logger():
+    """Logger for data validation and quality gates."""
+    return _get_base_logger("data_quality", "data_quality.log")
+
+def get_exclusion_logger():
+    """Logger for tracking records excluded from analysis."""
+    return _get_base_logger("exclusion", "exclusion.log")
+
+def get_model_diagnostics_logger():
+    """Logger for model convergence and diagnostic output."""
+    return _get_base_logger("model_diagnostics", "model_diagnostics.log")

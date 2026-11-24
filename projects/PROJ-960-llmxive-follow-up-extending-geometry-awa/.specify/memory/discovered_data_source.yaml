@@ -1,0 +1,13 @@
+status: none
+intent: ShapeNetCore ModelNet40 multi-view images point cloud download python package
+  dataset
+required_fields:
+- scene_id
+- view_id
+- image_path
+- camera_intrinsics
+- camera_extrinsics
+- ground_truth_point_cloud
+cache_key: 97f798c4d101984f3c22da47246d5f0db2ae90efee7c0f3da011e9885f54765a
+searched_at: '2026-10-23T06:10:50.152979+00:00'
+retry_count: 1

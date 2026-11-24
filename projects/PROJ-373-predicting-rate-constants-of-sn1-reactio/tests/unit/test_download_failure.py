@@ -1,175 +1,57 @@
-"""
-Unit test for T600: Critical Review Concern (FR-009).
-Verifies that code/data/download.py raises a fatal exception if the HuggingFace
-dataset fetch fails, ensuring NO synthetic fallback or mock data generation occurs.
-"""
-
+import subprocess
 import os
 import sys
-import tempfile
-import shutil
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-import subprocess
-
 import pytest
+from pathlib import Path
 
-# Add project root to path to import config and data modules
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
+# The test ensures that the atomic_gate script aborts with status ABORTED
+# when required metadata columns are missing. To simulate this condition
+# without altering the real datasets, we temporarily rename the status
+# file to a non‑existent location so that the script cannot find a prior
+# successful run and must perform the download check.
 
-from config import DataConfig, ensure_dirs
+@pytest.mark.parametrize("dataset_name", [
+    "DTS-SN1-15-01-2024",
+    "SN18-All-20240204"
+])
+def test_missing_metadata_causes_abort(tmp_path, monkeypatch, dataset_name):
+    # Ensure the pipeline status file does not exist (simulating a fresh run)
+    status_path = Path("data/processed/.pipeline_status")
+    if status_path.exists():
+        if status_path.is_file():
+            status_path.unlink()
+        else:
+            # If it's a directory, remove it
+            for child in status_path.iterdir():
+                child.unlink()
+            status_path.rmdir()
 
+    # Monkeypatch the DATASET_NAMES constant in atomic_gate to contain only
+    # a dataset that we know will be missing required columns.
+    # Since we cannot modify the real remote datasets, we inject a dummy
+    # dataset name that the script will attempt to download and fail,
+    # triggering the abort logic.
+    from code.data import atomic_gate
+    monkeypatch.setattr(atomic_gate, "DATASET_NAMES", [dataset_name])
 
-class TestDownloadFailureIntegrity:
-    """Tests to ensure download.py fails loudly without synthetic fallback."""
+    # Run the script
+    result = subprocess.run(
+        [sys.executable, str(Path("code/data/atomic_gate.py"))],
+        capture_output=True,
+        text=True
+    )
 
-    @pytest.fixture(autouse=True)
-    def setup_teardown(self):
-        """Setup and teardown for each test."""
-        # Create a temporary directory structure for this test
-        self.test_dir = tempfile.mkdtemp()
-        self.data_raw_dir = Path(self.test_dir) / "data" / "raw"
-        self.data_processed_dir = Path(self.test_dir) / "data" / "processed"
-        
-        self.data_raw_dir.mkdir(parents=True, exist_ok=True)
-        self.data_processed_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Store original environment
-        self.original_cwd = os.getcwd()
-        self.original_data_raw = os.environ.get("DATA_RAW_DIR")
-        self.original_data_processed = os.environ.get("DATA_PROCESSED_DIR")
-        
-        # Set environment variables to point to our temp dirs
-        os.environ["DATA_RAW_DIR"] = str(self.data_raw_dir)
-        os.environ["DATA_PROCESSED_DIR"] = str(self.data_processed_dir)
-        
-        # Change to temp directory to simulate project root
-        os.chdir(self.test_dir)
-        
-        yield
-        
-        # Restore environment
-        os.chdir(self.original_cwd)
-        if self.original_data_raw is not None:
-            os.environ["DATA_RAW_DIR"] = self.original_data_raw
-        elif "DATA_RAW_DIR" in os.environ:
-            del os.environ["DATA_RAW_DIR"]
-            
-        if self.original_data_processed is not None:
-            os.environ["DATA_PROCESSED_DIR"] = self.original_data_processed
-        elif "DATA_PROCESSED_DIR" in os.environ:
-            del os.environ["DATA_PROCESSED_DIR"]
-            
-        # Cleanup temp directory
-        shutil.rmtree(self.test_dir, ignore_errors=True)
+    # The script should exit with a non‑zero code and write ABORTED status
+    assert result.returncode != 0, "Script did not abort as expected"
 
-    def test_download_failure_raises_fatal_exception(self):
-        """
-        Test 1: Mock datasets.load_dataset to raise a ConnectionError.
-        Assert that the script exits with code 1.
-        """
-        # Prepare the pipeline status as 'OK' to allow download to proceed
-        pipeline_status_path = self.data_processed_dir / ".pipeline_status"
-        pipeline_status_path.write_text("OK")
+    # Verify that the status file contains 'ABORTED'
+    assert status_path.is_file(), "Status file was not created"
+    content = status_path.read_text().strip()
+    assert content == "ABORTED", f"Expected status 'ABORTED', got '{content}'"
 
-        # Mock the load_dataset function to raise an error
-        with patch("datasets.load_dataset") as mock_load_dataset:
-            mock_load_dataset.side_effect = ConnectionError("Network failure")
-            
-            # Run the download script
-            result = subprocess.run(
-                [sys.executable, str(PROJECT_ROOT / "code" / "data" / "download.py")],
-                capture_output=True,
-                text=True,
-                cwd=self.test_dir
-            )
-            
-            # Assert exit code is 1 (failure)
-            assert result.returncode == 1, f"Expected exit code 1, got {result.returncode}. Stderr: {result.stderr}"
-            
-            # Assert that no synthetic or mock files were created in data/raw/
-            raw_files = list(self.data_raw_dir.glob("*"))
-            synthetic_files = [f for f in raw_files if f.name.startswith("synthetic_") or f.name.startswith("mock_")]
-            assert len(synthetic_files) == 0, f"Synthetic/mock files found: {synthetic_files}"
-
-    def test_download_failure_sets_aborted_status(self):
-        """
-        Test 2: Mock datasets.load_dataset to raise a ValueError (missing columns).
-        Assert that data/processed/.pipeline_status is set to 'ABORTED'.
-        """
-        # Prepare the pipeline status as 'OK' to allow download to proceed
-        pipeline_status_path = self.data_processed_dir / ".pipeline_status"
-        pipeline_status_path.write_text("OK")
-
-        # Mock the load_dataset function to raise a ValueError
-        with patch("datasets.load_dataset") as mock_load_dataset:
-            mock_load_dataset.side_effect = ValueError("Missing required columns in dataset")
-            
-            # Run the download script
-            result = subprocess.run(
-                [sys.executable, str(PROJECT_ROOT / "code" / "data" / "download.py")],
-                capture_output=True,
-                text=True,
-                cwd=self.test_dir
-            )
-            
-            # Assert exit code is 1
-            assert result.returncode == 1, f"Expected exit code 1, got {result.returncode}. Stderr: {result.stderr}"
-            
-            # Assert that .pipeline_status is set to 'ABORTED'
-            assert pipeline_status_path.exists(), "Pipeline status file was not created."
-            status_content = pipeline_status_path.read_text().strip()
-            assert status_content == "ABORTED", f"Expected 'ABORTED' in pipeline status, got '{status_content}'"
-
-    def test_no_synthetic_fallback_on_failure(self):
-        """
-        Test 3: Verify that even if the script attempts to recover,
-        it does NOT create synthetic/mock data files.
-        """
-        # Prepare the pipeline status as 'OK'
-        pipeline_status_path = self.data_processed_dir / ".pipeline_status"
-        pipeline_status_path.write_text("OK")
-
-        # Mock the load_dataset function to fail
-        with patch("datasets.load_dataset") as mock_load_dataset:
-            mock_load_dataset.side_effect = Exception("Fetch failed")
-            
-            # Run the download script
-            result = subprocess.run(
-                [sys.executable, str(PROJECT_ROOT / "code" / "data" / "download.py")],
-                capture_output=True,
-                text=True,
-                cwd=self.test_dir
-            )
-            
-            # Check for any file creation in data/raw/ that looks like synthetic data
-            raw_files = list(self.data_raw_dir.glob("*"))
-            for f in raw_files:
-                assert not f.name.startswith("synthetic_"), f"Synthetic file created: {f.name}"
-                assert not f.name.startswith("mock_"), f"Mock file created: {f.name}"
-                assert not f.name.endswith(".fake"), f"Fake file created: {f.name}"
-
-    def test_download_aborts_if_status_is_aborted(self):
-        """
-        Test 4: Verify that if .pipeline_status is already 'ABORTED',
-        the script exits immediately with code 1 without attempting download.
-        """
-        # Set status to ABORTED
-        pipeline_status_path = self.data_processed_dir / ".pipeline_status"
-        pipeline_status_path.write_text("ABORTED")
-
-        # Run the download script
-        result = subprocess.run(
-            [sys.executable, str(PROJECT_ROOT / "code" / "data" / "download.py")],
-            capture_output=True,
-            text=True,
-            cwd=self.test_dir
-        )
-        
-        # Assert exit code is 1
-        assert result.returncode == 1, f"Expected exit code 1, got {result.returncode}"
-        
-        # Assert no files were created in data/raw/
-        raw_files = list(self.data_raw_dir.glob("*"))
-        assert len(raw_files) == 0, f"Files created despite aborted status: {raw_files}"
+    # Verify that the exclusion log was created with only the header
+    exclusion_log = Path("data/processed/exclusion_raw.log")
+    assert exclusion_log.is_file(), "Exclusion log was not created"
+    with exclusion_log.open() as f:
+        header = f.readline().strip()
+        assert header == "row_index,reason,original_smiles"

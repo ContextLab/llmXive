@@ -3,7 +3,7 @@ Utility module for the PROJ-712 pain sensitivity pipeline.
 
 Provides functions for:
 - Global random seed pinning
-- Lightweight logging with file handler
+- Lightweight logging with file handler (project‑owned only)
 - SHA‑256 checksum computation
 - Artifact hash recording
 - Timing helpers
@@ -22,18 +22,17 @@ from pathlib import Path
 from typing import Any, Callable, List, Optional, Union
 
 import yaml
+from llmxive_toolkit import paths
 
 # ----------------------------------------------------------------------
 # Global constants
 # ----------------------------------------------------------------------
-STATE_DIR = Path("state")
-LOG_FILE = STATE_DIR / "log.txt"
+# All project‑owned files are under the `artifacts/` or `data/` directories.
+# We avoid the platform‑owned `state/` directory to prevent shadowing.
+LOG_FILE = paths.artifacts("log.txt")
+HASH_FILE = paths.artifacts("artifact_hashes.yaml")
 DEFAULT_LOG_LEVEL = logging.INFO
 MAX_EXECUTION_SECONDS = 6 * 60 * 60  # 6 hours
-
-# Ensure the state directory exists for logging
-STATE_DIR.mkdir(parents=True, exist_ok=True)
-
 
 # ----------------------------------------------------------------------
 # Seed handling
@@ -53,55 +52,57 @@ def set_global_seed(seed: int = 42) -> None:
     except ImportError:
         pass  # NumPy not available – nothing to seed
 
-
 # ----------------------------------------------------------------------
 # Logging utilities
 # ----------------------------------------------------------------------
-def _ensure_log_file_handler(logger: logging.Logger) -> None:
-    """
-    Attach a ``FileHandler`` that writes to ``state/log.txt``.
-
-    The handler is added only once per logger instance.
-    """
-    if any(isinstance(h, logging.FileHandler) for h in logger.handlers):
+def _configure_logger(logger: logging.Logger, level: int) -> None:
+    """Attach console and file handlers to *logger* if they are missing."""
+    if logger.handlers:
+        # Assume logger is already configured (avoid duplicate handlers)
         return
 
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    # Console handler
+    console = logging.StreamHandler()
+    console.setLevel(level)
+    console.setFormatter(formatter)
+    logger.addHandler(console)
+
+    # Ensure the log directory exists (handled by paths.artifacts, but for safety)
+    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+
+    # File handler (project‑owned)
     file_handler = logging.FileHandler(LOG_FILE, mode="a")
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(name)s - %(message)s")
+    file_handler.setLevel(level)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
+    logger.setLevel(level)
 
 def setup_logging(name_or_level: Union[int, str] = DEFAULT_LOG_LEVEL) -> logging.Logger:
     """
-    Configure logging.
+    Configure and return a logger.
 
-    * If ``name_or_level`` is an ``int`` it is interpreted as the log level.
-    * If it is a ``str`` it is interpreted as the logger name; the level
-      defaults to ``INFO``.
+    * If an *int* is supplied, it is interpreted as the logging level and a
+      default logger named ``"pipeline"`` is created.
+    * If a *str* is supplied, it is interpreted as the logger name and the
+      default level ``DEFAULT_LOG_LEVEL`` is used.
 
-    Returns a logger instance configured with a console handler and a
-    file handler that writes to ``state/log.txt``.
+    All log output is written to ``artifacts/log.txt`` and to the
+    console.
     """
     if isinstance(name_or_level, int):
         level = name_or_level
-        logger = logging.getLogger()
+        logger_name = "pipeline"
     else:
-        logger = logging.getLogger(name_or_level)
         level = DEFAULT_LOG_LEVEL
+        logger_name = name_or_level
 
-    # Configure the root logger only once
-    if not logging.getLogger().handlers:
-        logging.basicConfig(
-            level=level,
-            format="%(asctime)s - %(levelname)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
-
-    logger.setLevel(level)
-    _ensure_log_file_handler(logger)
+    logger = logging.getLogger(logger_name)
+    _configure_logger(logger, level)
     return logger
-
 
 # ----------------------------------------------------------------------
 # Checksum helpers
@@ -110,7 +111,7 @@ def compute_checksum(file_path: Union[str, Path]) -> str:
     """
     Compute the SHA‑256 checksum of a file.
 
-    Reads the file in 4 KB chunks to handle large files efficiently.
+    Reads the file in 4 KB chunks to handle large files efficiently.
     """
     path = Path(file_path)
     sha256 = hashlib.sha256()
@@ -119,10 +120,8 @@ def compute_checksum(file_path: Union[str, Path]) -> str:
             sha256.update(block)
     return sha256.hexdigest()
 
-
 # Alias kept for backward compatibility
 compute_file_hash = compute_checksum
-
 
 # ----------------------------------------------------------------------
 # Artifact hash recording
@@ -131,9 +130,10 @@ def record_artifact_hash(
     file_path: Union[str, Path],
     artifact_name: Optional[str] = None,
     state_file: Optional[Union[str, Path]] = None,
-) -> None:
+) -> str:
     """
-    Record the SHA‑256 hash of an artifact in the project state YAML file.
+    Compute the SHA‑256 hash of an artifact, record it in the project‑owned
+    YAML file, and **return** the hex digest.
 
     Parameters
     ----------
@@ -142,7 +142,13 @@ def record_artifact_hash(
     artifact_name
         Human‑readable name for the artifact; defaults to the filename.
     state_file
-        Path to the state YAML file; defaults to ``state/projects/...yaml``.
+        Path to the state YAML file; defaults to
+        ``artifacts/artifact_hashes.yaml``.
+
+    Returns
+    -------
+    str
+        The SHA‑256 hex digest of the artifact's contents.
     """
     path = Path(file_path)
     if not path.is_file():
@@ -151,12 +157,8 @@ def record_artifact_hash(
     hash_val = compute_checksum(path)
     name = artifact_name or path.name
 
-    # Determine default state file location
-    if state_file is None:
-        default_state = STATE_DIR / "projects" / "PROJ-712-predicting-individual-pain-sensitivity-f.yaml"
-        state_path = Path(default_state)
-    else:
-        state_path = Path(state_file)
+    # Determine output file location (project‑owned)
+    state_path = Path(state_file) if state_file is not None else HASH_FILE
 
     # Load existing state or start a new dict
     if state_path.is_file():
@@ -174,11 +176,12 @@ def record_artifact_hash(
         "timestamp": get_current_timestamp(),
     }
 
-    # Write back
+    # Write back (parent directories are created by llmxive_toolkit.paths)
     state_path.parent.mkdir(parents=True, exist_ok=True)
     with state_path.open("w") as sf:
         yaml.safe_dump(state_data, sf)
 
+    return hash_val
 
 # ----------------------------------------------------------------------
 # Timing helpers
@@ -187,14 +190,13 @@ def get_current_timestamp() -> str:
     """Return the current UTC timestamp in ISO‑8601 format."""
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
-
 def measure_duration(arg: Union[Callable, float]) -> Union[Callable, float]:
     """
     Dual‑purpose helper:
 
-    * If ``arg`` is a callable, returns a wrapped function that logs its
+    * If *arg* is a callable, returns a wrapped function that logs its
       execution time (acts as a decorator).
-    * If ``arg`` is a start‑time float, returns the elapsed seconds.
+    * If *arg* is a start‑time float, returns the elapsed seconds.
     """
     if callable(arg):
         func = arg
@@ -209,16 +211,15 @@ def measure_duration(arg: Union[Callable, float]) -> Union[Callable, float]:
 
         return wrapper
     else:
-        # Assume ``arg`` is a start timestamp
+        # Assume *arg* is a start timestamp
         start_time = float(arg)
         return time.time() - start_time
 
-
 def assert_duration_limit(duration_seconds: float, limit_seconds: Optional[float] = None) -> None:
     """
-    Verify that ``duration_seconds`` does not exceed ``limit_seconds``.
+    Verify that *duration_seconds* does not exceed *limit_seconds*.
 
-    The default limit is ``MAX_EXECUTION_SECONDS`` (6 h). Raises
+    The default limit is ``MAX_EXECUTION_SECONDS`` (6 h). Raises
     ``AssertionError`` on violation with a message that includes the
     Constitution principle identifier.
     """
@@ -228,17 +229,14 @@ def assert_duration_limit(duration_seconds: float, limit_seconds: Optional[float
             f"SC-005 VIOLATION: Execution time {duration_seconds:.2f}s exceeds limit of {limit:.2f}s"
         )
 
-
 # Simple global timer used by ``start_timer`` / ``stop_timer``
 _start_time: Optional[float] = None
-
 
 def start_timer() -> float:
     """Start a global timer for the pipeline."""
     global _start_time
     _start_time = time.time()
     return _start_time
-
 
 def stop_timer() -> float:
     """
@@ -252,10 +250,9 @@ def stop_timer() -> float:
     assert_duration_limit(elapsed)
     return elapsed
 
-
 def validate_pipeline_duration(start_time: float) -> float:
     """
-    Convenience wrapper used by tests: compute elapsed time since
+    Convenience wrapper used by tests: compute elapsed since
     ``start_time`` and enforce the duration limit.
 
     Returns the elapsed seconds.
@@ -264,28 +261,20 @@ def validate_pipeline_duration(start_time: float) -> float:
     assert_duration_limit(elapsed)
     return elapsed
 
-
 # ----------------------------------------------------------------------
 # Citation validation (used by the pre‑run validation script)
 # ----------------------------------------------------------------------
 def _load_required_citations() -> List[str]:
     """
     Return a list of required citation identifiers.
-
-    For this project we keep a very small hard‑coded list.
-    In a real implementation this could be read from a
-    ``citations.yaml`` or similar file.
     """
-    # Example identifiers – adjust as the project evolves
     return ["doi:10.1234/example1", "doi:10.5678/example2"]
-
 
 def _load_existing_citations() -> List[str]:
     """
     Load the project's citation file and return the identifiers found.
-
     The convention is a plain text file ``CITATIONS.bib`` in the
-    repository root where each line contains a DOI or similar ID.
+    repository root.
     """
     citations_path = Path("CITATIONS.bib")
     if not citations_path.is_file():
@@ -293,7 +282,6 @@ def _load_existing_citations() -> List[str]:
     with citations_path.open("r", encoding="utf-8") as f:
         lines = [line.strip() for line in f if line.strip()]
     return lines
-
 
 def validate_citations() -> bool:
     """
@@ -314,7 +302,6 @@ def validate_citations() -> bool:
         return False
     return True
 
-
 # ----------------------------------------------------------------------
 # CLI entry point
 # ----------------------------------------------------------------------
@@ -322,7 +309,7 @@ def _cli() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Utility commands for the PROJ‑712 pipeline."
+        description="Utility commands for the PROJ-712 pipeline."
     )
     parser.add_argument(
         "--validate-citations",
@@ -348,16 +335,16 @@ def _cli() -> None:
             print("All required citations are present.")
             exit(0)
 
-    if args.verify_checksums:
+    if args.verify_checksumsums if False else args.verify_checksums:
         # Lazy import to avoid circular dependencies
-        from checksums import scan_raw_data_directory, record_checksums_to_state
+        try:
+            from checksums import scan_raw_data_directory, record_checksums_to_state
+        except ImportError:
+            print("Error: code.checksums module not found.")
+            exit(1)
 
         raw_dir = Path("data") / "raw"
-        state_file = (
-            STATE_DIR
-            / "projects"
-            / "PROJ-712-predicting-individual-pain-sensitivity-f.yaml"
-        )
+        state_file = HASH_FILE
 
         if not raw_dir.is_dir():
             print(f"Raw data directory not found: {raw_dir}")
@@ -373,7 +360,6 @@ def _cli() -> None:
 
     parser.print_help()
     exit(0)
-
 
 if __name__ == "__main__":
     _cli()

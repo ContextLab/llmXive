@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory structure: `projects/PROJ-848-llmxive-follow-up-extending-molmomotion/{code,data,specs,state}`
-- [ ] T001b [P] Create `__init__.py` in `code/src/`, `code/tests/`, and `code/tests/integration/`
-- [ ] T001c [P] Create `.gitkeep` in `data/raw/`, `data/processed/`, `data/results/`
+- [X] T001a [P] Create directory structure: `projects/PROJ-848-llmxive-follow-up-extending-molmomotion/{code,data,specs,state}`
+- [X] T001b [P] Create `__init__.py` in `code/src/`, `code/tests/`, and `code/tests/integration/`
+- [X] T001c [P] Create `.gitkeep` in `data/raw/`, `data/processed/`, `data/results/`
 
 ---
 
@@ -55,13 +55,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004a [P] Create `data_loader.py` skeleton in `code/src/data_loader.py` with empty functions and imports (for test mocking)
+- [ ] T004a [P] Create `data_loader.py` skeleton in `code/src/data_loader.py` with empty functions and imports (for test mocking)
 - [X] T004b [P] Implement `load_molmomotion_streaming` in `code/src/data_loader.py`: fetch from verified URL (spec), implement retry logic (up to 3 attempts), fail loudly (exit code 1, message "Download failed after 3 retries") on final failure. **Do NOT implement subsampling logic here**; this task is strictly for streaming and fetching.
 - [ ] T005a [P] Create `dataset.schema.yaml` in `specs/001-llmxive-motion-scaling/contracts/` defining fields for `instance_id`, `ground_truth_points`, `kinematic_metadata`, `instruction_nl`, `instruction_struct`.
-- [ ] T005b [P] Create `prediction.schema.yaml` in `specs/001-llmxive-motion-scaling/contracts/` defining fields for `predicted_points`, `ate`, `adherence_score`, `instruction_type`, `status`.
-- [X] T006 Create base configuration management in `code/src/config.py` for random seeds, device constraints (`cpu`), and artifact paths
-- [X] T007 [P] Setup logging infrastructure in `code/src/logging_config.py` to capture latency, memory usage, and NaN/Inf warnings
-- [X] T019 [P] Implement `DualHeadLinearModel` in `code/src/model.py` (non-autoregressive, linear projection) with `torch.set_device('cpu')` enforcement
+- [~] T005b [P] Create `prediction.schema.yaml` in `specs/001-llmxive-motion-scaling/contracts/` defining fields for `predicted_points`, `ate`, `adherence_score`, `instruction_type`, `status`.
+- [~] T006 Create base configuration management in `code/src/config.py` for random seeds, device constraints (`cpu`), and artifact paths
+- [~] T007 [P] Setup logging infrastructure in `code/src/logging_config.py` to capture latency, memory usage, and NaN/Inf warnings
+- [~] T019 [P] Implement `DualHeadLinearModel` in `code/src/model.py` (non-autoregressive, linear projection) with `torch.set_device('cpu')` enforcement
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,13 +77,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T008 [P] [US1] Unit test for subsampling logic in `code/tests/test_data_loader.py` verifying memory constraints using mocked data/interfaces
-- [X] T009 [P] [US1] Unit test for instruction synthesis in `code/tests/test_synthesis.py` verifying both NL and structured outputs are derived strictly from metadata using mocked data/interfaces
+- [~] T008 [P] [US1] Unit test for subsampling logic in `code/tests/test_data_loader.py` verifying memory constraints using mocked data/interfaces
+- [~] T009 [P] [US1] Unit test for instruction synthesis in `code/tests/test_synthesis.py` verifying both NL and structured outputs are derived strictly from metadata using mocked data/interfaces
 
 ### Implementation for User Story 1
 
-- [ ] T010 [Removed - functionality merged into T004b/T011 flow]
-- [ ] T011 [US1] Implement `subsample_instances` in `code/src/data_loader.py`: Read `random_seed` and `target_memory_gb` from `config.py`. Use `datasets.load_dataset(..., streaming=True)` to iterate, implementing a **random subsampling strategy** (e.g., reservoir sampling or random selection with seed) to select instances until `target_memory_gb` is reached. **Do NOT use 'first N' logic**. Write output to `data/processed/subsampled_instances.parquet`.
+- [~] T010 [Removed - functionality merged into T004b/T011 flow]
+- [ ] T011 [US1] Implement `subsample_instances` in `code/src/data_loader.py`: Read `random_seed` and `target_memory_gb` from `config.py`. Use `datasets.load_dataset(..., streaming=True)` to iterate, implementing a **random subsampling strategy** (e.g., reservoir sampling or random selection with seed) to select instances until `target_memory_gb` is reached. **Do NOT use 'first N' logic**. Write output to `data/processed/subsampled_instances.parquet`. <!-- FAILED-IN-EXECUTION: code/src/run_subsample.py exit=1 -->
 - [ ] T011b [US1] Implement `validate_sample_size` in `code/src/data_loader.py`: Immediately after T011, verify the count of valid instances in `data/processed/subsampled_instances.parquet` meets the minimum threshold (e.g., a sufficiently large magnitude) required for statistical power. If not, raise a critical error to stop the pipeline before inference.
 - [ ] T012 [US1] Implement `generate_natural_language_instruction` in `code/src/instruction_synthesizer.py` creating coarse descriptions (e.g., "move left") from metadata
 - [ ] T013 [US1] Implement `generate_kinematic_instruction` in `code/src/instruction_synthesizer.py` creating structured vectors (velocity, duration) from ground-truth metadata (Input: `data/processed/subsampled_instances.parquet`)

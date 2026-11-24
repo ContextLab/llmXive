@@ -2,6 +2,7 @@
 Unit tests to verify that linting and formatting configurations are valid
 and that the Makefile commands work as expected.
 """
+
 import subprocess
 import os
 import sys
@@ -35,9 +36,9 @@ class TestLintingConfig:
         ruff_toml = os.path.join(PROJECT_ROOT, ".ruff.toml")
         pyproject = os.path.join(PROJECT_ROOT, "pyproject.toml")
 
-        assert os.path.exists(ruff_toml) or os.path.exists(pyproject), (
-            "Ruff configuration file (.ruff.toml or pyproject.toml) not found."
-        )
+        assert os.path.exists(ruff_toml) or os.path.exists(
+            pyproject
+        ), "Ruff configuration file (.ruff.toml or pyproject.toml) not found."
 
     def test_black_config_exists(self):
         """Verify black configuration exists in pyproject.toml or .black.toml."""
@@ -48,13 +49,9 @@ class TestLintingConfig:
         if os.path.exists(pyproject):
             with open(pyproject) as f:
                 content = f.read()
-                assert "[tool.black]" in content, (
-                    "Black configuration not found in pyproject.toml"
-                )
+                assert "[tool.black]" in content, "Black configuration not found in pyproject.toml"
         else:
-            assert os.path.exists(black_toml), (
-                "Black configuration file (.black.toml) not found."
-            )
+            assert os.path.exists(black_toml), "Black configuration file (.black.toml) not found."
 
     def test_makefile_targets_exist(self):
         """Verify Makefile contains expected targets."""
@@ -94,6 +91,7 @@ class TestLintingConfig:
         assert "error: Cannot parse" not in stderr, f"Black config parse error: {stderr}"
         assert "No such file" not in stderr, "Black failed to find target directory"
 
+
 class TestRequirements:
     def test_requirements_dev_includes_linting_tools(self):
         """Verify requirements-dev.txt includes ruff and black."""
@@ -104,9 +102,9 @@ class TestRequirements:
             if os.path.exists(main_req):
                 with open(main_req) as f:
                     content = f.read()
-                    assert "ruff" in content and "black" in content, (
-                        "ruff and black not found in requirements.txt"
-                    )
+                    assert (
+                        "ruff" in content and "black" in content
+                    ), "ruff and black not found in requirements.txt"
             return
 
         with open(req_path) as f:

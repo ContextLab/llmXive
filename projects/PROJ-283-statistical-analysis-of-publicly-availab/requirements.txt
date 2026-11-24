@@ -2,12 +2,9 @@ pandas
 numpy
 scikit-learn
 statsmodels
-chess
+python-chess
 matplotlib
 seaborn
 requests
 datasets
 pytest
-memory-profiler
-line-profiler
-pyyaml

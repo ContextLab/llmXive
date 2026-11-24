@@ -1,69 +1,33 @@
 """
-Preprocessing module for data normalization and filtering.
+Preprocess package initialization.
+
+This module makes the most commonly used preprocessing functions
+directly importable from the ``preprocess`` package while avoiding
+side‑effects at import time.  The previous implementation attempted
+to import ``rna_seq`` without a package qualifier, which caused a
+``ModuleNotFoundError`` when any submodule (e.g. ``preprocess.rna_seq``)
+was imported.  The corrected version uses explicit relative imports
+and defines ``__all__`` for a clean public API.
 """
 
-from rna_seq import (
-    load_rna_seq_data,
-    median_of_ratios_normalization,
-    calculate_gene_variance,
-    get_sample_metadata,
-    logo_jackknife_variance,
-    filter_low_variance_genes,
+# Relative imports of the concrete preprocessing modules.
+# These modules must exist in ``code/preprocess/``.
+from .rna_seq import (
     process_rna_seq,
-    main
+    get_sample_metadata as get_rna_metadata,
 )
 
-from methyl import (
-    load_methyl_data,
-    cpg_density_normalization,
-    calculate_gene_variance,
-    get_sample_metadata,
-    logo_jackknife_variance,
-    filter_low_variance_genes,
+from .methyl import (
     process_methyl_data,
-    main
+    get_sample_metadata as get_methyl_metadata,
 )
 
-from filters import (
-    normalize_organism_name,
-    is_model_organism,
-    filter_by_organism,
-    filter_by_global_methylation_level,
-    apply_global_filters,
-    main
-)
-
-from filter_genes import (
-    load_variance_matrix,
-    filter_genes_by_variance_and_missing,
-    save_filtered_data,
-    main
-)
+from .filter_genes import filter_genes_by_variance_and_missing
 
 __all__ = [
-    # RNA-seq
-    "load_rna_seq_data",
-    "median_of_ratios_normalization",
-    "calculate_gene_variance",
-    "get_sample_metadata",
-    "logo_jackknife_variance",
-    "filter_low_variance_genes",
     "process_rna_seq",
-    # Methylation
-    "load_methyl_data",
-    "cpg_density_normalization",
-    "get_sample_metadata",
-    "logo_jackknife_variance",
-    "filter_low_variance_genes",
     "process_methyl_data",
-    # Filters
-    "normalize_organism_name",
-    "is_model_organism",
-    "filter_by_organism",
-    "filter_by_global_methylation_level",
-    "apply_global_filters",
-    # Gene filtering
-    "load_variance_matrix",
     "filter_genes_by_variance_and_missing",
-    "save_filtered_data"
+    "get_rna_metadata",
+    "get_methyl_metadata",
 ]

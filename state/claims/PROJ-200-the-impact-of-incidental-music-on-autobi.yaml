@@ -429,7 +429,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-27T06:04:55Z'
 - artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   attempts: 1
@@ -664,7 +664,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-29T07:31:26Z'
 - artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   attempts: 1
@@ -986,7 +986,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-31T11:32:56Z'
 - artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   attempts: 1
@@ -1130,7 +1130,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-31T11:35:13Z'
 - artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   attempts: 1
@@ -1314,7 +1314,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-31T11:37:14Z'
 - artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   attempts: 1
@@ -1611,7 +1611,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-31T12:45:58Z'
 - artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   attempts: 1
@@ -1928,7 +1928,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-31T12:55:21Z'
 - artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   attempts: 1
@@ -2061,7 +2061,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-31T12:58:57Z'
 - artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   attempts: 1
@@ -2182,7 +2182,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-31T13:04:17Z'
 - artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   attempts: 0
@@ -2201,7 +2201,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-31T13:04:59Z'
 - artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   attempts: 1
@@ -2360,7 +2360,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-31T13:06:58Z'
 - artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   attempts: 1
@@ -2758,7 +2758,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-31T13:13:39Z'
 - artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   attempts: 1
@@ -2893,7 +2893,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-31T13:15:38Z'
 - artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   attempts: 1
@@ -3043,7 +3043,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-31T13:18:23Z'
 - artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   attempts: 1
@@ -3501,7 +3501,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-31T13:26:35Z'
 - artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   attempts: 1
@@ -3595,3 +3595,20 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T13:28:05Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/quickstart.md
+  attempts: 1
+  canonical: demo command exits with status 0 and prints a short log message
+  claim_id: c_692be648
+  context: "The demo runs a minimal, no\u2011data pipeline that verifies the codebase\
+    \ can be executed without errors. This command should exit with status\u202F0\
+    \ and print a short log message."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "This command should exit with status\u202F0 and print a short log message."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T15:39:52Z'

@@ -1,99 +1,62 @@
 # Quickstart: Autocorrelation of the Möbius Function in Short Intervals
 
-## Project Layout
-
-```text
-.
-├── code/ # Source code
-│ ├── __init__.py
-│ ├── main.py # Master orchestration script (to be implemented)
-│ ├── sieve.py # Linear‑time Möbius sieve
-│ ├── autocorrelation.py # Autocorrelation computation
-│ ├── permutation.py # Block‑permutation generator
-│ └── viz.py # Heat‑map visualisation
-├── data/
-│ ├── raw/
-│ │ └── mobius_array.npy # Generated μ(n) for 1 ≤ n ≤ 10⁷
-│ └── processed/
-│ └── autocorrelation_stats.csv
-├── outputs/
-│ └── figures/
-│ ├── heatmap_L1000.png
-│ ├── heatmap_L10000.png
-│ └── heatmap_L100000.png
-├── tests/
-│ ├── unit/
-│ │ ├── test_sieve.py
-│ │ └── test_autocorrelation.py
-│ └── integration/
-│ └── test_full_pipeline.py
-├── requirements.txt # Pinned Python dependencies
-├── quickstart.md # ← You are reading it
-└── README.md # Project overview
-```
-
 ## Prerequisites
-
-- Python **3.11** or newer
-- `pip` package manager
-- At least **500 MiB** of free disk space
+- Python **3.11**
+- `git`, at least 1 GB free disk space, internet access for installing packages.
 
 ## Installation
-
-1. **Clone the repository** and `cd` into the project root.
-2. **Create a virtual environment** and activate it:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-3. **Install the exact, pinned dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
- The `requirements.txt` file pins each package to a specific version, ensuring reproducible builds.
+```bash
+git clone <repo-url>
+cd autocorr-mobius
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
 ## Running the Demo
+The project provides a lightweight demonstration that runs the full pipeline on a tiny subset of the data. This verifies the installation and the end-to-end logic in seconds.
 
-The project provides a lightweight demo that runs the full pipeline on a tiny subset of the data (so it finishes in seconds). [UNRESOLVED-CLAIM: c_40cd14f0 — status=not_enough_info] Execute it with:
-
+Execute the demo command:
 ```bash
 python -m code.main --demo
 ```
 
-This command will:
+### Expected Demo Artefacts
+The demo command produces the following files:
+- `data/mobius_array.npy` – A small Möbius sequence ($N=2000$) stored as an `int8` NumPy array.
+- `data/window_starts.json` – A JSON file containing one window start index for each interval length.
+- `data/processed/demo_autocorr.csv` – A CSV containing the normalized autocorrelation for the first sampled window ($L=1000, h=1$).
+- `figures/heatmap_demo.png` – A PNG heat-map visualizing the demo result.
 
-1. Generate the Möbius sequence for a reduced `N` and store it under `data/raw/mobius_array.npy`.
-2. Compute autocorrelation for a single short interval.
-3. Perform a tiny permutation test.
-4. Produce a single heat‑map figure in `outputs/figures/`.
-
-The demo verifies that the end‑to‑end workflow is functional without requiring the full 10⁷‑element computation. [UNRESOLVED-CLAIM: c_aa8ce985 — status=not_enough_info]
+You can verify their existence with:
+```bash
+ls data/mobius_array.npy data/window_starts.json data/processed/demo_autocorr.csv figures/heatmap_demo.png
+```
 
 ## Running the Full Pipeline
-
-To run the complete analysis (the full 10⁷‑element sieve, all interval lengths, full permutation set, and all visualisations), simply omit the `--demo` flag:
+To process the full dataset ($N=10^7$, all windows, 1,000 permutations per window, and visualizations), omit the `--demo` flag:
 
 ```bash
 python -m code.main
 ```
 
-## Verification
+### Full Pipeline Outputs
+| Path | Description |
+|------|-------------|
+| `data/raw/mobius_2bit.npy` | 2-bit packed deterministic Möbius sequence (FR-001). |
+| `data/raw/mobius_array.npy` | `int8` working copy of the Möbius sequence. |
+| `data/processed/window_index.csv` | The sampled window start indices. |
+| `data/processed/autocorrelation_stats.csv` | All statistical results (p-values, CIs). |
+| `data/processed/sensitivity_summary.csv` | Zero-density sensitivity analysis results. |
+| `data/processed/calibration_test.json` | SC-005 null calibration results. |
+| `data/processed/empirical_uniformity.json` | Empirical uniformity check on real data. |
+| `data/processed/pipeline_status.json` | Per-stage status log. |
+| `outputs/figures/heatmap_L{L}.png` | Heat-maps for $L \in \{10^3, 10^4, 10^5\}$. |
 
-After a successful run you can:
-
-- **Check the generated Möbius array**:
- ```bash
- python -c "import numpy as np; a = np.load('data/raw/mobius_array.npy'); print('Unique values:', np.unique(a))"
- # Expected output: Unique values: [-1  0  1] [UNRESOLVED-CLAIM: c_df9a0d85 — status=not_enough_info]
- ```
-- **Run the test suite**:
- ```bash
- pytest tests/unit/
- pytest tests/integration/
- ```
-
-## Troubleshooting
-
-- **Memory errors** – Ensure the array is stored as `int8` (the code uses this dtype by default).
-- **Long runtimes** – The full pipeline can take several hours on modest hardware; use the `--demo` flag for quick checks. [UNRESOLVED-CLAIM: c_9678100a — status=not_enough_info]
-- **Zero p‑values** – If an observed autocorrelation is more extreme than all permutations, the p‑value is reported as the reciprocal of the number of permutations to avoid reporting an absolute zero.
+## Project Layout
+- `code/`: Python modules for the sieve, autocorrelation, permutations, and visualization.
+- `data/raw/`: Immutable raw data artifacts.
+- `data/processed/`: Intermediate and final statistical results.
+- `outputs/figures/`: Final research figures.
+- `tests/`: Unit and integration tests.
+- `contracts/`: Data schemas for validation.

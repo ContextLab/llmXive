@@ -1,90 +1,35 @@
-"""
-Logging infrastructure for the llmXive research pipeline.
-
-Provides a configurable logging setup that writes to both console and file,
-with automatic log rotation and structured formatting.
-"""
 import logging
 import os
 from pathlib import Path
-from typing import Optional
 
-from config import get_config
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-
-def setup_logging(
-    level: Optional[int] = None,
-    log_dir: Optional[Path] = None,
-    log_file: Optional[str] = None,
-    console: bool = True,
-) -> logging.Logger:
+def get_logger(name: str, log_file: str = "run.log") -> logging.Logger:
     """
-    Configure the root logger with file and console handlers.
-
-    Args:
-        level: Logging level (e.g., logging.INFO, logging.DEBUG).
-               Defaults to Config.LOG_LEVEL if not provided.
-        log_dir: Directory for log files. Defaults to Config.LOG_DIR.
-        log_file: Log filename. Defaults to Config.LOG_FILE.
-        console: Whether to add a console handler. Defaults to True.
-
-    Returns:
-        The root logger instance.
+    Return a logger with the given name.
+    Logs are written to both console and a file under the logs directory.
     """
-    config = get_config()
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
 
-    # Determine effective settings
-    effective_level = level or getattr(logging, config.log_level, logging.INFO)
-    effective_log_dir = log_dir or Path(config.log_dir)
-    effective_log_file = log_file or config.log_file
+    # Prevent adding multiple handlers if this function is called repeatedly
+    if not logger.handlers:
+        formatter = logging.Formatter(
+            fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
 
-    # Ensure log directory exists
-    effective_log_dir.mkdir(parents=True, exist_ok=True)
+        # Console handler
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
 
-    log_path = effective_log_dir / effective_log_file
+        # File handler
+        fh = logging.FileHandler(LOG_DIR / log_file)
+        fh.setLevel(logging.DEBUG)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
 
-    # Configure root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(effective_level)
-
-    # Clear existing handlers to avoid duplicates on repeated calls
-    root_logger.handlers.clear()
-
-    # Formatter
-    formatter = logging.Formatter(
-        fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-
-    # File handler with rotation
-    file_handler = logging.FileHandler(log_path)
-    file_handler.setLevel(effective_level)
-    file_handler.setFormatter(formatter)
-    root_logger.addHandler(file_handler)
-
-    # Console handler
-    if console:
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(effective_level)
-        console_handler.setFormatter(formatter)
-        root_logger.addHandler(console_handler)
-
-    # Log startup message
-    root_logger.info(
-        f"Logging initialized: level={effective_level}, file={log_path}"
-    )
-
-    return root_logger
-
-
-def get_logger(name: str) -> logging.Logger:
-    """
-    Get a logger instance by name.
-
-    Args:
-        name: Logger name (typically __name__ of the module).
-
-    Returns:
-        A configured logger instance.
-    """
-    return logging.getLogger(name)
+    return logger

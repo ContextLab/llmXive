@@ -1,7 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 type: "object"
 title: "Dataset Schema"
-description: "Schema for raw and processed scRNA-seq datasets used in the T-cell exhaustion trajectory analysis."
+description: "Schema for raw and processed scRNA‑seq datasets used in the T‑cell exhaustion trajectory analysis. Includes a marker‑gene fraction field to enforce FR‑010 (≥ 0.8 required markers)."
 properties:
   dataset_id:
     type: "string"
@@ -17,7 +17,7 @@ properties:
     description: "Path to accompanying metadata file (may be empty if not provided)."
   checksum:
     type: "string"
-    description: "SHA-256 checksum of the raw data file."
+    description: "SHA‑256 checksum of the raw data file."
   cell_count:
     type: "integer"
     description: "Number of cells in the dataset."
@@ -28,7 +28,7 @@ properties:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "Fraction of the required marker list present in the dataset (FR-010; must be >= 0.8)."
+    description: "Fraction of the required marker list present in the dataset (FR‑010; must be >= 0.8)."
   status:
     type: "string"
     enum: ["available", "unavailable", "partial"]

@@ -1,0 +1,10 @@
+status: none
+intent: download QM9-TS transition state dataset with barrier heights python package
+  dataset
+required_fields:
+- atomic_numbers
+- atomic_positions
+- barrier_heights
+cache_key: d5674a675b7ec58baa22ed9cfda79ee524869c959fd182241a628ab7014e92f0
+searched_at: '2026-10-12T16:20:49.021251+00:00'
+retry_count: 1

@@ -9,14 +9,25 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/PROJ-198-predicting-plant-secondary-metabolite-pr
   verified_at: '2026-09-18T04:36:44.156708Z'
-- artifact_hash: 6c48a2c2ff001fe9f06f08c2cae566531ea777ef4ee9b64295c2c20e19da4650
-  artifact_path: projects/PROJ-198-predicting-plant-secondary-metabolite-pr/specs/001-predicting-plant-secondary-metabolite-pr/quickstart.md
+- artifact_hash: cf0735157b9a3c1feb5684c4b23effe3e9c58e7ff4519e18873db57af767c1b4
+  artifact_path: projects/PROJ-198-predicting-plant-secondary-metabolite-pr/specs/001-predicting-plant-secondary-metabolite-pr/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: antiSMASH Documentation
+  fetched_title: information.jsp
   kind: url
-  value: https://docs.antismash.secondarymetabolites.org/
+  value: http://www.knapsackfamily.com/knapsack_jsp/information.jsp
   verification_status: pending
-  verified_against_url: https://docs.antismash.secondarymetabolites.org/
-  verified_at: '2026-10-10T04:30:40.791509Z'
+  verified_against_url: https://www.knapsackfamily.com/knapsack_core/information.php
+  verified_at: '2026-10-26T10:49:32.852313Z'
+- artifact_hash: cf0735157b9a3c1feb5684c4b23effe3e9c58e7ff4519e18873db57af767c1b4
+  artifact_path: projects/PROJ-198-predicting-plant-secondary-metabolite-pr/specs/001-predicting-plant-secondary-metabolite-pr/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.try-db.org/
+  verification_status: pending
+  verified_against_url: https://www.try-db.org/
+  verified_at: '2026-10-26T10:49:32.852313Z'

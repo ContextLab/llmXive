@@ -1,0 +1,123 @@
+{
+  "trace_id": "training_42_03036",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 11,
+  "tool_sequence": [
+    "insert_image",
+    "insert_image",
+    "resize_element",
+    "resize_element",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "resize_element",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 96.4624,
+        "y": 82.1838,
+        "width": 73.1802,
+        "height": 95.4417
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 29.2594,
+        "y": 89.1546,
+        "width": 65.163,
+        "height": 24.4055
+      }
+    },
+    {
+      "step": 2,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 44.3643,
+        "height": 88.2393
+      }
+    },
+    {
+      "step": 3,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 14.6541,
+        "height": 31.7398
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 94.7156,
+        "saturation": 11.471
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 81.0499,
+        "saturation": 35.1923
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 7.12,
+        "saturation": 53.0669
+      }
+    },
+    {
+      "step": 7,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 58.6518,
+        "height": 52.1543
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 43.9921,
+        "saturation": 10.4507
+      }
+    },
+    {
+      "step": 9,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 52.1513,
+        "saturation": 46.0834
+      }
+    },
+    {
+      "step": 10,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 98.2802,
+        "saturation": 12.1329
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.994924,
+    "tool_repetition_freq": 0.727273,
+    "arg_semantic_variance": 899.425051
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 6,
+    "layout_hash": "42-3036-apply_theme"
+  }
+}

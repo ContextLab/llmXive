@@ -1,0 +1,15 @@
+captured:
+  path: data/results/interaction_plot.png
+  sha256: 49f710daeedca1fb6f7e67401b13b2b0661f3280d0df6b0058ef6d80dd540213
+created_at: '2026-10-14T08:17:51Z'
+env_sha: 49f710daeedca1fb
+hmac: 8ed5cd3d2dac25225a1cf6efe90adc2e3f67587b1cab4d31a517771a8c2f3583
+inputs:
+  command: quickstart run-book
+kind: figure
+output_sha256: 5310dcfd8716493428e4ad3273b05145b38fd58fbe11388fb1b74d2c724f4a11
+producer:
+  artifact: data/results/interaction_plot.png
+  stage: implementation_preview
+result_id: r_5310dcfd
+value: data/results/interaction_plot.png

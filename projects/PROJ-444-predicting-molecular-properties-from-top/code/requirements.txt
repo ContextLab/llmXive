@@ -1,14 +1,12 @@
+scikit-fingerprints
 rdkit
 gudhi
-dionysus2
 scikit-learn
 pandas
 numpy
 matplotlib
 seaborn
 pyyaml
-requests
+deepchem
 pytest
-memory-profiler
 statsmodels
-scipy

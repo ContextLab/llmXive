@@ -1,3 +1,3 @@
 """
-llmXive Symbolic Dojo Extension - Source Package
+Package marker for the `code.src` subpackage.
 """

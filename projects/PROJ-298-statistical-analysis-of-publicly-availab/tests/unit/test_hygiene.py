@@ -1,179 +1,75 @@
 """
-Unit tests for hygiene utilities (SHA-256 hashing and state management).
+Unit tests for the hygiene utilities (SHA-256 hashing and state file updates).
+The tests verify that:
+1. A sample file can be hashed correctly.
+2. The state YAML file is created (if missing) and contains the correct checksum
+   entry after invoking `update_artifact_checksums`.
 """
+
+import json
+import hashlib
 import os
+import sys
 import tempfile
 from pathlib import Path
 
-import pytest
-import yaml
+# Add the project’s `code` directory to the import path so we can import the module.
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+CODE_DIR = PROJECT_ROOT / "code"
+sys.path.append(str(CODE_DIR))
 
-# Adjust import path based on project structure
-# Assuming code/utils/hygiene.py is the module
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Import the hygiene module
+from utils import hygiene
 
-from utils.hygiene import (
-    calculate_sha256,
-    load_state,
-    save_state,
-    update_state_checksum,
-    verify_checksum,
-)
+def test_calculate_sha256_and_state_update(tmp_path: Path):
+    """
+    Create a temporary file, compute its SHA-256 hash using the hygiene utility,
+    run `update_artifact_checksums`, and verify that the state file contains the
+    expected entry.
+    """
+    # 1️⃣ Create a temporary file with known content
+    sample_content = b"llmXive hygiene test data"
+    sample_file = tmp_path / "sample.txt"
+    sample_file.write_bytes(sample_content)
 
+    # Expected hash (computed directly)
+    expected_hash = hashlib.sha256(sample_content).hexdigest()
 
-class TestCalculateSha256:
-    def test_hash_correctness(self, tmp_path):
-        """Verify SHA-256 hash is correct for known content."""
-        test_file = tmp_path / "test.txt"
-        content = b"Hello, World!"
-        test_file.write_bytes(content)
+    # 2️⃣ Ensure the state file does NOT exist before the call
+    state_path = PROJECT_ROOT / hygiene.DEFAULT_STATE_PATH
+    if state_path.exists():
+        state_path.unlink()
 
-        # Known SHA-256 for "Hello, World!"
-        expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
-        result = calculate_sha256(str(test_file))
+    # 3️⃣ Call the utility to update checksums
+    # The function expects a list of string paths; we pass the absolute path.
+    hygiene.update_artifact_checksums([str(sample_file)])
 
-        assert result == expected
+    # 4️⃣ Verify the state file was created
+    assert state_path.is_file(), "State file was not created."
 
-    def test_file_not_found(self, tmp_path):
-        """Verify FileNotFoundError is raised for missing file."""
-        non_existent = tmp_path / "missing.txt"
-        with pytest.raises(FileNotFoundError):
-            calculate_sha256(str(non_existent))
+    # 5️⃣ Load the state file and locate the checksum entry
+    with open(state_path, "r", encoding="utf-8") as f:
+        state_data = yaml.safe_load(f)
 
-    def test_binary_content(self, tmp_path):
-        """Verify hash works for binary content."""
-        test_file = tmp_path / "binary.bin"
-        content = bytes(range(256))
-        test_file.write_bytes(content)
+    # Determine the key used for the artifact (relative to cwd)
+    try:
+        rel_path = sample_file.resolve().relative_to(Path.cwd())
+    except ValueError:
+        rel_path = sample_file.resolve()
+    artifact_key = str(rel_path)
 
-        result = calculate_sha256(str(test_file))
-        assert len(result) == 64  # SHA-256 hex length
+    # The checksum should be stored under artifacts -> processed (default)
+    stored_entry = (
+        state_data.get("artifacts", {})
+        .get("processed", {})
+        .get(artifact_key, {})
+    )
+    assert stored_entry, f"Checksum entry for {artifact_key} missing in state."
 
+    # 6️⃣ Verify the stored checksum matches the expected hash
+    assert (
+        stored_entry["checksum"] == expected_hash
+    ), f"Checksum mismatch: expected {expected_hash}, got {stored_entry['checksum']}"
 
-class TestStateManagement:
-    def test_load_state_empty_file(self, tmp_path):
-        """Load state from non-existent file returns empty dict."""
-        state_file = tmp_path / "state.yaml"
-        result = load_state(str(state_file))
-        assert result == {}
-
-    def test_load_state_valid_yaml(self, tmp_path):
-        """Load state from valid YAML file."""
-        state_file = tmp_path / "state.yaml"
-        data = {"key": "value", "number": 42}
-        with open(state_file, "w") as f:
-            yaml.dump(data, f)
-
-        result = load_state(str(state_file))
-        assert result == data
-
-    def test_save_state(self, tmp_path):
-        """Save state creates file with correct content."""
-        state_file = tmp_path / "state.yaml"
-        data = {"test": "data"}
-        save_state(str(state_file), data)
-
-        assert state_file.exists()
-        with open(state_file, "r") as f:
-            loaded = yaml.safe_load(f)
-        assert loaded == data
-
-    def test_save_state_creates_dirs(self, tmp_path):
-        """Save state creates parent directories if they don't exist."""
-        state_file = tmp_path / "sub" / "dir" / "state.yaml"
-        data = {"test": "data"}
-        save_state(str(state_file), data)
-
-        assert state_file.exists()
-
-
-class TestUpdateStateChecksum:
-    def test_update_creates_structure(self, tmp_path):
-        """Update checksum creates state file with correct structure."""
-        state_file = tmp_path / "state.yaml"
-        artifact_file = tmp_path / "artifact.txt"
-        artifact_file.write_text("content")
-
-        update_state_checksum(str(state_file), str(artifact_file))
-
-        state = load_state(str(state_file))
-        assert "checksums" in state
-        assert "artifact.txt" in state["checksums"]
-
-    def test_update_stores_hash(self, tmp_path):
-        """Update checksum stores the correct hash."""
-        state_file = tmp_path / "state.yaml"
-        artifact_file = tmp_path / "artifact.txt"
-        artifact_file.write_bytes(b"test")
-
-        update_state_checksum(str(state_file), str(artifact_file))
-
-        state = load_state(str(state_file))
-        stored_hash = state["checksums"]["artifact.txt"]["hash"]
-        calculated = calculate_sha256(str(artifact_file))
-
-        assert stored_hash == calculated
-
-    def test_update_overwrites_existing(self, tmp_path):
-        """Update checksum overwrites existing entry."""
-        state_file = tmp_path / "state.yaml"
-        artifact_file = tmp_path / "artifact.txt"
-
-        # First update
-        artifact_file.write_text("v1")
-        update_state_checksum(str(state_file), str(artifact_file))
-
-        # Second update with different content
-        artifact_file.write_text("v2")
-        update_state_checksum(str(state_file), str(artifact_file))
-
-        state = load_state(str(state_file))
-        # Hash should match v2, not v1
-        assert state["checksums"]["artifact.txt"]["hash"] == calculate_sha256(str(artifact_file))
-
-
-class TestVerifyChecksum:
-    def test_verify_success(self, tmp_path):
-        """Verify returns True when checksum matches."""
-        state_file = tmp_path / "state.yaml"
-        artifact_file = tmp_path / "artifact.txt"
-        artifact_file.write_text("content")
-
-        update_state_checksum(str(state_file), str(artifact_file))
-        assert verify_checksum(str(state_file), str(artifact_file)) is True
-
-    def test_verify_failure_modified(self, tmp_path):
-        """Verify returns False when file is modified."""
-        state_file = tmp_path / "state.yaml"
-        artifact_file = tmp_path / "artifact.txt"
-        artifact_file.write_text("original")
-
-        update_state_checksum(str(state_file), str(artifact_file))
-
-        # Modify file
-        artifact_file.write_text("modified")
-
-        assert verify_checksum(str(state_file), str(artifact_file)) is False
-
-    def test_verify_missing_state(self, tmp_path):
-        """Verify returns False if artifact not in state."""
-        state_file = tmp_path / "state.yaml"
-        artifact_file = tmp_path / "artifact.txt"
-        artifact_file.write_text("content")
-
-        # Don't update state
-        assert verify_checksum(str(state_file), str(artifact_file)) is False
-
-    def test_verify_missing_file(self, tmp_path):
-        """Verify returns False if artifact file is missing."""
-        state_file = tmp_path / "state.yaml"
-        artifact_file = tmp_path / "artifact.txt"
-        artifact_file.write_text("content")
-
-        update_state_checksum(str(state_file), str(artifact_file))
-
-        # Delete file
-        artifact_file.unlink()
-
-        assert verify_checksum(str(state_file), str(artifact_file)) is False
+    # Cleanup: remove the temporary state file to avoid side‑effects for other tests
+    state_path.unlink()

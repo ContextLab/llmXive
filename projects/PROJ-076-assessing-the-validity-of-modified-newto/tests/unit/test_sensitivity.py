@@ -53,25 +53,25 @@ def test_compute_pass_rates():
         'reduced_chi2': [0.5, 1.5, 1.2, 0.9, 1.6, 2.0]
     }
     df = pd.DataFrame(data)
-    
+
     thresholds = [1.0, 1.5]
     results = compute_pass_rates(df, thresholds)
-    
+
     assert len(results) == 4 # 2 models * 2 thresholds
-    
+
     # Check MOND at 1.0 threshold
     mond_10 = results[(results['model'] == 'mond') & (results['chi2_threshold'] == 1.0)]
     assert len(mond_10) == 1
     # G1 (0.5) passes, G2 (1.2) fails, G3 (1.6) fails -> 1/3
     assert mond_10.iloc[0]['passes'] == 1
     assert np.isclose(mond_10.iloc[0]['pass_rate'], 1/3)
-    
+
     # Check MOND at 1.5 threshold
     mond_15 = results[(results['model'] == 'mond') & (results['chi2_threshold'] == 1.5)]
     # G1 (0.5) passes, G2 (1.2) passes, G3 (1.6) fails -> 2/3
     assert mond_15.iloc[0]['passes'] == 2
     assert np.isclose(mond_15.iloc[0]['pass_rate'], 2/3)
-    
+
     # Check NFW at 1.0 threshold
     nfw_10 = results[(results['model'] == 'nfw') & (results['chi2_threshold'] == 1.0)]
     # G1 (1.5) fails, G2 (0.9) passes, G3 (2.0) fails -> 1/3

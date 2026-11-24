@@ -1,0 +1,10 @@
+https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data
+https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data
+https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/breast-cancer-wisconsin.data
+https://archive.ics.uci.edu/ml/machine-learning-databases/ionosphere/ionosphere.data
+https://archive.ics.uci.edu/ml/machine-learning-databases/sonar/sonar.all-data
+https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data
+https://archive.ics.uci.edu/ml/machine-learning-databases/vehicle/vehicle.dat
+https://archive.ics.uci.edu/ml/machine-learning-databases/car/car.data
+https://archive.ics.uci.edu/ml/machine-learning-databases/bank/bank-additional-full.csv
+https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data

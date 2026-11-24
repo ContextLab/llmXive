@@ -48,8 +48,10 @@ from .data_ingestion import (
 from utils import calculate_file_checksum
 
 # Constants
+# NOTE: The original host ``ftp.ncbi.nih.gov`` is no longer valid.
+# The correct NCBI FTP host is ``ftp.ncbi.nlm.nih.gov``.
 FTP_BASE = (
-    "ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF"
+    "ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF"
 )
 BUILD_VERSION = "b155"
 MIN_MAF = 0.01

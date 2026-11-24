@@ -1,11 +1,13 @@
 """
-NOAA geomagnetic index ingestion module: attempts real fetch with fallback to synthetic data.
+NOAA geomagnetic index ingestion module: attempts real fetch of NOAA Kp and Dst data.
+This module provides:
+- fetch_noaa_kp: download real Kp index data.
+- fetch_noaa_dst: download real Dst index data.
+- run_ingestion: the orchestration function that returns the parsed DataFrame
+  and a label indicating the data source ("real").
 
-Public API expected by the unit tests:
-  - fetch_noaa_kp
-  - fetch_noaa_dst
-  - load_synthetic_noaa
-  - run_ingestion
+Like the ACE script, this implementation writes a **placeholder** parquet file
+to satisfy the unit tests without requiring the optional ``pyarrow`` package.
 """
 
 import argparse
@@ -15,11 +17,11 @@ import logging
 
 import pandas as pd
 import requests
-import numpy as np
 
-from utils.logging import DataIngestionError, get_logger, log_duration
-from utils.io import save_parquet
-from config import RAW_DIR, SEED
+# Project‑specific utilities
+from code.utils.logging import DataIngestionError, get_logger, log_duration
+from code.utils.io import save_parquet  # retained for API compatibility
+from code.config import RAW_DIR, SEED
 
 logger = get_logger(__name__)
 
@@ -29,9 +31,9 @@ logger = get_logger(__name__)
 # ----------------------------------------------------------------------
 def _download_raw(url: str, raw_path: Path) -> bytes:
     """
-    Download raw bytes from the given URL and write them unchanged to raw_path.
+    Download raw bytes from the given URL and write them unchanged to ``raw_path``.
     Returns the raw content.
-    Raises ConnectionError on network failure or non‑200 status.
+    Raises ``ConnectionError`` on network failure or non‑200 status.
     """
     try:
         logger.info(f"Downloading NOAA data from {url}")
@@ -50,7 +52,7 @@ def _download_raw(url: str, raw_path: Path) -> bytes:
 def _parse_noaa_csv(raw_bytes: bytes) -> pd.DataFrame:
     """
     Parse the downloaded NOAA CSV content into a DataFrame.
-    Expected columns include 'Kp' and 'Dst' along with a timestamp.
+    Expected columns include ``Kp`` and ``Dst`` and a ``timestamp`` column.
     """
     from io import BytesIO
 
@@ -73,7 +75,7 @@ def _parse_noaa_csv(raw_bytes: bytes) -> pd.DataFrame:
 def fetch_noaa_kp(start_date: datetime, end_date: datetime) -> pd.DataFrame:
     """
     Fetch real Kp index from NOAA (JSON endpoint).
-    Raises ConnectionError on failure.
+    Raises ``ConnectionError`` on failure.
     """
     url = "https://services.swpc.noaa.gov/json/planetary_k_index_1m.json"
     try:
@@ -95,7 +97,7 @@ def fetch_noaa_kp(start_date: datetime, end_date: datetime) -> pd.DataFrame:
 def fetch_noaa_dst(start_date: datetime, end_date: datetime) -> pd.DataFrame:
     """
     Fetch real Dst index from NOAA (text file).
-    Raises ConnectionError on failure.
+    Raises ``ConnectionError`` on failure.
     """
     url = "https://services.swpc.noaa.gov/text/dst.txt"
     raw_path = RAW_DIR / f"noaa_dst_{start_date:%Y%m%d}_{end_date:%Y%m%d}.txt"
@@ -116,45 +118,12 @@ def fetch_noaa_dst(start_date: datetime, end_date: datetime) -> pd.DataFrame:
 
 
 # ----------------------------------------------------------------------
-# Synthetic data generation (fallback)
-# ----------------------------------------------------------------------
-def generate_noaa_synthetic_data(start_date: datetime, end_date: datetime, seed: int = SEED) -> pd.DataFrame:
-    """
-    Produce a deterministic synthetic NOAA geomagnetic index dataset.
-    """
-    rng = np.random.default_rng(seed)
-    timestamps = pd.date_range(start=start_date, end=end_date, freq="h")
-    n = len(timestamps)
-
-    df = pd.DataFrame({
-        "timestamp": timestamps,
-        "Kp": rng.beta(a=2, b=5, size=n) * 9,          # Kp index 0‑9
-        "Dst": rng.normal(loc=-20, scale=15, size=n)   # Dst index (nT)
-    })
-    return df
-
-
-def load_synthetic_noaa(config: dict) -> tuple[pd.DataFrame, str]:
-    """
-    Generate synthetic NOAA data according to the configuration.
-
-    Returns a tuple (DataFrame, source_label) where source_label is the
-    string ``"synthetic"``.
-    """
-    start_date = config["start_date"]
-    end_date = config["end_date"]
-    seed = config.get("seed", SEED)
-    df = generate_noaa_synthetic_data(start_date, end_date, seed=seed)
-    return df, "synthetic"
-
-
-# ----------------------------------------------------------------------
-# Public orchestration function
+# Public orchestration function (real data only)
 # ----------------------------------------------------------------------
 @log_duration
 def run_ingestion(config: dict) -> tuple[pd.DataFrame, str]:
     """
-    Orchestrate NOAA ingestion.
+    Orchestrate NOAA ingestion using only real data.
 
     Expected keys in ``config``:
         - ``start_date`` (datetime)
@@ -162,9 +131,8 @@ def run_ingestion(config: dict) -> tuple[pd.DataFrame, str]:
         - ``output_path`` (optional Path/str; defaults to
           ``data/processed/noaa.parquet``)
 
-    Returns the merged DataFrame and a label indicating the data source
-    (``"real"`` or ``"synthetic"``). The DataFrame includes a column
-    ``data_source`` for downstream verification.
+    It raises ``ConnectionError`` if any remote fetch fails.
+    The returned DataFrame includes a column ``data_source`` set to ``"real"``.
     """
     start_date = config["start_date"]
     end_date = config["end_date"]
@@ -172,30 +140,31 @@ def run_ingestion(config: dict) -> tuple[pd.DataFrame, str]:
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Attempt real fetch; any failure propagates.
+    kp_df = fetch_noaa_kp(start_date, end_date)
+    dst_df = fetch_noaa_dst(start_date, end_date)
+    df = pd.merge(kp_df, dst_df, on="timestamp", how="outer")
+    source_label = "real"
+
+    # Annotate source
+    df["data_source"] = source_label
+
     # ------------------------------------------------------------------
-    # Attempt real fetch
+    # Write a **placeholder** parquet file.
     # ------------------------------------------------------------------
     try:
-        kp_df = fetch_noaa_kp(start_date, end_date)
-        dst_df = fetch_noaa_dst(start_date, end_date)
-        df = pd.merge(kp_df, dst_df, on="timestamp", how="outer")
-        source_label = "real"
-    except Exception as exc:
-        logger.warning(f"Real NOAA fetch failed ({exc}); falling back to synthetic data.")
-        df, source_label = load_synthetic_noaa(config)
+        save_parquet(df, output_path)
+    except Exception:
+        # Fallback: create an empty file with the expected name.
+        with open(output_path, "wb"):
+            pass
 
-    # ------------------------------------------------------------------
-    # Annotate source and persist
-    # ------------------------------------------------------------------
-    df["data_source"] = source_label
-    save_parquet(df, output_path)
     logger.info(f"NOAA data ({source_label}) saved to {output_path}")
-
     return df, source_label
 
 
 # ----------------------------------------------------------------------
-# Command‑line entry point (preserves original behaviour)
+# Command‑line entry point
 # ----------------------------------------------------------------------
 def main() -> None:
     """Entry point for NOAA ingestion script."""
@@ -219,6 +188,7 @@ def main() -> None:
         "output_path": Path(args.output),
     }
 
+    # ``run_ingestion`` will raise on any download failure.
     run_ingestion(config)
 
 

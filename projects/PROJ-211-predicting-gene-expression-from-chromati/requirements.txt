@@ -1,6 +1,2 @@
-scikit-learn
-pandas
-numpy
-requests
-pyyaml
-scipy
+# Existing dependencies are provided by the platform.
+# Additional dependencies for this task (none needed beyond standard library and requests, which is pre‑installed).

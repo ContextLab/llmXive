@@ -1,16 +1,12 @@
 status: none
-intent: synthetic state graph suite reinforcement learning environments python package
-  dataset
+intent: Synthetic State-Graph Environments tiered complexity RL python package dataset
 required_fields:
 - node_id
-- state_features
-- edges
-- transition_probabilities
+- successor_node_ids
+- transition_probability
 - reward
-- tier
-- start_node
-- goal_node
-- seed
-cache_key: 0df090f5bd5f9dee31272f24424e9df97fde8437e78c01bd03ec71293e63a20c
-searched_at: '2026-10-07T18:25:59.321753+00:00'
+- tier_level
+- is_terminal
+cache_key: 6ab052694e7dc577f155e2e32254e4e5c56c31dbdf183bc6b35efde3736035f1
+searched_at: '2026-11-08T21:13:11.957889+00:00'
 retry_count: 1

@@ -1,3 +1,88 @@
+T001:
+  c: false
+  h: 8a7f3af6bba1d235acfa43af644fa79761bda0cc8846321d709566a418c921fc
+  r: "The task requires two documentation files (`README.md` and `quickstart.md`)\
+    \ and verification that running `python -m code.generate_networks --topology ER\
+    \ --instances 1 --seed 0` creates both `data/raw/networks/ER_0000.edgelist` and\
+    \ `data/raw/networks/metadata_ER_0000.json` without errors.\n\n**Evidence checked:**\n\
+    \n1. **`README.md`** exists (5320 bytes) and contains substantive project documentation.\
+    \ \u2713\n2. **`quickstart.md`** exists (9145 bytes) and contains the required\
+    \ command `python -m code.generate_networks --topology ER --instances 1 --seed\
+    \ 0`. \u2713\n3. **Execution log** shows the command ran su"
+  sig: fb18621cfbbc7ce13eff688121b5947a349c87748076275a3659a3213afd97f5
+T002:
+  c: true
+  h: c217bd65dcf4ed5eea7ae9765f016aa2c61c7c9e67f770836617960a4b37bd33
+  r: The file `code/requirements.txt` exists (248 bytes) and lists all eight required
+    packages (networkx, numpy, pandas, scipy, matplotlib, statsmodels, h5py, pytest)
+    with reasonable version pins, plus two extra packages (pyyaml, jsonschema) that
+    don't conflict with the requirement. The content is a real dependency manifest,
+    not a placeholder.
+  sig: 47c35d4a755c8e44c117d883f8c77f968ad0e7b406d4059556fd6683ad193c84
+T003:
+  c: false
+  h: fca64da5ae9d30f765a4b451b93cda4524048a856683dbc5d82b4f0909e47a0e
+  r: "The three utility modules exist and contain substantive implementations, but\
+    \ the task explicitly requires **unit tests that pass**. The evidence shows `tests/unit/`\
+    \ directory exists with test files listed (including `test_checksums.py`, `test_metrics.py`,\
+    \ `test_plotting.py`), but **no test execution evidence is provided**\u2014no\
+    \ pytest output, no passing test logs, no demonstration that `python -c \"import\
+    \ code.utils.checksums as c; print(len(c.sha256('README.md')))\"` returns 64 as\
+    \ specified in the verification requirement.\n\nThe task states: \"Each module\
+    \ has a corresponding unit test in `tests/unit"
+  sig: e2932595d75a72260ef22bcb0a41bacabb996b054b1bedfad4d7618d9eb52eb4
+T004:
+  c: true
+  h: abfed2c0154eae0bbc62a50c28dd0b3825539219ccdc278d8563f9b5ed13aa93
+  r: "All four required schema files exist under `code/contracts/` with substantive,\
+    \ well-formed draft-07 content; `tests/conftest.py` provides an autouse `set_seed`\
+    \ fixture seeding `random` and `numpy.random` to a fixed value (42) per test;\
+    \ and `pytest.ini` configures test discovery and markers. I manually validated\
+    \ `data/raw/networks/metadata_ER_0000.json` against `network_instance.schema.json`\
+    \ \u2014 all required fields present, topology in enum, no additional properties\
+    \ \u2014 so the stated verification would pass. (No pytest execution evidence\
+    \ was supplied, but the task's deliverables are the config file"
+  sig: ac1defff38f60e58a7d84c53aae904a0418d908b35dd46a9aaad2f3329089dbe
+T005:
+  c: false
+  h: dc5a58e75843680abc6547be10adc9f519760f97d0bfa1d9e192872480374461
+  r: 'The task requires edge-list files at the path pattern `data/raw/networks/{topology}_{idx}.edgelist`,
+    but the actual files are located in subdirectories: `data/raw/networks/ER/ER_0000.edgelist`,
+    `data/raw/networks/BA/BA_0000.edgelist`, etc. The collector explicitly confirmed
+    "NO MATCHING FILE exists" for the required pattern `data/raw/networks/{topology}_{idx}.edgelist`.
+    While the CSV metadata files are correctly placed at `data/raw/networks/{topology}_metadata.csv`
+    and all 50 instances per topology are generated with node_count == 500 (verified
+    in the CSV and metadata JSON files), the edgelist'
+  sig: 65874da1883e0774afa491c5c57d84e062756a4e041eba64fd68e63e0e3e5bf4
+T006:
+  c: true
+  h: 512dce291bc395e5579b15c7b19ddcb67f1b2d346311514ccd06e29f209e88a1
+  r: '**Evidence checked:**
+
+
+    1. **Artifact existence**: `code/utils/metrics.py` exists (2352 bytes) and contains
+    the `calculate_structural_metrics()` function that computes assortativity, average
+    path length, clustering coefficient, and node/edge counts. `code/generate_networks.py`
+    exists (9520 bytes) and calls this metrics module at line 155 (`metrics = calculate_structural_metrics(G)`).
+    The schema file `code/contracts/network_instance.schema.json` exists and defines
+    the required JSON structure.
+
+
+    2. **Metadata file generation**: 150 metadata JSON files matching the pattern
+    `data/raw/networks/metada'
+  sig: 925a00a8e0bfd31eb2d239c265b20962f84b978cc316899bed921abc6a2488ac
+T007:
+  c: false
+  h: 885b1150986c797d59a9ce8694b0c10a18ffcd393acbab4844fb2aaf91d6dff9
+  r: "The test file exists and is substantive, but it does not use `psutil` as required:\
+    \ on Linux/macOS it uses `resource.getrusage` (ru_maxrss), with psutil only as\
+    \ a Windows fallback, contradicting the task's explicit \"uses psutil to monitor\
+    \ peak RAM\" requirement. Additionally, there is no execution evidence (no CI/test-run\
+    \ output) that the test actually passes, and the peak-memory logic is weak \u2014\
+    \ it compares `max(initial, final)` after `gc.collect()` rather than measuring\
+    \ true peak during generation, so the assertion may not genuinely verify the 7\
+    \ GB constraint."
+  sig: d47d0fcd3f0bbc13c58fec55b1e43fb235500d29dc5e94c759d500518e3de0a7
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

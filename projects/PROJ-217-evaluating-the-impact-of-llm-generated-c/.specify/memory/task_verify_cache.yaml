@@ -1,0 +1,72 @@
+T001:
+  c: true
+  h: 9256d2da2a666c5b6e5178b36f5acd1ea374873caee7688cb62b4e21dcfa5ae4
+  r: "Checked `src/data/download.py` for correct download logic, retry loop, column\
+    \ mapping, deterministic sampling, validation, and output writing; verified existence\
+    \ and contents of `data/dataset_preparation.log`, `data/validated_snippets.jsonl`\
+    \ (180 valid snippets), `data/raw_snippets.jsonl`, `data/excluded_records.json`,\
+    \ and `data/artifact_hashes.yaml`; confirmed pytest `src/tests/test_download.py`\
+    \ passed and script exited with status\u202F0."
+  sig: 5e34f7b837dfdc4488802f89804409104e17299a5ffd3a20a4b05939a737972b
+T001b:
+  c: true
+  h: 3eb054792c983f22b47452eefc449f76385095c2ef0633d0761368367a4cca4a
+  r: Checked `src/data/download_test_split.py` (implements download with retries,
+    checksum logging, JSONL output), the generated `data/raw_test_snippets.jsonl`
+    file, and the `data/artifact_hashes.yaml` manifest entry. All required artifacts
+    exist and meet the task specifications.
+  sig: e3cf147dd76306be2461ff98b66d9f2c248da48532e95d592dacea9916a86212
+T004:
+  c: true
+  h: a959ddb0b402b852dde60f8142487c5cb63f19d4487934a57d4016f7f45615f8
+  r: "Checked `src/utils/validate_environment.py` \u2013 it implements all required\
+    \ checks (package imports, RAM/disk usage \u2264\u202F7\u202FGB, HF token ping,\
+    \ Prolific API GET with token handling, PDF readability), writes detailed entries\
+    \ to `data/recruitment_validation.log`, prints a JSON `success` flag, and exits\
+    \ with status\u202F0/1 as specified. The needed `data/consent_form.pdf` is present,\
+    \ and the log file will be created at runtime."
+  sig: d3253fc1794abd07321474b023b8c2bb6834ac3f2468c51ccdef81058be10c97
+T005:
+  c: false
+  h: 341dcacbb456ae8fb4719c1f8b6a50b1d33c891b72079ad4f1875e7e7595415e
+  r: "The `data/results/smoke_analysis.json` file and a runnable `python -m scripts.run_smoke`\
+    \ command exist, but there is no evidence that the smoke run processes only the\
+    \ first\u202F10 validated snippets as required (the logs show the full dataset\
+    \ of 180 snippets). Additionally, the expected `scripts/run_smoke.sh` script is\
+    \ missing, and the test for the smoke run fails, indicating the implementation\
+    \ does not fully satisfy the task\u2019s specifications. The implementer must\
+    \ ensure the smoke mode limits execution to the first\u202F10 snippets and provide\
+    \ the corresponding script or flag implementation."
+  sig: 35df168e359d1858b198b5c84d3c62491d03ff0617172cfb263728955011241e
+T006:
+  c: false
+  h: 701c44f964cc87d21a9249ccffc0280e23f304e70ca7cade6470b209594b6334
+  r: "The repository contains `src/data/conduct_user_study.py`, but it never creates\
+    \ the required `data/task_answer_keys.json` (the file is missing) and it only\
+    \ writes an empty header to `data/human_study_responses.csv` \u2013 it does not\
+    \ generate rows for every participant\u2011snippet\u2011condition triple, nor\
+    \ does it implement the Latin\u2011Square randomization or ensure each participant\
+    \ sees all three comment conditions. Consequently the core requirements of T006\
+    \ are not met."
+  sig: 30b34759c05afb3e4af070d4d762eac1b023ad3591dde7945d9860cb6a48b00b
+T012:
+  c: true
+  h: e21243844309635af11eda4c4858cfc4ce5ec73bfd4600287079aa2bda5ed14a
+  r: "Checked `src/utils/verify_requirements.py` \u2013 it verifies existence and\
+    \ non\u2011emptiness of `code/requirements.txt`, optionally checks its SHA\u2011\
+    256 against `data/artifact_hashes.yaml`, returns a boolean flag, and writes detailed\
+    \ entries to `data/requirements_check.log`. All required artifacts exist and meet\
+    \ the specification."
+  sig: ba28c35ae33e6670916557ed05be515a767ed5b231590c0b2c7f5e831a009052
+T014:
+  c: false
+  h: 6905723c95644c3fa0d318c717f892636bdd47d864f74b2ceb2dacdccac9926b
+  r: "The `src/data/prepare.py` script does not import `yaml` before calling `yaml.safe_load`,\
+    \ causing a `NameError` and failing schema validation (as shown by the failing\
+    \ test). It also never loads `data/llm_comments.jsonl`, violating the requirement\
+    \ to ingest that file. Consequently no `data/merged_dataset.csv` is produced,\
+    \ and the provided `human_study_responses.csv` lacks the required three conditions\
+    \ per participant, so the within\u2011subject design check would raise an error.\
+    \ These defects must be fixed and the merged CSV generated for the task to be\
+    \ complete."
+  sig: 853128715601f6f0b512bffc73ada7c57f0f68cdd639eaa779f5dc11a8e5e99d

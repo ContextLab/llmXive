@@ -1,60 +1,23 @@
-T001:
+T101:
   c: true
-  h: b64f5439d5a4ca8ba0b9555c0fd7e5a45b779e1d42808a1429f3a0fe37b83123
-  r: "The provided `scripts/init_project.py` file exists, is fully implemented, creates\
-    \ all listed directories with `.gitkeep` files, verifies their existence, and\
-    \ exits with an error code if verification fails. This directly satisfies the\
-    \ task\u2019s specification."
-T004:
-  c: false
-  h: af2b1793844c2bf0136ef1a2dbbbb4a403c040d5c81d43fed5ebe0292436acaf
-  r: The provided `code/utils/config.py` file exists and contains seed and path utilities,
-    but it does **not** define a `sensitivity_thresholds` variable (list of integers
-    defaulting to `[2, 3, 4]`) as required by the task specification. Adding this
-    variable (and optionally exposing it via the config) is needed to satisfy the
-    requirement.
-T005:
+  h: 54f3cd1bb385e83fcc17a9f7585f744e470bb5d8ca10aeb815613c11e2237ec4
+  r: 'Both required files exist with substantive content: `code/utils/config.py` defines
+    `SEEDS[''pilot_sampling''] = 42` (satisfying the import assertion), project paths,
+    and constants, and `code/ingest/checksum.py` is a real SHA-256 checksum utility
+    whose `main()` creates and verifies `data/raw/checksums.json`, which exists on
+    disk with a valid entry. The verification commands are consistent with the code''s
+    structure (package `__init__.py` files and import wrappers are present), and no
+    placeholders or stubs were found.'
+  sig: d7dfe29f03b0d45d88210e5436b80fba696a4e3341fcd2b6dabc45472d102f56
+T102:
   c: true
-  h: 9c2565efe5eaa25693abdd5ee9840d57585f34e452fd548de84bb81eb61dff7b
-  r: "The provided `code/utils/versioning.py` file exists, is non\u2011empty, and\
-    \ contains functions that compute SHA\u2011256 hashes for files and directories,\
-    \ verify hashes, and write a manifest of those hashes\u2014fulfilling the requirement\
-    \ to write SHA\u2011256 hashes of data artifacts."
-T006:
-  c: true
-  h: ce7aa37096d2673f7f07da956b5e47b18c87049314b0df7b5ebaed96cd6c5f7e
-  r: "The file `code/utils/graph_utils.py` exists (4960\u202Fbytes) and defines `shortest_path_bfs`,\
-    \ which implements BFS to find the shortest path and returns `None` when no path\
-    \ exists, thus handling disconnected graphs. The module also includes related\
-    \ utilities, confirming the required functionality is fully provided."
-T007:
-  c: false
-  h: 9169cd942f8d5e0f32b4651e0a61cc1c5d3ff04a15750a377aeae3b21bef31bf
-  r: "The provided `code/utils/entity_linker.py` defines an `EntityLinker` with simple\
-    \ string\u2011based similarity, but it never inspects an input dataset for a `node_id`\
-    \ or `entity_id` column nor skips linking when such columns exist. The `main()`\
-    \ function is empty, and no function accepts a DataFrame to perform the required\
-    \ conditional logic. Consequently, the script does not fulfill the task\u2019\
-    s core requirement."
-T009:
-  c: false
-  h: 093e40d582dbb98adaa564b5c6f4a3169e5beadb68f8e02b6dc297f4f74b041f
-  r: "The provided `checksum.py` defines helper functions but its `main()` is empty,\
-    \ so it cannot be invoked as a utility script, and `verify_all_raw_data` expects\
-    \ a list of checksum entries yet `generate_checksum_file` writes a single dict,\
-    \ causing a runtime error. The script therefore does not fulfill the requirement\
-    \ of a runnable integrity\u2011verification utility."
-T029:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No documentation files or updates in a `docs/` directory were provided; the evidence
-    contains only the specification excerpt and no actual `docs/` artifacts, so the
-    required documentation updates are missing.
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifacts (e.g., execution logs, success reports, generated files, or screenshots)
-    are provided to demonstrate that the `quickstart.md` validation was actually run
-    and passed. Without such evidence, we cannot confirm the task was completed. The
-    implementer must supply concrete proof of the validation execution (e.g., command
-    output, log file, or a summary indicating reproducibility checks succeeded).
+  h: 94b2873997f467b7b8ee121e6bc4475a25fd168b6503e7e82d811ca58fa10a4e
+  r: "The implementation in `code/utils/entity_linker.py` matches the spec: normalization\
+    \ (lowercase, punctuation stripped), exact match against graph node names, Levenshtein\
+    \ \u2264 2 as the only fuzzy fallback, returns `entity_node_id` plus a confidence\
+    \ flag, and contains no embedding-model calls. `tests/unit/test_entity_linker.py`\
+    \ covers exact-match, Levenshtein fallback, pre-existing-ID, and failure cases,\
+    \ and `link_dataframe` is importable from `code.utils.entity_linker` (with a `utils.entity_linker`\
+    \ re-export wrapper for pytest). The test expectations are consistent with the\
+    \ actual Levenshtein logic"
+  sig: e7e837a19d6de44803e17464a33a75cc6887dcf4d222235ce3d603d77af74764

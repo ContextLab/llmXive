@@ -1,1 +1,1 @@
-"""Analysis subpackage – entropy, correlation, clustering, etc."""
+# Package marker for code.analysis

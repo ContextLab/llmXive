@@ -47,7 +47,8 @@ where = ["projects/PROJ-512-predicting-molecular-permeability-of-pol/code"]
 include = ["data*", "models*", "evaluation*", "main*"]
 
 [tool.black]
-line-length = 88
+# T003: black line-length must be 100 to match ruff configuration
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
@@ -86,12 +87,7 @@ warn_unused_configs = true
 ignore_missing_imports = true
 check_untyped_defs = false
 
-[tool.ruff]
-# Ruff configuration is now in .ruff.toml for separation of concerns
-# This file serves as the primary project configuration
-line-length = 88
-target-version = "py311"
-
-[tool.ruff.lint]
-# Delegate to .ruff.toml
-extend-select = ["ALL"]
+# Ruff configuration lives in .ruff.toml (single source of truth, T003).
+# No [tool.ruff] section is defined here to avoid conflicting settings;
+# .ruff.toml sets target-version = "py311", line-length = 100,
+# and select = ["E", "F", "W", "I"].

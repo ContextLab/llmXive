@@ -1,1 +1,2 @@
-"""Utility functions and helpers."""
+# Package initializer for general utilities.
+pass

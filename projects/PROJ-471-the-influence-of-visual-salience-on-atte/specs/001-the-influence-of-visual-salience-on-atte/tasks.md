@@ -1,336 +1,81 @@
 # Tasks: The Influence of Visual Salience on Attentional Bias in Moral Judgements
 
-**Input**: Design documents from `/specs/001-influence-of-visual-salience/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `specs/001-influence-of-visual-salience/spec.md`, `plan.md`, `data-model.md`, `contracts/` (dataset.schema.yaml, output.schema.yaml, salience.schema.yaml)
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+## Phase 1: Setup and first end‑to‑end analysis  
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+| Goal | Run an executable analysis on a small real subset early, proving that the pipeline can ingest data, generate salience maps, create ROI masks, extract fixation metrics, and produce a minimal aligned dataset. |
 
-## Format: `[ID] [P?] [Story] Description`
+- [X] **T001** [US1] Implement `code/bootstrap.py` so that it *accepts a `--root <dir>` argument* and correctly patches `llmxive_toolkit.paths.root` for the duration of the run. The script **must** create the standard directory tree under the supplied root (`code/`, `data/raw/`, `data/interim/`, `data/processed/`, `logs/`), write a pinned `requirements.txt`, and generate a `quickstart.md` that documents the command `python -m code.main --stage smoke`.  
+  *Verification*: `tests/test_bootstrap.py` runs the script with a temporary `tmp_path` root, asserts that all directories and files exist **inside** `tmp_path`, and checks that `requirements.txt` matches the expected pinned list. The test must now pass (exit 0).
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] **T002** [US1] Implement `code/ingestion/verify_data.py` to (1) confirm that `data/raw/ds003123/` exists, (2) require at least one `sub‑*/` participant folder containing eye‑tracking logs, (3) compute SHA‑256 checksums for **all** files under `stimuli/` **and** every eye‑tracking file, (4) write a non‑empty `data/raw/checksums.json` with the structure `{ "files": { "<relative_path>": "<hex_sha256>", … } }`. If any requirement is unmet, raise `RuntimeError("DATA_MISSING_001: ds003123 incomplete")`.   <!-- FAILED-IN-EXECUTION: code/ingestion/verify_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingestion/verify_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingestion/verify_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingestion/verify_data.py exit=1 -->
+  *Verification*: `tests/test_verify_data.py` validates that the script exits 0 when the full dataset is present, that `checksums.json` contains an entry for every file, and that the exact error message appears when the directory is missing or participant folders are absent.
 
-## Path Conventions
+- [ ] **T003** [FR‑001][US1] Write `code/salience/generate_maps.py` to (a) iterate over every image in `data/raw/ds003123/stimuli/`, (b) load the DeepGaze II weights **in CPU‑only mode**, (c) run inference on a **224 × 224** down‑sampled version of each image, (d) upscale the resulting salience map back to the original resolution and save it as `<stimulus_id>.npy` in `data/interim/salience_maps/`, and (e) append a record to `data/interim/salience_metadata.json` conforming to `contracts/salience.schema.yaml` with `generation_method="deepgaze_ii"` and `status="success"`. **If DeepGaze II fails for any image, the task aborts with a clear error**; no heuristic fallback is permitted, ensuring FR‑001 is satisfied. <!-- FAILED-IN-EXECUTION: code/salience/generate_maps.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/salience/generate_maps.py exit=1 -->
+  *Verification*: `tests/test_salience_generation.py` runs the script on a 5‑image subset, checks that each `.npy` file matches the source image resolution, validates the JSON metadata against the schema, and asserts that `generation_method` equals `deepgaze_ii` for **all** records (no fallback entries).
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [X] **T004** [FR‑008][US2] Implement `code/eye_tracking/segment_roi.py` with **lazy imports** for `detectron2`. The script must (1) look for existing masks in `data/raw/ds003123/masks/`; if found, copy them to `data/interim/masks/` and record provenance, (2) otherwise load YOLOv8 (`ultralytics.YOLO("yolov8n.pt")`) for **faces** **and** Detectron2 for **weapons** (both imported lazily inside the function). Both detectors must be successfully imported; if Detectron2 is unavailable the task aborts with a descriptive error rather than falling back to YOLOv8‑only. (3) generate binary PNG masks named `<stimulus_id>_face.png` and `<stimulus_id>_weapon.png` in `data/interim/masks/`, (4) log any image with no detections or low‑confidence detections to `data/interim/flagged_images.csv` and `data/interim/detection_metadata.json`, including a `detector_used` flag for each ROI type.  
+  *Verification*: `tests/test_roi_segmentation.py` confirms that both mask types are produced for a sample image, that dimensions equal the source image, and that `detection_metadata.json` records `detector_used="detectron2"` for weapons when available. The test fails if Detectron2 is not used.
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- [X] **T005** [FR‑002][US2] Write `code/eye_tracking/parse_fixations.py` to (a) read raw eye‑tracking files from `data/raw/ds003123/eye_tracking/`, (b) use the ROI masks from T004 to assign each fixation to “face”, “weapon”, or “background”, (c) compute per‑trial metrics: `first_fixation_prob`, `dwell_time_ms`, `fixation_latency_ms`, (d) output `data/interim/fixations.csv` with columns `trial_id, participant_id, stimulus_id, roi_type, dwell_time_ms, first_fixation_prob, fixation_latency_ms`, and (e) write a warning entry to `logs/fixation_warnings.log` for any trial with missing or malformed gaze data (these trials are excluded from downstream analysis). The parser now includes robust CSV handling, skips malformed rows with warnings, and guarantees that the script exits cleanly even when some trials are incomplete.  
+  *Verification*: `tests/test_fixation_extraction.py` processes a single participant’s file, checks that each `(trial_id, roi_type)` appears exactly once, that numeric fields are within plausible ranges, and that excluded trials are listed in the warning log without causing a crash.
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] **T006** [FR‑009] Implement `code/analysis/feature_gen.py` to compute low‑level visual covariates for every stimulus image: (a) mean luminance (0‑255), (b) RMS contrast, (c) edge density via Canny (threshold = 100), and (d) scene complexity as the count of objects detected by Detectron2 panoptic segmentation. Store results in `data/interim/low_level_features.json` keyed by `stimulus_id`.  
+  *Verification*: `tests/test_feature_computation.py` asserts that every stimulus has an entry, that luminance ∈ [0,255], contrast ≥ 0, edge_density ∈ [0,1], and scene_complexity is a non‑negative integer; the JSON must be parseable.
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+- [ ] **T007** [FR‑003][US2] Write `code/analysis/align_data.py` to merge (i) salience ROI means (averaged over the corresponding mask), (ii) low‑level features from T006, (iii) fixation metrics from T005, (iv) semantic covariates (if any), into `data/processed/aligned_data.csv` conforming to `contracts/dataset.schema.yaml`. Rows with any missing component are flagged `excluded=True`. Also generate `data/processed/alignment_stats.json` summarising total rows, excluded rows, and reason breakdown.   <!-- FAILED-IN-EXECUTION: code/analysis/align_data.py exit=1 -->
+  *Verification*: `tests/test_alignment.py` validates schema compliance, checks that ID fields match across sources, confirms correct exclusion flags, and that the stats JSON accurately reflects counts.
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] **T008** [FR‑004][FR‑005][FR‑006] Implement `code/analysis/collinearity_and_modeling.py` to (1) load `aligned_data.csv` (excluding rows where `excluded=True`), (2) compute Variance Inflation Factors for fixed predictors (`salience_score`, `luminance`, `contrast`, `edge_density`, `scene_complexity`) using `pingouin.vif()`, (3) if any VIF > 5, apply PCA to the three low‑level covariates, retain components explaining ≥ 95 % variance, and store post‑orthogonalization VIFs, (4) fit **Model A** (random intercepts for participant and stimulus) and **Model B** (adds random slopes for `salience_score` per participant) with `statsmodels.MixedLM` on the dependent variable `dwell_time_ms`, (5) extract fixed‑effect estimates, standard errors, raw p‑values, and 95 % confidence intervals, (6) apply Benjamini‑Hochberg FDR correction to all fixed‑effect p‑values, (7) compute the stability metric `|β_A − β_B|` for the salience predictor, and (8) write `data/interim/model_a_results.csv` and `data/interim/model_b_results.csv` plus `logs/vif_pre.json`, `logs/vif_post.json`, and `logs/lmm_convergence.log`.   <!-- FAILED-IN-EXECUTION: code/analysis/collinearity_and_modeling.py exit=1 -->
+  *Verification*: `tests/test_collinearity_and_modeling.py` checks that VIFs are numeric, that post‑orthogonalization VIF ≤ 5 (if orthogonalization occurred), that both model CSVs contain required columns, that FDR‑corrected p‑values are ≤ 1 and not larger than raw p‑values, that confidence intervals are ordered, and that the stability metric is non‑negative. Model fitting must complete without fatal errors.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] **T009** [SC‑003] Implement `code/analysis/power_analysis.py` to perform a simulation‑based power check: using the observed sample size, an assumed moderate effect size (Cohen’s f = 0.15), ICC ≈ 0.1, and α = 0.05, run 500 simulated datasets, fit Model B to each, and compute the proportion of simulations yielding a significant salience predictor after FDR correction. Write `power_estimate` and `power_status` (`"valid"` if ≥ 0.8, else `"invalid"`) into `data/processed/power.json`.  
+  *Verification*: `tests/test_power_analysis.py` ensures the JSON contains both fields, that `power_estimate` ∈ [0,1], and that `power_status` matches the threshold rule.
 
-**Purpose**: Project initialization and basic structure
+- [ ] **T010** [FR‑007][SC‑004] Write `code/analysis/final_results.py` to assemble `data/processed/results.json` with all fields required by `contracts/output.schema.yaml`: model identifiers, fixed‑effect estimate, raw and FDR‑corrected p‑values, confidence interval, `sensitivity_analysis` (including Model A & B estimates and stability metric), `collinearity_report` (pre‑ and post‑VIF dicts), `power_status`, `power_estimate`, and the mandatory `"disclaimer": "correlational only"` **only if** any p‑value < 0.05 (otherwise still set to `"correlational only"` as per spec). The script must validate the JSON against the schema via `code/utils/final_validator.py` and raise `RuntimeError("SCHEMA_VALIDATION_FAILED")` on mismatch.  
+  *Verification*: `tests/test_final_results.py` confirms schema compliance, correct insertion of the disclaimer, accurate propagation of power information, and that a checksum of the JSON is written to `logs/results_checksum.log`.
 
-- [ ] T001a [P] **Create Directory Structure**: Create `code/`, `data/raw`, `data/interim`, `data/processed`, `tests/unit`, `tests/integration`, `docs/`. **Action**: Ensure all directories exist.
-- [X] T001b [P] **Create Init/Config Files**: Create `code/__init__.py`, `code/config.py`, `requirements.txt`. **Action**: Ensure `code/__init__.py` and `requirements.txt` are empty placeholders ready for content.
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (torch, ultralytics, statsmodels, pandas, datasets, numpy, opencv-python, pyyaml, scipy, simr, psutil)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] **T012** [SC‑001][SC‑002] Implement `code/utils/resource_validator.py` to monitor RAM and CPU usage during the most intensive step (salience generation, T003) using `psutil`. It must log per‑image usage to `logs/resource.log` (JSON entries with `stimulus_id`, `ram_mb`, `cpu_seconds`). If peak RAM > 7 GB or cumulative CPU > 6 h, raise `RuntimeError("RESOURCE_LIMIT_EXCEEDED: ...")`. The script aborts; the platform will then retry on a GPU if available.  
+  *Verification*: `tests/test_resource_validator.py` simulates normal usage (below limits) and a breach scenario, asserting that the appropriate exception and message are raised and logged.
 
----
+- [ ] **T011** [SC‑001][SC‑002] Implement `code/utils/success_metrics.py` to (a) read `salience_metadata.json` and compute `salience_success_rate = (#status=="success") / total_images`, (b) parse `logs/resource.log` for peak RAM usage and total CPU seconds, (c) read `alignment_stats.json` for `exclusion_rate` and reason breakdown, (d) write these metrics to `data/interim/success_metrics.json` and append a human‑readable summary to `logs/metrics_summary.log` (e.g., “Salience maps generated: 195/200 (97.5 %); peak RAM: 6.3 GB; exclusion rate: 8.2 %”).  
+  *Verification*: `tests/test_success_metrics.py` checks that numeric values lie in expected ranges, that the summary log contains the expected strings, and that the JSON is well‑formed.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] **T013** Implement `code/utils/final_validator.py` to validate three key artifacts against their schemas: `data/processed/aligned_data.csv` vs. `dataset.schema.yaml`, `data/processed/results.json` vs. `output.schema.yaml`, and `data/interim/salience_metadata.json` vs. `salience.schema.yaml`. Errors are written to `logs/validation_errors.log` and cause a `RuntimeError("VALIDATION_FAILED")`; on success, write a concise pass summary to `logs/validation_summary.log`. Additionally, generate `docs/pipeline.md` describing each stage, its inputs, outputs, and the exact command to run it in isolation.  
+  *Verification*: `tests/test_final_validator.py` supplies both valid and deliberately corrupted artifacts, verifies that the validator accepts good files, rejects bad ones with informative messages, and that `pipeline.md` contains the expected sections and command snippets.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
+- [ ] **T014** Write `docs/research.md` (≤ 2000 words) containing a **methods** section that cites exact artifact locations (e.g., “salience computation: `data/interim/salience_metadata.json`”), a **results** section that reports all numeric findings directly from `results.json` (fixed‑effect estimate, CIs, p‑values, stability metric, VIFs, power estimate), a **limitations & null‑findings** subsection referencing the exclusion statistics and power status, and a **conclusion** that reiterates the mandatory `"correlational only"` disclaimer.  
+  *Verification*: Added `tests/test_research_doc.py` which parses the generated `docs/research.md`, extracts every numeric claim, and cross‑checks it against the corresponding fields in `results.json` and `aligned_data.csv`. The test fails if any mismatch is found.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase AND Phase 2.5 (Scope Freeze) are complete
+- [ ] **T015** Create `quickstart.sh` (documented in `quickstart.md`) that (1) verifies the presence of `data/raw/ds003123/` and aborts with clear instructions if missing, (2) runs `python -m code.main --stage all` to execute tasks T002–T013 in the correct order, (3) invokes `python -m code.utils.final_validator --all` to re‑validate all outputs, and (4) prints a concise summary of produced artifacts (e.g., “Aligned data: 10 k rows; results.json schema valid; salience maps: 195/200”).  
+  *Verification*: A clean CI run on a fresh GitHub Actions free‑tier runner (2 CPU cores, ≤ 7 GB RAM, ≤ 6 h) executes `bash quickstart.sh` without errors, produces all expected files, and the final validation passes. The CI logs must show the summary report.
 
-- [X] T004 Implement `code/config.py` for paths, seeds, and hyperparameters
-- [X] T005 [P] Setup structured logging in `code/utils/logging.py`
-- [X] T006 [P] Implement `code/utils/versioning.py` for SHA-256 artifact hashing and `state.yaml` updates (Constitution Principle V)
-- [X] T007 [P] Implement `code/utils/reference_validator.py` for citation verification (Constitution Principle II)
-- [X] T008 Create base data models (`StimulusImage`, `FixationTrial`) in `code/data_models.py` (Scope: Face only, per SCR-001)
-- [X] T009a [P] Create `.env.example` file listing required keys: `HF_TOKEN`, `DATA_PATH`, `SEED`
-- [X] T009b [P] Implement `code/config.py` to load `.env` using `python-dotenv` and validate required keys
+---  
 
-**Checkpoint**: Foundation ready - Scope Freeze (Phase 2.5) must complete next
+### Dependency mapping (spec → tasks)
 
----
+| Spec Requirement | Satisfied by Task(s) |
+|------------------|----------------------|
+| FR‑001 | T003 |
+| FR‑002 | T005 |
+| FR‑003 | T007 |
+| FR‑004 | T008 |
+| FR‑005 | T008 |
+| FR‑006 | T008 |
+| FR‑007 | T010 |
+| FR‑008 | T004 |
+| FR‑009 | T006 |
+| SC‑001 | T011 |
+| SC‑002 | T001, T012 |
+| SC‑003 | T009 |
+| SC‑004 | T008 |
+| SC‑005 | T007 |
+| SC‑006 | T008 |
+| US‑1 | T001, T002, T003 |
+| US‑2 | T004, T005, T006, T007 |
+| US‑3 | T008, T009, T010 |
 
-## Phase 2.5: Scope Freeze (Governance & SCR Application)
+---  
 
-**Purpose**: **Pre-condition Check**. The Spec Change Requests (SCR-001 regarding low-level covariates and SCR-002 regarding weapons exclusion) MUST be **formally documented** in the project. This phase confirms the spec is stable and consistent before implementation begins.
-
-- [X] T020 [US1] **Governance Verification (Static)**: **Verify** that the file `specs/001-influence-of-visual-salience/SCR-001-Exclusion-of-LowLevel-Covariates.md` exists and contains the approved text for excluding "Low-Level Covariates". **AND** verify `specs/001-influence-of-visual-salience/SCR-002-Exclusion-of-Weapons.md` exists and contains the approved text for excluding "Weapons" from FR-008. **Action**: Read both SCR documents. If missing, **raise an error** and halt. If present, **log "Scope Freeze Verified"** to `data/interim/scope_freeze_status.log`. **Constraint**: This is a **read-only verification** task. It does NOT modify the spec/plan. **Dependency**: None (runs first).
-
-**Checkpoint**: Spec and Plan are now stable and consistent. Implementation can begin.
-
----
-
-## Phase 3: User Story 1 - Data Ingestion and Salience Map Generation (Priority: P1) 🎯 MVP
-
-**Goal**: Download an OpenNeuro dataset, extract a representative set of stimulus images, and generate CPU-compatible DeepGaze II salience maps (with GBVS fallback per SCR-003).
-
-**Independent Test**: Run ingestion on a subset of images; verify multiple `.npy`/`.png` maps generated with matching resolution; confirm no CUDA errors and RAM < 7GB; verify metadata includes generation method.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T010 [P] [US1] Unit test for `code/ingestion/download_data.py` mocking Hugging Face fetch in `tests/unit/test_download_data.py`. **Dependency**: None (Test first).
-- [X] T011 [P] [US1] Unit test for `code/ingestion/salience_gen.py` verifying CPU-only DeepGaze II initialization in `tests/unit/test_salience_gen.py`. **Dependency**: None (Test first).
-
-### Implementation for User Story 1
-
-- [X] T012 [US1] Implement `code/ingestion/download_data.py` to fetch a specific dataset via `datasets.load_dataset` (streaming=False for local cache). **Streaming Logic**: If the dataset size exceeds 7GB, switch to `streaming=True` automatically. **Dependency**: None.
-- [X] T013 [US1] Implement `code/ingestion/salience_gen.py` to load DeepGaze II in CPU mode. **Verification**: Must explicitly enforce `device='cpu'` in the model configuration. **Error Handling**: Implement a `try/except` block: if DeepGaze II fails on a high-contrast image, **append the image ID to `data/interim/deepgaze_failures.csv`** and trigger the fallback logic (T013a) for that image. **Note**: If T013 fails for an image, T013a is triggered for that image. **Dependency**: None.
-- [X] T013a [US1] **GBVS Fallback (Runtime Logic)**: Implement the fallback logic **INSIDE** the `try/except` block of `code/ingestion/salience_gen.py` (as part of T013) to run GBVS if DeepGaze II fails. **Input**: Image path. **Output**: Salience map (`.npy`). **Validation Metrics**: 1) Map dimensions must match input; 2) Map must have non-zero variance; 3) Mean salience value must be > 0.01. **Error Handling**: If validation fails, **append the image ID to `data/interim/excluded_images.csv`** with reason "GBVS_Validation_Fail" and raise error. **Provenance**: Tag output metadata with `method: "GBVS"`. **Constraint**: **Do NOT count GBVS maps as successful for SC-001**. **Dependency**: Conditional runtime branch of T013.
-- [X] T013b [US1] **Success Criteria Definition**: Implement logic in `code/ingestion/completion_validator.py` to explicitly define SC-001 success. A map is "valid" **ONLY** if generated by DeepGaze II. **GBVS maps are excluded from the success count**. **Output**: `data/processed/salience_stats.json` must include `total_images`, `deepgaze_count` (success), `gbvs_count` (fallback), `excluded_count`, and `valid_proportion` (calculated as `deepgaze_count / total_images`). **Constraint**: `deepgaze_count` is the primary success metric for SC-001; `gbvs_count` is reported separately as fallback. **Dependency**: T013, T013a.
-- [X] T014 [US1] Add memory AND CPU time monitoring to `salience_gen.py` to enforce < 7GB RAM limit AND A cumulative time limit of several hours. **Implementation**: Use `psutil` to monitor RSS memory and track cumulative job time across all batches. **Track Batch Timeouts**: Increment a `batch_timeout_count` variable if a batch exceeds 15 minutes. **Output**: **Write a structured JSON file** `data/interim/resource_usage.json` containing keys `ram_peak_gb` (float), `cpu_time_seconds` (float), `cumulative_job_time_seconds` (float), and `batch_timeout_count` (int). **Do NOT just log to stdout**. Log warnings if > 6.5GB or > 5.5 hours. **Dependency**: T013.
-- [X] T016 [US1] **Metadata Write**: Implement `code/ingestion/metadata_writer.py` to create `data/processed/salience_maps/metadata.json`. **Output**: JSON list of processed image IDs, their map paths, and the `method` used (DeepGaze II or GBVS). **Constraint**: Do NOT add disclaimer here; p-values are not yet available. **Dependency**: T014, T013a, T013b.
-- [X] T018a [US1] Implement `code/ingestion/completion_validator.py` to aggregate the count of generated salience maps, compare against the source dataset count, and log a pass/fail status for SC-001. **Constraint**: If fallback (GBVS) frequency > 10% of total images, **HALT** the pipeline and write `data/interim/invalid_fallback_flag.json`. **Output**: `data/interim/salience_validation_report.json`. **Dependency**: T013b, T016.
-- [X] T018c [US1] **Fallback Threshold Enforcer**: Implement logic in `code/ingestion/completion_validator.py` to explicitly check if `gbvs_count / total_images > 0.10`. If true, **raise a `RuntimeError`** and write `data/interim/invalid_fallback_flag.json` containing the reason "GBVS fallback frequency exceeds 10%". **Dependency**: T013b, T018a.
-- [X] T042 [P] Implement `code/utils/resource_validator.py` to **parse** `data/interim/resource_usage.json` (output of T014) and assert that `ram_peak_gb` < 7.0 and `cumulative_job_time_seconds` + (`batch_timeout_count` * 15 * 60) < 21600 (6 hours). **Action**: If validation fails, **raise `RuntimeError`** and write `data/interim/compute_budget_exceeded.json` to halt the pipeline. **Dependency**: T014, T018a. **Note**: This runs BEFORE T036 to ensure resource limits are met before final results are written.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Attention Metric Extraction and Alignment (Priority: P2)
-
-**Goal**: Parse eye-tracking data, extract fixation metrics for "Face" ROIs (excluding "weapons" due to SCR-002), and align with salience scores.
-
-**Independent Test**: Process a single trial; verify output CSV contains trial ID, dwell time on "Face", and mean salience score for that region with no ID mismatches.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T019 [P] [US2] Unit test for `code/processing/eye_tracking.py` parsing a mock fixation file in `tests/unit/test_eye_tracking.py`
-- [X] T020 [P] [US2] Unit test for `code/processing/segmentation.py` verifying YOLOv8 face mask generation in `tests/unit/test_segmentation.py`
-
-### Implementation for User Story 2
-
-- [X] T020d [US2] Implement `code/processing/segmentation.py` using YOLOv8 (COCO `face` class) to generate semantic masks for "Face" regions. **Logic**: First check if pre-segmented masks exist in the dataset; if missing, run YOLOv8. **Constraint**: "Weapons" are explicitly excluded per SCR-002. **Action**: **Verify** that the file `specs/001-influence-of-visual-salience/SCR-002-Exclusion-of-Weapons.md` exists (Dependency: T020 from Phase 2.5). If missing, **raise an error**. If verified, **log a warning** to `data/interim/processing.log` stating "FR-008 (Weapons) skipped per SCR-002". **Write Flag**: Create `data/interim/weapons_exclusion_flag.json` containing the SCR-002 reference and timestamp to prove the exclusion was executed. **Dependency**: T020 (Phase 2.5).
-- [X] T021 [US2] Implement `code/processing/eye_tracking.py` to parse raw eye-tracking files from `data/raw/[subject_id]/eyetracking.tsv`, filter for "Face" ROI, and calculate First-Fixation Probability, Dwell Time, and Latency. **Output**: Write to `data/interim/fixation_metrics.csv`. **Validation**: Verify column `first_fixation_prob` exists and is numeric.
-- [X] T023 [US2] Handle missing fixation data: exclude trial from analysis and log warning (Edge Case)
-- [X] T024 [US2] Implement `code/processing/alignment.py` to merge salience scores (from US1) with eye-tracking metrics on `TrialID`
-- [X] T025 [US2] Validate alignment: ensure no trial ID mismatches and flag images with empty/invalid masks for manual review
-- [X] T026 [US2] Write aligned dataset to `data/processed/aligned_metrics.csv` with "correlational only" disclaimer (FR-007)
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Modeling and Robustness Verification (Priority: P3)
-
-**Goal**: Fit LMMs, apply FDR correction, perform sensitivity analysis, and verify power/collinearity.
-
-**Independent Test**: Run analysis on aligned dataset; verify regression summary with p-values, sensitivity plot, and VIF diagnostics.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T027 [P] [US3] Unit test for `code/analysis/lmm_fit.py` with mock dataframe in `tests/unit/test_lmm_fit.py`
-- [X] T028 [P] [US3] Unit test for `code/analysis/robustness.py` verifying FDR calculation in `tests/unit/test_robustness.py`
-
-### Implementation for User Story 3
-
-- [X] T029a [US3] **LMM Power Analysis**: Implement `code/analysis/lmm_power.py` to estimate statistical power for the planned LMM using a simulation-based approach (e.g., `simr` package). **Assumption**: Use a medium effect size (d=0.5) for the pilot simulation if no pilot data exists. **Output**: `data/interim/power_analysis_report.json`. **Constraint**: If pilot data is missing, the report MUST include a justification field explaining the assumed effect size. **Dependency**: Must run BEFORE T032 (LMM Fit).
-- [X] T029b [US3] **Fallback Descriptive Stats**: Implement `code/analysis/descriptive_fallback.py` to generate summary statistics (mean, std, median) for all metrics if N < 30. **Trigger**: Activated by T029a failure or N < 30 check. **Output**: `data/processed/descriptive_stats.json`.
-- [X] T029c [US3] **Enforce Power Gate**: Implement logic to halt the pipeline if T029a reports power < 0.8. **Action**: **Write a flag file** `data/interim/power_gate_flag.json` containing the reason. **Constraint**: This task acts as a **hard block**; T032 MUST check for the **absence** of this flag file. If the flag file exists, T032 must raise an error. **Dependency**: T029a.
-- [X] T030b [US3] **Generate Low-Level Features (Diagnostic Only)**: Implement `code/analysis/feature_gen.py` to compute luminance (mean intensity), contrast (std dev), and edge density (Canny count) for all images in `data/raw`. **Output**: `data/interim/low_level_features.csv`. **Constraint**: These features are generated **SOLELY** for the VIF diagnostic (T030) to prove multicollinearity. They are **NEVER** used as covariates in the final LMM (FR-009 excluded per SCR-001). **Dependency**: Must run before T030.
-- [X] T030 [US3] **VIF Calculation and Hard Gate**: Implement `code/analysis/vif_calc.py` to calculate Variance Inflation Factor (VIF) for the salience predictor against the **generated** low-level features (from T030b). **Action**: If VIF > 5, **write `data/interim/vif_gate_flag.json`** containing the reason "VIF > 5: Multicollinearity detected" and **raise a `RuntimeError`** to halt the pipeline. **Output**: `data/interim/vif_verification.json` (only if VIF <= 5). **Dependency**: Must run AFTER T030b.
-- [X] T030a [US3] **VIF Interpretation**: Analyze `data/interim/vif_verification.json`. If VIF > 5 (should be caught by T030), log justification for excluding FR-009. **Output**: Log entry in `data/interim/vif_report.txt`. **Dependency**: T030.
-- [X] T032 [US3] Implement `code/analysis/lmm_fit.py` to fit Model A (random intercepts) and Model B (random intercepts + slopes for salience) using `statsmodels`. **Constraint**: The model formula must **explicitly exclude** the columns `luminance`, `contrast`, and `edge_density` per SCR-001. **Verification**: **Assert** that these columns are NOT present in the model input dataframe before fitting. If present, **raise an error**. **Check Power Gate**: At startup, **read `data/interim/power_gate_flag.json`**; if present, **raise an error** and halt. **Check VIF Gate**: At startup, **read `data/interim/vif_gate_flag.json`**; if present, **raise an error** and halt. **Output**: Write results to `data/interim/lmm_results.csv`. **Dependency**: Must check T029c and T030 flags; if present, skip fitting and log error.
-- [X] T031 [US3] Apply FDR correction to all p-values (FR-006). **Input**: `data/interim/lmm_results.csv` (output of T032). **Method**: Benjamini-Hochberg. **Output**: Write corrected p-values to `data/interim/lmm_results_fdr.csv`. **Dependency**: T032.
-- [X] T033 [US3] Implement sensitivity analysis in `code/analysis/robustness.py` comparing Model A vs. Model B effect significance
-- [X] T034 [US3] Generate sensitivity analysis plot and save to `data/processed/sensitivity_plot.png`. **Dependency**: T033.
-- [X] T035 [US3] **Bidirectional Result Interpretation**: Log results explicitly linked to theories. **Logic**: If salience predictor is significant (p < 0.05 after FDR), **log** the category "theories of perceptual-cognitive interaction" and the justification "Visual salience drives attentional bias". **If salience predictor is not significant (p > 0.05)**, **log** the category "theories of attentional control hierarchy" and the justification "Moral reasoning overriding perceptual capture". **Output**: Write to `data/interim/result_interpretation.log` with format: `RESULT_TYPE: [category] - [JUSTIFICATION]`. **Dependency**: T031.
-- [X] T036 [US3] Write final `AnalysisResult` JSON/CSV to `data/processed/results.json`. **Logic**: Read p-values from `data/interim/lmm_results_fdr.csv`. If any p-value < 0.05, append "correlational only" disclaimer to the JSON metadata. **Dependency**: T031, T035.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories and final validation
-
-- [ ] T037a [P] **Update README.md**: Update `README.md` with installation steps, data acquisition protocol, and execution commands.
-- [ ] T037b [P] **Update docs/**: Update `docs/` with data protocol and processing details.
-- [ ] T038 **Code cleanup and refactoring**: Run ruff format and black; remove unused imports; ensure all functions have docstrings.
-- [ ] T039 **Performance optimization for salience generation (batching)**: Implement batch processing in salience_gen.py with batch size N and timeout T.
-- [X] T040 [P] Run full integration test suite in `tests/integration/test_pipeline.py`
-- [ ] T041 **Run `quickstart.md` validation**: Execute the commands in quickstart.md in a fresh environment and verify success.
-- [X] T043 [P] Implement `code/ingestion/verify_real_source.py` to confirm that the dataset downloaded in T012 matches the canonical OpenNeuro ds003123 checksum and contains the expected `sub-*` directory structure before processing begins. **Constraint**: If the checksum or structure does not match, raise an error and halt. **Dependency**: T012.
-- [X] T045 [P] Implement `code/analysis/lmm_power.py` to run a sensitivity sweep (simr) varying effect sizes across a range from small to large and report the minimum N required for [deferred] power for each effect size. **Output**: Append `sensitivity_sweep` array to `data/interim/power_analysis_report.json`. **Dependency**: T029a.
-- [X] T046 [P] Implement `code/analysis/lmm_fit.py` to check the `converged` flag from `statsmodels` for both Model A and Model B. **Action**: If either model fails to converge, log a warning to `data/interim/lmm_convergence_warnings.log` and attempt a restart with `maxiter` increased by [deferred]. **Dependency**: T032.
-- [X] T047 [P] Implement `code/analysis/robustness.py` to verify that the number of significant p-values decreases (or stays same) after FDR correction compared to raw p-values. **Action**: If the number increases, raise a `ValueError` and halt. **Dependency**: T031, T032.
-- [X] T049 [P] Implement `code/utils/final_validator.py` to check that `data/processed/results.json` contains all required fields (`fixed_effect_estimate`, `p_value`, `confidence_interval`, `sensitivity_sweep`, `disclaimer`) and that the `disclaimer` field is present if any p-value < 0.05. **Schema**: Validate against `code/contracts/output.schema.yaml`. **Action**: If validation fails, write `data/interim/final_artifact_invalid.json`. **Dependency**: T036, T026.
-- [X] T049a [P] **Schema Generation**: Implement `code/contracts/output.schema.yaml` defining the exact structure of `data/processed/results.json` (fields: `fixed_effect_estimate`, `p_value`, `confidence_interval`, `sensitivity_sweep`, `disclaimer`). **Action**: This file must exist before T049 runs. **Dependency**: None (runs early).
-- [X] T049b [P] **Disclaimer Verification**: Extend `code/utils/final_validator.py` (T049) to assert that the `disclaimer` field contains the **exact phrase** "correlational only". **Action**: If the phrase is missing or different, raise an error. **Dependency**: T049.
-
----
-
-## Phase 7: Data Integrity & Stream Validation (New)
-
-**Purpose**: Ensure strict adherence to real data constraints and streaming protocols to prevent fabrication.
-
-- [ ] T051 [US1] **No Synthetic Fallback Enforcement**: Implement `code/ingestion/fallback_guard.py` to audit all data loading functions. **Action**: Scan for `try/except` blocks that return `generate_synthetic_*` or `mock_*` data. If found, **raise a `RuntimeError`** with error code `DATA_MISSING_001` and message "DATA_MISSING_001: Real data fetch failed" to halt the build. **Constraint**: This task enforces the "fail loudly" rule for data fetches. **Dependency**: T012, T021. **Note**: `DATA_MISSING_001` must be the specific error code raised.
-- [ ] T052 [US3] **Power Analysis Verification**: Implement `code/analysis/power_verify.py` to re-calculate power using the actual N from `data/processed/aligned_metrics.csv` (post-alignment) and compare it against the pre-study estimate in `data/interim/power_analysis_report.json`. **Action**: If the actual N is significantly lower than expected due to alignment failures, **update** the power report and **re-trigger** T029c. **Dependency**: T026, T029a.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **Scope Freeze (Phase 2.5)**: **DEPENDS ON Phase 2**. **BLOCKS ALL User Stories**. Ensures spec/plan stability.
-- **User Stories (Phase 3+)**: All depend on Phase 2.5 completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-- **Data Integrity (Phase 7)**: **DEPENDS ON Phase 2**. Can run in parallel with Phase 3-5 but must complete before Final Validation.
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Phase 2.5 - No dependencies on other stories
-- **User Story 2 (P2)**: **Strictly depends on US1 completion** (specifically T016 and T018a) to ensure salience maps exist before alignment (T024). US2 cannot start until US1 is complete.
-- **User Story 3 (P3)**: **Strictly depends on US2 completion** (specifically T026) to ensure aligned metrics exist before LMM fitting (T032). US3 cannot start until US2 is complete.
-- **Note**: US2 and US3 cannot run independently of US1/US2 data generation.
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Phase 7 tasks can run in parallel with US1-US3 implementation (as they are validation/audit tasks).
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for download_data.py in tests/unit/test_download_data.py"
-Task: "Unit test for salience_gen.py in tests/unit/test_salience_gen.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement download_data.py in code/ingestion/download_data.py"
-Task: "Implement salience_gen.py in code/ingestion/salience_gen.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 2.5: Scope Freeze (CRITICAL - stabilizes spec)
-4. Complete Phase 3: User Story 1
-5. **STOP and VALIDATE**: Test User Story 1 independently (Salience maps generated)
-6. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational + Scope Freeze → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently (Alignment) → Deploy/Demo
-4. Add User Story 3 → Test independently (Analysis) → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational + Scope Freeze together
-2. Once Scope Freeze is done:
- - Developer A: User Story 1 (Data Ingestion)
- - Developer B: User Story 2 (Eye Tracking & Alignment) - *Requires US1 mock data for dev*
- - Developer C: User Story 3 (Analysis) - *Requires US2 mock data for dev*
- - Developer D: Phase 7 (Data Integrity & Stream Validation) - *Independent audit*
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Spec Gap**: "Weapons" (FR-008) excluded; only "Face" ROIs implemented (see Phase 2.5, SCR-002).
-- **Spec Contradiction**: Low-level covariates (FR-009) excluded to prevent multicollinearity with DeepGaze II (see Phase 2.5, SCR-001).
-- **Spec Update**: FR-001 updated to allow GBVS fallback (see Phase 2.5).
-- **Data Integrity**: No synthetic data fallbacks; if real data fetch fails, the pipeline must fail loudly with `DATA_MISSING_001`.
-- **SCR Workflow**: Phase 2.5 is now a **manual verification** step, not an automated update.
-- **Power Gate**: T029c enforces SC-003; if power < 0.8, the study is halted and marked "Invalid for Inference".
-- **VIF Gate**: T030 enforces VIF > 5 halt; study marked "Invalid for Inference" if multicollinearity detected.
-- **Execution Gate Compliance**: Tasks T013 and T020d explicitly forbid synthetic fallbacks and enforce "fail loudly" behavior to satisfy the fabrication guard.
-- **Compute Feasibility**: T013 enforces CPU-only DeepGaze II; if this fails on the free runner, the pipeline must use GBVS fallback or fail.
-- **Data Streaming**: T012 uses `datasets.load_dataset` with `streaming=True` logic where applicable to handle large files within RAM limits, avoiding synthetic substitution.
-- **Fallback Logic**: T013a provides the required heuristic fallback; T013 excludes only if T013a fails.
-- **VIF Logic**: T030b generates features for diagnostic only; T030 calculates VIF on generated features and halts if > 5.
-- **Ordering**: T032 (LMM Fit) precedes T031 (FDR) which precedes T035 (Theory Log) and T036 (Final Results).
-- **Disclaimer**: Disclaimer logic applied in T036 (Phase 5) to ensure p-values are available.
-- **Threshold Fix**: T018a and T018c include a hard halt if fallback frequency > 10%.
-- **Metadata**: T016 includes `method` field to track DeepGaze II vs GBVS provenance.
-- **Compute Resource Validation**: T042 implements the hard block by reading `data/interim/resource_usage.json` and checking cumulative time + batch timeout penalty.
-- **Real Data Verification**: T043 confirms real source before processing.
-- **Power Analysis Sensitivity**: T045 runs sensitivity sweep.
-- **Model Convergence Check**: T046 checks convergence and retries.
-- **FDR Correction Validation**: T047 verifies FDR logic.
-- **Final Artifact Integrity**: T049 validates final output against `code/contracts/output.schema.yaml`.
-- **GPU Offload Removed**: T044 removed to preserve CPU-only constraint.
-- **Theory Lookup Removed**: T035a replaced with static mapping in T035.
-- **Schema Generation**: T049a ensures `output.schema.yaml` exists for T049.
-- **New Phase 7**: Added T051, T052 to explicitly forbid synthetic fallbacks and verify power post-alignment. T050 removed.
-- **Resource Validation**: T042 moved to Phase 3 to run before T036.
-- **Task Clarity**: T001a/T001b, T037a/T037b expanded with specific details.
-- **T013a Integration**: T013a logic moved inside T013's `try/except` block for clarity.
-- **T032 Power/VIF Check**: Explicit check added to T032 description.
-- **T020d Logic**: Updated to check for SCR-002 document existence rather than spec text contradiction.
-- **T020d Dependency**: Removed explicit dependency on T020 (test); depends on T020 (Phase 2.5).
-- **T018a/T018c Ordering**: T018a/T018c now depend on T016 (metadata written before validation).
-- **T012 Streaming**: T012 updated to handle streaming logic dynamically.
-- **T029a Justification**: T029a updated to require justification for hardcoded effect size.
-- **T035 Theory**: T035 updated to log both positive and null result theories.
-- **T049b Disclaimer**: T049b updated to assert exact phrase match.
-- **T014 Cumulative Time**: T014 updated to track cumulative time and batch timeouts; T042 updated to enforce 6-hour limit with penalty.
-- **Review Concern: Data Source Ambiguity**: T051 explicitly enforces the "fail loudly" rule to prevent silent synthetic fallbacks.
-- **Review Concern: Power Analysis Timing**: T052 ensures power is re-evaluated after data alignment to account for trial loss.
-- **Review Concern: Weapons Exclusion**: T020d verifies SCR-002 exists.
-- **Review Concern: VIF Halt**: T030 halts if VIF > 5.
-- **Review Concern: GBVS Metric**: T013b excludes GBVS from success count.
-- **Review Concern: Batch Timeout**: T014/T042 aggregate batch timeouts.
-- **Review Concern: Error Code**: T051 raises `DATA_MISSING_001`.
-- **Review Concern: Bidirectional Interpretation**: T035 logs both positive and null theories.
-- **Review Concern: TDD Ordering**: T010/T012 and T011/T013 are now parallel.
-- **Review Concern: T020d Dependency**: T020d depends on T020 (Phase 2.5).
-- **Review Concern: T013a Logic**: T013a is a runtime branch, not a sequential task.
-- **Review Concern: T001/T037 Atomization**: Split into T001a/T001b and T037a/T037b.
+**Note**: All tasks are unchecked (`- [ ]`) until their implementation and associated test suite pass. The ordering respects data flow: verification → salience generation → ROI creation → fixation extraction → feature computation → alignment → diagnostics → modeling → power → final results → metrics → validation → documentation → full workflow execution.  

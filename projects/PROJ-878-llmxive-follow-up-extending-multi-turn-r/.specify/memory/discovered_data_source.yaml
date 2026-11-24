@@ -1,14 +1,13 @@
 status: none
-intent: ProofWriter logical reasoning dataset download pip package including GSM8K
-  reference
+intent: ProofWriter RuleTaker logical deduction DAG metadata synthetic dataset python
+  package dataset
 required_fields:
 - instance_id
-- problem_text
-- ground_truth_solution
+- puzzle_text
+- dag_edges
 - max_nesting_depth
 - average_branching_factor
-- dag_edge_list
-- topology_metadata
-cache_key: 00b98c091db05da2a41f099c5c87e96324c5d022c755796107ba6d4eb7dc297f
-searched_at: '2026-10-08T21:30:22.345723+00:00'
+- ground_truth_solution
+cache_key: a3342b3c8ccc7866525625702e688e0b8174bbb2f79fd10a6e81eac6361a2ff0
+searched_at: '2026-10-25T20:47:48.018185+00:00'
 retry_count: 1

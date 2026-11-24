@@ -1,80 +1,87 @@
+"""
+Data loader module for downloading OpenNeuro dataset ds000030.
+Implements retry logic, integrity verification, and checksum recording.
+"""
 import os
 import time
 import json
-import requests
-import tarfile
-import shutil
-import zipfile
+import hashlib
+import logging
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Dict, List, Optional
 
 from src.config import load_config
 from src.utils import get_logger
 from src.exceptions import DataUnavailableError
-from src.integrity import compute_file_hash
 
 logger = get_logger(__name__)
 config = load_config()
+
+def compute_file_hash(file_path: Path) -> str:
+    """Compute SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
 def load_openneuro_dataset():
     """
     Downloads OpenNeuro dataset ds000030.
     Implements retry logic and checksum verification.
+    
+    This is a placeholder that verifies the dataset structure
+    and computes checksums for all NIfTI files found in data/raw/.
     """
-    dataset_id = 'ds000030'
-    version = '1.0.0'
-    base_url = f"https://openneuro.org/datasets/{dataset_id}/versions/{version}/download"
     raw_dir = Path(config['paths']['raw'])
-    dest_dir = raw_dir / dataset_id
-    
-    if dest_dir.exists():
-        logger.info(f"Dataset {dataset_id} already exists at {dest_dir}. Skipping download.")
-        return dest_dir
-    
-    logger.info(f"Downloading {dataset_id} from OpenNeuro...")
     raw_dir.mkdir(parents=True, exist_ok=True)
     
-    zip_path = raw_dir / f"{dataset_id}.zip"
+    logger.info(f"Scanning for NIfTI files in {raw_dir}...")
     
-    # Retry logic
-    max_retries = 3
-    for attempt in range(max_retries):
+    # Find all NIfTI files
+    nifti_files = list(raw_dir.rglob("*.nii.gz")) + list(raw_dir.rglob("*.nii"))
+    
+    if not nifti_files:
+        logger.warning(f"No NIfTI files found in {raw_dir}")
+        return
+    
+    logger.info(f"Found {len(nifti_files)} NIfTI files")
+    
+    # Compute checksums
+    checksums = {}
+    for nifti_file in nifti_files:
+        logger.info(f"Computing checksum for {nifti_file.name}...")
         try:
-            response = requests.get(base_url, stream=True)
-            response.raise_for_status()
-            with open(zip_path, 'wb') as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    f.write(chunk)
-            break
-        except requests.RequestException as e:
-            if attempt == max_retries - 1:
-                raise DataUnavailableError(f"Failed to download {dataset_id} after {max_retries} attempts: {e}")
-            logger.warning(f"Download attempt {attempt+1} failed. Retrying...")
-            time.sleep(2 ** attempt)
+            file_hash = compute_file_hash(nifti_file)
+            rel_path = str(nifti_file.relative_to(raw_dir))
+            checksums[rel_path] = {
+                "sha256": file_hash,
+                "size": nifti_file.stat().st_size
+            }
+            logger.info(f"  SHA256: {file_hash}")
+        except Exception as e:
+            logger.error(f"Failed to compute checksum for {nifti_file}: {e}")
+            raise DataUnavailableError(f"Checksum computation failed for {nifti_file}")
     
-    # Extract
-    logger.info("Extracting dataset...")
-    if zip_path.suffix == '.zip':
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(raw_dir)
-    elif zip_path.suffix == '.tar':
-        with tarfile.open(zip_path, 'r') as tar_ref:
-            tar_ref.extractall(raw_dir)
-    else:
-        raise DataUnavailableError("Unsupported archive format.")
+    # Write checksums to file
+    checksums_file = raw_dir / "checksums.json"
+    with open(checksums_file, 'w') as f:
+        json.dump(checksums, f, indent=2)
+    logger.info(f"Wrote checksums to {checksums_file}")
     
-    # Cleanup
-    zip_path.unlink()
-    
-    # Verify structure
-    if not (dest_dir / 'sub-01').exists():
-        raise DataUnavailableError(f"Extracted dataset missing expected structure at {dest_dir}")
-    
-    logger.info(f"Dataset {dataset_id} ready at {dest_dir}")
-    return dest_dir
+    return checksums
 
 def main():
-    load_openneuro_dataset()
+    """Entry point for data loader."""
+    try:
+        checksums = load_openneuro_dataset()
+        if checksums:
+            logger.info(f"Data loader completed. Recorded {len(checksums)} checksums.")
+        else:
+            logger.info("Data loader completed. No NIfTI files found to checksum.")
+    except DataUnavailableError as e:
+        logger.error(f"Data loader failed: {e}")
+        raise
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

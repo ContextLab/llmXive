@@ -1,365 +1,236 @@
 """
-TDA Computation Pipeline: Graph Construction and Shortest-Path Filtration.
-
-Implements FR-001: Convert SMILES to molecular graphs and compute persistence diagrams
-using shortest-path filtration.
-
-Dependencies:
-- code/utils/graph_builder.py (build_graph, validate_graph)
-- code/utils/persistence_utils.py (compute_shortest_path_matrix, build_shortest_path_filtration, compute_persistence_diagram)
+02_tda_computation.py
+Compute baseline topological (persistence image) features for molecules in the filtered ESOL CSV.
+Generates:
+  - data/processed/topological_features_<grid>x<grid>.csv
+    (columns: molecule_id (string), target_property, target_value, pixel_0 … pixel_{grid*grid-1})
+  - data/processed/persistence_images_<grid>x<grid>.csv  (alias required by legacy tests)
+Logs invalid SMILES to data/logs/invalid_smiles.log.
 """
-import os
-import sys
+
+import argparse
 import json
 import logging
-import time
-import traceback
+import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Optional
 
 import pandas as pd
 import numpy as np
-from rdkit import RDLogger
+import networkx as nx
+from rdkit import Chem
 
-# Project imports
-# Note: These paths assume the script is run from the project root or code directory
-# We add the parent directory to sys.path to ensure relative imports work
-_code_dir = Path(__file__).parent
-if str(_code_dir) not in sys.path:
-    sys.path.insert(0, str(_code_dir))
+# Local utilities
+from utils import persistence_utils as pu
+from utils import graph_builder as gb
 
-from utils.graph_builder import build_graph, validate_graph, Graph
-from utils.persistence_utils import (
-    compute_shortest_path_matrix,
-    build_shortest_path_filtration,
-    compute_persistence_diagram,
-    vectorize,
-    handle_empty_diagram
-)
-
-# Suppress RDKit warnings for cleaner logs
-RDLogger.DisableLog('rdApp.*')
-
-def setup_logging(log_file: Optional[str] = None) -> logging.Logger:
-    """Configure logging for the TDA computation pipeline."""
+# ----------------------------------------------------------------------
+# Logging utilities
+# ----------------------------------------------------------------------
+def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
+    """Configure a module‑level logger."""
     logger = logging.getLogger("tda_computation")
     logger.setLevel(logging.INFO)
-    
-    handlers = [logging.StreamHandler(sys.stdout)]
-    if log_file:
-        handlers.append(logging.FileHandler(log_file))
-    
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    for handler in handlers:
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-    
+    if log_file:
+        file_handler = logging.FileHandler(log_file, mode='a')
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
     return logger
 
-def setup_invalid_smiles_logger(log_file: str) -> logging.Logger:
-    """Setup a dedicated logger for invalid SMILES entries."""
-    logger = logging.getLogger("invalid_smiles")
-    logger.setLevel(logging.ERROR)
-    
-    handler = logging.FileHandler(log_file)
-    handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-    logger.addHandler(handler)
-    return logger
-
-def log_invalid_smiles(logger: logging.Logger, smiles: str, error: str) -> None:
-    """Log an invalid SMILES entry to the dedicated logger."""
-    logger.error(f"Invalid SMILES: {smiles} | Error: {error}")
-
-def vectorize_diagram_to_image(
-    diagram: List[Tuple[float, float]],
-    resolution: int = 10
-) -> np.ndarray:
+# ----------------------------------------------------------------------
+# Core molecular‑graph construction
+# ----------------------------------------------------------------------
+def build_molecular_graph(smiles: str) -> nx.Graph:
     """
-    Vectorize a persistence diagram into a persistence image.
-    
-    Args:
-        diagram: List of (death, birth) or (birth, death) tuples.
-        resolution: Grid resolution (e.g., 10 for 10x10).
-    
-    Returns:
-        np.ndarray of shape (resolution, resolution).
+    Convert a SMILES string into a NetworkX undirected graph where nodes are atom indices
+    and edges correspond to chemical bonds.
     """
-    if not diagram:
-        return handle_empty_diagram(resolution)
-    
-    # Convert diagram to numpy array
-    # Note: Gudhi/Dionysus typically returns (birth, death)
-    # We assume input is (birth, death)
-    try:
-        arr = np.array(diagram)
-        if arr.shape[1] != 2:
-            # Fallback if format is unexpected
-            return handle_empty_diagram(resolution)
-    except Exception:
-        return handle_empty_diagram(resolution)
-    
-    birth = arr[:, 0]
-    death = arr[:, 1]
-    
-    # Vectorize using the utility from persistence_utils
-    # The utility expects (birth, death) pairs
-    return vectorize(list(zip(birth, death)), resolution)
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        raise ValueError("Invalid SMILES")
+    # Ensure aromaticity/valence perception
+    Chem.SanitizeMol(mol)
 
-def flatten_image(image: np.ndarray) -> np.ndarray:
-    """Flatten a 2D image to a 1D vector."""
-    return image.flatten()
+    G = nx.Graph()
+    for atom in mol.GetAtoms():
+        G.add_node(atom.GetIdx())
+    for bond in mol.GetBonds():
+        a1 = bond.GetBeginAtomIdx()
+        a2 = bond.GetEndAtomIdx()
+        G.add_edge(a1, a2)
+    return G
 
-def compute_persistence_features(
-    diagram: List[Tuple[float, float]],
-    resolutions: List[int] = [10, 20, 30]
-) -> Dict[str, np.ndarray]:
+# ----------------------------------------------------------------------
+# Per‑molecule processing
+# ----------------------------------------------------------------------
+def process_molecule(row: pd.Series, resolution: int, logger: logging.Logger) -> Optional[dict]:
     """
-    Compute persistence images for multiple resolutions.
-    
-    Args:
-        diagram: Persistence diagram (list of (birth, death) tuples).
-        resolutions: List of grid resolutions.
-    
-    Returns:
-        Dictionary mapping resolution string to flattened image array.
-    """
-    features = {}
-    for res in resolutions:
-        img = vectorize_diagram_to_image(diagram, resolution=res)
-        features[f"p_img_{res}"] = flatten_image(img)
-    return features
+    Process a single molecule:
+      * validate SMILES,
+      * compute persistence image,
+      * return a dict ready for CSV output.
 
-def process_molecule(
-    smiles: str,
-    molecule_id: str,
-    logger: logging.Logger,
-    invalid_logger: Optional[logging.Logger] = None
-) -> Optional[Dict[str, Any]]:
+    The returned dict contains:
+      - molecule_id (string)
+      - target_property (string, always "logP")
+      - target_value (float)
+      - pixel_<i> columns for each flattened pixel (i = 0 … resolution*resolution‑1)
     """
-    Process a single molecule: build graph, compute filtration, generate diagram.
-    
-    Returns:
-        Dictionary with molecule_id and persistence features, or None if failed.
-    """
-    try:
-        # 1. Build Graph
-        graph = build_graph(smiles)
-        if graph is None:
-            if invalid_logger:
-                log_invalid_smiles(invalid_logger, smiles, "Graph build failed")
-            logger.warning(f"Failed to build graph for {molecule_id}: {smiles}")
-            return None
-        
-        # 2. Validate Graph
-        if not validate_graph(graph):
-            if invalid_logger:
-                log_invalid_smiles(invalid_logger, smiles, "Graph validation failed")
-            logger.warning(f"Graph validation failed for {molecule_id}: {smiles}")
-            return None
-        
-        # 3. Compute Shortest Path Matrix
-        try:
-            sp_matrix = compute_shortest_path_matrix(graph)
-        except Exception as e:
-            if invalid_logger:
-                log_invalid_smiles(invalid_logger, smiles, f"Shortest path error: {e}")
-            logger.warning(f"Shortest path failed for {molecule_id}: {e}")
-            return None
-        
-        if sp_matrix is None:
-            if invalid_logger:
-                log_invalid_smiles(invalid_logger, smiles, "Shortest path matrix is None")
-            logger.warning(f"Shortest path matrix is None for {molecule_id}")
-            return None
+    smiles = row["smiles"]
+    molecule_id = str(smiles)  # ensure string per spec
 
-        # 4. Build Filtration
-        try:
-            filtration = build_shortest_path_filtration(sp_matrix)
-        except Exception as e:
-            if invalid_logger:
-                log_invalid_smiles(invalid_logger, smiles, f"Filtration error: {e}")
-            logger.warning(f"Filtration failed for {molecule_id}: {e}")
-            return None
-        
-        if not filtration:
-            # Empty filtration is valid, results in empty diagram
-            logger.info(f"Empty filtration for {molecule_id}")
-            diagram = []
-        else:
-            # 5. Compute Persistence Diagram
-            try:
-                diagram = compute_persistence_diagram(filtration)
-            except Exception as e:
-                if invalid_logger:
-                    log_invalid_smiles(invalid_logger, smiles, f"Diagram error: {e}")
-                logger.warning(f"Diagram computation failed for {molecule_id}: {e}")
-                return None
-        
-        # 6. Vectorize to Persistence Images (Resolutions 10, 20, 30)
-        # Per task T013, we need to generate images for multiple resolutions.
-        # We compute them here to support the pipeline flow.
-        # Default resolutions for T012/T013 integration
-        resolutions = [10, 20, 30]
-        features = compute_persistence_features(diagram, resolutions=resolutions)
-        
-        return {
-            "molecule_id": molecule_id,
-            "diagram_size": len(diagram),
-            "features": features
-        }
-
-    except Exception as e:
-        if invalid_logger:
-            log_invalid_smiles(invalid_logger, smiles, f"Unhandled error: {e}")
-        logger.error(f"Unhandled exception for {molecule_id}: {traceback.format_exc()}")
+    if not gb.is_valid_molecule(smiles):
+        logger.info(f"Skipping invalid SMILES: {smiles}")
         return None
 
-def generate_tda_features_csv(
-    input_df: pd.DataFrame,
-    output_path: str,
-    invalid_log_path: str,
-    resolutions: List[int] = [10, 20, 30]
-) -> Tuple[int, int]:
-    """
-    Process the entire dataset and generate TDA feature CSVs.
-    
-    Args:
-        input_df: DataFrame with 'smiles' and 'molecule_id' (or index).
-        output_path: Path to save the CSV.
-        invalid_log_path: Path to log invalid SMILES.
-        resolutions: List of grid resolutions.
-    
-    Returns:
-        Tuple of (processed_count, failed_count).
-    """
-    logger = setup_logging()
-    invalid_logger = setup_invalid_smiles_logger(invalid_log_path)
-    
-    logger.info(f"Starting TDA computation on {len(input_df)} molecules...")
-    
-    processed_count = 0
-    failed_count = 0
-    results = []
-    
-    # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    for idx, row in input_df.iterrows():
-        smiles = row['smiles']
-        # Use index or a specific ID column if available
-        mol_id = row.get('molecule_id', f"mol_{idx}")
-        
-        result = process_molecule(smiles, mol_id, logger, invalid_logger)
-        
-        if result is not None:
-            processed_count += 1
-            # Expand features into columns
-            row_data = {
-                "molecule_id": result["molecule_id"],
-                "diagram_size": result["diagram_size"]
-            }
-            for res_key, feature_vec in result["features"].items():
-                # Create columns for each pixel in the image
-                for i, val in enumerate(feature_vec):
-                    col_name = f"{res_key}_{i}"
-                    row_data[col_name] = val
-            results.append(row_data)
-        else:
-            failed_count += 1
-          
-        if processed_count % 100 == 0:
-            logger.info(f"Processed {processed_count} molecules, {failed_count} failed so far...")
-    
-    # Create DataFrame and save
-    if results:
-        output_df = pd.DataFrame(results)
-        output_df.to_csv(output_path, index=False)
-        logger.info(f"Saved {len(output_df)} records to {output_path}")
-    else:
-        logger.warning("No valid molecules processed. Output file will be empty.")
-        # Create empty file with headers if possible, or just touch
-        Path(output_path).touch()
-    
-    return processed_count, failed_count
-
-def main():
-    """Main entry point for TDA computation."""
-    # Define paths based on project structure
-    project_root = Path(__file__).parent.parent
-    data_dir = project_root / "data"
-    raw_data = data_dir / "raw"
-    processed_dir = data_dir / "processed"
-    logs_dir = data_dir / "logs"
-    
-    # Ensure directories exist
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    logs_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Input: Check for existing raw data or processed splits
-    # We expect the data ingestion script (T008a/b) to have prepared the data.
-    # We look for the ESOL dataset in raw or the processed splits.
-    # For T012, we assume we are processing the raw ESOL data or a subset.
-    
-    # Check for raw ESOL data
-    esol_file = raw_data / "esol.csv"
-    if not esol_file.exists():
-        # Check for processed splits as a fallback if raw is missing
-        # But strictly, T012 needs raw SMILES. If raw is missing, we must fail.
-        # However, T008a/b might have saved a processed subset.
-        # Let's look for a standard processed file from ingestion if raw is gone.
-        # If data ingestion failed, we can't proceed.
-        print("Error: Raw ESOL data not found in data/raw/esol.csv")
-        print("Ensure T008a/b has successfully ingested the data.")
-        sys.exit(1)
-    
-    logger = setup_logging()
-    logger.info(f"Loading data from {esol_file}")
-    
     try:
-        df = pd.read_csv(esol_file)
+        G = build_molecular_graph(smiles)
     except Exception as e:
-        logger.error(f"Failed to load ESOL data: {e}")
-        sys.exit(1)
-    
-    # Validate required columns
-    if 'smiles' not in df.columns:
-        logger.error("Input data missing 'smiles' column.")
-        sys.exit(1)
-    
-    # Add molecule_id if not present
-    if 'molecule_id' not in df.columns:
-        df['molecule_id'] = df.index.map(lambda x: f"mol_{x}")
-    
-    # Run computation
-    output_csv = processed_dir / "tda_features_raw.csv" # Intermediate
-    # Per T013, we need specific filenames. T012 focuses on the computation logic.
-    # We generate the raw features here. T013 will filter/format them.
-    # However, to satisfy T013's requirement for "persistence_images_10x10.csv",
-    # we will generate the full set here and T013 can be seen as a post-processing
-    # step or we generate all here.
-    # The task T012 says "Pipeline to convert SMILES to graphs and compute persistence diagrams".
-    # We will generate the full features for 10, 20, 30 resolutions.
-    
-    invalid_log = logs_dir / "invalid_smiles.log"
-    
-    logger.info("Starting TDA computation...")
-    start = time.time()
-    
-    proc_count, fail_count = generate_tda_features_csv(
-        df, 
-        output_csv, 
-        invalid_log, 
-        resolutions=[10, 20, 30]
+        gb.log_invalid_smiles(smiles, f"Graph construction failed: {e}")
+        return None
+
+    try:
+        dist_matrix = gb.compute_shortest_path_matrix(G)
+    except Exception as e:
+        gb.log_invalid_smiles(smiles, f"Shortest‑path computation error: {e}")
+        return None
+
+    # Compute persistence diagram
+    diagram = pu.compute_persistence_diagram(dist_matrix)
+
+    # Vectorize diagram into a persistence image
+    image = pu.vectorize(diagram, resolution=resolution, sigma=1.0)
+
+    # Flatten image to 1‑D list
+    flat = image.ravel().tolist()
+
+    # Assemble result dict
+    result = {
+        "molecule_id": molecule_id,
+        "target_property": "logP",
+        "target_value": float(row["logP"]),
+    }
+
+    # Add pixel columns
+    for idx, val in enumerate(flat):
+        result[f"pixel_{idx}"] = float(val)
+
+    return result
+
+# ----------------------------------------------------------------------
+# Batch feature generation
+# ----------------------------------------------------------------------
+def generate_tda_features(
+    input_df: pd.DataFrame,
+    output_dir: Path,
+    resolution: int,
+    logger: logging.Logger,
+) -> dict:
+    """
+    Iterate over ``input_df`` and write two CSV files:
+      1. data/processed/topological_features_<resolution>x<resolution>.csv
+      2. data/processed/persistence_images_<resolution>x<resolution>.csv  (legacy name)
+
+    Returns a summary dict with processing counts and the primary output path.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Primary destination CSV path (new name)
+    primary_path = output_dir / f"topological_features_{resolution}x{resolution}.csv"
+    # Legacy name required by older contract tests
+    legacy_path = output_dir / f"persistence_images_{resolution}x{resolution}.csv"
+
+    processed = 0
+    failed = 0
+    rows = []
+
+    for _, row in input_df.iterrows():
+        res = process_molecule(row, resolution, logger)
+        if res is None:
+            failed += 1
+            continue
+        processed += 1
+        rows.append(res)
+
+    # Write CSV
+    df_out = pd.DataFrame(rows)
+    # Ensure deterministic column order: molecule_id, target_property, target_value, then pixel_*
+    pixel_cols = [c for c in df_out.columns if c.startswith("pixel_")]
+    ordered_cols = ["molecule_id", "target_property", "target_value"] + sorted(
+        pixel_cols, key=lambda x: int(x.split("_")[1])
     )
-    
-    elapsed = time.time() - start
-    logger.info(f"Completed in {elapsed:.2f}s. Processed: {proc_count}, Failed: {fail_count}")
-    
-    if proc_count == 0:
-        logger.error("No molecules processed. Pipeline failed.")
+    df_out = df_out[ordered_cols]
+    df_out.to_csv(primary_path, index=False)
+    # Also write the legacy alias (exact same contents)
+    df_out.to_csv(legacy_path, index=False)
+
+    summary = {
+        "processed": processed,
+        "failed": failed,
+        "primary_output_path": str(primary_path),
+        "legacy_output_path": str(legacy_path),
+    }
+    return summary
+
+# ----------------------------------------------------------------------
+# CLI handling
+# ----------------------------------------------------------------------
+def _parse_cli_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Compute TDA (persistence image) features.")
+    parser.add_argument(
+        "--grid",
+        type=int,
+        default=10,
+        help="Resolution of the persistence image (grid size, e.g., 10 for 10x10).",
+    )
+    parser.add_argument(
+        "--input",
+        type=str,
+        default="data/processed/filtered_esol.csv",
+        help="Path to the filtered ESOL CSV.",
+    )
+    parser.add_argument(
+        "--log",
+        type=str,
+        default="data/logs/invalid_smiles.log",
+        help="Path to the invalid SMILES log file.",
+    )
+    return parser.parse_args()
+
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    args = _parse_cli_args()
+
+    logger = setup_logging()
+    # Ensure the invalid‑SMILES logger is ready (creates the log file if needed)
+    gb.setup_invalid_smiles_logger(args.log)
+
+    input_path = Path(args.input)
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
         sys.exit(1)
+
+    df = pd.read_csv(input_path)
+    required_cols = {"smiles", "logP"}
+    if not required_cols.issubset(df.columns):
+        logger.error(f"Input CSV must contain columns {required_cols}.")
+        sys.exit(1)
+
+    output_dir = Path("data/processed")
+    summary = generate_tda_features(df, output_dir, resolution=args.grid, logger=logger)
+
+    logger.info(
+        f"TDA computation completed: {summary['processed']} processed, {summary['failed']} failed."
+    )
+    logger.info(f"TDA CSV written to {summary['primary_output_path']}")
+    logger.info(f"Legacy CSV (for contract tests) written to {summary['legacy_output_path']}")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,12 @@
+status: none
+intent: download EVA-Bench audio scenarios dataset python package dataset
+required_fields:
+- scenario_id
+- audio_file_path
+- turn_timestamps
+- speaker_id
+- transcript
+- metadata
+cache_key: 7383e60c58b1e9e9c7ee4969bc10d75866a89c20b186b02a58a549687620df2f
+searched_at: '2026-10-14T10:47:02.370143+00:00'
+retry_count: 1

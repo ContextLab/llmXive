@@ -7,12 +7,34 @@ T001a:
     \ exist. The implementer must show that the specified directories have been created\
     \ (e.g., a directory listing or similar proof)."
 T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No script, command log, or filesystem snapshot showing the conditional `chmod`
-    operation on `data/raw` was provided, nor any evidence that the permissions are
-    set to 555 in Data Insufficient/Underpowered mode and 755 in Primary mode. The
-    required artifact (implementation of the conditional permission setting) is missing.
+  c: true
+  h: c81e59721fd02278e39aca9b43034d18daac9bd28febf8447040d4e70070619f
+  r: "The historical execution record shows `code/01_setup_permissions.py` ran with\
+    \ exit code 0, and its stderr log explicitly demonstrates the required conditional\
+    \ behavior: \"Mode 'Data Insufficient': setting data/raw to read-execute only\
+    \ (chmod 555)\" plus writing a permissions report \u2014 matching T001b's requirement\
+    \ to apply chmod 555 only in Data Insufficient/Underpowered modes. No contradicting\
+    \ evidence or later edits are present, and the mode-conditional logic (rather\
+    \ than an unconditional chmod) is evidenced by the logged mode check."
+  sig: 7682656fdfeb35aab32ba49bfb3da8456eafeca29a43d0fed03020727ace15bc
+T002:
+  c: true
+  h: 2c65b778f622b1ef85b151492ece588ee21d21e07eeba244199c480aaecaf174
+  r: The `requirements.txt` file exists at the project root with exactly the eight
+    pinned dependencies (mne, scikit-learn, numpy, pandas, scipy, statsmodels, pyyaml,
+    pytest) matching the specified versions and byte-for-byte the expected content.
+    The pip install step is environment setup; the file artifact itself fully satisfies
+    the task's deliverable.
+  sig: 6d17d7ec8e75b7dc53036dcb47b236cb371ca9f7e65a8108cea07a507bff89f7
+T004:
+  c: true
+  h: c6764baefa2cc0e206769b899d4a44ee8483763514f432b2ab68c306d81e8ec3
+  r: 'The file `code/utils/config.py` exists (957 bytes) and contains all required
+    elements: path constants (PROJECT_ROOT, DATA_RAW, etc.), BANDS = [''delta'', ''theta'',
+    ''alpha'', ''beta'', ''gamma''], LOWER_FREQ_HZ = 1.0, ALPHA = 0.05 (p=0.05), and
+    R2_EXPECTED = 0.1, plus a seed-relevant structure and directory setup. No placeholders
+    or stubs are present.'
+  sig: 27599f36377b0cee42ecb012de09c40bf6c07e707f0e12bb08ecb88204e86aae
 T005:
   c: false
   h: 39978c88df8ef9f74c36adcdbe76a00ba0f25f69e45ab9fba5ccb856d7e9f582
@@ -21,18 +43,28 @@ T005:
     \ (which is also missing). Additionally, no artifact\u2011hashing helper is present.\
     \ These missing pieces prevent the task from being fully satisfied."
 T006:
-  c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: The required file `specs/001-neural-oscillations-tDCS-biomarker/contracts/dataset.schema.yaml`
-    does not exist, so no schema definition is present to verify the required fields
-    or removal of extraneous ones. The task therefore remains unfinished.
+  c: true
+  h: 26762d1f3496c863a0cbff1ad78986d6c402f79078f3fced7f8df9dc84dc38c6
+  r: 'The schema file exists at its canonical resolved location (`specs/001-neural-oscillations-as-a-biomarker-for-p/contracts/dataset.schema.yaml`,
+    1103 bytes) and its content matches the task exactly: required fields `subject_id`,
+    `channel`, `time`, `voltage`, `condition` with appropriate types/constraints,
+    `additionalProperties: false`, and no `mode_flag` or other non-specified fields.
+    The historical test log failures are solely because the test script hardcodes
+    the requested (non-normalized) path `specs/001-neural-oscillations-tDCS-biomarker/...`
+    rather than the canonical slug path the collector'
+  sig: aa3132a955b1d7c3deba548e8e124cd28a1b2a0c8800130c51c59acb94ccfc35
 T007:
-  c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: The required file `specs/001-neural-oscillations-tDCS-biomarker/contracts/output.schema.yaml`
-    does not exist (the only mentioned schema file is missing). Consequently, no output
-    schema with the specified `feature_matrix` and `model_metrics` fields is present,
-    and the task is not satisfied.
+  c: true
+  h: d4418cf7eb9cb685447130880aca3a9e3affe5071e5d8b83f65f139bfc334089
+  r: "The schema file exists (4564 bytes) at the resolved contracts path and defines\
+    \ both required artifacts \u2014 `feature_matrix` (subject/channel, five band\
+    \ powers, PLV/wPLI connectivity, tDCS_response) and `model_metrics` (model_type,\
+    \ best_alpha, CV metrics, coefficients, normality test, mode_flag) \u2014 consistent\
+    \ with plan.md Phases 5\u20138, and it explicitly excludes `sensitivity_table`.\
+    \ Minor nits (plan.md names the feature file `features.csv` while the schema says\
+    \ `feature_matrix.csv`, and adjusted R\xB2 from Phase 8 is not a named field)\
+    \ do not undermine the task's core requirement of defining the two ou"
+  sig: dc172b49f4ad4ba850835beb3d14d703fb9ca10821302ff4258ca7670c89e508
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,12 +73,15 @@ T008:
     infrastructure capturing warnings, mode switches, and resource usage with log
     rotation) is missing, so the task is not satisfied.
 T009a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `pre-registration.json` file was supplied, nor any content showing the required\
-    \ analysis\u2011plan hash, timestamp, R\xB2 target, power, \u03B1, and placeholder\
-    \ predictor count. The implementer\u2019s evidence does not include the artifact\
-    \ the task explicitly demands."
+  c: true
+  h: dc414adc58209a0295e0e9c87d8d1089aff77bcc0d5cd6a78dedc5a390315bc9
+  r: 'The execution log shows `code/reports/preregister.py` ran successfully (exit
+    0), writing `pre-registration.json` with a SHA-256 analysis plan hash, timestamp,
+    parameters (r2_target=0.1, power=0.8, alpha=0.05), and an explicit placeholder
+    predictor count (`k_predictors: null`, status "placeholder"), exactly as T009a
+    requires. The two preregistration tests (hash format and contents) passed, and
+    the notes confirm it was generated before T011.'
+  sig: 3d9369a25e8dd35016646f36ac3e6128b271919fbeb45a998017a4e68f2faeee
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

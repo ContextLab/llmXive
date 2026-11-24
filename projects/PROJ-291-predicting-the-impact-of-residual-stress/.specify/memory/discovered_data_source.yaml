@@ -1,12 +1,9 @@
 status: none
-intent: OpenML NIST UCI fatigue dataset residual stress process parameters download
-  python package dataset
-required_fields:
-- material_type
-- process_parameters
-- residual_stress
-- residual_stress_source
-- fatigue_life_cycles
-cache_key: ec387a003e286f41fa27e302cfba6cadcebf32c845665e8d4c550596753a2b94
-searched_at: '2026-10-11T16:17:54.452961+00:00'
-retry_count: 1
+intent: '### User Story 1 - Data Ingestion and Preprocessing Pipeline (US-1) (Priority:
+  P1) The researcher downloads public fatigue datasets (NIST, UCI, OpenML), parses
+  CSV/JSON files, standardizes units, and handles missing values via median imputation
+  to create a unified analysis-ready dataset containing p'
+required_fields: []
+cache_key: fe69b6ae739399d7997b798a258e67550c4d946ad2e4b4b6afb62aa4c873d728
+searched_at: '2026-11-21T08:29:11.072551+00:00'
+retry_count: 2

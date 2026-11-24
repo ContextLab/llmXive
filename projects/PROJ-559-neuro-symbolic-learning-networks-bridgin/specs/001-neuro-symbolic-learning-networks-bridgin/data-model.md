@@ -1,11 +1,9 @@
-# Data Model: Neuro-Symbolic Learning Networks
+# Data Model: Neuro‑Symbolic Learning Networks
 
 ## Overview
+Defines all entities, schemas, and relationships required for the pipeline, satisfying Constitution Principles III (Data Hygiene) and VII (Explanation Traceability).
 
-This document defines the data structures, schemas, and relationships for the Neuro-Symbolic Learning Networks project. It ensures data hygiene, traceability, and reproducibility as per the Project Constitution.
-
-## Entity-Relationship Diagram (Conceptual)
-
+## Entity‑Relationship Diagram
 ```mermaid
 erDiagram
     PROBLEM ||--|{ EXPLANATION : "has"
@@ -15,61 +13,45 @@ erDiagram
     PILOT_DATA ||--|{ SIMULATOR_CONFIG : "calibrates"
 ```
 
-## Data Entities
+## Entities
 
-### 1. Problem
-Represents a single mathematics or logic exercise.
-- **Source**: ASSISTments dataset.
-- **Attributes**:
-  - `problem_id`: Unique identifier (string).
-  - `prompt_text`: The problem statement (string).
-  - `solution`: The correct answer or solution steps (string).
-  - `subject`: Category (e.g., "algebra", "geometry").
-  - `difficulty_score`: Inferred or provided difficulty metric (float).
+| Entity | Description | Key Attributes |
+|--------|-------------|----------------|
+| **Problem** | Math/logic problem from ASSISTments **or** Khan Academy. | `problem_id`, `prompt_text`, `solution`, `subject`, `difficulty_score`, `dataset_source` |
+| **Explanation** | Generated artifact per problem per condition. | `explanation_id`, `problem_id`, `condition`, `content`, `model_version`, `generation_timestamp` |
+| **InteractionLog** | Student (simulated or real) interaction with an explanation. | `log_id`, `problem_id`, `explanation_id`, `student_id`, `condition`, `correct`, `rt_seconds`, `comprehension_rating`, `prior_knowledge_score`, `difficulty`, `data_source` |
+| **PilotData** | Human pilot interactions used for BKT calibration. | Same fields as `InteractionLog` (excluding `explanation_id`), stored in `data/pilot/real_pilot_data.csv`. |
+| **SimulationLog** | Alias for simulated `InteractionLog` (validated by `simulation_log.schema.yaml`). | Same as `InteractionLog` with `data_source = "simulated"`.|
 
-### 2. Explanation
-An artifact generated for a problem under a specific condition.
-- **Storage**: `data/traces/` (JSON/Text).
-- **Attributes**:
-  - `explanation_id`: Unique hash.
-  - `problem_id`: Foreign key to Problem.
-  - `condition`: One of `neural`, `symbolic`, `neuro_symbolic`.
-  - `content`: The generated text.
-  - `model_version`: Version of the generator used.
-  - `generation_timestamp`: ISO 8601 timestamp.
-
-### 3. InteractionLog
-A record of a student interaction with an explanation.
-- **Storage**: `data/processed/interaction_logs.csv`.
-- **Attributes**:
-  - `log_id`: Unique identifier.
-  - `problem_id`: Foreign key.
-  - `explanation_id`: Foreign key.
-  - `student_id`: Unique student identifier (simulated or real).
-  - `condition`: Explanation condition used.
-  - `correct`: Binary (0/1).
-  - `rt_seconds`: Response time in seconds (float, 1 decimal).
-  - `comprehension_rating`: Likert scale (1-5). **Generated as a function of knowledge_gap and explanation_complexity, NOT correctness.**
-  - `data_source`: `simulated` or `real`.
-- **Constraint**: **Between-Subjects Design**: A unique combination of `(student_id, problem_id)` must exist for only one `condition`. The ingestion process enforces this uniqueness.
-
-### 4. PilotData
-Calibration data for the BKT simulator.
-- **Storage**: `data/pilot/`.
-- **Attributes**: Same as `InteractionLog`, but specifically for the calibration phase. **Must be real human data (T030b) or the study is scope-reduced.**
-
-## Data Flow
-
-1.  **Ingestion**: Raw datasets (ASSISTments) → `data/raw/` (immutable).
-2.  **Unification**: Raw datasets → `data/processed/unified_problems.csv` (filtered, schema-validated). **Handles partial success if Khan is missing.**
-3.  **Generation**: Unified Problems → `data/traces/` (Explanations).
-4.  **Calibration**: Pilot Data (T030b) → `code/simulation/simulator_config.yaml` (updated parameters). **If missing, skip calibration and enter Feasibility Mode.**
-5.  **Simulation**: Explanations + BKT Model → `data/processed/interaction_logs.csv`.
-6.  **Analysis**: Interaction Logs → `data/processed/regression_results.csv` + Markdown Report.
+## Data Flow (chronological)
+1. **Download** raw datasets → `data/raw/`.  
+2. **Unify & Stratify** → `data/processed/unified_problems.csv`.  
+3. **Generate Explanations** → `data/traces/` (txt + JSON metadata).  
+4. **Collect Pilot Data** → `data/pilot/real_pilot_data.csv`.  
+5. **Calibrate BKT** → `code/simulation/simulator_config.yaml`.  
+6. **Run Simulation** → `data/processed/interaction_logs_simulated.csv`.  
+7. **Collect Real Data** → `data/processed/real_student_data.csv`.  
+8. **Merge** → `data/processed/merged_interaction_logs.csv`.  
+9. **Analyze** → `results/analysis_output.yaml` (validated against `analysis_output.schema.yaml`).  
 
 ## Data Hygiene Rules
+- **Immutability**: Files under `data/raw/` are never overwritten; derived files receive new filenames.  
+- **Checksums**: SHA‑256 checksums stored in `state/` for every raw and derived file; CI verifies integrity before use.  
+- **PII Protection**: Human `student_id`s are random UUIDs; no personal identifiers are stored.  
+- **Versioning**: Content hashes recorded in `state/projects/...yaml`; any change triggers artifact invalidation.  
 
-- **Immutability**: Files in `data/raw` are never modified. Derivations create new files.
-- **Checksums**: SHA-256 hashes for all raw files are stored in `state/`.
-- **PII**: No personally identifiable information is stored. Student IDs are random UUIDs.
-- **Versioning**: Every artifact has a content hash. Changes invalidate dependent artifacts.
+## Schema References
+- `contracts/problem.schema.yaml` – validates `unified_problems.csv`.  
+- `contracts/explanation.schema.yaml` – validates each explanation JSON metadata.  
+- `contracts/interaction_log.schema.yaml` – validates simulated & real interaction logs (includes `prior_knowledge_score`).  
+- `contracts/pilot_data.schema.yaml` – validates pilot CSV.  
+- `contracts/analysis_output.schema.yaml` – validates regression output.  
+- `contracts/simulation_log.schema.yaml` – validates simulation‑only logs.  
+
+## Notes on Dataset Availability
+- The **ASSISTments** dataset is fully verified and will always be downloaded.  
+- No verified open **Khan Academy** dataset is currently available; the pipeline treats its download as mandatory and will abort with a clear error if unavailable (see Phase 1 in the implementation plan). This limitation is recorded for future specification updates.  
+
+---
+
+

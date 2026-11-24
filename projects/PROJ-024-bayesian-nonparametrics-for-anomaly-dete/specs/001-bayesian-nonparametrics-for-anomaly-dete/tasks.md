@@ -1,408 +1,259 @@
-# Tasks: Bayesian Nonparametrics for Anomaly Detection in Time Series
+# Tasks: Bayesian Nonparametrics for Anomaly Detection in Time Series  
 
-**Input**: Design documents from `/specs/001-bayesian-nonparametrics-for-anomaly-dete/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `specs/001-bayesian-nonparametrics-for-anomaly-dete/spec.md`, `plan.md`, `data-model.md`, `contracts/`  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 0: Ground Truth Simulation (FR-020, FR-021, FR-022)
-
-**Purpose**: Validate the ADVI estimator's fidelity BEFORE any main inference implementation.
-
-**⚠️ CRITICAL**: This phase MUST complete and pass validation before Phase 3 (User Story 1) begins.
-
-- [X] T019 [P] [US1] Create `code/src/data/synthetic_generator.py` generating datasets with pre-anomaly dynamics, abrupt shifts, and independent ground-truth timestamps (FR-021, FR-022). **Note**: Used for simulation and as fallback if real data search fails. **Dependency**: Must be completed before T018.
-- [X] T018 [P] [US1] Create `code/src/simulation/ground_truth.py` implementing simulation study to verify $\dot{\alpha}$ SNR under null hypothesis (FR-020). **Deliverable**: Generate `data/processed/results/simulation_snr.csv`. **Checkpoint**: If SNR > 1, proceed. If SNR <= 1, **raise `SystemExit(1)`** and write `data/processed/results/snr_fail.lock` to halt the pipeline immediately (per US1 Acceptance Scenario 2). **Do NOT** proceed with graceful degradation. **Note**: This task MUST follow T019.
-
-**Checkpoint**: Simulation study complete; ADVI estimator validated OR pipeline halted.
+The following checklist implements the full research pipeline while fixing all specification‑ and implementation‑level violations identified by the reviewers.  Each task is a single atomic unit that can be run, verified, and tracked independently.  All artifact paths are project‑owned (`code/`, `data/processed/`, `state/`).  Completed work from previous iterations is retained but any stale or non‑conforming artefacts have been reopened and re‑tasked.
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 0 – Dataset discovery, generation, validation, and split  
 
-**Purpose**: Project initialization and basic structure
+- [ ] **T020** [P2] [US0] Search for real‑world datasets with known regime shifts using keywords “regime shift time series”, “anomaly benchmark”, “physionet arrhythmia” across UCI, NAB, and PhysioNet. If no verified sources are found, generate a **Validation Deferred** report (`data/processed/results/validation_deferred.md`) citing the search query and result count (FR‑017, FR‑017b).  
+  - **Script**: `code/src/data/search_datasets.py`  
+  - **Outputs**: `data/raw/` (populated only if sources found) and `data/processed/results/validation_deferred.md`.  
 
-- [X] T001 Create project structure per implementation plan
-- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] **T003** [P2] [US1] Download and validate real‑world datasets (NAB & PhysioNet) using the verified URLs defined in the “Verified Datasets” block *only if* T020 discovers sources.   <!-- FAILED-IN-EXECUTION: code/src/data/download_datasets.py exit=1 -->
+  - **Script**: `code/src/data/download_datasets.py`  
+  - **Outputs**: `data/raw/<dataset_name>.csv`, `data/processed/results/data_checksums.json`.  
+  - **Verification**:  
+    1. SHA‑256 checksum matches JSON entry.  
+    2. Row count ≥ 1 000.  
+    3. Failure raises an exception (no silent fallback).  
 
----
+- [ ] **T018** [P2] [US1] Load each univariate time series, enforce **≥ 1 000 observations**, and normalize to zero mean / unit variance (explicitly satisfies FR‑001).  
+  - **Script**: `code/src/data/preprocessing.py`  
+  - **Outputs**: `data/processed/normalized/<dataset_name>.parquet`.  
+  - **Verification**:  
+    1. Row count check (≥ 1000).  
+    2. Mean ≈ 0, std ≈ 1 (tolerance 0.001).  
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] **T025** [P2] [US1] Generate the synthetic dataset with injected anomalies **and** pre‑anomaly dynamics (increasing variance, autocorrelation) as required by FR‑021.  
+  - **Script**: `code/src/data/synthetic_generator.py`  
+  - **Outputs**: `data/processed/synthetic_generator_output.parquet`.  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] **T023** [P2] [US1] Validate that the synthetic generator implements the required pre‑anomaly dynamics and that its output statistics match expectations (FR‑022).  
+  - **Script**: `code/src/data/verify_synthetic.py`  
+  - **Outputs**: `data/processed/results/synthetic_verification.txt` (passes/fails with quantitative summary).  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] **T021** [P2] [US1] Create a **train/validation/test split** (70/15/15) for each dataset (real and synthetic). Store indices in `data/processed/split_indices.json`. This split is required before any threshold calibration (FR‑019).  
+  - **Script**: `code/src/data/split.py`  
+  - **Verification**:  
+    1. No overlap between splits.  
+    2. Each split contains at least one injected anomaly (if present).  
 
-- [X] T004 [P] Create `code/src/` directory structure: `models/`, `baselines/`, `data/`, `evaluation/`, `services/`, `simulation/`
-- [X] T005 [P] Create `data/raw/` and `data/processed/results/` directories; ensure NO `data/results/` or nested `data/raw/raw/` exist
-- [X] T006 [P] Create `state/projects/` directory for artifact hashes
-- [X] T007 [P] Initialize `code/config.yaml` with ONLY hyperparameters, seeds, and base paths (must remain <2KB)
-- [X] T008 [P] Create `code/.gitignore` excluding `__pycache__/`, `*.pyc`, `*.log` (except `logs/elbo/`)
-- [X] T009 [P] Create `specs/contracts/` directory and define all schema YAML files (`dataset.schema.yaml`, `anomaly_score.schema.yaml`, etc.)
-- [X] T010 [P] Implement `code/src/services/state_update.py` to compute and record SHA256 hashes for synthetic generator and windowing logic
-- [X] T011 [P] Create `code/src/utils/checksums.py` for recording and verifying data artifacts in state file
-- [X] T012 [P] Create `data/data-dictionary.md` documenting UCI dataset sources, licenses, and access dates (Electricity, Traffic)
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 2.5: Test First (TDD Cycle)
-
-**Purpose**: Write all contract and integration tests BEFORE implementation to ensure testability and prevent drift.
-
-**⚠️ CRITICAL**: These tasks depend on T009 (Schemas) being live.
-
-- [X] T013 [US1] Contract test for `AnomalyDetectorService` SCHEMA in `code/tests/contract/test_anomaly_detector_schema.py`. **Note**: Requires T009 completion. **Dependency**: Must wait for Phase 2 (Schemas) to complete.
-- [X] T014 [US1] Contract test for `DPGMM` model schema in `code/tests/contract/test_dpgmm_schema.py`. **Note**: Requires T009 completion. **Dependency**: Must wait for Phase 2 (Schemas) to complete.
-- [X] T015 [US1] Integration test for sliding window inference and derivative extraction in `code/tests/integration/test_streaming_update.py`. **Note**: Requires T009 completion. **Dependency**: Must wait for Phase 2 (Schemas) to complete.
-- [X] T016 [US1] Unit test for ADVI convergence check and exclusion logic in `code/tests/unit/test_advi_convergence.py`. **Note**: Requires T009 completion. **Dependency**: Must wait for Phase 2 (Schemas) to complete.
-- [X] T017 [US1] Unit test for bootstrap resampling logic when anomaly count <10 in `code/tests/unit/test_bootstrap_fallback.py`. **Note**: Requires T009 completion. **Dependency**: Must wait for Phase 2 (Schemas) to complete.
-- [X] T028 [P] [US2] Contract test for `EvaluationMetrics` schema in `code/tests/contract/test_metrics_schema.py`
-- [X] T029 [P] [US2] Integration test for baseline comparison and time-to-detection calculation in `code/tests/integration/test_baseline_comparison.py`
-- [X] T030 [P] [US2] Unit test for Wilcoxon signed-rank test and paired t-test sensitivity check in `code/tests/unit/test_statistical_tests.py`
-- [X] T037 [P] [US3] Contract test for `ThresholdCalibratorService` methods in `code/tests/contract/test_threshold_calibrator_schema.py`
-- [X] T038 [P] [US3] Integration test for threshold sensitivity sweep and nested validation in `code/tests/integration/test_threshold_calibration.py`
-- [X] T039 [P] [US3] Unit test for Bonferroni correction application AND sensitivity report generation (table/plot showing FP rate variation) in `code/tests/unit/test_bonferroni_and_sensitivity.py` (FR-007b, SC-003). **Note**: Must generate `data/processed/results/sensitivity_report.csv` as part of the test artifact.
-- [X] T046 [P] [US4] Unit test for memory profiling using `psutil` to measure peak RSS
-- [X] T047 [P] [US4] Unit test for runtime measurement and timeout enforcement
-
-**Checkpoint**: All tests written and failing; ready for implementation.
-
----
-
-## Phase 3: User Story 1 - Core DPGMM Training and Dynamic Signature Extraction (Priority: P1) 🎯 MVP
-
-**Goal**: Implement stick-breaking DP-GMM with ADVI, extract $\dot{\alpha}$ and weight variance, validate against ground truth simulation
-
-**Independent Test**: Load synthetic dataset with injected anomalies, run sliding window inference, verify output includes time-series of posterior mean $\alpha$, its first derivative, and component weight variance for every window step.
-
-**⚠️ EXECUTION ORDER & GATES**:
-1. **T021 (Windowing) MUST precede T019 and T020.**
-2. **T018 (Phase 0 Simulation) MUST PASS (or halt) before T020 and T023 can start.** If T018 halts, pipeline stops for this metric.
-
-### Implementation for User Story 1
-
-- [X] T021 [US1] Implement `code/src/data/windowing.py` for sliding window extraction (length=30, stride=1) with normalization. **Order**: Must be completed before T019 and T020. **Constraint**: Window size MUST be 30 as per Plan Technical Context for stability.
-- [X] T019 [P] [US1] Create `code/src/data/synthetic_generator.py` generating datasets with pre-anomaly dynamics, abrupt shifts, and independent ground-truth timestamps (FR-021, FR-022). **Note**: Used for simulation and as fallback if real data search fails. **Dependency**: Must be completed before T018.
-- [X] T020 [US1] Create `code/src/models/dpgmm.py` implementing stick-breaking DP-GMM using PyMC 4 and ADVI variational inference. **Constraint**: (Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347) AND a hierarchical time-varying prior ($\alpha_t \sim \text{Normal}(\alpha_{t-1}, \sigma)$) to ensure nonparametric behavior and local signal validity (FR-002).
-- [X] T022 [US1] Implement `code/src/services/anomaly_detector.py` with a modular set of methods including `__init__`, `load_model`, `process_stream`, `update_model`, `compute_score`, `get_uncertainty`, and `save_checkpoint`.
-- [X] T023 [US1] Implement logic to track posterior mean $\alpha$ and $\pi$ at each window step and compute first derivative $\dot{\alpha}$
-- [X] T024 [US1] Implement exclusion logic for non-convergent ADVI runs (Exclude non-convergent ADVI runs if ELBO delta > 0.01 for 10 iterations within 500 iterations [UNRESOLVED-CLAIM: c_cede4f68 — status=not_enough_info].) per FR-009
-- [X] T025 [US1] Implement bootstrap resampling procedure for p-values and confidence intervals when anomaly count <10 [UNRESOLVED-CLAIM: c_9b5caf08 — status=not_enough_info] (FR-011, FR-012)
-- [X] T026 [US1] Implement MCMC (NUTS) robustness check on a specific set of windows selected by ground-truth injection timestamps (Equal numbers of pre-anomaly and anomaly samples, plus a larger set of transition samples) to validate $\dot{\alpha}$ is not an ADVI artifact (FR-018). **Deliverable**: Generate `data/processed/results/mcmc_validation.csv` with deviation metrics. **Constraint**: **Pass criterion**: Correlation between ADVI and MCMC $\dot{\alpha}$ must be >= 0.9. If < 0.9, log warning and flag as "Unvalidated Signal".
-- [X] T027 [US1] Create `code/src/evaluation/metrics.py` implementing Kolmogorov-Smirnov test for distributional differences (FR-010, FR-014, FR-015) comparing baseline reconstruction error distributions against DP-GMM signature distributions.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] **T005** [P1] [US1] Run the **first executable end‑to‑end analysis** on a minimal verified dataset (e.g., the smallest NAB series) to produce a real result file and confirm the pipeline works.  
+  - **Command (documented in `quickstart.md`)**:  
+    ```bash
+    python -m code.src.scripts.run_pipeline \
+        --config code/config.yaml \
+        --dataset data/processed/normalized/nab_example.parquet \
+        --output data/processed/posterior_trajectory.parquet
+    ```  
+  - **Outputs**:  
+    * `data/processed/posterior_trajectory.parquet` (conforms to `posterior_trajectory.schema.yaml`)  
+    * `data/processed/detection_events.json` (conforms to `detection_event.schema.yaml`)  
+  - **Verification**:  
+    1. Parquet contains a row per sliding window; `converged` matches ADVI convergence.  
+    2. Detection events include at least one non‑null `time_to_detection`.  
+    3. Log `run_metadata` (peak RAM, runtime) in `data/processed/results/first_run_metadata.json`.  
 
 ---
 
-## Phase 4: User Story 2 - Baseline Comparison and Time-to-Detection Analysis (Priority: P2)
+## Phase 1 – Setup, compliance, and preparatory studies  
 
-**Goal**: Compute reconstruction errors from fixed GMMs and ARIMA, calculate time-to-detection, perform statistical comparisons
+- [ ] **T001** [P2] [US4] Enforce `code/config.yaml` size < 2 KB and contain **only** hyper‑parameters required by `anomaly_detector.schema.yaml` (seeds, model, thresholds, baselines, paths).  
+  - **Steps**:  
+    1. Strip derived statistics, checksums, and any runtime‑generated fields.  
+    2. Validate size with `os.path.getsize()` < 2048 bytes.  
+    3. Run `code/scripts/validate_config_schema.py` – must exit 0 with “Validation passed”.  
+    4. Record byte count in `data/processed/results/config_compliance.txt`.  
 
-**Independent Test**: Run baseline models and DP-GMM on same data, compute time-to-detection, verify DP-GMM detects anomaly significantly earlier (statistically significant difference) than baselines.
+- [ ] **T002** [P2] [US1] Restructure all Python source files under the canonical package layout `code/src/`.  
+  - **Files moved**: any `.py` in `code/` root or stray sub‑folders (`baselines/`, `models/`, `evaluation/`, `services/`, `data/`) → `code/src/<module>/`.  
+  - **Steps**:  
+    1. Physically move files, update import statements (`from ... import ...`).  
+    2. Adjust `PYTHONPATH` in `quickstart.md` to `code/src`.  
+    3. Verify no empty legacy directories remain (`find code/ -type d -empty`).  
+    4. Run full test suite (`pytest code/tests/`) – must pass.  
+    5. Capture the directory‑tree diff in `data/processed/results/src_structure_report.txt`.  
 
-### Implementation for User Story 2
+- [ ] **T022** [P2] [US1] Perform the **signal‑to‑noise ratio (SNR) simulation study** for the $\dot{\\alpha}$ estimator under the null hypothesis (no anomaly).  
+  - **Script**: `code/src/evaluation/simulation.py`  
+  - **Outputs**: `data/processed/results/snr_report.json` (contains SNR value, confidence interval).  
+  - **Verification**: Pipeline proceeds only if `SNR > 1`; otherwise abort with clear message.  
 
-- [X] T031 [P] [US2] Create `code/src/baselines/gmm_fixed.py` implementing fixed-component GMMs (k=3, 5, 10) for reconstruction error
-- [X] T032 [P] [US2] Create `code/src/baselines/arima.py` implementing ARIMA model for reconstruction error
-- [X] T033 [US2] Implement `code/src/evaluation/metrics.py` functions for time-to-detection calculation against independent ground-truth timestamps (FR-013)
-- [X] T034 [US2] Implement Wilcoxon signed-rank test on time-to-detection values; add paired t-test as secondary check only if normality assumptions met (FR-006)
-- [X] T035 [US2] Implement KS test comparing baseline reconstruction error distribution against DP-GMM signature distribution on normalized scores (FR-015)
-- [X] T036 [US2] Implement KS test comparing "rate of change" metrics between anomaly and negative control (gradual drift) windows (FR-014)
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Threshold Justification and Sensitivity Analysis (Priority: P3)
-
-**Goal**: Implement threshold sensitivity analysis, validate robustness, ensure nested validation to prevent data-dredging
-
-**Independent Test**: Run detection logic with three distinct threshold values on held-out test set, verify output includes table showing variation in FP/FN rates.
-
-### Implementation for User Story 3
-
-- [X] T040 [P] [US3] Create `code/src/services/threshold_calibrator.py` with a set of methods including `__init__`, `calibrate`, `validate_threshold`, `get_decision_boundary`, `update_decision_boundary`, and `compute_expected_bounds`.
-- [X] T041 [US3] Implement `code/src/evaluation/threshold_sweep.py` to sweep cutoffs over significance thresholds 0.05, 0.01, 0.1 on normalized reconstruction error (FR-007). **Deliverable**: Generate `data/processed/results/sensitivity_report.csv` with columns: `threshold`, `fp_rate`, `fn_rate`, `instability_flag`.
-- [X] T042 [US3] Implement `code/src/evaluation/data_splitter.py` to split data into train/validation/test sets using a time-series aware split with a majority allocation to the training set. **Constraint**: Select threshold on validation set, apply to held-out test set (FR-019). **Deliverable**: Generate `data/processed/results/splits_manifest.json` containing keys: `train_indices`, `val_indices`, `test_indices`, `split_ratios`, `seed`.
-- [X] T043 [US3] Implement Bonferroni correction for multiple comparisons specifically when using threshold-swept outcomes in statistical tests (FR-007b). **Constraint**: Do NOT apply generically; only when threshold-swept outcomes are used.
-- [X] T044 [US3] Implement sensitivity analysis on window size and derivative calculation method (including smoothing and lag variations) to validate robustness (FR-016)
-- [X] T045 [US3] Implement logic to flag threshold instability when error rates spike in sensitivity report (FR-007)
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] **T024** [P2] [US1] Conduct **prior‑sensitivity analysis** on the Dirichlet‑process concentration hyper‑parameter (`alpha_prior_sigma`).  
+  - **Method**: Run DP‑GMM on a subset of windows with three different prior sigmas (0.05, 0.1, 0.2) and record impact on $\dot{\\alpha}$ variance, detection performance, and statistical power.  
+  - **Outputs**: `data/processed/results/prior_sensitivity.csv` (columns `alpha_prior_sigma`, `snr`, `wilcoxon_p`, `cohen_d`).  
+  - **Verification**: CSV includes required columns and at least one configuration achieving `SNR > 1`.  
 
 ---
 
-## Phase 6: User Story 4 - Resource Constraint Validation and CPU Feasibility (Priority: P3)
+## Phase 2 – Full study, comparisons, and statistical validation  
 
-**Goal**: validate pipeline runs within GitHub Actions free-tier constraints (≤2 CPU, 7 GB RAM, 6 hours)
+- [ ] **T006** [P2] [US2] Execute the **full DP‑GMM pipeline** on all verified real datasets *and* the synthetic dataset.  
+  - **Inputs**: `data/processed/normalized/*` + `data/processed/synthetic_generator_output.parquet`.  
+  - **Outputs**:  
+    * `data/processed/posterior_trajectory.parquet` (full trajectory)  
+    * `data/processed/detection_events.json` (all methods)  
+  - **Verification**:  
+    1. All windows processed; non‑convergent windows flagged `converged=False`.  
+    2. ADVI iteration count ≤ `config.yaml` `advi_max_iter`.  
+    3. Record runtime and peak RAM in `data/processed/results/full_run_metadata.json`.  
 
-**Independent Test**: Execute full pipeline on standard GitHub Actions runner,
+- [ ] **T007** [P2] [US2] Fit **baseline models** (fixed‑component GMMs with k = 3, 5, 10 and ARIMA) on the same sliding windows and compute reconstruction‑error scores.  
+  - **Script**: `code/src/models/baselines.py`  
+  - **Outputs**: `data/processed/baseline_errors.parquet` (columns: `window_id`, `gmm_k`, `arima_error`, `mse`).  
+  - **Verification**:  
+    1. Each window has at least one baseline score.  
+    2. Schema validated against `output.schema.yaml` (baseline part).  
 
-### Implementation for User Story 4
+- [ ] **T026** [P3] [US3] Calibrate **anomaly‑detection thresholds** on the **validation split** (produced by T021). Use the 95th percentile of the validation‑set score distribution as the default, then store the calibrated thresholds.  
+  - **Script**: `code/src/services/threshold_calibrator.py`  
+  - **Outputs**: `data/processed/results/calibrated_thresholds.json` (fields `threshold`, `percentile`, `adaptive`).  
 
-- [X] T048 [P] [US4] Create `code/src/utils/memory_profiler.py` using `psutil.Process().memory_info().rss` to track peak RAM
-- [X] T049 [US4] Implement `code/src/services/anomaly_detector.py` resource validation logic: **Logic**: Measure peak RAM (`rss`) and total runtime. **Failure**: If `rss > 7 * 1024 * 1024 * 1024` OR `runtime > 6 * 3600`, **raise `RuntimeError("Resource limit exceeded")`**. **Deliverable**: Generate `data/processed/results/resource_validation_report.md` with peak RAM and runtime metrics. **Note**: Replaces "FAILED: unspecified" with concrete logic.
-- [X] T050 [P] [US4] Create `code/scripts/verify_resource_compliance.py` to enforce CPU-only execution and validate no CUDA library loading
-- [X] T051 [US4] Implement logic to generate resource validation report outputting peak RAM and runtime metrics
+- [ ] **T019** [P2] [US3] If the **anomaly count** in the current run is **< 10**, execute **bootstrap resampling** for inferential testing and record bootstrap p‑values and confidence intervals (FR‑011, FR‑012).  
+  - **Script**: `code/src/evaluation/bootstrap.py`  
+  - **Outputs**: `data/processed/results/bootstrap_report.json` (`used`, `p_value`, `ci_lower`, `ci_upper`).  
+  - **Verification**: `used` is true only when count < 10; report is incorporated into the final statistical report.  
 
-**Checkpoint**: Resource constraints validated - pipeline is CPU-feasible
+- [ ] **T008** [P2] [US2] Calculate **time‑to‑detection** for DP‑GMM signatures and each baseline, then perform the required statistical tests (Wilcoxon, paired t‑test if normality holds, Cohen’s d, KS tests FR‑010, FR‑014, FR‑015). Incorporate bootstrap results from T019 when applicable.  
+  - **Metrics**: Wilcoxon signed‑rank (primary), paired t‑test (secondary), Cohen’s d, KS statistics.  
+  - **Output**: `data/processed/results/statistical_report.json` (matches `output.schema.yaml`).  
+  - **Verification**:  
+    1. JSON contains `wilcoxon`, optional `t_test`, `cohen_d`, and a list `ks_tests` with three comparisons.  
+    2. Script aborts if Wilcoxon p‑value ≥ 0.05 or Cohen’s d < 0.5 (per SC‑001).  
 
----
+- [ ] **T010** [P3] [US3] Perform **window‑size & derivative‑method sensitivity** (FR‑016). Sweep `window_size` ∈ {20, 30, 40} and derivative smoothing ∈ {none, moving‑average‑3}. Record impact on SNR (from T022) and detection performance.  
+  - **Outputs**: `data/processed/results/window_derivative_sensitivity.csv` (`window_size`, `derivative_method`, `snr`, `wilcoxon_p`, `cohen_d`).  
+  - **Verification**: CSV includes at least one configuration achieving `SNR > 1`.  
 
-## Phase 7: Data Acquisition and Provenance (Critical Path)
+- [ ] **T011** [P4] [US4] Validate **resource constraints** for the complete pipeline (FR‑008).  
+  - **Script**: `code/src/scripts/verify_resource_compliance.py` (runs after T006–T008).  
+  - **Outputs**: `data/processed/results/resource_validation_report.md` containing peak RAM (MB) and total runtime (seconds).  
+  - **Verification**:  
+    1. Peak RAM < 7168 MB.  
+    2. Runtime < 21600 seconds.  
+    3. Script exits 0; otherwise the run is marked failed.  
 
-**Goal**: Execute search procedure for real-world datasets; fetch only if verified; generate Deferred report if not found.
-
-**⚠️ CRITICAL ORDER & BRANCHING**:
-1. **T052b (Search)** MUST run first.
-2. **IF T052b FAILS (No verified source)**: Run T052c (Deferred). **T052 is SKIPPED**.
-3. **IF T052b SUCCEEDS (Verified source found)**: Run T052 (Fetch) AND T053a (Size Check). **T052c is SKIPPED**.
-
-- [X] T052b [P] [Data] Execute mandatory search procedure for real-world datasets with labeled regime shifts (FR-017). **Search Keywords**: "NAB anomaly detection ground truth", "PhysioNet MIT-BIH arrhythmia ground truth", "regime shift time series". **Sources**: NAB, PhysioNet (Primary), UCI (Fallback). **Deliverable**: If no verified source is found, generate `data/processed/results/validation_deferred.md` with exact fields: `search_query`, `result_count`, `status: DEFERRED`, `reason: FR-017b`. **Note**: This task MUST precede T052.
-- [X] T052 [Data] **Conditional on T052b success**: Create `code/src/data/download_datasets.py` fetching verified NAB/PhysioNet subsets or UCI Electricity Load Diagrams and Traffic via `ucimlrepo` or verified URLs. **Do NOT execute if T052b failed.** **Constraint**: Do NOT fetch synthetic datasets (e.g., Synthetic Control Chart) as "real-world".
-- [X] T053a [Data] **Conditional on T052 success**: Implement `code/src/utils/check_dataset_size.py` to count rows in fetched datasets. **Logic**: If `rows < 1000`, **raise `ValueError("Dataset size insufficient (<1000 rows)")`** (FR-001). **Deliverable**: Generate `data/sample_size_report.md` confirming ≥1000 observations.
-- [X] T054 [Data] Delete all PEMS-SF files (`pems_sf.csv`, `pems_sf_synthetic.csv`) from `data/raw/`
-- [X] T054b [Data] **Conditional on T054 failure**: Execute `rm -f data/raw/pems_sf.csv data/raw/pems_sf_synthetic.csv` and verify with `ls -la data/raw/ | grep pems` returning empty. Log output to `data/data_provenance_report.md`.
-- [X] T055 [Data] Flatten `data/raw/raw/` directory: move all files to `data/raw/` and remove nested directory
-- [X] T055b [Data] **Conditional on T055 failure**: Execute `find data/raw/ -type d -name raw -exec rm -rf {} +` and verify with `find data/raw/ -type d -name raw` returning empty. Log output to `data/data_provenance_report.md`.
-- [X] T056 [Data] Delete legacy `data/results/` directory and migrate all contents to `data/processed/results/`
-- [X] T056b [Data] **Conditional on T056 failure**: Execute `rm -rf data/results/` and verify with `ls -la data/ | grep results` returning only `processed/results`. Log output to `data/data_provenance_report.md`.
-- [X] T057 [Data] Generate SHA256 checksums for all raw data files and record in `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml`
-- [X] T058 [Data] **Conditional on T052b success**: Update `data/data-dictionary.md` to list only verified UCI datasets (Electricity, Traffic) with explicit license terms and URLs. **If T052b failed, update to note 'Deferred by Design' per FR-017b.**
-- [X] T059 [Data] Implement `code/src/data/download_datasets.py` verification logic to check dataset integrity against checksums before processing
-- [X] T052c [Data] **Conditional on T052b failure**: Generate 'Validation Deferred' report citing search query and result count, mark requirement as 'Deferred by Design' (FR-017b).
-
-**Checkpoint**: Data hygiene established - only compliant UCI datasets present with verified checksums OR Deferred report generated.
-
----
-
-## Phase 8: Configuration and Filesystem Hygiene (Critical Path)
-
-**Goal**: Ensure config.yaml <2KB, correct file locations, complete documentation
-
-- [X] T060a [Config] Create `code/src/utils/migrate_config.py` script to handle migration of derived statistics from `code/config.yaml` to `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml`. **Pre-condition**: Assumes `code/config.yaml` exists (created by T007).
-- [X] T060b [Config] Execute `code/src/utils/migrate_config.py` to migrate derived statistics if they exist in `code/config.yaml`. **Pre-condition**: Requires T060a completion. **Note**: If `code/config.yaml` is missing or empty, log "No statistics to migrate" and proceed.
-- [X] T062 [Config] Verify `projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/config.yaml` size <2048 bytes using `os.path.getsize()`; fail if exceeded (FR-009). **Consolidated from T060c/T061**.
-- [X] T063 [FS] Move all Python source files from `code/` root to `code/src/` subdirectories (models/, baselines/, data/, evaluation/, services/, utils/, simulation/)
-- [X] T064 [FS] Update all imports in `code/src/` files to reflect new package structure
-- [X] T065 [FS] Create `README.md` at repository root with usage instructions for DPGMM and baselines
-- [X] T066 [FS] Create `LICENSE` file (MIT) at repository root
-- [X] T067 [FS] Verify `code/.gitignore` includes `__pycache__/`, `*.pyc`, `*.egg-info/`
-- [X] T068 [FS] Create `logs/elbo/` directory for ELBO convergence logs per Constitution Principle VI
-- [X] T069 [FS] Verify `code/src/` contains NO files at root level; run `find code/ -maxdepth 1 -name "*.py"` and ensure empty
-- [X] T070 [FS] Verify `data/raw/` contains NO nested `raw/` directories; run `find data/raw/ -type d -name raw` and ensure empty
-- [X] T071 [FS] Verify `data/` contains NO `results/` directory; run `ls -la data/ | grep results` and ensure only `processed/results/` exists
-- [X] T072 [FS] Verify no PEMS-SF files exist in `data/raw/`; run `grep -r "pems" data/raw/` and ensure empty
-
-**Checkpoint**: Filesystem hygiene and config compliance verified
+- [ ] **T012** [P4] [US1] Execute the **MCMC robustness check** (FR‑018) on a representative subset of windows (e.g., the top 5 % with highest `alpha_deriv` variance).  
+  - **Method**: NUTS sampling via PyMC; compare ADVI‑derived `alpha_deriv` to MCMC posterior mean.  
+  - **Outputs**: `data/processed/results/mcmc_validation.csv` (`window_id`, `advi_alpha_deriv`, `mcmc_alpha_deriv`).  
+  - **Verification**: Pearson correlation ≥ 0.9; if lower, set `validation_flag: false` and propagate to final report.  
 
 ---
 
-## Phase 9: Reporting and Compliance (Final Gate)
+## Phase 3 – Threshold calibration and sensitivity  
 
-**Goal**: Generate final reports, validate all requirements, execute final acceptance
-
-- [X] T089 [Report] Generate `data/processed/results/simulation_validation.csv` with SNR metrics from Phase 0 (FR-020)
-- [X] T090 [Report] Generate `data/processed/results/posterior_trajectory.csv` with $\dot{\alpha}$ and weight variance trajectories
-- [X] T091 [Report] Generate `data/processed/results/statistical_report.csv` with KS tests, Wilcoxon tests, bootstrap p-values
-- [X] T092 [Report] Generate `data/processed/results/sensitivity_report.md` with threshold sweep results and instability flags
-- [X] T093 [Report] Generate `data/processed/results/final_report.md` including methodology, results, fallback status, and "Deferred by Design" note if real-world data search fails (FR-017b)
-- [X] T094 [Report] Generate `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml` with all artifact hashes and dataset checksums
-- [X] T095 [Compliance] Run `code/scripts/verify_config_compliance.py` and capture output in `code/tests/config_compliance_report.md`
-- [X] T096 [Compliance] Run `code/scripts/verify_resource_compliance.py` and capture output in `data/processed/results/resource_validation_report.md`
-- [X] T097 [Compliance] Verify all UCI datasets present with checksums in state file; generate `data/sample_size_report.md` confirming Verify all UCI datasets present with checksums in state file; generate `data/sample_size_report.md` confirming ≥1000 observations each (or Deferred report if applicable) (or Deferred report if applicable)
-- [X] T098 [Compliance] Run `find data/raw/ -type f -name "*.csv"` and verify only Electricity, Traffic present; output to `data/data_provenance_report.md` (or Deferred status)
-- [X] T099 [Compliance] Run `ls -la code/src/` and verify correct subdirectory structure; output to `code/src_structure_report.md`
-- [X] T100 [Compliance] Execute T145 Final Acceptance: verify all [X] tasks have no FAILED-IN-EXECUTION comments, all filesystem hygiene checks pass, all tests pass, all reports generated
-
-**Checkpoint**: All success criteria met - project ready for `research_complete` stage
+- [ ] **T009** [P3] [US3] Perform **threshold sensitivity analysis** on the normalized reconstruction‑error scores using the calibrated thresholds from T026.  
+  - **Thresholds**: values defined in `config.yaml` → `[0.01, 0.05, 0.1]`.  
+  - **Outputs**: `data/processed/results/sensitivity_report.parquet` (conforms to `sensitivity_report.schema.yaml`).  
+  - **Verification**:  
+    1. Exactly three rows (one per threshold).  
+    2. `stability_flag` = True if any FP/FN rate spikes > 0.2 relative to the previous threshold.  
 
 ---
 
-## Phase 9.5: External Verification & Remediation (Critical Path)
+## Phase 4 – Reporting, figures, and finalisation  
 
-**Purpose**: Physically enforce filesystem hygiene and config constraints with explicit shell command evidence. **MUST complete before T100.**
+- [ ] **T013** [P5] [US5] Generate **all study figures** directly from validated result artefacts.  
+  - **Figures** (saved under `data/processed/results/figures/`):  
+    1. Posterior α trajectory with injected‑anomaly timestamps.  
+    2. Detection‑latency box‑plots for DP‑GMM vs baselines.  
+    3. FP/FN vs threshold plot.  
+    4. (Optional) Window‑size sensitivity heatmap.  
+  - **Verification**: Each PNG exists, script `code/src/visualization/plot_all.py` runs without error, and the figure files are listed in `data/processed/results/figure_manifest.txt`.  
 
-- [X] T104 [FS] **Physical Cleanup**: Execute `rm -f data/raw/pems_sf.csv data/raw/pems_sf_synthetic.csv`. **Verification**: Run `ls -la data/raw/ | grep pems` and capture output in `data/data_provenance_report.md`. **Constraint**: Command must return empty output. **Assert**: `output.strip() == ""`.
-- [X] T105 [FS] **Physical Cleanup**: Execute `rm -rf data/raw/raw/`. **Verification**: Run `find data/raw/ -type d -name raw` and capture output in `data/data_provenance_report.md`. **Constraint**: Command must return empty output. **Assert**: `output.strip() == ""`.
-- [X] T106 [FS] **Physical Cleanup**: Execute `rm -rf data/results/`. **Verification**: Run `ls -la data/ | grep results` and capture output in `data/data_provenance_report.md`. **Constraint**: Command must return only `processed/results`. **Assert**: `output` contains only `processed/results`.
-- [X] T107 [Config] **Physical Migration**: Execute `code/src/utils/migrate_config.py` to move all derived statistics from `code/config.yaml` to `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml`. **Verification**: Run `stat -c%s code/config.yaml` and capture output in `code/tests/config_compliance_report.md`. **Constraint**: Output must be <2048. **Note**: If source file is missing or empty, log "No statistics to migrate" and proceed.
-- [X] T108 [FS] **Source Relocation**: Move any remaining `.py` files from `code/` root to `code/src/` subdirectories. **Verification**: Run `find code/ -maxdepth 1 -name "*.py" -type f` and capture output in `code/src_structure_report.md`. **Constraint**: Command must return empty output. **Assert**: `output.strip() == ""`.
-- [X] T109 [Test] **Coverage Verification**: Run `pytest --cov=code/src --cov-report=term-missing` and capture output in `code/tests/test_report.md`. **Constraint**: Must achieve ≥80% line coverage. <!-- FAILED: unspecified -->
+- [ ] **T015** [P7] [US4] Update the **project state hash** whenever the synthetic generator or sliding‑window logic changes (FR‑023).  
+  - **Trigger**: Detect file modification timestamps of `code/src/data/synthetic_generator.py` and `code/src/data/windowing.py`.  
+  - **Action**: Compute SHA‑256 of each file and write to `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml` under `artifact_hashes`.  
+  - **Verification**: Script exits 0 and the YAML entries match the computed hashes.  
 
-**Checkpoint**: Physical filesystem state matches spec requirements ONLY after T104-T109 complete and verification logs confirm empty outputs.
+- [ ] **T016** [P6] [US4] Write the **final results report** (`data/processed/results/final_report.md`).  
+  - **Content**:  
+    1. Brief methods summary linking to `quickstart.md`.  
+    2. SNR gate outcome (pass/fail).  
+    3. All statistical test results (Wilcoxon, KS, Cohen’s d, bootstrap usage flag).  
+    4. Threshold‑sensitivity findings (include FP‑rate range).  
+    5. Resource‑validation summary.  
+    6. Limitation notes (e.g., if SNR ≤ 1 or MCMC correlation < 0.9).  
+    7. Community‑standard threshold justification (Cohen 1988) and observed FP‑rate range.  
+    8. “Validation Deferred” statement if T020 produced a deferred‑by‑design report.  
+  - **Verification**: Every numeric claim is traced to a file under `data/processed/results/` (checked via a grep‑cross‑reference script).  
 
----
+- [ ] **T017** [P7] Create a **reproducible workflow document** (`quickstart.md`) **and** an orchestrating shell script `run_all.sh`.  
+  - **`run_all.sh`** runs tasks in the exact required order, respecting all producer‑consumer dependencies:  
 
-## Phase 10: Critical Remediation for Persistent Review Violations (FR-009, SC-004, Constitution V)
+    ```bash
+    #!/usr/bin/env bash
+    set -euo pipefail
 
-**Purpose**: Address persistent violations flagged in multiple prior reviews (config size, PEMS-SF presence, nested directories) that contradict task completion markers. These tasks require **physical execution** of shell commands and verification logs. **MUST complete before T100.**
+    # Phase 0
+    python -m code.src.data.search_datasets          # T020
+    python -m code.src.data.download_datasets         # T003
+    python -m code.src.data.preprocessing             # T018
+    python -m code.src.data.synthetic_generator        # T025
+    python -m code.src.data.verify_synthetic          # T023
+    python -m code.src.data.split                     # T021
+    python -m code.src.scripts.run_pipeline           # T005 (minimal sanity run)
 
-- [X] T110 [Config] **Physical Migration 2**: Execute `python code/src/utils/migrate_config.py --force` to forcibly move ALL derived statistics from `code/config.yaml` to state file. **Trigger**: If `config.yaml` > 2KB. **Verification**: Run `stat -c%s code/config.yaml` and capture output in `code/tests/config_compliance_report.md`. **Constraint**: Output MUST be <2048 bytes. **Note**: If this fails, manually edit `config.yaml` to remove all non-hyperparameter entries.
-- [X] T111 [Data] **Physical Cleanup 2**: Execute `find data/raw/ -type d -name raw -exec rm -rf {} +` and `find data/raw/ -name "*pems*" -delete`. **Trigger**: If `raw/` dir exists or `pems` files exist. **Verification**: Run `ls -la data/raw/` and `find data/raw/ -type d -name raw` capturing output in `data/data_provenance_report.md`. **Constraint**: `raw/` directory must not exist; no `pems` files must exist.
-- [X] T112 [Data] **Physical Migration 2**: Execute `mv data/results/* data/processed/results/ 2>/dev/null || true` and `rmdir data/results 2>/dev/null || true`. **Trigger**: If `data/results/` exists. **Verification**: Run `ls -la data/ | grep results` capturing output in `data/data_provenance_report.md`. **Constraint**: Only `processed/results` should appear; no standalone `results` directory.
-- [X] T113 [FS] **Source Relocation 2**: Execute `find code/ -maxdepth 1 -name "*.py" -type f -exec mv {} code/src/ \;` and `find code/ -maxdepth 1 -type d -name "baselines" -exec mv {} code/src/ \;` (repeat for models, evaluation, data, services, utils). **Trigger**: If `.py` files exist at `code/` root. **Verification**: Run `find code/ -maxdepth 1 -name "*.py"` and `find code/ -maxdepth 1 -type d` capturing output in `code/src_structure_report.md`. **Constraint**: No `.py` files or subdirectories at `code/` root level.
-- [ ] T114 [Test] **Coverage Verification 2**: Execute `pytest --cov=code/src --cov-report=term-missing --cov-fail-under=80` and capture full output in `code/tests/test_report.md`. **Constraint**: Must achieve ≥80% line coverage. If failed, identify missing tests and create them before proceeding.
-- [ ] T115 [Config] **Schema Validation**: Create `code/scripts/validate_config_schema.py` to validate `config.yaml` against `specs/contracts/anomaly_detector.schema.yaml` at runtime. **Verification**: Run the script and capture output in `code/tests/config_compliance_report.md`. **Constraint**: Must exit 0 with "Validation passed".
-- [ ] T116 [Data] **Sample Size Verification**: Execute `python code/src/utils/check_dataset_size.py` to count rows in `electricity.csv`, `traffic.csv`, `synthetic_control.csv`. **Verification**: Capture output in `data/sample_size_report.md`. **Constraint**: All datasets must have ≥1000 observations.
-- [ ] T117 [Data] **Checksum Verification**: Execute `python code/src/utils/verify_checksums.py` to verify all raw data files against state file hashes. **Verification**: Capture output in `data/data_provenance_report.md`. **Constraint**: All checksums must match; no mismatches allowed.
-- [ ] T118 [Report] **Final Compliance Report**: Generate `data/processed/results/final_compliance_report.md` summarizing all Phase 9.5 and Phase 10 verification results, including shell command outputs, file sizes, and pass/fail status for each requirement.
-- [ ] T119 [Compliance] **Final Acceptance Re-run**: Execute T100 again after all Phase 10 tasks complete. **Verification**: All [X] tasks must have no FAILED-IN-EXECUTION comments; all filesystem checks must pass; all tests must pass; all reports must be generated. **Constraint**: Project cannot advance to `analyzed` stage until this passes.
+    # Phase 1
+    python -m code.src.scripts.validate_config_schema # T001
+    python -m code.src.scripts.restructure_code       # T002
+    python -m code.src.evaluation.simulation          # T022
+    python -m code.src.evaluation.prior_sensitivity   # T024
 
----
-## Dependencies & Execution Order
+    # Phase 2
+    python -m code.src.scripts.run_full_dp_gmm        # T006
+    python -m code.src.models.baselines               # T007
+    python -m code.src.services.threshold_calibrator   # T026
+    python -m code.src.evaluation.bootstrap           # T019
+    python -m code.src.scripts.statistical_tests      # T008
+    python -m code.src.sensitivity.window_derivative  # T010
+    python -m code.src.scripts.verify_resource        # T011
+    python -m code.src.evaluation.mcmc_check          # T012
 
-### Phase Dependencies
+    # Phase 3
+    python -m code.src.scripts.threshold_sensitivity  # T009
 
-- **Phase 0 (Ground Truth Simulation)**: No dependencies - MUST complete before Phase 3.
-- **Setup (Phase 1)**: No dependencies - can start immediately.
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories.
-- **Test First (Phase 2.5)**: Depends on Phase 2 (Schemas) - BLOCKS all User Story implementations.
-- **User Stories (Phase 3-6)**: All depend on Phase 0, Phase 2, Phase 2.5, and Phase 7 (Data Acquisition).
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Data Acquisition (Phase 7)**: MUST complete before Phase 3 (User Story 1) implementation. **T052b (Search) MUST precede T052c (Deferred) and T052 (Fetch).**
-- **Hygiene (Phase 8)**: Must complete before Final Acceptance (T100)
-- **Reporting (Phase 9)**: Depends on all previous phases; final gate before `research_complete`
-- **External Verification (Phase 9.5) & Remediation (Phase 10)**: Must complete **BEFORE** Final Acceptance (T100) to ensure physical compliance.
+    # Phase 4
+    python -m code.src.visualization.plot_all          # T013
+    python -m code.src.scripts.update_state_hash      # T015
+    python -m code.src.scripts.generate_final_report  # T016
+    ```
 
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Requires Phase 0, Phase 2, Phase 2.5, and Phase 7 (Data Acquisition).
-- **User Story 2 (P2)**: Requires Phase 3 (US1) completion for baseline comparison.
-- **User Story 3 (P3)**: Requires Phase 4 (US2) completion for threshold calibration.
-- **User Story 4 (P3)**: Can run in parallel with US2/US3 but requires full pipeline execution.
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Phase 0, Phase 2, Phase 2.5, and Phase 7 complete, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together:
-Task: "Contract test for AnomalyDetectorService schema in code/tests/contract/test_anomaly_detector_schema.py"
-Task: "Integration test for sliding window inference in code/tests/integration/test_streaming_update.py"
-
-# Launch all models for User Story 1 together:
-Task: "Create DP-GMM model in code/src/models/dpgmm.py (stick-breaking)"
-Task: "Create synthetic generator in code/src/data/synthetic_generator.py"
-```
+  - **Verification**: Executing `./run_all.sh` on a fresh runner reproduces all artefacts listed in `final_report.md` and passes the test suite (`pytest`).  
 
 ---
 
-## Implementation Strategy
+## Dependency & Requirement Coverage  
 
-### MVP First (User Story 1 Only)
+| Spec/FR ID | Covered by Task(s) |
+|------------|--------------------|
+| FR‑001 – FR‑004 | T006, T007 |
+| FR‑005 – FR‑006 | T008 |
+| FR‑007 – FR‑009 | T001, T009, T010, T021, T026 |
+| FR‑010 – FR‑015 | T008, T009, T010 |
+| FR‑016 | T010 |
+| FR‑017 / FR‑017b | T020 (search) → if none, deferred report |
+| FR‑018 | T012 |
+| FR‑019 | T021 (split) → T026 (calibration) |
+| FR‑020 | T022 |
+| FR‑021 – FR‑022 | T025 (generation) + T023 (verification) |
+| FR‑023 | T015 |
+| FR‑024 | T001 |
+| FR‑008 – FR‑009 | T011, T001 |
+| FR‑011 – FR‑012 | T019 (bootstrap) |
+| FR‑014 – FR‑015 | T008 (KS tests) |
+| FR‑016 | T010 |
+| FR‑017 / FR‑017b | T020 |
+| FR‑018 | T012 |
+| FR‑019 | T021, T026 |
+| FR‑020 | T022 |
+| SC‑001 – SC‑008 | T008 (Cohen’s d, Wilcoxon), T009 (threshold stability), T011 (resource), T019 (bootstrap), T012 (MCMC correlation) |
 
-1. Complete Phase 0: Ground Truth Simulation (CRITICAL - validates metric)
-2. Complete Phase 1: Setup
-3. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-4. Complete Phase 2.5: Test First (CRITICAL - ensures testability)
-5. Complete Phase 7: Data Acquisition (Search first, then Fetch or Deferred)
-6. Complete Phase 3: User Story 1
-7. **STOP and VALIDATE**: Test User Story 1 independently
+All scientific requirements are now represented, and the pipeline can be executed end‑to‑end on real inputs before any paper‑stage handoff.  
 
-### Incremental Delivery
+---  
 
-1. Complete Phase 0 + Setup + Foundational + Test First + Data Acquisition → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Add User Story 4 → Validate resource constraints
-6. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Phase 0 + Setup + Foundational + Test First + Data Acquisition together
-2. Once Foundation ready:
- - Developer A: User Story 1 (DPGMM core)
- - Developer B: User Story 2 (Baselines)
- - Developer C: User Story 3 (Thresholds)
-3. Stories complete and integrate independently
-
-### Revision Remediation Strategy
-
-**CRITICAL**: Do NOT retry the same tasks that failed in prior reviews. Remediation is handled via Phase 9.5 (T104-T109) and Phase 10 (T110-T119) for physical file cleanup and config migration.
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- **CRITICAL**: All PEMS-SF files must be removed; only UCI datasets allowed (or Deferred report)
-- **CRITICAL**: All source files must be under `code/src/`
-- **CRITICAL**: `config.yaml` must be <2KB (migrate ~8KB stats to state file)
-- **CRITICAL**: No legacy `data/results/` or nested `data/raw/raw/` directories
-- **CRITICAL**: Phase 7 (Data Acquisition) MUST complete before Phase 3. T052b (Search) MUST precede T052c (Deferred) and T052 (Fetch).
-- **CRITICAL**: T018 (Simulation) MUST complete after T019 (Creation) and before T020 (DPGMM).
-- **CRITICAL**: T021 (Windowing) MUST precede T019 and T020.
-- **CRITICAL**: All verification outputs (ls, find, stat, grep) MUST be captured in report files.
-- **CRITICAL**: Phase 9.5 tasks (T104-T109) MUST execute actual shell commands and capture output to prove physical compliance.
-- **CRITICAL**: Phase 10 tasks (T110-T119) MUST execute actual shell commands and capture output to prove physical compliance.
-- **CRITICAL**: Phase 9.5 and Phase 10 MUST complete BEFORE T100 (Final Acceptance).
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-
-<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart run-book invokes a script no task created) -->
-- [X] T101 Reconcile run-book vs implementation for `code/src/config.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/src/config.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [X] T102 Reconcile run-book vs implementation for `code/src/evaluation/simulation.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/src/evaluation/simulation.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [X] T103 Reconcile run-book vs implementation for `code/src/evaluation/robustness.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/src/evaluation/robustness.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+*All unchecked tasks are pending; checking a box will be done automatically by the CI verification step once the corresponding artefact passes its verification script.*  

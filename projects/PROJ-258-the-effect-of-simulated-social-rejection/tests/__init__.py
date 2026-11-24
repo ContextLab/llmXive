@@ -1,3 +1,3 @@
 """
-Package initializer for the test suite.
+Tests package initialization.
 """

@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Power Analysis Results"
+description: "Schema for the CSV file summarising the power‑analysis study that quantifies the minimum detectable dipole amplitude."
+type: "object"
+required:
+  - scenario
+  - detectable_dipole_amp
+  - n_sne
+  - sigma_residual
+  - method
+properties:
+  scenario:
+    type: "string"
+    description: "Identifier for the analysis scenario (e.g., 'analytic', 'pilot_mc')."
+  detectable_dipole_amp:
+    type: "number"
+    description: "Minimum dipole amplitude (mag) that can be detected at p < 0.05 with ≥ 80 % power."
+  n_sne:
+    type: "integer"
+    description: "Number of supernovae used in the scenario."
+    minimum: 1
+  sigma_residual:
+    type: "number"
+    description: "Assumed residual dispersion (mag) for the analytic estimate."
+    minimum: 0
+  method:
+    type: "string"
+    enum: ["analytic", "monte_carlo"]
+    description: "Method used to obtain the detectable amplitude."
+additionalProperties: false

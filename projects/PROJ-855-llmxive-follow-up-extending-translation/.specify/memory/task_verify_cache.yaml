@@ -1,15 +1,9 @@
-T027b:
-  c: false
-  h: cf8ceb4df6c13310bfc9c8bb4aea43a8e474ebafc954904ddb68077c1b15baef
-  r: "The repository contains a `code/train_baseline.py` file, but it is truncated\
-    \ and does not include any training loop or model\u2011saving logic, and the required\
-    \ output file `data/processed/baseline_model.pt` is absent. Consequently the baseline\
-    \ model is neither trained nor persisted, so the task\u2019s requirement is not\
-    \ met."
-T027c:
-  c: false
-  h: 8d98adc483f02296c73b14a12f7530a8c2b8758fe2fb15e421eb2f574d17332f
-  r: "The provided `code/train_shuffled_control.py` is truncated (ends mid\u2011line)\
-    \ and does not clearly show the random shuffling of translation sequences or the\
-    \ training loop that saves a model. Moreover, the expected output file `data/processed/shuffled_control_model.pt`\
-    \ is missing. The task\u2019s required artifacts are therefore absent or incomplete."
+T001:
+  c: true
+  h: 0d0087f89b08d74796ee393985e15d82cbb5615c25ca0354ec89d492b338338a
+  r: 'The `code/config.yaml` file exists and contains the required `random_seed`,
+    `tipping_angle: 15.0`, `slippage_distance: 0.02`, and a `sensitivity_noise_levels`
+    list in degrees. The unit test `tests/unit/test_config_load.py` successfully loads
+    the file and validates the presence and types of all required keys (log shows
+    the test passed).'
+  sig: f805c8c196631210db3c0325a1830465123d2512fc53cf2afe0c148fbd7b19fe

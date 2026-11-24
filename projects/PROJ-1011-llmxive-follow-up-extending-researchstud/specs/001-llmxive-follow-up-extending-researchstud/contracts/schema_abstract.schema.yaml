@@ -36,6 +36,13 @@ properties:
   checksum:
     type: string
     description: "SHA-256 checksum of the raw data"
+  source_type:
+    type: string
+    enum:
+      - "primary"
+      - "fallback"
+      - "fixture"
+    description: "Provenance of the record; fixture marks deterministic dry-run data"
 required:
   - id
   - title
@@ -45,4 +52,5 @@ required:
   - acceptance_status
   - source_url
   - checksum
+  - source_type
 additionalProperties: false

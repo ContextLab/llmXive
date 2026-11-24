@@ -12,11 +12,11 @@
     "python code/analysis/stats.py --input data/results/metrics.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-897-llmxive-follow-up-extending-swe-explore/code/analysis/stats.py\", line 9, in <module>\n    from lifelines import CoxPHFitter\nModuleNotFoundError: No module named 'lifelines'",
     "python code/analysis/plots.py --input data/results/stats_summary.json --output docs/figures/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-897-llmxive-follow-up-extending-swe-explore/code/analysis/plots.py\", line 20, in <module>\n    from analysis.stats import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-897-llmxive-follow-up-extending-swe-explore/code/analysis/stats.py\", line 9, in <module>\n    from lifelines import CoxPHFitter\nModuleNotFoundError: No module named 'lifelines'"
   ],
-  "fix_rounds": 1,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-24T10:06:29Z"
+  "updated_at": "2026-10-16T21:22:20Z"
 }

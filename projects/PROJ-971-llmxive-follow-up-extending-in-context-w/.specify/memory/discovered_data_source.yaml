@@ -1,0 +1,11 @@
+status: none
+intent: ICWM interaction clips dataset pre-trained encoder python package dataset
+required_fields:
+- clip_id
+- latent_token_sequence
+- variance
+- autocorr_lag1
+- spectral_density
+cache_key: 979f922d92e05b46646a48b33dbd082bbd5602ec39e9f2e535689a4284509772
+searched_at: '2026-10-22T18:30:53.936260+00:00'
+retry_count: 1

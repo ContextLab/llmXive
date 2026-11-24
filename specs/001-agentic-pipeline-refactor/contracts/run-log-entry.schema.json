@@ -20,6 +20,21 @@
     "cost_estimate_usd"
   ],
   "additionalProperties": false,
+  "allOf": [
+    {
+      "$comment": "Mirrors RunLogEntry._attribution_on_success (llmxive.types): a SUCCESS entry must name the backend and model that answered. Only an entry for a run that produced no response may leave them null.",
+      "if": {
+        "properties": { "outcome": { "const": "success" } },
+        "required": ["outcome"]
+      },
+      "then": {
+        "properties": {
+          "backend": { "type": "string" },
+          "model_name": { "type": "string" }
+        }
+      }
+    }
+  ],
   "properties": {
     "run_id": {
       "type": "string",
@@ -57,12 +72,14 @@
       "items": { "type": "string" }
     },
     "backend": {
-      "type": "string",
-      "enum": ["dartmouth", "huggingface", "local"]
+      "type": ["string", "null"],
+      "enum": ["dartmouth", "huggingface", "local", null],
+      "description": "The backend that actually answered. null ONLY when no ChatResponse came back (a run that failed before or during the model call); see the allOf rule below."
     },
     "model_name": {
-      "type": "string",
-      "minLength": 1
+      "type": ["string", "null"],
+      "minLength": 1,
+      "description": "The model that actually answered, or the deterministic-no-llm sentinel. null ONLY when no ChatResponse came back; see the allOf rule below."
     },
     "prompt_version": {
       "type": "string",
@@ -86,7 +103,17 @@
     "cost_estimate_usd": {
       "type": "number",
       "minimum": 0,
-      "description": "MUST be 0 unless an opt-in paid backend is active. v1 invariant: 0."
+      "description": "Total settled cost of the run. MUST be 0 unless the cost was incurred on the funded huggingface backend (no opt-in needed) or an opt-in paid backend is active."
+    },
+    "cost_by_backend": {
+      "type": ["object", "null"],
+      "description": "Optional breakdown of cost_estimate_usd by the backend that served each response; sums to cost_estimate_usd. Only the portion not served by huggingface is checked against the paid opt-in.",
+      "additionalProperties": false,
+      "properties": {
+        "dartmouth": { "type": "number", "minimum": 0 },
+        "huggingface": { "type": "number", "minimum": 0 },
+        "local": { "type": "number", "minimum": 0 }
+      }
     }
   }
 }

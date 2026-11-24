@@ -15,7 +15,6 @@ This guide explains how to run the complete analysis pipeline for the llmXive fo
 1. Install dependencies:
 ```bash
 pip install -r code/requirements.txt
-python -m spacy download en_core_web_sm
 ```
 
 2. Ensure output directories exist:
@@ -25,9 +24,10 @@ mkdir -p data/raw data/intermediate data/processed graphs figures
 
 ### Data Pipeline
 
-1. Download LoCoMo benchmark dataset:
+1. Download LoCoMo benchmark dataset (strict loader, streaming, no
+synthetic fallback). Output: `data/raw/locomo.csv` (+ `data/raw/locomo.sha256`):
 ```bash
-python code/data_loader.py --download --subset test
+python code/data/download_locomo.py
 ```
 
 2. Extract triples and build graphs:
@@ -104,6 +104,11 @@ python code/utils/validate_results.py --input data/processed/ --schema contracts
 2. Verify reproducibility:
 ```bash
 python code/utils/verify_seeds.py --graph data/processed/graphs/graph_noise_42.json --seed 42
+```
+
+3. Audit the strict data loader:
+```bash
+pytest tests/integration/test_data_loader_audit.py -v
 ```
 
 ### Streaming Mode (for large datasets)

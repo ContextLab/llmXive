@@ -1,61 +1,50 @@
 """
-I/O utilities for logging, checksumming, and data loading.
+Utility functions for I/O operations used across the pipeline.
+
+Provides:
+- ``setup_logging``: configure a simple console logger for the project.
+- ``compute_sha256``: return the hexadecimal SHA‑256 hash of a ``bytes`` object.
 """
+
 import logging
-import os
-import sys
 import hashlib
-from pathlib import Path
-from typing import Optional, Callable, Any
+from typing import Optional
 
-def setup_logging(log_file: str = "logs/pipeline.log") -> logging.Logger:
+_LOGGER_CONFIGURED = False
+
+def setup_logging(level: int = logging.INFO, fmt: Optional[str] = None) -> None:
     """
-    Configure logging with file and stream handlers.
+    Configure the root logger with a basic console handler.
+
+    This function is idempotent – calling it multiple times will not add
+    duplicate handlers.
+
+    Args:
+        level: Logging level for the root logger (default: INFO).
+        fmt: Optional logging format string. If not provided, a sensible
+             default format is used.
     """
-    logger = logging.getLogger("llmXive")
-    logger.setLevel(logging.INFO)
+    global _LOGGER_CONFIGURED
+    if _LOGGER_CONFIGURED:
+        return
 
-    # Create logs directory if it doesn't exist
-    Path("logs").mkdir(parents=True, exist_ok=True)
+    if fmt is None:
+        fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
-    # File handler
-    fh = logging.FileHandler(log_file)
-    fh.setLevel(logging.INFO)
+    logging.basicConfig(level=level, format=fmt)
+    _LOGGER_CONFIGURED = True
 
-    # Stream handler
-    sh = logging.StreamHandler(sys.stdout)
-    sh.setLevel(logging.INFO)
-
-    # Formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-    sh.setFormatter(formatter)
-
-    logger.addHandler(fh)
-    logger.addHandler(sh)
-
-    return logger
-
-def compute_sha256(path: str) -> str:
+def compute_sha256(data: bytes) -> str:
     """
-    Compute SHA256 checksum of a file.
-    """
-    sha256_hash = hashlib.sha256()
-    with open(path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    Compute the SHA‑256 hash of the given ``bytes`` and return the
+    hexadecimal digest.
 
-def fail_loud_loader(loader_func: Callable) -> Callable:
+    Args:
+        data: Byte string to hash.
+
+    Returns:
+        Hexadecimal SHA‑256 digest as a string.
     """
-    Decorator to ensure loaders fail loudly if real data fetch fails.
-    No synthetic fallbacks allowed.
-    """
-    def wrapper(*args, **kwargs):
-        try:
-            return loader_func(*args, **kwargs)
-        except Exception as e:
-            logger = logging.getLogger("llmXive")
-            logger.error(f"Data loading failed: {e}")
-            raise
-    return wrapper
+    if not isinstance(data, (bytes, bytearray)):
+        raise TypeError("compute_sha256 expects a bytes-like object")
+    return hashlib.sha256(data).hexdigest()

@@ -21,7 +21,7 @@ def load_json_file(file_path: Path) -> Dict[str, Any]:
     """Load a JSON file and return its contents."""
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-    with open(file_path, 'r') as f:
+    with open(file_path, "r") as f:
         return json.load(f)
 
 
@@ -49,24 +49,26 @@ def verify_f_test_results(model_metrics_path: Path) -> Tuple[bool, List[str]]:
     # Based on T026, the output likely contains 'f_test_p_values' or similar.
     # We will look for common keys.
 
-    lmm_results = metrics.get('lmm', {})
-    f_test_p_values = lmm_results.get('f_test_p_values', [])
-    
+    lmm_results = metrics.get("lmm", {})
+    f_test_p_values = lmm_results.get("f_test_p_values", [])
+
     # If the structure is flat in the root
-    if not f_test_p_values and 'f_test_p_values' in metrics:
-        f_test_p_values = metrics['f_test_p_values']
-    
+    if not f_test_p_values and "f_test_p_values" in metrics:
+        f_test_p_values = metrics["f_test_p_values"]
+
     # If p_values are stored differently, check for 'p_values' in f_tests
-    f_tests_section = lmm_results.get('f_tests', {})
+    f_tests_section = lmm_results.get("f_tests", {})
     if f_tests_section:
         # Could be a list of dicts or a dict of p-values
         if isinstance(f_tests_section, list):
             for item in f_tests_section:
-                if 'p_value' in item:
-                    p_val = item['p_value']
+                if "p_value" in item:
+                    p_val = item["p_value"]
                     if not (0.0 <= p_val <= 1.0):
                         is_valid = False
-                        messages.append(f"Invalid p-value found in f_tests list: {p_val}")
+                        messages.append(
+                            f"Invalid p-value found in f_tests list: {p_val}"
+                        )
         elif isinstance(f_tests_section, dict):
             for key, p_val in f_tests_section.items():
                 if isinstance(p_val, (int, float)):
@@ -77,7 +79,9 @@ def verify_f_test_results(model_metrics_path: Path) -> Tuple[bool, List[str]]:
     # Check the flat list if found
     if f_test_p_values:
         if not isinstance(f_test_p_values, list):
-            messages.append(f"Expected f_test_p_values to be a list, got {type(f_test_p_values)}")
+            messages.append(
+                f"Expected f_test_p_values to be a list, got {type(f_test_p_values)}"
+            )
             is_valid = False
         else:
             for i, p_val in enumerate(f_test_p_values):
@@ -85,7 +89,9 @@ def verify_f_test_results(model_metrics_path: Path) -> Tuple[bool, List[str]]:
                     messages.append(f"Non-numeric p-value at index {i}: {p_val}")
                     is_valid = False
                 elif not (0.0 <= p_val <= 1.0):
-                    messages.append(f"p-value out of range [0, 1] at index {i}: {p_val}")
+                    messages.append(
+                        f"p-value out of range [0, 1] at index {i}: {p_val}"
+                    )
                     is_valid = False
                 else:
                     messages.append(f"p-value at index {i} is valid: {p_val}")
@@ -101,22 +107,22 @@ def verify_f_test_results(model_metrics_path: Path) -> Tuple[bool, List[str]]:
 def main():
     config = get_config()
     logger = setup_logging("f_test_verifier")
-    
+
     # Determine path to model metrics
     # Typically artifacts/reports/model_metrics.json or similar
     # We assume the standard output path from T029c
-    artifacts_dir = config.get('ARTIFACTS_DIR', 'artifacts')
-    metrics_path = Path(artifacts_dir) / 'reports' / 'model_metrics.json'
-    
+    artifacts_dir = config.get("ARTIFACTS_DIR", "artifacts")
+    metrics_path = Path(artifacts_dir) / "reports" / "model_metrics.json"
+
     # Fallback to relative path if config doesn't specify
     if not metrics_path.exists():
-        metrics_path = Path('artifacts/reports/model_metrics.json')
+        metrics_path = Path("artifacts/reports/model_metrics.json")
 
     logger.info(f"Verifying F-test results in: {metrics_path}")
 
     if not metrics_path.exists():
         logger.error(f"Metrics file not found: {metrics_path}")
-        # If the file doesn't exist, we cannot verify. 
+        # If the file doesn't exist, we cannot verify.
         # However, T026b depends on T026 which should have produced this.
         # We log a failure but do not crash the script, as the task is verification.
         return 1

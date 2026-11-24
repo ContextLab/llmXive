@@ -1,106 +1,127 @@
+"""
+env_manager.py
+---------------
+Utilities for checking and retrieving required environment variables.
+The module is deliberately lightweight and raises a custom
+``EnvironmentError`` (defined here) for any problem with the
+``HCP_TOKEN`` credential.
+"""
 import os
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
 
-
-class EnvironmentError(Exception):
-    """Custom exception for environment configuration errors."""
+class EnvironmentError(RuntimeError):
+    """Custom exception raised when required environment variables are missing
+    or malformed."""
     pass
-
 
 def get_project_root() -> Path:
     """
-    Determine the project root directory.
-    Assumes the project structure is: code/config/env_manager.py
-    So root is two levels up from this file.
-    """
-    current_file = Path(__file__).resolve()
-    # Assuming structure: <root>/code/config/env_manager.py
-    project_root = current_file.parent.parent.parent
-    return project_root
+    Return the absolute path to the project root.
 
+    The project root is assumed to be two directories up from this file,
+    i.e. ``code/config`` -> ``code`` -> project root.
+    """
+    return Path(__file__).resolve().parents[2]
 
 def get_hcp_token() -> str:
     """
-    Retrieve the HCP_TOKEN from environment variables.
+    Retrieve the HCP_TOKEN environment variable.
 
-    Returns:
-        str: The HCP token value.
-
-    Raises:
-        ValueError: If HCP_TOKEN is missing or empty.
+    Raises
+    ------
+    EnvironmentError
+        If the variable is missing, empty, or contains only whitespace.
     """
     token = os.getenv("HCP_TOKEN")
-    if not token:
-        raise ValueError("HCP_TOKEN is required but not found in environment variables.")
+    if token is None:
+        raise EnvironmentError("HCP_TOKEN is not set in the environment.")
+    if not token.strip():
+        raise EnvironmentError("HCP_TOKEN is required but is empty or whitespace.")
     return token
-
 
 def validate_hcp_credentials() -> bool:
     """
-    Validate that HCP credentials are present and non-empty.
+    Validate that HCP credentials are present and meet a minimal length
+    requirement.
 
-    Returns:
-        bool: True if valid, raises ValueError if invalid.
+    Returns
+    -------
+    bool
+        ``True`` if validation succeeds.
 
-    Raises:
-        ValueError: If HCP_TOKEN is missing or invalid.
+    Raises
+    ------
+    EnvironmentError
+        If the token is missing, empty, whitespace, or shorter than 10
+        characters (arbitrary safety threshold).
     """
-    try:
-        token = get_hcp_token()
-        # Basic validation: token should not be empty or just whitespace
-        if not token or not token.strip():
-            raise ValueError("HCP_TOKEN is required but not found in environment variables.")
-        return True
-    except ValueError:
-        raise
-
+    token = get_hcp_token()
+    if len(token.strip()) < 10:
+        raise EnvironmentError(
+            f"HCP_TOKEN appears too short (len={len(token)}). "
+            "It must be at least 10 characters long."
+        )
+    return True
 
 def get_optional_env(var_name: str, default: Optional[str] = None) -> Optional[str]:
     """
     Retrieve an optional environment variable.
 
-    Args:
-        var_name: Name of the environment variable.
-        default: Default value if the variable is not set.
+    Parameters
+    ----------
+    var_name : str
+        Name of the environment variable.
+    default : Optional[str], optional
+        Value to return if the variable is not set.
 
-    Returns:
-        Optional[str]: The value of the environment variable or the default.
+    Returns
+    -------
+    Optional[str]
+        The variable's value or ``default`` if not set.
     """
     return os.getenv(var_name, default)
 
-
-def check_environment() -> None:
+def check_environment() -> Dict[str, object]:
     """
-    Perform a comprehensive check of the required environment variables.
+    Perform a comprehensive check of required environment variables.
 
-    Raises:
-        EnvironmentError: If any required environment variable is missing or invalid.
+    Returns
+    -------
+    dict
+        ``{
+            "project_root": Path,
+            "hcp_token_set": bool,
+            "errors": list[str]
+         }``
     """
+    errors = []
+    root = get_project_root()
+    token_set = True
     try:
-        validate_hcp_credentials()
-        # Future checks for other required variables can be added here
-    except ValueError as e:
-        raise EnvironmentError(str(e)) from e
+        _ = get_hcp_token()
+    except EnvironmentError as exc:
+        token_set = False
+        errors.append(str(exc))
 
+    return {
+        "project_root": root,
+        "hcp_token_set": token_set,
+        "errors": errors,
+    }
 
 def main() -> None:
     """
-    Main entry point for command-line execution of environment checks.
+    CLI entry point. Prints a short status message and exits with
+    ``0`` on success or ``1`` on failure.
     """
-    print("Checking environment configuration...")
-    try:
-        check_environment()
-        print("✓ Environment configuration is valid.")
-        print(f"  HCP_TOKEN present: Yes (length: {len(get_hcp_token())} chars)")
-    except EnvironmentError as e:
-        print(f"✗ Environment configuration error: {e}")
+    status = check_environment()
+    if status["errors"]:
+        print("Errors encountered during environment check:")
+        for err in status["errors"]:
+            print(f" - {err}")
         sys.exit(1)
-    except Exception as e:
-        print(f"✗ Unexpected error: {e}")
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
+    else:
+        print("Environment check passed. All required variables are set.")
+        sys.exit(0)

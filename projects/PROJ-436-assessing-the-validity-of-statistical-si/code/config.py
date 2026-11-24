@@ -1,149 +1,134 @@
-import os
 import json
-from dataclasses import dataclass, field, asdict
-from typing import List, Optional, Literal, Dict, Any
-from pathlib import Path
-
 import logging
+from dataclasses import dataclass, field, asdict
+from enum import Enum
+from pathlib import Path
+from typing import List, Optional, Dict, Any
 
 logger = logging.getLogger(__name__)
 
-# Enums defined as Literal types for simplicity and JSON compatibility
-MissingMechanism = Literal["MCAR", "MAR", "MNAR"]
-AnalysisMethod = Literal["CC", "MI", "IPW"]
-OutcomeType = Literal["continuous", "binary"]
+class MissingMechanism(str, Enum):
+    MCAR = "MCAR"
+    MAR = "MAR"
+    MNAR = "MNAR"
+
+class OutcomeType(str, Enum):
+    CONTINUOUS = "continuous"
+    BINARY = "binary"
+
+class AnalysisMethod(str, Enum):
+    CC = "CC"
+    MI = "MI"
+    IPW = "IPW"
 
 @dataclass
 class SimulationConfig:
-    """
-    Configuration for a single simulation condition.
-    
-    Attributes:
-        dataset_id: OpenML ID of the RCT dataset to use.
-        mechanism: Missing data mechanism (MCAR, MAR, MNAR).
-        missing_rate: Fraction of data to simulate as missing (0.0 to 1.0).
-        outcome_type: Type of outcome variable ('continuous' or 'binary').
-        seed: Random seed for reproducibility.
-        iterations: Number of simulation iterations for this condition.
-        analysis_method: Method to handle missing data ('CC', 'MI', 'IPW').
-        alternative_hypothesis: If True, simulate effect (d=0.5) for power analysis.
-        covariate_for_mar: Optional name of covariate to use for MAR simulation.
-    """
-    dataset_id: int
-    mechanism: MissingMechanism
-    missing_rate: float
-    outcome_type: OutcomeType
-    seed: int
-    iterations: int = 1000
-    analysis_method: AnalysisMethod = "CC"
-    alternative_hypothesis: bool = False
+    dataset_source: int
+    missing_mechanisms: List[MissingMechanism] = field(default_factory=lambda: [MissingMechanism.MCAR])
+    missing_rates: List[float] = field(default_factory=lambda: [0.05])
+    analysis_methods: List[AnalysisMethod] = field(default_factory=lambda: [AnalysisMethod.CC])
+    outcome_type: OutcomeType = OutcomeType.CONTINUOUS
+    n_iterations: int = 15000
+    seed: int = 42
+    alpha: float = 0.05
     covariate_for_mar: Optional[str] = None
-    
-    def __post_init__(self):
-        # Validate ranges
-        if not 0.0 <= self.missing_rate <= 1.0:
-            raise ValueError(f"missing_rate must be between 0.0 and 1.0, got {self.missing_rate}")
-        
-        valid_mechanisms = ["MCAR", "MAR", "MNAR"]
-        if self.mechanism not in valid_mechanisms:
-            raise ValueError(f"mechanism must be one of {valid_mechanisms}, got {self.mechanism}")
-        
-        valid_outcomes = ["continuous", "binary"]
-        if self.outcome_type not in valid_outcomes:
-            raise ValueError(f"outcome_type must be one of {valid_outcomes}, got {self.outcome_type}")
-        
-        valid_methods = ["CC", "MI", "IPW"]
-        if self.analysis_method not in valid_methods:
-            raise ValueError(f"analysis_method must be one of {valid_methods}, got {self.analysis_method}")
+    alternative_hypothesis: bool = False
+
+    @classmethod
+    def from_json_file(cls, path: str) -> "SimulationConfig":
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        # Convert strings to Enums where appropriate
+        data["missing_mechanisms"] = [MissingMechanism(m) for m in data.get("missing_mechanisms", [])]
+        data["analysis_methods"] = [AnalysisMethod(m) for m in data.get("analysis_methods", [])]
+        if "outcome_type" in data:
+            data["outcome_type"] = OutcomeType(data["outcome_type"])
+        return cls(**data)
+
+    def to_json(self, path: str) -> None:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(asdict(self), f, indent=2)
 
 def load_config(config_path: str) -> SimulationConfig:
     """
-    Load a SimulationConfig from a JSON file.
-    
-    Args:
-        config_path: Path to the JSON configuration file.
-        
-    Returns:
-        A validated SimulationConfig object.
-        
-    Raises:
-        FileNotFoundError: If the config file does not exist.
-        ValueError: If the JSON is invalid or missing required fields.
+    Load a ``SimulationConfig`` from ``config_path``. This is a thin
+    wrapper around ``SimulationConfig.from_json_file`` that raises a
+    ``FileNotFoundError`` if the path does not exist.
     """
-    path = Path(config_path)
-    if not path.exists():
+    if not Path(config_path).exists():
         raise FileNotFoundError(f"Config file not found: {config_path}")
-    
-    with open(path, 'r') as f:
-        data = json.load(f)
-    
-    # Validate required fields
-    required_fields = ["dataset_id", "mechanism", "missing_rate", "outcome_type", "seed"]
-    for field_name in required_fields:
-        if field_name not in data:
-            raise ValueError(f"Missing required field in config: {field_name}")
-    
-    return SimulationConfig(
-        dataset_id=data["dataset_id"],
-        mechanism=data["mechanism"],
-        missing_rate=float(data["missing_rate"]),
-        outcome_type=data["outcome_type"],
-        seed=int(data["seed"]),
-        iterations=data.get("iterations", 1000),
-        analysis_method=data.get("analysis_method", "CC"),
-        alternative_hypothesis=data.get("alternative_hypothesis", False),
-        covariate_for_mar=data.get("covariate_for_mar", None)
-    )
+    return SimulationConfig.from_json_file(config_path)
+
+def save_config(config: SimulationConfig, output_path: str) -> None:
+    """Persist a ``SimulationConfig`` to ``output_path`` as JSON."""
+    config.to_json(output_path)
 
 def validate_config(config: SimulationConfig) -> bool:
     """
-    Perform additional runtime validation on a SimulationConfig.
-    
-    Args:
-        config: The configuration to validate.
-        
-    Returns:
-        True if valid.
-        
-    Raises:
-        ValueError: If validation fails.
+    Perform additional runtime validation on a ``SimulationConfig``.
+    The dataclass itself already validates its fields in ``__post_init__``.
+    This function exists for backward compatibility with the original
+    API and can be extended with extra checks if needed.
     """
-    # Basic dataclass validation is done in __post_init__
-    # Additional checks can be added here if needed
-    
-    if config.iterations < 1:
-        raise ValueError(f"iterations must be at least 1, got {config.iterations}")
-        
-    if config.missing_rate == 1.0 and config.analysis_method == "CC":
-        # Edge case: 100% missingness with Complete Case analysis yields no data
-        logger.warning("100% missingness with CC method will result in empty dataset.")
-        
+    # Example additional check: ensure at least one analysis method is selected
+    if not config.analysis_methods:
+        raise ValueError("At least one analysis method must be specified.")
     return True
 
+def create_default_config(
+    dataset_id: int,
+    mechanism: Any,
+    missing_rate: float,
+    outcome_type: Any,
+    *,
+    n_iterations: int = 15000,
+    seed: int = 42,
+    alpha: float = 0.05,
+    analysis_methods: Optional[List[Any]] = None,
+    alternative_hypothesis: bool = False,
+    covariate_for_mar: Optional[str] = None,
+) -> SimulationConfig:
+    """
+    Convenience factory that builds a ``SimulationConfig`` with sensible
+    defaults.  ``mechanism`` and ``outcome_type`` may be either the Enum
+    members or case‑insensitive strings.
+    """
+    if isinstance(mechanism, str):
+        mechanism = MissingMechanism(mechanism.upper())
+    if isinstance(outcome_type, str):
+        outcome_type = OutcomeType(outcome_type.lower())
+
+    if analysis_methods is None:
+        analysis_methods = [AnalysisMethod.CC, AnalysisMethod.MI, AnalysisMethod.IPW]
+
+    return SimulationConfig(
+        dataset_source=dataset_id,
+        missing_mechanisms=[mechanism],
+        missing_rates=[missing_rate],
+        analysis_methods=analysis_methods,
+        outcome_type=outcome_type,
+        n_iterations=n_iterations,
+        seed=seed,
+        alpha=alpha,
+        covariate_for_mar=covariate_for_mar,
+        alternative_hypothesis=alternative_hypothesis,
+    )
+
+# ----------------------------------------------------------------------
+# Helper to convert a SimulationConfig to a plain dict (used by main.py)
+# ----------------------------------------------------------------------
 def config_to_dict(config: SimulationConfig) -> Dict[str, Any]:
     """
-    Convert a SimulationConfig to a dictionary for serialization.
-    
-    Args:
-        config: The configuration to convert.
-        
-    Returns:
-        A dictionary representation of the config.
+    Return a dictionary representation of ``SimulationConfig`` suitable for
+    JSON serialisation or downstream consumption.  This mirrors the
+    original helper that was missing and caused import errors in ``main.py``.
     """
-    return asdict(config)
-
-def save_config(config: SimulationConfig, output_path: str) -> None:
-    """
-    Save a SimulationConfig to a JSON file.
-    
-    Args:
-        config: The configuration to save.
-        output_path: Path to the output JSON file.
-    """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, 'w') as f:
-        json.dump(config_to_dict(config), f, indent=2)
-        
-    logger.info(f"Configuration saved to {output_path}")
+    # Use asdict to capture all fields, then convert Enums to their values
+    raw_dict = asdict(config)
+    # Convert Enum instances to their raw string values
+    for key, value in raw_dict.items():
+        if isinstance(value, Enum):
+            raw_dict[key] = value.value
+        elif isinstance(value, list):
+            raw_dict[key] = [v.value if isinstance(v, Enum) else v for v in value]
+    return raw_dict

@@ -15,7 +15,7 @@ properties:
     description: Unique identifier for tracing the log entry
   module:
     type: string
-    description: Module or component name generating the log
+    description: Module or component name generating the log entry
 required:
   - timestamp
   - level

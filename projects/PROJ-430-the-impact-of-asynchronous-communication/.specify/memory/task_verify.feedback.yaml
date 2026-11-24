@@ -1,32 +1,23 @@
 T001:
-  reason: "The project root contains `code/`, `data/`, and `tests/` as required, but\
-    \ the `docs/` and `config/` directories specified in the task are absent. These\
-    \ missing directories prevent the task\u2019s full directory\u2011structure requirement\
-    \ from being satisfied."
+  reason: "The project root contains `code/`, `data/`, and `tests/` but the required\
+    \ `docs/` and `config/` sub\u2011directories are absent, and the provided test\
+    \ script fails because it looks for `projects/code/init_project_structure.py`\
+    \ instead of the correct path. The directory structure does not fully meet the\
+    \ task specification."
   task: 520435524f3f65dc9add706cb6728e98567f29e8c89e7b21959021632652fe79
 T001c:
-  reason: The evidence shows the `data/raw/` and `data/derived/` directories but provides
-    no `.gitignore` file at `projects/PROJ-430-the-impact-of-asynchronous-communication/.gitignore`,
+  reason: The evidence shows the `data/raw/` and `data/derived/` directories but no
+    `.gitignore` file at `projects/PROJ-430-the-impact-of-asynchronous-communication/.gitignore`,
     nor any content confirming the required exclusion patterns. The required artifact
     is missing.
   task: b74b169a78014ad45f96edb1974c98a855b3a7dc94c20463d03dc5801dd6fb87
 T001d:
-  reason: "The `requirements.txt` file exists and lists all requested packages, but\
-    \ it does not pin them to specific versions (e.g., `pandas==1.5.0`). The task\
-    \ explicitly required \u201CPin dependencies,\u201D so the artifact fails to meet\
-    \ the specification."
   task: 0bc25f9cf90b8b08341ca5c68b1aa1575979cd6f723ade403a50dcdb8112a5ee
 T002a:
-  reason: "The evidence provides only the project root path and no `venv/` directory\
-    \ or any output confirming that `venv/bin/python --version` returns Python\u202F\
-    3.11.x. The required virtual\u2011environment artifact and its verification output\
-    \ are missing."
   task: 2a0c4443b85423fed2330e4dcc86a8afcd030abc944008d7a142f5eb4f614bb1
 T002b:
-  reason: Checked the presence of `requirements.txt`, which exists and lists packages,
-    but there is no evidence that `pip install -r requirements.txt` was actually executed
-    in a virtual environment nor any captured output showing the installed packages.
-    The required execution log/output is missing.
+  reason: 'Requested task execution failed; rerun successfully: code/install_dependencies.py
+    exit=1'
   task: fcf791c4d112209fc1e55c32479cf0031b0767b1d097e61d0b490e3d5398e650
 T003:
   reason: "The `.ruff.toml` and `pyproject.toml` files exist and contain reasonable\
@@ -36,6 +27,11 @@ T003:
     \ unmet."
   task: 99b698157c695035ce29d879198255f0fe21017e53a97046c975d1796b94923f
 T004:
+  reason: The `code/config.py` file is present and defines paths and the deferred
+    thresholds (`sample_size`, `min_events`, `deferred_threshold`), but it does not
+    provide any mechanism for configuring or loading API keys as required by the task.
+    Adding support for API key storage (e.g., reading from environment variables or
+    a `config.json` entry) is needed to satisfy the specification.
   task: a024d0c3d25a2eca2d7906674d17fbcc237e810aa18a956db9ad8b30b1aac435
 T005:
   task: a58447c78fe0d9acc9310756571297952e4e7da97c6854f5573b4e464fba0458

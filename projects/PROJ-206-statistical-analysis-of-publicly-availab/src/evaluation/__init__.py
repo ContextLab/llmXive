@@ -1,4 +1,1 @@
-"""
-Evaluation subpackage for the project.
-Provides metric calculations, coverage analysis, and meta‑analysis utilities.
-"""
+# Sub-module for predictive accuracy metrics and statistical meta-analysis.

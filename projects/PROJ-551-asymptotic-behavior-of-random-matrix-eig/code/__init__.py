@@ -1,3 +1,1 @@
-"""
-Code package for the Asymptotic Behavior of Random Matrix Eigenvalues project.
-"""
+# This file makes the `code` directory a Python package.

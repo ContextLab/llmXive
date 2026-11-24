@@ -6,7 +6,6 @@ src/
 src/cli/
 src/config/
 src/evaluate/
-src/exceptions.py
 src/ingest/
 src/interpret/
 src/model/

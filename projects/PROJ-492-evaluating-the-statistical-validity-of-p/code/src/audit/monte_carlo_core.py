@@ -1,338 +1,251 @@
 """
-Monte-Carlo Framework Core
-Provides functions to simulate null distributions and compute empirical p-values
-for various statistical tests used in A/B test validation.
+Monte‑Carlo core utilities for validating statistical test implementations
+(FR‑026).
+
+This module provides a lightweight, deterministic Monte‑Carlo harness that
+generates synthetic data under the null hypothesis for the four statistical
+tests used throughout the audit pipeline:
+
+* Two‑proportion Z‑test
+* Fisher’s exact test
+* Welch’s two‑sample t‑test
+* Binomial test
+
+The public API mirrors the imports used by
+``code/src/audit/monte_carlo_validation.py``:
+
+* ``set_seeds(seed: int)`` – set the global RNG seeds.
+* ``simulate_z_test_statistic(n1, n2, p)`` – draw a contingency table under
+  the null hypothesis (equal proportions) and return the Z‑statistic.
+* ``simulate_fisher_exact_table(n1, n2, x1, x2)`` – generate a random
+  2 × 2 table with the same margins as the observed table and return the
+  two‑sided Fisher exact p‑value.
+* ``simulate_welch_t_statistic(n1, n2, mean1, mean2, std1, std2)`` – draw
+  two independent normal samples and return the Welch t‑statistic.
+* ``simulate_binomial_statistic(n, p, k)`` – draw a binomial count under the
+  null and return the two‑sided binomial test p‑value.
+* ``run_monte_carlo_validation_core(simulate_func, num_replicates, alpha)`` –
+  orchestrates the simulation, computes an empirical p‑value, and returns a
+  tuple ``(empirical_p, observed_value)``.  The function distinguishes
+  between statistic‑based simulations (Z, t) and p‑value‑based simulations
+  (Fisher, binomial) automatically.
 """
+
+from __future__ import annotations
+
+import random
+from typing import Callable, Tuple
+
 import numpy as np
-from typing import Tuple, List, Dict, Any, Optional
+from scipy import stats
 
-from code.src.config import set_rng_seed, SEED
-from code.src.utils.logger import get_default_logger, AuditLogger
-
-logger = get_default_logger(__name__)
-
-def set_seeds(seed: Optional[int] = None) -> None:
+# ----------------------------------------------------------------------
+# Seed handling
+# ----------------------------------------------------------------------
+def set_seeds(seed: int) -> None:
     """
-    Set random seeds for reproducibility.
-    Uses the global SEED from config if no specific seed is provided.
+    Set deterministic seeds for the Python ``random`` module and NumPy.
+
+    Parameters
+    ----------
+    seed: int
+        The seed value to use for all RNGs.
     """
-    if seed is None:
-        seed = SEED
-    set_rng_seed(seed)
+    random.seed(seed)
     np.random.seed(seed)
-    logger.info(f"Random seeds set to {seed}")
 
-def generate_null_binary_data(
-    n_control: int,
-    n_treatment: int,
-    p_baseline: float,
-    rng: Optional[np.random.Generator] = None
-) -> Tuple[np.ndarray, np.ndarray]:
+# ----------------------------------------------------------------------
+# Simulation helpers
+# ----------------------------------------------------------------------
+def simulate_z_test_statistic(n1: int, n2: int, p: float) -> float:
     """
-    Generate binary outcome data under the null hypothesis (no effect).
-    Both groups share the same baseline probability p_baseline.
+    Simulate a two‑proportion Z‑test statistic under the null hypothesis
+    that the two proportions are equal to ``p``.
 
-    Args:
-        n_control: Sample size for control group
-        n_treatment: Sample size for treatment group
-        p_baseline: Baseline conversion rate
-        rng: Optional numpy random generator
-
-    Returns:
-        Tuple of (control_data, treatment_data) as 1D arrays of 0s and 1s
+    Returns
+    -------
+    float
+        The Z‑statistic (signed).
     """
-    if rng is None:
-        rng = np.random.default_rng()
-    
-    control_data = rng.binomial(1, p_baseline, n_control)
-    treatment_data = rng.binomial(1, p_baseline, n_treatment)
-    
-    return control_data, treatment_data
+    # Generate counts under the null
+    x1 = np.random.binomial(n1, p)
+    x2 = np.random.binomial(n2, p)
 
-def generate_null_continuous_data(
-    n_control: int,
-    n_treatment: int,
-    mu: float,
-    sigma: float,
-    rng: Optional[np.random.Generator] = None
-) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Generate continuous outcome data under the null hypothesis (no effect).
-    Both groups share the same mean mu and standard deviation sigma.
+    # Pooled proportion
+    pooled = (x1 + x2) / (n1 + n2)
 
-    Args:
-        n_control: Sample size for control group
-        n_treatment: Sample size for treatment group
-        mu: Population mean
-        sigma: Population standard deviation
-        rng: Optional numpy random generator
-
-    Returns:
-        Tuple of (control_data, treatment_data) as 1D arrays
-    """
-    if rng is None:
-        rng = np.random.default_rng()
-    
-    control_data = rng.normal(mu, sigma, n_control)
-    treatment_data = rng.normal(mu, sigma, n_treatment)
-    
-    return control_data, treatment_data
-
-def simulate_z_test_statistic(
-    control_data: np.ndarray,
-    treatment_data: np.ndarray
-) -> float:
-    """
-    Compute the two-proportion z-test statistic for binary data.
-    
-    Args:
-        control_data: Binary outcomes for control group
-        treatment_data: Binary outcomes for treatment group
-        
-    Returns:
-        Z-statistic value
-    """
-    n1, x1 = len(control_data), np.sum(control_data)
-    n2, x2 = len(treatment_data), np.sum(treatment_data)
-    
-    p1 = x1 / n1
-    p2 = x2 / n2
-    
-    p_pooled = (x1 + x2) / (n1 + n2)
-    
-    if p_pooled == 0 or p_pooled == 1:
-        return 0.0
-        
-    se = np.sqrt(p_pooled * (1 - p_pooled) * (1/n1 + 1/n2))
-    
+    # Standard error; guard against zero
+    se = np.sqrt(pooled * (1 - pooled) * (1 / n1 + 1 / n2))
     if se == 0:
-        return 0.0
-        
-    z_stat = (p1 - p2) / se
-    return z_stat
+        se = 1e-12
 
-def simulate_fisher_exact_table(
-    control_data: np.ndarray,
-    treatment_data: np.ndarray
-) -> float:
+    # Z‑statistic (difference of sample proportions)
+    z = (x1 / n1 - x2 / n2) / se
+    return z
+
+def simulate_fisher_exact_table(n1: int, n2: int, x1: int, x2: int) -> float:
     """
-    Compute Fisher's exact test p-value (two-sided) for binary data.
-    Returns the p-value directly as it is the statistic of interest.
-    
-    Args:
-        control_data: Binary outcomes for control group
-        treatment_data: Binary outcomes for treatment group
-        
-    Returns:
-        Two-sided p-value from Fisher's exact test
+    Simulate a 2 × 2 contingency table with the same margins as the observed
+    table and return the two‑sided Fisher exact p‑value.
+
+    Parameters
+    ----------
+    n1, n2 : int
+        Row totals (sample sizes of the two groups).
+    x1, x2 : int
+        Observed successes in each group (used only to obtain the total
+        number of successes).
+
+    Returns
+    -------
+    float
+        Two‑sided Fisher exact p‑value for the simulated table.
     """
-    from scipy import stats
-    
-    n1, x1 = len(control_data), np.sum(control_data)
-    n2, x2 = len(treatment_data), np.sum(treatment_data)
-    
-    # Create contingency table
-    # [[x1, n1-x1], [x2, n2-x2]]
-    table = [[x1, n1 - x1], [x2, n2 - x2]]
-    
-    try:
-        _, p_value = stats.fisher_exact(table, alternative='two-sided')
-        return p_value
-    except Exception as e:
-        logger.warning(f"Fisher exact test failed: {e}. Returning 1.0.")
-        return 1.0
+    total_successes = x1 + x2
+    total = n1 + n2
+
+    # Hypergeometric draw for the first row's successes
+    # M = total population, n = total_successes, N = n1 draws
+    x1_prime = stats.hypergeom.rvs(M=total, n=total_successes, N=n1)
+
+    # Derive the remaining cell counts
+    x2_prime = total_successes - x1_prime
+    table = [[int(x1_prime), int(n1 - x1_prime)],
+             [int(x2_prime), int(n2 - x2_prime)]]
+
+    _, p_val = stats.fisher_exact(table, alternative="two-sided")
+    return p_val
 
 def simulate_welch_t_statistic(
-    control_data: np.ndarray,
-    treatment_data: np.ndarray
+    n1: int,
+    n2: int,
+    mean1: float,
+    mean2: float,
+    std1: float,
+    std2: float,
 ) -> float:
     """
-    Compute Welch's t-test statistic for continuous data.
-    
-    Args:
-        control_data: Continuous outcomes for control group
-        treatment_data: Continuous outcomes for treatment group
-        
-    Returns:
-        T-statistic value
+    Simulate two independent normal samples and return the Welch t‑statistic.
+
+    Returns
+    -------
+    float
+        The t‑statistic (signed).
     """
-    n1 = len(control_data)
-    n2 = len(treatment_data)
-    
-    if n1 < 2 or n2 < 2:
-        return 0.0
-        
-    mean1 = np.mean(control_data)
-    mean2 = np.mean(treatment_data)
-    var1 = np.var(control_data, ddof=1)
-    var2 = np.var(treatment_data, ddof=1)
-    
-    # Avoid division by zero
-    if var1 == 0 and var2 == 0:
-        return 0.0
-        
-    se_diff = np.sqrt(var1 / n1 + var2 / n2)
-    
-    if se_diff == 0:
-        return 0.0
-        
-    t_stat = (mean1 - mean2) / se_diff
+    sample1 = np.random.normal(loc=mean1, scale=std1, size=n1)
+    sample2 = np.random.normal(loc=mean2, scale=std2, size=n2)
+
+    t_stat, _ = stats.ttest_ind(sample1, sample2, equal_var=False)
     return t_stat
 
-def simulate_binomial_statistic(
-    n: int,
-    k: int,
-    p_null: float
-) -> float:
+def simulate_binomial_statistic(n: int, p: float, k: int) -> float:
     """
-    Compute the probability of observing k or more successes in n trials
-    under the null hypothesis p_null (one-sided upper tail).
-    
-    Args:
-        n: Number of trials
-        k: Number of successes observed
-        p_null: Null hypothesis probability of success
-        
-    Returns:
-        One-sided p-value (P(X >= k))
-    """
-    from scipy import stats
-    
-    if n <= 0 or p_null <= 0 or p_null >= 1:
-        return 1.0
-        
-    # P(X >= k) = 1 - P(X <= k-1)
-    p_value = 1.0 - stats.binom.cdf(k - 1, n, p_null)
-    return p_value
+    Simulate a binomial count under the null hypothesis and return the
+    two‑sided binomial test p‑value.
 
-def compute_empirical_p_value(
-    simulated_statistics: List[float],
-    observed_statistic: float,
-    alternative: str = 'two-sided'
-) -> float:
-    """
-    Compute the empirical p-value from a list of simulated statistics.
-    
-    Args:
-        simulated_statistics: List of statistics from null distribution
-        observed_statistic: The actual observed statistic
-        alternative: 'two-sided', 'greater', or 'less'
-        
-    Returns:
-        Empirical p-value
-    """
-    if not simulated_statistics:
-        logger.error("No simulated statistics provided.")
-        return 1.0
-        
-    simulated_array = np.array(simulated_statistics)
-    
-    if alternative == 'two-sided':
-        # For two-sided, we look at the absolute value
-        abs_obs = np.abs(observed_statistic)
-        abs_sim = np.abs(simulated_array)
-        count = np.sum(abs_sim >= abs_obs)
-    elif alternative == 'greater':
-        count = np.sum(simulated_array >= observed_statistic)
-    elif alternative == 'less':
-        count = np.sum(simulated_array <= observed_statistic)
-    else:
-        logger.warning(f"Unknown alternative '{alternative}', defaulting to two-sided.")
-        abs_obs = np.abs(observed_statistic)
-        abs_sim = np.abs(simulated_array)
-        count = np.sum(abs_sim >= abs_obs)
-        
-    # Add 1 to numerator and denominator for unbiased estimation
-    # (as if we included the observed statistic in the null distribution)
-    n_sim = len(simulated_statistics)
-    empirical_p = (count + 1) / (n_sim + 1)
-    
-    return empirical_p
+    Parameters
+    ----------
+    n : int
+        Number of trials.
+    p : float
+        Success probability under the null.
+    k : int
+        Observed number of successes (used only to compute the observed
+        p‑value; the simulated count is drawn anew).
 
+    Returns
+    -------
+    float
+        Two‑sided binomial test p‑value for the simulated count.
+    """
+    k_sim = np.random.binomial(n, p)
+    # ``stats.binom_test`` is deprecated but still available in the
+    # execution environment and matches the signature used elsewhere.
+    p_val = stats.binom_test(k_sim, n, p, alternative="two-sided")
+    return p_val
+
+# ----------------------------------------------------------------------
+# Core orchestration
+# ----------------------------------------------------------------------
 def run_monte_carlo_validation_core(
-    n_replicates: int,
-    test_type: str,
-    n_control: int,
-    n_treatment: int,
-    baseline_param: float,
-    scale_param: Optional[float] = None,
-    seed: Optional[int] = None
-) -> Dict[str, Any]:
+    simulate_func: Callable[[], float],
+    num_replicates: int,
+    alpha: float = 0.05,
+) -> Tuple[float, float]:
     """
-    Run the core Monte-Carlo simulation for a specific test type.
-    
-    Args:
-        n_replicates: Number of simulation replicates
-        test_type: 'z_test', 'fisher', 'welch_t', or 'binomial'
-        n_control: Control group sample size
-        n_treatment: Treatment group sample size
-        baseline_param: For binary: p_baseline; for continuous: mu
-        scale_param: For continuous: sigma; for binomial: p_null (if different)
-        seed: Random seed (optional, uses global if None)
-        
-    Returns:
-        Dictionary with results including empirical p-value distribution stats
+    Run a Monte‑Carlo validation loop.
+
+    The first call to ``simulate_func`` yields the *observed* value.
+    Subsequent calls generate the null distribution.  The empirical
+    p‑value is computed as the proportion of simulated values that are at
+    least as extreme as the observed value.  For statistic‑based
+    simulations (Z, t) we use a two‑sided absolute‑value comparison.
+    For p‑value‑based simulations (Fisher, binomial) we treat smaller
+    values as more extreme.
+
+    Parameters
+    ----------
+    simulate_func : Callable[[], float]
+        Function that returns either a test statistic or a p‑value.
+    num_replicates : int
+        Total number of Monte‑Carlo replicates (including the observed
+        draw).  Must be ≥ 2.
+    alpha : float, optional
+        Unused in the current implementation but kept for API compatibility
+        with earlier versions of the pipeline.
+
+    Returns
+    -------
+    Tuple[float, float]
+        ``(empirical_p, observed_value)`` where ``empirical_p`` is the
+        Monte‑Carlo estimate of the p‑value and ``observed_value`` is the
+        statistic (or p‑value) generated from the first draw.
     """
-    if seed is not None:
-        set_seeds(seed)
+    if num_replicates < 2:
+        raise ValueError("num_replicates must be at least 2")
+
+    # Observed value – first draw
+    observed = simulate_func()
+
+    # Generate the remaining replicates
+    simulated = [simulate_func() for _ in range(num_replicates - 1)]
+
+    # Decide whether we are dealing with a statistic or a p‑value.
+    # Heuristic: if the observed value lies in [0, 1] it is likely a p‑value.
+    if 0.0 <= observed <= 1.0:
+        # Smaller p‑values are more extreme.
+        extreme_count = sum(1 for v in simulated if v <= observed)
     else:
-        set_seeds()
-        
-    logger.info(f"Running {n_replicates} Monte-Carlo replicates for {test_type}")
-    
-    simulated_stats = []
-    
-    # Use a dedicated RNG for the loop to ensure reproducibility
-    rng = np.random.default_rng()
-    
-    for i in range(n_replicates):
-        if test_type == 'z_test' or test_type == 'fisher':
-            # Binary data simulation
-            ctrl, treat = generate_null_binary_data(
-                n_control, n_treatment, baseline_param, rng
-            )
-            
-            if test_type == 'z_test':
-                stat = simulate_z_test_statistic(ctrl, treat)
-            else:
-                stat = simulate_fisher_exact_table(ctrl, treat)
-                
-        elif test_type == 'welch_t':
-            # Continuous data simulation
-            if scale_param is None:
-                scale_param = 1.0
-            ctrl, treat = generate_null_continuous_data(
-                n_control, n_treatment, baseline_param, scale_param, rng
-            )
-            stat = simulate_welch_t_statistic(ctrl, treat)
-            
-        elif test_type == 'binomial':
-            # Binomial test simulation
-            p_null = scale_param if scale_param is not None else baseline_param
-            n = n_control + n_treatment
-            # Generate successes under null
-            k = rng.binomial(n, p_null)
-            stat = simulate_binomial_statistic(n, k, p_null)
-        else:
-            raise ValueError(f"Unknown test_type: {test_type}")
-            
-        simulated_stats.append(stat)
-        
-    # Compute summary statistics of the null distribution
-    stats_array = np.array(simulated_stats)
-    
-    result = {
-        "test_type": test_type,
-        "n_replicates": n_replicates,
-        "mean_statistic": float(np.mean(stats_array)),
-        "std_statistic": float(np.std(stats_array)),
-        "min_statistic": float(np.min(stats_array)),
-        "max_statistic": float(np.max(stats_array)),
-        "median_statistic": float(np.median(stats_array)),
-        "simulated_statistics": simulated_stats
-    }
-    
-    logger.info(f"Monte-Carlo simulation complete for {test_type}. "
-                f"Mean: {result['mean_statistic']:.4f}, Std: {result['std_statistic']:.4f}")
-                
-    return result
+        # For statistics we use a two‑sided absolute‑value comparison.
+        extreme_count = sum(1 for v in simulated if abs(v) >= abs(observed))
+
+    empirical_p = extreme_count / num_replicates
+    return empirical_p, observed
+
+# ----------------------------------------------------------------------
+# Backwards‑compatible wrapper (kept for import safety)
+# ----------------------------------------------------------------------
+def compute_empirical_p_value(*, observed: float, simulated: list[float]) -> float:
+    """
+    Legacy helper retained for compatibility with older pipeline code.
+    It computes the empirical p‑value using the same logic as
+    ``run_monte_carlo_validation_core`` but expects the caller to provide
+    the simulated values explicitly.
+
+    Parameters
+    ----------
+    observed : float
+        Observed statistic or p‑value.
+    simulated : list[float]
+        List of simulated statistics/p‑values.
+
+    Returns
+    -------
+    float
+        Empirical p‑value.
+    """
+    if 0.0 <= observed <= 1.0:
+        extreme = sum(1 for v in simulated if v <= observed)
+    else:
+        extreme = sum(1 for v in simulated if abs(v) >= abs(observed))
+    return extreme / (len(simulated) + 1)  # +1 accounts for the observed draw

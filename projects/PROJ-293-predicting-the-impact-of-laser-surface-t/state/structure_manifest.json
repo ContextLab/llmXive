@@ -1,0 +1,13 @@
+{
+  "required_directories": [
+    "code",
+    "data",
+    "data/raw",
+    "data/intermediate",
+    "data/processed",
+    "models",
+    "reports",
+    "tests",
+    "state"
+  ]
+}

@@ -1,12 +1,10 @@
 status: none
-intent: leaf benchmark python package download FEMNIST Shakespeare datasets python
-  package dataset
+intent: FEMNIST LEAF benchmark parquet download python package dataset
 required_fields:
+- pixel_values
+- label
 - client_id
-- sample_id
-- image_pixels_or_text
-- label_or_character
-- metadata
-cache_key: ef93a2ef26ac0c84a7edc2242d961485558dfcc7fe0fe0de44b963c259221924
-searched_at: '2026-07-31T08:05:01.558628+00:00'
+- split
+cache_key: 3052d6542ca36fe1229f50b63e1e96907d0bd10450fdf3d8053681493e1a3849
+searched_at: '2026-10-24T17:39:43.069371+00:00'
 retry_count: 1

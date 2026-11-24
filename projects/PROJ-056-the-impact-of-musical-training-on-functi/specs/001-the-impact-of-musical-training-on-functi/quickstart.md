@@ -1,72 +1,66 @@
 # Quickstart: The Impact of Musical Training on Functional Connectivity in Adolescent Brains
 
 ## 1. Prerequisites
-
-- Python +
-- GB RAM available
-- GB Disk space
-- Git
+* Python 3.11 or newer  
+* Git  
+* Internet connection (to download the OpenNeuro dataset and the Schaefer atlas)
 
 ## 2. Installation
-
 ```bash
 # Clone the repository
-git clone <repo-url>
+git clone <REPO_URL>
 cd projects/PROJ-056-the-impact-of-musical-training-on-functi
 
-# Create virtual environment
+# Create a virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate   # On Windows: venv\Scripts\activate
 
-# Install dependencies
+# Install pinned dependencies
 pip install -r code/requirements.txt
 ```
 
 ## 3. Running the Pipeline
 
-### 3.1 Synthetic Data Mode (Default)
-Since no verified real dataset is available, the pipeline defaults to generating synthetic data for validation.
+### 3.1 Synthetic Verification Mode (default)
+This mode runs the full pipeline on generated synthetic data. It validates code paths,
+memory limits, and output generation without requiring any real neuroimaging files.
 
 ```bash
-python code/main.py --mode synthetic --n-subjects
+python code/main.py --mode synthetic --n-subjects 100 --seed 42
 ```
 
-**Output**:
-- `data/processed/subjects.csv`
-- `data/processed/connectivity_matrices.npy`
-- `data/results/statistical_results.csv`
-- `data/results/nbs_components.json`
+Expected outputs (written under `data/processed/`):
+- `subjects.parquet`
+- `subjects_cleaned.csv`
+- `subjects_cleaned.parquet`
+- `matching_balance_report.csv`
+- `connectivity_matrices.npy`
+- `connectivity_results.csv`
+- `nbs_results.csv`
+- `correlation_results.csv`
+- `sensitivity_analysis.csv`
 
-### 3.2 Real Data Mode (If Verified Source Available)
-If a verified ABCD/HCP dataset is provided:
+### 3.2 Real‑Data Mode (stub)
+The real‑data stub simply reports that no verified dataset is configured.
+It creates a status JSON at `data/logs/real_ingest_status.json`.
 
 ```bash
-python code/main.py --mode real --data-path /path/to/verified/data
+python code/main.py --mode real
 ```
 
-*Note: This will fail with "Data Source Missing" if the path does not contain the required variables (rs-fMRI, years_of_training).*
+### 3.3 Smoke Test
+Verify that the synthetic pipeline produces all expected artefacts and that they
+conform to the JSON/YAML contracts:
 
-## 4. Verifying Results
+```bash
+python code/run_quickstart_test.py
+```
 
-Run the test suite to ensure the pipeline is working correctly:
+The script will exit with a success status and print “Quickstart validation passed” on success.
 
+## 4. Verify the Test Suite
 ```bash
 pytest tests/
 ```
 
-Check the memory usage log:
-```bash
-cat data/logs/memory_usage.log
-```
-
-## 5. Output Interpretation
-
-- **`statistical_results.csv`**: Contains edge-wise comparisons. Look for `q_value < 0.05` for significant connections.
-- **`nbs_components.json`**: Contains the largest connected component. Check `p_value_fwer` for network-level significance.
-- **`sensitivity_analysis.csv`**: Shows how results change with different p-value thresholds.
-
-## 6. Troubleshooting
-
-- **Memory Error**: Reduce `--n-subjects` or ensure no other processes are using RAM.
-- **Data Missing**: If running in `real` mode, ensure the dataset contains `years_of_training` and `rs-fMRI` columns. If not, switch to `synthetic` mode.
-- **Runtime Error**: If NBS takes too long, reduce `--n-permutations` in `code/analysis/stats.py`.
+This runs the full unit‑test suite (including contract validation).

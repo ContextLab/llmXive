@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-217-evaluating-the-impact-of-llm-generated-c",
+  "tasks": [
+    {
+      "task_key": "T002",
+      "reject_count": 1,
+      "last_reason": "The `src/data/generate_comments.py` script exists and implements truncation, deterministic HF calls, retries, exclusion logging, checkpointing, and logging as specified. However, `data/llm_comments.jsonl` contains a placeholder record (`test-001`) that does not correspond to any snippet in `validated_snippets.jsonl`, violating the requirement that the file only hold records for successfully generated snippets (and none succeeded in the run). The file should be empty or contain only genuine successful records, and the extraneous test entry must be removed. Additionally, ensure that all failed s",
+      "first_seen": "2026-10-24T03:33:09.713329+00:00",
+      "last_seen": "2026-10-24T03:33:09.713329+00:00"
+    }
+  ],
+  "updated_at": "2026-10-24T03:33:09.713329+00:00"
+}

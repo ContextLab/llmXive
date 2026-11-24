@@ -1,15 +1,6 @@
-# Core dependencies required for linting and formatting
-black==24.3.0
-ruff==0.4.2
-# Project runtime dependencies (already listed in pyproject.toml)
-scikit-learn
-pandas
-numpy
-biopython
-requests
+python-dotenv
 pyyaml
-dendropy
-statsmodels
-tqdm
 pydantic
-pydantic-settings
+biopython
+dendropy
+tqdm

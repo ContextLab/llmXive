@@ -23,9 +23,6 @@ properties:
   target_gene_expression:
     type: "number"
     description: "Aggregated expression score (first principal component) representing gene‑expression patterns."
-additionalProperties:
-  type: "number"
-  description: "Dynamic protein feature columns matching the pattern ^protein_.*$"
 patternProperties:
   "^protein_.*$":
     type: "number"

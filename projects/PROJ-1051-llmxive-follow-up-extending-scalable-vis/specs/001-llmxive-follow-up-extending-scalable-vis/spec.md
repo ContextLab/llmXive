@@ -35,7 +35,7 @@ The system must train a DistilledModel (a parameter-efficient architecture) to p
 
 1. **Given** the text inputs and the generated visual latents, **When** the distillation training starts, **Then** the model converges to an MSE loss at least 5% lower than a random initialization baseline (verified by paired t-test, p < 0.05) within the 6-hour runtime limit.
 2. **Given** the memory limit of 7GB RAM, **When** the training loop processes a batch, **Then** the process does not crash due to Out-Of-Memory (OOM) errors, utilizing only CPU resources.
-3. **Given** a held-out validation set, **When** the training epoch completes, **Then** the validation loss does not exceed the training loss by more than a factor of 2, indicating no severe overfitting on the small sample.
+3. **Given** a held-out validation set, **When** the training epoch completes, **Then** the validation loss does not exceed the training loss by a substantial margin, indicating no severe overfitting on the small sample.
 4. **Given** the trained DistilledModel, **When** an ablation study is run, **Then** the system demonstrates that the predicted latents contain information independent of the text-only encoder (e.g., by showing that concatenating the predicted latents to the text embeddings yields a performance gain over the text-only baseline that cannot be explained by text redundancy alone).
 
 ---

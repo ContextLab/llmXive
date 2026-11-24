@@ -1,210 +1,190 @@
----
-description: "Task list for feature implementation"
----
+# Tasks: The Influence of Visual Salience on Moral Judgments of Simulated Scenarios  
 
-# Tasks: The Influence of Visual Salience on Moral Judgments of Simulated Scenarios
-
-**Input**: Design documents from `/specs/001-visual-salience-moral-judgments/`  
-**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL – include them only if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `- [ ] T### [P?] [Story] Description (file path)`
-
-- **[P]** – can run in parallel (different files, no dependencies)  
-- **[Story]** – which user story this task belongs to (e.g., US1, US2, US3)  
-- Include exact file paths in the description.
-
-## Path Conventions
-
-- **Single‑project layout**: `code/`, `tests/`, `data/` at repository root  
-- Adjust if a different layout is adopted.
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, `contracts/` for feature `001-visual-salience-moral-judgments`
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-**Purpose**: Project initialization and basic structure.
+| Goal | Run a minimal, fully‑executable pipeline on a small real subset to prove that all downstream steps can be triggered without error. |
+|------|-----------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] T001a Create project directory structure (`code/`, `data/raw/`, `data/processed/`, `data/survey/`, `data/synth/`, `tests/`, `contracts/`, `config/`, `docs/`).  
-  **Verification**: Implement `code/verify_structure.py` that asserts all directories exist.  
-- [ ] T001b-INIT [P] Generate missing config files (`.gitignore`, `.ruff.toml`, `.env.example`).  
-  - Write `.gitignore` excluding `data/`, `__pycache__/`, `*.pyc`.  
-  - Write `.ruff.toml` with `max-line-length = 100`.  
-  - Write `.env.example` containing `VISUAL_GENOME_URL` and `SURVEY_API_KEY`.  
-  - Verify with the script created in T001a.  
-- [ ] T001c [P] Create `config/pre_registration.yaml` with a placeholder `MIN_PRECISION: <value_to_be_set_by_researcher>` and `verification_status: UNVERIFIED`.  
-- [ ] T002 Initialize Python project with `requirements.txt` (e.g., `numpy`, `pandas`, `scipy`, `statsmodels`, `Pillow`, `requests`, `matplotlib`, `seaborn`, `opencv-python-headless`, `streamlit`, `torch`, `transformers`, `ordinal`, `ordinal-mixed-models`).  
-- [ ] T003a [P] Verify `.ruff.toml` exists and is syntactically valid.  
-- [ ] T008a [P] Verify `.env.example` exists and contains the required keys (`VISUAL_GENOME_URL`, `SURVEY_API_KEY`).  
+- [~] **T001** [US‑001] **Ingest and filter raw images from Visual Genome** – `code/01_ingest_and_filter.py`
+  - Stream the **Visual Genome** image dataset with `datasets.load_dataset("visual_genome", "images", split="train", streaming=True)`.  
+  - Keep records whose `metadata.tags` contain **“conflict”** or **“social”** and that have a downloadable image URL.  
+  - Limit to the first **200** matching records (fixed seed 42) so RAM < 2 GB.  
+  - **Determinism**: set `random.seed(42)` and `np.random.seed(42)` at script start.  
+  - Create `data/raw/images/` if it does not exist; download each image there and compute a SHA‑256 checksum stored in `data/raw/checksums.json`.  
+  - Write `data/processed/candidates_filtered.csv` conforming to `contracts/dataset.schema.yaml`.  
+  - **Verification**:  
+    - Running `python code/01_ingest_and_filter.py` exits 0.  
+    - The CSV contains ≥ 1 row and every `original_image_path` points to an existing file under `data/raw/images/`.  
+    - Unit test `tests/unit/test_data_loader.py` asserts that a simulated fetch failure raises a `DataFetchError`.
 
----
+- [~] **T002** [US‑001] **Create human‑coding directory and template** – `code/02_prepare_human_coding_dir.py`
+  - Create the folder `data/raw/human_coding/` (must exist after execution).  
+  - Generate a **template CSV** `data/raw/human_coding/annotations_template.csv` that lists all `scenario_id`s from `candidates_filtered.csv` and provides columns for three independent annotators to record a 1‑5 ambiguity rating.  
+  - Include a short README in the same folder describing the annotation procedure and required number of raters.  
+  - **Verification**:  
+    - After script execution the folder and template file are present.  
+    - Integration test `tests/integration/test_human_coding_dir.py` checks that the file count matches the number of scenarios and that the header columns are correct.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [~] **T003** [US‑001] **Process human‑coding annotations and select ambiguous scenarios** – `code/03_process_human_coding.py`  
+  - Load all annotation CSVs placed in `data/raw/human_coding/` (at least three per scenario).  
+  - Compute for each scenario:  
+    1. **Mean ambiguity score** (1‑5 Likert).  
+    2. **Cohen’s κ** across the three annotators.  
+  - Retain scenarios where **mean ≥ 3.5** **and** **κ ≥ 0.6**.  
+  - Cross‑reference retained IDs against the external **MoralD** benchmark (provided via `datasets.load_dataset("moral_d")`). Write matches to `data/processed/ground_truth_match.csv`.  
+  - Output `data/processed/valid_scenarios.csv` conforming to `contracts/dataset.schema.yaml`.  
+  - **Verification**:  
+    - Unit test `tests/unit/test_human_coding.py` validates `calculate_cohens_kappa` on a hand‑computed example and checks that the filtering logic keeps only scenarios meeting both thresholds.  
+    - The script aborts loudly (`raise RuntimeError`) if any required annotation file is missing.
 
-**Purpose**: Core infrastructure that must be complete before any user story can begin.
+- [~] **T015** **Provide a thin wrapper for the moral‑intent model** – `code/bert_moral_intent.py`  
+  - Download the `bert-base-uncased` checkpoint fine‑tuned on MoralD from Hugging Face (`transformers.AutoModelForSequenceClassification`).  
+  - Verify the file checksum (SHA‑256) against the published hash.  
+  - Expose `compute_preservation_score(original_image_path, manipulated_image_path)` that:  
+    1. Generates captions for both images using a pretrained caption model.  
+    2. Encodes captions with BERT and returns the Pearson correlation with a reference moral‑intent vector.  
+    3. Must return ≥ 0.90 on a sanity‑check image.  
+  - **Verification**: Unit test `tests/unit/test_bert_moral_intent.py` checks checksum, runs the sanity inference, and asserts the correlation threshold.
 
-- [ ] T004 [P] Implement reproducibility helper `code/config.py` with `seed_everything(seed=42)` that seeds `numpy`, `random`, and `torch`.  
-- [ ] T005 [P] Implement data‑integrity verification script `code/verify_data_integrity.py`.  
-- [ ] T006 [P] Set up basic logging configuration in `code/logging_config.py`.  
-- [ ] T007 [P] Create base data‑model classes in `code/models.py`: `Scenario`, `StimulusVariant`, `Response`, `Participant` (all attributes per spec). Ensure any stochastic defaults call `seed_everything()`.  
-- [ ] T052 [P] Implement a strict “fail loudly” data loader in `code/data_prep.py` that raises `DataFetchError` on any real‑fetch failure (no silent synthetic fallback).  
-- [ ] T052-VERIFY-AND-FIX [P] Verify the behavior of T052 by simulating a network failure; automatically patch `code/data_prep.py` if it does not raise `DataFetchError`.  
-- [ ] T053-RAW-CHECKSUM [P] Download the full Visual Genome dataset from its canonical Hugging‑Face source, compute a SHA‑256 checksum, and store it in `data/raw/source_checksum.txt`. Verify the checksum matches the published hash.  
-- [ ] T053-GEN [P] Generate a deterministic list of 1 000 image IDs (`data/raw/selected_ids.json`) using a fixed seed (42) derived from the verified source.  
-- [ ] T053-EXEC [P] Download only the images whose IDs appear in `selected_ids.json` (using `datasets.load_dataset("visual_genome", split="train", streaming=False)`), compute per‑image SHA‑256 checksums, and store metadata in `data/raw/sample_metadata.json`.  
-- [ ] T053c [P] Verify that `selected_ids.json` exists before any downstream task runs; raise `FileNotFoundError` if missing.  
-- [ ] T053b [P] Add reproducibility verification in `code/data_prep.py` that re‑downloads the subset and checks against `sample_metadata.json`; raise `ReproducibilityError` on mismatch.  
-- [ ] T054 [P] Implement “verified source” injection in `code/data_prep.py`: if environment variable `VERIFIED_DATA_SOURCE` is set, use that single source (e.g., `huggingface_hub.hf_hub_download`) and ignore other URLs.  
-- [ ] T055 [P] Add unit test `tests/unit/test_data_loader.py` that simulates a network failure and asserts `DataFetchError` is raised (no synthetic data returned).  
-- [ ] T055a [P] Run the test from T055 and verify it passes.  
-- [ ] T056 [P] Add unit test `tests/unit/test_data_cleaning.py` that checks the straight‑lining detection routine correctly excludes participants with variance < 0.1 or > 90 % identical ratings.  
+- [ ] **T004** [US‑001] **Generate salience‑manipulated stimulus variants** – `code/04_manipulate_stimuli.py`  
+  - Read manipulation parameters from `config/manipulation.yaml` (contrast & brightness levels for low/medium/high).  
+  - For each valid scenario (from **T003**) detect the ROI using Sobel edge detection, then create three variants by adjusting contrast/brightness as specified.  
+  - Save PNGs under `data/processed/stimuli/` with filenames `<scenario_id>_low.png`, `<scenario_id>_medium.png`, `<scenario_id>_high.png`.  
+  - Validate each variant:  
+    * **RMS contrast change** in ROI ≥ 15 %.  
+    * **CLIP cosine similarity** ≥ 0.95 (CPU first; fallback to GPU if `torch.cuda.is_available()`).  
+    * **Texture/edge‑density change** < 0.05 (Laplacian variance).  
+    * **Moral‑intent preservation score** ≥ 0.90 using the wrapper from **T015**.  
+  - Log any failures to `logs/manipulation_errors.log` and exclude those stimuli from downstream files.  
+  - Write `data/processed/stimuli_manifest.csv` (schema `contracts/stimuli_manifest.schema.yaml`) listing one row per variant with all validation metrics.  
+  - **Verification**:  
+    - Unit test `tests/unit/test_manipulation.py` checks that a real image produces ≥ 15 % RMS contrast change, CLIP ≥ 0.95, texture change < 0.05, and that the CSV validates against its schema.
 
-*Checkpoint*: Foundational work complete – user‑story implementation may now begin.
+- [ ] **T005** [US‑001] **Automated pilot human manipulation check** – `code/05_human_manipulation_check.py`  
+  - Use a pre‑collected pilot‑check dataset (`data/processed/pilot_human_check.csv`) containing binary judgments from ≥ 5 coders on 20 randomly sampled manipulated images.  
+  - Compute the proportion of “preserved” responses; require **≥ 80 %** agreement.  
+  - Append a boolean column `human_narrative_preserved` to each row in `stimuli_manifest.csv`.  
+  - Summarize results in `data/processed/human_check_report.md`.  
+  - **Verification**: Unit test `tests/unit/test_human_check.py` loads the pilot file, validates the agreement calculation, and aborts if the threshold is not met.
 
----
-
-## Phase 3: User Story 1 – Data Preparation & Salience Manipulation (Priority P1)
-
-**Goal**: Ingest open visual datasets, identify morally ambiguous images, and generate low/medium/high salience variants while preserving semantics.
-
-**Independent Test**: Run the pipeline on a subset of raw images; verify (1) metadata filter, (2) human‑coding reliability (Cohen κ ≥ 0.6), (3) RMS‑contrast change, and (4) CLIP similarity ≥ 0.95 plus ≥ 80 % coder agreement on narrative preservation.
-
-### Implementation Tasks
-
-- [ ] T013 [US1] Implement dataset ingestion in `code/data_prep.py`: fetch Visual Genome (primary) or MoralD (secondary) from the verified source, filter for `social`/`conflict` tags, and output `data/processed/stimuli_raw.csv`.  
-- [ ] T013-SOURCE-VERIFY [US1] Verify that the source used matches the checksum recorded in T053-RAW-CHECKSUM; raise `SourceMismatchError` if they differ.  
-- [ ] T013b [US1] Download the external validation resource (e.g., MoralD) into `data/raw/external_validation/`.  
-- [ ] T014-FILTER [US1] Implement metadata filtering (tags `social`, `conflict`) in `code/data_prep.py`; output `data/processed/candidates_filtered.csv`.  
-- [ ] T014-CROSSREF-EXEC [US1] Perform cross‑reference verification against the external validation source (from T013b); log results in `data/processed/cross_reference_log.txt`; raise `CrossReferenceError` on failure.  
-- [ ] T015d [US1] Implement the human‑coding protocol in `code/human_coding.py`: recruit ≥ 3 annotators, collect 5‑point ambiguity ratings, compute mean scores and Cohen’s κ, and output `data/processed/valid_scenarios.csv`.  
-- [ ] T015e-RECRUIT [US1] Generate a recruitment survey (Qualtrics/Prolific) via `code/generate_human_coding_survey.py`.  
-- [ ] T015e-WAIT [US1] Poll `data/raw/human_coding/` until ≥ 3 valid annotator files are present.  
-- [ ] T015a [US1] Create a unit‑test harness in `code/human_coding.py` that generates mock annotation data (`data/raw/human_coding/mock_annotations.csv`) for CI purposes only.  
-- [ ] T015a1 [US1] Verify that mock annotation files live only under `data/raw/human_coding/` and never leak into `data/processed/`.  
-- [ ] T015b [US1] Add unit test `tests/unit/test_human_coding.py` that validates `calculate_cohens_kappa` on the mock data.  
-- [ ] T015c [US1] Execute the real human‑coding pipeline: read actual annotator files, compute κ, filter scenarios (mean ≥ 3.5 & κ ≥ 0.6), and write `data/processed/valid_scenarios.csv`.  
-- [ ] T016a [US1] Write the versioned manipulation configuration file `config/manipulation.yaml` (fields: `version`, `seed`, `luminance_levels`, `target_region`, `output_path`).  
-- [ ] T016 [US1] Implement salience manipulation (low/medium/high luminance) in `code/data_prep.py` using parameters from `config/manipulation.yaml`; output manipulated images to `data/processed/images/` and manifest `data/processed/stimuli_manipulated.csv`.  
-- [ ] T017 [US1] Implement semantic‑preservation verification in `code/validation.py` (CPU‑only CLIP):  
-  - Compute ROI embeddings for original vs. manipulated; require cosine similarity ≥ 0.95.  
-  - Compute background similarity ≥ 0.99.  
-  - Verify texture/edge‑density change < 0.05 (Laplacian variance).  
-- [ ] T017-CPU-OPT [US1] Optimize CLIP inference in `code/validation.py` with `torch.no_grad()` and batch processing to stay < 2 GB RAM.  
-- [ ] T018 [US1] Add failure logging and exclusion logic in `code/data_prep.py` for images where manipulation or verification fails.  
-- [ ] T019b-RECRUIT [US1] Create a recruitment survey for the pilot manipulation‑check coder panel (`code/generate_manipulation_check_survey.py`).  
-- [ ] T019b-WAIT [US1] Poll `data/raw/manipulation_check/` until ≥ 3 valid coder responses are present.  
-- [ ] T019-EXEC [US1] Run the manipulation‑check analysis: compute coder agreement on narrative preservation; if < 80 % flag scenario as failed and exclude it. Store results in `data/processed/narrative_check_validated.csv`.  
-- [ ] T019a [US1] Generate the final stimulus manifest `data/processed/stimulus_manifest.json` linking `scenario_id`, `variant_id`, `salience_level`, and a `source_type` field (`real` | `synthetic`).  
-- [ ] T016b [US1] Create the stimulus contract schema `contracts/stimulus.schema.yaml` describing the JSON manifest structure.  
-
-*Checkpoint*: User Story 1 is fully functional and independently testable.
+- [ ] **T016** **A‑priori power analysis for target sample size** – `code/00_pilot_power_analysis.py`  
+  - Perform a simulation‑based power analysis (or invoke G*Power) targeting a medium effect (odds ratio ≈ 1.5) with α = 0.05 (Bonferroni‑adjusted for three pairwise tests), participant ICC = 0.10, scenario ICC = 0.05.  
+  - Determine the required total N (≈ 600) and participants per scenario.  
+  - Write results to `config/pre_registration.yaml` under `required_sample_size` and store the full simulation output in `data/processed/power_analysis_a_priori.json`.  
+  - **Verification**: Unit test `tests/unit/test_power_a_priori.py` checks that the computed N meets the specification and that the JSON contains the expected fields.
 
 ---
 
-## Phase 4: User Story 2 – Survey Deployment & Data Collection (Priority P2)
+## Phase 2 – Complete study, validation, and analysis  
 
-**Goal**: Present the manipulated images in a within‑subject design, randomize order, and log blame ratings.
+- [ ] **T006** [US‑002] **Deploy within‑subject survey (simulated participants)** – `code/06_survey_deployment.py`  
+  - Load `stimuli_manifest.csv` and generate a **Latin‑square** schedule ensuring:  
+    1. No identical scenario appears consecutively for a participant.  
+    2. Salience order is balanced across participants.  
+    3. Each participant sees each scenario at exactly one salience level per block.  
+  - For automated CI runs, use a **simulated participant pool** (`data/processed/mock_participants.csv`) generated from the a‑priori power analysis.  
+  - Interface with the recruitment API only in a manual “real‑deployment” mode (outside CI).  
+  - Present each stimulus image, record a 1‑7 blame rating, and write two files per run:  
+    * `data/processed/responses_raw.csv` (schema `contracts/response.schema.yaml`).  
+    * `data/processed/responses_survey_raw.csv` (schema `contracts/survey_responses.schema.yaml`).  
+  - Abort with `DataIntegrityError` if the manifest’s `source_type` is `synthetic`.  
+  - **Verification**: Unit test `tests/unit/test_survey_logic.py` checks randomisation constraints; integration test `tests/integration/test_survey_flow.py` runs a pilot session using the mock participants, confirms the required number of participants logged, and validates both CSVs against their schemas.
 
-**Independent Test**: Run a pilot survey with a small cohort; verify randomization, logging of participant ID, image ID, salience level, and rating.
+- [ ] **T007** [US‑003] **Clean raw responses and exclude straight‑liners** – `code/07_data_cleaning.py`  
+  - Load `responses_raw.csv`.  
+  - For each participant compute rating variance; flag exclusion if variance < 0.1 **or** > 90 % identical ratings.  
+  - Also flag participants who fail the embedded attention check in `responses_survey_raw.csv`.  
+  - Write `data/processed/responses_cleaned.csv` (adds a `valid` flag per response) and `data/processed/participants_excluded.csv` (schema `contracts/participant.schema.yaml`).  
+  - **Verification**: Unit test `tests/unit/test_data_cleaning.py` runs on a synthetic dataset with known straight‑liners and asserts correct exclusion; script prints the actual exclusion rate.
 
-### Implementation Tasks
+- [ ] **T008** [US‑003] **Fit CLMM with robust fallback and report power/precision** – `code/08_analysis_clmm.py`  
+  - Load `responses_cleaned.csv`.  
+  - Fit a **Cumulative Link Mixed Model**: `blame_rating ~ salience_level + (1|participant_id) + (1|scenario_id)`.  
+  - If the optimizer fails to converge, automatically switch to a **Linear Mixed Model** with 10 000 bootstrap robust SEs (preserving the ordinal outcome).  
+  - Perform **Bonferroni‑adjusted** pairwise contrasts (low‑vs‑medium, medium‑vs‑high, low‑vs‑high).  
+  - Compute odds‑ratio effect size with 95 % CI, Type III sums of squares, and store under `effect_size`.  
+  - Run a post‑hoc power simulation using the observed odds‑ratio; set `power_flag` if observed power < 0.80.  
+  - Verify CI width against the pre‑registered precision threshold (0.30) and set `precision_flag`.  
+  - Write `data/processed/analysis_results.json` conforming to `contracts/analysis_schema.yaml`.  
+  - **Verification**: Unit test `tests/unit/test_analysis.py` runs the pipeline on a synthetic dataset with injected β = 0.5 and checks that the recovered effect meets tolerance, that correction and fallback logic work, and that the JSON validates; integration test `tests/integration/test_analysis_pipeline.py` runs on the real cleaned data and asserts schema compliance.
 
-- [ ] T022 [US2] Implement the randomization engine (`code/survey_sim.py`) that generates per‑participant sequences respecting: no identical scenarios consecutively, balanced salience order, and no repeat of the same salience level for a scenario.  
-- [ ] T023a [US2] Implement a pilot‑only simulation interface (`code/survey_deploy.py`) that writes synthetic sequences to `data/synth/survey_sequences.json`. (For CI only – never used for real data.)  
-- [ ] T023a1 [US2] Verify that the synthetic file lives under `data/synth/` and not under `data/survey/`.  
-- [ ] T023c [US2] Generate the production survey configuration `config/survey_api.yaml` (placeholders for Prolific/Qualtrics keys) and the deployment script `code/survey_deploy_production.py` that renders the survey, enforces within‑subject constraints, and logs responses to `data/survey/real_responses.csv`.  
-- [ ] T023b [US2] Integrate the production script into a Streamlit app (`code/survey_deploy.py`).  
-- [ ] T024 [US2] Implement the response‑logging handler (`code/response_logger.py`) that appends each valid response (participant ID, stimulus ID, salience, rating, timestamp) to `data/survey/real_responses.csv`.  
-- [ ] T024c-IMPL [US2] Write `scripts/generate_prolific_link.py` that deterministically creates the recruitment link for the chosen platform.  
-- [ ] T024c [US2] Run the script from T024c-IMPL to produce the link and store it in `data/survey/prolific_link.txt`.  
-- [ ] T024c-VERIFY [US2] Execute a mock survey session using the generated link to confirm that within‑subject constraints are enforced and that responses are written to `data/survey/mock_responses.csv`.  
-- [ ] T024b [US2] Execute the real survey deployment (or mock mode for local verification) via `code/survey_deploy_production.py`; output either `data/survey/mock_responses.csv` (mock) or `data/survey/real_responses.csv` (real).  
-- [ ] T026 [US2] Implement a pilot‑data simulation script (`code/survey_sim.py`) that generates synthetic blame ratings for n ≥ 20 participants; write to `data/synth/pilot_responses_sim.csv`. (CI only.)  
-- [ ] T026a [US2] Ensure strict separation: `data/survey/` contains only real (or mock) survey data; `data/synth/` contains only synthetic data. Raise `DataHygieneError` on violation.  
-- [ ] T023e [US2] Create the response contract schema `contracts/response.schema.yaml` defining required fields (`participant_id`, `stimulus_id`, `salience_level`, `rating`, `timestamp`).  
+- [ ] **T009** [US‑003] **Generate figures, tables, and verification script** – `code/09_generate_reports.py`  
+  - From `analysis_results.json` and `responses_cleaned.csv` produce:  
+    * `figures/odds_ratio_table.csv` (fixed‑effects odds‑ratio & CI).  
+    * `figures/posthoc_table.csv` (pairwise contrast statistics, Bonferroni‑adjusted).  
+    * `figures/power_summary.txt` (observed power, flags).  
+    * `figures/rating_distribution.png` (histograms per salience level).  
+    * `figures/marginal_effects.png` (predicted probability curves).  
+    * `figures/exclusion_flow.png` (Sankey diagram of participant flow).  
+  - Provide `tests/integration/test_report_verification.py` that loads each figure/table and asserts that every numeric entry appears in `analysis_results.json` or `responses_cleaned.csv`, and that each file is non‑empty.  
+  - **Verification**: Running `pytest -q tests/integration/test_report_verification.py` must pass.
 
-### Tests (Restored)
+- [ ] **T010** [US‑003] **Write methods & results markdown with automated verification** – `data/results/report.md`  
+  - Summarise:  
+    1. Sampling rule for image ingestion.  
+    2. Manipulation validation metrics (CLIP, RMS contrast, moral‑intent score, human‑check agreement).  
+    3. Participant exclusion statistics.  
+    4. Model convergence status and fallback used (if any).  
+    5. Effect‑size tables with CIs, corrected p‑values.  
+    6. Observed power & precision flags.  
+    7. Limitations (e.g., reduced sample size).  
+  - Every claim cites a concrete artifact path (e.g., `figures/odds_ratio_table.csv`, `data/processed/stimuli_manifest.csv`).  
+  - **Automated verification**: Added `code/10_verify_report.py` and unit test `tests/unit/test_report_verification.py` which checks that all required sections are present, citations resolve to existing files, and no placeholder text remains.  
 
-- [ ] T020 [P] [US2] Unit test `tests/unit/test_survey_logic.py` to verify the randomization engine respects within‑subject constraints.  
-- [ ] T021 [P] [US2] Unit test `tests/unit/test_data_schema.py` to validate that logged rows conform to `contracts/response.schema.yaml`.  
-- [ ] T022 [P] [US2] Integration test `tests/integration/test_survey_flow.py` that runs the full pilot‑simulation pipeline and checks end‑to‑end logging.  
-
-*Checkpoint*: User Stories 1 & 2 are independently functional.
-
----
-
-## Phase 5: User Story 3 – Statistical Analysis & Reporting (Priority P3)
-
-**Goal**: Fit a Cumulative Link Mixed Model (CLMM), apply robust corrections, compute effect sizes, perform power analysis, and generate a final report.
-
-**Independent Test**: Run the full analysis on a synthetic dataset with a known injected effect (β = 0.5) and verify that the pipeline detects the effect, reports correct odds ratios, and respects convergence/fallback logic.
-
-### Implementation Tasks
-
-- [ ] T036 [US3] Implement a pipeline‑validation script (`code/validation.py`) that injects a synthetic effect into a generated dataset and runs the full analysis to confirm correct detection before any real data are processed.  
-- [ ] T045 [US3] Execute data‑cleaning (`code/data_cleaning.py`) on the real survey file (`data/survey/real_responses.csv`) to remove straight‑liners (variance < 0.1 OR > 90 % identical ratings); output `data/processed/cleaned_responses.csv`.  
-- [ ] T045‑SYNTH [US3] Run the same cleaning routine on `data/synth/pilot_responses_sim.csv` and output `data/processed/cleaned_responses_synth.csv`.  
-- [ ] T045b [US3] During cleaning, add an `is_real_data` flag to each row (True for real, False for synthetic).  
-- [ ] T032a [US3] Implement convergence‑check logic in `code/analysis.py`: function `check_convergence_and_fallback(model)` that returns the primary model if `model.converged` else switches to a fallback (LMM with robust SE → Bootstrap CLMM). Record `convergence_status` and `fallback_reason`.  
-- [ ] T032b [US3] Implement the fallback model functions (`fit_lmm_robust()`, `fit_bootstrap_clmm()`) in `code/analysis.py`, preserving random intercepts for Participant and Scenario where applicable.  
-- [ ] T030‑IMPL [US3] Write the primary CLMM fitting code (`run_clmm_analysis()`) using the `ordinal` package: `Rating ~ Salience + (1|Participant) + (1|Scenario)`.  
-- [ ] T031‑IMPL [US3] Write robustness‑check code (`run_robustness_checks()`) that, after a successful CLMM, performs bootstrap resampling; if CLMM fails, automatically invokes the fallback selected by T032a.  
-- [ ] T030‑EXEC [US3] Execute the primary analysis on `data/processed/cleaned_responses.csv` (or the synthetic counterpart).  
-- [ ] T031b [US3] Explicitly call `check_convergence_and_fallback` after T030‑EXEC; if a `ConvergenceError` is raised, run the appropriate fallback model and write results to `data/analysis/results_fallback.csv`.  
-- [ ] T031‑EXEC [US3] Run the secondary robustness checks (bootstrap or fallback) on the cleaned dataset.  
-- [ ] T034 [US3] Perform ordinal post‑hoc pairwise comparisons (Low vs Medium, Medium vs High, Low vs High) with Tukey adjustment for the primary CLMM; if a fallback model is used, apply Bonferroni correction. Store results in `data/analysis/posthoc_results.csv`.  
-- [ ] T035 [US3] Compute effect sizes (odds ratios) and 95 % confidence intervals for the salience fixed effect; write to `data/analysis/effect_sizes.csv`.  
-- [ ] T046 [US3] Load `MIN_PRECISION` from `config/pre_registration.yaml`; calculate the CI width for the salience coefficient and compare against the threshold. If the config is missing or `verification_status` = `UNVERIFIED`, raise `PreRegistrationError`. Append `ci_width`, `precision_adequate`, and `verification_status` to `data/analysis/results.json`.  
-- [ ] T047 [US3] Perform post‑hoc power analysis (`code/power_analysis.py`) using the observed effect size; write `power_value` and `power_adequate` (True if ≥ 0.80) to `data/analysis/power_results.json`.  
-- [ ] T047‑RECOVERY [US3] If `power_adequate` is False, generate a remediation plan (`data/analysis/adjustment_plan.md`) recommending additional participants or re‑run parameters.  
-- [ ] T047b [US3] Merge `power_results.json` into `results.json` (add `power_value` and `power_adequate`).  
-- [ ] T047c [US3] Ensure the final report generator (`code/analysis.py` – T037) reads the enriched `results.json` and includes power information.  
-- [ ] T070 [US3] Power‑gate: before report generation, verify `power_adequate`. If False and no `adjustment_plan.md` exists, automatically create a default plan; then continue to report generation.  
-- [ ] T037 [US3] Implement the final report generator (`code/report_generator.py`) that reads `data/analysis/results.json` and produces a human‑readable summary (Markdown or PDF) including model convergence status, effect sizes, CI widths, precision check outcome, and power assessment.  
-
-### Tests (Optional)
-
-- [ ] T027 [P] [US3] Unit test `tests/unit/test_analysis.py` to verify CLMM fitting on a synthetic dataset with a known β = 0.5.  
-- [ ] T028 [P] [US3] Unit test `tests/unit/test_corrections.py` to validate Tukey‑adjusted and Bonferroni‑adjusted post‑hoc logic.  
-- [ ] T029 [P] [US3] Unit test `tests/unit/test_metrics.py` to confirm odds‑ratio calculation matches manual computation.  
-- [ ] T030 [P] [US3] Integration test `tests/integration/test_analysis_pipeline.py` that runs the entire analysis pipeline on synthetic data and checks that `results.json` contains the expected fields and values.  
-
-*Checkpoint*: All three user stories are now independently functional.
+- [ ] **T011** [US‑003] **Paper‑stage handoff** – `data/results/handoff.md`  
+  - Re‑run the full workflow from **T001** through **T010** using the exact commands listed in `quickstart.md` (pinned seeds, deterministic RNG).  
+  - Confirm that all unit/integration tests pass (`pytest`).  
+  - Verify that `data/processed/analysis_results.json` is byte‑identical between runs (no timestamps).  
+  - List the artifacts required by the downstream paper pipeline: CLMM results JSON, all figures, tables, and the pre‑registration file (`config/pre_registration.yaml`).  
+  - **Verification**: Script `code/10_verify_handoff.py` computes SHA‑256 of `analysis_results.json` before and after a fresh run and asserts equality.
 
 ---
 
-## Phase 6: Polish & Cross‑Cutting Concerns
+## Phase 3 – Reproducibility scaffolding  
 
-**Purpose**: Improvements that affect multiple user stories.
+- [ ] **T012** [P] **Create `quickstart.md` with a reproducible entry‑point** – `docs/quickstart.md`  
+  - Provide a step‑by‑step command list (environment setup, `pip install -r code/requirements.txt`, `python -m llmxive_toolkit.paths && python code/01_ingest_and_filter.py`, …, `python code/09_generate_reports.py`).  
+  - Include the exact seed values and environment variables required for deterministic execution.  
+  - **Verification**: Running the commands on a fresh clone reproduces the end‑to‑end results and all tests pass.
 
-- [ ] T038a [P] Update `docs/paper_draft.md` – add **3.1 Methods** section describing the CLMM specification, data‑cleaning pipeline, and ordinal post‑hoc corrections.  
-- [ ] T038b [P] Update `docs/paper_draft.md` – add **4.1 Results** section with placeholders for CLMM tables, effect sizes, CI widths, and power statements.  
-- [ ] T039a [P] Refactor `code/data_prep.py` to reduce cyclomatic complexity < 10 (verify with `ruff`).  
-- [ ] T039b [P] Refactor `code/analysis.py` to separate model fitting from result reporting (verify with `ruff`).  
-- [ ] T050 [P] Add a profiling script `code/profile_pipeline.py` that measures runtime of each major stage (ingest, manipulation, survey, analysis).  
-- [ ] T051a [P] Implement the profiler (record timestamps, write `data/analysis/runtime_log.txt`).  
-- [ ] T051b [P] Run the profiler on the full dataset; store results.  
-- [ ] T051c [P] If total runtime > 6 h, iteratively optimise `code/analysis.py` or `code/data_prep.py` until the limit is satisfied.  
-- [ ] T040a [US3] In `code/analysis.py`, detect if the participant count falls below the planned minimum; if so, set `power_adequate = False` and append a warning about reduced power and wider CIs.  
-- [ ] T040b [US3] Add unit test `tests/unit/test_power_edge_case.py` to verify the warning is triggered correctly for undersized samples.  
-- [ ] T041a [P] Generate `quickstart.md` – a step‑by‑step guide covering environment setup, data download, pipeline execution, and result inspection.  
-- [ ] T041b [P] Validate `quickstart.md` with a script that checks consistency against the task list; output validation log to `data/logs/quickstart_validation.txt`.  
+- [ ] **T013** [P] **Pin exact dependencies** – `code/requirements.txt` & verification script `code/10_verify_requirements.py`  
+  - List all packages with exact version numbers (e.g., `torch==2.2.0`, `datasets==2.18.0`, `statsmodels==0.14.0`, etc.).  
+  - `code/10_verify_requirements.py` compares the file against the current Python environment (`pip freeze`) and exits 0 only if they match.  
+  - **Verification**: Unit test `tests/unit/test_requirements.py` asserts existence of the file and that the script returns exit 0 in the CI environment.
 
----
+- [ ] **T014** [P] **Validate configuration files** – `code/11_validate_configs.py`  
+  - Ensure `config/manipulation.yaml`, `config/pre_registration.yaml`, and `config/analysis.yaml` exist, contain all required keys, and that `pre_registration.yaml` has `verification_status: VERIFIED`.  
+  - Raise `ConfigError` with a clear message for any missing key or mismatched status.  
+  - **Verification**: Unit test `tests/unit/test_config_validation.py` loads each YAML and checks schema compliance.
 
-## Phase 7: Review Resolution & Constitution Hardening (Revision Pass)
+- [ ] **T017** **Validate generated artifacts against contract schemas** – `code/12_validate_contracts.py`  
+  - For every data file produced in Phases 1‑2 (CSV, YAML, JSON), run JSON/YAML schema validation against the corresponding schema in `contracts/`.  
+  - Abort with `ContractValidationError` if any artifact fails.  
+  - **Verification**: Unit test `tests/unit/test_contract_validation.py` loads a sample artifact and confirms successful validation.
 
-**Goal**: Address reviewer concerns about data integrity, reproducibility, and constitutional compliance.
+---  
 
-- [ ] T065 [US1] Document the “Verified Source” injection mechanism in `docs/data_hygiene.md` (explain `VERIFIED_DATA_SOURCE` env‑var behavior).  
-- [ ] T068 [US1] Add a “Real‑Data‑Only” gate in `code/analysis.py`: abort if `is_real_data` is False **and** `--allow-synthetic` is not supplied; raise `DataIntegrityError`.  
-- [ ] T069 [US2] Add a similar “Real‑Data‑Only” gate in `code/survey_deploy.py`: abort deployment if the stimulus manifest’s `source_type` is `synthetic` without `--allow-synthetic`.  
-- [ ] T071 [US1] In `code/human_coding.py`, enforce a check that at least 3 distinct annotator files are present before computing κ; raise `InsufficientAnnotatorsError` otherwise.  
-- [ ] T072 [US3] Enhance `code/analysis.py` to log `convergence_status` and `fallback_reason` into `data/analysis/results.json` for full transparency.  
+### Dependency & Requirement Mapping  
 
-*Checkpoint*: All reviewer‑raised issues resolved; the pipeline is constitutionally compliant.
+| Spec Requirement | Satisfying Task(s) |
+|------------------|--------------------|
+| **FR‑001** (salience manipulation) | T004, T005, T015 |
+| **FR‑002** (survey randomisation) | T006 |
+| **FR‑003** (blame rating collection) | T006 |
+| **FR‑004** (CLMM with fallback) | T008 |
+| **FR‑005** (Bonferroni / Tukey) | T008 |
+| **FR‑006** (effect size reporting) | T008 |
+| **FR‑007** (straight‑liner exclusion) | T007 |
+| **FR‑008** (ambiguous scenario identification) | T001, T002, T003 |
+| **FR‑009** (a‑priori power analysis) | T016 |
+| **SC‑001** (stimulus integrity metrics) | T004, T005 |
+| **SC‑002** (effect size detection) | T008 |
+| **SC‑003** (family‑wise error control) | T008 |
+| **SC‑004** (valid participant proportion) | T007 |
+| **SC‑005** (CI width precision) | T008 |
 
----
+All tasks are ordered to respect data flow: ingestion → human coding → moral‑intent wrapper → stimulus creation → pilot checks → power analysis → survey → cleaning → analysis → reporting → handoff.  

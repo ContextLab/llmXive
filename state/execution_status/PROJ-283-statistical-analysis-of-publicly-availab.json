@@ -8,11 +8,11 @@
     "python src/validation/validate_contracts.py --input data/processed/game_records.csv --schema contracts/game_record.schema.yaml -> rc=2\n    usage: validate_contracts.py [-h] --data DATA [--contracts CONTRACTS]\n                             [--format {parquet,csv}]\nvalidate_contracts.py: error: the following arguments are required: --data",
     "python src/main.py --config config.yaml -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-283-statistical-analysis-of-publicly-availab/src/main.py\", line 23, in <module>\n    from src.data.download import download_lichess_data\nImportError: cannot import name 'download_lichess_data' from 'src.data.download' (/home/runner/work/llmXive/llmXive/projects/PROJ-283-statistical-analysis-of-publicly-availab/code/src/data/download.py)"
   ],
-  "fix_rounds": 4,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 4,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-11T20:20:06Z"
+  "updated_at": "2026-10-20T14:28:12Z"
 }

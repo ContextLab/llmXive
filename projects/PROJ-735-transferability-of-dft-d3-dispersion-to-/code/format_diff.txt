@@ -1,0 +1,538 @@
+--- /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py	2026-10-14 05:04:33.346566+00:00
++++ /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py	2026-10-14 05:07:21.951148+00:00
+@@ -19,10 +19,11 @@
+ from utils import calculate_metrics, bootstrap_resample, bootstrap_mae
+ from logger import get_logger, info, warning, error, critical
+ from load_data import load_synthetic_dataset
+ 
+ logger = get_logger(__name__)
++
+ 
+ def load_scaling_factor(filepath: str = "data/derived/scaling_factor.txt") -> float:
+     """
+     Load the optimal scaling factor from the derived file.
+     """
+@@ -194,15 +195,19 @@
+     """
+     Generate a minimal placeholder raw energies CSV using the synthetic dataset.
+     This mirrors the logic in `generate_reports.ensure_raw_energies` but is
+     kept locally to avoid circular imports.
+     """
+-    synthetic_zip = Path(__file__).resolve().parents[2] / "data" / "IL-Benchmark-local.zip"
++    synthetic_zip = (
++        Path(__file__).resolve().parents[2] / "data" / "IL-Benchmark-local.zip"
++    )
+     pairs, _ = load_synthetic_dataset(synthetic_zip)
+ 
+     df = pd.DataFrame(pairs)
+-    df = df.rename(columns={"reference_energy": "reference_energy", "pair_id": "pair_id"})
++    df = df.rename(
++        columns={"reference_energy": "reference_energy", "pair_id": "pair_id"}
++    )
+     df["dft_total_energy"] = df["reference_energy"]  # placeholder: no error
+     df["d3_dispersion_energy"] = 0.0
+     df["signed_error"] = 0.0
+ 
+     csv_path.parent.mkdir(parents=True, exist_ok=True)
+--- /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/generate_reports.py	2026-10-14 05:04:33.346566+00:00
++++ /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/generate_reports.py	2026-10-14 05:07:21.967700+00:00
+@@ -43,17 +43,21 @@
+     logger.warning(
+         f"Raw energies file not found at {csv_path}. Generating a placeholder "
+         "using the synthetic dataset."
+     )
+     # Load the synthetic dataset (returns a list of dicts and a bulk DataFrame)
+-    synthetic_zip = Path(__file__).resolve().parents[1] / "data" / "IL-Benchmark-local.zip"
++    synthetic_zip = (
++        Path(__file__).resolve().parents[1] / "data" / "IL-Benchmark-local.zip"
++    )
+     pairs, _ = load_synthetic_dataset(synthetic_zip)
+ 
+     # Build DataFrame with required columns
+     df = pd.DataFrame(pairs)
+     # Ensure required column names
+-    df = df.rename(columns={"reference_energy": "reference_energy", "pair_id": "pair_id"})
++    df = df.rename(
++        columns={"reference_energy": "reference_energy", "pair_id": "pair_id"}
++    )
+     df["dft_total_energy"] = df["reference_energy"]  # placeholder: no error
+     df["d3_dispersion_energy"] = 0.0
+     df["signed_error"] = 0.0
+ 
+     # Write to the expected location
+@@ -72,11 +76,11 @@
+     """
+     ref = df["reference_energy"].values
+     pred = df["dft_total_energy"].values
+     errors = pred - ref
+     mae = float(np.mean(np.abs(errors)))
+-    rmse = float(np.sqrt(np.mean(errors ** 2)))
++    rmse = float(np.sqrt(np.mean(errors**2)))
+     mse = float(np.mean(errors))
+     return {"mae": mae, "rmse": rmse, "mse": mse}
+ 
+ 
+ def load_scaling_value(scaling_path: Path) -> float:
+@@ -90,11 +94,15 @@
+     content = scaling_path.read_text().strip()
+     for line in content.splitlines():
+         if "optimal_s" in line or "s =" in line or "s=" in line:
+             # Extract the numeric part
+             try:
+-                value_str = line.split(":")[-1].strip() if ":" in line else line.split("=")[-1].strip()
++                value_str = (
++                    line.split(":")[-1].strip()
++                    if ":" in line
++                    else line.split("=")[-1].strip()
++                )
+                 return float(value_str)
+             except ValueError:
+                 continue
+     # Fallback: try to parse the first number in the file
+     try:
+@@ -134,11 +142,11 @@
+         "",
+         f"- **Mean Absolute Error (MAE)**: `{mae:.4f}` kcal/mol",
+         f"- **Root Mean Square Error (RMSE)**: `{rmse:.4f}` kcal/mol",
+         f"- **Mean Signed Error (MSE)**: `{mse:.4f}` kcal/mol",
+         "",
+-        "These numbers are inserted programmatically to avoid manual transcription errors."
++        "These numbers are inserted programmatically to avoid manual transcription errors.",
+     ]
+     return lines
+ 
+ 
+ def generate_benchmark_report(
+@@ -195,13 +203,11 @@
+     df = pd.read_csv(csv_path)
+     logger.info(f"Loaded correlation results from {csv_path}")
+     return df
+ 
+ 
+-def generate_correlation_report(
+-    correlation_df: pd.DataFrame, output_path: str
+-) -> None:
++def generate_correlation_report(correlation_df: pd.DataFrame, output_path: str) -> None:
+     """
+     Generate `correlation_report.md` from the CSV data.
+     The markdown mirrors the previously static report but is fully
+     generated from the CSV to satisfy task T066.
+     """
+@@ -310,11 +316,13 @@
+         # Generate Correlation Report if CSV is available
+         if correlation_csv_path.exists():
+             corr_df = load_correlation_results(correlation_csv_path)
+             generate_correlation_report(corr_df, str(correlation_report_path))
+         else:
+-            warning(f"Correlation results not found at {correlation_csv_path}. Skipping correlation report.")
++            warning(
++                f"Correlation results not found at {correlation_csv_path}. Skipping correlation report."
++            )
+ 
+     except Exception as e:
+         error(f"Failed to generate reports: {e}")
+         raise
+ 
+--- /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/run_flake8_report.py	2026-10-14 05:04:33.346566+00:00
++++ /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/run_flake8_report.py	2026-10-14 05:07:22.019638+00:00
+@@ -5,16 +5,18 @@
+ to ``code/lint_report.txt``. The report starts with the exit code on the
+ first line followed by the raw flake8 output.
+ 
+ The script is intended to be used as the implementation of task **T060a**.
+ """
++
+ import subprocess
+ from pathlib import Path
+ 
+ from llmxive_toolkit import paths, get_logger
+ 
+ log = get_logger(__name__)
++
+ 
+ def run_flake8(target_dirs: list[str]) -> tuple[int, str]:
+     """Execute flake8 on the given directories.
+ 
+     Returns
+@@ -32,17 +34,19 @@
+         text=True,
+     )
+     output = result.stdout + result.stderr
+     return result.returncode, output
+ 
++
+ def write_report(exit_code: int, output: str, report_path: Path) -> None:
+     """Write the linting report file."""
+     report_path.parent.mkdir(parents=True, exist_ok=True)
+     with report_path.open("w", encoding="utf-8") as f:
+         f.write(f"Exit code: {exit_code}\\n")
+         f.write(output)
+     log.info("Lint report written to %s", report_path)
++
+ 
+ def main() -> None:
+     """Entry point for the linting report generation."""
+     target_dirs = ["code", "tests"]
+     exit_code, output = run_flake8(target_dirs)
+@@ -52,7 +56,8 @@
+     # Exit with the same code flake8 produced so CI can see the status.
+     # (When this script is run via the execution engine, the exit code is
+     # captured automatically; we still raise SystemExit for completeness.)
+     raise SystemExit(exit_code)
+ 
++
+ if __name__ == "__main__":
+     main()
+--- /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/run_black_format.py	2026-10-14 05:06:44.826594+00:00
++++ /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/run_black_format.py	2026-10-14 05:07:22.039875+00:00
+@@ -21,10 +21,11 @@
+ # project‑wide logging setup.
+ from llmxive_toolkit import get_logger
+ 
+ log = get_logger(__name__)
+ 
++
+ def _run_black_check_diff(targets: list[str]) -> int:
+     """
+     Execute ``black --check --diff`` on the supplied targets.
+ 
+     The combined stdout+stderr (which contains the diff when formatting
+@@ -32,54 +33,51 @@
+     The function returns the subprocess exit code (0 if no diff,
+     non‑zero otherwise).
+     """
+     cmd = ["black", "--check", "--diff"] + targets
+     log.info(f"Running Black diff check: {' '.join(cmd)}")
+-    result = subprocess.run(
+-        cmd, capture_output=True, text=True, check=False
+-    )
++    result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+     diff_path = Path("code") / "format_diff.txt"
+     diff_path.parent.mkdir(parents=True, exist_ok=True)
+     # Store both stdout and stderr – Black may write the diff to either.
+     diff_path.write_text(result.stdout + result.stderr)
+     log.debug(f"Diff written to {diff_path}")
+     return result.returncode
++
+ 
+ def _apply_black_format(targets: list[str]) -> None:
+     """
+     Apply Black formatting in‑place on the supplied targets.
+     Raises ``SystemExit`` if the formatting command fails.
+     """
+     cmd = ["black"] + targets
+     log.info(f"Applying Black formatting: {' '.join(cmd)}")
+-    result = subprocess.run(
+-        cmd, capture_output=True, text=True, check=False
+-    )
++    result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+     if result.returncode != 0:
+         log.error(
+             f"Black formatting failed (exit {result.returncode}): {result.stderr}"
+         )
+         sys.exit(result.returncode)
+     log.debug("Black formatting completed successfully.")
++
+ 
+ def _final_black_check(targets: list[str]) -> int:
+     """
+     Run a final ``black --check`` to confirm that all files are now
+     correctly formatted. Returns the exit code.
+     """
+     cmd = ["black", "--check"] + targets
+     log.info(f"Running final Black check: {' '.join(cmd)}")
+-    result = subprocess.run(
+-        cmd, capture_output=True, text=True, check=False
+-    )
++    result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+     if result.returncode != 0:
+         log.error(
+             f"Final Black check failed (exit {result.returncode}): {result.stderr}"
+         )
+     else:
+         log.info("Final Black check passed (exit 0).")
+     return result.returncode
++
+ 
+ def main() -> None:
+     """
+     Orchestrates the full Black workflow required by T060b.
+     """
+@@ -101,7 +99,8 @@
+         sys.exit(final_rc)
+ 
+     log.info("Black formatting workflow completed successfully.")
+     sys.exit(0)
+ 
++
+ if __name__ == "__main__":
+-    main()
+\ No newline at end of file
++    main()
+--- /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/correlate_bulk.py	2026-10-14 05:04:33.346566+00:00
++++ /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/correlate_bulk.py	2026-10-14 05:07:22.054111+00:00
+@@ -6,10 +6,11 @@
+ from scipy import stats
+ import logging
+ from logger import get_logger, info, warning, error
+ 
+ logger = get_logger(__name__)
++
+ 
+ def load_energies_csv(filepath: str) -> pd.DataFrame:
+     """Load raw energies CSV."""
+     path = Path(filepath)
+     if not path.exists():
+@@ -77,11 +78,14 @@
+         )
+         energies_df["dispersion_only_error"] = np.nan
+ 
+     # Ensure the signed interaction‑energy error column exists
+     if "signed_error" not in energies_df.columns:
+-        if "dft_total_energy" in energies_df.columns and "reference_energy" in energies_df.columns:
++        if (
++            "dft_total_energy" in energies_df.columns
++            and "reference_energy" in energies_df.columns
++        ):
+             energies_df["signed_error"] = (
+                 energies_df["dft_total_energy"] - energies_df["reference_energy"]
+             )
+             logger.info("Computed missing signed_error column from energies.")
+         else:
+@@ -177,13 +181,11 @@
+         ("d3_dispersion_energy", "density", "Raw_D3_vs_Density"),
+         ("scaled_d3_term", "density", "Scaled_D3_vs_Density"),
+     ]
+ 
+     if include_energy_error:
+-        pairs.append(
+-            ("signed_error", "viscosity_cP", "InteractionError_vs_Viscosity")
+-        )
++        pairs.append(("signed_error", "viscosity_cP", "InteractionError_vs_Viscosity"))
+ 
+     for col_x, col_y, label in pairs:
+         if col_x not in df.columns or col_y not in df.columns:
+             continue
+ 
+@@ -264,11 +266,11 @@
+         # key format: "<Label>_Pearson" or "<Label>_Spearman"
+         if "_" not in key:
+             continue
+         label, method = key.rsplit("_", 1)
+         coeff = val["r"]
+-        r_sq = coeff ** 2
++        r_sq = coeff**2
+         raw_p = val["p"]
+         # Adjusted p will be filled later; placeholder for now
+         adj_p = None
+ 
+         # CI extraction
+--- /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/main.py	2026-10-14 05:04:33.346566+00:00
++++ /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/main.py	2026-10-14 05:07:22.073217+00:00
+@@ -31,20 +31,22 @@
+ 
+ from llmxive_toolkit import paths, get_logger
+ 
+ log = get_logger(__name__)
+ 
++
+ # ----------------------------------------------------------------------
+ # Helper utilities
+ # ----------------------------------------------------------------------
+ def sha256_file(path: Path) -> str:
+     """Return the SHA‑256 checksum of a file."""
+     h = hashlib.sha256()
+     with path.open("rb") as f:
+         for chunk in iter(lambda: f.read(8192), b""):
+             h.update(chunk)
+     return h.hexdigest()
++
+ 
+ def run_command(cmd: str) -> int:
+     """Execute a shell command via `/usr/bin/time -v` and return its exit code."""
+     # The command is executed inside a bash -c string so that the && chaining works.
+     full_cmd = ["/usr/bin/time", "-v", "bash", "-c", cmd]
+@@ -56,10 +58,11 @@
+         text=True,
+     )
+     # time -v writes its statistics to stderr; capture both streams.
+     return result.returncode, result.stdout, result.stderr
+ 
++
+ def write_runtime_report(
+     command: str,
+     exit_code: int,
+     stdout: str,
+     stderr: str,
+@@ -89,10 +92,11 @@
+     lines.append(stderr.strip())
+     lines.append("")
+ 
+     report_path.write_text("\n".join(lines))
+     log.info(f"Runtime report written to {report_path}")
++
+ 
+ def validate_contracts(base_dir: Path) -> None:
+     """
+     Validate generated artifacts against JSON‑Schema contracts, if any are present.
+     Contracts are expected under `specs/PROJ-735-transferability-of-dft-d3-dispersion-to-`
+@@ -107,11 +111,16 @@
+             "jsonschema not installed – contract validation skipped. "
+             "Add it to requirements.txt if validation is required."
+         )
+         return
+ 
+-    contracts_dir = base_dir / "specs" / "PROJ-735-transferability-of-dft-d3-dispersion-to-" / "contracts"
++    contracts_dir = (
++        base_dir
++        / "specs"
++        / "PROJ-735-transferability-of-dft-d3-dispersion-to-"
++        / "contracts"
++    )
+     if not contracts_dir.is_dir():
+         log.info("No contracts directory found – skipping validation.")
+         return
+ 
+     for contract_file in contracts_dir.glob("*.json"):
+@@ -144,10 +153,11 @@
+             jsonschema.validate(instance=instance, schema=schema)
+             log.info(f"Contract `{contract_file.name}` validated successfully.")
+         except jsonschema.ValidationError as ve:
+             log.error(f"Contract validation failed for {artifact_path}: {ve.message}")
+             raise
++
+ 
+ # ----------------------------------------------------------------------
+ # Main reproducibility orchestration
+ # ----------------------------------------------------------------------
+ def main() -> None:
+@@ -228,7 +238,8 @@
+         log.error(f"Pipeline failed with exit code {exit_code}")
+         sys.exit(exit_code)
+ 
+     log.info("Reproducibility run completed successfully.")
+ 
++
+ if __name__ == "__main__":
+     main()
+--- /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/tests/test_generate_reports.py	2026-10-14 05:04:33.349813+00:00
++++ /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/tests/test_generate_reports.py	2026-10-14 05:07:22.113082+00:00
+@@ -1,8 +1,9 @@
+ import subprocess
+ import sys
+ from pathlib import Path
++
+ 
+ def test_generate_reports_runs_successfully():
+     """
+     Ensure that the report generation script runs without error and
+     produces a benchmark report containing the Calibration Procedure section.
+@@ -22,6 +23,8 @@
+     # Verify benchmark report exists and contains the expected header
+     report_path = repo_root / "docs" / "benchmark_report.md"
+     assert report_path.is_file(), "Benchmark report was not created"
+ 
+     content = report_path.read_text()
+-    assert "## 4. Calibration Procedure" in content, "Calibration Procedure section missing"
+\ No newline at end of file
++    assert (
++        "## 4. Calibration Procedure" in content
++    ), "Calibration Procedure section missing"
+--- /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/tests/test_correlate_bulk.py	2026-10-14 05:04:33.349813+00:00
++++ /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/tests/test_correlate_bulk.py	2026-10-14 05:07:22.158337+00:00
+@@ -10,24 +10,27 @@
+     compute_correlations,
+     bootstrap_correlation,
+     analyze_and_export,
+ )
+ 
++
+ def test_load_functions(tmp_path):
+     # Use the real data files shipped with the repository
+     energies_path = Path("data/derived/raw_energies.csv")
+     scaling_path = Path("data/derived/scaling_results.json")
+     bulk_path = Path("data/raw/experimental_bulk_properties.csv")
+ 
+     # Ensure placeholder files exist (generate if missing)
+     if not energies_path.exists():
+         # Trigger generation via analyze_energies (placeholder)
+         from code.analyze_energies import main as analyze_main
++
+         analyze_main()
+     if not scaling_path.exists():
+         # Trigger scaling derivation (placeholder values)
+         from code.derive_scaling import main as scaling_main
++
+         scaling_main()
+ 
+     # Load and assert basic shape
+     df = load_energies_csv(str(energies_path))
+     assert isinstance(df, pd.DataFrame)
+@@ -38,23 +41,26 @@
+ 
+     bulk = load_bulk_properties(str(bulk_path))
+     assert isinstance(bulk, pd.DataFrame)
+     assert "pair_id" in bulk.columns
+ 
++
+ def test_correlation_includes_energy_error(tmp_path):
+     # Prepare data (ensure files exist)
+     energies_path = Path("data/derived/raw_energies.csv")
+     scaling_path = Path("data/derived/scaling_results.json")
+     bulk_path = Path("data/raw/experimental_bulk_properties.csv")
+     output_dir = tmp_path / "derived"
+     output_dir.mkdir(parents=True, exist_ok=True)
+ 
+     if not energies_path.exists():
+         from code.analyze_energies import main as analyze_main
++
+         analyze_main()
+     if not scaling_path.exists():
+         from code.derive_scaling import main as scaling_main
++
+         scaling_main()
+ 
+     # Run analysis with the new flag
+     csv_path = analyze_and_export(
+         str(energies_path),
+@@ -73,14 +79,25 @@
+         corr_df["test_name"] == "InteractionError_vs_Viscosity"
+     ), "InteractionError_vs_Viscosity row missing in correlation results"
+ 
+     # Verify both Pearson and Spearman rows are present (they share the same test_name)
+     rows = corr_df[corr_df["test_name"] == "InteractionError_vs_Viscosity"]
+-    assert len(rows) == 2, "Expected two rows (Pearson & Spearman) for InteractionError_vs_Viscosity"
++    assert (
++        len(rows) == 2
++    ), "Expected two rows (Pearson & Spearman) for InteractionError_vs_Viscosity"
+ 
+     # Basic sanity checks on numeric columns
+-    for col in ["coefficient", "r_squared", "raw_p_value", "adjusted_p_value", "ci_lower", "ci_upper", "n"]:
++    for col in [
++        "coefficient",
++        "r_squared",
++        "raw_p_value",
++        "adjusted_p_value",
++        "ci_lower",
++        "ci_upper",
++        "n",
++    ]:
+         assert pd.api.types.is_numeric_dtype(corr_df[col]), f"{col} should be numeric"
++
+ 
+ # The test suite will be executed by the platform's pytest runner. No additional
+ # execution request is needed; this file serves as verification that the new
+-# option correctly produces the required CSV rows.
+\ No newline at end of file
++# option correctly produces the required CSV rows.
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/generate_reports.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/run_flake8_report.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/run_black_format.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/correlate_bulk.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/main.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/tests/test_generate_reports.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/tests/test_correlate_bulk.py
+
+Oh no! 💥 💔 💥
+8 files would be reformatted, 25 files would be left unchanged.

@@ -1,3 +1,23 @@
+T001:
+  c: true
+  h: aeb2bd2089dd4982cd1eedd6162c5ecd2f2c9b5870149aa5405b35a9dbc49700
+  r: "The `code/generate_primes.py` script implements a sieve via `utils.prime_sieve`,\
+    \ writes `data/raw/primes_up_to_50000.csv` with a single \u201Cprime\u201D header,\
+    \ and prints the SHA\u2011256 checksum. The CSV file exists, contains 5\u202F\
+    133 prime entries (matching \u03C0(50\u202F000)), and its checksum (`0ded44fa6a1ab6e4a3760b671b9459436e2f4bde2e895fc02225ca75766c31b6`)\
+    \ is output by the script, as confirmed by the execution logs and passing pytest."
+  sig: f5480d0ac116c7b87f42540b442e52bba3bcfb315b223c1843402fdd37071f8c
+T002:
+  c: false
+  h: 36a65e479d17d3268895afb471daaf9e402cb3301d989bed461aa58f2eee5ac0
+  r: "The script `code/generate_reference.py` correctly computes the partition counts\
+    \ and writes them to `tests/data/reference_values.csv`, and the CSV\u2019s first\
+    \ 20 rows match the expected values. However, the provided pytest suite `tests/test_reference_validation.py`\
+    \ looks for the file at `data/reference_values.csv` (project root) and therefore\
+    \ all four tests fail, indicating the verification step is not satisfied. The\
+    \ reference file must be placed (or the test path adjusted) so that the test can\
+    \ locate it and pass."
+  sig: ae756e136990700c8d4bf3ca5d30969e357fc0963fe3d7614af3692cf31b3580
 T004:
   c: false
   h: 771d9ccf7d3925d02ea276f1b84c5fe2ca789c1e325438c5068433deee364c00

@@ -1,0 +1,210 @@
+{
+  "trace_id": "training_42_03295",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "insert_text",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "delete_element",
+    "delete_element",
+    "insert_text",
+    "insert_chart",
+    "insert_chart",
+    "resize_element",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "resize_element",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 89.4856,
+        "y": 38.9707,
+        "length": 28.5442
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 95.5176,
+        "saturation": 69.6653
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 97.3837,
+        "saturation": 55.6425
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 92.1265,
+        "saturation": 20.3384
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 78.0506,
+        "saturation": 50.6332
+      }
+    },
+    {
+      "step": 5,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 84.1267
+      }
+    },
+    {
+      "step": 6,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 42.1212
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 16.8948,
+        "y": 56.0421,
+        "length": 48.5159
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 37.5837,
+        "y": 4.8793,
+        "width": 69.7096,
+        "height": 71.1935,
+        "data_points": 15.56
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 39.988,
+        "y": 74.0917,
+        "width": 42.1275,
+        "height": 86.8802,
+        "data_points": 31.339
+      }
+    },
+    {
+      "step": 10,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 18.9782,
+        "height": 72.8705
+      }
+    },
+    {
+      "step": 11,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 53.6758,
+        "x": 14.8403,
+        "y": 32.8764
+      }
+    },
+    {
+      "step": 12,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 62.2649,
+        "x": 53.5195,
+        "y": 77.1235
+      }
+    },
+    {
+      "step": 13,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 70.4701,
+        "x": 41.8254,
+        "y": 72.5262
+      }
+    },
+    {
+      "step": 14,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 81.3457,
+        "x": 13.9712,
+        "y": 60.9228
+      }
+    },
+    {
+      "step": 15,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 78.0937,
+        "padding": 13.5802
+      }
+    },
+    {
+      "step": 16,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 25.9999,
+        "padding": 96.5908
+      }
+    },
+    {
+      "step": 17,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 67.487,
+        "padding": 54.5983
+      }
+    },
+    {
+      "step": 18,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 81.9292,
+        "height": 81.1159
+      }
+    },
+    {
+      "step": 19,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 13.8017,
+        "height": 48.1291
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.903687,
+    "tool_repetition_freq": 0.65,
+    "arg_semantic_variance": 682.688013
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 14,
+    "layout_hash": "42-3295-apply_theme"
+  }
+}

@@ -1,0 +1,1 @@
+"""Contracts (schema) package placeholder."""

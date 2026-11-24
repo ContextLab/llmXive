@@ -1,1 +1,23 @@
-[]
+- artifact_hash: e69ac520a95262d09ff865cb1039bec2487e8e4b44074176e53bf4613a6941f1
+  artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/api/models/llmXive/S-AgentK`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/models/llmXive/S-AgentK
+  verified_at: '2026-10-12T15:33:45.416006Z'
+- artifact_hash: e69ac520a95262d09ff865cb1039bec2487e8e4b44074176e53bf4613a6941f1
+  artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2309.02144] Making Large Language Models Better Reasoners with
+    Alignment'
+  kind: url
+  value: https://arxiv.org/abs/2309.02144
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2309.02144
+  verified_at: '2026-10-12T15:33:45.416006Z'

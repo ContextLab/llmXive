@@ -43,13 +43,13 @@ ImportError: cannot import name 'main' from 'stimuli.process' (/home/runner/work
 
 - python -m pytest code/tests/ -v -> rc=5
 ============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-9.1.1, pluggy-1.6.0 -- /home/runner/work/llmXive/llmXive/projects/PROJ-026-the-influence-of-visual-complexity-on-im/code/.venv/bin/python
+platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0 -- /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-026-the-influence-of-visual-complexity-on-im/bin/python
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-026-the-influence-of-visual-complexity-on-im/code
 configfile: pyproject.toml
 collecting ... collected 0 items
 
-============================ no tests ran in 0.00s =============================
+============================ no tests ran in 0.01s =============================
 
 
 
@@ -65,3 +65,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/viz/generate_report.py` — NOT invoked by the run-book
     - `code/viz/plot.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/d_score_comparison.png` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+## Platform-owned paths written inside the project
+
+A script in this project created `.github/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

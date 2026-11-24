@@ -1,68 +1,65 @@
 # Data Model: Molecular Permeability Prediction
 
 ## 1. Overview
-This document defines the data schemas for the molecular permeability prediction pipeline. All data flows from raw SMILES to processed feature matrices and finally to model predictions.
+Defines JSON‑Schema contracts for raw ingestion, processed intermediate representations, model predictions, evaluation results, and training logs. All files are validated against the schemas located in `contracts/`.
 
-## 2. Data Entities
+## 2. Entities
 
-### 2.1 Raw Molecule (Input)
-- **Source**: Public datasets (SMILES + optional coefficients).
-- **Format**: Parquet/CSV.
-- **Fields**:
-  - `smiles`: string (SMILES notation).
-  - `permeability`: float (experimental coefficient, if available).
-  - `polymer_type`: string (stratification key, if available).
-  - `logP`: float (calculated logP, used as target in Proxy Mode).
+### 2.1 Raw Molecule Record
+| Field | Type | Description |
+|-------|------|-------------|
+| `smiles` | string | SMILES notation of the molecule |
+| `polymer_type` | string / null | Optional stratification label |
+| `permeability` | number / null | Experimental permeability coefficient (may be missing in open datasets) |
+| `logp` | number / null | Calculated LogP (present in some descriptor datasets) |
 
-### 2.2 Processed Molecule (Intermediate)
-- **Source**: Derived from Raw Molecule via RDKit.
-- **Format**: Parquet.
-- **Fields**:
-  - `smiles`: string.
-  - `mol_valid`: boolean.
-  - `descriptors`: dict (or flattened columns: `mw`, `logp`, `tpsa`, `hba`, `hbd`, `rotatable_bonds`).
-  - `graph_nodes`: list (atomic features).
-  - `graph_edges`: list (bond features).
-  - `ablation_features`: list (flattened graph statistics for RF ablation baseline: mean node degree, graph connectivity, substructure counts).
-  - `target`: float (permeability or proxy target value, e.g., calculated logP).
+### 2.2 Processed Molecule Record *(conforms to `contracts/dataset.schema.yaml`)*  
+| Field | Type | Description |
+|-------|------|-------------|
+| `smiles` | string | Original SMILES |
+| `mol_valid` | boolean | `True` if RDKit parsed successfully |
+| `mw` | number | Molecular Weight |
+| `logp` | number | Calculated LogP |
+| `tpsa` | number | Topological Polar Surface Area |
+| `hba` | integer | Number of Hydrogen Bond Acceptors |
+| `hbd` | integer | Number of Hydrogen Bond Donors |
+| `rotatable_bonds` | integer | Number of Rotatable Bonds |
+| `target` | number / null | Experimental permeability coefficient if available; null otherwise |
+| `polymer_type` | string / null | Polymer type for stratification (optional) |
+| `polymer_type_onehot` | object | One‑hot encoding of polymer type (key = type, value = 0 or 1) |
+| `target_type` | string | "experimental" if the target column is a true experimental permeability measurement; "surrogate" if it is an approved surrogate (e.g., simulated permeability) that has passed the independence verification (max |r| < 0.5). |
 
-### 2.3 Model Output (Results)
-- **Source**: Trained models.
-- **Format**: JSON/CSV.
-- **Fields**:
-  - `molecule_id`: string.
-  - `true_value`: float.
-  - `predicted_gnn`: float.
-  - `predicted_rf`: float.
-  - `predicted_rf_ablation`: float.
-  - `error_gnn`: float.
-  - `error_rf`: float.
+**Required fields**: `smiles`, `mol_valid`, `mw`, `logp`, `tpsa`, `hba`, `hbd`, `rotatable_bonds`, `target`, `polymer_type_onehot`, `target_type`. No additional properties are allowed.
 
-## 3. Transformation Logic
+### 2.3 Model Artifacts
+- `code/models/gnn.pt` – checkpoint of the trained MPNN.  
+- `code/models/rf.pkl` – serialized `RandomForestRegressor`.  
 
-### 3.1 SMILES to Graph
-1. Parse SMILES using `rdkit.Chem.MolFromSmiles`.
-2. If `None`, mark `mol_valid=False`, log warning, exclude.
-3. Extract node features: `[atomic_num, degree, formal_charge, hybridization, is_aromatic]`.
-4. Extract edge features: `[bond_type, is_conjugated]`.
+### 2.4 Evaluation Results *(conforms to `contracts/results.schema.yaml`)*  
+Includes `gnn_metrics`, `rf_metrics`, `statistical_test`, `normality_test`, `power_analysis`, `bias_check`, and `interpretability_overlap`.
 
-### 3.2 Descriptor Calculation
-- Calculate `MW`, `logP` (Crippen), `TPSA`, `HBA`, `HBD`, `RotatableBonds` using `rdkit.Chem.Descriptors`.
-- Handle missing values: Median imputation or row exclusion (per FR-003).
+### 2.5 Training Log *(conforms to `contracts/training_log.schema.yaml`)*  
+Records model identifier, start/end timestamps, total wall‑clock time (must be < 6 h for CI compliance), planned sample size for power, achieved power, and a `sufficient` flag.
 
-### 3.3 Ablation Feature Extraction
-- Derive `ablation_features` from the graph structure:
-  - Mean node degree.
-  - Graph connectivity (number of edges / number of nodes).
-  - Substructure counts (e.g., number of aromatic rings, number of specific functional groups).
-- These features are flattened into a vector for the Random Forest ablation baseline.
-
-### 3.4 Stratified Split
-- Group by `polymer_type`.
-- If `polymer_type` missing, use `logP` bins or random split.
-- Ensure [deferred] train, [deferred] test.
+## 3. Transformation Workflow
+1. **Download** raw files → `data/raw/` (checksum‑verified).  
+2. **Preprocess** (`code/data/preprocess.py`):  
+   - Parse SMILES with `rdkit.Chem.MolFromSmiles`; set `mol_valid`; drop rows where `mol_valid=False`.  
+ - Apply **retention Guard**: require **≥ 95 %** valid molecules; abort if < 95 % (FR‑012).  
+   - If a surrogate target is approved, record `target_type` as `"surrogate"` and store the surrogate column as `target`.  
+   - Compute MW, logP, TPSA, HBA, HBD, rotatable bonds, and one‑hot `polymer_type` (if present).  
+   - Write `data/processed/processed_data.parquet` **and** `processed_data.csv` (validated against `contracts/dataset.schema.yaml`).  
+3. **Split** (`code/data/split.py`): generate 5‑fold stratified CV splits and a hold‑out test set **only when a non‑null `target` column exists**. Store both Parquet and CSV versions under `data/processed/`.  
+4. **Model Training** (`code/models/gnn.py`, `code/models/rf.py`): serialize models; each training run appends an entry to `results/training_log.json` (including `total_hours`, `planned_sample_size`, `achieved_power`, `sufficient`) for each model, and the power‑analysis gate prevents aborts due to insufficient power.  
+5. **Evaluation** (`code/analysis/evaluate.py`): compute RMSE, MAE, R² for both models, normality test, paired test on per‑sample errors, bias assessment (max |r| reported, `is_confounded` flag set when >0.6). Write `results/metrics.json` (validated against `contracts/results.schema.yaml`).  
+6. **Interpretability** (`code/analysis/explain.py`): generate SHAP bar charts, GNNExplainer heatmaps, and **empirical overlap metric** (correlation‑based mapping + count of overlapping top‑5 features) producing `overlap_top5` and `overlap_meets_threshold` as required by the schema.  
 
 ## 4. Constraints
-- **No NaNs**: Final input matrices must be NaN-free.
-- **Consistency**: Graph structure must match SMILES exactly (Constitution Principle VI).
-- **Target Integrity**: Target must not be derived from the input descriptors (Constitution Principle VII). **Exception**: In Proxy Mode, the target is calculated logP, which is derived from SMILES. This is explicitly flagged as a limitation.
+- No NaNs in any numeric column of the processed dataset.  
+- Graph construction must be a faithful RDKit conversion (Constitution VI).  
+- **Target column must be experimental permeability**; if absent, a surrogate may be used **only when it passes the independence verification (max |r| < 0.5)** and is sourced from a validated simulation study. Otherwise, the pipeline halts, preserving scientific rigor (Constitution VII).
+
+---
+
+
+

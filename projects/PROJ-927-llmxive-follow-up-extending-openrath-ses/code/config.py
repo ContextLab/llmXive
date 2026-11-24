@@ -22,6 +22,8 @@ def ensure_directories():
         PROCESSED_DATA_DIR / "event_log",
         PROCESSED_DATA_DIR / "session_first",
         PROCESSED_DATA_DIR / "results",
+        PROCESSED_DATA_DIR / "corrupted_logs",
+        PROCESSED_DATA_DIR / "reconstruction_results",
         STATE_DIR,
         STATE_DIR / "projects"
     ]

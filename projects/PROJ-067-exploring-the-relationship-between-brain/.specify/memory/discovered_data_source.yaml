@@ -1,0 +1,16 @@
+status: none
+intent: download openneuro resting state fMRI dream recall frequency dataset python
+  package dataset
+required_fields:
+- subject_id
+- resting_state_fmri_nifti_path
+- dream_recall_frequency_score
+- age
+- sex
+- scanner_tr
+- voxel_dimensions
+- ica_aroma_denoising_parameters
+- acquisition_date
+cache_key: a27f46d344c2cbcb94a83e01fe5a2a1d3fb923c8976963087e28d12ec15ff0d2
+searched_at: '2026-10-23T09:39:00.152359+00:00'
+retry_count: 1

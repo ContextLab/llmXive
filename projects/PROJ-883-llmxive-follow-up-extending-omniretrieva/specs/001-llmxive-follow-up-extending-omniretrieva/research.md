@@ -1,100 +1,112 @@
-# Research: llmXive Follow-up: Structural Mismatch Cost in Heterogeneous Retrieval
+# Research: Structural Mismatch Cost in Heterogeneous Retrieval
 
 ## Research Question
+*Does end‑to‑end latency of a unified retrieval router exhibit a non‑linear **association** (“structural mismatch cost”) for high‑complexity (multi‑hop) queries on **graph** sources relative to **text** and **relational** sources when executed under strict CPU constraints?*  
+(The claim is framed as associative, not causal, per Constitution Principle VII.)
 
-Does the end-to-end latency of a unified retrieval router exhibit a non-linear scaling penalty (structural mismatch cost) when executing high-complexity (multi-hop) queries against graph-based knowledge sources compared to text or relational sources, under strict CPU constraints?
-
-## Hypothesis
-
-**H1**: There is a statistically significant interaction effect between `query_complexity` (plan depth) and `source_type` on `latency_ms`. Specifically, the slope of latency increase with complexity will be significantly steeper for `graph` sources than for `text` or `relational` sources.
-
-**H2**: Translation error rates (deviation from ground-truth greedy plan) will remain stable across complexity levels, indicating the bottleneck is execution overhead, not planning accuracy.
-
-## Dataset Strategy
-
-The study relies on three verified datasets. We will sample subsets to fit the available RAM constraint and ensure structural depth for synthetic query generation.
-
-| Source Type | Dataset Name | Verified URL | Usage Strategy |
-|:--- |:--- |:--- |:--- |
-| **Text** | MS MARCO (subset) | ` | Extract text chunks. Synthetic queries simulate retrieval by chaining chunk lookups. |
-| **Relational** | Spider (Subset) | ` (Public Benchmark) | Use the **Spider 'train' split**. This dataset is verified to contain complex multi-join queries (depth > 3) by design. We will use the schema to construct the SQLite DB and the queries to verify depth. |
-| **Graph** | DBpedia -10 (RDF) | `https://wiki.dbpedia.org/services-resources/datasets/dbpedia-2022-10` | Use the **DBpedia 2022-10 RDF dump**. This provides explicit `rdf:type`, `owl:sameAs`, and property edges. We will load this into `rdflib` and traverse the **real** graph structure. |
-
-**Data Availability Note**:
-- **Spider**: The 'train' split is verified to contain complex queries, satisfying the requirement for depth > 3 in the Relational source.
-- **DBpedia**: The 2022-10 RDF dump provides the explicit edge definitions required for the Graph source, eliminating the need for synthetic edge construction.
-- **MS MARCO**: Used for text retrieval simulation.
-
-**Synthetic Fallback Protocol (Addressing T005/T041)**:
-If the verified datasets lack sufficient structural depth (e.g., insufficient entity connections for depth > 3 queries):
-1. The `query_generator.py` will detect the deficiency.
-2. **ABORT CONDITION**: If the deficiency occurs in the **primary analysis range** (depth 1-3), the run **ABORTS** with error code `ERR_DEPTH_INSUFFICIENT`. No primary analysis is performed on synthetic data.
-3. **Stress Test Only**: If depth > 3 is needed for stress testing, a synthetic graph may be generated *only* using the schema inferred from the verified dataset.
-4. A `synthetic_flag` will be set to `true` in the `execution_logs.csv` for any query derived from synthetic topology.
-5. The `synthetic_flag` must be `0` for all queries in the primary ANCOVA analysis (depth 1-3).
+## Hypotheses
+- **H1 (Latency Interaction)** – A statistically significant interaction exists between **query complexity** (categorical levels 1‑4+) and **source type** (text, relational, graph) on **baseline‑corrected latency_ms**. The slope for graph queries is steeper than for text or relational queries.
+- **H2 (Translation‑Error Stability)** – The binary **translation_error** rate (deviation from the *optimal* plan on the sampled subset) does **not** differ appreciably between low‑complexity (levels 1‑2) and high‑complexity (levels 3‑4+) queries (difference ≤ 0.02).
 
 ## Methodology
 
-### 1. Query Generation
-- **Input**: Verified datasets (Spider schema, DBpedia RDF, MS MARCO chunks).
-- **Process**: Generate a sufficient number of queries per complexity level (Depth 1, 2, 3, 4+).
-- **Mechanism**:
- - *Depth 1*: Single lookup (e.g., "Find entity X").
- - *Depth 2*: Chain of 2 lookups (e.g., "Find entity related to X, then find Y related to that").
- - *Depth 3+*: Recursive chains.
-- **Ground Truth**: **FR-008**: A deterministic, rule-based reference engine (`ground_truth_engine.py`) calculates the optimal path (lowest cost) for every query using the **real** engine's statistics. This plan is stored as `ground_truth_plan`.
+### 1. Dataset Strategy
+| Source | Verified URL | Role |
+|--------|--------------|------|
+| MS MARCO passage dev set | https://huggingface.co/datasets/microsoft/ms_marco/resolve/main/v1.1/test-00000-of-00001.parquet | Text corpus for BM25 engine; relevance (qrels) derived via `ir-datasets` loader (see “Verified loader recipe” below). |
+| DBpedia triples (2023) | https://huggingface.co/datasets/allenai/dbpedia-2023-triples/resolve/main/dbpedia_triples.parquet | Provides `<subject, predicate, object>` triples; used to construct relational SQLite tables and an RDFLib graph for graph queries. |
 
-### 2. Execution Engine
-- **Environment**: 2 CPU cores, 7GB RAM.
-- **Throttling**:
- - Primary: `cgroups` (if runner has permissions) to limit CPU share.
- - Fallback: Strict `time` measurement with a note. If `cgroups` fails, the test suite will flag the run as "unthrottled" but still record latency (valid for relative comparison if load is constant).
-- **Engines**:
- - *Text*: Simple vector search or keyword match.
- - *Relational*: SQLite in-memory database populated with **Spider** data.
- - *Graph*: `rdflib` traversal on **DBpedia 2022-10** RDF graph.
-- **Latency Measurement**: **Strictly Real Execution Only**. `latency_ms` is measured from the actual wall-clock time of the engine execution. **No artificial delays** (e.g., `time.sleep`, CPU burners) proportional to complexity are added. If the engine returns instantly, the latency is recorded as instant.
+Both datasets are open, directly downloadable, and fit within the CI runner’s disk quota. Checksums are recorded under `data/raw/checksums.txt`.
 
-### 3. Metrics Collection
-- **Latency**: Wall-clock time (ms) per query.
-- **Translation Error**: Binary (1 if generated plan != ground truth plan).
-- **Success Flag**: 1 if query completed, 0 if timeout (>60s) or engine error.
+**Verified loader recipe (used in `code/data_loader.py`):**
+```python
+import ir_datasets, pandas as pd, hashlib, pathlib, json, requests
 
-### 4. Statistical Analysis
-- **Primary Test**: **ANCOVA** (Analysis of Covariance).
- - Factors: `source_type` (Categorical).
- - Covariate: `complexity_level` (Continuous Integer).
- - Dependent Variable: `latency_ms`.
- - Interaction Term: `source_type * complexity_level`.
- - Threshold: p < 0.05 for H1 support.
-- **Post-hoc**: Tukey HSD to identify specific pairwise differences between source types at high complexity.
-- **Sensitivity Analysis (FR-007)**:
- - **Sweep**: Iterate over a range of cutoffs.
- - **Model**: Fit a piecewise linear regression (segmented regression) for each cutoff.
- - **Metric**: Calculate `spike_point` (x-value where absolute difference in slope is maximized) and `slope_change` (difference in slopes).
- - **Output**: `sensitivity_analysis.json` with `{"cutoff": <int>, "spike_point": <float>, "slope_change": <float>}`.
+# MS MARCO
+marco = ir_datasets.load('msmarco-passage/dev')
+queries = [{ 'query_id': q.query_id, 'query_text': q.text } for q in marco.queries_iter()]
+qrels = { qid: max(rel.relevance for rel in marco.qrels_iter() if rel.query_id == qid)
+          for qid in { rel.query_id for rel in marco.qrels_iter() } }
+for q in queries:
+    q['relevance_label'] = qrels.get(q['query_id'])
+df = pd.DataFrame(queries)
+df.to_parquet('data/raw/ms_marco.parquet')
+# checksum
+hash_md5 = hashlib.sha256()
+with open('data/raw/ms_marco.parquet','rb') as f:
+    for chunk in iter(lambda: f.read(8192), b''):
+        hash_md5.update(chunk)
+pathlib.Path('data/raw/checksums.txt').write_text(f"ms_marco.parquet {hash_md5.hexdigest()}\n")
+```
+
+A similar routine streams the DBpedia parquet file.
+
+### 2. Synthetic Query Generation & Reference Plans
+- **Quantity**: 1 500 queries total (125 per `source_type` × 4 `complexity_level`).  
+- **Construction**:  
+  - *Text*: random MS MARCO passage IDs combined into multi‑hop logical plans (e.g., sequential BM25 retrievals).  
+  - *Relational*: join keys derived from DBpedia triples (e.g., `entities ↔ entity_relation ↔ entities`).  
+  - *Graph*: edge‑traversal sequences over the RDF graph.  
+- Each query gets a UUID, exact `complexity_level` (plan depth), and a deterministic `logical_plan` (list of operations).  
+- **Depth overflow**: If the generator’s maximum recursion depth (set to 6) would be exceeded, the query is either capped at depth 6 or dropped; a warning `DEPTH_OVERFLOW: query_id=<id>` is logged (FR‑015).  
+- **Reference Plan**: Every query is passed through the **deterministic greedy reference engine** (`reference_engine.py`). The engine uses a pre‑computed cost table and returns a reproducible identifier `greedy_plan_<8hexhash>` stored as `reference_plan_id`. This plan is *not* treated as ground truth; it serves as a stable baseline for non‑sampled queries.  
+- **Optimal Ground‑Truth (Sampled Subset)**: A stratified random sample of 200 queries (balanced across source and complexity) is processed by the **exhaustive optimal planner** (`optimal_planner.py`) which enumerates all feasible join orders and selects the minimum‑cost plan. The resulting `optimal_plan_id` is stored in `optimal_ground_truth.json`.  
+
+All query instances are written to `data/processed/generation_log.json` and validated against `contracts/query_instance.schema.yaml`.
+
+### 3. Relevance & Precision@10 (FR‑009)
+- **Text**: Use the official MS MARCO qrels (available from the same `ir-datasets` load) to define relevant passages.  
+- **Relational & Graph**: For each synthetic query, the *target entities* (leaf nodes of the logical plan) are defined as the relevance set. Precision@10 is computed as the proportion of these targets appearing among the top‑10 retrieved items.  
+
+### 4. Baseline Overhead Calibration (FR‑010)
+- Execute five trivial (single‑hop) queries per engine under identical cgroups settings.  
+- Record wall‑clock latency; store the median per engine in `baseline_overhead.json`.  
+- All subsequent latency measurements are **baseline‑corrected** by subtracting the corresponding median. If subtraction yields a negative value, we fall back to a log‑ratio normalization (`log(1 + latency) - log(1 + baseline)`).
+
+### 5. Benchmark Execution (CPU‑Throttled) (FR‑001‑FR‑004, FR‑009‑FR‑015)
+- **CPU quota enforcement**: Use `cgroups` to set a CPU time limit of **≤ 1 000 ms** per query. Failure to apply the limit aborts the run with **exit code 99** and a clear error message (FR‑014).  
+- **Wall‑clock timeout**: 60 seconds; timed‑out queries are recorded with `timeout_flag=true`, latency set to the timeout value, and excluded from the primary ANOVA (but included in a secondary Tobit sensitivity check).  
+- **Metrics per query** (written to `execution_logs.csv` and aggregated into `execution_metric.json`):  
+  - `latency_ms` (baseline‑corrected)  
+  - `translation_error` (boolean, **only** for the sampled subset where an optimal plan exists)  
+  - `reference_deviation` (boolean, mismatch vs. greedy reference for all other queries)  
+  - `precision_at_10` (float ∈ [0,1])  
+  - `success_flag`, `timeout_flag`, `synthetic_flag`, `throttling_mode` (`cgroups` or `failed`).  
+
+All fields conform to the contracts in `contracts/`.
+
+### 6. Statistical Analysis (FR‑005, FR‑007, FR‑011, H2)
+
+| Analysis | Model / Test | Key Outputs | Multiple‑Comparison Handling |
+|----------|--------------|-------------|------------------------------|
+| **Two‑way ANOVA** | `latency_ms ~ C(source_type) * C(complexity_level)` (statsmodels) | F‑statistic, p‑value, 95 % CI for interaction term | Post‑hoc Tukey HSD (family‑wise ≤ 0.05) |
+| **Diagnostics** | Shapiro‑Wilk (normality), Levene (homogeneity) | If violated → log‑transform or Huber robust regression | – |
+| **Translation‑Error Stability** | Chi‑square test of independence (`translation_error` vs. `complexity_group`) | χ², p, Cramér’s V | – |
+| **Sensitivity Sweep** | Piecewise linear regression on mean latency per depth for cut‑offs {2, 3, 4} | `spike_point`, `slope_change` per cutoff | **Bonferroni** correction across the three cut‑offs (FR‑011) |
+| **Slope‑Ratio** | Simple linear regression (mean latency vs. depth) for `graph` and `text` separately | `slope_ratio = slope_graph / slope_text` (must exceed 1.5 for SC‑001) | – |
+| **Precision@10 Summary** | Mean per source type | `avg_precision_at_10` per source; max pairwise diff ≤ 0.02 (SC‑002) | – |
+| **Timeout Sensitivity** | Tobit (censored) regression as a secondary check | Consistency of interaction effect | – |
+
+All results are stored as JSON files (`anova_results.json`, `sensitivity_analysis.json`, `statistics_results.json`).
+
+### 7. Visualization (FR‑006)
+- Generate an interaction plot (`latency_ms` vs. `complexity_level`) with distinct colors for each `source_type`.  
+- Highlight the graph line, annotate the identified `spike_point`, and display the slope‑ratio annotation.  
+- Save as `interaction_plot.png` (PNG, non‑empty).  
+
+### 8. Reproducibility & Quickstart (All SCs)
+- All random generators are seeded (`np.random.seed(42)`, `random.seed(42)`).  
+- `quickstart.md` documents the exact CLI commands, required flags, and verification steps (lint, help output, integration test).  
 
 ## Statistical Rigor & Assumptions
+- **Multiple Comparisons**: Tukey HSD for pairwise source contrasts; Bonferroni across three sensitivity cut‑offs.  
+- **Power**: With 1 500 observations, a medium effect size (f = 0.25) yields > 0.99 power for the interaction term (computed via `statsmodels.stats.power.FTestPower`).  
+- **Causal Framing**: Findings are **associational**; the controlled CPU environment is experimental, but we do not claim hardware‑agnostic causality.  
+- **Collinearity**: Full factorial design ensures orthogonal `source_type` and `complexity_level`.  
+- **Measurement Validity**: Optimal plans are exhaustive; greedy reference is deterministic and documented; relevance for relational/graph queries is defined by target entities, providing a valid Precision@10 metric.  
 
-- **Multiple Comparisons**: Tukey HSD controls family-wise error rate for pairwise comparisons.
-- **Power**: With 500 queries per level, we have >0.99 power to detect medium effect sizes (f=0.25) for the interaction term. **Note**: This power calculation assumes the effect exists. The experimental design (using real DBpedia topology with high diameter and complex cycles) is specifically chosen to trigger the 'structural mismatch' in the RDFLib engine, ensuring the effect is not an artifact of synthetic sparsity. If the effect is zero, the study correctly concludes no mismatch cost exists under these conditions.
-- **Causal Framing**: Findings are associational regarding system behavior under constraint. No random assignment to hardware; the "hardware" is fixed (CPU-constrained). The "treatment" is the query complexity and source type.
-- **Collinearity**: Complexity and source type are orthogonal by design (synthetic queries generated for all combinations).
-- **Measurement Validity**: Ground truth is derived from an independent, deterministic engine (FR-008) on **real data**, preventing circularity.
-- **Construct Validity**: The "structural mismatch cost" is measured by the difference in *native* engine performance (SQLite vs. RDFLib) on real data structures, not by synthetic simulation.
+## Decision/Rationale: Compute Placement
+- **CPU‑First**: All components (BM25 via `pyserini`‑style scoring, SQLite, RDFLib, statsmodels) run on the free runner; no GPU‑only libraries are required.  
+- **No GPU Escape**: The methodology does not demand deep learning inference, thus avoiding the need for Kaggle offload.  
 
-## Design Validity & Control Mechanism
-
-**Addressing Engine-Efficiency Confound**:
-The hypothesis posits that the "structural mismatch" arises from the *graph engine's* inability to efficiently execute join-heavy queries (which are native to relational engines).
-- **Control**: We use the **same logical query structure** (e.g., a 3-hop path) across all engines.
-- **Mechanism**:
- - **Relational (SQLite)**: Optimized for joins. Latency scales linearly or sub-linearly with depth.
- - **Graph (RDFLib)**: Optimized for traversal. Latency scales exponentially or super-linearly with depth for join-heavy patterns due to lack of native join optimization.
-- **Result**: The "interaction effect" (steeper slope for Graph) is a direct measure of the *structural mismatch* (using a traversal engine for a join task), not merely a difference in raw CPU speed. This isolates the variable of interest.
-
-## Decision Rationale
-
-- **CPU-First**: All methods (SQLite, NetworkX, RDFLib, Scipy) are CPU-tractable. No GPU is required or planned.
-- **Data Strategy**: Using Spider (Relational) and DBpedia 2022-10 (Graph) ensures we use verified, downloadable data with explicit structural depth and edge definitions.
-- **Fallback Logic**: Explicit `synthetic_flag` and **hard abort** logic ensures we do not violate Data Hygiene (Principle III) or Fidelity (Principle VI).
+---

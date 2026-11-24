@@ -1,215 +1,165 @@
 """
-Environment‑variable handling utilities.
+Environment-variable management module.
 
-Provides:
-* ``load_environment`` – reads a ``.env`` file (if present) and returns a
-  ``BaseSettings`` subclass containing the values.
-* ``get_env_manager`` – singleton that offers a ``.get(key)`` method used
-  by ``code.config.get``.
-* ``ensure_directories`` – creates the standard data / logs / figures
-  directories based on the configuration.
+Provides a singleton ``EnvManager`` backed by a pydantic model that
+reads optional API keys and mode flags from the process environment
+(populated from a ``.env`` file by ``code.config``).
+
+NOTE: this module intentionally uses a plain ``pydantic.BaseModel``
+(no ``class Config`` / ``model_config`` mixing) — the previous
+pydantic-settings implementation raised
+``PydanticUserError: "Config" and "model_config" cannot be used together``
+and blocked every pipeline entry point.
 """
 
-import logging
 import os
 from pathlib import Path
-from typing import Optional, Set
+from typing import Optional, Set, Union
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import BaseModel, Field
 
-_env_manager_instance = None  # type: ignore
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-
-class EnvConfig(BaseSettings):
-    """
-    Simple settings container for environment variables.
-
-    ``BaseSettings`` automatically reads from the operating system
-    environment and, if a ``.env`` file exists in the project root, from
-    that file as well.
-    """
-
-    # Core variables used across the pipeline
-    NCBI_API_KEY: Optional[str] = None
-    PMDB_TOKEN: Optional[str] = None
-
-    # Paths – these are *derived* from the project layout and are kept here
-    # for convenience when other modules need to construct absolute paths.
-    data_root: Path = Path("data")
-    logs_root: Path = Path("logs")
-    figures_root: Path = Path("figures")
-
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
-
-    @classmethod
-    def _load_dotenv(cls) -> None:
-        """
-        Load a ``.env`` file manually if ``pydantic`` does not find it
-        (e.g. when the file resides outside the default search path).
-        """
-        env_path = Path(".env")
-        if env_path.is_file():
-            with env_path.open() as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith("#"):
-                        continue
-                    if "=" not in line:
-                        continue
-                    key, value = line.split("=", 1)
-                    os.environ.setdefault(key.strip(), value.strip())
-
-    @classmethod
-    def load(cls) -> "EnvConfig":
-        """Load the environment configuration, respecting a ``.env`` file."""
-        cls._load_dotenv()
-        return cls()
+_TRUTHY = {"1", "true", "yes", "on"}
 
 
-def load_environment() -> EnvConfig:
-    """
-    Public helper that returns a fully‑initialised ``EnvConfig`` instance.
-    """
-    return EnvConfig.load()
+class EnvConfig(BaseModel):
+    """Snapshot of the relevant environment variables."""
 
-
-def ensure_directories(config: EnvConfig) -> None:
-    """
-    Create the standard directory hierarchy (data, logs, figures) if it does
-    not already exist. The function is tolerant of a ``Path`` or a string.
-    """
-    for attr in ("data_root", "logs_root", "figures_root"):
-        base = getattr(config, attr)
-        if isinstance(base, (str, Path)):
-            Path(base).mkdir(parents=True, exist_ok=True)
-        else:
-            logging.warning(f"Unexpected type for {attr}: {type(base)}")
-
-
-def get_api_key(service: str, config: EnvConfig) -> Optional[str]:
-    """
-    Retrieve an API key for a given service name.
-
-    Parameters
-    ----------
-    service : str
-        Name of the service – e.g. ``'NCBI'`` or ``'PMDB'``.
-    config : EnvConfig
-        The loaded environment configuration.
-
-    Returns
-    -------
-    str | None
-        The API key if present, otherwise ``None``.
-    """
-    mapping = {
-        "NCBI": config.NCBI_API_KEY,
-        "PMDB": config.PMDB_TOKEN,
-    }
-    return mapping.get(service.upper())
-
-
-def get_data_path(config: EnvConfig, sub_path: Optional[str] = None) -> Path:
-    """
-    Return a path inside the data directory.
-
-    Parameters
-    ----------
-    config : EnvConfig
-        The environment configuration.
-    sub_path : str | None
-        Optional sub‑directory or filename to append.
-
-    Returns
-    -------
-    pathlib.Path
-    """
-    base = Path(config.data_root)
-    if sub_path:
-        return base / sub_path
-    return base
-
-
-def get_logs_path(config: EnvConfig, filename: Optional[str] = None) -> Path:
-    """
-    Return a path for a log file (or the log directory if ``filename`` is ``None``).
-    """
-    base = Path(config.logs_root)
-    if filename:
-        return base / filename
-    return base
-
-
-def get_figures_path(config: EnvConfig, filename: Optional[str] = None) -> Path:
-    """
-    Return a path for a figure file (or the figures directory if ``filename`` is ``None``).
-    """
-    base = Path(config.figures_root)
-    if filename:
-        return base / filename
-    return base
-
-
-def validate_required_env_vars(config: EnvConfig, required_services: Set[str]) -> bool:
-    """
-    Ensure that all required services have an associated API key.
-
-    Returns ``True`` if every service in ``required_services`` has a non‑empty
-    key, otherwise logs a warning and returns ``False``.
-    """
-    missing = [svc for svc in required_services if not get_api_key(svc, config)]
-    if missing:
-        logging.warning(f"Missing API keys for services: {missing}")
-        return False
-    return True
-
-
-def create_env_file_template() -> str:
-    """
-    Generate a minimal ``.env`` template that users can copy.
-    """
-    lines = [
-        "# Example environment configuration",
-        "NCBI_API_KEY=your_ncbi_api_key_here",
-        "PMDB_TOKEN=your_pmdb_token_here",
-    ]
-    return "\n".join(lines) + "\n"
+    ncbi_api_key: Optional[str] = Field(
+        default_factory=lambda: os.getenv("NCBI_API_KEY")
+    )
+    pmdb_api_token: Optional[str] = Field(
+        default_factory=lambda: os.getenv("PMDB_API_TOKEN")
+    )
+    ci_mode: bool = Field(
+        default_factory=lambda: os.getenv("CI_MODE", "").strip().lower()
+        in _TRUTHY
+    )
+    data_root: Path = Field(
+        default_factory=lambda: Path(
+            os.getenv("DATA_ROOT", str(PROJECT_ROOT / "data"))
+        )
+    )
 
 
 class EnvManager:
-    """
-    Lightweight wrapper exposing a ``.get(key)`` method.
+    """Thin wrapper giving attribute-style access to env values."""
 
-    The CLI and ``code.config.get`` expect an object with a ``get`` method
-    that returns the value of an environment variable (or ``None``).
-    """
-
-    def __init__(self) -> None:
-        self._config = load_environment()
+    def __init__(self, config: EnvConfig) -> None:
+        self.config = config
 
     def get(self, key: str) -> Optional[str]:
-        """
-        Retrieve the environment variable ``key``.  ``os.getenv`` is checked
-        first so that values set at runtime override the ``.env`` file.
-        """
-        return os.getenv(key) or getattr(self._config, key, None)
+        """Return the environment variable *key*, or ``None``."""
+        val = os.getenv(key)
+        if val is not None:
+            return val
+        attr = key.lower()
+        if hasattr(self.config, attr):
+            val = getattr(self.config, attr)
+            return val if isinstance(val, str) else None
+        return None
+
+
+_env_manager: Optional[EnvManager] = None
 
 
 def get_env_manager() -> EnvManager:
-    """
-    Return a singleton ``EnvManager`` instance.
+    """Return the singleton ``EnvManager`` instance."""
+    global _env_manager
+    if _env_manager is None:
+        _env_manager = EnvManager(EnvConfig())
+    return _env_manager
 
-    The function is deliberately simple – it creates the manager on first
-    call and re‑uses it thereafter.
-    """
-    global _env_manager_instance
-    if _env_manager_instance is None:
-        _env_manager_instance = EnvManager()
-    return _env_manager_instance
+
+def load_environment() -> EnvConfig:
+    """Load and return the ``EnvConfig`` instance (backward compatible)."""
+    return get_env_manager().config
 
 
 def get_env_config() -> EnvConfig:
+    """Backwards-compatible accessor used by older code."""
+    return get_env_manager().config
+
+
+def _resolve_root(config: Union[EnvConfig, Path, str, None]) -> Path:
+    if config is None:
+        return PROJECT_ROOT
+    if isinstance(config, (Path, str)):
+        return Path(config)
+    return Path(getattr(config, "data_root", PROJECT_ROOT / "data")).parent
+
+
+def ensure_directories(config: Union[EnvConfig, Path, str, None] = None) -> None:
+    """Create the standard project directories if they do not exist.
+
+    Accepts either an ``EnvConfig`` or a plain path (the CLI passes the
+    configured data root directly).
     """
-    Backwards‑compatible accessor used by older code.
-    """
-    return load_environment()
+    if isinstance(config, (Path, str)):
+        data_root = Path(config)
+    elif config is None:
+        data_root = PROJECT_ROOT / "data"
+    else:
+        data_root = Path(getattr(config, "data_root", PROJECT_ROOT / "data"))
+
+    for d in [
+        data_root,
+        data_root / "raw",
+        data_root / "interim",
+        data_root / "processed",
+        data_root.parent / "logs",
+        data_root.parent / "figures",
+    ]:
+        d.mkdir(parents=True, exist_ok=True)
+
+
+def get_api_key(service: str, config: Optional[EnvConfig] = None) -> Optional[str]:
+    """Retrieve an API key for *service* (e.g. ``NCBI`` or ``PMDB``)."""
+    if config is None:
+        config = get_env_manager().config
+    env_var = f"{service.upper()}_API_KEY"
+    token = os.getenv(env_var)
+    if token:
+        return token
+    attr = env_var.lower()
+    return getattr(config, attr, None)
+
+
+def get_data_path(config: Optional[EnvConfig] = None, sub_path: Optional[str] = None) -> Path:
+    """Return a ``Path`` inside the project's ``data`` directory."""
+    root = _resolve_root(config) / "data"
+    return root if sub_path is None else root / Path(sub_path)
+
+
+def get_logs_path(config: Optional[EnvConfig] = None, filename: Optional[str] = None) -> Path:
+    """Return the ``logs`` directory (or a specific log file)."""
+    root = _resolve_root(config) / "logs"
+    return root if filename is None else root / filename
+
+
+def get_figures_path(config: Optional[EnvConfig] = None, filename: Optional[str] = None) -> Path:
+    """Return the ``figures`` directory (or a specific figure file)."""
+    root = _resolve_root(config) / "figures"
+    return root if filename is None else root / filename
+
+
+def validate_required_env_vars(
+    config: Optional[EnvConfig] = None, required_services: Optional[Set[str]] = None
+) -> bool:
+    """Ensure every service in *required_services* has a non-empty API key."""
+    if config is None:
+        config = get_env_manager().config
+    required_services = required_services or set()
+    return all(bool(get_api_key(s, config)) for s in required_services)
+
+
+def create_env_file_template() -> str:
+    """Generate a minimal ``.env`` file template."""
+    return (
+        "# Optional API keys\n"
+        "NCBI_API_KEY=\n"
+        "PMDB_API_TOKEN=\n"
+        "# Set to 1 to enable CI mode\n"
+        "CI_MODE=0\n"
+    )

@@ -1,28 +1,15 @@
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
-    \ or `black` settings) or setup scripts are present in the `code/` directory,\
-    \ so the required ruff and black tooling has not been actually configured. The\
-    \ implementer provided no artifacts to verify the task\u2019s completion."
-T024:
-  c: false
-  h: 4095e7359a003e4fff63eaf7cb0caed7e076a64f18b1e1f0e20b4b620eec1025
-  r: "The `data/interim/execution_logs.parquet` file does not exist, so no outcomes\
-    \ are being logged. Moreover, the provided `executor.py` is truncated and lacks\
-    \ concrete logic that detects planner vs. controller failures and appends those\
-    \ labels (and outcomes) to a Parquet log. The required failure\u2011detection\
-    \ implementation and logging step are therefore missing."
-T026:
-  c: false
-  h: 3b6be3551625853ac6bd1b41ebbbbc3322621f1331c7507f3653cf0788f80155
-  r: The required artifact `data/interim/execution_logs.parquet` is missing, so no
-    execution metrics have been logged as specified. The task therefore is not satisfied.
-T032:
+T001a:
   c: true
-  h: 77f666f5af545b58e9cda70fa9a716402c2c2ad86a9f1fc14db23b3ae295834e
-  r: "The `code/src/stats_analysis.py` file exists, is non\u2011empty, and defines\
-    \ `load_baseline_results` and `load_symbolic_results` functions that read the\
-    \ required Parquet files (raising clear errors if they are missing). This matches\
-    \ the task\u2019s requirement to implement loading of the baseline and symbolic\
-    \ results."
+  h: b15891bb4853c508f03ef1394eedd42df20b4decea9f1bbc2990279488c17e00
+  r: The `code/requirements.txt` file contains the pinned `ruff==0.6.3` and `black==24.8.0`
+    entries, and the execution log `code/.tasks/T001a.code_verify_linting.py.log`
+    shows that `verify_linting.py` ran successfully, installing the requirements and
+    confirming both tools are functional.
+  sig: 2ce25800672d9c6b97f989a22123604d3d79057b3c5e2427b83e14f191020416
+T003:
+  c: true
+  h: a3b93131bd98e7bc22a39fdcf6f3206c5c112f31497f2b87d1654e5429dbdffe
+  r: "The evidence shows that `data/raw/`, `data/interim/`, `data/processed/`, and\
+    \ `data/final/` directories all exist (empty) under the project root, and `data/`\
+    \ contains exactly those four sub\u2011folders, satisfying the required hierarchy."
+  sig: c352b58285e90413d0eee2618ba98279b3d90f120db6084ea8d4595fdad831d9

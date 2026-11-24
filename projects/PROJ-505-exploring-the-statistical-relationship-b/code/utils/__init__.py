@@ -1,47 +1,14 @@
-# -*- coding: utf-8 -*-
 """
-Utility functions for the llmXive solar wind analysis pipeline.
+Utility package initializer for the project.
 
-This package provides shared utilities for I/O operations, logging,
-directory management, and data validation.
+This module re-exports the public I/O helper functions so that
+``import code.utils`` provides direct access to the most commonly
+used utilities without requiring the caller to know the exact sub‑module
+layout.
+
+The corrected version simply re‑exports everything that ``io.py`` defines
+(including the checksum helpers that actually exist – e.g. ``sha256_checksum``).
 """
+from .io import *  # noqa: F401,F403
 
-from .io import compute_md5, verify_md5, load_parquet, save_parquet
-from .logging import (
-    PipelineError,
-    DataIngestionError,
-    AlignmentError,
-    AnalysisError,
-    ConfigError,
-    ValidationError,
-    get_logger,
-    setup_logging,
-    log_duration,
-    check_memory_usage,
-    log_error_and_raise,
-    safe_execute,
-)
-from .mkdirs import ensure_dirs
-
-__all__ = [
-    # I/O utilities
-    "compute_md5",
-    "verify_md5",
-    "load_parquet",
-    "save_parquet",
-    # Logging and error handling
-    "PipelineError",
-    "DataIngestionError",
-    "AlignmentError",
-    "AnalysisError",
-    "ConfigError",
-    "ValidationError",
-    "get_logger",
-    "setup_logging",
-    "log_duration",
-    "check_memory_usage",
-    "log_error_and_raise",
-    "safe_execute",
-    # Directory management
-    "ensure_dirs",
-]
+__all__ = [name for name in globals() if not name.startswith('_')]

@@ -264,3 +264,69 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-24T00:31:04Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/quickstart.md
+  attempts: 1
+  canonical: target power is 0.8
+  claim_id: c_61f3aa76
+  context: "The console output of the pre\u2011study power analysis shows Target Power:\
+    \ 0.8."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Target Power: 0.8'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T13:23:19Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/quickstart.md
+  attempts: 1
+  canonical: minimum sample size calculated is 28
+  claim_id: c_b3964275
+  context: 'The script reports Calculated Minimum Sample Size (N): 28 before adjusting.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Calculated Minimum Sample Size (N): 28'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T13:23:19Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/quickstart.md
+  attempts: 1
+  canonical: final recommended sample size is 30
+  claim_id: c_235a7074
+  context: 'After adjustment, the script reports Final Recommended Sample Size (N):
+    30.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Final Recommended Sample Size (N): 30'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T13:23:19Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/quickstart.md
+  attempts: 1
+  canonical: statistical power is at least 0.8 for the planned Wilcoxon signed-rank
+    tests
+  claim_id: c_bbb4a701
+  context: "The guide states that the pre\u2011study power analysis verifies we have\
+    \ enough statistical power (\u2265\u202F0.8) for the planned Wilcoxon signed\u2011\
+    rank tests."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "we have enough statistical power (\u2265\u202F0.8) for the planned Wilcoxon\
+    \ signed\u2011rank tests"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T13:23:19Z'

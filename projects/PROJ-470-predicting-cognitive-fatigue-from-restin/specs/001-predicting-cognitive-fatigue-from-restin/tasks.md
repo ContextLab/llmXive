@@ -1,158 +1,106 @@
----
-description: "Task list for Predicting Cognitive Fatigue from Resting-State EEG Complexity"
----
-
 # Tasks: Predicting Cognitive Fatigue from Resting-State EEG Complexity
 
-**Input**: Design documents from `/specs/001-cognitive-fatigue-eeg-complexity/`
+**Input**: Design documents from `specs/001-predicting-cognitive-fatigue-from-restin/`
 **Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
 
-**Tests**: Tests are OPTIONAL – include them only if explicitly requested in the feature specification.
+**Tests**: Tests are bundled with the implementation they support; the spec's acceptance scenarios define the required checks.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by research phase (first end-to-end analysis → complete validation → results handoff) while mapping to user stories US1–US3.
 
-## Format
-`- [ ] T### [P?] [Story] Description (file path)`
+**Format**: `- [ ] T### [P?] [USx?] description (file path)`; `[P]` = different files, no dependencies.
 
-- **[P]** – can run in parallel (different files, no dependencies)
-- **[S]** – sequential (requires locking or unique filenames)
-- **[Story]** – which user story this task belongs to (`US1`, `US2`, `US3`)
+**Preserved work**: Setup, skeleton, config, logging, report‑stub, quickstart, monitoring, and download/validation tasks (former T001–T009, T026) are retained as verified. Tasks previously rejected (T012–T016, T024) are reopened below with the precise failing artifacts named. Non‑scientific polish tasks have been dropped per the smallest‑complete‑study rule; dataset checksumming is folded into T009.
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 1: Setup and first end‑to‑end analysis
 
-**Purpose**: Project initialization and basic structure
+- [ ] T001 [P] Create project directory structure: `data/raw/`, `data/processed/`, `data/analysis/`, `code/`, `tests/`, `docs/` (verified in `tests/unit/test_setup.py`).
+- [ ] T002 [P] Create code skeleton files: `code/config.yaml`, `code/download.py`, `code/preprocess.py`, `code/features.py`, `code/analysis.py`, `code/report.py` (verified in `tests/unit/test_skeleton.py`).
+- [ ] T003 [P] Create docs skeleton files: `docs/README.md`, `docs/quickstart.md`.
+- [ ] T004 [P] Create `code/requirements.txt` with pinned dependencies: `mne`, `scikit-learn`, `numpy`, `pandas`, `scipy`, `pyyaml`, `pytest`, `nolds`, `statsmodels`, `psutil`, `pyentropy`.
+- [ ] T005 [P] Create `code/config.yaml` with pipeline parameters: `filter_low: 1.0`, `filter_high: 40.0`, `artifact_threshold_uV: 100.0`, `notch_frequency: 50.0`, `random_seed: 42`, `min_segment_duration_sec: 120.0`, `pe_dimension: 3`, `pe_lag: 1` (values fixed per FR‑002/FR‑003).
+- [ ] T006 [P] Implement logging in `code/utils/logging.py` that writes exclusion events to `data/processed/exclusion_log.csv` with columns `[participant_id, reason, timestamp]` (verified in `tests/unit/test_logging.py`).
+- [ ] T007 [P] Implement `code/report.py` stub that ingests CSVs from `data/analysis/` and renders them as markdown tables.
+- [ ] T008 [P] Generate `docs/quickstart.md` with step‑by‑step pipeline commands.
+- [ ] T026 [P] Implement monitoring in `code/utils/monitor.py` using `psutil` and `time` to capture `peak_rss_gb` and `total_runtime_hours`, written to `data/analysis/resource_usage.json`.
 
-- [X] T001 [P] Create project directory structure: `projects/PROJ-470-predicting-cognitive-fatigue-from-restin/`, `data/raw/`, `data/processed/`, `code/`, `tests/unit/`, `tests/integration/`, `docs/` (verification in `tests/unit/test_setup.py`).
-- [X] T002 [P] Create code skeleton files: `code/config.yaml`, `code/download.py`, `code/preprocess.py`, `code/features.py`, `code/analysis.py`, `code/report.py`, `code/models/__init__.py` (verification in `tests/unit/test_skeleton.py`).
-- [X] T003 [P] Create docs skeleton files: `docs/README.md`, `docs/quickstart.md` (verification in `tests/unit/test_docs_skeleton.py`).
-- [X] T004 [P] Initialize Python virtual environment and create `code/requirements.txt` with pinned dependencies: `mne`, `scikit-learn`, `numpy`, `pandas`, `scipy`, `pyyaml`, `pytest`, `nolds`, `statsmodels`, `psutil`, `pyentropy` (verification via `pip list`).
+- [ ] T009 [US1] **Data retrieval, validation, and extraction (REDO).**
+  1. Download a real public PhysioNet dataset containing paired pre/post resting‑state EEG and fatigue ratings (primary: `eegmat`; fallback: PhysioNet “EEG Motor Movement/Imagery” with a validated fatigue questionnaire).
+  2. Stream files into `data/raw/eeg_restingstate/` (no full‑memory load).
+  3. Validate presence of `eeg_data` and `fatigue_rating`; if missing, halt with clear error listing available variables.
+  4. Count participants with complete pre/post pairs; if N < 30, halt with `"Sample size N < 30"` (SC‑001).
+  5. Write `data/raw/download_manifest.json` conforming to `dataset.schema.yaml` (includes checksum, participant count, variables, status).
+  6. Extract fatigue scores to `data/processed/fatigue_scores.csv`.
+  7. Write `data/processed/validation_report.json` (`n_participants`, `variables_found`, `status`).
+  **Verification**: manifest exists with real checksums; HEAD request succeeds; `fatigue_scores.csv` contains real rows.
 
----
+- [ ] T010 [P] **Citation validation (Constitution II).** Verify all citations in `research.md` against the project's verified‑datasets block; fail if any citation is unreachable or mismatched. Runs after T009.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T012 [US1] **Preprocessing (REDO).**
+  Implement `code/preprocess.py` with pure function `process_segment(raw_data, config)` applying: 1‑40 Hz bandpass, 50 Hz notch, average re‑reference, artifact rejection at ±100 µV (FR‑002). Orchestrate over entries in `download_manifest.json`, discard segments < 120 s, write cleaned `.fif` files to `data/processed/cleaned_eeg/{participant_id}_{segment_type}.fif` with side‑car metadata per `processed_eeg.schema.yaml`.  
+  Create `data/processed/exclusion_log.csv` (header `[participant_id, reason, timestamp]`) logging every rejected channel/epoch/short segment.  
+  **Verification**: synthetic 120 s signal with 50 Hz sinusoid shows > 20 dB attenuation; real dataset yields `.fif` files for all validated participants and a populated `exclusion_log.csv`.
 
-**Purpose**: Core infrastructure that MUST be complete before any user story can be implemented.
+- [ ] T016 [US2] **Complexity feature extraction (REDO).**
+  For each cleaned `.fif` in `data/processed/cleaned_eeg/`, compute per‑channel Lempel‑Ziv Complexity using `nolds.lz_complexity` (median quantization) and Permutation Entropy using `pyentropy.permutation_entropy` with `normalize=True`, `dimension=3`, `lag=1`. Write `data/analysis/complexity_metrics.csv` with columns `metric_id`, `segment_id`, `participant_id`, `segment_type`, `channel`, `metric_type`, `value`, `timestamp` (conforms to `complexity_metric.schema.yaml`).  
+  **Verification**: synthetic signal yields LZC ≤ 1.0 and PE ≤ log2(3!)≈2.585; real dataset produces a non‑empty CSV with one row per (participant, segment, channel, metric).
 
-- [X] T005 [P] Create `code/config.yaml` with pipeline parameters:
- ```yaml
- filter_low: 1.0
- filter_high: 40.0
- artifact_threshold_uV: to be determined empirically during the implementation phase
- random_seed: 42
- notch_frequency: to be determined empirically during the implementation phase
- ```
- (verification parses file and checks keys/values).
-- [X] T006 [P] Implement logging infrastructure in `code/utils/logging.py` that writes exclusion events to `data/processed/exclusion_log.csv` (verification in `tests/unit/test_logging.py`).
-- [X] T007 [P] Implement a minimal `code/report.py` stub that can ingest CSVs from `data/analysis/` and render them as markdown tables (verification in `tests/unit/test_report_stub.py`).
-- [X] T008 [P] Generate `docs/quickstart.md` with step‑by‑step instructions for the full pipeline (verification checks file exists and contains required commands).
-- [X] T009 [P] **Data Retrieval, Validation, and Extraction** – implement `code/download.py` to fetch the public EEG dataset from **PhysioNet** (e.g., ` or another verified dataset that contains both resting‑state EEG and paired pre/post fatigue ratings).
- 1. Download the full dataset.
- 2. Validate presence of `eeg_data` and `fatigue_rating` variables.
- 3. Count participants; if **N < 30**, raise an exception with message `"Sample size N < 30"` and exit code 1.
- 4. If required variables are missing, raise an exception with message `"Missing required variables: [...]"` and exit code 1.
- 5. Output `data/raw/download_manifest.json` (listing all participant files).
- 6. Output `data/processed/fatigue_scores.csv` (`participant_id`, `timepoint`, `fatigue_score`).
- 7. Output `data/processed/validation_report.json` (`n_participants`, `variables_found`, `status`).
- (verification: HEAD request before download; existence checks; proper error handling).
-- [X] T026 [P] Implement monitoring infrastructure in `code/utils/monitor.py` using `psutil` and `time` to capture `peak_rss_gb` and `total_runtime_hours`. Write results to `data/analysis/resource_usage.json` (verification checks file and keys).
+- [ ] T018 [US3] **Delta computation, primary correlation, and effect‑size CIs (REDO).**
+  1. Load `complexity_metrics.csv` and `fatigue_scores.csv`.
+  2. Compute per‑channel deltas: `delta_complexity_lzc = post_lzc - pre_lzc`, `delta_complexity_pe = post_pe - pre_pe`. Output `data/analysis/delta_scores.csv` with columns `participant_id`, `channel`, `delta_complexity_lzc`, `delta_complexity_pe`, `delta_fatigue`.
+  3. Perform **partial** Pearson and Spearman correlations controlling for confounds (age, time_of_day, baseline_complexity, medication_status) and compute 95 % CI for each correlation coefficient (Fisher Z).  
+  4. Write `data/analysis/raw_correlation_results.csv` conforming to `analysis_result.schema.yaml` (includes CI fields).
+  **Verification**: real run produces rows for each channel‑metric pair, includes CI columns, and respects confound control.
 
-**Checkpoint**: Foundational phase complete – user‑story work may now begin.
+- [ ] T024 [US3] **Collinearity diagnostics (REDO).**
+  Compute VIF for the full predictor set (`delta_fatigue`, `pre_complexity_lzc`, `pre_complexity_pe`, plus listed confounds). Log numeric VIFs to `data/analysis/vif_diagnostics.log` and write `data/analysis/vif_valid_predictors.json` listing predictors with VIF < 5. **Note:** This is a diagnostic only; the pipeline does **not** abort if any VIF ≥ 5 (intentional deviation from the original verification wording).  
+  **Verification**: log contains a VIF per predictor; JSON may be empty if none pass.
 
----
+- [ ] T020 [US3] **Multiple‑comparison correction and final correlation output (after T024).**
+  Apply Benjamini‑Hochberg correction to raw p‑values from T018, read VIF values from T024, and add a `confounds_controlled` list (the confounds used in the partial correlation). Write `data/analysis/correlation_results.csv` conforming to `analysis_output.schema.yaml` (`vif` and `confounds_controlled` now populated). Also write `data/analysis/bh_corrected_pvalues.csv`.  
+  **Verification**: `p_value_bh ≥ p_value`; `significant` matches `p_value_bh < 0.05`; VIF column present.
 
-## Phase 3: User Story 1 – Data Retrieval & Preprocessing (Priority: P1) 🎯 MVP
+- [ ] T029 [US3] **CI‑enhanced correlation file (REDO).**
+  Combine CI columns from `raw_correlation_results.csv` with the BH‑corrected results from T020 to produce `data/analysis/correlation_results_with_ci.csv`. This file contains all schema fields from `analysis_output.schema.yaml` **plus** `effect_size_ci_lower` and `effect_size_ci_upper`. The original `correlation_results.csv` remains schema‑compliant; downstream reporting will use the CI‑enhanced file.  
+  **Verification**: `correlation_results_with_ci.csv` contains required CI columns and matches rows from `correlation_results.csv`.
 
-**Goal**: Retrieve clean EEG data and preprocess to remove artifacts and line noise.
-**Independent Test**: Run preprocessing on a synthetic 120 s EEG segment containing 50 Hz line noise; verify > 20 dB attenuation at 50 Hz.
+- [ ] T021 [US3] **ANCOVA secondary model (after T024).**
+  Fit `Post_Complexity ~ delta_fatigue + Pre_Complexity + age + time_of_day + medication_status` using predictors listed in `vif_valid_predictors.json`. Write `data/analysis/ancova_results.csv`. If no valid predictors, log a warning but still produce an empty result file to satisfy downstream steps.  
+  **Verification**: file exists when model runs; otherwise warning appears.
 
-- [ ] T012 [US1] [S] Implement `code/preprocess.py` to apply a band‑pass filter (1–40 Hz) **and** a notch filter at the `notch_frequency` from `config.yaml`. The script reads `data/raw/download_manifest.json`, processes each segment, and writes cleaned files to `data/processed/cleaned_eeg/`.
- **Verification** (`tests/unit/test_preprocess.py`): generate synthetic signal with 50 Hz sinusoid, run the function, assert existence of `data/processed/cleaned_eeg_verification.fif`, compute PSDs and confirm ≥ 20 dB attenuation at 50 Hz.
-- [ ] T013 [US1] [S] Add epoch‑rejection to `code/preprocess.py`: any epoch exceeding ±100 µV is excluded and logged via the logging utility from T006.
- **Verification**: after processing, `data/processed/exclusion_log.csv` contains entries (or header only if none).
-- [ ] T014 [US1] [S] Add segment‑length validation: discard any resting‑state segment shorter than 120 s and log the rejection reason.
- **Verification**: same `exclusion_log.csv` check as T013.
-- [ ] T015a [US1] [P] Implement a pure function `process_segment(raw_data, config)` in `code/preprocess.py` that performs band‑pass, notch, re‑reference, and artifact rejection **without any file I/O** and returns the processed NumPy array plus metadata.
- **Verification**: unit test confirms function returns expected types and does not create files.
-- [ ] T015b [US1] [S] Orchestrate full‑dataset preprocessing: read `download_manifest.json`, launch a `multiprocessing.Pool` that calls `process_segment` (T015a) for each segment, and write each output to `data/processed/cleaned_eeg/{participant_id}_{segment_id}.fif`.
- **Verification**: all expected `.fif` files exist for every participant (N ≥ 30) and `exclusion_log.csv` records any rejections.
+- [ ] T023 [US3] **Sensitivity analysis (single output).**
+  Count significant electrodes at thresholds p ≤ 0.05 and p ≤ 0.01 for both raw and BH‑corrected p‑values. Write a single `data/analysis/sensitivity_table.csv` with columns `threshold`, `significant_electrodes_count`.  
+  **Verification**: table contains two rows (0.05 and 0.01) and counts match `correlation_results.csv`.
 
-**Checkpoint**: User Story 1 fully functional and independently testable.
+- [ ] T027 [US3] **Resource and edge‑case checks.**
+  Assert from `resource_usage.json` that `peak_rss_gb ≤ 7.0` and `total_runtime_hours ≤ 6.0`; fail with clear error if exceeded. Verify `exclusion_log.csv` records participants excluded for missing fatigue ratings and report the exclusion count.  
+  **Verification**: assertions trigger informative errors; passing run logs counts.
 
----
+## Phase 2: Complete the study and validate its evidence
 
-## Phase 4: User Story 2 – Complexity Feature Extraction (Priority: P2)
+- [ ] T025 [US3] **Final report.** Generate `docs/final_report.md` from actual CSV/LOG outputs: correlation results (including CIs from `correlation_results_with_ci.csv`), ANCOVA results (if any), sensitivity table, VIF summary, sample size, exclusion counts. Include an interpretation section that discusses both “adaptive simplification” and “degenerative noise” explanations, citing relevant literature and explicitly noting the limitation of using a single scalar complexity metric.  
+  **Verification**: report exists, cites source files, renders tables from real CSVs, and contains the required interpretation paragraph.
 
-**Goal**: Compute Lempel‑Ziv Complexity (LZC) and Permutation Entropy (PE) for each cleaned resting‑state segment.
-**Independent Test**: Run feature extraction on a synthetic signal with known LZC/PE values and verify the outputs fall within expected mathematical bounds.
+- [ ] T028 [US3] **Reproducibility re‑run and paper‑stage handoff.** Re‑execute the entire workflow from raw data, confirm all unit tests and artifact checks pass, and append a handoff section to `docs/final_report.md` listing required result tables, figures, and interpretation for the paper pipeline.  
+  **Verification**: clean re‑run reproduces identical `correlation_results.csv` (fixed seed); handoff section enumerates all artifacts.
 
-- [ ] T016 [US2] [S] Implement `code/features.py` to calculate **both** LZC (using `nolds.lz_complexity` with median quantization) and PE (using `pyentropy.permutation_entropy` with embedding dimension = 3, delay = 1) **per channel** for every file in `data/processed/cleaned_eeg/`. Write results to `data/analysis/complexity_metrics.csv` with columns: `participant_id`, `channel`, `segment_id`, `lzc_value`, `pe_value`. This task is the **sole producer** of that CSV.
- **Verification**: file exists and contains the required columns.
-- [ ] T017 [US2] [P] Feature‑value sanity check: create `tests/unit/test_features.py` that loads `complexity_metrics.csv` and asserts all LZC values are ≤ 1.0 and all PE values are ≤ 2.585 (the theoretical maximum for dimension = 3). Log a warning if the spec does not specify bounds, but the test must still enforce these mathematical limits.
+## Phase 3: (no additional tasks)
 
-**Checkpoint**: User Story 2 complete and independently testable.
+**Dependencies and requirement coverage**
 
----
+| Requirement | Task(s) | Order |
+| :--- | :--- | :--- |
+| FR‑001 dataset validation, N ≥ 30 gate | T009 | first |
+| FR‑002 preprocessing, ±100 µV rejection | T012 | after T009 |
+| FR‑003 LZC/PE on ≥ 120 s segments | T016 | after T012 |
+| FR‑004 delta‑delta correlation with confounds | T018 | after T016 |
+| FR‑005 BH correction | T020 | after T018 (and after T024) |
+| FR‑006 sensitivity analysis | T023 | after T020 |
+| SC‑001 N ≥ 30 gate | T009 | first |
+| SC‑002/SC‑003 runtime/memory | T027 | after all analysis |
+| SC‑004 VIF < 5 diagnostics | T024 | parallel with T020, but T020 now waits for T024 |
+| Report & handoff | T025, T028 | last |
 
-## Phase 5: User Story 3 – Correlation Analysis & Reporting (Priority: P3)
-
-**Goal**: Correlate complexity metrics with fatigue scores, apply multiple‑comparison correction, perform sensitivity analysis, and generate the final report.
-
-- [ ] T018 [US3] [S] Implement validation in `code/analysis.py` that checks for the existence of:
- * `data/processed/cleaned_eeg/` (any `.fif` files)
- * `data/analysis/complexity_metrics.csv`
- * `data/processed/fatigue_scores.csv`
-
- If any are missing, print a clear error listing available files and exit with code 1. (Depends on T009, T015b.)
-- [ ] T019 [US3] [S] Implement **Delta Calculation** in `code/analysis.py`: compute *post‑minus‑pre* deltas for both complexity (averaged across channels) and fatigue scores, ensuring strict pairing by `participant_id`. Write `data/analysis/delta_scores.csv` (`participant_id`, `delta_complexity_lzc`, `delta_complexity_pe`, `delta_fatigue`). Abort with an informative error if any participant lacks a complete pre/post pair.
-- [ ] T020a [US3] [S] Implement **Raw Correlation**: calculate Pearson and Spearman correlations between each delta metric (LZC, PE) and `delta_fatigue`. Save results (coefficients, raw p‑values) to `data/analysis/raw_correlation_results.csv`.
- **Verification**: file exists with columns `metric`, `pearson_r`, `pearson_p`, `spearman_r`, `spearman_p`.
-- [ ] T020b [US3] [S] Apply **Benjamini‑Hochberg (BH) correction** to the raw p‑values from T020a using `statsmodels.stats.multitest.multipletests`. Output corrected p‑values to `data/analysis/bh_corrected_pvalues.csv`.
- **Verification**: file exists and contains a `bh_corrected_p` column.
-- [ ] T024 [US3] [S] Compute **Collinearity Diagnostics (VIF)** for the predictor set (`delta_fatigue`, `pre_complexity_lzc`, `pre_complexity_pe`, plus any available covariates such as `age`, `time_of_day`, `medication_status`). Write all VIF values to `data/analysis/vif_diagnostics.log` and the list of predictors with VIF < 5 to `data/analysis/vif_valid_predictors.json`. Do **not** abort the pipeline if VIF ≥ 5; only log a warning.
- **Verification**: both files exist; the log contains numeric VIFs; the JSON lists the valid predictors (may be empty).
-- [ ] T021 [US3] [S] Implement **ANCOVA Model** (`Post_Complexity ~ delta_fatigue + Pre_Complexity + covariates`) using only predictors listed in `vif_valid_predictors.json`. Write results to `data/analysis/ancova_results.csv`. If `vif_valid_predictors.json` is empty, log a warning `"No valid predictors for ANCOVA (VIF ≥ 5). Skipping ANCOVA."` and skip this step without failing.
- **Verification**: file exists when model runs; otherwise a warning is logged and pipeline continues.
-- [ ] T023 [US3] [S] Perform **Sensitivity Analysis** at thresholds p ≤ 0.05 and p ≤ 0.01 for **both** raw and BH‑corrected p‑values. Produce two tables:
- * `data/analysis/sensitivity_table_raw.csv`
- * `data/analysis/sensitivity_table_corrected.csv`
-
- Each table contains columns `threshold`, `significant_electrodes_count`.
- **Verification**: both tables exist and contain rows for the two thresholds.
-- [ ] T025 [US3] [S] Generate the **Final Report** (`docs/final_report.md`) that assembles:
- * Correlation results (raw and BH‑corrected)
- * ANCOVA results (if produced)
- * Sensitivity analysis tables
- * VIF diagnostics summary
- * Interpretation of the relationship between complexity and fatigue, explicitly discussing the reviewer’s point about “adaptive simplification vs. degenerative noise”.
- The report must cite the source CSV/LOG files and include the tables rendered as markdown.
- **Verification**: file exists and contains the required sections with correct citations.
-- [ ] T027 [US3] [S] Verify total pipeline **memory usage ≤ 7 GB** using the monitoring output (`data/analysis/resource_usage.json`). Fail the pipeline if `peak_rss_gb` > 7.0.
- **Verification**: assert the JSON key exists and respects the limit.
-- [ ] T028 [US3] [S] Verify total pipeline **runtime ≤ 6 hours** using `resource_usage.json`. Fail if `total_runtime_hours` > 6.0.
- **Verification**: assert the JSON key exists and respects the limit.
-- [ ] T031 [US3] [P] Add an **Interpretation Section** to the report that distinguishes between “adaptive simplification” (where reduced complexity reflects efficient neural economy) and “degenerative noise” (where reduced complexity reflects loss of informational richness). Reference the reviewer’s suggestion and include a brief literature note (e.g., Krakauer 2023) to contextualize both possibilities.
- **Verification**: `docs/final_report.md` contains a heading `## Interpretation of Complexity Changes` and a paragraph that mentions both concepts and cites a placeholder reference `[Krakauer 2023]`.
-
----
-
-## Phase 6: Polish & Cross‑Cutting Concerns
-
-**Purpose**: Final quality‑of‑life improvements that affect the whole project.
-
-- [ ] T032 [P] Update `README.md` to include a concise overview of the pipeline, command‑line usage, and links to the final report.
-- [ ] T033 [P] Add comprehensive type hints and docstrings to all public functions (`process_segment`, feature extraction, analysis helpers) to satisfy static‑analysis checks.
-- [ ] T034 [P] Run `pytest --cov` across `tests/` and ensure coverage ≥ 85 %; add any missing tests.
-- [ ] T035 [P] Format all code with `black` and lint with `ruff`; ensure CI passes linting stage.
-- [ ] T036 [P] Archive the exact versions of all external datasets (e.g., store the SHA‑256 of each downloaded file in `data/raw/download_manifest.json`) to guarantee reproducibility.
-
----
-
-### Dependencies & Execution Order
-
-- **Setup (Phase 1)** → **Foundational (Phase 2)** → **User Stories (Phases 3‑5)** → **Polish (Phase 6)**
-- All tasks in a given phase must be completed before moving to the next phase.
-- Within a user story, tasks marked `[P]` may be executed in parallel; tasks marked `[S]` must respect the listed order.
-
----
+Execution order (enforced by task descriptions):  
+T009 → T010 → T012 → T016 → T018 → T024 → T020 → T029 → T021 → T023 → T027 → T025 → T028. Setup tasks T001‑T008, T026 are completed beforehand.

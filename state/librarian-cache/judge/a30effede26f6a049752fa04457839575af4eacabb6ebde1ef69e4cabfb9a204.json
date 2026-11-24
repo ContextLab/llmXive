@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.07804",
+  "judged_at": "2026-10-13T23:18:06Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting corrosion rates of common metals using machine learning on public databases chemistry",
+  "rationale": "The paper applies a machine‑learning causal discovery algorithm to corrosion data, addressing the same physical phenomenon (corrosion) and using ML techniques to identify influential factors, which constitutes same‑mechanism evidence (criterion a) relevant for a review of ML approaches to corrosion prediction.",
+  "relevant": true
+}

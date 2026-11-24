@@ -1,33 +1,13 @@
-status: verified
-kind: pypi_package
-ref: GEOparse
-access_python: "import GEOparse\nimport pandas as pd\n\nseries = \"GSE154220\"\ngse\
-  \ = GEOparse.get_GEO(series, destdir=\"./\")\n\nrecords = []\nfor gsm in gse.gsms.values():\n\
-  \    meta = gsm.metadata\n    records.append({\n        \"sample_accession\": gsm.name,\n\
-  \        \"geo_series_accession\": gse.name,\n        \"title\": meta.get(\"title\"\
-  , [\"\"])[0],\n        \"organism\": meta.get(\"organism_ch1\", [\"\"])[0],\n  \
-  \      \"platform_id\": meta.get(\"platform_id\", [\"\"])[0],\n        \"submission_date\"\
-  : meta.get(\"submission_date\", [\"\"])[0],\n    })\n\ndf = pd.DataFrame(records)\n\
-  print(f\"RECORDS={len(df)}\")\nprint(\"FIELDS=\" + \",\".join(df.columns))"
-record_count: 15
-sample_fields:
-- sample_accession
-- geo_series_accession
-- title
-- organism
-- platform_id
-- submission_date
-field_coverage: 0.556
+status: none
+intent: "download plant RNA\u2011seq count matrices from GEO and map to STRING python\
+  \ package dataset"
 required_fields:
-- sample_accession
-- geo_series_accession
-- gene_id (e.g., Ensembl or TAIR)
-- raw_read_count
-- species_name
-- library_layout
-- sequencing_platform
-- experiment_title
-- submission_date
-intent: "download Arabidopsis thaliana bulk RNA\u2011seq count matrices from NCBI\
-  \ GEO python package dataset"
-cache_key: bf1a3fa9c727c79d9ecc5618249e4d23221cbab99a291be386a7164926f80a4f
+- sample_id
+- gene_id
+- raw_count
+- species
+- geo_accession
+- string_protein_id
+cache_key: 9e69f3c82dc221a15abc7dfee4e353569677d04230034bb565ea2578daa27b8c
+searched_at: '2026-10-16T15:29:24.725085+00:00'
+retry_count: 1

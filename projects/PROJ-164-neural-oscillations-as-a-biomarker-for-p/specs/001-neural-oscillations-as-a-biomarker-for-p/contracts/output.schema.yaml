@@ -73,7 +73,7 @@ artifacts:
         type: float
         description: Continuous measure of tDCS response (target variable)
         required: true
-    
+
   model_metrics:
     description: >
       JSON file containing model performance metrics, coefficients, and
@@ -94,7 +94,7 @@ artifacts:
           required: true
         r_squared_cv:
           type: float
-          description: R² score from cross-validation
+          description: "R² score from cross-validation"
           required: true
         rmse_cv:
           type: float
@@ -131,7 +131,7 @@ artifacts:
           type: string
           description: "Primary, Data Insufficient, or Underpowered"
           required: true
-        
+
 # Note: Fields not explicitly defined in plan.md (e.g., sensitivity_table)
 # are intentionally excluded from this schema as per task requirements.
 # Sensitivity analysis outputs are handled in separate artifacts (T035).

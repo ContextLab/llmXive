@@ -1,0 +1,214 @@
+{
+  "trace_id": "held_out_43_03057",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 19,
+  "tool_sequence": [
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "delete_element",
+    "insert_text",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "apply_theme",
+    "insert_text",
+    "apply_theme",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 4.83,
+        "y": 97.5524,
+        "length": 36.1224
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 59.2191,
+        "y": 68.0401,
+        "length": 85.0242
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 59.6915,
+        "y": 16.0145,
+        "length": 45.4074
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 11.0811,
+        "y": 48.6853,
+        "width": 47.7796,
+        "height": 47.4475
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 50.2,
+        "y": 30.6462,
+        "width": 3.1536,
+        "height": 23.1017
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 21.8272,
+        "y": 16.5515,
+        "width": 3.3601,
+        "height": 46.7862
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 61.6322,
+        "y": 47.8769,
+        "width": 53.3292,
+        "height": 8.851
+      }
+    },
+    {
+      "step": 7,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 34.0777
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 15.134,
+        "y": 65.2257,
+        "length": 36.7218
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 75.9351,
+        "y": 9.2304,
+        "width": 25.565,
+        "height": 75.1911
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 37.6183,
+        "y": 58.5918,
+        "width": 49.424,
+        "height": 96.5023
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 26.7113,
+        "y": 48.6942,
+        "width": 44.5289,
+        "height": 28.7037
+      }
+    },
+    {
+      "step": 12,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 56.6966,
+        "saturation": 30.8221
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 3.7789,
+        "y": 64.6207,
+        "length": 30.7699
+      }
+    },
+    {
+      "step": 14,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 18.5493,
+        "saturation": 4.8056
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 2.9045,
+        "y": 35.1658,
+        "length": 29.3009
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 41.8027,
+        "y": 8.3747,
+        "length": 62.3274
+      }
+    },
+    {
+      "step": 17,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 10.7655,
+        "y": 7.2398,
+        "length": 7.0515
+      }
+    },
+    {
+      "step": 18,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 78.9295,
+        "y": 45.2834,
+        "length": 67.7096
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.365369,
+    "tool_repetition_freq": 0.736842,
+    "arg_semantic_variance": 614.804266
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 2,
+    "layout_hash": "43-3057-insert_text"
+  },
+  "variance_multiplier": 1.5
+}

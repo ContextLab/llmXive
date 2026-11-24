@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.15875",
+  "judged_at": "2026-10-21T19:10:50Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "virtual reality exposure therapy for anxiety: a meta-analysis psychology",
+  "rationale": "This paper applies virtual reality exposure therapy to fear of flying, an anxiety disorder — directly matching the user's domain (VRET for anxiety) and mechanism (exposure therapy via VR), satisfying criteria (a) and (e). It is a canonical early primary study that a meta-analysis/review on VRET for anxiety would cite.",
+  "relevant": true
+}

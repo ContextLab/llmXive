@@ -1,0 +1,11 @@
+# Project dependencies
+pandas
+fastparquet
+tqdm
+pyyaml
+requests
+scikit-learn
+networkx
+statsmodels
+matplotlib
+# Existing environment already provides: numpy, scipy, seaborn, pytest, psutil

@@ -6,6 +6,9 @@ required:
   - sentiment_pos_ratio
   - sentiment_neg_ratio
   - sentiment_neu_ratio
+  - sentiment_ilr_1
+  - sentiment_ilr_2
+  - media_volume
   - gdp_growth
   - unemployment_rate
   - consumer_confidence
@@ -13,6 +16,9 @@ required:
   - interpolation_percent_gdp
   - interpolation_percent_unrate
   - interpolation_percent_cons_conf
+  - vif_gdp
+  - vif_unrate
+  - vif_cons_conf
 properties:
   quarter:
     type: string
@@ -33,6 +39,16 @@ properties:
     minimum: 0
     maximum: 1
     description: "Proportion of neutral sentiment scores (confidence ≥ 0.7)."
+  sentiment_ilr_1:
+    type: number
+    description: "First additive log‑ratio component derived from sentiment ratios."
+  sentiment_ilr_2:
+    type: number
+    description: "Second additive log‑ratio component derived from sentiment ratios."
+  media_volume:
+    type: integer
+    minimum: 0
+    description: "Number of sentiment‑bearing social‑media posts in the quarter."
   gdp_growth:
     type: number
     description: "Quarterly GDP growth rate (percent)."
@@ -44,7 +60,7 @@ properties:
     description: "Quarterly Consumer Confidence Index (percent)."
   low_confidence_flag:
     type: boolean
-    description: "True if the quarter lacked sufficient sentiment sample size."
+    description: "True if the quarter lacked sufficient sentiment sample size (≤ 30 observations)."
   interpolation_percent_gdp:
     type: number
     minimum: 0
@@ -60,4 +76,13 @@ properties:
     minimum: 0
     maximum: 100
     description: "Percentage of Consumer Confidence points filled by linear interpolation."
+  vif_gdp:
+    type: number
+    description: "Variance Inflation Factor for GDP series."
+  vif_unrate:
+    type: number
+    description: "Variance Inflation Factor for unemployment series."
+  vif_cons_conf:
+    type: number
+    description: "Variance Inflation Factor for consumer confidence series."
 additionalProperties: false

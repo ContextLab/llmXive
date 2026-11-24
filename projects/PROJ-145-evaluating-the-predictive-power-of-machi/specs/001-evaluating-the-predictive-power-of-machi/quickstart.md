@@ -1,71 +1,71 @@
-# Quickstart: Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions
+# Quickstart: Evaluating Uncertainty Calibration and Extrapolation Error of Machine Learning for High‑Entropy Alloy Compositions
 
 ## Prerequisites
-*   Python 3.11+
-*   `git`
-*   Access to Hugging Face (for dataset download, no token required for public datasets)
+* Python 3.11 or newer
+* Git
+* Internet access (to download the repository; the placeholder CSV is bundled)
 
 ## Installation
 
-1.  **Clone and Setup**
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-145-evaluating-the-predictive-power-of-machi
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
+```bash
+git clone <REPO_URL>
+cd projects/PROJ-145-evaluating-the-predictive-power-of-machi
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-2.  **Verify Dependencies**
-    Ensure `pymatgen`, `scikit-learn`, and `pandas` are installed:
-    ```bash
-    python -c "import pymatgen; import sklearn; print('Dependencies OK')"
-    ```
-
-## Running the Pipeline
-
-The pipeline is executed via a single entry point script that orchestrates data ingestion, training, and evaluation.
+## Running the Full Pipeline
 
 ```bash
 python code/run_pipeline.py
 ```
 
-### Step-by-Step Breakdown (Manual Execution)
+The script executes all phases sequentially and writes artifacts under `data/`.  
+**Note:** The current run uses a bundled placeholder dataset (`data/raw/hea_placeholder.csv`). A scope‑revision request has been filed to replace this with a verified open HEA dataset (e.g., Materials Project or AFLOW Parquet files). Once the verified dataset is available, re‑run the pipeline to obtain scientifically valid results.
 
-If you wish to run stages individually:
+## Manual Stage Execution (optional)
 
-1.  **Ingest Data** (FR-001, FR-002)
-    ```bash
-    python code/data_ingestion.py
-    # Outputs: data/processed/heas_train.csv, holdout_known.csv, true_novel.csv
-    ```
+| Stage | Command | Output |
+|---|---|---|
+| **0 – Data Ingestion & Candidate Generation** | `python code/data_ingestion.py` | `data/processed/heas_train.csv`, `holdout_known.csv`, `true_novel.csv` |
+| **1 – Feature Engineering** | `python code/feature_engineering.py` | `data/processed/heas_train_features.csv` |
+| **2 – Model Training** | `python code/model_training.py` | `models/rf_model.pkl`, `models/gb_model.pkl` |
+| **3 – Evaluation & Report** | `python code/evaluation.py` | `data/results/report.csv` |
 
-2.  **Feature Engineering** (FR-003)
-    ```bash
-    python code/feature_engineering.py
-    # Outputs: data/processed/heas_train_features.csv
-    ```
+## Validation Note
+Each generated CSV/JSON file is automatically validated against the corresponding JSON‑Schema in `specs/…/contracts/`. Validation failures will halt execution and print the schema‑error details.
 
-3.  **Train Models** (FR-004)
-    ```bash
-    python code/model_training.py
-    # Outputs: models/rf_model.pkl, models/gb_model.pkl
-    ```
+## Testing Infrastructure
+The repository includes a minimal test suite:
 
-4.  **Evaluate** (FR-005-FR-008)
-    ```bash
-    python code/evaluation.py
-    # Outputs: data/results/report.csv
-    ```
+```
+tests/
+├── unit/
+│   ├── __init__.py
+│   └── test_descriptors.py
+└── integration/
+    ├── __init__.py
+    └── test_pipeline.py
+```
 
-## Expected Outputs
-*   `data/processed/heas_train.csv`: Filtered training data.
-*   `data/processed/holdout_known.csv`: Known compositions excluded from training.
-*   `data/processed/true_novel.csv`: Novel candidates.
-*   `data/processed/heas_train_features.csv`: Feature-engineered training data.
-*   `data/results/report.csv`: Final metrics and top novel candidates.
+Run the tests with:
+
+```bash
+pytest -q
+```
+
+The tests verify checksum validation, exponential backoff logic, and schema conformity for all output artifacts.
+
+## Expected Files
+* `data/processed/heas_train.csv`
+* `data/processed/holdout_known.csv`
+* `data/processed/true_novel.csv`
+* `data/processed/heas_train_features.csv`
+* `models/rf_model.pkl`, `models/gb_model.pkl`
+* `data/results/report.csv`
 
 ## Troubleshooting
-*   **API Rate Limits**: The script implements exponential backoff. If it fails after 3 retries, it logs "partial failure" and continues.
-*   **Memory Errors**: If `pandas` crashes due to memory, enable `streaming=True` in `data_ingestion.py` (requires code modification).
-*   **Descriptor Errors**: If `pymatgen` fails to find an element, check the elemental list in `config.py`.
+* **Missing placeholder data** – The pipeline aborts with a clear error if `hea_placeholder.csv` is absent or its checksum does not match `config.EXPECTED_DATASET_CHECKSUM`. Replace the file with a correctly formatted CSV and update the checksum in `code/config.py`.  
+* **Memory errors** – If a `MemoryError` occurs, set `STREAMING=True` in `code/data_ingestion.py` to enable chunked processing.  
+* **Insufficient novel samples** – If fewer than 10 novel candidates survive the distance filter, the Spearman test is skipped and the report notes “insufficient samples (<10)”.  

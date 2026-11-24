@@ -1,166 +1,106 @@
-import json
 import logging
 import shutil
-from pathlib import Path
-from typing import Dict
-import mne
-import os
 import hashlib
-from integrity import calculate_file_checksum, verify_manifest, generate_manifest
+from pathlib import Path
+from typing import List, Tuple
+import mne
+from mne.datasets.sleep_physionet import fetch_data
+
+from integrity import calculate_file_checksum
 from config_utils import load_config
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Configure logger
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-def load_config(path: str = "code/config.yaml") -> Dict:
-    """Load configuration from YAML file."""
-    import yaml
-    try:
-        with open(path, 'r') as f:
-            return yaml.safe_load(f)
-    except FileNotFoundError:
-        logger.warning(f"Config file {path} not found. Using defaults.")
-        return {}
-
-def main():
+def _download_one_record(subject: int, night: int, dest_dir: Path) -> Path:
     """
-    Main entry point for downloading Sleep-EDF dataset.
-    Implements error handling for corrupted .edf files:
-    - Logs error for each corrupted file
-    - Skips the corrupted file
-    - Continues processing remaining files
+    Download a single subject/night recording using MNE's fetch_data.
     """
-    config = load_config()
-    base_dir = Path(config.get("paths", {}).get("raw_data", "data/raw"))
-    base_dir.mkdir(parents=True, exist_ok=True)
+    # Explicitly use the imported fetch_data function to avoid AttributeError
+    fetched = fetch_data(
+        subjects=[subject],
+        recording="sleep-edf",
+        path=str(dest_dir),
+        night=night,
+        verbose=False,
+    )
+    if not fetched:
+        raise RuntimeError(f"No files returned for subject {subject} night {night}")
 
-    # List of subject IDs to download (example subset for testing)
-    # In production, this would come from config or a manifest
-    subject_ids = ["ST50", "ST51", "ST52", "ST53", "ST54"]
+    # fetch_data returns a list of paths to the downloaded files in the MNE cache
+    # We move the .edf file to our project's data/raw directory
+    src_path = Path(fetched[0])
+    dst_path = dest_dir / src_path.name
+
+    if not dst_path.exists():
+        shutil.copy2(src_path, dst_path)
+
+    return dst_path
+
+def download_sleep_edf(output_dir: str = "data/raw/", n_subjects: int = 30) -> Tuple[List[Path], List[Tuple[str, str]]]:
+    """
+    Download n_subjects Sleep-EDF recordings.
+    """
+    base_path = Path(output_dir)
+    base_path.mkdir(parents=True, exist_ok=True)
+
+    successful_paths: List[Path] = []
+    error_entries: List[Tuple[str, str]] = []
+    log_lines: List[str] = []
+
+    # Sleep-EDF Expanded has 100 subjects. 
+    # We iterate until we have enough unique subjects with at least one valid recording.
+    subjects_verified = 0
     
-    successful_downloads = []
-    corrupted_files = []
-    skipped_files = []
+    for subject in range(1, 101):
+        if subjects_verified >= n_subjects:
+            break
 
-    logger.info(f"Starting download process for {len(subject_ids)} subjects...")
-    logger.info(f"Target directory: {base_dir}")
-
-    for subject_id in subject_ids:
-        try:
-            # Construct the dataset name
-            dataset_name = f"SleepEDF_small-EDF-F-{subject_id}-PSG.edf"
-            local_path = base_dir / dataset_name
-            
-            if local_path.exists():
-                logger.info(f"Skipping {subject_id}: File already exists.")
-                successful_downloads.append(subject_id)
-                continue
-
-            logger.info(f"Downloading {subject_id}...")
-            
-            # Attempt to download using MNE
-            # Using mne.datasets.sleep_edf.fetch_sleep_edf_small as it's the standard way
-            # to get the small subset for testing
+        subject_had_valid_file = False
+        for night in (1, 2):
             try:
-                # MNE's fetch functions return the path to the downloaded file
-                # We'll simulate the download by trying to load a known file
-                # In a real scenario, this would be: mne.datasets.sleep_edf.fetch_sleep_edf_small(...)
-                # For this implementation, we'll attempt to fetch the specific file
-                
-                # Since we can't easily fetch a single file, we'll fetch the whole small dataset
-                # and then copy the specific file we need
-                data_path = mne.datasets.sleep_edf.data_path(download=False)
-                
-                if data_path is None or not Path(data_path).exists():
-                    logger.info(f"Dataset not found locally. Attempting download for {subject_id}...")
-                    data_path = mne.datasets.sleep_edf.data_path(download=True)
-                
-                source_file = Path(data_path) / dataset_name
-                
-                if not source_file.exists():
-                    # Try alternative naming convention
-                    alt_name = f"SleepEDF_small-EDF-F-{subject_id}-PSG.edf"
-                    source_file = Path(data_path) / alt_name
-                    
-                    if not source_file.exists():
-                        logger.error(f"File {dataset_name} not found in Sleep-EDF dataset.")
-                        corrupted_files.append((subject_id, "File not found in dataset"))
-                        skipped_files.append(subject_id)
-                        continue
-                
-                # Copy file to our raw data directory
-                shutil.copy2(source_file, local_path)
-                
-                # Verify checksum if manifest exists
-                manifest_path = base_dir.parent / "manifest.json"
-                if manifest_path.exists():
-                    if not verify_manifest(local_path, manifest_path):
-                        logger.warning(f"Checksum verification failed for {local_path}. File may be corrupted.")
-                        # Attempt to re-download or skip
-                        os.remove(local_path)
-                        corrupted_files.append((subject_id, "Checksum verification failed"))
-                        skipped_files.append(subject_id)
-                        continue
-                
-                logger.info(f"Successfully downloaded {subject_id}")
-                successful_downloads.append(subject_id)
-                
+                logger.info(f"Fetching subject {subject}, night {night}...")
+                edf_path = _download_one_record(subject, night, base_path)
+
+                # Verify file integrity by attempting to read the header
+                try:
+                    _ = mne.io.read_raw_edf(edf_path, preload=False, verbose=False)
+                except Exception as exc:
+                    logger.warning(f"Corrupted EDF detected ({edf_path.name}): {exc}")
+                    error_entries.append((edf_path.name, str(exc)))
+                    edf_path.unlink(missing_ok=True)
+                    log_lines.append(f"ERROR\t{edf_path.name}\t{exc}")
+                    continue
+
+                # Compute SHA-256 checksum for the verified file
+                checksum = calculate_file_checksum(edf_path, algorithm="sha256")
+                successful_paths.append(edf_path)
+                log_lines.append(f"{edf_path.name}\t{checksum}")
+                subject_had_valid_file = True
+
             except Exception as e:
-                logger.error(f"Error downloading {subject_id}: {str(e)}")
-                corrupted_files.append((subject_id, str(e)))
-                skipped_files.append(subject_id)
-                continue
+                # Network failures or MNE fetch errors raise loudly as per requirements
+                logger.error(f"Critical failure fetching subject {subject}, night {night}: {e}")
+                raise
 
-        except Exception as e:
-            logger.error(f"Unexpected error processing {subject_id}: {str(e)}")
-            corrupted_files.append((subject_id, f"Unexpected error: {str(e)}"))
-            skipped_files.append(subject_id)
-            continue
+        if subject_had_valid_file:
+            subjects_verified += 1
 
-    # Summary
-    logger.info("=" * 50)
-    logger.info("Download Summary:")
-    logger.info(f"  Total subjects attempted: {len(subject_ids)}")
-    logger.info(f"  Successful downloads: {len(successful_downloads)}")
-    logger.info(f"  Skipped (already exists or error): {len(skipped_files)}")
-    logger.info(f"  Corrupted files detected: {len(corrupted_files)}")
-    
-    if corrupted_files:
-        logger.warning("Corrupted files detected:")
-        for subj, reason in corrupted_files:
-            logger.warning(f"  - {subj}: {reason}")
-    
-    if successful_downloads:
-        logger.info("Successfully downloaded subjects:")
-        for subj in successful_downloads:
-            logger.info(f"  - {subj}")
-    
-    # Save results
-    results = {
-        "successful_downloads": successful_downloads,
-        "skipped_files": skipped_files,
-        "corrupted_files": [dict(zip(["subject_id", "reason"], item)) for item in corrupted_files],
-        "total_attempted": len(subject_ids),
-        "success_count": len(successful_downloads),
-        "corruption_count": len(corrupted_files)
-    }
-    
-    results_path = base_dir.parent / "download_results.json"
-    with open(results_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Results saved to {results_path}")
-    
-    # Generate manifest for downloaded files
-    if successful_downloads:
-        generate_manifest(base_dir)
-        logger.info(f"Manifest generated at {base_dir.parent / 'manifest.json'}")
+    # Write log file
+    log_path = base_path / "download_log.txt"
+    with open(log_path, "w", encoding="utf-8") as log_f:
+        for line in log_lines:
+            log_f.write(line + "\n")
 
-    return results
+    logger.info(f"Download completed: {subjects_verified} subjects verified, {len(successful_paths)} files total, {len(error_entries)} errors.")
+    return successful_paths, error_entries
+
+def main() -> None:
+    cfg = load_config()
+    raw_dir = cfg.get("paths", {}).get("raw_data", "data/raw/")
+    n_subj = cfg.get("statistics", {}).get("min_sample_size", 30)
+    download_sleep_edf(output_dir=raw_dir, n_subjects=n_subj)
 
 if __name__ == "__main__":
     main()

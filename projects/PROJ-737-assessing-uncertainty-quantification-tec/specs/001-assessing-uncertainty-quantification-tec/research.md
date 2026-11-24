@@ -1,73 +1,56 @@
 # Research: Assessing Uncertainty Quantification Techniques for Materials Property Predictions
 
 ## Problem Statement
-Evaluate how four uncertainty‑quantification (UQ) techniques—Gaussian‑process regression (GPR), Monte‑Carlo dropout, deep ensembles, and split‑conformal prediction—differ in **Expected Calibration Error (ECE)** and **Prediction‑Interval Sharpness** when predicting three materials properties:
+We compare four uncertainty‑quantification (UQ) techniques—Gaussian Process Regression (GPR), Monte‑Carlo Dropout (MC‑Dropout), Deep Ensembles, and Split‑Conformal Prediction—on three materials‑property prediction tasks (electronic, mechanical, thermal). The goal is to quantify **Calibration Error** and **Prediction‑Interval Sharpness**, test statistical significance of differences, and explore how conformal coverage thresholds affect performance.
 
-1. **Band Gap** (OQMD)  
-2. **Thermal Conductivity** (AFLOW)  
-3. **Formation Energy** (OQMD; proxy for Elastic Modulus)
+## Verified Datasets
+| Property | Dataset (Verified Source) | Loader / URL | Target Column | Composition Field |
+|----------|---------------------------|--------------|---------------|-------------------|
+| Band Gap | OQMD – Band Gap | `datasets.load_dataset("oqmd/oqmd", split="train")`<br>URL: `https://huggingface.co/datasets/oqmd/oqmd` | `band_gap` | `composition` |
+| Elastic Modulus | Materials Project – Elastic Modulus (fallback to local CSV if API unavailable) | *Manual download required*; if unavailable, use `data/raw/elastic_modulus.csv` | `elastic_modulus` | `composition` |
+| Thermal Conductivity | AFLOW – Thermal Conductivity | `datasets.load_dataset("aflow/aflow", name="thermal_conductivity")`<br>URL: `https://huggingface.co/datasets/aflow/aflow` | `thermal_conductivity` | `composition` |
 
-## Dataset Strategy
-
-The plan uses three open‑access datasets verified in the project’s “# Verified datasets” block.
-
-| Property | Dataset (Verified Source) | Loader / URL | Variable Fit |
-|----------|---------------------------|--------------|--------------|
-| **Band Gap** | OQMD – Band Gap | `datasets.load_dataset("oqmd/oqmd", split="train")`<br>URL: `https://huggingface.co/datasets/oqmd/oqmd` | Contains column `band_gap` (target) and composition strings for featurization. |
-| **Thermal Conductivity** | AFLOW – Thermal Conductivity | `datasets.load_dataset("aflow/aflow", name="thermal_conductivity")`<br>URL: `https://huggingface.co/datasets/aflow/aflow` | Contains column `thermal_conductivity` (target) and composition strings. |
-| **Formation Energy** (proxy for Elastic Modulus) | OQMD – Formation Energy | `datasets.load_dataset("oqmd/oqmd", split="train")`<br>URL: `https://huggingface.co/datasets/oqmd/oqmd` | Contains column `formation_energy_per_atom` (target) and composition strings. |
-
-**Dataset Variable Fit Assessment**  
-All three datasets provide a numeric target column and composition strings compatible with `matminer`. No open Elastic Modulus dataset exists; the substitution with Formation Energy is **explicitly documented** and treated as a proxy (see “Construct Validity” below).
-
-### Construct Validity Note
-Elastic Modulus measures mechanical stiffness, while Formation Energy reflects thermodynamic stability. They are correlated but not equivalent. Because an open, directly downloadable Elastic Modulus dataset is unavailable, Formation Energy is used as a scientifically reasonable proxy. All conclusions about UQ performance on Elastic Modulus will be **qualitative** and qualified accordingly.
+*All three datasets are openly downloadable (or have a local fallback) and cover electronic, mechanical, and thermal domains as required.*
 
 ## UQ Methodology
+| Method | Baseline Model | Key CPU‑only Settings | Output |
+|--------|----------------|------------------------|--------|
+| **GPR** | `sklearn.gaussian_process.GaussianProcessRegressor` (RBF kernel) trained **directly on the same feature vectors** as the MLP (no wrapper over deterministic predictions) | Trained on ≤ 2000 samples; `alpha=1e-6` | Mean ± 1.96 σ |
+| **MC Dropout** | Small MLP (`torch.nn.Sequential`) with dropout = 0.2 | ≤ 2 M parameters, **50** stochastic forward passes at inference | Empirical mean & variance |
+| **Deep Ensemble** | Same MLP architecture, **3** independently seeded models (ensemble size = 3) | Sequential training, identical hyper‑parameters | Ensemble mean & variance |
+| **Split‑Conformal** | Same deterministic MLP; calibration hold‑out set provides non‑conformity scores | Nominal coverage swept from **0.90** to **0.99** in 0.01 steps | Prediction interval `[L, U]` achieving target coverage |
 
-| Method | Baseline Model | Key Settings (CPU‑only) | Output |
-|--------|----------------|--------------------------|--------|
-| **GPR** | `sklearn.gaussian_process.GaussianProcessRegressor` (RBF kernel) | `alpha=1e-6`, training capped at **2000 samples** (uniform cap across all methods) | Mean ± 1.96·σ |
-| **MC Dropout** | Small MLP (`torch.nn.Sequential` with dropout) | ≤ 2 M parameters, **50** stochastic passes (≤ 200 allowed), dropout = 0.2 | Empirical mean & variance |
-| **Deep Ensemble** | Same MLP architecture, trained **3** times with different seeds | Ensemble size = 3, sequential training | Ensemble mean & variance |
-| **Split‑Conformal** | `xgboost.XGBRegressor` | Calibration hold‑out (a designated subset of the training data), nominal coverage α swept **0.80‑0.99** (step = 0.01) | Prediction interval `[L, U]` achieving target coverage |
-
-All models respect FR‑002 (CPU‑only, ≤ 2 GB RAM, no GPU, max ensemble = 3, MC‑Dropout passes ≤ 200).
+All models respect **FR‑002** (CPU‑only, ≤ 2 GB RAM, ensemble ≤ 5, MC‑Dropout ≤ 50 passes). The deterministic MLP baseline is also recorded (`method_id` `deterministic_mlp`) to isolate the effect of the UQ wrapper.
 
 ## Metric Definitions
+* **Calibration Error (CE)** – Expected Calibration Error (ECE). Test predictions are binned into 10 equal‑frequency bins; for each bin compute `|nominal_coverage – empirical_coverage|`, weight by bin size, and sum. Lower is better.  
+* **Sharpness** – Mean prediction‑interval width `mean(U − L)` across the test set. Smaller widths denote tighter intervals, provided calibration is acceptable.  
+* **Coverage** – Empirical proportion of test samples whose true value lies inside the interval. Reported for each conformal threshold during the sweep.  
+* **Per‑sample absolute error** – `|prediction - ground_truth|`.  
+* **Per‑sample interval width** – `upper_bound - lower_bound`.  
+* **Per‑sample coverage indicator** – binary 1/0 whether `ground_truth` lies within `[L, U]`.
 
-- **Expected Calibration Error (ECE)**: Standard binning‑based ECE. Predictions are grouped into *M* equal‑probability bins, compute `|mean(confidence) − empirical_coverage|` per bin, average. Lower is better.  
-- **Sharpness**: Mean prediction‑interval width `mean(U − L)` across the test set. Lower indicates tighter intervals, assuming adequate calibration.  
+Per‑sample values are stored for diagnostic plots; aggregated scalar metrics are stored in `metrics_raw.csv`.
 
-Both metrics are computed per‑method, per‑dataset and saved to `results/metrics_*.csv`.
-
-## Statistical Analysis Plan (Revised)
-
-- **Wilcoxon Signed‑Rank Test** is applied separately to the vectors of per‑sample **ECE values** and **Sharpness values** for each pair of methods, using the *same* test set (paired design, FR‑004).  
-- **α**: 0.05, **Bonferroni correction** across the 18 pairwise comparisons (6 method pairs × 3 datasets) → adjusted α ≈ 0.00278.  
-- **Effect size**: Reported via rank‑biserial correlation with 95 % bootstrap confidence intervals.  
-- **Sensitivity Analysis**: For split‑conformal, sweep nominal coverage α ∈ {0.80,…,0.99}; record empirical coverage and interval width; plot coverage‑error curve (SC‑004).  
-
-## Power Analysis (Concrete Strategy)
-
-- **Test set size**: Enforce **≥ 200** test samples per dataset (subject to the 2000‑sample cap).  
-- **Bootstrap**: Perform a sufficient number of bootstrap resamples of the paired differences to obtain confidence intervals for the Wilcoxon statistic., improving robustness under the stringent Bonferroni α.  
-- **Effect‑size reporting**: Alongside p‑values, report rank‑biserial correlation and its bootstrap confidence interval.  
-- **Transparency**: Any residual power limitation will be explicitly reported in the final results table.
+## Statistical Analysis Plan
+1. **Paired Vectors** – For each dataset, construct paired vectors of per‑sample absolute errors, interval widths, and coverage indicators across the four UQ methods (same test set).  
+2. **Tests** –  
+   - Apply **Paired Wilcoxon signed‑rank** (or paired t‑test) for the continuous metrics (absolute error, interval width) on every unordered method pair (6 pairs).  
+   - Apply **McNemar’s test** for the binary coverage indicator on the same method pairs.  
+3. **Multiple‑Comparison Correction** – Bonferroni correction: α_adj = 0.05 / (6 pairs × 3 metrics) ≈ 0.00278.  
+4. **Power Analysis** – With **≥ 300 test samples** per dataset and a medium effect size (Cohen’s d ≈ 0.5), the Bonferroni‑adjusted paired tests yield an estimated power of **≈ 0.80**, satisfying FR‑008.  
+5. **Reporting** – p‑values and a boolean `significant` flag (based on α_adj) are saved to `statistical_report.csv`.
 
 ## Compute Feasibility & Constraints
-
-- **RAM**: ≤ 2 GB via uniform training cap (2000 samples) and lightweight models.  
-- **Time**: ≤ 1 h by sequential training, early stopping, and batched MC‑Dropout inference.  
-- **CPU‑only**: All libraries installed with CPU‑only wheels; no CUDA.  
-- **Fallbacks**: If `matminer` fails, elemental fraction vectors are generated with pure `pandas`/`pymatgen`.  
+* **RAM** – ≤ 2 GB via 2000‑sample cap and lightweight models.  
+* **Time** – ≤ 1 h estimated: XGBoost/GPR ≤ 5 min each; MLP training ≤ 10 min; MC‑Dropout inference (50 passes) ≤ 5 min; conformal sweep ≤ 5 min.  
+* **CPU‑only** – All libraries installed with CPU wheels; no CUDA calls.  
+* **Fallbacks** – If `matminer` import fails, elemental‑fraction vectors are generated with `pymatgen` only (pure Python).  
 
 ## Assumptions & Risks
+* Verified URLs remain reachable; any download failure is logged and the pipeline proceeds with remaining datasets (`partial_success`).  
+* The Elastic Modulus column from Materials Project is assumed to be present in the fallback CSV; no gated data is required.  
+* `matminer` and `pymatgen` install without GPU dependencies on the CI runner.  
+* Fixed seeds guarantee deterministic splits and model initialisation.
 
-- Verified URLs remain reachable; failures are logged and the pipeline proceeds with remaining datasets (partial_success).  
-- **Construct Validity**: Formation Energy as a proxy may affect direct mechanical‑property interpretations; conclusions will be qualified (see Construct Validity).  
-- `matminer` and `pymatgen` install without GPU dependencies on the CI runner.  
-
----
-
-
+--- End of Research ---

@@ -1,0 +1,51 @@
+T001:
+  reason: "The `data/checksums.txt` file is missing and the BIDS\u2011structured directory\
+    \ tree is not present under `data/raw/` (only a zip and a .gitkeep). Moreover,\
+    \ `code/download.py` uses the Python `requests` library instead of `wget`/`curl`,\
+    \ violating the specified implementation detail. The task\u2019s download and\
+    \ verification requirements are therefore not met."
+  task: b35358fda1c4c7bea048b3fce07b8ef5bac57b9f70d67e3f83a2be7257c6031e
+T002:
+  reason: "The required output file `data/processed/subsampled_raw.fif` is missing,\
+    \ and the unit\u2011test log shows failures (NameError for `np`) indicating the\
+    \ preprocessing functions are not verified to work. The pipeline therefore does\
+    \ not produce the specified subsampled, filtered, re\u2011referenced data."
+  task: a6024ebca3d02adaad2269b4ae2301762749e9e0903ea76ae541ee137a9f5e75
+T003:
+  task: 8aa3b098473e1b6f863e307f90423acfceb261a50a5f7cca8f59c1cc724148de
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/preprocess.py
+    exit=1'
+  task: ff1c89d4b9ccb8e17d5531bf7008f5fcea367b3ba6e226d0d10d8591b433bb83
+T005:
+  task: f64935c044648b1c36b736e81e14eca042456200755e14a6d938f63c1c1eefbb
+T006:
+  task: 7fb209f40ab2991b3bd249083f59ff5dee81cacf234bcb1f304af328a2ef89c6
+T007:
+  task: c6f5eec71f98fa8f87664d8804c569e27b3eec0a0522c0f2fe5c40119cde3485
+T008:
+  task: 83125fb424c17b9f87d2a827194fef7390a884cd6e7bb762dbe8ade42c3d79a8
+T009:
+  task: 8044f9338f2466965eb6dcd9f6b9c41d5dd28648eb1ea34101b9598483562fc8
+T010:
+  task: 5ee9eb118cc689ca4e62916663467b39723bb8dd5a61a0514a829f321c82f85f
+T011:
+  task: 40f5d5679d31cedccee6291e3d46f6674f93f109b17086e6dc005eb4b016d4a4
+T012:
+  task: a5e7741c43719c79d34f8f0baf1333d97bc70efa873dc3ff35ec585babd7ff91
+T013:
+  task: af5570ace7f531d6836abe3141e6a578ea6ffbde8478161d8fac3c44ab7a9867
+T014:
+  task: 6447c9a100d60d8c653e02351c7ecbf9394af77212c62d39bb277e832500fd06
+T015:
+  task: ba16d6791106a20f872c414d888227dd5e7fe606465d59174409bae6bb3ee370
+T016:
+  task: b244ba58ed1c659b84bf46bbbc443c529ca430a529d88700dedf337bfdf10e18
+T017:
+  task: 977930ade756d09ad3ab267f6f7a89a5efcfaec6d146a2b0f008692e72fb06e3
+T018:
+  task: bc206515467988c8deaafd4ee0064c41e081fa71e7c7751b08891f50128c90ed
+T019:
+  task: 9e767d328fafbe994ea13ed09b5601b603b6fe8f70cba8e5bf21bf1639331024
+T020:
+  task: c1e36535185d95e53216b6a898a1b07bfce7745608e9b5c3c8e09eb8cb714b06

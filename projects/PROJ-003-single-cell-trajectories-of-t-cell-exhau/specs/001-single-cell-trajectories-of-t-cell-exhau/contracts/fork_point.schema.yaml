@@ -1,11 +1,11 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 type: "object"
-title: "Fork-Point Gene Schema"
-description: "Schema for fork-point gene results (CSV/JSON) produced by the forkpoint step."
+title: "Fork‑Point Gene Schema"
+description: "Schema for fork‑point gene results (CSV/JSON) produced by the forkpoint step. The null model is defined as a topology‑shuffling permutation that preserves splicing kinetics."
 properties:
   branch_id:
     type: "string"
-    description: "Identifier for the fork-point (e.g., fp_001)."
+    description: "Identifier for the fork‑point (e.g., fp_001)."
   divergence_score:
     type: "number"
     description: "Observed divergence metric for the branch."
@@ -19,14 +19,14 @@ properties:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "Permutation-derived p-value for the branch (significant if < 0.01)."
+    description: "Permutation‑derived p‑value for the branch (significant if < 0.01)."
   confidence:
     type: "string"
     enum: ["high", "low"]
-    description: "low_confidence branches (divergence < 1.5 SD above null) are excluded from the ranked gene list."
+    description: "low_confidence branches (divergence < 1.5 SD above null) are excluded from the ranked gene list."
   genes:
     type: "array"
-    description: "List of genes associated with the fork-point."
+    description: "List of genes associated with the fork‑point."
     items:
       type: "object"
       properties:
@@ -39,7 +39,7 @@ properties:
           type: "number"
         differential_timing:
           type: "number"
-          description: "Pseudotime-unit difference between early and late branches (must be > 0.1 for inclusion)."
+          description: "Pseudotime‑unit difference between early and late branches (must be > 0.1 for inclusion)."
       required:
         - gene_symbol
         - timing_rank

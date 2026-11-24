@@ -16,7 +16,6 @@ import pytest
 from llmxive.backends.base import ChatResponse
 from llmxive.speckit.clarify_cmd import ClarifierAgent
 from llmxive.speckit.slash_command import SlashCommandContext
-from llmxive.types import BackendName
 
 _REAL_SPEC = """# Feature Specification: A/B test validity
 
@@ -51,8 +50,8 @@ def _ctx(project_dir: Path) -> SlashCommandContext:
         run_id="r", task_id="t",
         inputs=[], expected_outputs=[],
         prompt_template_path=Path("agents/prompts/clarifier.md"),
-        default_backend=BackendName.LOCAL,  # no LLM in unit test → panel skips
-        fallback_backends=[], default_model="m", prompt_version="1.0.0",
+        profile="standard_generation",
+        prompt_version="1.0.0",
         agent_name="clarifier",
     )
 

@@ -1,265 +1,106 @@
 # Tasks: Predicting the Impact of Laser Surface Texturing on Wear Resistance
 
-**Input**: Design documents from `/specs/001-predict-lst-wear/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contract schemas in `specs/001-predict-lst-wear/contracts/`
+**Prerequisites**: All tasks operate in the project root layout from `plan.md` (`code/`, `data/`, `reports/`, `models/`, `code/tests/`).
+**Verification**: Each task names a concrete output artifact and a deterministic check. Real data only — no synthetic/mock stand-ins anywhere in the pipeline; failed real fetches must raise, never fall back.
+
+## Phase 1: Setup and first end-to-end analysis
+
+- [ ] T001 [P1] [US1] Establish the runnable pipeline entry point and static source registry. <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1; code/preprocess.py exit=1 --> <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=1 -->
+  *Implementation*: `code/main.py` provides subcommands (`ingest`, `preprocess`, `train`, `interpret`, `report`) with a global fixed seed (numpy/random, seed=42) in `code/seed.py`. Write `specs/001-predict-lst-wear/research.md` listing the static, verified data sources (HuggingFace dataset id, OpenML dataset id, and literature-supplement URLs) with `url` and `dataset_id` fields — no dynamic search code. Write `code/config/schema_map.json` mapping source column aliases (e.g., `"power": ["laser_power", "avg_power"]`) to the canonical schema from `data-model.md`.
+  *Outputs*: `code/main.py`, `code/seed.py`, `code/config/schema_map.json`, `specs/001-predict-lst-wear/research.md`, `specs/001-predict-lst-wear/quickstart.md` documenting `python -m code.main <subcommand>`.
+  *Verification*: `python -m code.main --help` exits 0; `code/tests/test_schema_map.py` asserts every canonical key from `dataset.schema.yaml` appears in `schema_map.json`; `code/tests/test_research.py` asserts each source entry has non-empty `url` and `dataset_id`.
+
+- [ ] T002 [P1] [US1] Implement real-data ingestion with schema mapping and loud failure (FR-001, SC-007). <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED: unspecified -->
+  *Implementation*: `code/ingest.py::fetch_sources` reads the static sources from `research.md`, downloads each real dataset (e.g., `datasets.load_dataset("<verified-id>")` for HuggingFace, `ucimlrepo` or a named raw URL for others), applies `schema_map.json` to map columns to the canonical schema, and writes `data/intermediate/merged.csv` with a `source_id` column. If a source lacks the required LST columns (`pulse_duration`, `power`, `scanning_speed`, `wear_rate`), halt with `data_schema_mismatch` (exit 1). If any real download fails, raise — NEVER fall back to synthetic/mock data. Verify source count: <1 → halt; <3 → log `data_source_limitation` warning and proceed (FR-012), writing `reports/source_validation.json`.
+  *Outputs*: `data/intermediate/merged.csv`, `reports/source_validation.json`.
+  *Verification*: `code/tests/test_ingest.py::test_fetch_and_schema` loads `merged.csv`, asserts all required canonical columns present, ≥1 distinct `source_id`, and no synthetic‑fallback code path exists (grep limited to `code/` directory only, excluding `code/tests/`).
+
+- [ ] T003 [P1] [US1] Implement missing-value handling, Archard normalization, and dataset splitting (FR-002, FR-009, FR-013, FR-018). <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=1 -->
+  *Implementation*: `code/ingest.py` gains three functions, each producing real output files from `data/intermediate/merged.csv`:
+  - `handle_missing_values`: drop rows missing any required predictor (`pulse_duration`, `power`, `scanning_speed`, `pattern_geometry`, `hardness`, `elastic_modulus`); NO imputation; retain rows missing only `contact_load`/`sliding_speed`; increment `missing_record_count`. Writes `data/processed/aggregated_dropped.csv`.
+  - `archard_normalization`: convert `wear_rate` (linear mm or mass mg) to volume V via density/contact_area (FR-018); compute `K = V / (contact_load × sliding_distance)` where load and sliding data exist, set `normalization_method='normalized'`; otherwise keep raw `wear_rate` and set `normalization_method='raw'` (FR-009). Writes `data/processed/aggregated_clean.csv`.
+  - `split_dataset` / `split_test_set`: write `data/processed/normalized_only.csv`, `data/processed/raw_only.csv`, `data/processed/split_summary.json` (`normalized_count`, `raw_count`, `total_count`); stratified 20% held‑out test split with fixed seed writing `data/processed/test_split.csv` and `data/processed/train_split.csv`.
+  *Verification*: `code/tests/test_ingest.py::test_missing_predictor_handling` (no NaN in required predictors of `aggregated_dropped.csv`), `test_archard` (normalized rows have non-null K; raw rows keep original `wear_rate`), `test_split` (counts in `split_summary.json` match CSV lengths; test/train indices disjoint).
+
+- [ ] T004 [P1] [US1] Enforce data‑sufficiency gates, power analysis, and primary‑analysis flag (SC-004, SC-006, FR-014).
+  *Implementation*: `code/ingest.py::count_records` writes `data/processed/record_counts.json` (`total_records`, `normalized_count`, `raw_count`, `missing_record_count`). `compare_thresholds` reads it and writes `reports/pre_check.json` with `status` (`"pass"`, `"pilot_warning"`, `"insufficient_error"`), `reason`, and `study_scope` (`"full_study"`/`"pilot_study"`). Instead of exiting, it also writes `reports/primary_analysis_flag.json` containing `{ "run_primary": <bool> }` where `run_primary` is false if `normalized_count < 100` and `total_records >= 100` (graceful degradation) and true otherwise. Power analysis (`statsmodels`, medium effect f²=0.15, α=0.05) on the normalized subset writes `reports/power_analysis.json` with `power`, `warning`, `status`.
+  *Verification*: `code/tests/test_thresholds.py::test_threshold_logic` checks the flag file; `code/tests/test_power_analysis.py` asserts `warning=True` for low‑count inputs; `code/tests/test_counts.py` cross‑validates `record_counts.json` against `split_summary.json`.
+
+- [ ] T005 [P2] [US2] Build leakage‑safe preprocessing pipeline with interaction terms, min‑max scaling, and VIF reduction (Constitution VI, FR-010, FR-015).
+  *Implementation*: `code/preprocess.py::preprocess_pipeline` returns a scikit‑learn `Pipeline` that (1) one‑hot encodes `pattern_geometry`, (2) **applies min‑max scaling** to all numeric features, (3) **creates interaction features such as `power_x_scanning_speed` inside the Pipeline** so they are recomputed within each CV fold, (4) passes the result to the model. `run_vif_diagnostics` computes VIF on the training features; iteratively drops the highest‑VIF feature of any pair with VIF > 5, records the deterministic removal order, and drops zero‑variance features with a recorded reason. Writes `reports/vif_report.json` (initial VIFs) and `reports/vif_resolution.json` (dropped features list).
+  *Verification*: `code/tests/test_pipeline.py` asserts pipeline step order, presence of min‑max scaling and interaction term creation, and that interaction terms are generated by a custom `FunctionTransformer` within the pipeline; `code/tests/test_vif.py` asserts all final VIFs ≤ 5 and that the dropped list matches `vif_resolution.json`.
+
+- [ ] T015 [P2] [US2] Conditional primary regression execution based on flag (covers SC‑006 graceful degradation).
+  *Implementation*: `code/train.py::conditional_primary_train` reads `reports/primary_analysis_flag.json`. If `run_primary` is true, it proceeds to train the primary regression models (calls existing training functions). If false, it skips primary model training, writes placeholder `reports/primary_model_skipped.json` with `status: "skipped_due_to_insufficient_normalized_data"`, and ensures downstream tasks (e.g., sensitivity analysis) still run. Exit code 0 in both cases.
+  *Outputs*: Either `models/best_model.joblib` and `reports/model_performance.json` (if run) or `reports/primary_model_skipped.json`.
+  *Verification*: `code/tests/test_primary_flag.py` simulates both flag states and asserts correct artifact creation.
+
+- [ ] T006 [P2] [US2] Train models with nested 5‑fold cross‑validation and grid search respecting power analysis and primary‑analysis flag (FR-003, FR-004, FR-014).
+  *Implementation*: `code/train.py::run_nested_cv` now performs **outer 5‑fold cross‑validation** on the normalized‑only training split. Within each outer fold, `GridSearchCV` (inner 5‑fold) searches a grid of ≥10 total hyperparameter combinations (`n_estimators`, `max_depth`, `learning_rate`) for Random Forest and Gradient Boosting, while Linear Regression has no hyperparameters. The pipeline from T005 is used inside the inner CV to ensure interaction terms and min‑max scaling are recomputed per fold. After outer CV, the model (and hyperparameters) achieving the highest mean test R² across outer folds is selected. The final selected model is then **re‑trained on the full normalized training data** and evaluated on the held‑out test split (`data/processed/test_split.csv`) for reporting. The task respects the `run_primary` flag from T015 and the `power` warning from `reports/power_analysis.json`; if `power < 0.8`, it either forces Linear Regression only or records `power_insufficiency_warning` as before. Writes `models/best_model.joblib`, `reports/grid_search_summary.json` (detailing inner‑grid results and outer‑fold scores), and `reports/model_performance.json` conforming to `model_output.schema.yaml` (including `shap_importance` placeholder to be filled later).
+  *Verification*: `code/tests/test_grid_search.py` asserts ≥10 combos, that outer CV is performed, and that the warning flag appears when appropriate; `code/tests/test_evaluation.py` validates `model_performance.json` against its schema and checks that the reported test R² matches the evaluation on the held‑out split.
+
+- [ ] T016 [P2] [US2] Power‑analysis‑driven model selection or warning (FR-014 branch).
+  *Implementation*: `code/validate.py::apply_power_policy` reads `reports/power_analysis.json`. If `power < 0.8`, it either (i) forces Linear Regression only (overriding any other model choice) or (ii) records `power_insufficiency_warning: true` in `reports/model_performance.json`. This task runs after T006 and updates the model performance artifact accordingly.
+  *Outputs*: Updated `reports/model_performance.json` with `power_insufficiency_warning` field.
+  *Verification*: `code/tests/test_power_policy.py` checks both branches.
+
+- [ ] T007 [P2] [US2] Run leave‑one‑material‑class‑out validation with fallback (FR-006, SC-003).
+  *Implementation*: `code/train.py::lomo_cv` performs LOMO CV if ≥3 material classes exist; otherwise falls back to 5‑fold K‑Fold, logs a warning, sets `fallback_active: true`, and records the scope shift to "within‑material prediction". If a class has <30 normalized records, restrict that fold to Linear Regression. Computes the ratio `test_R²_loo / test_R²_standard`; ratio < 0.8 → `transferability_failure_flag: true` (ratio undefined/zero‑denominator → ratio 0 with `ratio_undefined: true`). Handles unseen material classes in test without crashing (records error, continues). Writes `reports/lomo_validation.json` and updates `reports/model_performance.json` with `loo_r2_ratio`, `transferability_failure`, `fallback_active`.
+  *Verification*: `code/tests/test_lomo.py` asserts correct fallback on a <3‑class input, correct ratio/flag computation, and that `model_performance.json` contains the new validation fields.
+
+- [ ] T008 [P2] [US2] Run raw‑subset validity check and sensitivity analysis (FR-011, FR-017).
+  *Implementation*: `code/train.py::sensitivity_analysis` first runs Shapiro‑Wilk and Levene's tests on the raw subset; if either p < 0.05, excludes it and reports `raw_subset_invalid`. Otherwise trains the best model type on (a) normalized‑only and (b) full (normalized + raw) subsets and reports the difference in R² and MAE. Writes `reports/sensitivity_analysis.json` with both models' metrics, deltas, and validity‑test p‑values.
+  *Verification*: `code/tests/test_sensitivity.py` asserts deltas are computed from the recorded metrics and that the `raw_subset_invalid` branch fires for a non‑normal input.
+
+- [ ] T009 [P3] [US3] Compute SHAP values, plots, and interaction detection (FR-005).
+  *Implementation*: `code/interpret.py` computes SHAP values for the best model on the held‑out test set; generates `reports/shap_summary.png` (features ranked by mean |SHAP|) and `reports/shap_dependency_power_speed.png`. Detects non‑linear interactions via SHAP interaction magnitude > 0.1 **or** degree‑2 polynomial fit R² > 0.5 on the dependency plot. Writes `data/processed/shap_values.npy` and `reports/interaction_analysis.json` (per‑pair flags and fit R²). The report explicitly states whether `scanning_speed` or `pattern_geometry` is the dominant predictor.
+  *Verification*: `code/tests/test_shap.py` asserts the SHAP array shape matches (n_test, n_features) and that `interaction_analysis.json` contains per‑pair booleans; plot files exist and are non‑empty.
+
+- [ ] T010 [P3] [US3] Run permutation significance testing and physical plausibility checks (FR-008, FR-007, SC-002, SC-008).
+  *Implementation*: `code/interpret.py::permutation_significance` runs ≥2000 permutations per feature to produce p‑values; flags `no_significant_features` if none meet p < 0.05 and `unstable_significance` if p‑value variance > 0.05; marks features with 0.05 ≤ p < 0.1 as "suggestive". Writes `reports/feature_significance.json` conforming to `feature_importance.schema.yaml`. `physical_plausibility_check` validates SHAP signs against Archard's law (e.g., load positively correlates with wear); contradictions → `physical_plausibility_failure: true`; no external validation target → `validation_target_unavailable` recorded as a limitation, study classified "purely associational". Writes `reports/validation_status.json`. All reported relationships use associational language only (FR-007).
+  *Verification*: `code/tests/test_permutation.py` asserts `permutation_count ≥ 2000`, p‑value structure, and both flag branches on synthetic count inputs; `code/tests/test_physical_check.py` asserts the plausibility flag logic.
+
+- [ ] T018 [P2] [US2] Generate `reports/model_output.json` conforming to `output.schema.yaml` (orphan contract resolution).
+  *Implementation*: `code/report.py::write_model_output` aggregates `reports/model_performance.json`, `reports/shap_summary.png` (feature importances), and `reports/feature_significance.json` to produce a single `reports/model_output.json` that satisfies all required fields in `output.schema.yaml` (including `analysis_stage`, `loco_insufficient_samples`, bootstrap CIs, etc.). It also records whether the analysis stage was "primary", "normalized", or "descriptive_only" based on which dataset was used for the best model.
+  *Outputs*: `reports/model_output.json`.
+  *Verification*: `code/tests/test_model_output.py` validates the JSON against `specs/001-predict-lst-wear/contracts/output.schema.yaml`.
+
+- [ ] T011 [P2] [US2] Aggregate all metrics and flags into the final model report (FR-016, model_report.schema.yaml).
+  *Implementation*: `code/report.py` merges `model_output.json`, `lomo_validation.json`, `sensitivity_analysis.json`, `feature_significance.json`, `vif_resolution.json`, `pre_check.json`, `power_analysis.json`, and `primary_analysis_flag.json` into `reports/model_report.json` conforming to `model_report.schema.yaml` (best_model_type, metrics, loo_ratio, transferability_failure_flag, fallback_active, study_scope, power_insufficiency_warning, data_source_limitation_warning, vif_reduced_features, significant_features, no_significant_features_flag). It also records `baseline_improvement_delta` from T017 and `primary_model_halted` flag from T015. `code/pipeline.py::instrument_runtime` records start/end timestamps to `reports/runtime_metrics.json` and exits 1 with `runtime_timeout` if the full pipeline exceeds 6 hours (FR-016, SC-005).
+  *Verification*: `code/tests/test_report.py` validates `model_report.json` against its schema and cross‑checks every number against its source artifact; `code/tests/test_runtime.py` asserts the timeout branch.
+
+- [ ] T017 [P2] [US2] Compute baseline Linear Regression R² and improvement delta (SC-001).
+  *Implementation*: `code/evaluation.py::baseline_comparison` trains a plain Linear Regression on the same training split, computes its test R², reads the best model's R² from `model_performance.json`, and writes `reports/baseline_metrics.json` and `reports/improvement_delta.json` containing the baseline R² and the delta (best − baseline). These are later merged into `model_report.json`.
+  *Verification*: `code/tests/test_baseline.py` asserts both JSON files exist and that the delta matches the difference of the two R² values.
+
+- [ ] T019 [P1] [US1] Compute checksums of raw downloads and update project state (Constitution III).
+  *Implementation*: `code/ingest.py::checksum_raw` iterates over all files in `data/raw/`, computes SHA256 checksums, writes `data/raw_checksums.json`, and patches `state/projects/PROJ-293-predicting-the-impact-of-laser-surface-t.yaml` under `artifact_hashes` with the new values.
+  *Outputs*: `data/raw_checksums.json`, updated `state/projects/PROJ-293-predicting-the-impact-of-laser-surface-t.yaml`.
+  *Verification*: `code/tests/test_checksum.py` validates that each raw file has a corresponding checksum entry and that the state file is updated.
+
+- [ ] T020 [P1] [US1] Create pinned `code/requirements.txt` (reproducibility requirement).
+  *Implementation*: Write `code/requirements.txt` listing exact versions of all dependencies used throughout the pipeline (e.g., `pandas==2.2.2`, `scikit-learn==1.6.0`, `shap==0.45.0`, `numpy==1.26.4`, `statsmodels==0.14.2`, `datasets==2.18.0`, etc.).
+  *Outputs*: `code/requirements.txt`.
+  *Verification*: `code/tests/test_requirements.py` asserts the file exists and that each line matches a `pip freeze`‑style version pin.
+
+- [ ] T021 [P2] [US2] Implement causal‑language filter and expose as a reusable validator (FR-007).
+  *Implementation*: `code/validate.py::causal_language_filter` scans all generated textual artifacts (e.g., `reports/final_report.md`) for prohibited causal phrasing (e.g., "causes", "leads to") and replaces them with associational alternatives or flags them for manual review. It writes `reports/causal_filter_log.json` summarizing any modifications.
+  *Outputs*: `reports/causal_filter_log.json`.
+  *Verification*: `code/tests/test_causal_filter.py` feeds a sample text containing causal language and checks that the log reports the detected instances.
+
+- [ ] T012 [P3] [US3] Generate result tables and figures from validated outputs.
+  *Implementation*: `code/report.py::make_figures` reads only the computed artifacts (never hand‑typed numbers) and produces `reports/figures/model_comparison.png` (R²/MAE/RMSE per model), `reports/figures/feature_importance.png` (from SHAP + p‑values), and `reports/tables/performance_summary.csv`, `reports/tables/feature_significance.csv`.
+  *Verification*: `code/tests/test_figures.py` asserts each file exists, is non‑empty, and that table values match the corresponding JSON artifacts row‑for‑row.
+
+- [ ] T013 [P3] [US3] Write the methods/results account with honest limitations and paper‑stage handoff.
+  *Implementation*: `reports/final_report.md` documents the methods (ingestion → Archard normalization → VIF → grid search → LOMO → SHAP), links every claim to the actual output files (`model_report.json`, figures, tables), states the study scope (`full_study`/`pilot_study`), reports negative findings (e.g., `no_significant_features`, `transferability_failure_flag`, `raw_subset_invalid`, `validation_target_unavailable`) honestly, and uses associational framing throughout (FR‑007). Includes a paper‑stage handoff section listing the figures/tables/JSON artifacts the paper pipeline should consume.
+  *Verification*: `code/tests/test_final_report.py` asserts the associational‑framing disclaimer, a limitations section, and resolvable links to every generated artifact.
+
+- [ ] T014 [P3] [US3] Re‑run the documented workflow end‑to‑end and confirm reproducibility.
+  *Implementation*: Execute `python -m code.main ingest && python -m code.main preprocess && python -m code.main train && python -m code.main interpret && python -m code.main report` per `quickstart.md` from the declared inputs; confirm all `code/tests/` pass (`pytest -q` in `code/tests/`) and that a second run with the fixed seed reproduces identical metrics in `model_report.json`.
+  *Verification*: Full re‑run exits 0 (or documented pilot exit code 2 with `study_scope: pilot_study`); `pytest -q` passes; a byte‑comparison of the two runs' `model_report.json` metric fields matches.
+
+## Phase 3: Reproducible results and paper handoff (continued)
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[D: X]**: Must run after task X completes
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can:
- - Implemented independently
- - Tested independently
- - Delivered as a MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization, artifact generation, and mock data creation for testing.
-
-- [ ] T001a [P] Create project structure by executing `mkdir -p code data tests state reports models data/raw data/processed` to create the exact directories: `code/`, `data/`, `tests/`, `state/`, `models/`, `data/raw/`, `data/processed/`, `reports/`; output `state/structure_manifest.json` verifying existence of all directories.
-- [X] T001b [P] Generate `state/structure_manifest.json` verifying existence of all directories created by T001a; output the manifest file.
-- [X] T002 [P] Verify project structure by running `code/verify_structure.py` to ensure all required directories exist; write results to `state/directory_verification.log`
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes generation of `research.md` and mock data.
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. **Strict Ordering**: T009 must complete before T039a.
-
-- [X] T009 [P] Generate `research.md` in `specs/001-predict-lst-wear/` containing verified static URLs/IDs for OpenML, HuggingFace, and literature supplements (Plan Phase 0 output); MUST include specific dataset IDs (e.g., 'face-shape-rule-set' if applicable) and ensure no dynamic search logic is used; output `research.md` with schema: `{source_name: str, url: str, dataset_id: str, verified: bool}`; run `code/verify_research.py` to validate schema.
-- [X] T009b [P] Generate `data/raw/mock_lst_data.csv` containing a deterministic, schema-compliant mock dataset with at least 150 records for CI/CD and testing; MUST include all required columns (`pulse_duration`, `power`, `scanning_speed`, `pattern_geometry`, `hardness`, `elastic_modulus`, `wear_rate`, `contact_load`, `sliding_speed`, `density`, `geometry`) and a mix of missing `contact_load`/`sliding_speed` to test T012 logic; output `data/raw/mock_lst_data.csv`; run `tests/unit/test_mock_data.py::test_schema_compliance` to verify.
-- [X] T004 [P] Implement global seed management in `code/seed.py` (set `numpy` and `random` seeds)
-- [X] T005 [P] Implement data hygiene utilities in `code/hygiene.py` (MD5 checksum generation, `state/artifact_hashes.yaml` updates)
-- [X] T006 [P] Implement environment configuration management by creating `code/config/schema_map.json` defining the canonical column mapping logic (e.g., `{'power': ['laser_power', 'laser_pwr'], 'hardness': ['hv', 'vickers']}`) AND mandatory metadata fields `density` and `geometry`; examples of source column names to target columns (FR-001), and then implementing the loader to read this JSON file for schema standardization (FR-001); MUST be created before T010.
-- [X] T007 [P] Create base data models/entities in `code/models.py` (LSTRecord, ModelPerformance, FeatureImportance)
-- [X] T008 [P] Configure error handling and logging infrastructure by creating `code/logging_config.py` to log to `logs/pipeline.log` with level INFO and raise `ValueError` on missing real data (no synthetic fallbacks for production runs); allow mock data usage ONLY if explicitly flagged for testing.
-- [ ] T039a [D: T009] Verify `research.md` (generated by T009) contains only verified static URLs/IDs before ingestion (Constitution II); ensure no dynamic search logic is used for data sources; MUST run after T009 and before T010.
-- [X] T039b [P] Implement `code/verify_research.py` to scan `research.md` for dynamic search logic; write results to `state/research_validation.json`; MUST run after T009 and before T010.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Aggregate and Preprocess LST Wear Data (Priority: P1) 🎯 MVP
-
-**Goal**: Ingest raw tabular data from diverse sources, standardize schema, handle missing values per FR-002/FR-009, and create a clean, analysis-ready dataset.
-
-**Independent Test**: Run ingestion on a mock dataset; verify output CSV has exact canonical columns, no missing predictors, and correct `normalization_method` flags.
-
-### Implementation for User Story 1
-
-- [ ] T010 [US1] [D: T009b] Implement `code/ingest.py::fetch_sources` to fetch data from OpenML, HuggingFace, and literature supplements using specific static IDs/URLs defined in `research.md` (FR-001); if real data fetch fails, check for existence of `data/raw/mock_lst_data.csv` (generated by T009b); if mock data exists, use it for testing/CI; otherwise raise `ValueError` and halt (no synthetic fallback for production); output `data/raw/aggregated_raw.csv`. <!-- FAILED: unspecified -->
-- [X] T011 [US1] Implement `code/ingest.py::map_schema` to map source columns to `pulse_duration`, `power`, `scanning_speed`, `pattern_geometry`, `hardness`, `elastic_modulus`, `wear_rate` using `code/config/schema_map.json` (FR-001); logic MUST iterate through source columns and apply the mapping defined in the JSON file; MUST verify `density` and `geometry` fields are present in schema map or halt.
-- [ ] T012 [US1] Implement `code/ingest.py::handle_missing_values` to DROP records with missing required predictors (`pulse_duration`, `power`, `scanning_speed`, `pattern_geometry`, `hardness`, `elastic_modulus`); RETAIN records where ONLY `contact_load` or `sliding_speed` are missing; output `data/processed/aggregated_dropped.csv`; verify `normalization_method` column is NOT present yet; run `tests/unit/test_ingest.py::test_missing_predictor_handling` to verify.
-- [X] T013a [US1] Implement `code/ingest.py::extract_metadata` to extract `density` and `geometry` from source metadata; MUST validate these fields are present in `schema_map.json` (T006) and halt with `data_schema_mismatch` error if missing (FR-018); append columns to DataFrame.
-- [X] T013b [US1] Implement `code/ingest.py::convert_units` to convert `wear_rate` (linear/mass) to Volume (V) using `density` and `geometry` (FR-018); MUST include mandatory unit conversion logic and halt if units are ambiguous; run `tests/unit/test_units.py::test_wear_rate_conversion` to verify.
-- [ ] T013c [US1] Implement `code/ingest.py::archard_normalization` to compute wear coefficient `K` using Archard's law (FR-009) on `data/processed/aggregated_dropped.csv`; explicitly EXCLUDE `contact_load` and `sliding_speed` from the predictor feature set when the target is `K`; flag raw records where normalization inputs are missing by setting `normalization_method='raw'`; flag normalized records by setting `normalization_method='normalized'`; output `data/processed/aggregated_clean.csv` with the `normalization_method` column; run `tests/unit/test_archard.py::test_k_calculation` to verify.
-- [ ] T014 [US1] [D: T013c] Implement `code/ingest.py::split_dataset` to explicitly split `data/processed/aggregated_clean.csv` into `data/processed/normalized_only.csv` (for primary training) and `data/processed/raw_only.csv` (for sensitivity analysis) based on the `normalization_method` flag; output both files and `data/processed/split_summary.json` with schema: `{normalized_count: int, raw_count: int, total_count: int}` (FR-013); run `tests/unit/test_split.py::test_split_summary` to verify.
-- [ ] T014b [US1] [D: T014] Implement `code/ingest.py::split_test_set` to generate a strictly held-out test split from `data/processed/normalized_only.csv` (using a fixed seed and [deferred] ratio); output `data/processed/test_split.csv` and `state/test_split_indices.npy` containing the row indices of the held-out set; these indices MUST be distinct from any CV folds used for tuning; run `tests/unit/test_split.py::test_held_out_indices` to verify.
-- [ ] T016a [US1] Implement `code/ingest.py::count_records` to calculate total record count, split into `normalized_count` and `raw_count`; output `data/processed/record_counts.json` with schema: `{normalized_count: int, raw_count: int, total_count: int}`; run `tests/unit/test_ingest.py::test_record_counts_schema` to verify.
-- [ ] T016b [US1] Implement `code/ingest.py::compare_thresholds` to compare `normalized_count` against defined thresholds; if `normalized_count < 100`, write a failure log to `reports/pre_check.json` with `status: 'failed'`, `reason: 'insufficient_data'`, and `normalized_count` value, then exit with code 1 (SC-006); if `100 <= count < 300`, set `study_scope` to "pilot_study" and exit with code 2 (SC-004); otherwise set `study_scope` to "full_study"; output `data/processed/threshold_check.json`; run `tests/unit/test_ingest.py::test_threshold_exit_codes` to verify.
-- [X] T016c [US1] [D: T016b] Implement `code/ingest.py::write_pre_check` to verify existence of `reports/pre_check.json` (written by T016b in success or failure states); if file exists, validate schema and copy to `reports/pre_check_final.json`; if file missing, log error and halt; MUST run after T016b to ensure artifact is captured even on failure.
-- [~] T040 [US1] [D: T016c] Implement `code/validate.py::run_power_analysis` to execute statistical power analysis (FR-014) AFTER data ingestion; calculate power for expected effect size (α=0.05) using `normalized_count` from `data/processed/record_counts.json` and number of predictors; if power < 0.8, write failure log to `reports/power_analysis.json` with `status: 'failed'`, `reason: 'insufficient_power'`, and exit with code 1 (SC-006); output `reports/power_analysis.json`; run `tests/unit/test_validate.py::test_power_analysis` to verify; MUST run after T016c and before T017a.
-- [ ] T041a [US1] [D: T039a] Implement `code/ingest.py::validate_source_count` to count distinct data sources (unique URLs/papers) from `research.md`; if count < 1, write failure log to `reports/source_validation.json` with `status: 'failed'`, `reason: 'no_sources'`, and exit with code 1 (SC-007); output `reports/source_validation.json`; run `tests/unit/test_ingest.py::test_source_count_halt` to verify.
-- [ ] T041b [US1] [D: T041a] Implement `code/ingest.py::log_source_warning` to count distinct data sources; if count < 3 (and >= 1), trigger a `data_source_limitation` warning (FR-012) and log to `reports/source_validation.json`; output `reports/source_validation.json`; run `tests/unit/test_ingest.py::test_source_warning` to verify.
-- [X] T017d [US1] [D: T013c] Implement `code/ingest.py::run_statistical_validity_check` to perform Shapiro-Wilk (normality) and Levene's (homogeneity) tests on the 'raw' subset (FR-017); if p < 0.05 for either, exclude 'raw' subset from sensitivity analysis and report `raw_subset_invalid`; output `reports/raw_subset_validity.json`; MUST run before T023.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Train and Validate Regression Models (Priority: P2)
-
-**Goal**: Train multiple regression models, perform hyperparameter tuning, evaluate performance, and conduct leave-one-material-class-out validation.
-
-**Independent Test**: Execute training pipeline; verify best model (highest R²) is saved, metrics logged, and LOMO transferability failure flags are set correctly.
-
-### Implementation for User Story 2
-
-- [ ] T017a [US2] [D: T014] [D: T014b] [D: T040] Implement `code/train.py::train_models` to train Linear Regression, Random Forest, and Gradient Boosting models on CPU only (FR-003); ensure all preprocessing (including one-hot encoding of `pattern_geometry`) is encapsulated within the `Pipeline` to prevent data leakage (Constitution VI); MUST consume `data/processed/normalized_only.csv` from T014; MUST run after T016c and before T018.
-- [X] T017b [US2] Implement `code/train.py::preprocess_pipeline` to encapsulate scaling and feature engineering within the `Pipeline` (Constitution VI); verify no standalone preprocessing steps exist outside the `Pipeline`.
-- [X] T017c [US2] Implement `code/train.py::define_grid_search` to define the interaction between grid search CV and the held-out test set, specifying that the dataset is split into train/test FIRST, then grid search is performed ONLY on the training split to prevent leakage; MUST output `state/cv_split_config.json` defining the outer loop split mechanism (FR-004).
-- [ ] T018 [US2] [D: T017c] [D: T014b] Implement `code/train.py::run_grid_search` with at least 10 distinct hyperparameter combinations (n_estimators, max_depth, learning_rate) and 5-fold CV (FR-004); ensure grid search is performed within the training fold of a nested CV or on a separate training split to prevent leakage; READ `state/cv_split_config.json` from T017c AND `state/test_split_indices.npy` from T014b; APPLY the specific train/test indices defined therein to enforce the outer loop split; output `models/best_model.joblib`; run `tests/unit/test_train.py::test_grid_search_indices` to verify.
-- [ ] T019 [US2] [D: T018] [D: T014b] Implement `code/train.py::evaluate_models` to calculate R², MAE, RMSE and select best model by highest R² (SC-001); evaluate the best model on the strictly held-out `data/processed/test_split.csv` (generated by T014b) using indices from `state/test_split_indices.npy`; output `reports/model_performance.json`; run `tests/unit/test_train.py::test_held_out_evaluation` to verify.
-- [ ] T020 [US2] Implement custom Leave-One-Material-Class-Out (LOMO) cross-validation splitter in `code/train.py` (FR-006) WITH explicit fallback logic: if < 3 material classes exist, fallback to K-Fold (K=5) and log warning; if normalized subset size per class is < 30, fallback to Linear Regression only to avoid overfitting (explicitly check `count < 30` per class and set `model_downgrade_to_linear: true` in output); output `reports/lomo_split_config.json`; run `tests/unit/test_train.py::test_lomo_fallback_logic` to verify.
-- [ ] T021 [US2] [D: T020] Implement `code/train.py::run_lomo_cv` to skip classes with < 15 records and fallback to K-Fold if < 3 classes total; if T020 indicates `model_downgrade_to_linear` is true, fallback to Linear Regression only; log warnings (FR-006); output `reports/lomo_validation.json`; run `tests/unit/test_train.py::test_lomo_validation_output` to verify.
-- [ ] T021a [US2] [D: T021] Implement `code/train.py::update_scope_report` to explicitly update `reports/scope_status.json` and `reports/model_report.json` with the `study_scope` shift to 'within_material_prediction' and the `fallback_active` flag if LOMO fallback is triggered (FR-006); IF `fallback_active` is true, explicitly state in the log/report that the research question has shifted to 'within-material prediction' rather than 'cross-material generalizability'; output `reports/scope_status.json`; run `tests/unit/test_train.py::test_scope_reframing` to verify.
-- [ ] T022 [US2] Implement `code/train.py::analyze_transferability` to compute `test_R²_loo / test_R²_standard` ratio; calculate and log the specific drop in R² (defined as standard_test_R2 - lomo_test_R2) as a distinct measurement for SC-003; flag `transferability_failure: true` if ratio < 0.8 (US-2, SC-003); output `reports/model_performance.json`; run `tests/unit/test_train.py::test_transferability_ratio_calc` to verify.
-- [ ] T023 [US2] [D: T014] [D: T017d] Implement `code/train.py::run_sensitivity_analysis` comparing model performance on 'normalized-only' vs 'full' subsets; explicitly train TWO SEPARATE models: Model A on `data/processed/normalized_only.csv` and Model B on a distinct 'full_subset' stream derived from `data/processed/aggregated_clean.csv` (isolated from primary training); calculate and report the delta (difference) in R² and MAE between the two models; handle the mixed dataset by splitting based on `normalization_method` and running separate models; output `reports/sensitivity_analysis.json`; run `tests/unit/test_train.py::test_sensitivity_delta` to verify.
-- [X] T024 [US2] Implement `tests/unit/test_no_leakage.py::test_preprocessing_leakage` to verify no data leakage in preprocessing (Constitution VI); ensure all scaling and feature engineering happen inside CV folds using `Pipeline`.
-- [ ] T025 [US2] Implement `code/train.py::save_best_model` to save `models/best_model.joblib` and `reports/model_performance.json`; verify file exists and is loadable.
-- [X] T025b [P] Generate `models/mock_best_model.joblib` containing a deterministic, pre-trained Random Forest model with fixed seeds and dummy feature importance values; this serves as a fallback for T027/T028 if real training (T018/T025) fails or data is missing; output `models/mock_best_model.joblib`.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Interpret Feature Importance and Interactions (Priority: P3)
-
-**Goal**: Extract SHAP values, rank feature importance, visualize interactions, and perform conditional permutation testing.
-
-**Independent Test**: Generate SHAP plots; verify `scanning_speed` and `pattern_geometry` are top contributors; validate conditional permutation p-values.
-
-**⚠️ SEQUENTIAL EXECUTION**: Tasks in this phase MUST run in order (T026 -> T027 ->... -> T033 -> T021a).
-
-### Implementation for User Story 3
-
-- [ ] T026 [US3] Implement `code/interpret.py::compute_shap_values` to compute SHAP values for the best model (FR-005); output `data/processed/shap_values.npy`; run `tests/unit/test_interpret.py::test_shap_computation` to verify.
-- [ ] T027 [US3] [D: T026] Implement `code/interpret.py::generate_shap_plots` to generate SHAP summary plot (top features) and dependency plots for `power` vs `scanning_speed` (US-3); MUST check for `models/best_model.joblib` (T025); if missing, raise error (NO mock fallback); output `reports/shap_summary.png` and `reports/shap_dependency_power_speed.png`; run `tests/unit/test_interpret.py::test_shap_plots` to verify.
-- [ ] T028 [US3] Implement `code/interpret.py::detect_nonlinear_interactions` to detect non-linear interactions (SHAP interaction magnitude > 0.1 or polynomial R² > 0.5) (US-3); MUST use the model loaded by T027; output `reports/interaction_analysis.json`; run `tests/unit/test_interpret.py::test_interaction_detection` to verify.
-- [ ] T029 [US3] Implement `code/preprocess.py::run_vif_diagnostics` to perform VIF diagnostics; drop features with VIF > 5 before permutation tests; MUST run before T029b (FR-010); output `reports/vif_report.json`; run `tests/unit/test_preprocess.py::test_vif_diagnostics` to verify.
-- [ ] T029b [US3] Implement `code/preprocess.py::resolve_vif_conflicts` to perform deterministic resolution strategy for VIF > 5 (FR-015); iteratively exclude features with highest VIF until all VIFs ≤ 5; use tie-breaking strategy (e.g., lowest correlation with target) for ties; output `reports/vif_resolution.json`; run `tests/unit/test_preprocess.py::test_vif_resolution` to verify.
-- [ ] T030 [US3] Implement `code/interpret.py::run_conditional_permutation` with a MINIMUM of 2000 permutations (FR-008) for feature significance, using orthogonalization or conditional sampling to handle collinear features; calculate the variance of p-values across features; if variance > 0.05, set `unstable_significance: true` in the output; output `reports/feature_significance.json` with schema including `unstable_significance` (boolean); run `tests/unit/test_interpret.py::test_permutation_significance` to verify.
-- [ ] T031a [US3] Implement `code/interpret.py::load_external_validation` to attempt fetching/loading an independent held-out experimental dataset if specified in `research.md` or `data-model.md`; if successful, run comparison against SHAP rankings; if not, set `validation_target_unavailable: true` flag and proceed to physical plausibility check (SC-002); output `reports/external_validation_status.json`; run `tests/unit/test_interpret.py::test_external_load` to verify.
-- [ ] T031 [US3] [D: T031a] Implement `code/interpret.py::validate_physical_evidence` to check for `microstructural_features` column in the dataset; if `validation_target_unavailable` is true (per T031a), explicitly classify the study as 'purely associational' and report `validation_target_unavailable` as a known limitation; if external data is present, compare SHAP rankings against it; if no external data and internal columns are used, perform a 'physical plausibility check' by verifying SHAP signs against Archard's law and flag `physical_plausibility_failure` if signs contradict physics; output `reports/validation_status.json`; run `tests/unit/test_interpret.py::test_physical_plausibility_check` to verify.
-- [ ] T032 [US3] Implement `code/report.py::generate_interpretation_report` to generate `reports/interpretation.html` and `reports/vif_report.json`; verify report contains all required sections.
-- [ ] T033a [US3] Implement `code/report.py::aggregate_metrics` to aggregate all metrics, flags, and associational framing (FR-007); output `data/processed/aggregated_metrics.json`; run `tests/unit/test_report.py::test_aggregate_metrics` to verify.
-- [ ] T033c [US3] Implement `code/report.py::aggregate_validation_flags` to explicitly aggregate the `validation_target_unavailable` flag (from T031a/T031) and `scope_status` (from T021a) into the `reports/final_report.md` text, generating the 'Known Limitations' section as required by SC-002 and FR-007; output `reports/final_report.md` (partial); run `tests/unit/test_report.py::test_final_report_limitations` to verify.
-- [ ] T033d [US3] [D: T033c] Implement `code/report.py::inject_associational_framing` to inject 'associational' disclaimer text into the final report (FR-007); scan report text for forbidden causal terms (e.g., 'causes', 'determines') and enforce associational framing programmatically; output `reports/final_report.md` (updated); run `tests/unit/test_report.py::test_causality_framing` to verify.
-- [ ] T033 [US3] [D: T033c] [D: T033d] [D: T021a] Implement `code/report.py::generate_final_report` to generate `reports/final_report.md` by aggregating `data/processed/aggregated_metrics.json`, `reports/causality_check.json`, and the 'Known Limitations' section from T033c and T033d; output `reports/final_report.md`; run `tests/unit/test_report.py::test_final_report_generation` to verify.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T034 [P] Implement `code/pipeline.py::instrument_runtime` to measure pipeline start/stop times, calculate total duration, and fail the run immediately with a non-zero exit code if a predefined maximum duration threshold is exceeded (FR-016, SC-005); log `runtime_timeout` error; output `reports/runtime_metrics.json`; run `tests/unit/test_pipeline.py::test_runtime_timeout` to verify.
-- [ ] T035 [P] Add unit tests for User Stories 1 & 2: Implement `tests/unit/test_ingest.py::test_ingest_handles_missing_predictors`, `tests/unit/test_preprocess.py::test_preprocessing_leakage`, and `tests/unit/test_train.py::test_train_model_selection` in `tests/unit/` to cover ingestion, preprocessing, and training logic respectively; verify tests pass.
-- [ ] T036 [P] Add integration test `tests/integration/test_pipeline_flow.py::test_pipeline_flow` in `tests/integration/test_pipeline_flow.py` verifying entry point `code/main.py` produces `data/processed/aggregated_clean.csv` and `models/best_model.joblib`; verify it passes.
-- [ ] T037a [P] Refactor `code/ingest.py` to reduce cyclomatic complexity < 10 using `radon`; target function `code/ingest.py::main`; run `radon cc code/ingest.py::main` and verify complexity < 10.
-- [ ] T037b [P] Refactor `code/train.py` to remove unused imports and simplify nested loops using `autoflake`; target file `code/train.py`; run `autoflake code/train.py` and verify no unused imports.
-- [ ] T038 [P] Update `docs/api.md` with signatures for `code/ingest.py` functions and `code/train.py` functions, and add `quickstart.md` with installation steps; format `docstring`; add docstrings for `code/ingest.py` functions and verify docs are generated.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - Includes T009 (research.md generation) and T009b (mock data) which MUST run before T039a/T010.
- - Includes T039a (Research Validation) which MUST run after T009 (strict ordering).
- - Includes T006 (Environment Config) which MUST run before T010.
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (T014) AND T040 success
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output (T025) OR Mock Model (T025b)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2) - Note: T039a is NOT parallel; it has a strict dependency on T009.
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for ingestion in tests/contract/test_ingest.py"
-Task: "Integration test for preprocessing in tests/integration/test_preprocess.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement schema standardization in code/ingest.py"
-Task: "Implement missing value handling in code/ingest.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [D: X] tasks = must run after task X
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Data Integrity**: Never use synthetic fallbacks for production; fail loudly if real data fetch fails. Mock data (T009b) is ONLY for testing/CI paths.
-- **Compute**: CPU-only for training; scale down only if GPU is required (not applicable here per FR-003).
-- **Critical Ordering**: T009/T009b MUST run before T039a/T010. T039a MUST run after T009 (strict dependency). T016a -> T016b -> T016c MUST run in order. T013c -> T014 -> T017a MUST run in order. T014 -> T014b MUST run in order. T040 MUST run after T016c and before T017a. T029 MUST run before T029b. T029b MUST run before T030. T006 MUST run before T010. T017a -> T017b -> T017c MUST run in order. T031a MUST run before T031. T033c MUST run before T033d. T033d MUST run before T033. T021 MUST run before T021a. T021a MUST run before T033. T033 MUST run after T021a, T033c, and T033d. T025b provides a fallback for T027/T028 if T025 fails.
-- **Artifact Producer/Consumer**: T013c is the sole producer of `data/processed/aggregated_clean.csv` with `normalization_method` flags. T014 consumes this artifact. T014b produces `test_split.csv` and `test_split_indices.npy` for T018/T019. T016b writes `reports/pre_check.json` before exiting. T021a updates scope before T033 generates the final report.
+- (All tasks above collectively satisfy the remaining phases.)

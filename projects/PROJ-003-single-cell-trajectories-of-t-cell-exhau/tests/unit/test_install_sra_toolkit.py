@@ -12,7 +12,7 @@ from install_sra_toolkit import (
     ensure_ncbi_settings,
     verify_sra_toolkit,
     install_sra_toolkit,
-    main
+    main,
 )
 
 
@@ -44,9 +44,9 @@ class TestEnsureNcbiSettings:
         # Mock Path.home() to return tmp_path
         mock_ncbi_dir = tmp_path / ".ncbi"
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
-        
+
         result = ensure_ncbi_settings()
-        
+
         assert result is True
         assert mock_ncbi_dir.exists()
         assert (mock_ncbi_dir / "settings").exists()
@@ -55,9 +55,9 @@ class TestEnsureNcbiSettings:
         """Test that the function creates settings file if it doesn't exist."""
         mock_ncbi_dir = tmp_path / ".ncbi"
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
-        
+
         result = ensure_ncbi_settings()
-        
+
         assert result is True
         settings_file = mock_ncbi_dir / "settings"
         assert settings_file.exists()
@@ -69,15 +69,15 @@ class TestEnsureNcbiSettings:
         """Test that the function doesn't overwrite existing settings."""
         mock_ncbi_dir = tmp_path / ".ncbi"
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
-        
+
         # Create existing settings
         mock_ncbi_dir.mkdir(parents=True, exist_ok=True)
         settings_file = mock_ncbi_dir / "settings"
         original_content = "CUSTOM_SETTING=value\n"
         settings_file.write_text(original_content)
-        
+
         result = ensure_ncbi_settings()
-        
+
         assert result is True
         assert settings_file.read_text() == original_content
 
@@ -89,36 +89,30 @@ class TestVerifySraToolkit:
     def test_verification_success(self, mock_run_command):
         """Test successful verification when prefetch --help succeeds."""
         mock_run_command.return_value = MagicMock(
-            returncode=0,
-            stdout="prefetch help output",
-            stderr=""
+            returncode=0, stdout="prefetch help output", stderr=""
         )
-        
+
         result = verify_sra_toolkit()
-        
+
         assert result is True
         mock_run_command.assert_called_once_with(["prefetch", "--help"], check=False)
 
     @patch("install_sra_toolkit.run_command")
     def test_verification_failure_nonzero(self, mock_run_command):
         """Test verification fails when prefetch --help returns non-zero."""
-        mock_run_command.return_value = MagicMock(
-            returncode=1,
-            stdout="",
-            stderr="error message"
-        )
-        
+        mock_run_command.return_value = MagicMock(returncode=1, stdout="", stderr="error message")
+
         result = verify_sra_toolkit()
-        
+
         assert result is False
 
     @patch("install_sra_toolkit.run_command")
     def test_verification_file_not_found(self, mock_run_command):
         """Test verification fails when prefetch is not found."""
         mock_run_command.side_effect = FileNotFoundError("prefetch not found")
-        
+
         result = verify_sra_toolkit()
-        
+
         assert result is False
 
 
@@ -131,11 +125,11 @@ class TestInstallSraToolkit:
         # First call: check conda version (success)
         mock_run_command.side_effect = [
             MagicMock(returncode=0, stdout="conda 23.0"),  # conda --version
-            MagicMock(returncode=0, stdout="installation complete")  # conda install
+            MagicMock(returncode=0, stdout="installation complete"),  # conda install
         ]
-        
+
         result = install_sra_toolkit()
-        
+
         assert result is True
         # Verify conda install was called with correct arguments
         install_call = mock_run_command.call_args_list[1]
@@ -150,11 +144,11 @@ class TestInstallSraToolkit:
         mock_run_command.side_effect = [
             FileNotFoundError("conda not found"),
             MagicMock(returncode=0, stdout="mamba 1.0"),  # mamba --version
-            MagicMock(returncode=0, stdout="installation complete")  # mamba install
+            MagicMock(returncode=0, stdout="installation complete"),  # mamba install
         ]
-        
+
         result = install_sra_toolkit()
-        
+
         assert result is True
 
     @patch("install_sra_toolkit.run_command")
@@ -162,11 +156,11 @@ class TestInstallSraToolkit:
         """Test installation fails when neither conda nor mamba is found."""
         mock_run_command.side_effect = [
             FileNotFoundError("conda not found"),
-            FileNotFoundError("mamba not found")
+            FileNotFoundError("mamba not found"),
         ]
-        
+
         result = install_sra_toolkit()
-        
+
         assert result is False
 
     @patch("install_sra_toolkit.run_command")
@@ -174,11 +168,11 @@ class TestInstallSraToolkit:
         """Test installation fails when conda install returns error."""
         mock_run_command.side_effect = [
             MagicMock(returncode=0, stdout="conda 23.0"),
-            MagicMock(returncode=1, stdout="", stderr="install failed")
+            MagicMock(returncode=1, stdout="", stderr="install failed"),
         ]
-        
+
         result = install_sra_toolkit()
-        
+
         assert result is False
 
 
@@ -191,9 +185,9 @@ class TestMain:
         """Test main returns 0 when SRA Toolkit is already installed."""
         mock_verify.return_value = True
         mock_ensure.return_value = True
-        
+
         result = main()
-        
+
         assert result == 0
         mock_ensure.assert_called_once()
 
@@ -206,9 +200,9 @@ class TestMain:
         mock_verify.side_effect = [False, True]
         mock_install.return_value = True
         mock_ensure.return_value = True
-        
+
         result = main()
-        
+
         assert result == 0
         mock_install.assert_called_once()
 
@@ -218,8 +212,8 @@ class TestMain:
         """Test main returns 1 when installation fails."""
         mock_verify.side_effect = [False, False]
         mock_install.return_value = False
-        
+
         result = main()
-        
+
         assert result == 1
         mock_install.assert_called_once()

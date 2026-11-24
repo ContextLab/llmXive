@@ -1,43 +1,36 @@
 T001a:
   c: false
-  h: a6b1987b3df64eb562972d2160c3c1d6d8616221bef30f06999fa66021b1023f
-  r: The evidence shows that the `data/` directory exists, but the required `data/raw/`
-    subdirectory is missing. The task explicitly demands creation of both directories,
-    so the implementation is not complete.
-  sig: 1b2f872c68197452d676b5a7a4133bfbe6672028d1ebaa0e48c8af61823ba374
+  h: 0b92cfba7ae19396858948223bedc8932290c95d6a1d5beacd45a2b71201f0b5
+  r: The task requires creating `data/` and `data/raw/`; while `data/` exists (containing
+    `processed/` and `verified_datasets.yaml`), the collector confirms `data/raw/`
+    is MISSING. The implementer must create the `data/raw/` directory.
+  sig: 175fae5866fa0ee33328547a05b6cc36388e040ad7ea500c338b84614e184edc
 T001b:
   c: true
-  h: 1283de504e1b3195e7eeb40a17d9d4f14bf0724e109ba77b49c46f8605b1cc1e
-  r: The evidence shows that `code/`, `code/discovery/`, `code/preprocess/`, `code/analysis/`,
-    and `code/viz/` directories all exist under the project root and contain files,
-    satisfying the creation requirement.
-  sig: 6731bf4f1e9522793aec00b27501f8ec7e704cb3d75ecfdd2d0dfb0882cc0ec2
+  h: 73b597aadebc15f8cf2f4ebcb9633b344901378af6f8ff3b1fa104860ca0327e
+  r: All five required directories (`code/`, `code/discovery/`, `code/preprocess/`,
+    `code/analysis/`, `code/viz/`) exist and are non-empty, each containing substantive
+    Python modules (e.g., `query_geno.py`, `filters.py`, `correlation.py`, `plots.py`)
+    plus `__init__.py` markers, which fully satisfies this directory-creation task.
+  sig: fe54b20dcc1bc6862cae0f086ebe86f161a5c4d30b49f64aaf0c634d921a6e8d
 T001c:
-  c: false
-  h: ffef82c6f75f8e370373061a11221b7740f3dea4725944104f62f7be9ece7fb9
-  r: The evidence shows that `tests/`, `tests/unit/`, and `tests/contract/` directories
-    exist, but the required `data/processed/`, `output/`, `output/figures/`, and `logs/`
-    directories are missing. These absent directories must be created to satisfy the
-    task.
-  sig: ff5d7907cbe974165ae7147a22e5d9692b3d0c667c7ae1e31c7c679d28f191a7
-T002:
-  c: false
-  h: 476588f53154bea7b58706c48a35a36995d3f3605ed76fd3d120f5e2996353c2
-  r: "The evidence only shows the project root path; there is no pyproject.toml, requirements.txt,\
-    \ environment.yml, or any other manifest that lists Python\u202F3.11 and the required\
-    \ packages (pandas, numpy, scipy, scikit\u2011learn, requests, pyyaml, tqdm, pytest).\
-    \ Without such a file the claim of an initialized Python\u202F3.11 project with\
-    \ those dependencies is unsupported."
-  sig: ce630fbc301b0bb6303061b8f22f8c21ed7415330f5a1d4587398b837ae308b1
+  c: true
+  h: 71948aea97d4f3544c386d626a884b4065989ea4ddcb57ee24e5f32b6e64a8ec
+  r: All seven required directories (`output/`, `output/figures/`, `tests/`, `tests/unit/`,
+    `tests/contract/`, `logs/`, `data/processed/`) exist as confirmed by the collector,
+    and the setup script `code/setup_dirs.py` ran successfully (exit 0, "Directory
+    skeleton verified OK"). The task only asked for directory creation; the empty
+    `output/figures/` and `data/processed/` contents and the discovery halt status
+    are outputs of other tasks, not defects here.
+  sig: 8c2be5ff376f1c1c3c93ab600f50417e2d7e6ed3a8197debd168f9d578e5610d
 T003:
-  c: false
-  h: 18d3cfdf733ec69e1cd14115199a55f9c33046ddab1bdd6bde689a32f2a7a015
-  r: No configuration files or scripts for ruff linting or black formatting are present
-    in the provided artifact list (e.g., no `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`,
-    or similar files), so the task of configuring these tools is not demonstrated.
-    The implementer has not supplied any evidence that the tools are installed, configured,
-    or integrated into the project.
-  sig: db315efa39b18d02a7eb3e09f56792056cdab9ecee63c73ce3283ee7f92e98b6
+  c: true
+  h: 50a448d2b2c36d26fbc47d83d14bc4971eef74fe33b2ab8c40ac4b8c2b79f8e3
+  r: The task required configuring ruff and black; the execution log shows `code/run_lint.py
+    --validate-config` exited 0 and confirmed a `pyproject.toml` at the project root
+    with ruff (line-length=100, target=py311) and black (line-length=100, target=['py311'])
+    settings, which matches the requirement for linting/formatting tool configuration.
+  sig: 0e469815e9140677e76d2837e4052d924094cf7af7ccdcabd5de16b78535a9dd
 T004:
   c: true
   h: 960cc93835976bb5276f9ae3b548f5c91bfe069ad0e6407f40b7e52271c4554b
@@ -48,6 +41,34 @@ T004:
     \ and a helper to create required directories. This fully implements path management,\
     \ seed handling, and environment\u2011variable access as required."
   sig: 7b284c765ce80ef0d5604f871c9e48b23e2ca998c53d7bb663228815d25dd4c7
+T005:
+  c: true
+  h: 023c9b1d49601739352535ee0cd869d49f7267d7534554e36ab3d7b90245cbc9
+  r: "The `code/__init__.py` exists (532 bytes) with a proper package marker docstring\
+    \ and version metadata, and the recorded pytest run shows 4 passing tests confirming\
+    \ the top-level and subpackage `__init__.py` files exist, compile, and load without\
+    \ side effects. The task's requirement \u2014 creating package structure `__init__.py`\
+    \ files \u2014 is directly satisfied by the artifacts and passing test evidence."
+  sig: c9386746429feb6afa3b977807db6ef1390981550865c1580769056c970e72ec
+T006:
+  c: false
+  h: 3eab97569227679f475b7894dd780aedd8c227a0911bbd550c2f55799a747aa0
+  r: "Both `__init__.py` files exist and are non-empty, and the preprocess one correctly\
+    \ uses relative imports (`from .rna_seq import ...`) against confirmed existing\
+    \ modules. However, `code/discovery/__init__.py` uses an absolute import (`from\
+    \ query_geno import ...`), which will raise `ModuleNotFoundError` when the package\
+    \ is imported normally (e.g., `import discovery` with `code/` on the path), since\
+    \ `query_geno.py` lives inside `code/discovery/`, not at the top level \u2014\
+    \ the exact defect the preprocess `__init__.py` docstring says was fixed there.\
+    \ The discovery `__init__.py` should be changed to re"
+  sig: e3f9962356c5bd8203b00061d80bb8c78b80393c17226eb59f587467c01f3058
+T007:
+  c: true
+  h: e7f2c9c3d04e8aae254a39bde30d4b33f3736c3ead817857451383142b20c0ae
+  r: "Checked the actual contents of `code/analysis/__init__.py` and `code/viz/__init__.py`,\
+    \ both of which exist, are non\u2011empty, and correctly import and expose the\
+    \ intended symbols."
+  sig: 521bfea1c28252b77183672dbd40e587125860c019adb5bee3113c8ef4e6b53c
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

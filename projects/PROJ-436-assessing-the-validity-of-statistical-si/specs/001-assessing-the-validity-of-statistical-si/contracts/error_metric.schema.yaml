@@ -38,3 +38,4 @@ required:
   - "method"
   - "p_value"
   - "rejected"
+additionalProperties: false

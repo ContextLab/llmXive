@@ -1,3 +1,60 @@
+T001:
+  c: true
+  h: 11ea7072e66140afcb276233e95f29ed2f32db695636d4ead4acdcd006245d7e
+  r: The project root `projects/PROJ-1011-llmxive-follow-up-extending-researchstud/`
+    exists with non-empty `code/`, `data/`, and `tests/` directories (each containing
+    multiple real files, not just `.gitkeep` markers). The verification test `tests/test_scaffold_directories.py::test_scaffold_directories`
+    passed (exit 0, 1 passed), and `code/scaffold.py` ran successfully verifying 16
+    directories, directly matching the task's stated verification criterion.
+  sig: d563c096f7be5d6cadd0cb6ba9e55a8d897e0128daa114d0784d62622e9afee3
+T002:
+  c: true
+  h: 51eeb91e552045f4316cbb64a3d93e7e3c3987fc454e5813aa020f458b6edab8
+  r: 'Both artifacts exist with substantive content: `requirements.txt` contains fully
+    pinned Python 3.11 dependencies (all `==` pins, no ranges), and `run_pipeline.sh`
+    is a real orchestration script with argument parsing, health-check, and stage
+    invocations. The test log shows `test_requirements_present` and `test_run_pipeline_executable`
+    both passed, and the dry-run execution log confirms the script runs successfully
+    with exit 0.'
+  sig: 942a5a68f8b4736e81bf0299d2f5e2b9b3feb085f900b0da6536b6ab79159795
+T003:
+  c: true
+  h: cfc34f448d9c9ffccca415c99662d58c441030e19f951c9f0ea2748817697fe8
+  r: The `quickstart.md` file exists (3555 bytes, collector-confirmed at the canonical
+    spec path) and contains the exact required command `./run_pipeline.sh --stage
+    all` near the top, plus substantive, non-placeholder quickstart content (prerequisites,
+    installation, pipeline steps, verification, troubleshooting) consistent with the
+    project spec.
+  sig: 077ed329313a3adbfa67dc58eb6a889b73d8a5144e37d302d9dbe653a83be44c
+T004:
+  c: false
+  h: d6839615be7280e5f42405a375ec581014c65a7d9f1fc304adaf3dc4a5c096bd
+  r: "The three data directories exist (each with a `.gitkeep`), but the required\
+    \ `data/CHECKSUMS` manifest is not confirmed present in the collected evidence,\
+    \ and the task's own verification test `test_data_dirs_and_checksum` FAILED (exit\
+    \ 1) with `FileExistsError: .../data/CHECKSUMS` \u2014 the toolkit's `paths.data()`\
+    \ helper tries to mkdir a parent that collides with the existing CHECKSUMS file.\
+    \ The implementer must fix the path handling (or ensure CHECKSUMS exists and the\
+    \ test passes) and provide evidence of a passing verification run."
+  sig: 56c930c18f3ecc67d227856c66f14131dffe2ff467ed00d26c3945f38be7d4ff
+T005:
+  c: true
+  h: ed9846a7e24e79dd7d5041645dad8a862e67d8f32c6fdbef5aa899e330844fc7
+  r: "Checked `code/utils/config.py`, which defines `set_seed` (setting `random.seed`,\
+    \ `np.random.seed`, and `torch.manual_seed` when available) and calls it on import,\
+    \ fulfilling the seed\u2011pinning requirement verified by the test."
+  sig: 5df60079e8c4bf153456efca6896a3912b6bd88216f4ac212826fbb466875026
+T007:
+  c: true
+  h: 200b02ea7286307b878533ce78ad5fdfd5610e7078663657cb8de4380bd3f309
+  r: "The verification test `tests/unit/test_model_classes.py` was executed by the\
+    \ platform (exit 0, 6 passed) and imports each required class (Abstract, PatternCard,\
+    \ Proposal, Rating), validating schema conformance via jsonschema plus group/rating\
+    \ constraints \u2014 exactly the task's stated verification. The one file shown\
+    \ in full (`code/models/abstract.py`) is a real, non-stub data model with serialization,\
+    \ hashing, and round-trip logic consistent with the spec's required metadata fields\
+    \ (title, abstract_text, venue, acceptance_status)."
+  sig: bfff87d376a50e4910857b3707f55b21f31df7af656675de0f840296160b6f7b
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,39 +62,6 @@ T012:
     URLs are now validated with loud failures for unreachable or paywalled links,
     nor any evidence that synthetic data generation was removed. The required validation
     implementation is missing.
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation implementing streaming or chunking logic was\
-    \ provided; the only evidence is the task description itself, which does not demonstrate\
-    \ that the dataset processing now uses a memory\u2011efficient streaming approach.\
-    \ The required artifact is missing."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission contains only the high\u2011level feature specification and user\
-    \ stories; there is no code, configuration, or log file demonstrating that logging\
-    \ was added for data acquisition failures or preprocessing rejections. Without\
-    \ concrete artifacts (e.g., updated scripts with logging statements, sample log\
-    \ output, or documentation of the logging behavior), the requirement is not satisfied.\
-    \ The next implementer should provide the modified acquisition/pre\u2011processing\
-    \ code with appropriate log calls and example log entries showing failures being\
-    \ recorded."
-T017:
-  c: false
-  h: 80edba5d2b8c9e7e8b566a1f6b61bbfd6c3514139e209c84788c9908ec306e3d
-  r: The required artifact `tests/unit/test_data_parsing.py` does not exist in the
-    repository, so the contract test for data download validation is missing. The
-    task cannot be considered complete until this test file is added with appropriate
-    test code.
-T019:
-  c: false
-  h: 728f966b00026a4ae40f09a7f48aeca8197747de02e463c3343e1f7f59f59593
-  r: The provided `tests/unit/test_preprocessing_validation.py` is truncated (the
-    last test function is incomplete) and does not reference the required `data/raw/corpus_raw.jsonl`
-    fixture nor assert that the `preprocessing_pipeline` raises a `ValueError` or
-    filters out empty entries as specified. The fixture file itself is missing. The
-    task therefore remains unfinished.
 T024b:
   c: false
   h: 104bd9cad40f37d96e47ddee96b74d247176607f3ce7ea1767701e90424390e2
@@ -46,31 +70,6 @@ T024b:
     \ shown portion of `code/05_statistical_analysis.py` does not contain any implementation\
     \ that reads `n` from the generated proposals and writes the power\u2011analysis\
     \ configuration as specified. These essential artifacts and functionality are\
-    \ missing."
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, scripts, logs, or performance measurements were provided to demonstrate\
-    \ that batch processing was added to T021/T022, that memory usage stays \u2264\
-    \u202F7\u202FGB, or that the full generation of 100 proposals completes within\
-    \ 4\u202Fhours. The claim lacks any concrete artifact (e.g., updated pipeline\
-    \ files, benchmark results, or CI logs) required to verify the requirement."
-T030:
-  c: false
-  h: f5e241d1cb2b65bde90b99e93725ccfb22d0d4c4c8b0f7e555874a1665c6ee7b
-  r: "The required `data/results/ratings_filled.csv` file is absent, so the loader\
-    \ cannot read any expert ratings. Moreover, the provided `code/04_evaluation_loader.py`\
-    \ is truncated (ends mid\u2011function) and does not contain a complete implementation\
-    \ for loading, validating, or blinding the ratings as specified. Both the essential\
-    \ data artifact and a functional loader are missing."
-T030a:
-  c: false
-  h: 31a8cbcefb31d9a380cf98752cbd4ee2963d845368aae8af963c93c703a9a051
-  r: "The repository contains a partially\u2011written `code/04_evaluation_recruitment.py`\
-    \ that is truncated and does not include logic to write `ratings_template.csv`\
-    \ or fully implement the metadata\u2011stripping routine. Moreover, the required\
-    \ output files `data/results/ratings_template.csv` and `data/results/generated_proposals.jsonl`\
-    \ are absent from the project. The task\u2019s core deliverables are therefore\
     \ missing."
 T036:
   c: false
@@ -87,43 +86,3 @@ T037:
     \ or parser logic that checks for the phrase \u201Cassociational, not causal\u201D\
     . Both the artifact and the verification code are missing, so the task is not\
     \ satisfied."
-T044:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided no code, diff, or documentation showing any cleanup\
-    \ or refactoring for memory efficiency, and the only material present relates\
-    \ to a different feature (ideation pattern dataset acquisition). Consequently,\
-    \ the required artifact\u2014a refactored, memory\u2011efficient codebase (or\
-    \ evidence thereof) \u2013 is missing."
-T046:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided only a feature specification and user stories; there
-    is no `quickstart.md` file, validation output, or integration test suite results
-    present. Consequently, the required validation and test execution artifacts are
-    missing.
-T047:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied only a specification for a research\u2011ideation feature\
-    \ (corpus acquisition, pattern mapping, etc.) and no code, logs, or output files\
-    \ related to \u201CT047 Security hardening: Ensure no PII in logs or output files.\u201D\
-    \ Consequently, there is no artifact demonstrating that logs or output files have\
-    \ been checked for or stripped of personally identifiable information, nor any\
-    \ evidence that the security hardening requirement was addressed. The required\
-    \ security\u2011hardening work is missing."
-T048:
-  c: false
-  h: 310e6701513cb8f96b103d21552522af1697ea91a4b9b7107930b1cc8d7cf493
-  r: The required `state/manifest.yaml` file is missing entirely, so no checksum information
-    is present to satisfy the update task. The implementer must create the file and
-    populate it with the final artifact checksums.
-T065:
-  c: false
-  h: d382a16bf0ae4bdbaf7bc81bf71d4f0345f442a40334d1b869350b8bbb7bb4c5
-  r: "The provided `code/04_evaluation_loader.py` only contains utilities for loading\
-    \ proposals, blinding them, and generating a CSV template; it lacks any integration\
-    \ with the Prolific (or equivalent) API, no logic to recruit experts, and does\
-    \ not store real response data. Moreover, the required output file `data/results/ratings_raw.csv`\
-    \ is missing. The task\u2019s core requirement\u2014implementing an external expert\
-    \ recruitment pipeline and persisting raw ratings\u2014is not satisfied."

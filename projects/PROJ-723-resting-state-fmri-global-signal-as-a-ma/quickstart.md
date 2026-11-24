@@ -1,80 +1,44 @@
-# Quickstart Guide: Resting-State fMRI Global Signal Analysis
+# Quickstart Guide: Resting‑State fMRI Global Signal Analysis
 
 ## Prerequisites
 
-- Python 3.9+
-- pip (Python package manager)
-- HCP credentials (set `HCP_USER` and `HCP_PASS` environment variables)
+- Python 3.11+
+- `pip`
 
 ## Installation
 
-1. Install dependencies:
-
- ```bash
- pip install -r requirements.txt
- ```
-
-2. Set HCP credentials (required for data download):
-
- ```bash
- export HCP_USER="your_username"
- export HCP_PASS="your_password"
- ```
+```bash
+cd projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma
+python -m venv venv
+source venv/bin/activate # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
 
 ## Running the Pipeline
-
-Execute the full analysis pipeline:
 
 ```bash
 python code/main.py
 ```
 
-This will:
-1. Download and validate HCP resting-state fMRI data
-2. Compute global signal metrics
-3. Run ridge regression models
-4. Perform robustness checks
-5. Generate visualizations and reports
+This single command runs the full analysis pipeline:
 
-## Output Artifacts
+1. **Data Ingestion** – downloads (or uses existing) HCP data, computes the global‑signal standard deviation, applies exclusions, and writes the cleaned dataset.
+2. **Modeling** – fits the ridge‑regression model, performs permutation testing, and writes model results.
+3. **Diagnostics** – collinearity checks.
+4. **Robustness** – sensitivity analyses.
+5. **Reporting & Visualisation** – generates the final report and figures.
 
-After successful execution, you will find:
+## Expected Top‑Level Outputs
 
-- `data/processed/cleaned_data.csv` - Cleaned dataset with all metrics
-- `data/results/full_model.json` - Primary model results
-- `data/results/null_distribution.json` - Null distribution data
-- `data/results/diagnostics.json` - Collinearity diagnostics
-- `data/results/robustness_report.json` - Robustness analysis results
-- `data/results/final_report.json` - Aggregated final report
-- `data/results/*.png` - Visualization plots
+After successful execution, the following files will be present:
 
-## Individual Scripts
+- `data/processed/cleaned_data.csv` – the cleaned subject‑level dataset containing all required predictors and the MWQ score.
+- `data/results/final_report.json` – the aggregated report with model performance, null‑distribution p‑values, robustness metrics, and success‑criterion status. [UNRESOLVED-CLAIM: c_87ff18e7 — status=not_enough_info]
 
-You can also run individual pipeline steps:
-
-```bash
-# Data ingestion only
-python code/run_ingestion_pipeline.py
-
-# Modeling only (requires cleaned_data.csv)
-python code/modeling.py --data data/processed/cleaned_data.csv
-
-# Diagnostics only
-python code/run_diagnostics.py
-
-# Robustness analysis only
-python code/run_robustness_report.py
-
-# Visualizations only
-python code/run_visualizations.py
-
-# Final report generation
-python code/run_final_report.py
-```
+Additional artefacts (diagnostics, null‑distribution JSON/PNG, robustness JSON/PNG, etc.) are also generated inside `data/results/` and `figures/`.
 
 ## Troubleshooting
 
-- **Missing pandas/numpy**: Ensure you installed dependencies with `pip install -r requirements.txt`
-- **HCP credentials error**: Set `HCP_USER` and `HCP_PASS` environment variables
-- **Data download fails**: Check internet connection and HCP dataset availability
-- **Memory issues**: The pipeline streams data to avoid memory overflow; ensure sufficient disk space in `data/raw/`
+- **Missing raw data** – If the HCP data has not been downloaded, the ingestion step will raise a clear error pointing you to the download script. [UNRESOLVED-CLAIM: c_8084e318 — status=not_enough_info]
+- **Permission errors** – Ensure the `data/` directories are writable; the pipeline will create any missing folders automatically. [UNRESOLVED-CLAIM: c_6cfa4cb6 — status=not_enough_info]
+- **Unexpected failures** – All steps log detailed messages to `data/logs/pipeline.log`. [UNRESOLVED-CLAIM: c_a974dcad — status=not_enough_info] Check this file for diagnostics.

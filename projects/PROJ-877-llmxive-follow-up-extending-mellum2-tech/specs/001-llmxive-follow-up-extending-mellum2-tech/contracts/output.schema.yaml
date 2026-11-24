@@ -16,17 +16,21 @@ properties:
           type: string
       primary_correlation:
         type: number
-        description: "Pearson correlation between complexity and loss."
+        description: "Pearson correlation between complexity and loss (overall)."
       threshold_detected:
         type: boolean
       threshold_value:
         type: number
+        nullable: true
       cross_language_consistent:
         type: boolean
     required:
       - total_chunks_processed
       - total_chunks_success
+      - languages_analyzed
       - primary_correlation
+      - threshold_detected
+      - cross_language_consistent
   validation:
     type: object
     properties:
@@ -38,7 +42,8 @@ properties:
       validation_skipped_reason:
         type: string
         nullable: true
-      description: "Details on FR-011 validation status."
+    required:
+      - benchmark_used
   constraints:
     type: object
     properties:
@@ -51,7 +56,10 @@ properties:
         type: number
     required:
       - cpu_only
+      - execution_time_hours
+      - memory_peak_gb
 required:
   - summary
   - validation
   - constraints
+additionalProperties: false

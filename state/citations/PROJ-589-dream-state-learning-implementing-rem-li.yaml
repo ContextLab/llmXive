@@ -1,5 +1,5 @@
-- artifact_hash: a3a9e0928f83dd21f82f7bbc08a51d703444567c8b07326d1d90658c174346ed
-  artifact_path: projects/PROJ-589-dream-state-learning-implementing-rem-li/specs/001-dream-state-learning-implementing-rem-li/data-model.md
+- artifact_hash: e36cc7f6479216b039e8450ed4476d322a6ca672c0c47c7dc1ae95d0e4db5358
+  artifact_path: projects/PROJ-589-dream-state-learning-implementing-rem-li/specs/001-dream-state-learning-implementing-rem-li/plan.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
@@ -8,4 +8,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-10-05T01:03:54.480648Z'
+  verified_at: '2026-10-20T02:48:15.123231Z'

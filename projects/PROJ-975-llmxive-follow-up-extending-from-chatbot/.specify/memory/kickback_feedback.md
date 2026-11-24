@@ -1,10 +1,13 @@
-# Unresolved panel concerns (address in this revision)
+# Re-plan: task(s) could not be made to pass verification — adjust the approach
 
-The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
 
-**Why it was kicked back**: 2 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
+## Repeatedly-unverifiable tasks
 
-## Unresolved concerns
+- `T002` (rejected 1x): The generated `tasks.json` fails schema validation – the required `ground_truth_skills` field is missing (or empty) for tasks, causing `test_schema_compliance` to error. The task records therefore do not conform to `task.schema.yaml`. To complete the task, each task must include a non‑empty `ground_truth_skills` array (3‑5 skill IDs) that satisfies the schema, and the schema files must be present in the `contracts/` directory.
+- `T004` (rejected 1x): The pytest run (`code/.tasks/T004.tests_contract_test_schemas.py.log`) exits with failures: `test_real_tasks_schema_compliance` (and also `test_real_skills_schema_compliance`) report “Additional properties are not allowed” (e.g., `edge_case`, `embedding_vector` in tasks). The `fix_tasks_schema.py` script runs without error but does not remove these extra fields, so the JSON files still violate the schemas. Consequently the test suite does not exit successfully, violating the task requirement.
 
-- Task T001 lists 'Create subdirectories: data/raw, data/results, code, tests/unit, tests/contract, contracts' but the phrasing 'contracts (root level)' is ambiguous regarding the relative path. It should explicitly state 'Create directory: contracts/ at repository root' to ensure the file paths in T009a-c match the directory structure.
-- Task T035 performs a sensitivity analysis sweeping pruning thresholds and recalculating the tipping point for each sweep. However, it fails to define how the final 'tipping point' (SC-004) is selected or reported if these multiple recalculations yield different values. This creates a silent ambiguity in the success criterion: the Spec requires a single 'tipping point' threshold measured against the PLR breakpoint, but the task produces multiple candidates without a selection rule, violating the measurability of SC-004.
+## Required change
+
+Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
+

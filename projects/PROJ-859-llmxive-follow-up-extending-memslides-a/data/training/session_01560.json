@@ -1,0 +1,112 @@
+{
+  "trace_id": "training_42_01560",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 10,
+  "tool_sequence": [
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "insert_chart",
+    "insert_chart",
+    "resize_element",
+    "apply_theme",
+    "update_layout",
+    "update_layout",
+    "delete_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 83.5299
+      }
+    },
+    {
+      "step": 1,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 46.1255
+      }
+    },
+    {
+      "step": 2,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 30.5209
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 52.1122,
+        "y": 85.5841,
+        "width": 55.0408,
+        "height": 64.9862,
+        "data_points": 84.7565
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 55.6126,
+        "y": 47.4452,
+        "width": 27.1141,
+        "height": 21.0883,
+        "data_points": 78.5725
+      }
+    },
+    {
+      "step": 5,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 41.4853,
+        "height": 44.8456
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 59.2553,
+        "saturation": 95.0826
+      }
+    },
+    {
+      "step": 7,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 5.6745,
+        "padding": 18.7831
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 42.6102,
+        "padding": 2.1193
+      }
+    },
+    {
+      "step": 9,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 73.9136
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.470808,
+    "tool_repetition_freq": 0.5,
+    "arg_semantic_variance": 660.222624
+  },
+  "final_state": {
+    "dominant_tool": "delete_element",
+    "slide_element_count": 10,
+    "layout_hash": "42-1560-delete_element"
+  }
+}

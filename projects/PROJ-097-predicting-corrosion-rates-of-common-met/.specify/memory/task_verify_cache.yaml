@@ -1,0 +1,29 @@
+T000:
+  c: false
+  h: 7b481b43895a1ad5df61d14fcf918bd3ced650dbf15120173d32b906005f35c6
+  r: "Checked `reports/citation_validation.json` (empty `[]`) and the failing test\
+    \ `tests/test_citation_validation.py` which asserts the report is non\u2011empty\
+    \ and contains only `\"status\": \"verified\"` entries. The citation\u2011validation\
+    \ report is empty, so the required JSON with verified entries was not produced."
+  sig: 8351fc1e267d41312357c4d88796708b572ba0b344189057b853add457c5b898
+T001:
+  c: false
+  h: 1c716bb057938ef6cfa2771f99cf12854b77a25cff487887ecca58cbb84bfd2c
+  r: The script writes the raw file to `data/raw/zenodo_corrosion.csv` (and the expected
+    `data/raw/corrosion_dataset.csv` is missing), uses a completely different public
+    dataset (Penguins) instead of the deterministic corrosion dataset URL, and the
+    generated `metadata/dataset.yaml` lacks the required DOI field. Consequently the
+    required outputs and provenance information do not match the task specification.
+  sig: e60437134579e02c5a3ac407ec7781bd4175aba6edf460b93af13582688c0317
+T002:
+  c: false
+  h: dd1799c749fcc0d539587d757e21b1e18fc7316f4b68ae3140d96de847834077
+  r: "Checked `src/pipeline/clean.py`, `data/processed/cleaned_dataset.csv`, the JSON\
+    \ schema, and the missing `src/tests/test_clean.py`. The cleaning script never\
+    \ converts corrosion\u2011rate units (it only casts to numeric), the output CSV\
+    \ contains extra columns and uses lower\u2011case `ph` instead of the required\
+    \ `pH`, violating the `additionalProperties: false` schema. Moreover, the required\
+    \ pytest file is absent, so the verification step cannot pass. The task\u2019\
+    s unit\u2011conversion, schema conformity, and test\u2011suite requirements are\
+    \ not met."
+  sig: e974b6c9a0bae9ac4b60dfde670a200bfb6d566ad81c706db938ced757f7104a

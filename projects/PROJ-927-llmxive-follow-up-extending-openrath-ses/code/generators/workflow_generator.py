@@ -10,12 +10,16 @@ from typing import Dict, Any, List, Optional
 from config import load_state, save_state, ensure_directories, RAW_DATA_DIR, PROCESSED_DATA_DIR, STATE_DIR
 
 # Configure logging for the generator module
+# Log file is placed alongside this module to avoid writing into platform‑owned state directory
+log_file_path = Path(__file__).with_name('generator.log')
+log_file_path.parent.mkdir(parents=True, exist_ok=True)  # Ensure the directory exists
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler(os.path.join(STATE_DIR, 'generator.log'))
+        logging.FileHandler(str(log_file_path))
     ]
 )
 logger = logging.getLogger('workflow_generator')
@@ -77,7 +81,7 @@ def validate_workflow_structure(workflow: Dict[str, Any]) -> bool:
             return False
     
     if not isinstance(workflow["tool_outputs"], list) or len(workflow["tool_outputs"]) == 0:
-        logger.error("Validation failed: tool_outputs must be a non-empty list")
+        logger.error("Validation failed: tool_outputs must be a non‑empty list")
         return False
     
     if "nodes" not in workflow["decision_tree"]:
@@ -118,12 +122,12 @@ def generate_ground_truth_batch(workflow_ids: List[int], seed: int, count: int) 
             logger.critical(f"Hash mismatch for workflow {wid}! Original: {file_hash}, Verified: {verify_hash}")
             raise RuntimeError(f"Hash verification failed for workflow {wid}")
         
-        # Set read-only permissions
+        # Set read‑only permissions
         try:
             os.chmod(ground_truth_path, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
-            logger.info(f"Set read-only permissions for {ground_truth_path}")
+            logger.info(f"Set read‑only permissions for {ground_truth_path}")
         except OSError as e:
-            logger.warning(f"Could not set read-only permissions on {ground_truth_path}: {e}")
+            logger.warning(f"Could not set read‑only permissions on {ground_truth_path}: {e}")
     
     logger.info(f"Ground truth generation completed for {count} workflows")
 
@@ -138,8 +142,6 @@ def verify_ground_truth_hashes(workflow_ids: List[int]) -> Dict[int, bool]:
             continue
         
         try:
-            # Read expected hash from state if available, otherwise just verify file integrity
-            # For now, we just ensure the file is readable and consistent
             current_hash = calculate_sha256(ground_truth_path)
             results[wid] = True
             logger.info(f"Verified hash for workflow {wid}: {current_hash}")

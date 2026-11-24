@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Acquisition and Pairing (Priority: P1)
 
-As a researcher, I need to extract paired data (commit messages and corresponding documentation diffs) from 5 popular open-source repositories so that I have a ground-truth dataset to evaluate LLM performance against.
+As a researcher, I need to extract paired data (commit messages and corresponding documentation diffs) from several popular open-source repositories so that I have a ground-truth dataset to evaluate LLM performance against.
 
 **Why this priority**: This is the foundational data layer. Without a valid, paired dataset of human-written documentation changes linked to specific commits, no model evaluation can occur. It is the prerequisite for all subsequent analysis.
 
@@ -19,17 +19,17 @@ As a researcher, I need to extract paired data (commit messages and correspondin
 
 1. **Given** a list of 5 target repositories (e.g., `pandas`, `requests`, `scikit-learn`, `flask`, `django`), **When** the extraction script runs, **Then** it outputs a CSV with ≥500 valid (commit_message, doc_diff) pairs filtered for commits that explicitly modified `.md` or `.rst` files.
 2. **Given** a commit that modified both code and documentation, **When** the script processes it, **Then** the associated documentation diff is isolated and paired with the commit message, excluding unrelated code changes from the diff content.
-3. **Given** a commit with no associated documentation change in the last 2 years, **When** the script processes it, **Then** that commit is excluded from the final dataset to ensure every entry has a ground-truth human reference.
+3. **Given** a commit with no associated documentation change in the past few years, **When** the script processes it, **Then** that commit is excluded from the final dataset to ensure every entry has a ground-truth human reference.
 
 ---
 
 ### User Story 2 - LLM Inference and Generation (Priority: P2)
 
-As a researcher, I need to generate documentation updates for the extracted commit messages using 3 distinct open-source LLM architectures so that I can compare their ability to capture technical intent versus surface-level details.
+As a researcher, I need to generate documentation updates for the extracted commit messages using multiple distinct open-source LLM architectures so that I can compare their ability to capture technical intent versus surface-level details.
 
 **Why this priority**: This implements the core experimental variable (model architecture). It produces the machine-generated outputs required for the fidelity scoring phase.
 
-**Independent Test**: Can be fully tested by running the generation pipeline on a subset of 10 commits and verifying that each model produces a text output that is distinct from the input commit message and formatted as a documentation update.
+**Independent Test**: Can be fully tested by running the generation pipeline on a representative subset of commits and verifying that each model produces a text output that is distinct from the input commit message and formatted as a documentation update.
 
 **Acceptance Scenarios**:
 
@@ -49,8 +49,8 @@ As a researcher, I need to calculate precision and recall scores for "technical 
 
 **Acceptance Scenarios**:
 
-1. **Given** the human documentation diff and the LLM-generated output, **When** the entity extraction parser runs, **Then** it outputs a structured JSON list of entities with text and type (intent or surface), and generates an audit log for manual verification of a 50-sample subset.
-2. **Given** the entity counts for all 500 samples across 3 models, **When** the statistical analysis runs, **Then** it calculates precision and recall for each category and performs a Friedman test to test for significant differences between models, with bootstrapping if normality is violated.
+1. **Given** the human documentation diff and the LLM-generated output, **When** the entity extraction parser runs, **Then** it outputs a structured JSON list of entities with text and type (intent or surface), and generates an audit log for manual verification of a representative sample subset..
+2. **Given** the entity counts for all samples across 3 models, **When** the statistical analysis runs, **Then** it calculates precision and recall for each category and performs a Friedman test to test for significant differences between models, with bootstrapping if normality is violated.
 3. **Given** the statistical results, **When** the visualization step runs, **Then** it generates a bar chart comparing the intent-to-surface preservation ratio for each model and a confusion matrix of information loss types.
 
 ### Edge Cases
@@ -67,7 +67,7 @@ As a researcher, I need to calculate precision and recall scores for "technical 
 
 ### Functional Requirements
 
-- **FR-001**: System MUST extract at least 500 valid (commit_message, documentation_diff) pairs from 5 specified open-source repositories within a 2-year time window, ensuring each pair has a ground-truth human reference (See US-1).
+- **FR-001**: System MUST extract at least 500 valid (commit_message, documentation_diff) pairs from 5 specified open-source repositories within a defined multi‑year time window, ensuring each pair has a ground-truth human reference (See US-1).
 - **FR-002**: System MUST generate documentation updates for the extracted commit messages using exactly 3 distinct open-source LLM architectures: `Phi-3-mini` (Microsoft), `Gemma-2-2b` (Google), and `Llama-3.2-3B` (Meta), all capable of running on CPU-only hardware (See US-2).
 - **FR-003**: System MUST parse both human documentation diffs and LLM-generated outputs to extract and categorize entities using a deterministic taxonomy:
   - **Surface Entities**: Must match regex patterns for file paths (`[a-zA-Z0-9_./-]+\.(py|md|rst)`), function signatures (`def [a-zA-Z_][a-zA-Z0-9_]*\(`), and version numbers (`\d+\.\d+\.\d+`).
@@ -76,7 +76,7 @@ As a researcher, I need to calculate precision and recall scores for "technical 
 - **FR-005**: System MUST perform a non-parametric Friedman test to statistically compare the fidelity scores across the three model architectures, reporting p-values for differences in intent preservation; if data is normally distributed, a repeated-measures ANOVA MAY be used as a sensitivity check (See US-3).
 - **FR-006**: System MUST verify the existence of any "technical term" generated by the LLM against the target repository's codebase (via GitHub API or local clone) to distinguish hallucinated entities (non-existent terms) from valid but unseen terms (See US-3).
 - **FR-007**: System MUST exclude any sample from the statistical analysis if the ground-truth human documentation diff is missing for that specific commit, ensuring the "repeated-measures" design only applies to complete data points (See US-3).
-- **FR-008**: System MUST create a human-annotated gold standard dataset of 50 samples to validate the accuracy of the "Technical Intent" classification method, requiring an inter-annotator agreement (Cohen's Kappa) of ≥0.6 (See US-3).
+- **FR-008**: System MUST create a human-annotated gold standard dataset of a sufficient number of samples to validate the accuracy of the "Technical Intent" classification method, requiring an inter-annotator agreement (Cohen's Kappa) of ≥0.6 (See US-3).
 
 ### Key Entities
 
@@ -100,6 +100,6 @@ As a researcher, I need to calculate precision and recall scores for "technical 
 - **Assumption about data availability**: The 5 selected repositories (`pandas`, `requests`, `scikit-learn`, `flask`, `django`) contain sufficient documentation changes in the last 2 years to yield a minimum of 500 valid pairs; if not, the project fails the data acquisition gate.
 - **Assumption about compute constraints**: The selected 3 LLMs (Phi-3-mini, Gemma-2-2b, Llama-3.2-3B) can be loaded and run in 4-bit quantization on a GitHub Actions free-tier runner (2 CPU, ~7GB RAM) without requiring GPU acceleration, as these models are optimized for edge/CPU inference.
 - **Assumption about entity extraction**: A hybrid approach (rule-based for surface, classifier for intent) combined with a human-annotated gold standard (n=50) can reliably distinguish between "technical intent" and "surface" entities; the classifier's performance is validated against this gold standard.
-- **Assumption about statistical validity**: The sample size of 500 pairs is sufficient to perform a Friedman test with adequate power to detect medium effect sizes between models; if power is low, the results will be framed as exploratory associations rather than definitive causal claims.
+- **Assumption about statistical validity**: The A sufficiently large sample of paired observations is sufficient to perform a Friedman test with adequate power. to detect medium effect sizes between models; if power is low, the results will be framed as exploratory associations rather than definitive causal claims.
 - **Assumption about model behavior**: The LLMs will not systematically hallucinate technical terms that perfectly mimic valid entities (e.g., inventing a function name that doesn't exist but looks real); such hallucinations will be detectable as False Positives during the entity matching phase via codebase verification.
 - **Assumption about dataset-variable fit**: The commit messages in the selected repositories contain sufficient semantic information to distinguish "technical intent" from "surface changes"; if commit messages are purely "fix bug" without context, the "intent" category will be sparse, and the analysis will focus on the "surface" preservation metric.

@@ -1,50 +1,60 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Regression Results"
+title: "Regression Results Schema"
 description: "Schema for statistical analysis of FTLE deviation."
-type: "object"
-properties:
-  selected_model:
-    type: "string"
-    description: "The model selected (e.g., 'power_law', 'logarithmic')."
-  noise_level:
-    type: "number"
-    description: "Noise level for this regression group."
-  mean_deviation:
-    type: "number"
-    description: "Mean Delta lambda across trials."
-  std_deviation:
-    type: "number"
-    description: "Standard error of the mean."
-  regression_coefficients:
-    type: "object"
-    properties:
-      alpha:
-        type: "number"
-        description: "Intercept."
-      beta:
-        type: "number"
-        description: "Coefficient for noise amplitude (bias term)."
-      gamma:
-        type: "number"
-        description: "Coefficient for window size inverse."
-    required:
-      - alpha
-      - beta
-      - gamma
-  p_value:
-    type: "number"
-    description: "P-value for the bias term beta (one-sample t-test)."
-  effect_size:
-    type: "number"
-    description: "Effect size (e.g., Cohen's d) for the bias term."
-  trial_count:
-    type: "integer"
-    description: "Number of independent trials used (k)."
+type: object
 required:
   - selected_model
-  - noise_level
+  - noise_levels
   - mean_deviation
   - regression_coefficients
-  - p_value
+  - p_values
   - effect_size
+  - fdr_q_values
+  - newey_west_used
   - trial_count
+  - escape_probability
+properties:
+  selected_model:
+    type: string
+    description: "Regression model chosen (e.g., 'MixedEffects')."
+  noise_levels:
+    type: array
+    items:
+      type: number
+    description: "List of noise levels explored."
+  mean_deviation:
+    type: number
+    description: "Mean Δλ across all valid observations."
+  regression_coefficients:
+    type: object
+    description: "Fitted fixed‑effect coefficients."
+    additionalProperties:
+      type: number
+  p_values:
+    type: object
+    description: "Raw p‑values for each fixed‑effect coefficient."
+    additionalProperties:
+      type: number
+  fdr_q_values:
+    type: object
+    description: "Benjamini‑Hochberg FDR‑adjusted q‑values."
+    additionalProperties:
+      type: number
+  effect_size:
+    type: number
+    description: "Cohen's d for the primary noise coefficient."
+  newey_west_used:
+    type: boolean
+    description: "True if Newey‑West HAC covariance was applied."
+  trial_count:
+    type: integer
+    description: "Total number of trajectory trials processed."
+  escape_probability:
+    type: object
+    description: "Mapping σ_noise → escape probability (fraction of unphysical trials)."
+    additionalProperties:
+      type: number
+  baseline_variance_used:
+    type: boolean
+    description: "Indicates whether baseline variance was incorporated into the regression."
+additionalProperties: false

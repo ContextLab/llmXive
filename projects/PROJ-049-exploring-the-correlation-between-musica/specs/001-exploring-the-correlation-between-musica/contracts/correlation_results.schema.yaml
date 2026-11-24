@@ -1,12 +1,12 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Spearman Correlation Results Schema"
+title: "Pearson Correlation Results Schema"
 type: array
 items:
   type: object
   required:
     - trait
     - genre
-    - spearman_rho
+    - pearson_r
     - p_value
     - adjusted_p_value
     - is_significant
@@ -35,7 +35,7 @@ items:
         - "Country"
         - "Metal"
         - "Other"
-    spearman_rho:
+    pearson_r:
       type: number
       minimum: -1
       maximum: 1

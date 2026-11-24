@@ -1,12 +1,15 @@
 status: none
-intent: download DragMesh-2 dataset from Hugging Face python package dataset
+intent: DragMesh-2 base geometry dataset python package download for tactile friction
+  simulation
 required_fields:
-- object_id
-- mesh_filepath
-- joint_names
-- joint_limits
-- trajectory_time_series
-- initial_friction_range
-cache_key: 3253c05d22228e77ac7898197f8d5887c67317ac4323ddcc9aa0d689a97c242a
-searched_at: '2026-09-02T11:42:09.903191+00:00'
+- mesh_id
+- mesh_file_path
+- vertices
+- faces
+- articulation_joint_definitions
+- default_friction_range
+- object_category
+- scale
+cache_key: 686bd87ee79f1923927d29afd43247d121ac49e71e9a537ad5f73c2ef4fb2f1f
+searched_at: '2026-11-07T23:09:37.764238+00:00'
 retry_count: 1

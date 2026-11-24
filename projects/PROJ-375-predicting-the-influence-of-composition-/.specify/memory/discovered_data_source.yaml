@@ -1,14 +1,14 @@
 status: none
-intent: Materials Project AFLOWlib metallic glass composition thermal expansion coefficient
-  dataset python package dataset
+intent: metallic glass composition thermal expansion dataset NIST Glass Database Materials
+  Project AFLOWlib python package dataset
 required_fields:
 - composition
 - CTE
 - weighted_mean_atomic_radius
 - electronegativity_variance
 - valence_electron_concentration
-- atomic_size_mismatch
+- atomic_size_coefficient_of_variation
 - amorphous_state_flag
-cache_key: 1164798a0a6e51403f439752c551e233f6bf71b8ce69bede33b75f5126f4648e
-searched_at: '2026-09-10T09:37:42.849550+00:00'
+cache_key: 11835da590010d40c9ba3ba03274e75daec26da8efa0c89ef010901d36f2b06d
+searched_at: '2026-10-26T00:30:01.800783+00:00'
 retry_count: 1

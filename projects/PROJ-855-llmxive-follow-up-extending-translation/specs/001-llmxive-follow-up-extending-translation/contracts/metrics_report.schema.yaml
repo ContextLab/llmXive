@@ -12,7 +12,7 @@ properties:
     type: number
     minimum: 0
     maximum: 1
-  improvement:
+  accuracy_improvement:
     type: number
   mcnemar_p_value:
     type: number
@@ -34,18 +34,20 @@ properties:
       - true_negative
       - false_positive
       - false_negative
-  sensitivity_analysis:
-    type: object
-    properties:
-      variance:
-        type: number
+  sensitivity_variance:
+    type: number
   associational_framing:
     type: boolean
+  # Optional fields for full reporting (plan_consistency-a9a903c5)
+  runtime_seconds:
+    type: number
+  peak_ram_gb:
+    type: number
 required:
   - model_accuracy
   - baseline_accuracy
   - control_accuracy
-  - improvement
+  - accuracy_improvement
   - mcnemar_p_value
   - confusion_matrix
-  - associational_framing
+description: "Schema for the final metrics report. Single source of truth for results."

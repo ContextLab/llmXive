@@ -15,71 +15,70 @@ The gate detected that your reported numbers are NOT real measurements: they are
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
 - run-book command: `python -m pytest tests/integration/test_full_pipeline.py --sample-size 100`
-  - argparse error: `python -m pytest: error: unrecognized arguments: --sample-size 100`
+  - argparse error: `__main__.py: error: unrecognized arguments: --sample-size 100`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/error_handlers.py: synthetic/fake INPUT data not authorized by the spec — “…nting silent failures or synthetic data generation. When a     M…”; 7 command(s) failed: python code/ingestion/load_cod.py --output data/raw/cod_organic_subset.parquet (rc=1); python code/ingestion/parse_cif.py --input data/raw/cod_organic_subset.parquet --output data/processed/crystal_molecules.parquet (rc=1); python code/modeling/split.py --input data/processed/crystal_molecules.parquet --output_dir data/splits (rc=1); 14 declared deliverable(s) absent: data/processed/crystal_dataset.csv; data/processed/grouped_dataset.csv; data/processed/split_indices.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/error_handlers.py: synthetic/fake INPUT data not authorized by the spec — “…nting silent failures or synthetic data generation. When a     M…”; 7 command(s) failed: python code/ingestion/load_cod.py --output data/raw/cod_organic_subset.parquet (rc=1); python code/ingestion/parse_cif.py --input data/raw/cod_organic_subset.parquet --output data/processed/crystal_molecules.parquet (rc=1); python code/modeling/split.py --input data/processed/crystal_molecules.parquet --output_dir data/splits (rc=1); 15 declared deliverable(s) absent: data/processed/crystal_dataset.csv; data/processed/grouped_dataset.csv; data/processed/split_indices.json
 
 ## Failing / missing run-book commands
 
 - python code/ingestion/load_cod.py --output data/raw/cod_organic_subset.parquet -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/ingestion/load_cod.py", line 18, in <module>
-    from config import get_path_raw_data, ensure_directory
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/config.py", line 157, in <module>
-    def create_parser() -> argparse.ArgumentParser:
-                           ^^^^^^^^
-NameError: name 'argparse' is not defined
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/ingestion/load_cod.py", line 17, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-030-predicting-crystal-structures-from-molec/lib/python3.11/site-packages/datasets/__init__.py", line 18, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-030-predicting-crystal-structures-from-molec/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-030-predicting-crystal-structures-from-molec/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/ingestion/parse_cif.py --input data/raw/cod_organic_subset.parquet --output data/processed/crystal_molecules.parquet -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/ingestion/parse_cif.py", line 16, in <module>
-    from config import get_path_raw_data, get_path_processed_data, ensure_directory
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/config.py", line 157, in <module>
-    def create_parser() -> argparse.ArgumentParser:
-                           ^^^^^^^^
-NameError: name 'argparse' is not defined
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/ingestion/parse_cif.py", line 20, in <module>
+    setup_logging(level=logging.INFO)
+TypeError: setup_logging() got an unexpected keyword argument 'level'
 
 - python code/modeling/split.py --input data/processed/crystal_molecules.parquet --output_dir data/splits -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/modeling/split.py", line 16, in <module>
-    from config import get_path_processed_data, ensure_directory
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/config.py", line 157, in <module>
-    def create_parser() -> argparse.ArgumentParser:
-                           ^^^^^^^^
-NameError: name 'argparse' is not defined
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/modeling/split.py", line 21, in <module>
+    setup_logging(level=logging.INFO)
+TypeError: setup_logging() got an unexpected keyword argument 'level'
 
 - python code/modeling/train.py --train data/splits/train.parquet --test data/splits/test.parquet --output data/results/model_metrics.json -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/modeling/train.py", line 18, in <module>
-    from config import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/config.py", line 157, in <module>
-    def create_parser() -> argparse.ArgumentParser:
-                           ^^^^^^^^
-NameError: name 'argparse' is not defined
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/modeling/train.py", line 23, in <module>
+    from modeling.timeout_handler import enforce_timeout, log_timeout_action, calculate_optimized_trees
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/modeling/__init__.py", line 4, in <module>
+    from .split import group_rare_space_groups, get_murcko_scaffold, scaffold_split, verify_zero_overlap
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/modeling/split.py", line 21, in <module>
+    setup_logging(level=logging.INFO)
+TypeError: setup_logging() got an unexpected keyword argument 'level'
 
 - python code/analysis/interpret.py --model_path data/results/model_metrics.json --data data/splits/train.parquet --output data/results/feature_importance.csv -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/analysis/interpret.py", line 19, in <module>
-    from config import get_path_results, get_path_models, get_path_processed_data, ensure_directory
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/config.py", line 157, in <module>
-    def create_parser() -> argparse.ArgumentParser:
-                           ^^^^^^^^
-NameError: name 'argparse' is not defined
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/analysis/interpret.py", line 273, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/analysis/interpret.py", line 194, in main
+    rf_model_path = get_path_models("rf_model.pkl")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: get_path_models() takes 0 positional arguments but 1 was given
 
 - python -m pytest tests/unit/test_ingestion.py -v -> rc=4
 ============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-9.1.1, pluggy-1.6.0 -- /home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/.venv/bin/python
+platform linux -- Python 3.11.17, pytest-8.2.2, pluggy-1.7.0 -- /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-030-predicting-crystal-structures-from-molec/bin/python
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
-plugins: platformdirs-4.12.4, cov-7.1.0, anyio-4.15.1
+plugins: cov-5.0.0, platformdirs-4.13.5, anyio-4.15.1
 collecting ... collected 0 items
 
 ============================ no tests ran in 0.00s =============================
@@ -89,8 +88,8 @@ ERROR: file or directory not found: tests/unit/test_ingestion.py
 
 - python -m pytest tests/integration/test_full_pipeline.py --sample-size 100 -> rc=4
 
-ERROR: usage: python -m pytest [options] [file_or_dir] [file_or_dir] [...]
-python -m pytest: error: unrecognized arguments: --sample-size 100
+ERROR: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]
+__main__.py: error: unrecognized arguments: --sample-size 100
   inifile: /home/runner/work/llmXive/llmXive/pyproject.toml
   rootdir: /home/runner/work/llmXive/llmXive
 
@@ -111,6 +110,7 @@ python -m pytest: error: unrecognized arguments: --sample-size 100
 - data/results/shap_analysis.json
 - data/validation/fingerprint_check.json
 - data/validation/report_check.json
+- data/validation/source_validation.json
 - data/validation/success_criterion_check.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
@@ -183,6 +183,9 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/validation/report_check.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/validate_report.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/validation/report_check.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/validation/source_validation.json` is declared but was NOT written. Scripts referencing it:
+    - `code/ingestion/validate_source.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/validation/source_validation.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/validation/success_criterion_check.json` is declared but was NOT written. Scripts referencing it:
     - `code/modeling/generate_final_metrics.py` — NOT invoked by the run-book
     - `code/modeling/verify_success_criterion.py` — NOT invoked by the run-book

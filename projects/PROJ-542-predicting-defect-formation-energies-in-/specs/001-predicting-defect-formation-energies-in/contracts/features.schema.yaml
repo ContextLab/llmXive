@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Engineered Feature Matrix"
+type: object
+required:
+  - A_radius
+  - A_electronegativity
+  - A_oxidation_state
+  - A_valence_electrons
+  - B_radius
+  - B_electronegativity
+  - B_oxidation_state
+  - B_valence_electrons
+  - X_radius
+  - X_electronegativity
+  - X_oxidation_state
+  - X_valence_electrons
+  - formation_energy
+properties:
+  A_radius:
+    type: number
+  A_electronegativity:
+    type: number
+  A_oxidation_state:
+    type: integer
+  A_valence_electrons:
+    type: integer
+  B_radius:
+    type: number
+  B_electronegativity:
+    type: number
+  B_oxidation_state:
+    type: integer
+  B_valence_electrons:
+    type: integer
+  X_radius:
+    type: number
+  X_electronegativity:
+    type: number
+  X_oxidation_state:
+    type: integer
+  X_valence_electrons:
+    type: integer
+  formation_energy:
+    type: number
+  coordination_number:
+    type: number
+    description: "Average coordination number of the B‑site (added on fallback)."
+  average_bond_length:
+    type: number
+    description: "Mean bond length in Å (added on fallback)."
+  crystal_symmetry:
+    type: string
+    description: "Crystal symmetry label (e.g., 'cubic', added on fallback)."
+additionalProperties: false

@@ -5,22 +5,50 @@ type: "object"
 properties:
   status:
     type: "string"
-    enum:
-      - "PASS"
-      - "FAIL"
-    description: "Audit status"
-  found_title:
-    type: "string"
-    description: "Title found in the constitution file"
-  expected_title:
-    type: "string"
-    description: "Expected title: 'Structure-Only Surrogate Model...'"
-  message:
-    type: "string"
-    description: "Error message if status is FAIL"
+    enum: ["PASS", "FAIL"]
+    description: "Overall audit status; FAIL causes a non‑zero exit code."
+  audited_titles:
+    type: "array"
+    description: "One record per audited project‑produced title"
+    items:
+      type: "object"
+      properties:
+        file:
+          type: "string"
+          description: "Path of the audited document"
+        title:
+          type: "string"
+          description: "Title text found in the document"
+        result:
+          type: "string"
+          enum: ["PASS", "FAIL"]
+        forbidden_terms_found:
+          type: "array"
+          items:
+            type: "string"
+      required:
+        - file
+        - title
+        - result
+        - forbidden_terms_found
+  constitution_title_exemption:
+    type: "object"
+    description: "Record of the pre‑amendment constitution title exemption per spec Section 4b"
+    properties:
+      exempt:
+        type: "boolean"
+      reason:
+        type: "string"
+    required:
+      - exempt
+      - reason
+  exit_code:
+    type: "integer"
+    enum: [0, 1]
+    description: "0 on all‑pass, A standard response on any failure. (FR‑009)"
 required:
   - status
-  - found_title
-  - expected_title
-  - message
+  - audited_titles
+  - constitution_title_exemption
+  - exit_code
 additionalProperties: false

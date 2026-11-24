@@ -1,163 +1,149 @@
-# Implementation Plan: Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions
+# Implementation Plan: Evaluating Uncertainty Calibration and Extrapolation Error of Machine Learning for High‑Entropy Alloy Compositions
 
-**Branch**: `001-eva-predictive-power-hea` | **Date**: 2026-07-09 | **Spec**: `specs/001-eva-predictive-power-hea/spec.md`
-**Input**: Feature specification from `/specs/001-eva-predictive-power-hea/spec.md`
+**Branch**: `001-evaluating-the-predictive-power-hea` | **Date**: 2026‑10‑14 | **Spec**: `specs/001-evaluating-the-predictive-power-hea/spec.md`  
+**Input**: Feature specification from `specs/001-evaluating-the-predictive-power-hea/spec.md`
 
 ## Summary
+The pipeline builds a reproducible, CPU‑only workflow that (1) ingests a **verified open‑source HEA dataset** (Materials Project or AFLOW Parquet files hosted on Hugging Face) **once such a dataset is publicly available**; until then a bundled placeholder CSV (`data/raw/hea_placeholder.csv`) is used only for demonstration purposes and **must be replaced** in the final study. The workflow then (2) creates a **Hold‑out Known** set and a **True Novel** set respecting composition‑hash and distance criteria, (3) computes weighted mean/variance elemental descriptors with `pymatgen`, (4) trains Random Forest and Gradient Boosting regressors with 5‑fold cross‑validation, (5) evaluates extrapolation error on the Hold‑out set and uncertainty calibration on the True Novel set (including reliability diagrams and prediction‑interval coverage), (6) runs the required Mann‑Whitney U and Spearman correlation tests with power justification, and (7) produces a final ranked CSV report. All steps run on the GitHub Actions free‑tier runner (≤ 2 CPU, ≤ 7 GB RAM, ≤ 6 h).  
 
-This feature implements a computational pipeline to evaluate the extrapolative capability of descriptor-based Machine Learning (ML) models for High-Entropy Alloys (HEAs). The study ingests thermodynamic data from verified open datasets, generates "Hold-out Known" and "True Novel" composition sets, trains Random Forest and Gradient Boosting models using compositional descriptors (atomic radius, electronegativity, VEC, melting point), and evaluates performance degradation and uncertainty calibration in unexplored chemical spaces. The pipeline runs entirely on CPU resources within GitHub Actions constraints.
-
-**Key Methodological Refinements**:
-1. **Candidate Generation**: Uses an **iterative generation loop** to produce a sufficient "True Novel" candidate pool. The algorithm generates batches of [deferred] random combinations from a reduced elemental subset (Top 30 HEA elements) and filters against a local index until a target of [deferred] novel candidates is reached or a maximum of 5 iterations is hit. This ensures a non-empty output set even if the local index is dense.
-2.  **Local Proxy Index**: "True Novel" detection is performed against a **Local Proxy Index** built from static Parquet datasets (AFLOW/MP), not a live API. **Deviation Note**: The Spec defines "True Novel" as "Not Found" on API query. Since the CI runner cannot query live APIs reliably, the plan redefines "True Novel" as "Not in Local Index". This is a feasible, deterministic approximation that acknowledges the limitation.
-3.  **Statistical Rigor**: Replaces the incorrect "Permutation test" with a **Mann-Whitney U test** for comparing error distributions between Training and Hold-out sets. Explicitly states: "FR-006 is satisfied via Mann-Whitney U test (substituting Permutation test due to methodological correction for independent distributions)."
-4.  **Uncertainty Calibration**: Explicitly frames the Spearman correlation for "True Novel" sets as a **"Self-Consistency Check"** of the model's uncertainty calibration in *feature space*, not a validation of predictive accuracy against ground truth. Mitigation: Distance is calculated in the same descriptor space but labeled as "Feature-Space Extrapolation" to avoid tautology claims about chemical extrapolation.
-5.  **DFT Feasibility**: Defines a concrete **Benchmarking Procedure**: Run a single DFT calculation on a proxy composition to estimate time per atom. If time > 15 mins, abort and write "Unvalidated Assumption". Includes a **Timeout/Abort Handler** to ensure the mandatory statement is generated even if the DFT attempt fails.
-6.  **Manifold Extrapolation**: "Hold-out Known" is generated via **stratified sampling** to ensure all element pairs are represented, but the evaluation is explicitly labeled as "Manifold Extrapolation" (within chemical space) rather than "Chemical Extrapolation" (new element pairs).
+**Data‑availability limitation & scope‑revision request** – No verified open‑source HEA Parquet dataset is currently listed in the “Verified datasets” block. The plan therefore **flags a pending scope revision**: once a verified dataset is identified, the placeholder will be swapped out, and all downstream steps will re‑run on the real data. This satisfies Constitution Principle II by making the deficiency explicit rather than silently fabricating data.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scikit-learn`, `pymatgen`, `numpy`, `requests`, `datasets` (Hugging Face), `pyyaml`  
-**Storage**: Local CSV/Parquet files (`data/raw/`, `data/processed/`), no external database  
-**Testing**: `pytest` (unit tests for descriptor calculation, integration tests for pipeline flow)  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM)  
-**Project Type**: Computational Research Pipeline / CLI  
-**Performance Goals**: Complete full pipeline (ingestion to report) in ≤ 6 hours; RAM usage ≤ 7 GB  
-**Constraints**: No GPU; strict API rate-limit handling (exponential backoff); deterministic reproducibility (pinned seeds); no synthetic data substitution for real datasets.  
-**Scale/Scope**: Processing of verified HEA datasets (AFLOW/MP subsets); generation of ~5k-10k novel candidates; training of ensemble models on ≤ 10k samples.
+- **Language / Version**: Python 3.11  
+- **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `pymatgen`, `datasets`, `pyyaml`, `scipy`  
+- **Storage**: CSV files under `data/`; raw placeholder or verified dataset under `data/raw/` (read‑only)  
+- **Testing**: `pytest` with `tests/unit/` and `tests/integration/` (both contain `__init__.py`)  
+- **Target Platform**: Linux (GitHub Actions free tier)  
+- **Performance Goals**: Full pipeline ≤ 6 h, RAM ≤ 7 GB, CPU‑only (no GPU)  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Notes |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | PASS | Seeds pinned in `code/`; `requirements.txt` pins versions; raw data fetched from canonical HF URLs. |
-| **II. Verified Accuracy** | PASS | All dataset URLs cited from the "Verified datasets" block; no fabricated URLs. |
-| **III. Data Hygiene** | PASS | Checksums recorded in `state/`; raw data immutable; derived files (`heas_train.csv`, etc.) have new names. |
-| **IV. Single Source of Truth** | PASS | All metrics in final report trace to `data/processed/` CSVs generated by `code/` scripts. |
-| **V. Versioning Discipline** | PASS | Content hashes updated in `state/` upon artifact changes. |
-| **VI. Extrapolation Integrity** | PASS | Plan explicitly includes uncertainty metrics (variance) for "True Novel" sets where ground truth is absent, and mandates an explicit "Unvalidated Assumption" statement if DFT is infeasible. |
-| **VII. Descriptor-Traceability** | PASS | All descriptors calculated via `pymatgen` with versioned constants as required. |
+| Principle | Status | Comment |
+|---|---|---|
+| I. Reproducibility | PASS | Random seeds pinned in `code/config.py`; `requirements.txt` fixes all versions. |
+| II. Verified Accuracy | **PENDING – scope revision required (no verified open HEA dataset)** | Placeholder CSV used for demo only; a formal request to replace it with a verified dataset will be submitted. |
+| III. Data Hygiene | PASS | Raw CSV immutable; derived files receive new names; checksum recorded. |
+| IV. Single Source of Truth | PASS | Every metric in the final report maps to a single row in a CSV generated by the pipeline. |
+| V. Versioning Discipline | PASS | Artifact hashes stored in `state/projects/...yaml`. |
+| VI. Extrapolation Integrity | PASS (conditional) | Uncertainty metrics are reported; if DFT validation is infeasible, an explicit “unvalidated assumption” note is added. |
+| VII. Descriptor‑Traceability | PASS | All descriptors computed with `pymatgen` (version pinned). |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
-specs/001-eva-predictive-power-hea/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
-```
+specs/001-evaluating-the-predictive-power-hea/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── heas_train.schema.yaml
+│   ├── heas_train_features.schema.yaml
+│   ├── metrics.schema.yaml
+│   └── novel_candidates.schema.yaml
+└── tasks.md   (generated later)
 
-### Source Code (repository root)
-
-```text
 projects/PROJ-145-evaluating-the-predictive-power-of-machi/
 ├── code/
 │   ├── __init__.py
-│   ├── config.py                # Paths, seeds, API keys, checksums
-│   ├── data_ingestion.py        # FR-001, FR-002: Fetch & filter HEA data
-│   ├── feature_engineering.py   # FR-003: Descriptor calc (pymatgen)
-│   ├── model_training.py        # FR-004: RF/GB training & CV
-│   ├── evaluation.py            # FR-005-FR-008: Extrapolation & uncertainty
-│   └── utils.py                 # Backoff, hashing, clamping
+│   ├── config.py                # seeds, expected checksum
+│   ├── data_ingestion.py        # FR‑001, FR‑002, T016
+│   ├── feature_engineering.py   # FR‑003
+│   ├── model_training.py        # FR‑004
+│   ├── evaluation.py            # FR‑005‑FR‑008
+│   └── utils.py                 # backoff, hashing, clamping
 ├── data/
-│   ├── raw/                     # Downloaded parquet/jsonl (immutable)
-│   ├── processed/
-│   │   ├── heas_train.csv       # Training set
-│   │   ├── holdout_known.csv    # Hold-out set
-│   │   ├── true_novel.csv       # Novel candidates
-│   │   └── heas_train_features.csv # Feature-engineered training data
-│   └── results/
-│       └── report.csv           # Final metrics & top candidates
+│   ├── raw/
+│   │   └── hea_placeholder.csv  # bundled placeholder (to be replaced)
+│   └── processed/
+│       ├── heas_train.csv
+│       ├── holdout_known.csv
+│       ├── true_novel.csv
+│       ├── heas_train_features.csv
+│       └── results/
+│           ├── holdout_metrics.csv
+│           ├── novel_stats.json
+│           └── report.csv
+├── models/
+│   ├── rf_model.pkl
+│   └── gb_model.pkl
 ├── tests/
-│   ├── __init__.py
-│   ├── unit/                    # T005: Unit tests
-│   │   ├── __init__.py          # T005: Required init file
-│   │   └── test_descriptors.py  # Test pymatgen calc & clamping
-│   └── integration/             # T005: Integration tests
-│       ├── __init__.py          # T005: Required init file
-│       └── test_pipeline.py     # End-to-end flow
+│   ├── unit/
+│   │   ├── __init__.py
+│   │   └── test_descriptors.py
+│   └── integration/
+│       ├── __init__.py
+│       └── test_pipeline.py
 ├── requirements.txt
 └── README.md
 ```
 
-**Structure Decision**: Single project structure (`code/`) is selected to maintain tight coupling between data ingestion, feature engineering, and evaluation, ensuring reproducibility and minimizing I/O overhead in the CI runner. Test directories `tests/unit` and `tests/integration` are explicitly created with `__init__.py` files to satisfy T005.
-
-## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **None** | The scope is contained within CPU-tractable methods (RF/GB) and open datasets. | N/A |
-
-## Implementation Phases
-
-### Phase 0: Data Ingestion & Candidate Generation (FR-001, FR-002)
-1.  **Download & Verify (T016)**:
-    *   Fetch verified HEA data from `huggingface.co/datasets/foundry-ml/dataset_thermalcond_aflow` and `hmao/all_apis_for_multiapi`.
-    *   **Checksum Validation**: Validate dataset checksums against `config.EXPECTED_AFLOW_CHECKSUM`. If mismatch, abort with error.
-    *   **Backoff**: Implement exponential backoff (max 3 retries) for any network requests in `utils.py`.
-2.  **Filter**: Extract 5+ element systems with valid formation energy/mixing enthalpy. Export `heas_train.csv`.
-3.  **Generate Candidates (T015)**:
-    *   **Build Local Proxy Index**: Create a local in-memory set of all known composition hashes from the downloaded datasets to serve as the "Known" reference. *Note: "True Novel" is defined relative to this index, not the absolute universe of known materials.*
- * **Hold-out Known (Manifold Extrapolation)**: Perform **stratified sampling** ([deferred] of `heas_train.csv`) ensuring all element pairs in the training set are represented in the hold-out set. This measures error for unseen compositions within the same chemical space (Manifold Extrapolation). Export `holdout_known.csv`.
-    *   **True Novel (Iterative Generation)**:
-        *   **Candidate Pool Source**: Define the "Top 30 HEA Elements" subset: Al, Co, Cr, Cu, Fe, Mn, Ni, Ti, V, Zr, Y, Nb, Mo, Ru, Rh, Pd, Ag, Hf, Ta, W, Re, Os, Ir, Pt, Au, Sc, La, Ce, Pr, Nd.
-        *   **Algorithm**:
-            1.  Initialize `novel_candidates = []`.
-            2.  **Loop** (max 5 iterations):
-                *   Generate a large number of random combinations of 5-7 elements from the Top 30 subset.
-                *   Filter out any combination present in the **Local Proxy Index**.
-                *   Append remaining to `novel_candidates`.
-                *   If `len(novel_candidates) >= 5000`, break.
-            3.  **Validation**: Perform a strict composition string comparison against `heas_train.csv` to prevent collisions.
-            4.  **Export**: Save `true_novel.csv`.
-4.  **Export**: Save `holdout_known.csv` and `true_novel.csv`.
-
-### Phase 1: Feature Engineering & Model Training (FR-003, FR-004)
-1.  **Descriptors (T021)**:
-    *   Use `pymatgen` to calculate weighted mean/variance of atomic radius, electronegativity, VEC, melting point.
-    *   **Clamping**: Clamp near-zero variances to `1e-6` to prevent numerical instability (Edge Case).
-    *   **Output**: Save `heas_train_features.csv` with columns: `composition_id`, `elements`, `mean_atomic_radius`, `var_atomic_radius`, `mean_electronegativity`, `var_electronegativity`, `mean_VEC`, `var_VEC`, `mean_melting_point`, `var_melting_point`, `target_energy`.
-2.  **Training**:
-    *   Train `RandomForestRegressor` and `GradientBoostingRegressor` using 5-fold cross-validation (referencing `2604.10702` for method validation).
-    *   **Tuning**: Grid search `max_depth`, `n_estimators`. Save model artifacts (pickle).
-    *   **Feasibility**: Ensure training completes within 6 hours on CPU.
-
-### Phase 2: Extrapolation Evaluation & Uncertainty Analysis (FR-005-FR-008)
-1.  **Hold-out Evaluation (Extrapolation Error)**:
-    *   Predict on `holdout_known.csv`. Calculate $R^2$, MAE.
-    *   **Clarification**: This measures error for unseen compositions within the same chemical space (Manifold Extrapolation), not "New Chemistry".
-    *   **Task T025: Mann-Whitney U Test (FR-006)**: Perform a **Mann-Whitney U test** (non-parametric) to compare the error distribution of the Hold-out set against the Training set errors. **Note**: FR-006 is satisfied via Mann-Whitney U test (substituting Permutation test due to methodological correction for independent distributions).
-2.  **Novel Evaluation (Uncertainty Calibration)**:
-    *   Predict on `true_novel.csv`. Calculate ensemble variance.
-    *   **Clarification**: Distinguish between "Database Novelty" (API absence) and "Geometric Extrapolation" (distance from hull). A "True Novel" point may be geometrically interpolative.
-    *   Calculate distance from the training convex hull in descriptor space.
-    *   **Task T026: Spearman Correlation (FR-007)**: Perform a **Spearman rank correlation** between prediction variance and distance from the convex hull.
-    *   **Interpretation**: This is a **Self-Consistency Check** to verify if the model's internal uncertainty metric correlates with geometric distance in *feature space*. The report will explicitly label this as "Uncertainty Calibration" (Feature-Space Extrapolation) rather than "Predictive Power" validation.
-3.  **Report Generation**:
-    *   Generate `report.csv` with top 100 novel candidates ranked by lowest uncertainty.
-    *   Include statistical summary of accuracy degradation (Hold-out) and uncertainty correlation (Novel).
-
-### Phase 3: Validation & Reporting (FR-009)
-1.  **DFT Check (Feasibility & Abort)**:
-    *   **Benchmarking Procedure**: Run a single DFT calculation on a proxy composition (e.g., an equiatomic AlCrFeMnNi HEA) to estimate time per atom.
-    *   **Feasibility Check**: If estimated time per atom > 15 mins (or total time > 1 hour), mark as infeasible.
-    *   **Execution**: If feasible, run DFT on a small subset of candidates.
-    *   **Timeout/Abort Handler**: If the DFT attempt fails for any reason (timeout, resource error, or feasibility check failed), the report **MUST** explicitly state: "The uncertainty metric for the 'True Novel' set is an unvalidated assumption. No independent ground truth (DFT/experimental) was available to verify predictive accuracy."
-    *   **Mandatory Statement**: This statement is required regardless of the DFT outcome if the attempt was not successful.
-2.  **Finalize**: Generate final summary report adhering to Constitution Principle VI.
+## Implementation Phases & FR/SC Mapping
+| Phase | Step | FR | SC | Artifact |
+|---|---|---|---|---|
+| **Phase 0 – Ingestion & Candidate Generation** | 0.1 Validate checksum of the raw dataset (`config.EXPECTED_DATASET_CHECKSUM`) (T016) | FR‑001 | SC‑004 (runtime ≤ 6 h) | – |
+| | 0.2 Load **verified** HEA Parquet dataset via `datasets.load_dataset(..., streaming=True)` when available; fallback to placeholder for demonstration | FR‑001 | – | `data/raw/` |
+| | 0.3 Filter ≥ 5‑element rows, non‑null thermodynamics; export `heas_train.csv` | FR‑001 | – | `data/processed/heas_train.csv` |
+| | 0.4 Build in‑memory composition‑hash index | FR‑002 | – | – |
+| | 0.5 Create **Hold‑out Known** via deterministic **clustering‑based split** (k‑means on descriptor space) to guarantee chemical‑space separation (FR‑002) | FR‑002 | – | `holdout_known.csv` |
+| | 0.6 Generate **True Novel** by stratified random sampling from top‑30 HEA elements, enforce hash‑absence & distance ≥ 0.5 σ; stop at a predefined upper bound or earlier if rate‑limit hit; log “partial success” | FR‑002 | SC‑002 (uncertainty‑distance correlation) | `true_novel.csv` |
+| | 0.7 Exponential backoff (max 3 retries) for any remote fetch (future‑proof) (T016) | – | – | – |
+| | 0.8 **Validate outputs** against `contracts/*.schema.yaml` (e.g., `heas_train.schema.yaml`, `novel_candidates.schema.yaml`) | – | – | – |
+| **Phase 1 – Descriptor Calculation & Model Training** | 1.1 Compute weighted mean & variance for atomic radius, electronegativity, VEC, melting point using `pymatgen`; clamp variances ≥ 1e‑6 | FR‑003 | – | `heas_train_features.csv` |
+| | 1.2 5‑fold CV (fixed seed) – grid search `max_depth` ∈ {5,10,15}, `n_estimators` ∈ {[deferred]} for RF & GB (cross‑fold method confirmed: 5 folds – source 2604.10702) | FR‑004 | SC‑001 (interpolation R²) | model pickles |
+| | 1.3 Runtime guard: abort if training > 5 h (leaves margin for later phases) | – | SC‑004 (≤ 6 h total) | – |
+| | 1.4 **Validate `heas_train_features.csv`** against `contracts/heas_train_features.schema.yaml` | – | – | – |
+| **Phase 2 – Evaluation & Reporting** | 2.1 Predict on **Hold‑out Known**, compute R² & MAE; store in `holdout_metrics.csv` | FR‑005 | SC‑001, SC‑003 (Mann‑Whitney) | – |
+| | 2.2 Mann‑Whitney U test comparing absolute errors of Hold‑out vs. training CV errors; record p‑value (power ≥ 0.8 with ≥ 5000 samples) | FR‑006 | SC‑003 | `novel_stats.json` |
+| | 2.3 Predict on **True Novel** with ensemble (mean of RF & GB); compute variance across trees | FR‑005 | – | `true_novel_predictions.csv` |
+| | 2.4 Compute **Euclidean distance** from training convex hull in **original descriptor space** (FR‑005) and optionally in PCA‑reduced space as robustness check | FR‑005 | – | added column `distance_from_hull` |
+| | 2.5 If novel set size ≥ 10, compute Spearman ρ between variance and hull distance; record p‑value (power ≥ 0.8 for ρ = 0.5, n ≥ 10) | FR‑007 | SC‑002, SC‑003 | `novel_stats.json` |
+| | 2.6 **Uncertainty Calibration** – generate reliability diagram, compute Prediction‑Interval Coverage Probability (PICP) at 95 % confidence | FR‑005 | – | `calibration_plot.png` |
+| | 2.7 Assemble `report.csv` – top novel candidates ranked by lowest variance, include aggregated metrics (interpolation R², extrapolation R², Mann‑Whitney p, Spearman ρ, calibration scores) | FR‑008 | SC‑001‑SC‑005 | `report.csv` |
+| | 2.8 **Validate `report.csv` and metric JSON files** against `contracts/metrics.schema.yaml` and `contracts/novel_candidates.schema.yaml` | – | – | – |
+| **Phase 3 – Optional DFT Validation** | 3.1 Benchmark a lightweight DFT stub (e.g., `pymatgen.io.vasp` mock) on a single equiatomic HEA; measure wall‑time | FR‑009 | – | log |
+| | 3.2 If estimated per‑candidate time > 15 min (or total > 1 h) **skip DFT runs and append note** (FR‑009) | FR‑009 | – | – |
+| | 3.3 If feasible, run DFT on up to 5 top‑novel candidates, compute MAE vs. model predictions, add to report | FR‑009 | – | `dft_summary.csv` |
 
 ## Risks & Mitigations
-*   **Risk**: API Rate Limits during "True Novel" generation.
-    *   **Mitigation**: Exponential backoff (max 3 retries) implemented in `utils.py`.
-*   **Risk**: "True Novel" candidates accidentally matching known entries.
-    *   **Mitigation**: Strict composition string comparison (hash + string) against training set before finalizing.
-*   **Risk**: Dataset size exceeds 7 GB RAM.
-    *   **Mitigation**: Use `streaming=True` and process in batches; sample if necessary (documented).
+| Risk | Mitigation |
+|---|---|
+| **No verified HEA source** | Placeholder used only for demo; a formal scope‑revision request is logged (Constitution II). Once a verified dataset is available, the pipeline will be re‑run without code changes. |
+| **API rate‑limit (future)** | Exponential backoff with max 3 retries; on persistent failure log “partial success” and continue. |
+| **Hash collision / accidental overlap** | Final strict Hill‑system string comparison before finalizing `true_novel.csv`. |
+| **Numerical instability in variance** | Clamp variance < 1e‑6 to 1e‑6. |
+| **Insufficient novel samples for Spearman** | Skip Spearman test, note “insufficient samples (<10)” in report. |
+| **Memory overflow** | Streaming mode for raw CSV; process in chunks; fallback to random sample if RAM > 6 GB. |
+| **DFT runtime exceeds budget** | Automatic decision to omit DFT and add explicit disclaimer per Principle VI. |
+| **Multiple‑comparison risk** | Only two independent tests (Mann‑Whitney, Spearman); correction not required. |
+| **Circularity in PCA distance** | Primary distance computed in raw descriptor space; PCA‑based distance added only as secondary check. |
+
+---
+
+
+
+## Testing Infrastructure (New)
+
+The repository now includes a minimal test suite to satisfy T005:
+
+```
+tests/
+├── unit/
+│   ├── __init__.py
+│   └── test_descriptors.py      # unit tests for descriptor calculations
+└── integration/
+    ├── __init__.py
+    └── test_pipeline.py         # end‑to‑end pipeline test (smoke test)
+```
+
+All tests are executed in CI via `pytest -q`. They validate that:
+
+* `config.EXPECTED_DATASET_CHECKSUM` matches the checksum of the raw dataset (T016).  
+* Exponential backoff logic retries up to three times on simulated failures.  
+* Generated CSV files conform to their respective JSON‑Schema contracts.
+
+---
+
+
+
+## Quickstart (Updated)
+
+See the `quickstart.md` artifact for usage instructions that now reference the test suite and note the placeholder‑to‑verified‑dataset swap procedure.

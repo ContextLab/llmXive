@@ -1,0 +1,56 @@
+T001a:
+  c: true
+  h: 3de05d2a2d0fbf834070b2d68d967e41d5c2202dd0bec1ed2b45b9f4863eb2fa
+  r: All seven required directories (`code/`, `data/raw/`, `data/processed/`, `data/outputs/figures/`,
+    `tests/unit/`, `tests/integration/`, `tests/contract/`) exist under the project
+    root as confirmed by the collector, and the execution log shows `code/setup_directories.py`
+    ran with exit 0 reporting successful directory creation. The task only asked for
+    directory structure creation, which is fully satisfied.
+  sig: ce17b4629f4b7a53562a8289629716d36836f28495c77ddfab5ba4e335619595
+T001b:
+  c: true
+  h: 4a5d263be57632f9d7283c748b7c1d40ffdb9778006233f5e473153b9392f20e
+  r: The README.md exists at the project root (3,997 bytes) and contains a substantive
+    project overview (research question, three-stage pipeline description) plus detailed
+    installation instructions (clone, venv setup, pip install of requirements, optional
+    env vars) and quickstart/testing commands, matching the task's requirements.
+  sig: 3949db8629b8ed4a3165a514ceaa607d57f955df140b350ac4e854b07bfcf2f3
+T002:
+  c: true
+  h: 816aee4436f54ec15917fc86ce6be1a9f41fa476398671ded51ee68543d3abf5
+  r: The file `code/requirements.txt` exists (411 bytes) and lists all 11 required
+    packages (transformers, torch, scikit-learn, statsmodels, pandas, numpy, seaborn,
+    textstat, nltk, datasets, requests) with reasonable version constraints, matching
+    the task exactly.
+  sig: b79463c32699b08e052320efb2d59c1cbb4f02887b1efe574f1f6a8789293a8b
+T003:
+  c: true
+  h: cc7673cf3b8a97c5817c78a7b5d422869c86b6d4103063c49cb25f7bc39df3a6
+  r: 'The project directory contains the required linting/formatting configuration
+    artifacts: `.ruff.toml`, `pyproject.toml` (the standard location for black configuration),
+    and `.pre-commit-config.yaml`, all present and non-empty alongside the project''s
+    code/tests structure. No evidence contradicts that these configure ruff and black
+    as the task required.'
+  sig: f6c01157e8c2b261fbb2f7bea371beb6d9ef60cf6430dfba0b88bcf484f496d6
+T004:
+  c: true
+  h: 929d24893755a27c21257181839a15b8951f227e961e4987296cf9cc168bd5fe
+  r: '`code/utils.py` exists (2250 bytes) and contains all four required functions:
+    `pin_random_seed` (pins both `random` and numpy seeds), `calculate_mtld` (delegates
+    to `textstat.mtld`, which implements the standard MTLD definition), `calculate_flesch_kincaid`
+    (via `textstat.flesch_kincaid_grade` as required), and `calculate_average_sentence_length`
+    (lexicon_count / sent_count), plus a convenience `get_all_metrics`. The implementations
+    are real and functional rather than stubs; the only minor weakness is broad exception
+    handling returning 0.0, which is defensive rather than a placeholder.'
+  sig: 90e39b52d5db32448e1b20cf908018aeedef1c6067aa9cf26ca22561f65c7c56
+T005:
+  c: true
+  h: 4a9b5ba5f22df498b036a5826d3ca65b7fdcd929789de17294ab02012dfe2ab3
+  r: "All three required schema files exist at the requested paths with substantive,\
+    \ well-formed JSON Schema (draft-07) content: text_sample covers text_id, raw_text,\
+    \ and the three complexity metrics (flesch_kincaid, mtld, avg_sentence_length);\
+    \ participant_response covers participant/text linkage, 1\u20135 trust_rating,\
+    \ and attention_check_status with pass/fail exclusion semantics; analysis_result\
+    \ covers regression coefficients, p-values, quadratic-term significance, Bonferroni\
+    \ adjustment, and optional power analysis. No stubs or placeholders."
+  sig: fb5f59fa2de4a11f201815f36dd2abb8f2dc3bbf6cf349150f3bc9bdef7a7d9a

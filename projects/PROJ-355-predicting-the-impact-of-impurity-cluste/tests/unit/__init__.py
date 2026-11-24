@@ -1,1 +1,1 @@
-# Unit test package initialization
+# Ensure the tests package is recognized; no code needed.

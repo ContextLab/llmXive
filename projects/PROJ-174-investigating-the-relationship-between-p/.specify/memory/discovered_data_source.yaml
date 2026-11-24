@@ -1,0 +1,13 @@
+status: none
+intent: download eye tracking visual search dataset OpenNeuro OSF ds001734 ds002642
+  python package dataset
+required_fields:
+- trial_id
+- subject_id
+- pupil_diameter
+- search_time
+- target_salience
+- fixation_count
+cache_key: 328543ff4d20bbe145457edb4a74b2912b17b5b656702880fd18a00dfd0af4ae
+searched_at: '2026-10-12T10:24:21.667266+00:00'
+retry_count: 1

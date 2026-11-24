@@ -24,15 +24,14 @@ from llmxive.librarian.data_source_discovery import VerifiedSource
 from llmxive.librarian.dataset_resolver import ResolvedDatasets
 from llmxive.speckit.plan_cmd import PlannerAgent
 from llmxive.speckit.slash_command import SlashCommandContext
-from llmxive.types import BackendName
 
 
 def _make_ctx(project_id: str, proj: Path, tmp_path: Path) -> SlashCommandContext:
     return SlashCommandContext(
         project_id=project_id, project_dir=proj, run_id="r", task_id="t",
         inputs=[], expected_outputs=[], prompt_template_path=tmp_path / "x.md",
-        default_backend=BackendName.DARTMOUTH, fallback_backends=[],
-        default_model="m", prompt_version="1.0.0", agent_name="planner",
+        profile="standard_generation",
+        prompt_version="1.0.0", agent_name="planner",
     )
 
 

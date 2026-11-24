@@ -1,0 +1,215 @@
+{
+  "trace_id": "held_out_43_00247",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "insert_text",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_image",
+    "delete_element",
+    "insert_image",
+    "insert_image",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "update_layout",
+    "update_layout",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 56.3203,
+        "y": 25.0149,
+        "length": 93.8464
+      }
+    },
+    {
+      "step": 1,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 2.8812,
+        "padding": 24.186
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 3.5122,
+        "padding": 69.6342
+      }
+    },
+    {
+      "step": 3,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 87.9812,
+        "padding": 21.4688
+      }
+    },
+    {
+      "step": 4,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 72.2273,
+        "padding": 72.5015
+      }
+    },
+    {
+      "step": 5,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 66.3906,
+        "padding": 10.3781
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 78.187,
+        "y": 33.9725,
+        "length": 20.2377
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 42.2785,
+        "y": 21.0672,
+        "length": 95.257
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 18.7143,
+        "y": 99.1251,
+        "length": 81.8333
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 5.6598,
+        "y": 88.8308,
+        "width": 71.6598,
+        "height": 27.9788
+      }
+    },
+    {
+      "step": 10,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 20.4275
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 95.8057,
+        "y": 44.0127,
+        "width": 87.5762,
+        "height": 45.8638
+      }
+    },
+    {
+      "step": 12,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 49.426,
+        "y": 95.9205,
+        "width": 7.2215,
+        "height": 1.6148
+      }
+    },
+    {
+      "step": 13,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 23.3236,
+        "x": 70.0192,
+        "y": 95.6191
+      }
+    },
+    {
+      "step": 14,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 57.4638,
+        "x": 86.3888,
+        "y": 80.6873
+      }
+    },
+    {
+      "step": 15,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 86.4944,
+        "x": 22.0438,
+        "y": 46.1517
+      }
+    },
+    {
+      "step": 16,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 10.3671,
+        "x": 35.2689,
+        "y": 44.5379
+      }
+    },
+    {
+      "step": 17,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 68.0578,
+        "padding": 28.0016
+      }
+    },
+    {
+      "step": 18,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 5.9195,
+        "padding": 97.0367
+      }
+    },
+    {
+      "step": 19,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 70.7746,
+        "x": 89.7213,
+        "y": 32.944
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.470254,
+    "tool_repetition_freq": 0.75,
+    "arg_semantic_variance": 1002.331669
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 9,
+    "layout_hash": "43-247-update_layout"
+  },
+  "variance_multiplier": 1.5
+}

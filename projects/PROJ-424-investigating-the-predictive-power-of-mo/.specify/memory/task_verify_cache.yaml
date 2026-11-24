@@ -1,28 +1,12 @@
-T006c:
+T001:
   c: false
-  h: e16e235ece9d7b78db22b77b6925586cd1f4a2bc34e5538a97a4252c9d645ec9
-  r: "The `data_validator.py` file is truncated (ends mid\u2011function) and never\
-    \ implements checksum validation or a top\u2011level routine that raises on missing/invalid\
-    \ data. Moreover, the required `data/raw/nist_refs.json` file is absent, so the\
-    \ validator cannot be exercised. The implementation does not fully meet the task\u2019\
-    s specifications."
-T019:
-  c: false
-  h: dc2f7f8d3d0d4a83e8e217169816c617b99c3ec570d5f4f20474ed1e20104bb4
-  r: The required artifact `tests/unit/test_sensitivity.py` does not exist on disk,
-    so no unit test for the sensitivity sweep logic is provided. The task remains
-    undone until the file is created with appropriate test code.
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the `spec.md` file being edited is provided; the required change
-    to the Assumptions section (removing the NIST API claim and inserting the manual
-    curation description) cannot be verified. The implementer must supply the updated
-    `spec.md` showing the corrected Assumptions text.
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the updated `spec.md` file is provided; without the file\u2019\
-    s contents we cannot verify that SC\u2011005 was edited to replace the bootstrap\
-    \ difference\u2011of\u2011means test with \u201Cdescriptive trend analysis\u201D\
-    \ and \u201CCI overlap check.\u201D The required artifact is missing."
+  h: 59dc133a4b7d9a114dc7d25bf91e85d8b4d14692f31a53e4cba4b411c13001ac
+  r: "The `data/raw/nist_refs.json.sha256` file records a hash that does **not** match\
+    \ the actual contents of `nist_refs.json` (computed hash\u202F=\u202Fa81b3f2b\u2026\
+    , recorded\u202F=\u202F6c9f020e\u2026). Consequently `load_refs()` raises a checksum\u2011\
+    mismatch error, causing the `test_load_valid` and `test_checksum_matches` unit\
+    \ tests to fail. Moreover, `loader.py` raises a `FileNotFoundError` when a temporary\
+    \ JSON file lacks a `.sha256` file, contradicting the `test_malformed_schema`\
+    \ expectation that checksum verification be skipped. Fix the checksum file and\
+    \ adjust the loader\u2019s checksum logic (or test expectations) so that al"
+  sig: 4db3cf72d2fdc781d17ac5068bcd3662253ae196b457348471f41fa06e545009

@@ -1,0 +1,118 @@
+{
+  "trace_id": "held_out_43_01589",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 10,
+  "tool_sequence": [
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "insert_chart",
+    "insert_text",
+    "insert_chart",
+    "insert_chart",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 12.9261,
+        "saturation": 58.3176
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 35.206,
+        "saturation": 82.4568
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 3.0994,
+        "saturation": 28.2274
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 11.1338,
+        "y": 54.6434,
+        "width": 32.9606,
+        "height": 70.2837
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 84.4848,
+        "y": 72.7312,
+        "length": 74.6493
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 8.7782,
+        "y": 84.7341,
+        "width": 26.6643,
+        "height": 0.19
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 75.6296,
+        "y": 84.6295,
+        "width": 21.7376,
+        "height": 72.9683
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 54.9283,
+        "saturation": 74.3132
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 20.4557,
+        "saturation": 54.5228
+      }
+    },
+    {
+      "step": 9,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 8.9366,
+        "saturation": 70.6412
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.897946,
+    "tool_repetition_freq": 0.7,
+    "arg_semantic_variance": 833.021026
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 2,
+    "layout_hash": "43-1589-apply_theme"
+  },
+  "variance_multiplier": 1.5
+}

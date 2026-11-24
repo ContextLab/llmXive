@@ -1,0 +1,11 @@
+status: none
+intent: kmhh vbench video benchmark huggingface python package dataset
+required_fields:
+- prompt_id
+- prompt_text
+- ground_truth_video_url
+- ground_truth_video_path
+- metadata
+cache_key: 0d7f8f60c2ddb804b4ed2dc70eedf130bc9765a18b035e0804469dd204122c25
+searched_at: '2026-10-12T15:22:56.055520+00:00'
+retry_count: 1

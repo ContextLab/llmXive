@@ -10,26 +10,18 @@ Scoring Method:
 - A 'trial' consists of a set of math operations and a set of words to recall.
 - The input schema expects a list of trial records, where each record represents
   a single item within a set (or a set summary, depending on the data granularity).
-- Based on the task description: input schema `{'stimulus': str, 'recall': str, 'accuracy': bool}`.
-  - `stimulus`: The target word presented.
-  - `recall`: The word recalled by the participant.
-  - `accuracy`: Boolean indicating if the recall matched the stimulus (or if the math
-    operation was solved correctly, depending on the specific data source format).
-  - *Correction*: In standard Ospan scoring, we look at the recall accuracy. The
-    provided schema includes an `accuracy` boolean which simplifies the check.
-    We sum the `accuracy` flags for all items to get `total_correct`.
-    The `span_score` is defined as the `total_correct` in this implementation,
-    representing the total number of correctly recalled items across the session.
+- Based on the task description: input `data` is a list of dictionaries
+  {'stimulus': str, 'recall': str, 'accuracy': bool}.
+  The `accuracy` boolean indicates whether the recall matched the stimulus.
 
 Note: This implementation assumes the input `data` is a list of dictionaries
 representing individual item attempts within a session.
 """
-from typing import List, Dict, Any, Union
-
+from typing import List, Dict, Any
 
 def score_ospan_session(
     trials: List[Dict[str, Any]]
-) -> Dict[str, int]:
+) -> Dict[str, int | str]:
     """
     Calculate the Ospan score for a session based on a list of trial records.
 
@@ -43,6 +35,7 @@ def score_ospan_session(
         A dictionary with:
             - 'span_score' (int): The total number of correctly recalled items.
             - 'total_correct' (int): Same as span_score, representing the count of correct recalls.
+            - 'quality_flag' (str): Always 'valid' for Ospan (no response‑time limits apply).
 
     Raises:
         ValueError: If the input data is malformed or missing required keys.
@@ -71,20 +64,18 @@ def score_ospan_session(
             raise ValueError(f"Trial at index {i}: 'accuracy' must be a boolean.")
 
         # Accumulate correct recalls
-        # The 'accuracy' field in the provided schema represents the correctness
-        # of the recall for that item.
         if trial['accuracy']:
             total_correct += 1
 
     return {
         'span_score': total_correct,
-        'total_correct': total_correct
+        'total_correct': total_correct,
+        'quality_flag': 'valid'
     }
-
 
 def score_ospan_trial(
     trial: Dict[str, Any]
-) -> Dict[str, int]:
+) -> Dict[str, int | str]:
     """
     Calculate the score for a single Ospan trial (item).
 
@@ -92,7 +83,11 @@ def score_ospan_trial(
         trial: A dictionary with 'stimulus', 'recall', and 'accuracy'.
 
     Returns:
-        A dictionary with 'span_score' (1 if correct, 0 if incorrect) and 'total_correct'.
+        A dictionary with 'span_score' (1 if correct, 0 if incorrect),
+        'total_correct' (same as span_score), and 'quality_flag' ('valid').
+
+    Raises:
+        ValueError: If the trial dictionary is malformed.
     """
     if not isinstance(trial, dict):
         raise ValueError("Input 'trial' must be a dictionary.")
@@ -106,5 +101,6 @@ def score_ospan_trial(
 
     return {
         'span_score': is_correct,
-        'total_correct': is_correct
+        'total_correct': is_correct,
+        'quality_flag': 'valid'
     }

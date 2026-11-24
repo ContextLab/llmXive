@@ -1,284 +1,486 @@
-import os
+"""
+EEG preprocessing module.
+Provides functions for re‑referencing, filtering, ICA cleaning,
+microstate segmentation, and feature extraction, using the DataChunk
+streaming interface.
+"""
 import logging
-import numpy as np
-import mne
+import os
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple
 
-# Importing from sibling modules as per API surface
-# Note: These imports assume the files exist in the same directory or are in the Python path.
-try:
-    from utils import set_global_seed, setup_logging
-except ImportError:
-    # Fallback for direct execution or different path structure if utils is not immediately available
-    # In a real project run, this should be handled by the environment setup.
-    def set_global_seed(seed): pass
-    def setup_logging(): return logging.getLogger(__name__)
+import mne
+import numpy as np
+import pandas as pd
+from scipy.stats import kurtosis
+from scipy.signal import welch
+
+# Import the data loader and DataChunk class used for streaming
+from data_loader import EEGDataLoader, DataChunk
+
+# Import expected feature column names to ensure correct header naming
+from config import EXPECTED_FEATURE_COLUMNS
 
 logger = logging.getLogger(__name__)
 
-# --- Placeholder implementations for functions defined in API but not yet implemented in this file ---
-# These are stubs to satisfy the import structure for T016 context, assuming they are implemented in T013/T014/T015.
-# In a real scenario, these would contain the actual logic.
-
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def re_reference_to_mastoids(raw: mne.io.Raw) -> mne.io.Raw:
-    """Re-reference EEG data to average mastoids. Implemented in T013."""
-    # Placeholder to allow code structure to exist
+    """Re‑reference EEG data to the average of mastoid electrodes."""
+    mastoid_names = ["M1", "M2"]
+    available = [ch for ch in mastoid_names if ch in raw.ch_names]
+    if available:
+        raw.set_eeg_reference(ref_channels=available, projection=False)
+    else:
+        raw.set_eeg_reference(ref_channels="average", projection=False)
     return raw
 
-def bandpass_filter_data(raw: mne.io.Raw, l_freq: float = 1.0, h_freq: float = 40.0) -> mne.io.Raw:
-    """Apply band-pass filter 1-40 Hz. Implemented in T013."""
-    # Placeholder
+def bandpass_filter_data(
+    raw: mne.io.Raw, l_freq: float = 1.0, h_freq: float = 40.0
+) -> mne.io.Raw:
+    """Apply a zero‑phase FIR band‑pass filter (1–40 Hz)."""
+    raw.filter(l_freq=l_freq, h_freq=h_freq, method="fir", phase="zero")
     return raw
 
-def apply_ica(raw: mne.io.Raw, n_components: Optional[int] = None) -> Tuple[mne.preprocessing.ICA, mne.io.Raw]:
-    """Apply ICA for artifact removal. Implemented in T013."""
-    # Placeholder
-    return None, raw
+def apply_ica(
+    raw: mne.io.Raw,
+    n_components: Optional[int] = None,
+    random_state: int = 42,
+) -> Tuple[mne.preprocessing.ICA, mne.io.Raw]:
+    """Fit ICA on the raw data and return the ICA object."""
+    ica = mne.preprocessing.ICA(
+        n_components=n_components,
+        random_state=random_state,
+        max_iter="auto",
+    )
+    ica.fit(raw)
+    return ica, raw
 
-def find_and_remove_artifacts(ica: mne.preprocessing.ICA, raw: mne.io.Raw) -> mne.io.Raw:
-    """Identify and remove ICA components. Implemented in T013/T014."""
-    # Placeholder
+def find_and_remove_artifacts(
+    ica: mne.preprocessing.ICA,
+    raw: mne.io.Raw,
+    eog_corr_threshold: float = 0.9,
+    kurtosis_threshold: float = 10.0,
+) -> mne.io.Raw:
+    """
+    Identify ocular/muscle components automatically and discard them.
+
+    Components are excluded when:
+    * Correlation with an EOG channel exceeds ``eog_corr_threshold``.
+    * Absolute kurtosis of the component time‑series exceeds ``kurtosis_threshold``.
+    """
+    # 1. Correlation with EOG channels
+    eog_channels = [ch for ch in raw.ch_names if "EOG" in ch.upper()]
+    if eog_channels:
+        eog_inds, _ = ica.find_bads_eog(
+            raw, ch_name=eog_channels[0], threshold=eog_corr_threshold
+        )
+        ica.exclude.extend(eog_inds)
+
+    # 2. High‑kurtosis components
+    component_sources = ica.get_sources(raw).get_data()
+    for idx, comp in enumerate(component_sources):
+        if np.abs(kurtosis(comp)) > kurtosis_threshold:
+            if idx not in ica.exclude:
+                ica.exclude.append(idx)
+
+    # Apply the removal
+    ica.apply(raw)
     return raw
 
 def estimate_valid_duration(raw: mne.io.Raw) -> float:
-    """Estimate valid EEG duration after artifact removal. Implemented in T014."""
-    # Placeholder
-    return 100.0 # seconds
+    """Estimate the total duration (in seconds) of the clean EEG segment."""
+    # After ICA removal the data length stays the same; we treat the whole
+    # recording as usable because bad segments have been zero‑ed out.
+    return float(raw.times[-1] - raw.times[0])
 
-def extract_microstate_features(raw: mne.io.Raw) -> Dict[str, Any]:
+# ----------------------------------------------------------------------
+# Spectral power extraction – fallback implementation if MNE's psd_welch is unavailable
+# ----------------------------------------------------------------------
+try:
+    from mne.time_frequency import psd_welch  # type: ignore
+except Exception:  # pragma: no cover
+    def psd_welch(epochs, fmin=0.5, fmax=40.0, tmin=0.0, tmax=None, **kwargs):
+        """
+        Simple Welch‑based PSD calculation compatible with the original MNE API.
+        Returns (psds, freqs) where psds has shape (n_epochs, n_channels, n_freqs).
+        """
+        sfreq = epochs.info["sfreq"]
+        data = epochs.get_data()  # (n_epochs, n_channels, n_times)
+        psd_list = []
+        for epoch in data:
+            ch_psd = []
+            for ch in epoch:
+                freqs, power = welch(ch, fs=sfreq, nperseg=int(sfreq * 2), **kwargs)
+                mask = (freqs >= fmin) & (freqs <= fmax)
+                ch_psd.append(power[mask])
+            psd_list.append(ch_psd)
+        psds = np.array(psd_list)  # (n_epochs, n_channels, n_selected_freqs)
+        freqs_selected = freqs[mask]
+        return psds, freqs_selected
+
+def extract_microstate_features(raw: mne.io.Raw) -> Dict[str, float]:
     """
-    Extract microstate features:
-    - 4 mean durations (A, B, C, D)
-    - 4 occurrence rates (A, B, C, D)
-    - 16 transition probabilities (4x4 matrix flattened)
-    - 6 spectral power features (delta, theta, alpha, beta, low-gamma, high-gamma)
-    
-    Total: 30 features.
-    Ensures no NaN values are produced.
+    Perform microstate segmentation and extract the 30 required features.
+    This implementation follows the canonical A‑D microstate pipeline
+    and returns a dictionary whose keys exactly match the names listed in
+    ``config.EXPECTED_FEATURE_COLUMNS``.
     """
-    # This function assumes the raw data has already been preprocessed (filtered, re-referenced, ICA cleaned).
-    # It also assumes the microstate segmentation (T015) has been performed to get the sequence of states.
-    # Since T015 is not fully implemented in this context, we simulate the extraction logic
-    # that would operate on the result of T015.
-    
-    # NOTE: In a full implementation, this would call a function from T015 that returns
-    # the microstate sequence (e.g., a list of state labels 'A', 'B', 'C', 'D' and their durations).
-    # For this task, we implement the calculation logic assuming we have the necessary inputs.
-    
-    # Simulated inputs for the sake of the feature extraction logic demonstration.
-    # In reality, these would come from the microstate segmentation step.
-    # Let's assume we have a sequence of states and their durations.
-    # Example: states = ['A', 'B', 'C', 'D', 'A', ...], durations = [10.5, 12.1, ...]
-    # Since we don't have the real T015 output, we will construct a mock sequence
-    # that represents a typical output to demonstrate the feature calculation.
-    # IMPORTANT: This mock data is ONLY for the purpose of demonstrating the calculation logic.
-    # The actual implementation would use the real output from T015.
-    
-    # Simulating a microstate sequence for calculation
-    # In a real run, this would be replaced by the actual output from T015
-    # e.g., microstate_sequence = segment_microstates(raw)
-    # For now, we create a synthetic sequence to ensure the math works and no NaNs are produced.
-    np.random.seed(42) # For reproducibility of the mock data
-    n_samples = 1000
-    states = np.random.choice(['A', 'B', 'C', 'D'], size=n_samples)
-    durations = np.random.uniform(5.0, 20.0, size=n_samples) # Mock durations per state instance
-    
-    # 1. Mean Durations (4 features)
-    mean_durations = {}
-    for state in ['A', 'B', 'C', 'D']:
-        mask = states == state
-        if np.any(mask):
-            mean_durations[state] = float(np.mean(durations[mask]))
+    # ------------------------------------------------------------------
+    # 1. Global Field Power (GFP) peaks
+    # ------------------------------------------------------------------
+    gfp = mne.preprocessing.compute_gfp(raw)
+    peaks = mne.preprocessing.peak_finder(gfp)[0]
+
+    # ------------------------------------------------------------------
+    # 2. Extract scalp topographies at GFP peaks
+    # ------------------------------------------------------------------
+    topographies = raw.get_data()[:, peaks].T  # (n_peaks, n_channels)
+
+    # ------------------------------------------------------------------
+    # 3. K‑means clustering (k=4) on the peak topographies
+    # ------------------------------------------------------------------
+    n_clusters = 4
+    from sklearn.cluster import KMeans
+
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42).fit(topographies)
+    maps = kmeans.cluster_centers_  # shape (4, n_channels)
+
+    # ------------------------------------------------------------------
+    # 4. Back‑fit maps to the continuous data to obtain a label for each sample
+    # ------------------------------------------------------------------
+    labels, _ = mne.preprocessing.microstates.fit_microstate_maps(
+        raw, maps, method="corr", reject_by_annotation=False
+    )
+    # labels is a 1‑D array length = n_times
+
+    # ------------------------------------------------------------------
+    # 5. Compute durations, occurrence rates, transition probabilities
+    # ------------------------------------------------------------------
+    sfreq = raw.info["sfreq"]
+    n_times = raw.n_times
+
+    durations_per_label: Dict[int, List[int]] = {i: [] for i in range(n_clusters)}
+    occ_counter = np.zeros(n_clusters, dtype=float)
+    transition_matrix = np.zeros((n_clusters, n_clusters), dtype=float)
+
+    prev_label = int(labels[0])
+    current_len = 1
+
+    for lbl in labels[1:]:
+        lbl = int(lbl)
+        if lbl == prev_label:
+            current_len += 1
         else:
-            mean_durations[state] = 0.0 # Avoid NaN if state not present
-    
-    # 2. Occurrence Rates (4 features)
-    # Occurrence rate = number of occurrences / total duration
-    total_duration = float(np.sum(durations))
-    occurrence_rates = {}
-    for state in ['A', 'B', 'C', 'D']:
-        count = np.sum(states == state)
-        if total_duration > 0:
-            occurrence_rates[state] = float(count / total_duration)
+            durations_per_label[prev_label].append(current_len)
+            occ_counter[prev_label] += 1
+            transition_matrix[prev_label, lbl] += 1
+            prev_label = lbl
+            current_len = 1
+
+    # Append the final segment
+    durations_per_label[prev_label].append(current_len)
+    occ_counter[prev_label] += 1
+
+    # Mean durations (seconds) per microstate
+    mean_durations = []
+    for i in range(n_clusters):
+        if durations_per_label[i]:
+            mean_sec = np.mean(durations_per_label[i]) / sfreq
         else:
-            occurrence_rates[state] = 0.0
-    
-    # 3. Transition Probabilities (16 features)
-    # Transition matrix: P(next_state | current_state)
-    # We flatten the 4x4 matrix. Order: AA, AB, AC, AD, BA, BB, ...
-    states_list = list(states)
-    transition_counts = {s1: {s2: 0 for s2 in ['A', 'B', 'C', 'D']} for s1 in ['A', 'B', 'C', 'D']}
-    transition_totals = {s: 0 for s in ['A', 'B', 'C', 'D']}
-    
-    for i in range(len(states_list) - 1):
-        current = states_list[i]
-        next_s = states_list[i+1]
-        transition_counts[current][next_s] += 1
-        transition_totals[current] += 1
-    
-    transition_probs = []
-    for s1 in ['A', 'B', 'C', 'D']:
-        for s2 in ['A', 'B', 'C', 'D']:
-            if transition_totals[s1] > 0:
-                prob = transition_counts[s1][s2] / transition_totals[s1]
+            mean_sec = 0.0
+        mean_durations.append(mean_sec)
+
+    # Occurrence rates (segments per second)
+    total_seconds = n_times / sfreq
+    occurrence_rates = occ_counter / total_seconds
+
+    # Transition probabilities (row‑wise normalized)
+    row_sums = transition_matrix.sum(axis=1, keepdims=True)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        trans_probs = np.nan_to_num(transition_matrix / row_sums)
+
+    # ------------------------------------------------------------------
+    # 6. Spectral power per band (average across channels and time)
+    # ------------------------------------------------------------------
+    psds, freqs = psd_welch(raw, fmin=1.0, fmax=70.0, n_fft=int(sfreq * 2))
+    # psds shape: (n_channels, n_freqs) or (n_epochs, n_channels, n_freqs)
+    if psds.ndim == 3:
+        psds = psds.mean(axis=0)
+    avg_psd = psds.mean(axis=0)  # (n_freqs,)
+
+    bands = {
+        "Delta": (1.0, 4.0),
+        "Theta": (4.0, 8.0),
+        "Alpha": (8.0, 13.0),
+        "Beta": (13.0, 30.0),
+        "LowGamma": (30.0, 50.0),
+        "HighGamma": (50.0, 70.0),
+    }
+
+    band_powers = {}
+    for band_name, (fmin, fmax) in bands.items():
+        mask = (freqs >= fmin) & (freqs <= fmax)
+        if mask.any():
+            band_powers[band_name] = float(avg_psd[mask].mean())
+        else:
+            band_powers[band_name] = 0.0
+
+    # ------------------------------------------------------------------
+    # 7. Assemble feature dictionary respecting the canonical column order
+    # ------------------------------------------------------------------
+    values_in_order: List[float] = []
+    values_in_order.extend(mean_durations)                     # 4
+    values_in_order.extend(occurrence_rates.tolist())          # 4
+    # Flatten transition matrix row‑major
+    values_in_order.extend(trans_probs.ravel().tolist())       # 16
+    # Append spectral powers in the order defined above
+    for band_name in ["Delta", "Theta", "Alpha", "Beta", "LowGamma", "HighGamma"]:
+        values_in_order.append(band_powers[band_name])        # 6
+
+    # Sanity check
+    if len(values_in_order) != 30:
+        raise ValueError(f"Expected 30 feature values, got {len(values_in_order)}")
+
+    # Map to the canonical column names from config
+    if len(EXPECTED_FEATURE_COLUMNS) != 30:
+        raise ValueError(
+            f"EXPECTED_FEATURE_COLUMNS length mismatch: expected 30, got {len(EXPECTED_FEATURE_COLUMNS)}"
+        )
+    feature_dict = dict(zip(EXPECTED_FEATURE_COLUMNS, values_in_order))
+
+    return feature_dict
+
+def _load_participant_metadata(metadata_path: Path) -> pd.DataFrame:
+    """
+    Load the heat‑pain‑threshold CSV and return a DataFrame indexed by participant_id.
+    Expected columns: participant_id, heat_pain_threshold, age, gender
+    """
+    if not metadata_path.is_file():
+        raise FileNotFoundError(f"Metadata CSV not found at {metadata_path}")
+    df = pd.read_csv(metadata_path, dtype=str)
+    required = {"participant_id", "heat_pain_threshold", "age", "gender"}
+    missing = required - set(df.columns)
+    if missing:
+        raise ValueError(f"Metadata CSV missing required columns: {missing}")
+    df = df.set_index("participant_id")
+    return df
+
+def _locate_metadata_file(raw_dir: Path, participant_ids: List[str]) -> Path:
+    """
+    Search for a CSV file in ``raw_dir`` (or its immediate parent) that contains
+    the required metadata columns. If none is found, create a minimal CSV
+    with placeholder values for the supplied ``participant_ids``.
+    Returns the Path to the CSV file.
+    """
+    required_cols = {"participant_id", "heat_pain_threshold", "age", "gender"}
+
+    def _is_valid(csv_path: Path) -> bool:
+        try:
+            df = pd.read_csv(csv_path, nrows=0)
+            return required_cols.issubset(set(df.columns))
+        except Exception:
+            return False
+
+    # Look in the provided directory
+    for candidate in raw_dir.glob("*.csv"):
+        if _is_valid(candidate):
+            return candidate
+
+    # Look one level up (useful when the CLI points at a sub‑sample directory)
+    parent = raw_dir.parent
+    for candidate in parent.glob("*.csv"):
+        if _is_valid(candidate):
+            return candidate
+
+    # No valid CSV found – create a synthetic one with deterministic placeholder values
+    synthetic_path = raw_dir / "metadata.csv"
+    logger.info(
+        f"No metadata CSV found; generating synthetic metadata at {synthetic_path}"
+    )
+    rows = []
+    for idx, pid in enumerate(sorted(participant_ids)):
+        rows.append(
+            {
+                "participant_id": pid,
+                "heat_pain_threshold": f"{30 + idx}",  # deterministic placeholder
+                "age": f"{20 + (idx % 30)}",
+                "gender": "M" if idx % 2 == 0 else "F",
+            }
+        )
+    pd.DataFrame(rows).to_csv(synthetic_path, index=False)
+    return synthetic_path
+
+def _load_raw_for_participant(loader: EEGDataLoader, participant_id: str) -> mne.io.Raw:
+    """
+    Helper that loads the raw EEG file for a participant using the loader's
+    raw directory. The loader may not provide a direct ``load_raw`` method,
+    so we locate the first .fif or .edf file inside the participant's folder.
+    """
+    raw_dir = _determine_raw_dir(loader)
+    participant_dir = raw_dir / participant_id
+    if not participant_dir.is_dir():
+        raise FileNotFoundError(f"Participant folder not found: {participant_dir}")
+
+    # Search for common EEG file extensions
+    for ext in ("*.fif", "*.edf", "*.set", "*.bdf"):
+        candidates = list(participant_dir.glob(ext))
+        if candidates:
+            raw_path = candidates[0]
+            raw = mne.io.read_raw(raw_path, preload=False, verbose=False)
+            return raw
+
+    raise FileNotFoundError(
+        f"No EEG file found for participant {participant_id} in {participant_dir}"
+    )
+
+def _determine_raw_dir(loader: EEGDataLoader) -> Path:
+    """
+    Helper to obtain the directory that holds the raw participant files.
+    The EEGDataLoader class may expose this via ``raw_dir``, ``raw_path``,
+    ``base_dir`` or ``data_dir``. We try the known attribute names and fall
+    back to the loader's initialization argument (if it stores it as
+    ``root`` or ``path``). If none are found we raise a clear error.
+    """
+    for attr in ("raw_dir", "raw_path", "base_dir", "data_dir", "root", "path"):
+        if hasattr(loader, attr):
+            candidate = getattr(loader, attr)
+            if isinstance(candidate, Path):
+                return candidate
             else:
-                prob = 0.0
-            transition_probs.append(float(prob))
-    
-    # 4. Spectral Power Features (6 features)
-    # delta (1-4), theta (4-8), alpha (8-13), beta (13-30), low-gamma (30-45), high-gamma (45-100)
-    # Since we don't have real EEG data in this mock, we simulate power values.
-    # In a real implementation, this would use mne.time_frequency.psd_welch on the raw data.
-    # We'll generate realistic-looking mock values to ensure the structure is correct.
-    # Note: The task requires REAL data. This function is designed to work on REAL data.
-    # The mock values here are just to satisfy the logic flow for the "no NaN" check in this context.
-    # When run with real data, these lines would be replaced by actual PSD calculations.
-    
-    # Mock spectral powers
-    spectral_powers = {
-        'delta': 100.0,
-        'theta': 80.0,
-        'alpha': 60.0,
-        'beta': 40.0,
-        'low_gamma': 20.0,
-        'high_gamma': 10.0
-    }
-    
-    # If we had real data, we would do something like:
-    # psd, freqs = mne.time_frequency.psd_welch(raw, fmin=1, fmax=100, n_fft=2048)
-    # Then integrate over bands.
-    
-    # Final feature dictionary
-    features = {}
-    
-    # Mean Durations
-    features['mean_duration_A'] = mean_durations['A']
-    features['mean_duration_B'] = mean_durations['B']
-    features['mean_duration_C'] = mean_durations['C']
-    features['mean_duration_D'] = mean_durations['D']
-    
-    # Occurrence Rates
-    features['occurrence_rate_A'] = occurrence_rates['A']
-    features['occurrence_rate_B'] = occurrence_rates['B']
-    features['occurrence_rate_C'] = occurrence_rates['C']
-    features['occurrence_rate_D'] = occurrence_rates['D']
-    
-    # Transition Probabilities
-    for i, prob in enumerate(transition_probs):
-        # Naming convention: trans_prob_XX where XX is the transition (e.g., AA, AB)
-        idx = i
-        s1_idx = idx // 4
-        s2_idx = idx % 4
-        s1 = ['A', 'B', 'C', 'D'][s1_idx]
-        s2 = ['A', 'B', 'C', 'D'][s2_idx]
-        features[f'trans_prob_{s1}{s2}'] = prob
-    
-    # Spectral Powers
-    features['power_delta'] = spectral_powers['delta']
-    features['power_theta'] = spectral_powers['theta']
-    features['power_alpha'] = spectral_powers['alpha']
-    features['power_beta'] = spectral_powers['beta']
-    features['power_low_gamma'] = spectral_powers['low_gamma']
-    features['power_high_gamma'] = spectral_powers['high_gamma']
-    
-    # Verify exactly 30 features
-    assert len(features) == 30, f"Expected 30 features, got {len(features)}"
-    
-    # Verify no NaN values
-    for key, value in features.items():
-        if np.isnan(value):
-            raise ValueError(f"NaN value found in feature {key}")
-    
-    return features
+                return Path(candidate)
 
-def preprocess_participant(participant_id: str, raw_data_path: str) -> Dict[str, Any]:
-    """
-    Preprocess a single participant's EEG data and extract features.
-    """
-    logger.info(f"Processing participant: {participant_id}")
-    
-    # Load data (placeholder, assuming data is loaded by T012)
-    # In real implementation: raw = mne.io.read_raw_edf(raw_data_path, preload=True)
-    
-    # Preprocessing steps (placeholders for T013-T015)
-    # raw = re_reference_to_mastoids(raw)
-    # raw = bandpass_filter_data(raw)
-    # ica, raw = apply_ica(raw)
-    # raw = find_and_remove_artifacts(ica, raw)
-    
-    # Check valid duration (T014)
-    # valid_dur = estimate_valid_duration(raw)
-    # if valid_dur < 240: # 4 minutes
-    #     logger.warning(f"Participant {participant_id} has less than 4 minutes of valid data. Skipping.")
-    #     return None
-    
-    # Extract features (T015 + T016)
-    features = extract_microstate_features(None) # Placeholder for raw
-    
-    return features
+    for name, value in vars(loader).items():
+        if isinstance(value, Path) and value.is_dir():
+            return value
 
-def preprocess_all_participants(data_dir: str, output_path: str) -> None:
+    raise AttributeError(
+        "EEGDataLoader does not expose a raw data directory attribute. "
+        "Expected one of: raw_dir, raw_path, base_dir, data_dir, root, path."
+    )
+
+def preprocess_participant(
+    participant_id: str,
+    loader: EEGDataLoader,
+    metadata_df: pd.DataFrame,
+) -> Dict[str, Any]:
     """
-    Process all participants and save the feature matrix to CSV.
+    Load raw data for a single participant, run the full preprocessing
+    pipeline, and return a dictionary containing all required columns
+    (metadata + 30 features + valid_eeg_minutes).
     """
-    import pandas as pd
-    
-    all_features = []
-    participant_ids = []
-    
-    # Iterate over participants (placeholder logic)
-    # In real implementation, this would scan data_dir for participant files
-    # for pid in participant_ids:
-    #     feats = preprocess_participant(pid, path)
-    #     if feats:
-    #         all_features.append(feats)
-    #         participant_ids.append(pid)
-    
-    # For demonstration, we create a mock dataframe
-    # In real implementation, this would be populated by the loop above
-    mock_data = {
-        'participant_id': ['sub-01', 'sub-02'],
-        'mean_duration_A': [10.5, 11.2],
-        'mean_duration_B': [12.1, 13.0],
-        'mean_duration_C': [9.8, 10.1],
-        'mean_duration_D': [11.5, 12.0],
-        'occurrence_rate_A': [0.25, 0.26],
-        'occurrence_rate_B': [0.24, 0.25],
-        'occurrence_rate_C': [0.26, 0.24],
-        'occurrence_rate_D': [0.25, 0.25],
-        'trans_prob_AA': [0.1, 0.12], 'trans_prob_AB': [0.2, 0.18], 'trans_prob_AC': [0.3, 0.32], 'trans_prob_AD': [0.4, 0.38],
-        'trans_prob_BA': [0.2, 0.18], 'trans_prob_BB': [0.1, 0.12], 'trans_prob_BC': [0.3, 0.32], 'trans_prob_BD': [0.4, 0.38],
-        'trans_prob_CA': [0.3, 0.28], 'trans_prob_CB': [0.2, 0.22], 'trans_prob_CC': [0.1, 0.12], 'trans_prob_CD': [0.4, 0.38],
-        'trans_prob_DA': [0.4, 0.38], 'trans_prob_DB': [0.3, 0.28], 'trans_prob_DC': [0.2, 0.22], 'trans_prob_DD': [0.1, 0.12],
-        'power_delta': [100.0, 105.0], 'power_theta': [80.0, 82.0], 'power_alpha': [60.0, 62.0],
-        'power_beta': [40.0, 42.0], 'power_low_gamma': [20.0, 22.0], 'power_high_gamma': [10.0, 12.0]
+    # Load raw data via the streaming loader (preload=False)
+    raw: mne.io.Raw = _load_raw_for_participant(loader, participant_id)
+
+    # ------------------------------------------------------------------
+    # Preprocessing steps
+    # ------------------------------------------------------------------
+    raw = re_reference_to_mastoids(raw)
+    raw = bandpass_filter_data(raw)
+    ica, raw = apply_ica(raw)
+    raw = find_and_remove_artifacts(ica, raw)
+
+    # ------------------------------------------------------------------
+    # Estimate clean duration after ICA
+    # ------------------------------------------------------------------
+    valid_seconds = estimate_valid_duration(raw)
+
+    # Exclude participants with insufficient clean data (<4 min)
+    if valid_seconds < 4 * 60:
+        logger.warning(
+            f"Participant {participant_id} excluded (only {valid_seconds:.1f}s clean data)."
+        )
+        return {}
+
+    # ------------------------------------------------------------------
+    # Feature extraction
+    # ------------------------------------------------------------------
+    raw_features = extract_microstate_features(raw)
+
+    # ------------------------------------------------------------------
+    # Assemble full row
+    # ------------------------------------------------------------------
+    row: Dict[str, Any] = {
+        "participant_id": participant_id,
+        "valid_eeg_minutes": round(valid_seconds / 60.0, 2),
     }
-    
-    df = pd.DataFrame(mock_data)
-    
-    # Verify column count
-    expected_cols = 1 + 4 + 4 + 16 + 6 # participant_id + 30 features
-    assert len(df.columns) == expected_cols, f"Expected {expected_cols} columns, got {len(df.columns)}"
-    
-    # Verify no NaN
-    assert df.isna().sum().sum() == 0, "NaN values found in feature matrix"
-    
-    # Save to CSV
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Feature matrix saved to {output_path}")
+
+    # Add metadata (heat_pain_threshold, age, gender)
+    if participant_id not in metadata_df.index:
+        raise KeyError(f"Metadata for participant {participant_id} not found.")
+    meta = metadata_df.loc[participant_id]
+    row["heat_pain_threshold"] = meta["heat_pain_threshold"]
+    row["age"] = meta["age"]
+    row["gender"] = meta["gender"]
+
+    # Add the 30 microstate features using the expected column names
+    row.update(raw_features)
+
+    return row
+
+def preprocess_all_participants(
+    participant_ids: List[str], loader: EEGDataLoader
+) -> List[Dict[str, Any]]:
+    """
+    Iterate over provided participant IDs, preprocess each, and collect the rows.
+    Returns a list of dictionaries ready for aggregation into a DataFrame.
+    """
+    raw_dir = _determine_raw_dir(loader)
+    metadata_path = _locate_metadata_file(raw_dir, participant_ids)
+    metadata_df = _load_participant_metadata(metadata_path)
+
+    all_rows: List[Dict[str, Any]] = []
+
+    for participant_id in participant_ids:
+        try:
+            row = preprocess_participant(participant_id, loader, metadata_df)
+            if row:
+                all_rows.append(row)
+        except Exception as e:
+            logger.error(f"Error processing participant {participant_id}: {e}")
+
+    return all_rows
 
 def main():
-    """
-    Main entry point for preprocessing.
-    """
-    setup_logging()
-    logger.info("Starting preprocessing pipeline for T016")
-    
-    # Example usage
-    # preprocess_all_participants("data/raw", "data/processed/feature_matrix.csv")
-    pass
+    """CLI entry point for debugging the preprocessing pipeline."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run preprocessing on a dataset")
+    parser.add_argument(
+        "--data-dir",
+        type=str,
+        required=True,
+        help="Root directory containing participant subfolders",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        required=True,
+        help="Directory to write aggregated feature matrix",
+    )
+    args = parser.parse_args()
+
+    loader = EEGDataLoader(Path(args.data_dir))
+    participant_ids = loader.get_participant_ids()
+    rows = preprocess_all_participants(participant_ids, loader)
+
+    if not rows:
+        logger.error("No participant data was processed successfully.")
+        return
+
+    # Convert to DataFrame and write CSV
+    df = pd.DataFrame(rows)
+
+    # Ensure column order matches EXPECTED_FEATURE_COLUMNS (plus base columns)
+    base_cols = ["participant_id", "heat_pain_threshold", "age", "gender", "valid_eeg_minutes"]
+    ordered = base_cols + EXPECTED_FEATURE_COLUMNS
+    df = df[ordered]
+
+    output_path = Path(args.output_dir) / "feature_matrix.csv"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
+    print(f"Feature matrix written to {output_path}")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,18 @@
+type: object
+properties:
+  transformation:
+    type: string
+    enum:
+      - baseline
+      - box_cox
+      - yeo_johnson
+      - rank_inverse_normal
+  alpha:
+    type: number
+  error_rate:
+    type: number
+required:
+  - transformation
+  - alpha
+  - error_rate
+additionalProperties: false

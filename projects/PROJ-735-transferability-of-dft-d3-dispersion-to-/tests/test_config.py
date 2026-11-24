@@ -1,12 +1,14 @@
 """
 Tests for the configuration management module.
 """
+
 import os
 import tempfile
 from pathlib import Path
 import pytest
 
 import sys
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from code.config import Config, get_config, set_seed, get_seed
@@ -74,6 +76,7 @@ class TestSeedManagement:
     def test_seed_affects_numpy(self):
         """Test that setting seed affects NumPy's random state."""
         import numpy as np
+
         config = Config()
         config.set_seed(42)
         val1 = np.random.random()
@@ -114,11 +117,17 @@ class TestPathAccess:
         """Test that all expected path attributes exist."""
         config = Config()
         expected_attrs = [
-            "data_dir", "data_raw_dir", "data_derived_dir",
-            "output_dir", "logs_dir",
-            "synthetic_xyz_zip", "synthetic_bulk_csv",
-            "raw_energies_csv", "scaling_factor_txt",
-            "benchmark_report_md", "correlation_report_md"
+            "data_dir",
+            "data_raw_dir",
+            "data_derived_dir",
+            "output_dir",
+            "logs_dir",
+            "synthetic_xyz_zip",
+            "synthetic_bulk_csv",
+            "raw_energies_csv",
+            "scaling_factor_txt",
+            "benchmark_report_md",
+            "correlation_report_md",
         ]
         for attr in expected_attrs:
             assert hasattr(config, attr)

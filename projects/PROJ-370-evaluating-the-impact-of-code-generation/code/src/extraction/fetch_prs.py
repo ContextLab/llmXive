@@ -2,41 +2,47 @@
 Fetch Pull Requests and associated data from GitHub for target repositories.
 
 This module implements Task T007:
-(a) Load target repositories from ``code/config/settings.py``.
+(a) Load target repositories from ``code/src/config/settings.py``.
 (b) Fetch up to ``max_prs`` PRs per repository via the GitHub REST API.
-(c) Compute SHA‑256 checksums for each PR payload.
-(d) Write the raw PR payloads to ``data/raw/prs.json``.
-(e) Write the checksum mapping to ``data/raw/checksums.json``.
+(c) For each PR also fetch the diff, review comments and issue comments.
+(d) Compute SHA-256 checksums for each PR payload file.
+(e) Write the enriched raw PR payloads as individual JSON files to ``data/raw/``.
+(f) Write the checksum mapping to ``data/raw/checksums.json``.
+(g) Provide a small CLI supporting ``--repos``, ``--max-prs`` and ``--test-set``.
 """
 
-import os
+import argparse
 import json
-import time
 import logging
+import time
 import hashlib
-from pathlib import Path
+import os
+import re
 from datetime import datetime
+from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Use the standard library for HTTP requests to avoid an external ``requests`` dependency.
+# Standard library HTTP utilities
 from urllib import request as urllib_request
 from urllib import error as urllib_error
 
-# Import configuration utilities from the project's settings module
-from code.config.settings import (
+# Configuration and toolkit utilities
+from llmxive_toolkit import paths, get_logger
+from code.src.config.settings import (
     get_target_repos,
-    get_paths,
     ensure_directories,
     HYPERPARAMS,
 )
 
-# Configure logger for this module
+log = get_logger(__name__)
 logger = logging.getLogger(__name__)
 
 GITHUB_API_BASE = "https://api.github.com"
-RATE_LIMIT_SLEEP = 60  # Seconds to sleep if rate limit hit
+RATE_LIMIT_SLEEP = 60  # seconds to sleep when hitting a rate limit
 
-
+# ----------------------------------------------------------------------
+# Helper functions for HTTP interaction
+# ----------------------------------------------------------------------
 def _http_get(url: str, headers: Dict[str, str]) -> bytes:
     """Perform a GET request and return raw bytes using ``urllib``."""
     req = urllib_request.Request(url, headers=headers, method="GET")
@@ -45,33 +51,24 @@ def _http_get(url: str, headers: Dict[str, str]) -> bytes:
             return resp.read()
     except urllib_error.HTTPError as e:
         if e.code == 403:
-            # GitHub rate limiting returns 403 with a message containing "rate limit"
             body = e.read().decode()
             if "rate limit" in body.lower():
                 logger.warning(f"Rate limit hit for {url}.")
                 raise RuntimeError("rate_limit")
             else:
                 raise
+        elif e.code == 429:
+            logger.warning(f"Too Many Requests (429) for {url}.")
+            raise RuntimeError("rate_limit")
         else:
             raise
-
 
 def make_github_request(
     endpoint: str, params: Optional[Dict[str, Any]] = None
 ) -> List[Dict[str, Any]]:
     """
     Make a paginated request to the GitHub API.
-
-    Args:
-        endpoint: API endpoint (e.g., '/repos/owner/repo/pulls')
-        params: Query parameters
-
-    Returns:
-        List of items from all pages of the response.
-
-    Raises:
-        RuntimeError: If rate limiting is encountered.
-        urllib.error.URLError / HTTPError for other failures.
+    Returns a flat list of items from all pages.
     """
     url = f"{GITHUB_API_BASE}{endpoint}"
     headers = {
@@ -91,137 +88,126 @@ def make_github_request(
         query_params["page"] = page
         query_params["per_page"] = 100
 
-        # Build query string
-        if query_params:
-            query_string = "&".join(f"{k}={v}" for k, v in query_params.items())
-            full_url = f"{url}?{query_string}"
-        else:
-            full_url = url
+        query_string = "&".join(f"{k}={v}" for k, v in query_params.items())
+        full_url = f"{url}?{query_string}"
 
         try:
             raw = _http_get(full_url, headers)
             data = json.loads(raw.decode())
         except RuntimeError as rl:
             if str(rl) == "rate_limit":
-                logger.warning(
-                    f"Rate limit hit. Sleeping for {RATE_LIMIT_SLEEP} seconds."
-                )
+                logger.warning(f"Rate limit hit. Sleeping for {RATE_LIMIT_SLEEP}s.")
                 time.sleep(RATE_LIMIT_SLEEP)
                 continue
             else:
                 raise
         except Exception as e:
             logger.error(f"Request failed for {full_url}: {e}")
-            raise
-
-        if not isinstance(data, list):
-            logger.warning(f"Expected list from {full_url}, got {type(data)}")
             break
 
+        if not isinstance(data, list):
+            break
         if not data:
-            # No more items
             break
 
         all_items.extend(data)
         page += 1
-
-        # GitHub returns max 100 items per page; if fewer, we are done.
         if len(data) < 100:
             break
-
-        # Polite delay
-        time.sleep(1)
+        time.sleep(0.5)
 
     return all_items
 
+# ----------------------------------------------------------------------
+# Data-fetching helpers specific to a PR
+# ----------------------------------------------------------------------
+def _fetch_diff(diff_url: str) -> str:
+    """Download the raw diff text for a PR."""
+    try:
+        # Use specific header for diffs
+        headers = {"Accept": "application/vnd.github.v3.diff", "User-Agent": "llmXive-research-pipeline"}
+        token = os.getenv("GITHUB_TOKEN")
+        if token:
+            headers["Authorization"] = f"token {token}"
+        
+        req = urllib_request.Request(diff_url, headers=headers, method="GET")
+        with urllib_request.urlopen(req, timeout=30) as resp:
+            return resp.read().decode(errors="replace")
+    except Exception as e:
+        logger.warning(f"Could not fetch diff from {diff_url}: {e}")
+        return ""
+
+def _fetch_review_comments(owner: str, repo: str, pr_number: int) -> List[Dict[str, Any]]:
+    """Fetch inline review comments for a PR."""
+    endpoint = f"/repos/{owner}/{repo}/pulls/{pr_number}/comments"
+    return make_github_request(endpoint)
+
+def _fetch_issue_comments(owner: str, repo: str, pr_number: int) -> List[Dict[str, Any]]:
+    """Fetch top-level issue comments for a PR."""
+    endpoint = f"/repos/{owner}/{repo}/issues/{pr_number}/comments"
+    return make_github_request(endpoint)
 
 def fetch_linked_issues(pr_data: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """
-    Fetch linked issues for a specific PR by scanning the PR body for
-    ``Fixes #123`` / ``Closes #456`` patterns.
-
-    Args:
-        pr_data: PR data dictionary containing ``number`` and repository info.
-
-    Returns:
-        List of issue objects linked to the PR.
-    """
-    pr_number = pr_data.get("number")
-    repo_full_name = pr_data.get("base", {}).get("repo", {}).get("full_name")
-    if not repo_full_name:
-        repo_full_name = pr_data.get("repository_url", "").replace(
-            "https://api.github.com/repos/", ""
-        )
+    """Scan PR body for linked issues and retrieve minimal metadata."""
+    body = pr_data.get("body") or ""
+    pattern = r"(?:Fixes|Closes|Resolves|Related to)\s*#(\d+)"
+    matches = re.findall(pattern, body, re.IGNORECASE)
+    
+    repo_full_name = pr_data.get("repo_full_name")
     if not repo_full_name:
         return []
 
-    body = pr_data.get("body", "") or ""
-    import re
-
-    # Look for explicit closing keywords followed by an issue number
-    pattern = r"(?:Fixes|Closes|Resolves|Related to)\s*#(\d+)"
-    matches = re.findall(pattern, body, re.IGNORECASE)
-
     linked_issues: List[Dict[str, Any]] = []
-    for issue_num in matches:
+    for issue_num in matches[:5]: # Limit to 5 to avoid timeout
         try:
             issue_endpoint = f"/repos/{repo_full_name}/issues/{issue_num}"
-            issue_data = make_github_request(issue_endpoint)
-            if issue_data:
-                linked_issues.append(
-                    {
-                        "issue_number": int(issue_num),
-                        "title": issue_data.get("title"),
-                        "state": issue_data.get("state"),
-                        "url": issue_data.get("html_url"),
-                        "labels": [
-                            l.get("name") for l in issue_data.get("labels", [])
-                        ],
-                    }
-                )
+            # make_github_request returns a list, but this endpoint returns a dict
+            # We need a custom call for single items
+            headers = {"Accept": "application/vnd.github.v3+json", "User-Agent": "llmXive-research-pipeline"}
+            token = os.getenv("GITHUB_TOKEN")
+            if token: headers["Authorization"] = f"token {token}"
+            
+            req = urllib_request.Request(f"{GITHUB_API_BASE}{issue_endpoint}", headers=headers)
+            with urllib_request.urlopen(req, timeout=10) as resp:
+                issue_data = json.loads(resp.read().decode())
+                linked_issues.append({
+                    "issue_number": int(issue_num),
+                    "title": issue_data.get("title"),
+                    "state": issue_data.get("state"),
+                    "url": issue_data.get("html_url"),
+                    "labels": [l.get("name") for l in issue_data.get("labels", [])],
+                })
         except Exception as e:
-            logger.warning(
-                f"Failed to fetch issue #{issue_num} for PR #{pr_number}: {e}"
-            )
+            logger.warning(f"Failed to fetch issue #{issue_num}: {e}")
     return linked_issues
 
-
 def fetch_prs_for_repo(
-    owner: str, repo: str, max_prs: Optional[int] = None
+    owner: str,
+    repo: str,
+    max_prs: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
-    """
-    Fetch PRs for a specific repository and enrich each with linked issues.
-
-    Args:
-        owner: Repository owner.
-        repo: Repository name.
-        max_prs: Maximum number of PRs to fetch (None means all).
-
-    Returns:
-        List of enriched PR dictionaries.
-    """
+    """Fetch PRs for a repository and enrich them."""
     logger.info(f"Fetching PRs for {owner}/{repo}...")
-
     endpoint = f"/repos/{owner}/{repo}/pulls"
-    params = {"state": "all"}  # Fetch both open and closed PRs
-
+    params = {"state": "all"}
     prs = make_github_request(endpoint, params)
 
     if max_prs is not None:
         prs = prs[:max_prs]
 
-    enriched_prs: List[Dict[str, Any]] = []
+    enriched: List[Dict[str, Any]] = []
     for pr in prs:
         pr_number = pr.get("number")
-        logger.debug(f"Processing PR #{pr_number}")
-
+        repo_full_name = f"{owner}/{repo}"
+        
         linked_issues = fetch_linked_issues(pr)
-
-        enriched_pr = {
+        
+        enriched_pr: Dict[str, Any] = {
             "pr_id": pr.get("id"),
             "pr_number": pr_number,
             "owner": owner,
             "repo": repo,
+            "repo_full_name": repo_full_name,
             "title": pr.get("title"),
             "state": pr.get("state"),
             "created_at": pr.get("created_at"),
@@ -231,110 +217,78 @@ def fetch_prs_for_repo(
             "body": pr.get("body"),
             "html_url": pr.get("html_url"),
             "diff_url": pr.get("diff_url"),
-            "patch_url": pr.get("patch_url"),
             "linked_issues": linked_issues,
+            "linked_issue_ids": [i["issue_number"] for i in linked_issues],
             "fetched_at": datetime.utcnow().isoformat() + "Z",
         }
 
-        if not linked_issues:
-            logger.debug(f"PR #{pr_number} has no linked issues found.")
+        # Enrich with diff and comments
+        enriched_pr["diff"] = _fetch_diff(pr.get("diff_url", ""))
+        
+        review_comments = _fetch_review_comments(owner, repo, pr_number)
+        issue_comments = _fetch_issue_comments(owner, repo, pr_number)
+        enriched_pr["human_review_comments"] = [c.get("body", "") for c in review_comments]
+        enriched_pr["human_review_comments"] += [c.get("body", "") for c in issue_comments]
 
-        enriched_prs.append(enriched_pr)
+        enriched.append(enriched_pr)
+        time.sleep(0.2) # Polite delay
 
-    logger.info(f"Fetched {len(enriched_prs)} PRs for {owner}/{repo}.")
-    return enriched_prs
+    return enriched
 
+# ----------------------------------------------------------------------
+# Orchestration
+# ----------------------------------------------------------------------
+def run_fetch_prs(
+    target_repos: Optional[List[str]] = None,
+    max_prs: Optional[int] = None,
+    test_set: Optional[int] = None,
+) -> None:
+    """Core orchestration for fetching PRs and writing artifacts."""
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    
+    repos = target_repos if target_repos is not None else get_target_repos()
+    if not repos:
+        log.error("No target repositories found.")
+        return
 
-def _write_json(path: Path, data: Any) -> None:
-    """Helper to write JSON data with UTF‑8 encoding and pretty formatting."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False, sort_keys=True)
+    effective_max = test_set if test_set is not None else (max_prs or HYPERPARAMS.get("max_prs", 500))
+    ensure_directories()
+    raw_dir = paths.data("raw")
 
+    all_prs_count = 0
+    for repo_str in repos:
+        if "/" not in repo_str: continue
+        owner, repo = repo_str.split("/", 1)
+        try:
+            prs = fetch_prs_for_repo(owner, repo, max_prs=effective_max)
+            for pr in prs:
+                pr_id = pr.get("pr_id") or pr.get("pr_number")
+                file_path = raw_dir / f"pr_{pr_id}.json"
+                with file_path.open("w", encoding="utf-8") as f:
+                    json.dump(pr, f, indent=2, ensure_ascii=False)
+                all_prs_count += 1
+        except Exception as e:
+            logger.error(f"Failed to fetch {repo_str}: {e}")
+
+    # Generate Checksums
+    checksums = {}
+    for file in raw_dir.glob("*.json"):
+        if file.name == "checksums.json": continue
+        checksums[file.name] = hashlib.sha256(file.read_bytes()).hexdigest()
+    
+    checksums_path = raw_dir / "checksums.json"
+    with checksums_path.open("w", encoding="utf-8") as f:
+        json.dump(checksums, f, indent=2, ensure_ascii=False)
+    
+    log.info(f"Successfully fetched {all_prs_count} PRs. Checksums written to {checksums_path}")
 
 def main() -> None:
-    """
-    Main entry point for Task T007.
-    1. Load target repositories from ``code/config/settings.py``.
-    2. Fetch up to ``max_prs`` PRs per repository.
-    3. Write the raw PR payloads to ``data/raw/prs.json``.
-    4. Compute SHA‑256 checksums for each PR and write them to ``data/raw/checksums.json``.
-    """
-    # Configure basic logging (if not already configured by a parent script)
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    )
-
-    try:
-        # (a) Load and validate target repositories
-        target_repos = get_target_repos()
-        if not target_repos:
-            logger.error("No target repositories found in configuration.")
-            return
-
-        logger.info(f"Target repositories: {target_repos}")
-
-        # (b) Determine maximum PRs per repository from hyper‑parameters
-        max_prs = HYPERPARAMS.get("max_prs", 500)
-
-        # Ensure output directories exist
-        paths = get_paths()
-        raw_dir = Path(paths["data_raw"])
-        ensure_directories()
-
-        all_prs: List[Dict[str, Any]] = []
-        fetch_errors: List[Dict[str, str]] = []
-
-        for repo_str in target_repos:
-            if "/" not in repo_str:
-                logger.warning(f"Invalid repo format '{repo_str}', skipping.")
-                continue
-
-            owner, repo = repo_str.split("/", 1)
-            try:
-                prs = fetch_prs_for_repo(owner, repo, max_prs=max_prs)
-                all_prs.extend(prs)
-            except Exception as e:
-                logger.error(f"Failed to fetch PRs for {repo_str}: {e}")
-                fetch_errors.append({"repo": repo_str, "error": str(e)})
-
-        if not all_prs:
-            logger.warning("No PRs fetched. Creating empty output files.")
-            _write_json(raw_dir / "prs.json", [])
-            _write_json(raw_dir / "checksums.json", {})
-            return
-
-        # (c) Write raw PR data to a deterministic filename
-        prs_path = raw_dir / "prs.json"
-        _write_json(prs_path, all_prs)
-        logger.info(f"Saved {len(all_prs)} PRs to {prs_path}")
-
-        # (d) Compute SHA‑256 checksums for each PR
-        checksums: Dict[str, str] = {}
-        for pr in all_prs:
-            # Use ``pr_id`` if present, otherwise fall back to ``pr_number``
-            pr_key = str(pr.get("pr_id") or pr.get("pr_number"))
-            pr_json = json.dumps(pr, sort_keys=True).encode("utf-8")
-            checksum = hashlib.sha256(pr_json).hexdigest()
-            checksums[pr_key] = checksum
-
-        checksums_path = raw_dir / "checksums.json"
-        _write_json(checksums_path, checksums)
-        logger.info(f"Wrote checksums for {len(checksums)} PRs to {checksums_path}")
-
-        # (e) Log any fetch errors
-        if fetch_errors:
-            error_path = raw_dir / "fetch_errors.json"
-            _write_json(error_path, fetch_errors)
-            logger.warning(
-                f"Encountered errors for {len(fetch_errors)} repositories; details in {error_path}"
-            )
-
-    except Exception as e:
-        logger.critical(f"Fatal error in fetch_prs pipeline: {e}", exc_info=True)
-        raise
-
+    parser = argparse.ArgumentParser(description="Fetch PR data from GitHub.")
+    parser.add_argument("--repos", nargs="+", help="Override target repos.")
+    parser.add_argument("--max-prs", type=int, help="Max PRs per repo.")
+    parser.add_argument("--test-set", type=int, help="Small test set size.")
+    args = parser.parse_args()
+    run_fetch_prs(target_repos=args.repos, max_prs=args.max_prs, test_set=args.test_set)
 
 if __name__ == "__main__":
     main()

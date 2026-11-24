@@ -1,13 +1,11 @@
-# Reproducible environment for the residual-stress fatigue project
-# Python version: 3.11
-pandas==2.2.2
-numpy==1.26.4
-scikit-learn==1.5.0
-torch==2.3.0
-statsmodels==0.14.2
-datasets==2.20.0
-pyyaml==6.0.1
-pytest==8.2.2
-requests==2.32.3
-jsonschema==4.22.0
-matplotlib==3.9.0
+pandas==2.2.*
+numpy==1.26.*
+scikit-learn==1.5.*
+torch==2.3.*
+statsmodels==0.14.*
+pyyaml==6.0.*
+pytest==8.2.*
+jsonschema==4.21.*
+psutil==5.9.*
+openml==0.14.*
+ucimlrepo==0.1.11

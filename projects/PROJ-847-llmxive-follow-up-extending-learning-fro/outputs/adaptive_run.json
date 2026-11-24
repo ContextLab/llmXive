@@ -1,0 +1,16 @@
+{
+  "mode": "adaptive",
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51
+  ],
+  "message": "Placeholder adaptive run \u2013 full implementation pending."
+}

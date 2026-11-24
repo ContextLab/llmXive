@@ -1,0 +1,106 @@
+T002:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 67e5597842c19b3394034ec24d6cce83365ea6a5fa0c6c188ccbd6f982e2f623
+T005:
+  task: 509a1cf870d3a3af4f38191513977e2d3679614d2fed322294f2f94e733aea5f
+T006a:
+  task: 94f4f0ad3b5978255bfe4a1bdc9a82b1f8fa0f26b5d8950cf9f60d15b3636a1e
+T006b:
+  task: 2f366f0d5926e8b45e0ae61cc06159a4e5494d9f79824e7a420ee0cdb1404a52
+T007:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/data/download.py'
+  task: 8b39961c6a75da7b6ca975827c8d44ba89ae1be604d5f4f5d8de85d46fdcf816
+T008:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/data/preprocess.py'
+  task: cf206db14b907807909a04f0a1488e6afd0dd81e385ecdd500647b7290797cb7
+T009:
+  reason: "The `config.py` file exists, but it does not enforce CPU\u2011only execution\
+    \ (it allows \u201Ccuda\u201D as a valid device) and it never actually sets the\
+    \ random seed for Python, NumPy, or a deep\u2011learning library. The task required\
+    \ configuration management that guarantees CPU\u2011only hardware constraints\
+    \ and applies the chosen seed globally, which the current implementation does\
+    \ not provide."
+  task: 365fe204e31a5c4f5df5be5a8b5dd18871b8bff5ccf1a8a984b87a0319479a58
+T010:
+  task: 505a2356df43767dc5ad9afbba2853f9c46798c0814e6b4c1a275bb361a24b72
+T011:
+  task: ae8cd9fa5af49b27fca58e6af1c996c1ace30d37cec22e1360016da2dd3683d4
+T012:
+  task: 4fea6922df203d0de12351441d40b9e97913007a87f11aada4cb470d29d9d138
+T013:
+  reason: "The provided `test_static_inference.py` exists, but it contains critical\
+    \ bugs: it instantiates `StaticScorer` with a `Config` object instead of a model\
+    \ name string, and calls a non\u2011existent `score_batch` method (the class only\
+    \ defines `score_task` and batch helpers with different signatures). Consequently\
+    \ the test cannot actually run a CPU\u2011only inference pass or verify the absence\
+    \ of CUDA errors, so the integration test does not meet the task\u2019s requirement.\
+    \ The test implementation must be corrected to properly create `StaticScorer`\
+    \ using the model name and device from the config and to invoke"
+  task: 86e1b2e56d1d4ccd1237ab530c65fc1d8c2c31247d2932de75bcd80c15ca7717
+T014:
+  task: b2f8fe4dae14db9904faa3394da7744eae909f44da0d73b3a494d9d97515505e
+T015:
+  task: c0c6000cae58c1f0fa5e9f090eec0e0a6941aabbc4a6f1c5b08ab8a37fb3b09f
+T016:
+  task: 5b93b0d535d4dc036c6035cdbbca25217643257f3ec3c86e7318f5201c79bcac
+T017:
+  task: 210ea746a7a5f0c4cb76faf0121804f1b011a6abc8262fa305cff73fdcc0aa03
+T018a:
+  task: 6193a47cbbb2c797449db2583ff412deecbd89997ef10b44775e1dfb665dd40a
+T018b:
+  task: 63b2167875768f89dec513ac2430ce3f9c1384213f6ca9ea3318bd718be935a2
+T019:
+  task: fbcdad433675dc41c04ddb0640d22d373a796bf83f69b1555b4b5a0048942b66
+T020:
+  task: c4d000721876c2159b6c370ea4e043a02c593d162b475c8a28d569fa797c8acf
+T021:
+  task: 4441748bb28ab3456e4e9eb61e0d7f925da684064d4b49d010201b786e680f94
+T022:
+  task: af2a2aea08dec3ac02b0ad8d18aa8dccae646509fa19144170bef6291f65d1ff
+T023:
+  task: 193b3f43e67f771d84149a1e3bb9a0c88e4c936443e4c2bf8f2410a7946f81d5
+T024:
+  task: c4e733414e82dc46c2a4a32aaa5d65da35bf025101fff8bf5dd0498c5c5373f4
+T025:
+  task: 5355e6cb27e7274ad661f698ef995dba2a9cced6261817eadabe413153475a2c
+T026:
+  task: 5152dd2dbf2b3edadd5dd9af7adec6eceffafe83760250779d7157d8bc7f7d5d
+T027:
+  task: 98d82b6ee235aa4b8034d8acddcb57a8edf025f6b78663db9fac304f7c69ec46
+T028:
+  task: 78d807de98cab44cef65b12a0ebfeea74299c1f5066b34ebd2e8b16a329c71e7
+T029:
+  task: 3fcea1b884bef4658cda473ff0dadef29a43665a2a2a5724cf405e58e676d370
+T029a:
+  task: 185b327ef5842b79cb57bb59d21777e23e4855f74d36d0bc252e20dcf65102b1
+T029b:
+  task: 3dfc87d610a00502e4f0b407901cf63d99929af48eec7e6b657388c4edd2f409
+T030:
+  task: e9748570330e2d1ca0f7da4ecd7e87145c0e0638f2ccc88163f3f0f06b20c91c
+T031:
+  task: 2fcc9330882d737c2087ec8ddd6b3cabbc52975b55463f52c22669f77effdba3
+T034:
+  task: b49487603d9e979ab9e2083d71147b1714dd61212e96dc8349b61708cd7bd11a
+T034b:
+  task: 7edc9cb576ecfb1c02ac0100457d74f9405f166e11082bcf3c31c40fa71d618d
+T035:
+  task: 498f76f3813bfb26e14e83e1266e18a7f8d0202519100e4281c45c78503c3f31
+T035b:
+  task: 4be5971aebde1ba642380ac92a551fea7c4cfe1a0b48b5ba745f7da764410795
+T036:
+  task: 6fd15a75ca4b57faf73ceebe3d64aa1b6dd60694499cd341e625f73f1d33976d
+T037:
+  task: 907c5430d5bd9643b2c37a41e83e05216faf5745bcc939071b6ba4e06dbcf136
+T038:
+  task: 87f38b3525076a5c9bd5172c06262f63d9825a1762aa7c98ee053d1cff6b930d
+T039a:
+  task: 44063027553acba0c6c4ccc28c167c4852fe3036adcaa9f3c2601f1371b20f08
+T039b:
+  task: 450ab9db739c4fc18f8dfb36c30c14ae3766956aa051fc8ce13efd1de7c9a535
+T040:
+  task: 401698bce5890c4066ed0766fe4861be695c51c64ef20ffcab88468b579e7479
+T041:
+  task: 804957975b744bbb594b4382bc29758fcece463a4e71a400e4c2be62e34eb3a9

@@ -1,53 +1,37 @@
 T001:
-  reason: "The directory tree itself was created (src/, data/, output/, contracts/\
-    \ subdirectories all confirmed present), and the setup script's execution log\
-    \ claims a snapshot was written. However, the collector's on-disk evidence does\
-    \ not confirm that `logs/` or `logs/structure.txt` exist \u2014 the required snapshot\
-    \ artifact is missing from the actual artifacts, so the verification condition\
-    \ (non-empty `logs/structure.txt` containing a line for each listed directory)\
-    \ cannot be confirmed. The implementer should ensure `logs/structure.txt` is actually\
-    \ present and populated (e.g., re-run the snapshot step and"
-  task: 7a05fc7ae8e3c23695993ba53df0ca8373aac55059a7516e63527572beda3200
+  task: d21b4b4adb31830a06c2784e444bd7c41506c0f56e426a2b9ef3f06739c7a6bd
 T002:
-  task: 3f5baf962ba451ddaba32ad9a1a6d929761bbc720e6b1be1d5dd58246ccb6ccc
+  reason: "Checked `src/data/download.py` (uses dataset\u202F`chrisvoncsefalvay/vaers-outcomes`\
+    \ instead of the required `\"vaers/vaers2020_2023\"`), the generated `data/raw/vaers_2020_2023.parquet`\
+    \ (size\u202F>\u202F0) and `data/checksums.txt` (checksum line present). The wrong\
+    \ dataset source violates the task specification, so the requirement is not fully\
+    \ satisfied."
+  task: c1dbc93df69bacecb0ee9573e244f4b7018db0e3307b59f158c214f30c5a0428
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/run_lint.py exit=1'
-  task: ccfb371c4060482900d273030f58ef9d3d6fbef986b8e8d657c498d01567faf5
+  reason: 'Requested task execution failed; rerun successfully: src/data/validate_raw.py
+    exit=1'
+  task: 4aebdc993fd2cf8087fd2ecbd1d5c0533a6f0cd4c25ded1aa5772a4a3cd5f511
 T004:
-  task: 7926e661eb32af103c368a4320a9b9e2944ac53cd9436d232ca3c0b81b6be485
+  reason: 'Requested task execution failed; rerun successfully: src/data/clean.py
+    exit=1'
+  task: 605c06d8cb9da4379c48e70c0dd9aeec83cb0a42672321b84d1551f71264f675
 T005:
-  reason: "The `src/utils/plots.py` file contains a literal placeholder \u2014 a comment\
-    \ saying \"the original content of the file is omitted for brevity\" \u2014 instead\
-    \ of the actual `plot_weekly_counts`, `plot_signal_table`, etc. functions that\
-    \ the provided `tests/unit/test_plots.py` imports from `src.utils.plots`, so those\
-    \ tests would fail with ImportError. Additionally, the required verification evidence\
-    \ is absent: `logs/config_import.txt` does not exist, `output/figures/` is empty\
-    \ (no PNGs), and there is no test-run evidence; the two required functions exist\
-    \ only in a file whose other content is fabricated/omi"
-  task: bc5b14630cf9b14a6f3dd007d9a14720658358bac1ce3a0bc6b8ec76d01c6073
+  task: 3dacd34606dc25a2a536641019122f99891c8d86b68a220b2ba19c82782f8206
 T006:
-  reason: 'Requested task execution failed; rerun successfully: src/data/validate.py
-    exit=2'
-  task: f25d9cd18eaf535e2d87739b82a9d8a3246d600bc2f88679853992e121080976
+  task: e253ab21fa505127d83598ce9e0309bcfcba2dce83a5299bbafc1c7ae8300ae7
 T007:
-  task: f583c369ec4a6911c1097a0cbff23745870824586ed9c043848e7ca9f373bedd
+  task: 654ab2a358298be0014b28ea0e98be031be531cb17b2f07eb1734ac34a1c3fe5
 T008:
-  task: 9ca3cacd9066743e75e4a03e5c359f0369510faeddfca5fcbf91eb6acd249daa
+  task: d509360e7fb244002ea9d0acb7d4301b5231e6ccb854f58b417e20500fd6f083
 T009:
-  task: 2ba8fe395dea8cf10e4583cb05730c96aa50ebcd2e4c0a8b5d4c8bbbbdcc8b4f
+  task: b7d697a8069d2efcd284efe7e6dad922351c60b5d41dd6fad2517d201037ba9a
 T010:
-  task: cfe096592440f20b55cab3f372ae6f5392cff61105b4758a985eef86e7e98ba7
+  task: 1e94e961308627c07b6fc370fd18eda4cac1bccea01c7a689b98acbb819159cf
 T011:
-  task: cf58f2b7ea714509cfb5cae7d8055acd587cc44c5b11e830d070a69bee486636
+  task: c4f172c3ecd91272862a3aa9dac7e26bba3225148826ffe06988d5af87eef02a
 T012:
-  task: 6fc120a6de550c04410e532555f26fdedfaa7280a9ce366acd2d086aa6178deb
+  task: aae4bfb707bd1a2bb4e6d62412092547ac16ef6489f25947641eed73b9d6a264
 T013:
-  task: d2093288bfbf1f15922ddc39edb1463aa45c7e585fcf7c9f0174889f4faedc9b
+  task: 44fc1b76a39e85b4892f49a8d45b4da2a31cb0ca9acf75575c9b1773a580c6a4
 T014:
-  task: bfb005699be8f6bc7c587766b283d23fc1eb7a4734967bbc6e0c8a57b4804cd7
-T015:
-  task: 6fd74d7d6cf04f7999cc3188910f586a3095c4a15f1df9756826d8b191cc825b
-T016:
-  task: 03c562e8e9269a987ca51310bcac53c1163eb6352aa284c634bcf18876840311
-T017:
-  task: e2187aa91b505270b52a317984b8c253a653d4fd8ff376a1a46e07d2eea511a9
+  task: 6905a67ab6c4f9a222418a0f420b64802eee9ecb925f66495e4ce31a5cae9f1b

@@ -1,0 +1,59 @@
+T001:
+  reason: 'Requested task execution failed; rerun successfully: code/install_requirements.py
+    exit=1'
+  task: f1997db1f4e9c2c5a8b454c14f7a9b4f32889d9f87021578cc90eae7f04d69da
+T002:
+  task: 5d96c1165af1fd1177c4ec320e8869ca77ff731569d0fd56e79b2c220743e55d
+T003:
+  reason: "The `code/data/fetch_github.py` script exists and correctly paginates,\
+    \ retries with exponential back\u2011off, writes JSONL and checksum files, and\
+    \ iterates over the repo list. However, after execution only 2\u202FLLM\u2011\
+    labelled PRs were collected (see `data/raw/fetch_stats.json`), and the fallback\
+    \ list was not exhausted (`fallback_exhausted: false`). The verification condition\
+    \ requires either \u226510\u202FLLM rows **or** exhaustion of the repo list, which\
+    \ is not satisfied. The script stops at the 200\u2011PR cap before reaching the\
+    \ LLM target, so it does not meet the task\u2019s acceptance criteria. The implementation\
+    \ must"
+  task: 36a0a3227e918b2afb71c3eabdfd2b55953299125bfa250ff68af6f98c6f15d3
+T004:
+  reason: The only artifact present is the `requirements.txt`; there is no `logs/setup_verification.log`
+    nor any evidence that the `python -c "import importlib; importlib.import_module('requests')"`
+    command was run and succeeded after installing the requirements. The required
+    verification log is missing.
+  task: 6cac0a6ba31ca08f989f218db7910c147ae2720d94737d1261ee9f5b57890913
+T005:
+  reason: "The unit test `tests/unit/test_entropy_detector.py` fails the \u201Cnoisy\
+    \ diff higher entropy than clean diff\u201D assertion (both scores evaluate to\
+    \ 1.0), so the test suite does not fully pass as required. The detector implementation\
+    \ itself exists, but the verification condition is not met."
+  task: 66549574e4d9f668a39fdd6e7689c493afbef463616ad62ce4c110b3bbc3e405
+T006:
+  reason: 'Requested task execution failed; rerun successfully: code/data/classify_prs.py
+    exit=1'
+  task: bc0c6cd9ddeeb914dc017405f9e0e74f5e0acfabebc8e86621f6a524be66d306
+T008:
+  reason: "The `code/analysis/complexity.py` script never retrieves full source files\
+    \ nor builds a control\u2011flow graph with\u202Fnetworkx as required; it only\
+    \ fetches the diff and computes complexity from the added lines (or falls back\
+    \ to a simple added\u202F+\u202Fremoved count). Consequently the produced `complexity_scores.csv`\
+    \ contains only `loc=0` and `complexity_score=1` for every PR, showing that the\
+    \ full\u2011analysis path was never exercised, violating the task specification."
+  task: 735568dd1a18c0d9d8dd6aa1e8687cdc4608930d1668f97ac13558221c9c5a0c
+T009:
+  reason: 'Requested task execution failed; rerun successfully: code/data/extract_metrics.py
+    exit=1'
+  task: 7e8674597f99c929b31371c14cfe53098ece2c9e8bcc5912258441be2f3e15a6
+T010:
+  task: eadada973f7704956ce45a394279376ef7aff5c2bfd19225cb5b032572de11bc
+T011:
+  task: d6cb56742d415cea2e072b79219b8ad661dc7088a1252be523d3df1d7b6cb210
+T012:
+  task: b0396cd54ec9daa0fd9456af0ab4bd1eb625ec53d9ea3e3f3285f09c7efbc96f
+T013:
+  task: c7a2a73375597e2fafd5ec0f08de07a9b0ba44fbc4d1acc8ce282c9673769ad2
+T014:
+  task: 3ccd82c3f82a960d9c112c45a9f899041abbd1d120ed72bdcaf2f4563cc654bd
+T015:
+  task: 801be4730002993fb08ec083f11ee574633fadc5f17eb647226882cb525657d6
+T016:
+  task: 4458ced5ff28ed05760319f2920739aef531544f47e2c1d58b968b5ef3dcb5e5

@@ -1,0 +1,11 @@
+status: none
+intent: PolitiFact and SNAP Twitter cascade dataset with node timestamps python package
+  dataset
+required_fields:
+- source_node_id
+- target_node_id
+- timestamp
+- cascade_id
+cache_key: 932e630ff773ef630254a25ec1577ebbd64d337cc12534d9b5605c60d24a6f47
+searched_at: '2026-10-13T06:39:34.780767+00:00'
+retry_count: 1

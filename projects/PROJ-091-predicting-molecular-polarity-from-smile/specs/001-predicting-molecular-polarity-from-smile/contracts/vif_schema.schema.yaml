@@ -8,7 +8,7 @@ properties:
     const: 5.0
   fallback_threshold:
     type: integer
-    const: 50
+    const: 150
   total_features_initial:
     type: integer
     minimum: 200

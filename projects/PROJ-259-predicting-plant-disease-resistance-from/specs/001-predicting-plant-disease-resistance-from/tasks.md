@@ -7,11 +7,11 @@ Completed tasks (T001–T065) are preserved as‑is; the four verifier‑rejecte
 
 ## Phase 1–8 : Completed (preserve)
 
-- [ ] T001 Establish project layout, pin dependencies, and write a runnable command in `quickstart.md`.  
+- [ ] T001 Establish project layout, pin dependencies, and write a runnable command in `quickstart.md`.   <!-- FAILED-IN-EXECUTION: scripts/run_quickstart.sh exit=2 -->
     Path: `specs/001-predict-plant-disease-resistance/quickstart.md`  
     **Verification**: Run `make quickstart` and assert that `quickstart_output.txt` exists and contains the expected banner.  
 
-- [X] T002 Implement core download‑preprocess pipeline (`code/download.py`, `code/preprocess.py`).  
+- [ ] T002 Implement core download‑preprocess pipeline (`code/download.py`, `code/preprocess.py`).  
     Path: `code/download.py`, `code/preprocess.py`  
     **Verification**: Execute `python -m code.download` and `python -m code.preprocess` on synthetic data; assert that `data/raw/` and `data/processed/` files are created without error.  
 

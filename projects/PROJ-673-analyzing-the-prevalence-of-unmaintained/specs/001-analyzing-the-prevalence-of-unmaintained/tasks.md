@@ -24,10 +24,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: execute `mkdir -p src/models src/services src/analysis src/cli src/utils data/raw data/processed tests/unit tests/integration docs`
+- [X] T001 Create project structure per implementation plan: execute `mkdir -p src/models src/services src/analysis src/cli src/utils data/raw data/processed tests/unit tests/integration docs`
  *Verification*: Run `ls -R` and confirm the directory tree matches the plan.md structure. Ensure `contracts/` is NOT created here.
 - [X] T002 Initialize Python 3.11 project with `requests`, `pandas`, `scipy`, `statsmodels`, `matplotlib`, `pyyaml` dependencies by creating `pyproject.toml` at repository root
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools <!-- FAILED-IN-EXECUTION: code/scripts/setup_lint.sh exit=1 -->
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools <!-- FAILED-IN-EXECUTION: code/scripts/setup_lint.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/scripts/setup_lint.sh exit=2 -->
  *Verification*: Run `ruff check.` and `black --check.` to confirm configuration is valid and no errors occur.
 
 ---
@@ -43,8 +43,8 @@
 - [ ] T005a Implement checksum generation in `src/utils/checksum.py` for file integrity verification.
  *Verification*: Run `python -c "from src.utils.checksum import compute_checksum; import hashlib; f = open('test.txt', 'w'); f.write('test'); f.close(); print(compute_checksum('test.txt') == hashlib.md5(open('test.txt', 'rb').read()).hexdigest())"`.
 - [X] T006 [P] Setup environment configuration management in `src/config/settings.py`: create file with default values for `NPM_API_KEY`, `GITHUB_TOKEN`, and `RATE_LIMIT` (requests/min)
-- [~] T007 Create base logging infrastructure in `src/utils/logging_config.py` to track API success/failure rates (FR-009)
-- [~] T007a [P] Implement API log aggregation utility in `src/utils/api_metrics.py` to calculate and report the success/failure ratio as required by SC-004.
+- [X] T007 Create base logging infrastructure in `src/utils/logging_config.py` to track API success/failure rates (FR-009)
+- [X] T007a [P] Implement API log aggregation utility in `src/utils/api_metrics.py` to calculate and report the success/failure ratio as required by SC-004.
 - [ ] T008 [P] Implement local file caching mechanism in `src/utils/cache.py` to save raw API responses to `data/raw/` with immutable checksums (Constitution Principle III & VI).
  *Implementation Details*: Create function `save_response_to_cache(request_params: dict, response: dict) -> str` that writes JSON to `data/raw/{hash}.json` and returns the checksum. Create function `load_from_cache(request_params: dict) -> dict | None`. Ensure `data/raw/` files are named with a hash of the request parameters and timestamp to guarantee immutability and reproducibility.
  *Verification*: 1. Create a dummy JSON file `test_payload.json`. 2. Run `python -c "from src.utils.cache import save_response_to_cache; save_response_to_cache({'test': 1}, {'data': 'test'})"`. 3. Verify `data/raw/` contains a file matching the pattern `{hash}.json`. 4. Run `python -c "from src.utils.cache import load_from_cache; data = load_from_cache({'test': 1}); assert data == {'data': 'test'}"`. 5. Run `python -c "import hashlib; f = open('data/raw/{hash}.json', 'rb'); print(hashlib.md5(f.read()).hexdigest())"` to verify checksum integrity.
@@ -68,9 +68,9 @@
 
 > **NOTE**: These are 'Write Test' tasks. They define the expected behavior and can be written in parallel with each each. They verify the logic once the implementation (T012-T018) is present.
 
-- [~] T009 [US1] Write unit test for dependency age calculation (handling null dates) in `tests/unit/test_age_calc.py`
-- [~] T010 [US1] Write unit test for backoff logic (max retries) in `tests/unit/test_backoff.py`
-- [~] T011 [US1] Write integration test for replaying NPM/GitHub API responses using cached snapshots from `data/raw/` in `tests/integration/test_api_clients_replay.py`.
+- [X] T009 [US1] Write unit test for dependency age calculation (handling null dates) in `tests/unit/test_age_calc.py`
+- [ ] T010 [US1] Write unit test for backoff logic (max retries) in `tests/unit/test_backoff.py`
+- [ ] T011 [US1] Write integration test for replaying NPM/GitHub API responses using cached snapshots from `data/raw/` in `tests/integration/test_api_clients_replay.py`.
  *Note*: Replaces mocked API tests. Must use real cached snapshots to adhere to Constitution Principle VI (API Snapshot Integrity) and FR-007 (real-call testing).
 
 ### Implementation for User Story 1

@@ -1,15 +1,14 @@
 {
-  "source": "Nørskov, J. K., et al. J. Electrochem. Soc. 152, J23 (2005)",
+  "source": "Nørskov, J. K., Bligaard, T., Logadottir, A., Kitchin, J. R., Chen, J. G., Pandelov, S., & Stimming, U. (2005). Trends in the exchange current for hydrogen evolution. Journal of The Electrochemical Society, 152(3), J23-J26.",
+  "year": 2005,
   "descriptors": [
     "d_band_center",
+    "activation_barrier",
+    "reaction_energy",
     "adsorption_energy",
     "work_function",
     "electronegativity",
     "atomic_radius",
-    "ionization_energy",
-    "electron_affinity",
-    "oxidation_state",
-    "surface_miller_index",
     "coordination_number"
   ]
 }

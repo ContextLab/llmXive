@@ -1,3 +1,54 @@
+T001a:
+  c: false
+  h: 7cfcc7c693ef30d940f1a84af7e1ed489693a5f295f778d7aeef4e20ad4fe3fd
+  r: The `src/` directory exists, but the required `src/models/` subdirectory is reported
+    as missing, so the specified directory structure is not fully present. Create
+    the `models/` subdirectory under `src/` to satisfy the task.
+  sig: 1e61dd2256eb49f96ec967a9cd813dcdbb8d4682ce7af1bd766bf108d8c07d96
+T001b:
+  c: true
+  h: 1c2be4bb7d5cf1db868c8b3df4ecaa5e652df29d0f27d293a5983c6ce567126f
+  r: The evidence shows a `tests/` directory (sha256 listed) containing the required
+    subdirectories `contract/`, `integration/`, and `unit/`. This matches the task
+    specification.
+  sig: 3452969fcd192c1b9c2759395f329f7d454d1b7c1bcb32cfda6fea0d41fb5e52
+T001c:
+  c: true
+  h: 973351c78cad74fd5873ac535c9e6c06a8f8aab2fe5a590d21d5a72d0b628ceb
+  r: The collector shows both `data/raw/` and `data/processed/` directories present
+    in the project, and the unit test `test_raw_and_processed_directories_exist` passed,
+    confirming their existence.
+  sig: a2ceccec68b88566e005893da75fc4182cf3696ce74d991d5c5c74f2f70e5f5e
+T001d:
+  c: true
+  h: 4edfa3fbbe6c34cb5bff64f61b015902d1eb3ea03731adeb0e1a04eea7dc048c
+  r: "Checked the execution log `code/.tasks/T001d.code_create_artifacts_dirs.py.log`,\
+    \ which shows the script ran without error (exit\u202F0) and printed \u201CCreated\
+    \ directory \u2026/artifacts\u201D and \u201CCreated directory \u2026/artifacts/models\u201D\
+    , confirming both required directories were successfully created."
+  sig: fd5d608683e1822d12cbc7e2c9057e355d54ebf9bf508699790dcffc3f2b62c5
+T003a:
+  c: true
+  h: 766afd43537af7a3c657472f6509c55ed7738e36f15e523d0a36be42716baa1f
+  r: "The `.ruff.toml` file is present (64\u202Fbytes) and its contents are exactly:\n\
+    \n```\nmax-line-length = 100\nignore = [\"E501\"]\ntarget-version = \"py311\"\n\
+    ```\n\nmatching the required configuration."
+  sig: 45cdcb6d361429197b6d449c0b4de664836a7713f7e09356172c912838d22d40
+T003b:
+  c: true
+  h: 617b2824e0314be0c2a8082a029907589994325025cdad0d740dcf8073bb9ff5
+  r: "Checked `code/.black.toml` (resolved path) \u2013 the file exists, is non\u2011\
+    empty, and contains exactly the required `[tool.black]` section with `line-length\
+    \ = 100` and `target-version = [\"py311\"]`."
+  sig: 324fa893f059be9b350879f77aaf8bc9d7a8acea294175c5e54a7b4cafc4cd21
+T004:
+  c: false
+  h: adfb954f00efc531544fcbdb0fb7256cfdec4d24faf1c48112009d343623c303
+  r: "The required `config/config.yaml` file is missing, and `src/config.py` neither\
+    \ loads a YAML file nor validates the configuration with the `jsonschema` library;\
+    \ its schema handling and structure also do not match the task\u2019s specified\
+    \ `paths`, `seeds`, and optional `api_keys` dict contract."
+  sig: 89d8c7d29b054b10304e1b5de83e980910640d693d5c2ee8f43c715d8a60a4c3
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

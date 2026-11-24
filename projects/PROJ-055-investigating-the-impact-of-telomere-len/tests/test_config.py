@@ -1,75 +1,45 @@
-import os
-import sys
-import tempfile
-from pathlib import Path
 import pytest
+import yaml
+from pathlib import Path
 
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+def test_config_yaml_exists_and_is_valid():
+    """
+    Verify that `code/config.yaml` exists and contains valid YAML.
+    """
+    config_path = Path("code") / "config.yaml"
+    assert config_path.is_file(), "config.yaml does not exist"
 
-from config import load_env_config, validate_config, init_config, ConfigError, set_random_seed
-
-class TestConfig:
-    def test_load_env_config_from_file(self):
-        """Test loading configuration from a .env file."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.env') as f:
-            f.write("RANDOM_SEED=123\n")
-            f.write("DRYAD_API_KEY=test_key\n")
-            f.write("# Comment line\n")
-            f.write("ANAGE_API_KEY=\n")
-            temp_path = Path(f.name)
-
+    with config_path.open() as f:
         try:
-            config = load_env_config(temp_path)
-            assert config['RANDOM_SEED'] == '123'
-            assert config['DRYAD_API_KEY'] == 'test_key'
-            assert 'ANAGE_API_KEY' in config
-        finally:
-            os.unlink(temp_path)
+            cfg = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            pytest.fail(f"config.yaml is not valid YAML: {e}")
 
-    def test_validate_config_missing_seed(self):
-        """Test that validation fails if RANDOM_SEED is missing."""
-        config = {'DRYAD_API_KEY': 'test'}
-        with pytest.raises(ConfigError) as exc_info:
-            validate_config(config)
-        assert "RANDOM_SEED" in str(exc_info.value)
+    # Basic sanity checks for required top‑level keys
+    for key in ("dryad", "anage", "random_seed", "alpha"):
+        assert key in cfg, f"Missing required config key: {key}"
 
-    def test_validate_config_invalid_seed(self):
-        """Test that validation fails if RANDOM_SEED is not an integer."""
-        config = {'RANDOM_SEED': 'not_a_number'}
-        with pytest.raises(ConfigError) as exc_info:
-            validate_config(config)
-        assert "integer" in str(exc_info.value)
+    # Ensure the alpha threshold is numeric and equals 0.05 (or close)
+    assert isinstance(cfg["alpha"], (float, int)), "alpha must be numeric"
+    assert abs(float(cfg["alpha"]) - 0.05) < 1e-8, "alpha should be 0.05"
 
-    def test_validate_config_success(self):
-        """Test successful validation with valid config."""
-        config = {'RANDOM_SEED': '42', 'DRYAD_API_KEY': 'key'}
-        # Should not raise
-        validate_config(config)
+    # Random seed should be an integer
+    assert isinstance(cfg["random_seed"], int), "random_seed must be an integer"
 
-    def test_set_random_seed(self):
-        """Test that set_random_seed correctly sets the seed."""
-        seed_val = 999
-        result = set_random_seed(seed_val)
-        assert result == seed_val
-        
-        # Verify randomness is deterministic
-        import random
-        val1 = random.random()
-        
-        set_random_seed(seed_val)
-        val2 = random.random()
-        
-        assert val1 == val2
-
-    def test_init_config_integration(self):
-        """Test the full initialization flow with a temporary .env file."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.env') as f:
-            f.write("RANDOM_SEED=555\n")
-            temp_path = Path(f.name)
-
-        try:
-            config = init_config(temp_path)
-            assert config['RANDOM_SEED'] == '555'
-        finally:
-            os.unlink(temp_path)
+def test_scripts_import_config():
+    """
+    Ensure that the ingestion and cleaning scripts import the configuration.
+    """
+    import importlib
+    ingest = importlib.import_module("02_ingest_data")
+    clean = importlib.import_module("03_clean_merge")
+    
+    # Both modules should have a `_config` attribute populated from get_config()
+    assert hasattr(ingest, "_config"), "02_ingest_data does not expose _config"
+    assert hasattr(clean, "_config"), "03_clean_merge does not expose _config"
+    
+    # Verify that the loaded config matches the file content
+    from config import get_config
+    file_cfg = get_config()
+    assert ingest._config == file_cfg, "Ingestion script config mismatch"
+    assert clean._config == file_cfg, "Cleaning script config mismatch"

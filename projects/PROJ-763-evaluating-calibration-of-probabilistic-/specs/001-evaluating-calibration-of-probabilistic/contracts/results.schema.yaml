@@ -43,9 +43,9 @@ properties:
       - "Timeout"
     description: "Status of the Bayesian model convergence (only relevant for 'bayesian' method)."
 required:
-  - "metric_name"
-  - "lead_time"
-  - "variable"
-  - "method"
-  - "value"
-  - "convergence_status"
+  - metric_name
+  - lead_time
+  - variable
+  - method
+  - value
+  - convergence_status

@@ -1,68 +1,96 @@
 # Research: Investigating the Impact of Network Centrality on Neural Synchrony During Sleep Stages
 
 ## Research Question
-Does the network centrality of brain regions during waking resting state predict the degree of neural synchrony (Phase Lag Index) observed during subsequent sleep stages (N1, N2, N3, REM), while controlling for global connectivity propensity and subject-level non-independence?
+Do waking‑state **inter‑hemispheric coherence** metrics (theta (4‑8 Hz) and alpha (8‑13 Hz) coherence between Fpz‑Cz and Pz‑Oz) predict the magnitude of neural synchrony (Phase‑Locking Value, PLV) observed during each sleep stage (N1, N2, N3, REM), after accounting for medication status, sleep‑quality score, and EEG‑noise level?
 
 ## Methodological Approach
 
 ### 1. Data Acquisition & Preprocessing
-- **Source**: Sleep-EDF dataset (specifically the **Sleep-EDF-Expanded** subset) from PhysioNet, accessed via the **MNE-Python `mne.datasets.sleep_edf` loader**. This loader is the canonical, verified programmatic interface to the PhysioNet repository.
-- **Inclusion Criteria**: Subjects must have:
-  - At least 5 minutes of valid waking resting-state data.
-  - At least 30 minutes of N2 sleep data (to ensure sufficient epochs for PLI aggregation).
-  - Valid annotations for Wake, N1, N2, N3, and REM stages.
-- **Preprocessing**:
-  - **Filtering**: Bandpass 0.5–45 Hz to remove DC drift and high-frequency noise.
-  - **Artifact Removal**: Independent Component Analysis (ICA) with automated rejection based on kurtosis (> 5.0) and high-frequency power (> 3x baseline).
-  - **Epoching**: 30-second windows labeled by sleep stage (Wake, N1, N2, N3, REM).
-  - **Night ID Extraction**: The recording date/time (or file ID) is extracted for both waking and sleep segments to determine if they originate from the same night (`waking_night_id` vs `sleep_night_id`).
-- **Feasibility**: MNE-Python provides efficient CPU-based implementations for these steps. Memory usage is controlled by processing subjects sequentially.
+| Item | Details |
+|------|---------|
+| **Source** | PhysioNet Sleep‑EDF (Hugging  Face mirror) |
+| **Verified URL** | `https://huggingface.co/datasets/ronaldvandenbroek/physionet-sleep-data/resolve/main/physionet-sleep-data-full.zip` |
+| **Inclusion Criteria** | • ≥ 2 min continuous, artifact‑free waking segment.<br>• At least one annotated epoch for each sleep stage (N1, N2, N3, REM).<br>• Presence of the two EEG channels (Fpz‑Cz, Pz‑Oz) required for inter‑hemispheric coherence. |
+| **Filtering** | Band‑pass 0.5–45 Hz (SciPy FIR, zero‑phase). |
+| **Artifact Removal** | ICA (MNE); reject components with kurtosis > 5.0 **or** high‑frequency power > 3 × baseline (0.5–2 Hz median power). |
+| **Epoching** | Non‑overlapping 30 s windows (epoch length = 30 s, source 1908.11463). |
+| **Night‑ID Extraction** | EDF header date used to create `waking_night_id` and `sleep_night_id`. |
 
-### 2. Metric Computation
-- **Waking Network**:
-  - **Connectivity**: Coherence calculated in Theta (4-8 Hz) and Alpha (8-13 Hz) bands from waking resting-state data.
-  - **Global Coherence**: Mean coherence across all electrode pairs is calculated as a covariate ("Global Connectivity Propensity").
-  - **Graph Construction**: Symmetric adjacency matrices (values 0-1).
-  - **Centrality**: Degree, Betweenness, and Eigenvector centrality computed using NetworkX.
-- **Sleep Synchrony**:
-  - **Metric**: Phase Lag Index (PLI) calculated across all electrode pairs for each epoch.
-  - **Aggregation**: Mean global PLI per sleep stage per subject.
+### 2. Waking Inter‑Hemisphere Coherence
+- **Bands**: Theta (4–8 Hz) and Alpha (8–13 Hz).  
+- **Connectivity**: Magnitude‑squared coherence computed **between the two channels** (Fpz‑Cz ↔ Pz‑Oz) for each band, yielding a single coherence value per band per subject (range 0–1).  
 
-### 3. Statistical Analysis
-- **Model**: **Linear Mixed-Effects (LME) Model**.
-  - **Fixed Effects**: Centrality Metric, Sleep Stage, Global Coherence (covariate), and their interactions.
-  - **Random Effects**: `(1 | Subject)` to account for non-independence of sleep stages within the same subject.
-- **Normality Check**: Shapiro-Wilk test on model residuals.
-- **Correction**: **False Discovery Rate (FDR)** (Benjamini-Hochberg) applied to the family of hypotheses (3 metrics x 5 stages x 2 bands = 30 tests) to account for dependency between sleep stages.
-- **Collinearity**: Variance Inflation Factor (VIF) calculated for centrality metrics; values > 5.0 flagged.
-- **Power & Sample Size**:
-  - Target N >= 30 for medium-effect correlations.
-  - If N < 30, the pipeline logs a warning and proceeds with effect size estimation (95% Confidence Intervals) rather than halting, acknowledging reduced power.
+### 3. Coherence Stability Check
+- **Metric**: Split‑half Intraclass Correlation (ICC) computed on the two halves of the waking segment for each band’s coherence value.  
+- **Threshold**: ICC ≥ 0.6 required to proceed without a stability warning (FR‑015).
+
+### 4. Sleep‑Stage Neural Synchrony
+- **Metric**: Phase‑Locking Value (PLV) computed across all available channel pairs per epoch (MNE).  
+- **Aggregation**: Mean global PLV per sleep stage per subject (float ∈ [0, 1]).
+
+### 5. Aggregation & Validation
+- Combine coherence values, ICCs, and stage‑wise PLVs into `SubjectMetrics.csv` (one row per subject per stage).  
+- Validate against `contracts/dataset.schema.yaml`.
+
+### 6. Sample‑Size Verification
+- Require **N ≥ 50** subjects after filtering; if fewer, pipeline aborts with “Insufficient Sample Size” warning (FR‑010).  
+
+### 7. Normality Testing & Correlation Selection
+- Shapiro‑Wilk test on each predictor‑outcome pair (SciPy).  
+- **Pearson** if both p ≥ 0.05; otherwise **Spearman** (internal to FR‑006).
+
+### 8. Covariate Adjustment & Missing Data Policy
+- Partial correlation controlling for **medication status, sleep‑quality score, EEG‑noise level** (FR‑014).  
+- **Missing covariate handling**: subjects missing *any* of the three covariates are excluded from the covariate‑adjusted analysis (listwise deletion); the effective N is reported per test.
+
+### 9. Correlation Analysis
+- **Tests**: 2 coherence metrics × 4 sleep stages = **8** primary tests.  
+- Compute coefficient, raw *p*, and store method used.
+
+### 10. Multiple‑Comparison Control
+- **Benjamini‑Hochberg FDR** correction across the 8 tests (α = 0.05) as required by FR‑007.
+
+### 11. Power Assessment
+- **A‑priori**: Using `statsmodels.stats.power`, α = 0.05/8 ≈ 0.00625, desired power = 0.80, effect size ≈ 0.30 → N ≈ 50 subjects. This justification is reported in the methods.  
+- **Post‑hoc**: Compute achieved power for each observed effect size given the actual N (reported in the final Markdown).
+
+### 12. Reporting
+- **JSON** (`analysis_results.json`) with full statistics.  
+- **Markdown** (`report.md`) containing:  
+  - Dataset description & filtering summary.  
+  - Table of correlation results (highlighting `q_corrected < 0.05`).  
+  - **Confounding Limitation**: flag subjects where `waking_night_id == sleep_night_id`.  
+  - **ICC Diagnostics**: split‑half ICC values for theta and alpha coherence, with flags for ICC < 0.6.  
+  - **Power Discussion**: a‑priori justification, post‑hoc power estimates, and caveats.  
+  - **Causal Disclaimer**: all findings are correlational.  
 
 ## Dataset Strategy
 
-| Dataset | Description | Source / URL | Fit Verification |
-| :--- | :--- | :--- | :--- |
-| **Sleep-EDF-Expanded** | Contains EEG recordings with sleep stage annotations and waking resting-state segments. | **MNE-Python Loader**: `mne.datasets.sleep_edf` (resolves to PhysioNet). No direct verified URL in the provided block, but the loader is the canonical access method. | **Verified**: Contains Fp1/Fp2 electrodes, 30s epochs, and Wake/N1-N3/REM labels. Includes both waking and sleep segments for the same subjects. |
-| **EEG (csv)** | General EEG event data. | https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv | Not the primary source; lacks sleep stage labels required for this study. |
-| **EEG (parquet)** | Seizure EEG data. | https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/... | Not the primary source; focuses on seizure detection, not sleep stages. |
-| **PLI (parquet)** | Processed PLI data (likely synthetic or different context). | https://huggingface.co/datasets/Plim/common_voice_7_0_fr_processed/... | Not the primary source; likely not Sleep-EDF specific. |
+| Dataset | Description | Verified URL | Fit Verification |
+|---------|-------------|--------------|------------------|
+| **PhysioNet Sleep‑EDF** (Hugging  Face mirror) | Polysomnographic EEG (two channels) with sleep‑stage annotations and brief pre‑sleep wake. | `https://huggingface.co/datasets/ronaldvandenbroek/physionet-sleep-data/resolve/main/physionet-sleep-data-full.zip` | Contains required two EEG channels for inter‑hemispheric coherence, sleep‑stage labels, and wake segments. Wake ≥ 2 min enforced; if insufficient subjects remain, pipeline aborts (transparent limitation). |
 
-**Decision/Rationale**: The spec explicitly requires the **Sleep-EDF** dataset from **PhysioNet**. The provided "Verified datasets" block **does not** contain a verified URL for Sleep-EDF. Per the rules, I cannot invent a URL. The implementation will use the standard `mne.datasets.sleep_edf` loader (which fetches from PhysioNet) as the canonical access method. The "Verified datasets" block is insufficient for the primary data source, but the loader's canonical status satisfies the requirement for a verified source. The dataset has been verified to contain the necessary electrodes (Fp, Fp2), 30s epochs, and sleep stage labels (Wake, N1-N3, REM).
+**Decision/Rationale**: The mirror provides programmatic download, checksum verification, and all necessary signals. Using the two‑channel coherence predictor respects the dataset’s limitations while still testing the research hypothesis after spec revision.
 
 ## Statistical Rigor & Assumptions
-
-- **Multiple Comparisons**: **False Discovery Rate (FDR)** is applied to control the false discovery rate, which is more appropriate than Bonferroni for dependent hypotheses (sleep stages).
-- **Sample Size**: The analysis targets N >= 30. If the available Sleep-EDF subset has fewer subjects, the pipeline logs a warning and proceeds with CI estimation (no hard halt).
-- **Causal Inference**: The study is observational. No randomization is performed. Claims are strictly associational.
-- **Collinearity**: Degree and Eigenvector centrality are often correlated. VIF will be calculated, and high VIF values will be reported as a limitation rather than independent predictors.
-- **Missing Data**: If a subject lacks a specific sleep stage (e.g., no REM), that specific pair is excluded from the correlation, not imputed.
-- **Global Signal**: Global connectivity propensity (mean coherence) is included as a covariate to control for subject-specific signal strength.
-- **Temporal Confounding**: Waking and sleep recordings may be from the same night. The `waking_night_id` and `sleep_night_id` are compared. If they match, a "Same Night" flag is included in the report.
+- **Multiple Comparisons** – Benjamini‑Hochberg FDR (α = 0.05).  
+- **Power** – Minimum N ≥ 50 enforced; a‑priori power analysis justifies this threshold; post‑hoc power reported per test.  
+- **Observational Design** – No randomization; all statements are correlational.  
+- **Missing Sleep Stages** – Excluded from that stage‑specific correlation; no imputation.  
+- **Data Corruption** – Corrupted EDF files are logged, skipped, and do not stop the run.  
+- **Temporal Confounding** – Same‑night waking/sleep flagged in report.  
+- **Normality** – Shapiro‑Wilk determines Pearson vs. Spearman (internal to FR‑006).  
+- **Covariate Handling** – Listwise deletion for any missing covariate; effective N reported.  
+- **ICC Stability** – Split‑half ICC may be low for some subjects; flagged in the report.  
 
 ## Limitations
+1. **Two‑Channel Constraint** – Only inter‑hemispheric coherence can be derived; graph‑theoretic centrality is not computable with this dataset.  
+2. **Wake Duration** – The ≥ 2 min wake filter may reduce usable subjects, limiting statistical power.  
+3. **Sample Size** – If fewer than 50 subjects survive filtering, the study is under‑powered; the pipeline aborts with a clear warning.  
+4. **Stability** – Split‑half ICC may be low for some subjects; flagged in the report.  
+5. **Observational Nature** – No causal inference; all findings are associational.  
 
-- **Dataset Availability**: The "Verified datasets" block does not contain a verified URL for the Sleep-EDF dataset. The implementation relies on the standard MNE-Python loader (canonical source).
-- **Computational Constraints**: Processing ICA and graph metrics on 2 CPU cores may be slow for large datasets. The pipeline will process subjects sequentially to manage memory.
-- **Temporal Proximity**: Waking and sleep recordings may be from the same night, introducing potential confounding. This will be flagged in the report and handled via LME random effects.
-- **Spec Contradiction**: The source `spec.md` assumes Bonferroni correction. This plan uses FDR/LME for scientific soundness. A spec kickback is required to update the assumption.
+---
+
+
+

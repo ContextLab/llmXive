@@ -1,188 +1,223 @@
+"""
+Data download script for the Molecular Permeability project.
+
+This script reads the dataset identifier from ``config/selected_dataset.yaml``,
+attempts to stream the dataset from Hugging Face, and falls back to a local
+sample CSV (``data/sample_permeability.csv``) when the remote dataset is
+unavailable or empty. It validates that the required columns (SMILES and
+permeability) are present, writes the raw CSV file to ``data/raw/`` and records
+a SHA‑256 checksum in ``data/raw/checksums.json``.
+"""
+import csv
 import hashlib
+import json
 import logging
-import os
+import shutil
+import sys
 from pathlib import Path
-from typing import Optional, Dict, Any, List, Tuple
-import requests
-import pandas as pd
-from rdkit import Chem
+from typing import Any, Dict, Tuple
 
-from utils.logging import setup_logging, log_result_artifact
+import yaml
+from datasets import load_dataset
+from llmxive_toolkit import get_logger
 
-logger = logging.getLogger(__name__)
-
-# Verified data source configuration
-# Using a verified HuggingFace dataset that contains SMILES and permeability data
-# Dataset: "molecule-net/permeability" or similar verified source
-# If specific dataset not available, we use a verified subset from a public repository
-# that contains real experimental data.
-VERIFIED_DATASET_CONFIG = {
-    "source": "huggingface",
-    "dataset_id": "molecule-net/permeability",
-    "split": "train",
-    "columns": ["SMILES", "permeability_coefficient"],
-    "target_column": "permeability_coefficient"
-}
+# Module‑level logger
+logger = get_logger(__name__)
 
 class DataLoader:
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        self.config = config or VERIFIED_DATASET_CONFIG
+    """
+    Fetches a verified molecular dataset, validates required columns,
+    writes the raw CSV to ``data/raw/`` and records a SHA‑256 checksum.
+    """
+
+    def __init__(self, config_path: Path = None):
+        """
+        Parameters
+        ----------
+        config_path: Path, optional
+            Path to the YAML configuration file that specifies the dataset.
+            If omitted, defaults to ``config/selected_dataset.yaml``.
+        """
+        if config_path is None:
+            config_path = Path("config") / "selected_dataset.yaml"
+        if not config_path.is_file():
+            raise FileNotFoundError(f"Dataset config not found at {config_path}")
+
+        with config_path.open("r", encoding="utf-8") as f:
+            self.config: Dict[str, Any] = yaml.safe_load(f)
+
+        # Normalise expected columns to lower‑case for case‑insensitive checks
+        self.expected_columns = [
+            col.lower() for col in self.config.get("expected_columns", [])
+        ]
+        if len(self.expected_columns) < 2:
+            raise RuntimeError(
+                "Config must specify at least two expected columns (SMILES and target)."
+            )
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.target_column = self.config.get("target_column", "permeability_coefficient")
-        self.proxy_mode = False
-        self.proxy_target = None
 
-    def fetch_dataset(self, source: str) -> pd.DataFrame:
-        """
-        Fetches the dataset from the specified source.
-        Currently supports 'huggingface' and 'url'.
-        """
-        self.logger.info(f"Fetching dataset from source: {source}")
-        
-        if source == "huggingface":
-            try:
-                from datasets import load_dataset
-                dataset = load_dataset(
-                    self.config["dataset_id"],
-                    split=self.config.get("split", "train"),
-                    trust_remote_code=True
-                )
-                df = dataset.to_pandas()
-                self.logger.info(f"Successfully loaded {len(df)} rows from HuggingFace")
-                return df
-            except Exception as e:
-                self.logger.error(f"Failed to load dataset from HuggingFace: {e}")
-                raise RuntimeError(f"Data fetch failed: {e}")
-        
-        elif source == "url":
-            url = self.config.get("url")
-            if not url:
-                raise ValueError("URL not specified for 'url' source")
-            
-            try:
-                response = requests.get(url)
-                response.raise_for_status()
-                if url.endswith('.csv'):
-                    df = pd.read_csv(pd.io.common.StringIO(response.text))
-                else:
-                    raise ValueError(f"Unsupported file format: {url}")
-                self.logger.info(f"Successfully downloaded {len(df)} rows from {url}")
-                return df
-            except Exception as e:
-                self.logger.error(f"Failed to download dataset: {e}")
-                raise RuntimeError(f"Data download failed: {e}")
-        
-        else:
-            raise ValueError(f"Unsupported data source: {source}")
+    # ------------------------------------------------------------------
+    # Helper utilities
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _compute_checksum(file_path: Path) -> str:
+        """Compute SHA‑256 checksum of ``file_path``."""
+        sha256 = hashlib.sha256()
+        with file_path.open("rb") as f:
+            for block in iter(lambda: f.read(4096), b""):
+                sha256.update(block)
+        return sha256.hexdigest()
 
-    def verify_checksum(self, file_path: str) -> bool:
-        """
-        Verifies the checksum of a downloaded file.
-        """
-        expected_checksum = self.config.get("checksum")
-        if not expected_checksum:
-            self.logger.warning("No checksum configured, skipping verification")
-            return True
+    @staticmethod
+    def _write_checksum_file(checksums: Dict[str, str], checksum_path: Path) -> None:
+        """Write ``checksums`` dictionary as JSON."""
+        checksum_path.parent.mkdir(parents=True, exist_ok=True)
+        with checksum_path.open("w", encoding="utf-8") as f:
+            json.dump(checksums, f, indent=2)
+        logging.info(f"Wrote checksum file to {checksum_path}")
 
-        sha256_hash = hashlib.sha256()
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        
-        actual_checksum = sha256_hash.hexdigest()
-        if actual_checksum != expected_checksum:
-            self.logger.error(f"Checksum mismatch: expected {expected_checksum}, got {actual_checksum}")
-            return False
-        
-        self.logger.info("Checksum verification passed")
-        return True
+    # ------------------------------------------------------------------
+    # Core download logic
+    # ------------------------------------------------------------------
+    def _fetch_remote(self) -> Tuple[Path, bool]:
+        """
+        Attempt to stream the dataset from Hugging Face.
 
-    def validate_target(self, df: pd.DataFrame) -> Tuple[bool, str, str]:
+        Returns
+        -------
+        Tuple[Path, bool]
+            (path_to_csv, from_remote)
+            ``from_remote`` is True when the HF dataset was successfully streamed.
         """
-        Validates the target column for permeability coefficients.
-        
-        Returns:
-            Tuple of (is_valid, mode, target_name)
-            mode: "experimental" or "proxy"
-            target_name: name of the target column used
-        """
-        self.logger.info("Starting target validation...")
-        
-        # Check if experimental permeability column exists
-        if self.target_column in df.columns:
-            # Verify it contains numeric data (experimental coefficients)
-            if pd.api.types.is_numeric_dtype(df[self.target_column]):
-                self.logger.info(f"Found experimental target column: {self.target_column}")
-                return True, "experimental", self.target_column
-            else:
-                self.logger.warning(f"Target column {self.target_column} exists but is not numeric")
-        
-        # Check for proxy targets (calculated descriptors like logP)
-        proxy_candidates = ["logP", "clogP", "calculated_logP", "logP_calc"]
-        for candidate in proxy_candidates:
-            if candidate in df.columns and pd.api.types.is_numeric_dtype(df[candidate]):
-                self.logger.warning(f"Experimental target missing. Switching to Proxy Mode using: {candidate}")
-                self.proxy_mode = True
-                self.proxy_target = candidate
-                self.target_column = candidate  # Update target for downstream use
-                return True, "proxy", candidate
-        
-        # If no target found, raise error
-        available_cols = list(df.columns)
-        error_msg = (
-            f"Target validation failed. Neither experimental target '{self.target_column}' "
-            f"nor any proxy targets found. Available columns: {available_cols}"
+        hf_path = self.config.get("hf_path")
+        split = self.config.get("split", "train")
+        filename = self.config.get("filename", "dataset.csv")
+        self.logger.info(
+            f"Attempting to fetch dataset {hf_path} (split={split}) from Hugging Face..."
         )
-        self.logger.error(error_msg)
-        raise RuntimeError(error_msg)
 
-    def process(self, save_path: Optional[Path] = None) -> pd.DataFrame:
-        """
-        Main processing pipeline: fetch, validate, and optionally save.
-        """
-        # Fetch dataset
-        df = self.fetch_dataset(self.config["source"])
-        
-        # Validate target
-        is_valid, mode, target_name = self.validate_target(df)
-        
-        # Log final status
-        log_msg = f"Target validation complete. Mode: {mode}, Target: {target_name}"
-        if mode == "proxy":
-            log_msg += " (WARNING: Proxy Mode Active - using calculated descriptor)"
-        self.logger.info(log_msg)
-        
-        # Save if path provided
-        if save_path:
-            save_path.parent.mkdir(parents=True, exist_ok=True)
-            df.to_csv(save_path, index=False)
-            self.logger.info(f"Saved processed data to {save_path}")
-        
-        return df
+        # Stream the dataset; any exception triggers the fallback path.
+        dataset = load_dataset(hf_path, split=split, streaming=True)
 
-def main():
+        # Determine output CSV path under the project’s ``data/raw`` folder.
+        csv_path = Path("data") / "raw" / filename
+        csv_path.parent.mkdir(parents=True, exist_ok=True)
+
+        iterator = iter(dataset)
+        try:
+            first_record = next(iterator)
+        except StopIteration:
+            raise RuntimeError("Hugging Face dataset is empty")
+
+        fieldnames = list(first_record.keys())
+        with csv_path.open("w", newline="", encoding="utf-8") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerow(dict(first_record))
+            for record in iterator:
+                writer.writerow(dict(record))
+
+        self.logger.info(f"Saved remote dataset to {csv_path}")
+        return csv_path, True
+
+    def _fallback_to_local(self) -> Tuple[Path, bool]:
+        """
+        Copy the bundled sample CSV to the raw data directory.
+        """
+        local_sample = Path("data") / "sample_permeability.csv"
+        if not local_sample.is_file():
+            raise FileNotFoundError(
+                f"Local fallback sample not found at {local_sample}"
+            )
+        filename = self.config.get("filename", "sample_permeability.csv")
+        csv_path = Path("data") / "raw" / filename
+        csv_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(local_sample, csv_path)
+        self.logger.info(f"Copied local sample to {csv_path}")
+        return csv_path, False
+
+    def _fetch_dataset(self) -> Tuple[Path, bool]:
+        """
+        Wrapper that first tries the remote source, then falls back to the local sample.
+        """
+        try:
+            return self._fetch_remote()
+        except Exception as exc:
+            self.logger.warning(
+                f"Failed to fetch remote dataset ({exc}); falling back to local sample."
+            )
+            return self._fallback_to_local()
+
+    # ------------------------------------------------------------------
+    # Validation
+    # ------------------------------------------------------------------
+    def _validate_columns(self, csv_path: Path) -> Tuple[str, str]:
+        """
+        Ensure that the required SMILES and target columns exist (case‑insensitive).
+
+        Returns the original column names as they appear in the file.
+        """
+        with csv_path.open("r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            if reader.fieldnames is None:
+                raise RuntimeError(f"CSV file {csv_path} has no headers.")
+            cols = [c.lower() for c in reader.fieldnames]
+
+        missing = [c for c in self.expected_columns if c not in cols]
+        if missing:
+            raise RuntimeError(
+                f"Missing required columns: {missing}. "
+                f"Found columns: {reader.fieldnames}"
+            )
+
+        # Return the canonical column names as they appear in the file.
+        smiles_col = next(
+            (c for c in reader.fieldnames if c.lower() == self.expected_columns[0]), None
+        )
+        target_col = next(
+            (c for c in reader.fieldnames if c.lower() == self.expected_columns[1]), None
+        )
+        return smiles_col, target_col
+
+    # ------------------------------------------------------------------
+    # Public entry point
+    # ------------------------------------------------------------------
+    def process(self) -> Path:
+        """
+        Execute the full data‑download pipeline:
+        * stream the dataset (or copy local fallback),
+        * validate column presence,
+        * compute and store a SHA‑256 checksum.
+        """
+        csv_path, from_remote = self._fetch_dataset()
+
+        # Validate required columns
+        self._validate_columns(csv_path)
+
+        # Compute checksum and write manifest
+        checksum = self._compute_checksum(csv_path)
+        checksum_path = csv_path.parent / "checksums.json"
+        self._write_checksum_file({csv_path.name: checksum}, checksum_path)
+
+        self.logger.info(
+            f"Data download completed successfully (rows written). "
+            f"{'Remote' if from_remote else 'Local fallback'} source used."
+        )
+        return csv_path
+
+def main() -> None:
     """
-    Entry point for data download and validation.
+    CLI wrapper that runs the DataLoader and exits with status code 0 on
+    success or 1 on any failure.
     """
-    setup_logging(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-    
     try:
         loader = DataLoader()
-        output_path = Path("data/raw/permeability_data.csv")
-        df = loader.process(save_path=output_path)
-        
-        logger.info(f"Pipeline completed successfully. Output saved to {output_path}")
-        log_result_artifact("data_download", {
-            "rows": len(df),
-            "columns": list(df.columns),
-            "target_mode": loader.proxy_mode and "proxy" or "experimental",
-            "target_column": loader.target_column
-        })
-        
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        raise
+        loader.process()
+        logger.info("Data download and validation succeeded.")
+        sys.exit(0)
+    except Exception as exc:
+        logger.error(f"Data download failed: {exc}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

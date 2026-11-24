@@ -31,7 +31,6 @@ from llmxive.grounding.entailment import _parse_verdict
 from llmxive.speckit.clarify_cmd import ClarifierAgent, _parse_clarifier_response
 from llmxive.speckit.slash_command import SlashCommandContext
 from llmxive.speckit.yaml_extract import outer_fenced_body
-from llmxive.types import BackendName
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -225,7 +224,7 @@ def _run(tmp_path: Path, monkeypatch, backend: _QueueBackend | None, first_reply
         project_id="PROJ-701-clarify-reask", project_dir=project, run_id="r", task_id="t",
         inputs=[], expected_outputs=[],
         prompt_template_path=Path("agents/prompts/clarifier.md"),
-        default_backend=BackendName.LOCAL, fallback_backends=[], default_model="m",
+        profile="standard_generation",
         prompt_version="1.0.0", agent_name="clarifier",
     )
     mechanical = {

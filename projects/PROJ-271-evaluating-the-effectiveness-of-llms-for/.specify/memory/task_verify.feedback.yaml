@@ -1,0 +1,84 @@
+T001a:
+  task: 3d42df1dcb230004dbb061f05e96bc8af50d146911e9da8a371a3594863f2262
+T001b:
+  reason: "The evidence shows a `.flake8` file exists in `code/`, but its contents\
+    \ are not provided, so we cannot verify that it contains the exact required settings\
+    \ (`max-line-length = 88` and `ignore = E203,W503`). The implementer must supply\
+    \ the file\u2019s content to confirm compliance."
+  task: 53b83fdf6c347150d9d32071ec002a61c3fd6f9bcdca17291e783d0ab152b8f4
+T001c:
+  reason: "The evidence shows a top\u2011level `pyproject.toml` with the correct Black\
+    \ settings, and that a `pyproject.toml` file exists inside `code/`, but the content\
+    \ of `code/pyproject.toml` is not provided. Without confirming that the `code/pyproject.toml`\
+    \ contains the required `[tool.black]` section with `line-length = 88` and `target-version\
+    \ = ['py311']`, the task requirement is not satisfied. Provide the contents of\
+    \ `code/pyproject.toml` (or ensure it matches the specification)."
+  task: adba7b53f0434d566425274e6026f726d61fecd403061e57241c4e1989c27bc8
+T002:
+  task: b34ff65268cbbf53b422a5f58f607dea5b3fef466b67e8880dcfa223c71a6cb8
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/verify_dataset.py
+    exit=1'
+  task: f7fd07db01da1049de03139358207824f8b11c80afe4e9568733c828dfc5506c
+T004:
+  task: 6ff5643886e865e51d020130cffe42306fd12f5dc331aa1464c016c530e4f525
+T005:
+  task: 44ab8390c367a1354e70e03c934f0fa1b7f0b599b5f79ccc503a71c0320282bf
+T006a:
+  task: 09887eab488b5b2a55707d8302c9b65c1a4d34107783acadf333ec9724cba3dd
+T006b:
+  task: 7f609a13a74325e8e0646f297c0066201d7a8e7f785b97c63a4feacb38ff6858
+T007:
+  task: 12937334809a5e03bbccf8a2cbc3bd18e640b63390901958a00abc63f2385861
+T008:
+  task: 58c28cdcdbf5dda640bed0167e3396a74fdeaecae9dd659c9ad30d368ae63407
+T009:
+  task: 355b6e59050063942317e4342f233ef138093771b1b1b8ed15d100f6f939bbb9
+T010:
+  task: 30743b685fcbacaee975b3db6638db18a0263b6176ddd90085135bae7886ba5f
+T011:
+  task: b03b64fd413270e88494dd0c30391c4e9497a63a3e9eb16517824ab73e311709
+T012:
+  task: 603abd6dc332792f469c0dbb4578d444b55c53c0edd73a2ddb6a27257033136f
+T013:
+  task: 905f64698a43db36c83e550654ebfef7c9da2cf98b60e4e9e0a3fc27a1bcec7a
+T014:
+  task: 0d85df2fadcf48d93527cf1588a19a71948a630d62ac504caaec63a8c0aaa4ba
+T015:
+  task: 041cf5083fa21ebbf1c1f02f07efc3a1d141eb779c4240803f1251497ad6f950
+T016:
+  task: 0052154fc22c0ae5367494feed1747319c0d62fe31cad6ce47e7a33f5ad91a6b
+T017:
+  task: 0266fff53630db9ebe73bf0841dab6ece6fb18b4cf880c4515c51f7af1cdb1bf
+T018:
+  task: 5df04e5d992725b62571f6815adec39307eebb7de32d357297998a2a8f363e58
+T019:
+  task: f161360a2f1ba0824c6bc81e8bff679a95d4ec86f0dac6083603ab476a392240
+T020:
+  task: b2ddefcecce23ab1f3a15c58ccd68db128cc1a88a4fdd4015acf47612db64f37
+T021:
+  task: afc859ba41417268b9945ffbf2170786a15f42d3fff384abb37a9250bc9dd4e9
+T022:
+  task: 23b70852d2ae528941c1e66676cb47d20f3b1dbae63e0f316c0521a57dfa402e
+T023:
+  task: e677b6cdce045965b75d766e09ad2155e95be2cfb702a2f6d4136d338d0161e1
+T024:
+  task: 4321ad11f8911cc6b944e093973e54b59e94968b5c34721148d753a2fff09b0c
+T025:
+  task: d78b9bfb741739850aabc4c2fbdaa67b47a309c9f456864c1d54002d17a35b97
+T026:
+  task: 3775b4c83e5bb3f6bcbc972d285f4091b0584e4d9bc0d84323940155a1e7659c
+T027:
+  task: eddbb7e1035a0040ad2a5bb9eac128ca5e4f63b7f7529099c58861ba8cc4fb59
+T028:
+  task: d865c010c555e0238e4892c2f1956dd10cbd4ff4e869c9e9d43905f20f26d8b6
+T029:
+  task: 0771922a0e89e89703593c7003647b712650a8978a31f87943a9c4d5e5f1a768
+T030:
+  task: 7be6a510951e0bf527075ae210ce22a971b452aeea740eed753948544a21e32d
+T031:
+  task: 7b32bed5197b680369bb4169a4b95d50e18958eec80e44c1a5cae61b520d6ce5
+T032:
+  task: 6e58c6c0f6d1d6e3030af12fa6a0ebaaff3d9ce420f246e7d07e5f6b2693e703
+T033:
+  task: ef1c36ad0ba663ada158cb19a03764a757c9412f6bb37c024f1b7dd12200c41d

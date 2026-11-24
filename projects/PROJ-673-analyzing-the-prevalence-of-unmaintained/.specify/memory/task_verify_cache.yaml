@@ -1,15 +1,13 @@
 T001:
-  c: false
-  h: 3e73b99085adc35b15f393d68d24059114ec11e0065fb4502a917fc0b0431e1d
-  r: The only artifacts shown are `plan.md` and a `contracts/` directory; there is
-    no evidence (no `ls -R` output or directory listings) that the required `src/models`,
-    `src/services`, `src/analysis`, `src/cli`, `src/utils`, `data/raw`, `data/processed`,
-    `tests/unit`, and `tests/integration` directories were actually created. Additionally,
-    a `contracts/` directory exists at the project root, which the task explicitly
-    forbids creating here (the plan places it under `specs/001-.../contracts/`), so
-    its presence at root is a violation unless it can be shown to be the spec-scoped
-    path.
-  sig: 0700cb545a2f0002b7ecf394da08156bdfd657516758f23d4aa2c904777f4cfe
+  c: true
+  h: c78ef72cb3979d690fb7e29063acaaa9e939b90c2d554df7be5ce8d6d429c23e
+  r: "Checked the `code/.tasks/T001.code_create_project_structure.py.log` which records\
+    \ successful execution of the directory\u2011creation script and the subsequent\
+    \ `ls -R` output showing the required `src/models`, `src/services`, `src/analysis`,\
+    \ `src/cli`, `src/utils`, `data/raw`, `data/processed`, `tests/unit`, `tests/integration`,\
+    \ and `docs` directories. No top\u2011level `contracts/` directory is present\
+    \ (only under `specs/\u2026`)."
+  sig: 9ec9c02997d9aca957a6ab6d3df2af211cdbeebdede1e927fb14d2f3e8da0eff
 T002:
   c: true
   h: f0606395197c39aec052f2021d315c218651e84edd8fe8d85437f4f625c6601e
@@ -52,6 +50,24 @@ T006:
     \ with sensible fallbacks \u2014 exactly what T006 asked for, with no stubs or\
     \ placeholders."
   sig: 461b01672e36dcd4be3c17f43dc02ba099d8ab9092e6df11c4468849a83a16e8
+T007:
+  c: true
+  h: 62559c711064bc1d2c9832eef2df0d7692180ce03f340ea630a4efd689827ad3
+  r: "Checked `src/utils/logging_config.py` (3325\u202Fbytes) which defines a logger,\
+    \ records each API call\u2019s SUCCESS/FAILURE in an in\u2011memory registry,\
+    \ and provides functions to retrieve aggregated metrics and compute success ratios,\
+    \ fulfilling the FR\u2011009 requirement."
+  sig: bdcace15d79af8c3e334da4c7cee1fc20d4cae0d591269e32fe22a91fc3fcd19
+T007a:
+  c: true
+  h: efecf1071060ff04cac5a42dcda0068999834fd7809d904370ceaed566455005
+  r: "Checked `src/utils/api_metrics.py` (3643\u202Fbytes) which defines `aggregate_and_report`\
+    \ that gathers metrics via `get_aggregated_metrics`, computes per\u2011endpoint\
+    \ and overall success/failure ratios, and can write a JSON report; a `main` entry\
+    \ prints the report, fulfilling the SC\u2011004 requirement. The supporting `src/utils/logging_config.py`\
+    \ provides the needed metric registry and logging utilities, confirming the implementation\
+    \ is functional and non\u2011stub."
+  sig: 97f9726ecf647bcfbbb8c601cdd09f79765ddbb55aaf56e3f015350ce29d6161
 T008b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -59,6 +75,37 @@ T008b:
     mechanism being exercised in a real pipeline simulation, nor any evidence that
     such a verification was performed. The required artifact (e.g., a script, logs,
     or test results showing the caching behavior) is missing.
+T009:
+  c: true
+  h: e862b900fcbe9e800738ed95a1e9237147884a940ae985a3cb9b648537b0edef
+  r: "Checked the presence and content of `tests/unit/test_age_calc.py`, which defines\
+    \ a full suite of pytest unit tests covering age calculation, including handling\
+    \ of null release and commit dates, timezone\u2011naive inputs, and edge cases.\
+    \ The file exists, is non\u2011empty, and directly implements the required tests."
+  sig: 8403312af53a3e28b918f54a116cb2364c24857b6dcb508b9fc13bdb0947fd71
+T010:
+  c: false
+  h: 0a550efca76bee0bb2c2eebfaaec374bf9d67e48689ba42cb7ba92bca9ab9987
+  r: "The file `tests/unit/test_backoff.py` exists and contains tests, but it imports\
+    \ `exponential_backoff` from `src.utils.backoff`, whose implementation is a decorator\
+    \ factory (`exponential_backoff(retries=..., ...) -> decorator`). The tests call\
+    \ it as a plain function with arguments `max_retries`, `initial_delay`, etc.,\
+    \ which does not match the actual signature and will raise a TypeError, so the\
+    \ max\u2011retries behavior of the real backoff logic is never exercised. The\
+    \ unit test therefore does not correctly verify the required backoff logic."
+  sig: 200712b538dd6046752cb9fc0a2da91dd61a59aaa916909a162aec39155659dc
+T011:
+  c: false
+  h: cb44f89d596cc39650548891e3291b644f443a03540d4d4dc06975eedccbf7ff
+  r: "The `tests/integration/test_api_clients_replay.py` file exists, but it does\
+    \ **not** use real cached snapshots from the project\u2019s `data/raw/` directory\
+    \ (which is empty). Instead, the test creates temporary mock cache files in a\
+    \ `tmp_path` directory, patches `load_from_cache` incorrectly, and never exercises\
+    \ the actual cache\u2011loading logic of the client services. Consequently, the\
+    \ integration test does not satisfy the requirement to replay API responses using\
+    \ real cached snapshots. The missing real snapshot files and the flawed test implementation\
+    \ must be fixed."
+  sig: 206af5e88c7dea96d50b9d94e566e18c7c3e848c89172f8b5e56f6504655348c
 T017a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

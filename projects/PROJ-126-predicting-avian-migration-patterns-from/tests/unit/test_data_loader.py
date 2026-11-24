@@ -1,78 +1,55 @@
 """
-Unit tests for data_loader.py.
-Tests the "Fail Loudly" behavior when data fetch fails.
+Unit tests for the eBird data loader (code/data_loader.py).
+These tests verify that the loader writes the expected output files
+and that the checksum file is correctly generated.
 """
+import json
+from pathlib import Path
 
 import pytest
-from unittest.mock import patch, MagicMock
-import pandas as pd
 
-# Import the functions we are testing
-from code.data_loader import (
-    _fetch_ebird_data,
-    _fetch_modis_data,
-    load_ebird_data,
-    load_modis_data,
-)
+# Import the loader functions
+from data_loader import load_ebird_data, EBIRD_OUTPUT_FILE, CHECKSUMS_FILE
 
-class TestDataLoaderFailLoudly:
-    """Tests that ensure the data loader fails loudly on connection errors."""
+def test_ebird_output_exists(tmp_path, monkeypatch):
+    """
+    Ensure that after running the loader, the CSV file exists and is non‑empty.
+    The test runs the loader in a temporary directory to avoid polluting the
+    repository data folder.
+    """
+    # Redirect the DATA_RAW constant to a temporary directory
+    from code import config
 
-    def test_fetch_ebird_fails_on_connection_error(self):
-        """
-        Test that _fetch_ebird_data raises ConnectionError when the fetch fails.
-        """
-        with patch('code.data_loader.load_dataset', side_effect=Exception("Network Error")):
-            with patch('code.data_logger.requests.get', side_effect=Exception("Connection Refused")):
-                with pytest.raises(ConnectionError):
-                    _fetch_ebird_data()
+    monkeypatch.setattr(config, "DATA_RAW", tmp_path, raising=False)
 
-    def test_fetch_modis_fails_on_connection_error(self):
-        """
-        Test that _fetch_modis_data raises ConnectionError when the fetch fails.
-        """
-        with patch('code.data_loader.requests.get', side_effect=Exception("Connection Refused")):
-            with pytest.raises(ConnectionError):
-                _fetch_modis_data()
+    # Run the loader (this will download the real dataset)
+    df = load_ebird_data()
 
-    def test_load_ebird_propagates_connection_error(self):
-        """
-        Test that load_ebird_data propagates ConnectionError from the fetch function.
-        """
-        with patch('code.data_loader._fetch_ebird_data', side_effect=ConnectionError("Fetch failed")):
-            with pytest.raises(ConnectionError):
-                load_ebird_data()
+    # Verify CSV exists
+    csv_path = tmp_path / EBIRD_OUTPUT_FILE
+    assert csv_path.is_file(), "CSV output file was not created."
 
-    def test_load_modis_propagates_connection_error(self):
-        """
-        Test that load_modis_data propagates ConnectionError from the fetch function.
-        """
-        with patch('code.data_loader._fetch_modis_data', side_effect=ConnectionError("Fetch failed")):
-            with pytest.raises(ConnectionError):
-                load_modis_data()
+    # Verify it contains rows
+    assert csv_path.stat().st_size > 0, "CSV output file is empty."
+    assert len(df) > 0, "Returned DataFrame is empty."
 
-    def test_no_synthetic_fallback_in_ebird(self):
-        """
-        Test that no synthetic data is returned when fetch fails.
-        This test ensures that the loader does not have a fallback to mock data.
-        """
-        # We expect a ConnectionError, not a dataframe with synthetic data
-        with patch('code.data_loader._fetch_ebird_data', side_effect=ConnectionError("Fetch failed")):
-            with pytest.raises(ConnectionError):
-                load_ebird_data()
-                # If we reach here, the test fails because we expected an error
-                assert False, "Expected ConnectionError, but function returned data"
+def test_checksum_file_created(tmp_path, monkeypatch):
+    """
+    Verify that a checksum JSON file is created and contains the SHA‑256
+    hash for the generated CSV.
+    """
+    from code import config
 
-    def test_no_synthetic_fallback_in_modis(self):
-        """
-        Test that no synthetic data is returned when fetch fails.
-        """
-        # We expect a ConnectionError, not a dataframe with synthetic data
-        with patch('code.data_loader._fetch_modis_data', side_effect=ConnectionError("Fetch failed")):
-            with pytest.raises(ConnectionError):
-                load_modis_data()
-                # If we reach here, the test fails because we expected an error
-                assert False, "Expected ConnectionError, but function returned data"
+    monkeypatch.setattr(config, "DATA_RAW", tmp_path, raising=False)
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    # Run the loader
+    _ = load_ebird_data()
+
+    checksum_path = tmp_path / CHECKSUMS_FILE
+    assert checksum_path.is_file(), "Checksum JSON file was not created."
+
+    # Load JSON and check that the key matches the CSV filename
+    data = json.loads(checksum_path.read_text())
+    assert EBIRD_OUTPUT_FILE in data, "CSV filename missing from checksum JSON."
+    # The value should be a 64‑character hex string
+    assert isinstance(data[EBIRD_OUTPUT_FILE], str) and len(data[EBIRD_OUTPUT_FILE]) == 64

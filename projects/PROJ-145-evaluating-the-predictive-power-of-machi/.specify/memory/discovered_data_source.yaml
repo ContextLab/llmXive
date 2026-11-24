@@ -1,16 +1,15 @@
 status: none
-intent: AFLOW thermodynamics dataset formation energy mixing enthalpy 5+ element systems
-  download python package dataset
+intent: Materials Project HEA thermodynamic dataset parquet download python package
+  dataset
 required_fields:
 - composition
-- element_fractions
 - formation_energy_per_atom
 - mixing_enthalpy
-- num_elements
-- entry_id
-- database_source
-- structure_id
 - energy_above_hull
-cache_key: 72a82deda448d24889117a6cde8abde488ae10fec70555ece44d10816ee6f69b
-searched_at: '2026-09-04T10:33:32.501148+00:00'
+- elements
+- num_elements
+- atomic_fractions
+- entry_id
+cache_key: 04a95ea47ff96622252820a361af65bfc5cc83a3749657f4270d6ee0274f50d3
+searched_at: '2026-10-14T21:43:52.044832+00:00'
 retry_count: 1

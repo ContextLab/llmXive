@@ -1,0 +1,123 @@
+{
+  "trace_id": "training_42_02112",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 11,
+  "tool_sequence": [
+    "format_text",
+    "format_text",
+    "update_layout",
+    "update_layout",
+    "insert_chart",
+    "insert_chart",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 66.6488,
+        "x": 30.2332,
+        "y": 17.2251
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 99.3398,
+        "x": 66.5545,
+        "y": 47.9721
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 11.3559,
+        "padding": 9.6467
+      }
+    },
+    {
+      "step": 3,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 80.7895,
+        "padding": 78.293
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 64.6041,
+        "y": 12.9717,
+        "width": 97.9094,
+        "height": 92.9578,
+        "data_points": 68.218
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 54.3135,
+        "y": 90.4457,
+        "width": 25.1028,
+        "height": 5.3833,
+        "data_points": 0.3087
+      }
+    },
+    {
+      "step": 6,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 94.5478
+      }
+    },
+    {
+      "step": 7,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 12.5103
+      }
+    },
+    {
+      "step": 8,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 38.2747
+      }
+    },
+    {
+      "step": 9,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 85.811
+      }
+    },
+    {
+      "step": 10,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 2.6298,
+        "saturation": 40.2823
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.515708,
+    "tool_repetition_freq": 0.545455,
+    "arg_semantic_variance": 1125.504331
+  },
+  "final_state": {
+    "dominant_tool": "delete_element",
+    "slide_element_count": 5,
+    "layout_hash": "42-2112-delete_element"
+  }
+}

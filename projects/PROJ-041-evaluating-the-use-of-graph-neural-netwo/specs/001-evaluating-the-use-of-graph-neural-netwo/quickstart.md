@@ -2,78 +2,99 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   `pip`
-*   Access to the CTU-13 dataset (or the verified NetFlow fallback).
-*   ~10GB free disk space for data and dependencies.
+* Python 3.11+ (installed on the runner)  
+* `git` (to clone the repository)  
+* Internet access (to download the NetFlow dataset)
 
-## Installation
-
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd <project-dir>
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: This installs `torch` (CPU version), `networkx`, `scikit-learn`, `xgboost`, `captum`.*
-
-## Data Setup
-
-The pipeline expects data in `data/raw/`.
-
-1.  **Download CTU-13** (if available locally) or use the verified fallback:
-    ```bash
-    # If you have CTU-13, place it in data/raw/ctu13_scenario_1.csv
-    # If not, the script will attempt to download the verified fallback from HuggingFace
-    python code/data/ingest_netflow.py --source fallback
-    ```
-
-2.  **Verify Data Integrity**:
-    ```bash
-    python code/utils/memory_monitor.py --check
-    ```
-
-## Running the Pipeline
-
-Execute the full analysis pipeline (Ingestion -> Graph Construction -> Training -> Evaluation):
+## Setup Steps
 
 ```bash
-python code/main.py --scenarios 1 2 3 --seeds 42 123 456
+# 1️⃣ Clone the repository
+git clone <REPO_URL>
+cd <repo-directory>
+
+# 2️⃣ Create a clean virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3️⃣ Install exact dependencies (pinned)
+pip install -r code/requirements.txt
 ```
 
-*   `--scenarios`: List of CTU-13 scenario IDs to process (or BoT-IoT scenarios if using fallback).
-*   `--seeds`: Random seeds for reproducibility.
+## Data Preparation
 
-### Expected Output
-*   `data/processed/`: GraphML files (including `graph_{scenario}_subsampled.graphml`) and feature matrices.
-*   `data/results/`: CSV files with metrics and p-values.
-*   `logs/`: Memory usage logs and training progress.
+The pipeline attempts to use the **CTU‑13** NetFlow dataset first (a verified mirror at a fixed revision). If that download fails—for example due to network restrictions—the pipeline **deterministically falls back** to the verified `keys-i/netFlow` dataset (revision `c9f7a1b2e5d4`). The fallback logic is built into `code/data/ingest.py`.
+
+```python
+from datasets import load_dataset
+
+def load_netflow():
+    try:
+        # Attempt CTU‑13 mirror (pinned revision)
+        ds = load_dataset('ctu13/ctu13', revision='v1.0.0', split='train', streaming=True)
+        print("Using CTU‑13 dataset.")
+    except Exception as e:
+        print(f"CTU‑13 unavailable ({e}); falling back to keys‑i/netFlow.")
+        ds = load_dataset('keys-i/netFlow', revision='c9f7a1b2e5d4', split='train', streaming=True)
+    # Preview first record
+    print('Dataset streaming initialized – first record preview:')
+    print(next(iter(ds)))
+    return ds
+
+load_netflow()
+```
+
+> **Note**: No conditional fallback to other datasets is performed beyond the CTU‑13 → keys‑i/netFlow logic; the source is deterministic given the network outcome.
+
+## Running the Full Analysis (once data is available)
+
+```bash
+# Execute the end‑to‑end pipeline with 20 seeds
+python code/main.py \
+  --seeds 42 123 456 789 101112 131415 161718 192021 222324 252627 \
+          272829 303132 333435 363738 394041 424344 454647 484950 515253 545556 \
+  --train_ratio 0.7 \
+  --max_nodes 5000
+```
+
+The command performs:
+
+1. **Streaming ingestion** → deterministic graph construction with memory guard, deterministic subsampling, and validation against `contracts/dataset.schema.yaml`.  
+2. **Feature extraction** → Parquet feature tables.  
+3. **Temporal hold‑out split** → training on earliest timestamps, testing on later timestamps.  
+4. **Training** of GCN, Random Forest, and XGBoost (CPU‑only) across the 20 seeds.  
+5. **Evaluation** (Precision, Recall, F1, AUC‑ROC).  
+6. **Paired t‑tests** + Benjamini‑Hochberg correction (20 seeds).  
+7. **Integrated‑Gradients attribution** → ranked predictive patterns.  
+8. **Pattern‑based classifier** evaluation (target AUC ≥ 0.80).  
+
+### Expected Outputs
+
+| Directory | Contents |
+|-----------|----------|
+| `data/processed/` | `graph_{scenario}_subsampled.graphml.gz`, `features_{scenario}.parquet` |
+| `data/results/` | `metrics_{model}_{scenario}.csv`, `final_aggregate.csv`, `gcn_attribution_{scenario}.csv`, `pattern_classifier_{scenario}.csv` |
+| `logs/` | Memory‑usage logs (`memory_{scenario}.log`), training progress (`train_{scenario}.log`) |
+| `figures/` | ROC curves, feature‑importance bar plots, attribution heatmaps |
 
 ## Verification
 
-To verify the installation and memory constraints:
+```bash
+# Unit tests (do not require the full dataset)
+pytest code/tests/test_graph_construction.py -q
 
-1.  **Run Unit Tests**:
-    ```bash
-    pytest code/tests/test_graph_construction.py -v
-    ```
+# Memory‑limit test (simulates a large graph)
+pytest code/tests/test_memory_limits.py -q
+```
 
-2.  **Check Memory Limit**:
-    The test `test_memory_limits.py` simulates a large graph and asserts that peak memory < 7GB.
+All tests must pass before committing results.
 
 ## Troubleshooting
 
-*   **CUDA Error**: If you see "CUDA not available", ensure you installed the CPU version of PyTorch. The code explicitly sets `device='cpu'`.
-*   **Memory Error**: If the script crashes with OOM, reduce the `--scenarios` list or check if the graph subsampling logic is active (nodes > 5,000).
-*   **Missing Data**: If CTU-13 is missing, the pipeline will automatically switch to the `NF-BoT-IoT-v3` fallback. If that is also missing, the pipeline will fail with a clear error.
-*   **Unseen Nodes in Test**: If the test set contains new IPs, they will be dropped or assigned default features as per the Temporal Holdout strategy.
+* **Out‑of‑Memory** – Check `logs/memory_*.log`; if peak > 7 GB, the script aborts and logs a warning that subsampling was applied.  
+* **Dataset Access Issues** – The script logs any download failures; because the fallback dataset is verified, the pipeline will continue with `keys-i/netFlow`.  
+* **CUDA Errors** – The code forces `torch.device('cpu')`. If you see CUDA warnings, reinstall the CPU‑only wheel (`pip uninstall torch && pip install torch==2.3.0+cpu`).  
+
+---
+
+

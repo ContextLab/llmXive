@@ -5,12 +5,15 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
-import subprocess
 import sys
+from pathlib import Path
 
 import requests
 from huggingface_hub import HfApi
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
+
+from llmxive.credentials import load_hf_token
 
 ORG = "contextlab"
 GROUP = "6ac8defed831a06784773cfd"
@@ -18,26 +21,9 @@ REPO = "contextlab/llmxive-artifacts"
 
 
 def token() -> str:
-    value = os.environ.get("HF_TOKEN", "").strip()
+    value = load_hf_token()
     if value:
         return value
-    if sys.platform == "darwin":
-        result = subprocess.run(
-            [
-                "security",
-                "find-generic-password",
-                "-s",
-                "llmxive-huggingface",
-                "-a",
-                "jeremyrmanning",
-                "-w",
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            return result.stdout.strip()
     raise RuntimeError(
         "Set HF_TOKEN from a repository secret or use the llmxive-huggingface Keychain item"
     )

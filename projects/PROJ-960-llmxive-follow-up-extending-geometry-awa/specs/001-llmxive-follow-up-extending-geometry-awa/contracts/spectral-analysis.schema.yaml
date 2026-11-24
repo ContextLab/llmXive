@@ -1,0 +1,12 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Spectral Analysis Schema"
+description: "Specification for spectral properties"
+type: object
+required:
+  -  \  
+
+
+
+--- End
+
+

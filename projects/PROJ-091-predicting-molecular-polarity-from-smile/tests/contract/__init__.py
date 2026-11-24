@@ -1,3 +1,1 @@
-"""
-Contract tests package for schema validation.
-"""
+"""Contract test package for schema validation of real pipeline artifacts."""

@@ -8,18 +8,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/01_generate_networks.py --n 200 --types small_world,scale_free,random --seed 42 -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/01_generate_networks.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-236-exploring-the-influence-of-network-topol/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/01_generate_networks.py': [Errno 2] No such file or directory
 
 - python code/02_compute_transport.py --input data/processed/graphs/ --mode cpu -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/02_compute_transport.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-236-exploring-the-influence-of-network-topol/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/02_compute_transport.py': [Errno 2] No such file or directory
 
 - python code/03_analyze_correlations.py --transport data/processed/transport/ --graphs data/processed/graphs/ -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/03_analyze_correlations.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-236-exploring-the-influence-of-network-topol/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/03_analyze_correlations.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/unit/ -> rc=2
-r: No module named 'jsonschema'
+nerate_random_graph' from 'generate_networks' (/home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/generate_networks.py)
 =============================== warnings summary ===============================
 code/utils/models.py:42
   /home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/utils/models.py:42: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
@@ -29,20 +29,17 @@ code/utils/models.py:42
 =========================== short test summary info ============================
 ERROR tests/unit/test_check_connectivity_ci.py
 ERROR tests/unit/test_generate_networks.py
-ERROR tests/unit/test_power_analysis.py
-ERROR tests/unit/test_power_analysis_verification.py
 ERROR tests/unit/test_topological_metrics.py
-ERROR tests/unit/test_transport_schema.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-========================= 1 warning, 6 errors in 0.86s =========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+========================= 1 warning, 3 errors in 1.18s =========================
 
 
 - python -m pytest tests/integration/test_full_pipeline.py -> rc=4
 ============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-9.1.1, pluggy-1.6.0
+platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
 rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
-plugins: platformdirs-4.12.4, cov-7.1.0
+plugins: platformdirs-4.14.5, cov-7.1.0
 collected 0 items
 
 ============================ no tests ran in 0.00s =============================

@@ -1,65 +1,135 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Results Schema"
-description: "Schema for the CSV/JSON output of the statistical analysis phase."
+description: "Schema for the JSON output of the statistical analysis phase."
 type: "object"
 properties:
-  motif_id:
-    type: "string"
-    description: "Identifier for the specific 3-node motif."
-  correlation_type:
-    type: "string"
-    enum:
-      - "pearson"
-      - "spearman"
-    description: "Type of correlation computed."
-  r_value:
-    type: "number"
-    description: "Partial correlation coefficient or regression coefficient."
-  p_value_raw:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Uncorrected p-value."
-  p_value_corrected:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Bonferroni-corrected p-value."
-  significant:
-    type: "boolean"
-    description: "True if p_value_corrected < 0.05."
-  empirical_p:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Empirical p-value from permutation test."
-  n_permutations:
-    type: "integer"
-    minimum: 1000
-    description: "Number of permutations performed."
-  control_variable:
-    type: "string"
-    const: "structural_global_degree"
-    description: "Variable controlled for in partial correlation."
-  vif:
-    type: "number"
-    description: "Variance Inflation Factor for the control variable."
-  method_used:
-    type: "string"
-    enum:
-      - "multivariate_regression"
-      - "ridge_regression"
-      - "permutation_only"
-    description: "Method used based on VIF check."
+  analysis_params:
+    type: "object"
+    properties:
+      seed:
+        type: "integer"
+        const: 42
+      bonferroni_alpha:
+        type: "number"
+        description: "Bonferroni‑adjusted alpha (0.05 / 52)."
+      permutation_count:
+        type: "integer"
+        minimum: 1000
+      power_target:
+        type: "number"
+        const: 0.80
+        description: "Target statistical power (0.80, per Wikipedia \"Power (statistics)\")."
+      vif_threshold:
+        type: "number"
+        const: 5
+    required:
+      - "seed"
+      - "bonferroni_alpha"
+      - "permutation_count"
+      - "power_target"
+      - "vif_threshold"
+  results:
+    type: "array"
+    description: "One entry per motif × metric × correlation type."
+    items:
+      type: "object"
+      properties:
+        motif_id:
+          type: "string"
+        metric:
+          type: "string"
+          enum:
+            - "strength"
+            - "global_efficiency"
+        correlation_type:
+          type: "string"
+          enum:
+            - "pearson"
+            - "spearman"
+        partial_r:
+          type: "number"
+        p_value_raw:
+          type: "number"
+          minimum: 0
+          maximum: 1
+        p_value_bonferroni:
+          type: "number"
+          minimum: 0
+          maximum: 1
+        significant:
+          type: "boolean"
+        empirical_p:
+          type: ["number", "null"]
+          minimum: 0
+          maximum: 1
+          description: "Empirical p‑value from permutation test; null if test was skipped."
+        skipped_reason:
+          type: ["string", "null"]
+          description: "Reason for skipping (e.g., \"insufficient variance\")."
+        vif:
+          type: "number"
+        n_subjects:
+          type: "integer"
+      required:
+        - "motif_id"
+        - "metric"
+        - "correlation_type"
+        - "partial_r"
+        - "p_value_raw"
+        - "p_value_bonferroni"
+        - "significant"
+        - "n_subjects"
+      additionalProperties: false
+  multicollinearity:
+    type: "object"
+    properties:
+      max_vif:
+        type: "number"
+      vif_warning:
+        type: "boolean"
+        description: "True if any predictor VIF >= 5."
+      flagged_pairs:
+        type: "array"
+        description: "Predictor pairs with |r| >= 0.9."
+        items:
+          type: "object"
+          properties:
+            pair:
+              type: "array"
+              items:
+                type: "string"
+            r:
+              type: "number"
+          required:
+            - "pair"
+            - "r"
+    required:
+      - "max_vif"
+      - "vif_warning"
+      - "flagged_pairs"
+  power_analysis:
+    type: "object"
+    properties:
+      n:
+        type: "integer"
+      alpha_adjusted:
+        type: "number"
+      power:
+        type: "number"
+        const: 0.80
+      min_detectable_r:
+        type: "number"
+      type_ii_error_statement:
+        type: "string"
+    required:
+      - "n"
+      - "alpha_adjusted"
+      - "power"
+      - "min_detectable_r"
+      - "type_ii_error_statement"
 required:
-  - "motif_id"
-  - "correlation_type"
-  - "r_value"
-  - "p_value_raw"
-  - "p_value_corrected"
-  - "significant"
-  - "empirical_p"
-  - "n_permutations"
-  - "control_variable"
-  - "method_used"
+  - "analysis_params"
+  - "results"
+  - "multicollinearity"
+  - "power_analysis"
 additionalProperties: false

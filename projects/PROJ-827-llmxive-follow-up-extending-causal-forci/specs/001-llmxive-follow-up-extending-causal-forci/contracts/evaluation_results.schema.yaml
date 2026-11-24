@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationResults"
+description: "Per‑sequence real measurements of model fidelity. All values are computed from actual model outputs; placeholder values are prohibited."
+type: object
+required:
+  - sequence_id
+  - model_type
+  - ssim
+  - psnr
+  - lpips
+properties:
+  sequence_id:
+    type: string
+    description: "ID linking to the original VideoSequence."
+  model_type:
+    type: string
+    enum:
+      - "student_physics_teacher"
+      - "neural_teacher"
+    description: "Which model generated the prediction."
+  ssim:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Structural Similarity Index (higher is better)."
+  psnr:
+    type: number
+    minimum: 0.0
+    description: "Peak Signal‑to‑Noise Ratio in dB."
+  lpips:
+    type: number
+    minimum: 0.0
+    description: "Learned Perceptual Image Patch Similarity (lower is better)."
+  mae:
+    type: number
+    minimum: 0.0
+    description: "Mean Absolute Error (pixel‑wise) against analytically computed reference frames."
+  fid:
+    type: number
+    minimum: 0.0
+    description: "Optional set‑level Fréchet Inception Distance against the baseline set (reported per model in outputs/metrics/fid.csv)."
+  additional_info:
+    type: object
+    description: "Optional free‑form fields (e.g., friction coefficient for ablation)."
+    additionalProperties: true

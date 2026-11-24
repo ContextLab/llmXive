@@ -1,4 +1,6 @@
 """
-Utility module containing common utilities for logging, I/O, seed management,
-and project structure setup.
+Utilities subpackage.
+
+Provides helper functions such as random‑seed management, logging
+wrappers, and path utilities used across the project.
 """

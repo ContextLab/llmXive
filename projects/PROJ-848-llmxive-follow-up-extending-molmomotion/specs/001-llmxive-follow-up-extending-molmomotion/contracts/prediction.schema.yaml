@@ -1,9 +1,30 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Prediction Output Schema
+# Prediction output schema for the MolmoMotion follow-up pipeline.
+#
+# Governs `data/results/predictions.jsonl` (one JSON object per line),
+# produced by the inference phase (US2) and consumed by the analysis
+# phase (US3). See dataset.schema.yaml for the input-side contract.
+#
+# Field overview:
+#   instance_id        - unique trajectory instance identifier (joins
+#                        with dataset.schema.yaml instance_id)
+#   predicted_points   - model-predicted 3D point sequence
+#   ate                - Average Trajectory Error in meters (FR-004)
+#   adherence_score    - instruction adherence score (Constitution VII;
+#                        recorded but NOT used for pass/fail per SC-001)
+#   instruction_type   - which instruction modality drove the prediction
+#   status             - per-instance processing status; only 'success'
+#                        rows are included in the statistical analysis
+$schema: "http://json-schema.org/draft-07/schema#"
+title: PredictionOutput
 description: >
-  Schema for model prediction outputs generated during the inference pipeline.
-  Contains predicted trajectories, evaluation metrics, instruction metadata, and execution status.
+  Schema for a single trajectory prediction record emitted by the
+  CPU-only Dual-Head Linear Baseline inference pipeline. One record
+  corresponds to one (instance, instruction modality) pair, so each
+  trajectory instance yields two records: one for the natural
+  language instruction and one for the structured kinematic
+  instruction.
 type: object
+additionalProperties: false
 required:
   - instance_id
   - predicted_points
@@ -14,68 +35,71 @@ required:
 properties:
   instance_id:
     type: string
-    description: Unique identifier for the trajectory instance, matching the source dataset.
-    pattern: "^[a-zA-Z0-9_-]+$"
-  
+    description: >
+      Unique identifier of the trajectory instance. Must match an
+      instance_id defined in dataset.schema.yaml so that NL and
+      structured predictions can be paired for the paired t-test
+      (FR-005).
+    minLength: 1
   predicted_points:
     type: array
     description: >
-      Sequence of predicted 3D points representing the trajectory.
-      Each point is a list of three floats [x, y, z] in meters.
+      Sequence of predicted 3D points. Each point is an array of
+      exactly three finite numbers [x, y, z] in meters. May be empty
+      only when status is 'failed' (e.g., NaN/Inf detected during
+      inference).
     items:
       type: array
       minItems: 3
       maxItems: 3
       items:
         type: number
-        description: Coordinate value (x, y, or z).
-  
   ate:
     type: number
     description: >
-      Average Trajectory Error (ATE) in meters.
-      Calculated as the mean Euclidean distance between predicted points and ground truth points.
-      Lower values indicate better performance.
+      Average Trajectory Error in meters between the predicted
+      trajectory and the ground-truth 3D points (FR-004). Must be a
+      finite, non-negative number for status='success' records.
     minimum: 0
-  
   adherence_score:
     type: number
     description: >
-      Score quantifying how well the prediction adheres to the provided instruction.
-      Used for trade-off analysis but NOT for the primary pass/fail verdict.
-    minimum: 0
+      Instruction adherence score: the dot-product alignment between
+      the predicted velocity vector and the intended instruction
+      vector (Constitution Principle VII). Recorded for trade-off
+      quantification only; explicitly excluded from the success/fail
+      verdict per SC-001.
+    minimum: -1
     maximum: 1
-  
   instruction_type:
     type: string
-    description: The modality of instruction used to generate this prediction.
+    description: >
+      Instruction modality that produced this prediction.
     enum:
-      - natural_language
-      - structured_kinematic
-  
+      - nl
+      - structured
   status:
     type: string
-    description: Execution status of the inference for this instance.
+    description: >
+      Processing status of this prediction. Instances producing NaN
+      or Inf values are marked 'failed' and excluded from the final
+      statistical analysis (Edge Case, FR-003/T021).
     enum:
       - success
       - failed
-    default: success
-  
-  inference_latency_ms:
-    type: number
-    description: Time taken to generate the prediction in milliseconds.
-    minimum: 0
-    required: false
-  
-  peak_memory_mb:
-    type: number
-    description: Peak memory usage during inference in megabytes.
-    minimum: 0
-    required: false
-  
-  timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp when the prediction was generated.
-    required: false
-additionalProperties: false
+      - skipped
+# Cross-field constraints expressed as documentation of invariants
+# enforced by the pipeline (draft-07 cannot express these natively):
+#   1. If status == 'success', predicted_points MUST be non-empty and
+#      contain only finite values, and ate MUST be a finite number.
+#   2. If status == 'failed' (NaN/Inf detected), the record is
+#      excluded from ATE aggregation and the paired t-test.
+#   3. Every instance_id present in predictions.jsonl MUST also appear
+#      in data/processed/subsampled_instances.parquet.
+#   4. For the paired t-test, each instance_id must have exactly one
+#      'nl' record and one 'structured' record with status='success'.
+x-invariants:
+  - "status == 'success' implies non-empty, finite predicted_points and finite ate"
+  - "failed records (NaN/Inf) are excluded from statistical analysis"
+  - "instance_id values must join against the subsampled dataset contract"
+  - "paired analysis requires one nl and one structured record per instance_id"

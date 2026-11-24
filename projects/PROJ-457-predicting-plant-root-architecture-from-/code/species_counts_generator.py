@@ -8,13 +8,19 @@ from typing import Dict, Any, List, Optional
 # Import from existing project modules as per API surface
 from config import get_config, setup_logging
 from logging_integration import get_pipeline_logger, log_exclusion_counts
-from data_ingestion import load_processed_data, get_data_source_type_column, filter_by_data_source_type, filter_by_missing_nutrients, filter_by_sample_size
+from data_ingestion import (
+    load_processed_data,
+    get_data_source_type_column,
+    filter_by_data_source_type,
+    filter_by_missing_nutrients,
+    filter_by_sample_size,
+)
 
 
 def load_json_file(file_path: Path) -> Dict[str, Any]:
     """Load a JSON file and return its contents."""
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             return json.load(f)
     except FileNotFoundError:
         return {}
@@ -25,7 +31,7 @@ def load_json_file(file_path: Path) -> Dict[str, Any]:
 def save_json_file(file_path: Path, data: Dict[str, Any]) -> None:
     """Save data to a JSON file."""
     file_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(file_path, 'w') as f:
+    with open(file_path, "w") as f:
         json.dump(data, f, indent=2)
 
 
@@ -35,7 +41,7 @@ def generate_species_counts_report(
     rows_excluded_by_source: int,
     rows_excluded_by_missing_nutrients: int,
     rows_excluded_by_sample_size: int,
-    logger: logging.Logger
+    logger: logging.Logger,
 ) -> Dict[str, Any]:
     """
     Generate the species counts report based on filtering statistics.
@@ -60,13 +66,15 @@ def generate_species_counts_report(
     # order). Let's assume the pipeline order is: Source -> Nutrients -> Sample Size.
     # If processed_data is the result of T015c (after nutrient filter), then:
     # total_species_input = number of unique species in that data.
-    
+
     total_species_input = 0
     if processed_data is not None:
         try:
-            total_species_input = processed_data['species'].nunique()
+            total_species_input = processed_data["species"].nunique()
         except Exception as e:
-            logger.warning(f"Could not calculate total_species_input from processed_data: {e}")
+            logger.warning(
+                f"Could not calculate total_species_input from processed_data: {e}"
+            )
             # Fallback: If we can't count, we might need to infer or log an error.
             # But per constraints, we must produce real output. If data is missing, we fail loudly.
             # However, the task implies we have the data from previous steps.
@@ -93,7 +101,7 @@ def generate_species_counts_report(
         "excluded_species_list": excluded_species_list,
         "rows_excluded_by_source": rows_excluded_by_source,
         "rows_excluded_by_missing_nutrients": rows_excluded_by_missing_nutrients,
-        "rows_excluded_by_sample_size": rows_excluded_by_sample_size
+        "rows_excluded_by_sample_size": rows_excluded_by_sample_size,
     }
 
     return report
@@ -107,11 +115,16 @@ def main():
     """
     config = get_config()
     logger = get_pipeline_logger("T015e_species_counts")
-    
+
     # Paths
-    output_path = Path(config.get("OUTPUT_PATH", "artifacts/reports")) / "species_counts.json"
-    processed_data_path = Path(config.get("PROCESSED_DATA_PATH", "data/processed")) / "cleaned_merged_data.csv"
-    
+    output_path = (
+        Path(config.get("OUTPUT_PATH", "artifacts/reports")) / "species_counts.json"
+    )
+    processed_data_path = (
+        Path(config.get("PROCESSED_DATA_PATH", "data/processed"))
+        / "cleaned_merged_data.csv"
+    )
+
     # Load processed data (result of T015c: after source and nutrient filtering)
     # This data should still contain species that might be excluded by sample size (T015d)
     processed_data = None
@@ -125,7 +138,9 @@ def main():
             # Since we are implementing the script, we assume the pipeline ran T015c successfully.
             pass
     else:
-        logger.warning(f"Processed data file not found at {processed_data_path}. Counts will be partial.")
+        logger.warning(
+            f"Processed data file not found at {processed_data_path}. Counts will be partial."
+        )
 
     # We need to re-run the sample size filter logic to get the excluded species list and counts
     # Or, we assume the previous step (T015d) has already calculated these and stored them in state or logs.
@@ -133,23 +148,23 @@ def main():
     # This implies T015d has already run and we should read the results.
     # However, T015d is also a script. Let's assume T015d writes to a temporary state or we re-calculate.
     # To be robust, we will re-calculate the sample size filter on the processed_data.
-    
+
     excluded_species_list = []
     rows_excluded_by_sample_size = 0
-    
+
     if processed_data is not None:
         # Re-apply sample size filter to get the exact excluded list
         # We need to count rows per species
-        species_counts = processed_data['species'].value_counts()
-        
+        species_counts = processed_data["species"].value_counts()
+
         # Identify species with count < 20
         excluded_species_series = species_counts[species_counts < 20]
         excluded_species_list = list(excluded_species_series.index)
         excluded_species_count = len(excluded_species_list)
-        
+
         # Calculate total rows excluded
         rows_excluded_by_sample_size = excluded_species_series.sum()
-        
+
         # Calculate total_species_input from the data BEFORE sample size exclusion
         total_species_input = len(species_counts)
     else:
@@ -158,7 +173,9 @@ def main():
         # Since T015d is a prerequisite, maybe it wrote to state.
         # But the task T015e is to WRITE the final report.
         # We will assume the data is available as per the pipeline flow.
-        logger.error("Cannot calculate counts without processed data. T015d prerequisite may have failed.")
+        logger.error(
+            "Cannot calculate counts without processed data. T015d prerequisite may have failed."
+        )
         total_species_input = 0
         excluded_species_list = []
         rows_excluded_by_sample_size = 0
@@ -177,31 +194,41 @@ def main():
     # we will assume the processed_data is the result of T015c and we have the counts from T015b/c
     # stored in a temporary state or we re-calculate from raw data.
     # To keep it simple and robust, we will re-calculate from raw data if available.
-    
+
     raw_data_path = Path(config.get("RAW_DATA_PATH", "data/raw")) / "plantpheno_raw.csv"
     rows_excluded_by_source = 0
     rows_excluded_by_missing_nutrients = 0
-    
+
     if raw_data_path.exists():
-        raw_data = load_processed_data(raw_data_path) # Reuse load function
+        raw_data = load_processed_data(raw_data_path)  # Reuse load function
         if raw_data is not None:
             # Re-run T015b: Filter by data source type
             # We need to detect the column first
             try:
                 col_name = get_data_source_type_column(raw_data)
                 if col_name:
-                    filtered_source, count_source = filter_by_data_source_type(raw_data, col_name)
+                    filtered_source, count_source = filter_by_data_source_type(
+                        raw_data, col_name
+                    )
                     rows_excluded_by_source = len(raw_data) - len(filtered_source)
-                    
+
                     # Re-run T015c: Filter by missing nutrients
-                    filtered_nutrients, count_nutrients = filter_by_missing_nutrients(filtered_source)
-                    rows_excluded_by_missing_nutrients = len(filtered_source) - len(filtered_nutrients)
+                    filtered_nutrients, count_nutrients = filter_by_missing_nutrients(
+                        filtered_source
+                    )
+                    rows_excluded_by_missing_nutrients = len(filtered_source) - len(
+                        filtered_nutrients
+                    )
                 else:
-                    logger.warning("Data source type column not found. Skipping source exclusion count.")
+                    logger.warning(
+                        "Data source type column not found. Skipping source exclusion count."
+                    )
             except Exception as e:
                 logger.warning(f"Error re-calculating source/nutrient exclusions: {e}")
     else:
-        logger.warning("Raw data file not found. Cannot re-calculate source/nutrient exclusions.")
+        logger.warning(
+            "Raw data file not found. Cannot re-calculate source/nutrient exclusions."
+        )
 
     # Generate the report
     report = generate_species_counts_report(
@@ -210,13 +237,13 @@ def main():
         rows_excluded_by_source=rows_excluded_by_source,
         rows_excluded_by_missing_nutrients=rows_excluded_by_missing_nutrients,
         rows_excluded_by_sample_size=rows_excluded_by_sample_size,
-        logger=logger
+        logger=logger,
     )
 
     # Write the report
     save_json_file(output_path, report)
     logger.info(f"Species counts report written to {output_path}")
-    
+
     # Log the counts
     log_exclusion_counts(
         logger,
@@ -224,8 +251,8 @@ def main():
             "rows_excluded_by_source": rows_excluded_by_source,
             "rows_excluded_by_missing_nutrients": rows_excluded_by_missing_nutrients,
             "rows_excluded_by_sample_size": rows_excluded_by_sample_size,
-            "excluded_species_count": len(excluded_species_list)
-        }
+            "excluded_species_count": len(excluded_species_list),
+        },
     )
 
     return report

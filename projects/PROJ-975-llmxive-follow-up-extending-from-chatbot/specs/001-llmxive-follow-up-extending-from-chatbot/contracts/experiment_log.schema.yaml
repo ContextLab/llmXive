@@ -1,17 +1,18 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Experiment Log Schema"
-description: "Schema for the CSV output of the agent execution. Note: JSON schema for CSV is conceptual; this defines the expected columns and types for validation scripts."
+title: "ExperimentLogSchema"
+description: "Schema for the CSV output of the agent execution. Defines expected columns and types for validation scripts."
 type: "object"
 properties:
   run_id:
     type: "string"
-    description: "Unique identifier for the experiment run configuration."
+    description: "Unique identifier for the experiment run configuration (library size, overlap, pruning flag)."
   task_id:
     type: "string"
-    description: "Reference to the task executed."
+    description: "Reference to the task."
   library_size:
     type: "integer"
-    description: "Size of the skill library used (10, 30, 50, or 100)."
+    description: "Size of the skill library used (10, 20, 30, 40, 50, 60, 70, 80, 90, 100)."
+    enum: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
   pruning_enabled:
     type: "boolean"
     description: "Whether the pruning heuristic was active."
@@ -28,13 +29,13 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Jaccard similarity between retrieved and ground truth skills."
+    description: "Jaccard similarity between retrieved and ground‑truth skills."
   retrieval_diversity:
     type: "number"
-    description: "Inverse variance of cosine similarities."
+    description: "Inverse variance of cosine similarities of the top‑k (k=5) retrieved skills against the task's ground‑truth set."
   edge_case:
     type: "string"
-    description: "Tag for edge cases (e.g., 'missing_skill', 'memory_limit', 'null')."
+    description: "Tag for edge cases (e.g., 'missing_skill', 'memory_limit', 'max_overlap', 'null')."
 required:
   - run_id
   - task_id

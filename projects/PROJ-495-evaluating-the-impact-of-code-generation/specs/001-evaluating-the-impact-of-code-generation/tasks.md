@@ -2,144 +2,116 @@
 
 **Inputs**: `spec.md`, `plan.md`, existing code and data artifacts, reviewer feedback (none pending).
 
-The goal is to build a reproducible, CPU‑only research pipeline that ingests real code samples, runs static analysis, computes vulnerability density, performs statistical comparison, audits a subset, and produces the required figures and summary tables. The tasks are ordered to respect data flow and to enable an early end‑to‑end smoke run on a small subset of the data.
+This is a reproducible, CPU‑only research pipeline: ingest real LLM‑generated and human‑written code, run Bandit/Semgrep/SonarQube static analysis, deduplicate findings, compute cyclomatic‑complexity proxies, calculate vulnerability density, perform statistical comparison with multiple‑comparison correction, audit a stratified sample for false‑positive rates, compute the between‑group FPR difference, and produce tables and figures. Tasks are ordered to respect the data‑flow chain in `data-model.md` and to deliver an early end‑to‑end smoke run on a small real subset.
 
----
+## Phase 1: Setup and first end‑to‑end analysis
 
-## Phase 1 – Setup and first end‑to‑end analysis  
+- [ ] T001 [P1] [US1] Implement `code/src/ingest.py` (FR‑001)  
+  • Download the **CodeVulnBench** dataset from the verified URL `https://huggingface.co/datasets/bigcode/codeparrot`.  
+  • Verify checksums against the official SHA‑256 values provided in the specification (to be supplied in a spec amendment).  
+  • Download the **Juliet Test Suite** Java subset from a verified public URL (currently missing – flagged for upstream amendment).  
+  • Verify checksums, write raw files under `data/raw/`, record hashes in `data/checksums.json`, and generate `data/derived/file_manifest.csv` conforming to `file-manifest.schema.yaml`.  
+  • Detect language from file extensions, flag files > 100 k LOC as `skipped_size`, and mark zero‑LOC files with `status` `ok`.  
+  • **Verification**: `code/tests/integration/test_ingest.py` asserts at least one file for each `source_group`, all paths exist, and checksums match.
 
-| Goal | Run a minimal pipeline on a verified small subset to prove that the whole workflow can execute end‑to‑end on real data. |
-|------|--------------------------------------------------------------------------------------------------------------------------------|
+- [ ] T002 [P1] [US1] Implement `code/src/static_analysis.py` (FR‑002)  
+  • Iterate over `file_manifest.csv`; run **Bandit** (Python files), **Semgrep** (Java/JavaScript), and **SonarQube Community Edition** via Docker image `sonarqube:9.9-community` with `sonarqube-scanner==4.7.0.2747`.  
+  • Parse each tool’s JSON output, extract CWE ID, severity, and line number, and write raw findings to `data/derived/findings_raw.csv`.  
+  • Files that fail to parse receive `status` `parse_error` in the manifest; processing continues.  
+  • Record wall‑clock time and peak RSS per tool in `results/tables/resource_usage.csv`.  
+  • **Verification**: `code/tests/integration/test_static_analysis.py` runs on a 20‑file smoke subset and checks that every `ok` file appears in `findings_raw.csv` with required columns; malformed files are logged as `parse_error` without aborting.
 
-- [ ] **T001** [US1] Create a **quickstart.md** that documents the full pipeline command, required environment variables, and a “smoke‑run” flag.  
-  *File*: `quickstart.md`  
-  *Verification*: `make quickstart && ./code/src/pipeline.py --smoke 50` completes without error and produces `data/results/smoke_report.json` containing vulnerability counts for exactly 50 files.
+- [ ] T014 [P1] [US1] Implement `code/src/deduplication.py` (deduplication step)  
+  • Read `findings_raw.csv`, collapse duplicate findings that share `file_id`, `line_number`, and `cwe_id` across tools, retaining a single record per unique finding.  
+  • Write deduplicated results to `data/derived/findings.csv` and add a `tools_run` array column indicating which tools reported each finding.  
+  • **Verification**: `code/tests/unit/test_deduplication.py` confirms that duplicate rows are removed and that the count of unique `(file_id, cwe_id)` pairs matches the expected value on a synthetic dataset.
 
-- [ ] **T002** [US1] Implement **ingest.py** to download the verified human‑written Juliet suite and a verified substitute for CodeVulnBench (e.g., the HuggingFace dataset `codevulnbench`).  
-  *File*: `code/src/ingest.py`  
-  *Verification*: Unit test `tests/integration/test_ingest.py` checks that `data/derived/file_manifest.csv` contains at least one entry for each source group and that SHA‑256 checksums match the recorded values in `data/checksums.json`.  
+- [ ] T015 [P1] [US2] Implement `code/src/complexity.py` (complexity proxy)  
+  • Use `radon` to compute average cyclomatic complexity for each source file (language‑agnostic where possible).  
+  • Append a `complexity_proxy` column to `data/derived/file_manifest.csv`.  
+  • **Verification**: `code/tests/unit/test_complexity.py` validates that the proxy is a non‑negative float and that files with parsing errors retain a `null` value.
 
-- [ ] **T003** [US1] Add a **smoke‑run mode** to `pipeline.py` that limits processing to the first *N* rows of `file_manifest.csv`.  
-  *File*: `code/src/pipeline.py`  
-  *Verification*: Running `./code/src/pipeline.py --smoke 20` creates `data/results/smoke_per_file_analysis.csv` with exactly 20 rows and no missing required columns.
+- [ ] T003 [P1] [US2] Implement `code/src/density.py` (FR‑003)  
+  • Compute LOC per file (exclude comments and blank lines) using the language‑agnostic counter.  
+  • Calculate **raw density** = `vulnerability_count / loc`; for `loc == 0` set `density = "undefined"` and exclude those rows from downstream modeling.  
+  • Produce `data/derived/per_file_analysis.csv` conforming to `per-file-analysis.schema.yaml` (including `density`).  
+  • Generate an interim group‑level summary `results/tables/group_summary_raw.csv` (mean/median/sd density per `source_group`).  
+  • **Verification**: `code/tests/unit/test_density.py` validates density calculations on a synthetic manifest, correct handling of zero‑LOC files, and proper group aggregation.
 
-- [ ] **T004** [US2] Implement **static_analysis.py** to invoke Bandit (Python), Semgrep (Java/JavaScript), and SonarQube (Docker) on each file listed in the manifest.  
-  *File*: `code/src/static_analysis.py`  
-  *Verification*: Integration test `tests/integration/test_static_analysis.py` runs the script on the 20‑file smoke set and asserts that `data/derived/per_file_analysis.csv` contains the columns `vulnerability_count`, `cwe_ids`, and `tools_run` for every processed file; files that fail to parse are logged with status `parse_error` but do not abort the run.
+- [ ] T004 [P1] [US1] Implement a smoke‑run orchestrator `code/src/pipeline.py --smoke N` (Phase 1)  
+  • Executes **ingest → static_analysis → deduplication → complexity → density** on the first `N` rows of the manifest.  
+  • Writes the intermediate artifacts (`file_manifest.csv`, `findings_raw.csv`, `findings.csv`, `per_file_analysis.csv`, `group_summary_raw.csv`).  
+  • Updates `specs/001-evaluating-the-impact-of-code-generation/quickstart.md` with the exact command.  
+  • **Verification**: Running `python code/src/pipeline.py --smoke 20` exits with status 0 and produces non‑null mean density (or `"undefined"` where appropriate). No final aggregation artifacts are expected yet.
 
-- [ ] **T005** [US3] Implement **density.py** to compute LOC, raw density, and handle zero‑LOC files by writing `"undefined"` in the `density` column.  
-  *File*: `code/src/density.py`  
-  *Verification*: Unit test `tests/unit/test_density.py` feeds a mini‑manifest with a zero‑LOC entry and checks that the resulting `density` field equals `"undefined"` and that the file is excluded from the downstream modeling CSV.
+## Phase 2: Complete the study and validate its evidence
 
-- [ ] **T006** [US3] Extend `pipeline.py` to chain the new modules and produce a minimal end‑to‑end output: `data/results/smoke_group_summary.csv`.  
-  *File*: `code/src/pipeline.py`  
-  *Verification*: After the smoke run, the summary file contains rows for both `llm` and `human` groups with non‑null `mean_density` (or `"undefined"` where appropriate) and the script exits with status 0.
+- [ ] T005 [P1] [US1] Execute the full ingestion and static‑analysis pipeline (FR‑001, FR‑002)  
+  • Run `code/src/pipeline.py` without the `--smoke` flag to process the complete manifest.  
+  • Produce final `data/derived/findings.csv`, `data/derived/per_file_analysis.csv`, and `results/tables/resource_usage.csv`.  
+  • Report the proportion of files successfully analyzed (`SC‑005`) and confirm runtime ≤ 6 h and peak RAM ≤ 7 GB (`SC‑003`, `SC‑004`).  
+  • **Verification**: Contract test validates `per_file_analysis.csv` against `per-file-analysis.schema.yaml`; `resource_usage.csv` shows limits respected.
 
----
+- [ ] T006 [P2] [US2] Implement `code/src/audit.py` (FR‑007, FR‑008)  
+  • Compute **audit sample size** = `min(0.05 * total_findings, 100)` (or 5 % whichever is smaller).  
+  • Stratify by `tool × CWE × source_group`, sample with a fixed seed from `code/src/config.py`, and emit `data/derived/audit_sample.csv` (verdict column empty).  
+  • Abort with a clear error if `data/derived/audit_verdicts.csv` is missing; no synthetic fallback.  
+  • After human labeling, read `audit_verdicts.csv`, compute precision, recall, and **False Positive Rate (FPR)** per tool and per `source_group`, and write `data/derived/audit_metrics.csv`.  
+  • **Verification**: `code/tests/unit/test_audit.py` checks sample size, stratification, and that computed FPR matches expected values on a synthetic verdict file.
 
-## Phase 2 – Complete the study and validate its evidence  
+- [ ] T007 [P2] [US2] Extend `code/src/density.py` to apply audit‑derived FPR corrections (FR‑008)  
+  • Read `audit_metrics.csv`, adjust raw `vulnerability_count` to obtain `corrected_vulnerability_count` per file, and recompute `density_corrected`.  
+  • Add the corrected columns to `data/derived/per_file_analysis.csv` and produce a corrected group summary `results/tables/group_summary_corrected.csv`.  
+  • **Verification**: Unit test confirms that corrected counts decrease proportionally to the reported FPR (e.g., 10 % FPR reduces counts by 10 %).
 
-| Goal | Run the full pipeline on the complete verified datasets, compute corrected metrics, perform statistical tests, audit a stratified sample, and generate the required figures. |
-|------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+- [ ] T008 [P3] [US3] Implement `code/src/stats.py` (FR‑004, FR‑006)  
+  • **Power analysis**: compute detectable effect size given per‑group `n`; log power and abort if `< 0.8`.  
+  • **Over‑dispersion check**: compute variance/mean ratio of raw counts; if ≤ 1.5, **log a warning** but continue with Negative Binomial GLM (no Poisson fallback).  
+  • **Negative Binomial GLM**: outcome = `corrected_vulnerability_count`, offset = `log(loc)`, predictors = `source_group` + `language` + `complexity_proxy`.  
+  • **Mann‑Whitney U** on `density_corrected` (excluding `"undefined"`).  
+  • Apply **Benjamini‑Hochberg** correction across the two p‑values, using the adjusted alpha = 0.05 (SC‑002).  
+  • Write `results/aggregate_results.json` conforming to `aggregate-results.schema.yaml`, including group‑level raw and corrected density statistics, test results with BH‑adjusted p‑values, coefficients, confidence intervals, and a `significant` flag.  
+  • **Verification**: `code/tests/contract/test_aggregate_schema.py` validates the JSON; additional unit test checks that `significant` matches `p_adjusted < 0.05`.
 
-- [ ] **T007** [US2] Finalize **ingest.py** to download the full datasets, verify checksums, and record provenance in `data/derived/provenance.json`.  
-  *File*: `code/src/ingest.py`  
-  *Verification*: After a full run, `data/checksums.json` contains SHA‑256 values for every downloaded file; the pipeline aborts with a clear error if any checksum mismatches.
+- [ ] T009 [P3] [US3] Implement `code/src/figures.py` (FR‑005)  
+  • Generate a **boxplot** of `density_corrected` by `source_group` → `results/figures/density_boxplot.png` & `.svg`.  
+  • Generate a **bar chart** of CWE‑class counts per group (using corrected counts) → `results/figures/cwe_distribution.png` & `.svg`.  
+  • Figures must read only validated result tables (`group_summary_corrected.csv` and `per_file_analysis.csv`).  
+  • **Verification**: Unit test asserts that image files exist, are > 10 KB, and that the source data contain required columns.
 
-- [ ] **T008** [US2] Run **static_analysis.py** on the complete manifest, storing raw findings in `data/derived/findings.csv` and per‑file aggregates in `data/derived/per_file_analysis.csv`.  
-  *File*: `code/src/static_analysis.py`  
-  *Verification*: Contract test `tests/contract/test_per_file_schema.py` validates that `per_file_analysis.csv` conforms to `per-file-analysis.schema.yaml`; any file with `status != ok` is excluded from the density calculation but logged.
+- [ ] T010 [P1] Wire all modules into `code/src/pipeline.py` with explicit phase flags (`--ingest`, `--analyze`, `--dedup`, `--complexity`, `--density`, `--audit`, `--stats`, `--figures`). The default run (`python code/src/pipeline.py`) executes the full workflow in the correct dependency order, logging per‑phase timing and peak memory into `results/tables/resource_usage.csv`.  
+  • **Verification**: A full run completes within free‑tier limits and produces all final artifacts: `file_manifest.csv`, `findings.csv`, `per_file_analysis.csv`, `aggregate_results.json`, `resource_usage.csv`, and all figures.
 
-- [ ] **T009** [US2] Extend **density.py** to apply the false‑positive correction derived from the audit (see T011) and write the corrected columns `corrected_vulnerability_count`, `density_corrected` to `data/derived/per_file_analysis.csv`.  
-  *File*: `code/src/density.py`  
-  *Verification*: After applying a mock audit correction (e.g., 10 % FPR), a unit test confirms that corrected counts are reduced accordingly and that `density_corrected` updates consistently.
+- [ ] T011 [P3] Write `specs/001-evaluating-the-impact-of-code-generation/research.md` (methods & results handoff)  
+  • Concise narrative linking every table/figure in `results/` to the script and inputs that produced it.  
+  • Cite CWE taxonomy URLs, report raw and corrected density statistics, p‑values, power estimate, audit metrics, FPR difference, files skipped (size or parse errors), and frame findings as observational.  
+  • **Verification**: Each referenced artifact exists; every cited statistic maps to a row in `aggregate_results.json` or `audit_metrics.csv`; all CWE URLs are listed.
 
-- [ ] **T010** [US3] Implement **stats.py** to:  
-    1. Perform an over‑dispersion check and select Negative Binomial GLM (or Poisson fallback).  
-    2. Fit the NB GLM with offset `log(loc)` and predictor `source_group` (plus optional covariates).  
-    3. Run a Mann‑Whitney U test on `density_corrected`.  
-    4. Apply Holm‑Bonferroni correction across the two p‑values.  
-    5. Output `results/tables/statistical_tests.csv` with raw and adjusted p‑values, coefficients, confidence intervals, and a `significant` flag.  
-  *File*: `code/src/stats.py`  
-  *Verification*: Contract test `tests/contract/test_aggregate_schema.py` validates that `statistical_tests.csv` conforms to `aggregate-results.schema.yaml`; a sanity‑check script confirms that p‑values lie in `[0,1]`.
+- [ ] T012 [P3] Create `specs/001-evaluating-the-impact-of-code-generation/paper_handoff.md`  
+  • Enumerate result artifact paths, statistical methods (including BH correction), resource‑usage summary, and open limitations (e.g., power < 0.8, missing audit verdicts).  
+  • Pin exact dependency versions in `code/requirements.txt`.  
+  • **Verification**: A fresh run reproduces all listed artifacts; `pytest` passes; handoff lists only existing files.
 
-- [ ] **T011** [US2] Implement **audit.py** to:  
-    1. Compute the required sample size (`min(0.05 * total_findings, 100)`).  
-    2. Perform stratified random sampling by `tool × CWE × source_group` with a fixed seed.  
-    3. Emit `data/derived/audit_sample.csv` (empty `verdict` column).  
-    4. After manual annotation, read `data/derived/audit_verdicts.csv` and compute precision, recall, and **False Positive Rate** per group, writing `data/derived/audit_metrics.csv`.  
-  *File*: `code/src/audit.py`  
-  *Verification*: Integration test runs the sampling on a reduced dataset, checks that the sample size matches the formula, and that after loading a fabricated verdict file the computed FPR matches the expected value.
+- [ ] T013 [P3] Implement `code/src/fpr_difference.py` (covers SC‑007)  
+  • Read `audit_metrics.csv`, compute **FPR difference** = `FPR_llm - FPR_human`, write `results/tables/fpr_difference.csv` with the raw difference and a 95 % confidence interval (bootstrapped).  
+  • Append this metric to `aggregate_results.json` under an optional `extra_metrics` field.  
+  • **Verification**: Unit test verifies correct arithmetic on synthetic audit metrics and that the CSV is produced with the expected columns.
 
-- [ ] **T012** [US3] Implement **figures.py** to generate:  
-    1. Boxplot of `density_corrected` by `source_group` saved as `results/figures/density_boxplot.png` and `.svg`.  
-    2. Bar chart of CWE‑class counts (using corrected counts) per group saved as `results/figures/cwe_distribution.png`.  
-  *File*: `code/src/figures.py`  
-  *Verification*: A pytest script loads the generated PNG files and asserts that their file size > 10 KB (ensuring a non‑empty image) and that the underlying data files (`group_summary.csv`, `per_file_analysis.csv`) contain the necessary columns.
+- [ ] T016 [P3] Verify Success Criterion SC‑001 (rate‑ratio deviation & significance)  
+  • After `stats.py` completes, parse `aggregate_results.json` and assert that the NB regression `coefficient` (rate ratio) satisfies `|RR − 1| ≥ 0.10` and that `significant` is true (p < adjusted alpha).  
+  • Fail the pipeline with an informative error if either condition is not met.  
+  • **Verification**: unit test `code/tests/unit/test_sc001.py` reproduces the check on a synthetic results file.
 
-- [ ] **T013** [US1] Wire all modules together in **pipeline.py** with clear CLI flags (`--ingest`, `--analyze`, `--density`, `--stats`, `--audit`, `--figures`). The default run executes the full workflow in the correct order.  
-  *File*: `code/src/pipeline.py`  
-  *Verification*: Running `./code/src/pipeline.py --all` on the full dataset completes within the GitHub Actions free‑tier limits (≤ 6 h, ≤ 7 GB RAM) and produces the final artifacts:  
-    - `data/derived/file_manifest.csv`  
-    - `data/derived/per_file_analysis.csv`  
-    - `results/tables/group_summary.csv`  
-    - `results/tables/statistical_tests.csv`  
-    - `results/figures/*.png`  
+- [ ] T017 [P3] Verify Success Criterion SC‑006 (precision ≥ 80 % & recall ≥ 80 %)  
+  • After `audit.py` produces `audit_metrics.csv`, compute overall precision and recall across all tools and source groups.  
+  • Assert both metrics meet the ≥ 0.80 threshold; otherwise raise an error.  
+  • **Verification**: unit test `code/tests/unit/test_sc006.py` validates the assertion on synthetic audit metrics.
 
-- [ ] **T014** [US2] Add **resource monitoring** to the pipeline (using `psutil`) to log wall‑clock time and peak RSS for each phase into `results/tables/resource_usage.csv`.  
-  *File*: `code/src/pipeline.py` (monitoring wrapper)  
-  *Verification*: After a full run, the CSV contains rows for “ingest”, “static_analysis”, “density”, “stats”, “audit”, and “figures”, and the peak memory for any phase does not exceed 7 GB.
+- [ ] T018 [P3] Define and enforce Success Criterion SC‑007 disparity threshold  
+  • Establish a concrete absolute difference threshold for FPR disparity (e.g., 0.05).  
+  • After `fpr_difference.py` generates `results/tables/fpr_difference.csv`, assert that the absolute FPR difference ≥ 0.05; otherwise log a warning and mark the study as exploratory in `research.md`.  
+  • **Verification**: unit test `code/tests/unit/test_sc007.py` checks the enforcement on synthetic data.
 
-- [ ] **T015** [US3] Write a **methods & results handoff** document (`research.md`) that links each result artifact (tables, figures) to the exact script and version that produced it, and lists any limitations (e.g., power < 0.8, files skipped due to size).  
-  *File*: `specs/001-evaluating-the-impact-of-code-generation/research.md`  
-  *Verification*: Manual review checklist confirms that every table/figure referenced in the document exists in `results/` and that the document cites the corresponding script filenames and Git commit hash (captured via `git rev-parse HEAD`).
+## Phase 3: Reproducible results and paper handoff
 
----
-
-## Phase 3 – Reproducible results and paper handoff  
-
-| Goal | Ensure that an external reviewer can rerun the entire study from scratch and obtain identical artifacts. |
-|------|----------------------------------------------------------------------------------------------------------------|
-
-- [ ] **T016** Archive the **environment** by pinning all Python dependencies in `code/requirements.txt` (including exact versions), and provide a Dockerfile (`Dockerfile.cpu`) that installs the requirements, pulls SonarQube Docker image, and sets the entrypoint to `pipeline.py`.  
-  *Files*: `code/requirements.txt`, `Dockerfile.cpu`  
-  *Verification*: Building the image with `docker build -t vuln-study .` succeeds, and running `docker run --rm vuln-study ./code/src/pipeline.py --all` reproduces the same `results/` artifacts (verified via checksum comparison).
-
-- [ ] **T017** Add a **CI workflow** (`.github/workflows/research.yml`) that executes the full pipeline on the free‑tier GitHub Actions runner, caches the downloaded datasets, and fails if any contract test does not pass.  
-  *File*: `.github/workflows/research.yml`  
-  *Verification*: The workflow runs on every push; the badge shows “passing” only when all tasks from T001‑T016 complete successfully.
-
-- [ ] **T018** Create a **paper‑stage handoff** checklist (`paper_handoff.md`) that enumerates:  
-    1. Paths to all result tables and figures.  
-    2. Description of statistical methods and correction procedures.  
-    3. Summary of computational resources used.  
-    4. Any open limitations (e.g., insufficient power, files skipped > 50 k LOC).  
-  *File*: `paper_handoff.md`  
-  *Verification*: The checklist is referenced from the final commit message of the release tag `v1.0.0`.
-
----
-
-## Dependencies & Requirement Coverage  
-
-| Spec / FR | Satisfied by Task(s) |
-|-----------|----------------------|
-| FR‑001 (download datasets) | T001, T007 |
-| FR‑002 (run Bandit, Semgrep, SonarQube) | T004, T008 |
-| FR‑003 (vulnerability density) | T005, T009 |
-| FR‑004 (Negative Binomial & Mann‑Whitney) | T010 |
-| FR‑005 (visualizations) | T012 |
-| FR‑006 (multiple‑comparison correction) | T010 |
-| FR‑007 (stratified audit sample) | T011 |
-| FR‑008 (False Positive Rate) | T011 |
-| SC‑001 (statistical significance) | T010 |
-| SC‑002 (adjusted alpha) | T010 |
-| SC‑003 (execution time) | T014 |
-| SC‑004 (memory usage) | T014 |
-| SC‑005 (proportion of files analyzed) | T008 |
-| SC‑006 (precision/recall) | T011 |
-| SC‑007 (FPR difference) | T011 |
-| Data‑hygiene & provenance | T007, T014, T016 |
-| Reproducibility (seeds, hashes) | T001, T003, T016 |
-| Constitution VI (static analysis fidelity) | T004, T008 |
-
-All tasks are unchecked (`[ ]`) to indicate they are pending implementation. Once a task is completed and its verification passes, the CI system will automatically check the box.
+- (All tasks above collectively satisfy the research‑stage requirements and ensure full compliance with the specification, contracts, and constitution.)

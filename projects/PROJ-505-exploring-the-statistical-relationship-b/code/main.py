@@ -1,68 +1,81 @@
 """
-Main entry point for the entire pipeline.
+Top‑level driver that orchestrates the coupling‑function computation
+and a thin baseline regression on Dst using only the coupling functions.
+This script expects that the aligned hourly dataset already exists at
+``data/processed/aligned_hourly.parquet``.
 """
-import os
-import sys
+
 import json
-import argparse
 from pathlib import Path
-from datetime import datetime
 
 import pandas as pd
-from utils.logging import get_logger, setup_logging
+import statsmodels.api as sm
+
+from code.analysis.coupling_functions import (
+    compute_all_coupling_functions,
+    get_coupling_function_columns,
+)
+from code.utils.logging import get_logger, log_duration
+
 
 logger = get_logger(__name__)
 
-def load_results_from_json(path: Path) -> dict:
-    with open(path, 'r') as f:
-        return json.load(f)
 
-def aggregate_results(results_paths: list) -> dict:
-    """Aggregate results from multiple JSON files."""
-    aggregated = {}
-    for path in results_paths:
-        try:
-            data = load_results_from_json(Path(path))
-            aggregated.update(data)
-        except Exception as e:
-            logger.error(f"Failed to load {path}: {e}")
-    return aggregated
+@log_duration
+def main() -> None:
+    """
+    Execute the minimal pipeline required for Task T005:
 
-def generate_summary_artifacts(aggregated_results: dict, output_dir: Path) -> None:
-    """Generate summary artifacts (CSV/JSON) for review."""
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Save JSON summary
-    json_path = output_dir / "summary.json"
-    with open(json_path, 'w') as f:
-        json.dump(aggregated_results, f, indent=2)
-    
-    # Convert to CSV if applicable
-    if 'params' in aggregated_results:
-        df = pd.DataFrame([aggregated_results['params']])
-        csv_path = output_dir / "summary.csv"
-        df.to_csv(csv_path, index=False)
-    
-    logger.info(f"Summary artifacts saved to {output_dir}")
+    1. Load the aligned hourly dataset (real or synthetic) from
+       ``data/processed/aligned_hourly.parquet``.
+    2. Compute all coupling functions and write the enriched dataset to
+       ``data/processed/with_coupling.parquet``.
+    3. Fit a baseline OLS regression predicting Dst from the coupling
+       function columns only.
+    4. Write the regression coefficients (including intercept) to a JSON
+       file ``data/artifacts/baseline_coupling_regression.json``.
+    """
+    aligned_path = Path("data/processed/aligned_hourly.parquet")
+    if not aligned_path.is_file():
+        raise FileNotFoundError(
+            f"Aligned data not found at {aligned_path}. "
+            "Run the alignment step before executing the main driver."
+        )
 
-def main():
-    """Entry point for the pipeline."""
-    parser = argparse.ArgumentParser(description="Run the full analysis pipeline.")
-    parser.add_argument("--output", type=str, default="data/artifacts", help="Output directory")
-    args = parser.parse_args()
-    
-    output_dir = Path(args.output)
-    
-    # Placeholder for loading results from previous steps
-    results_paths = [
-        "data/artifacts/regression_results.json",
-        "data/artifacts/cross_validation_results.json",
-        "data/artifacts/permutation_results.json",
-        "data/artifacts/sensitivity_results.json"
-    ]
-    
-    aggregated = aggregate_results(results_paths)
-    generate_summary_artifacts(aggregated, output_dir)
+    # 1. Load aligned data
+    logger.info("Loading aligned hourly data from %s", aligned_path)
+    df = pd.read_parquet(aligned_path)
+
+    # 2. Compute coupling functions
+    logger.info("Computing coupling functions")
+    df = compute_all_coupling_functions(df)
+
+    with_coupling_path = Path("data/processed/with_coupling.parquet")
+    logger.info("Saving dataset with coupling functions to %s", with_coupling_path)
+    df.to_parquet(with_coupling_path, index=False)
+
+    # 3. Baseline regression: Dst ~ coupling functions
+    required_cols = set(get_coupling_function_columns()) | {"Dst"}
+    missing = required_cols - set(df.columns)
+    if missing:
+        raise KeyError(f"Missing columns required for regression: {missing}")
+
+    X = df[list(get_coupling_function_columns())]
+    X = sm.add_constant(X)  # add intercept
+    y = df["Dst"]
+
+    logger.info("Fitting baseline OLS regression (Dst ~ coupling functions)")
+    model = sm.OLS(y, X, missing="drop").fit()
+
+    coeffs = model.params.to_dict()
+    regression_path = Path("data/artifacts/baseline_coupling_regression.json")
+    logger.info("Writing regression coefficients to %s", regression_path)
+    regression_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(regression_path, "w", encoding="utf-8") as f:
+        json.dump(coeffs, f, indent=2)
+
+    logger.info("Task T005 completed successfully.")
+
 
 if __name__ == "__main__":
     main()

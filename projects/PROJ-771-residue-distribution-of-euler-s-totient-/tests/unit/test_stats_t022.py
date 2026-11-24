@@ -44,7 +44,7 @@ class TestT022PrimaryPassFail:
         # Simulate a case with high p-value (uniform distribution)
         counts_uniform = {0: 3333, 1: 3334, 2: 3333}  # N=10000, prime=3
         result = run_full_statistical_analysis(counts_uniform, 3, 10000)
-        
+
         # With uniform distribution, p-value should be high, so primary_pass should be True
         assert result.primary_pass is True, "Uniform distribution should pass"
         assert result.chi_squared_p_value >= 0.05, "P-value should be >= 0.05"
@@ -54,7 +54,7 @@ class TestT022PrimaryPassFail:
         # Simulate a biased case (e.g., too many 0s)
         counts_biased = {0: 5000, 1: 3000, 2: 2000}  # N=10000, prime=3
         result = run_full_statistical_analysis(counts_biased, 3, 10000)
-        
+
         # With biased distribution, p-value should be low, so primary_pass should be False
         # Note: This might not always fail for small deviations, but extreme bias should
         # We're testing the logic, not the statistical power
@@ -63,7 +63,7 @@ class TestT022PrimaryPassFail:
         assert result.primary_pass == expected_pass, "Flag should match p-value threshold"
 
 class TestT022bBonferroniCorrection:
-    """Tests for T022b: Bonferroni-corrected sensitivity analysis."""
+    """Tests for T022b: Bonferroni‑corrected sensitivity analysis."""
 
     def test_bonferroni_stricter_threshold(self):
         """Test that Bonferroni correction uses a stricter threshold."""
@@ -71,7 +71,7 @@ class TestT022bBonferroniCorrection:
         # A p-value of 0.02 should pass primary but fail Bonferroni
         primary = determine_primary_pass_fail(0.02)
         bonferroni = determine_bonferroni_pass_fail(0.02, num_tests=4)
-        
+
         assert primary is True, "Should pass primary test (0.02 >= 0.05)"
         assert bonferroni is False, "Should fail Bonferroni test (0.02 < 0.0125)"
 
@@ -79,7 +79,7 @@ class TestT022bBonferroniCorrection:
         """Test that high p-values pass both tests."""
         primary = determine_primary_pass_fail(0.5)
         bonferroni = determine_bonferroni_pass_fail(0.5, num_tests=4)
-        
+
         assert primary is True
         assert bonferroni is True
 
@@ -87,7 +87,7 @@ class TestT022bBonferroniCorrection:
         """Test that very low p-values fail both tests."""
         primary = determine_primary_pass_fail(0.001)
         bonferroni = determine_bonferroni_pass_fail(0.001, num_tests=4)
-        
+
         assert primary is False
         assert bonferroni is False
 
@@ -98,7 +98,7 @@ class TestT022bBonferroniCorrection:
         # and verify the flag is computed correctly
         counts = {0: 3333, 1: 3334, 2: 3333}
         result = run_full_statistical_analysis(counts, 3, 10000)
-        
+
         # Verify the flag matches the expected calculation
         expected_bonferroni = result.chi_squared_p_value >= (0.05 / 4)
         assert result.bonferroni_pass == expected_bonferroni, "Bonferroni flag should match calculation"
@@ -124,6 +124,3 @@ class TestT022EdgeCases:
 
         result = determine_primary_pass_fail(0.005, alpha=0.01)
         assert result is True, "Should pass when p-value (0.005) >= alpha (0.01)"
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])

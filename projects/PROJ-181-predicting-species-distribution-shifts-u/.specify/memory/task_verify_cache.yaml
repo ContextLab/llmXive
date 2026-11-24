@@ -1,52 +1,38 @@
 T001:
   c: false
-  h: a609cf8fa6883f5a067e817c31eaada08c5a41f386c025ca2ff474f8379b6ab5
-  r: The scaffold created the required files `requirements.txt`, `pyproject.toml`,
-    `quickstart.md` and a `.flake8` (found inside `code/`), and the directories `code/`,
-    `data/raw/`, `data/processed/`, `models/`, `reports/`, `tests/`, and `contracts/`
-    each contain a `.gitkeep`. However, there is no evidence of a `.gitkeep` in the
-    `metrics/` and `logs/` directories, and the `.flake8` file is not at the project
-    root as implied by the task description. Adding those missing `.gitkeep` files
-    (and placing `.flake8` at the root) is needed to satisfy T001.
-  sig: 0d1d625696ff05338d0e301cc05a47edd8f43fe1a6fd9f41b44322d91bf6029d
+  h: 6e1c1dd4aabed698f37774a5cdcf08a6c4bff1cb1fc88aad489396951f57c138
+  r: "The scaffold includes `requirements.txt`, `pyproject.toml`, `quickstart.md`,\
+    \ and `.gitkeep` files in most top\u2011level folders, but the repository root\
+    \ lacks a `.flake8` file (the only `.flake8` shown is inside `code/`) and the\
+    \ `logs/` directory (with its required `.gitkeep`) is absent. These missing artifacts\
+    \ prevent the task from being fully satisfied."
+  sig: c8efac489f4ba78329a20b3684876b82b31d96058651aacf0735000a91e81059
 T002:
   c: true
-  h: 3e187be207ae5d7f8de8abfd65104c30f32f56089ec4fce2763935722e5e222a
-  r: "Checked `code/config.py` (3188\u202Fbytes) which defines directory path constants,\
-    \ a `SPECIES_LIST`, `THINNING_DISTANCE_KM`, a random seed (`RND_SEED = 42`), and\
-    \ sets `N_JOBS = 2` as required. All requested global constants are present and\
-    \ correctly set."
-  sig: a356d187b54eab76423cee941bd3291105ae148f4a0f0b3bb03906ccb0104e86
+  h: 6c94e87b850a9af970ce0fc8249b2b9f6834a26cfe3a10afe05c9101bd0bc688
+  r: "Checked `code/config.py` (3188\u202Fbytes) which defines the required paths,\
+    \ `SPECIES_LIST`, `THINNING_DISTANCE_KM`, `RND_SEED`, and `N_JOBS = 2` as specified.\
+    \ The file is fully populated and not a placeholder."
+  sig: b4912ff7562f12ca1fc4fdfbb716489318f0d39665b32d715924a3339f1ac252
 T003:
   c: false
-  h: e40d9c997251a49116816ab4298a8235713b464163bad81ebf973f9d15da4fcd
-  r: The only artifact present is `logs/preprocess_counts.yaml`, which contains an
-    empty list and no schema definition, and there is no evidence of a logging configuration
-    (e.g., a Python logging setup or config file) that writes to `logs/` with the
-    required format. Both the logging initialization and the YAML schema are missing.
-  sig: c330715663aa502c1629e540bd3f9b84df7154904f706a03d1e416675ee993ae
+  h: 26230ad9e4fdf234eb69898f28552285cb6f14f16cf5bab68c14ee6fc5e1ca74
+  r: "The required `logs/logging_config.yaml` and `code/logging_setup.py` files exist,\
+    \ but the provided logging helper fails the verification test: initializing logging\
+    \ raises a `ValueError` (unsupported format character) and the expected log file\
+    \ is empty. Moreover, there is no evidence that any project scripts import `setup_logger\
+    \ = get_logger(__name__)` as required. The task\u2019s verification conditions\
+    \ are therefore not met."
+  sig: 1aa3903d4dbffc7618de080c8fb73069f833696f8689faafe48f8c965c357564
 T010:
   c: false
-  h: b9467b5219cb4420ec97ac1c45b70ba7557a15714e5524bb42d8e8716661d656
-  r: "The `code/download.py` script streams raster downloads and records entries in\
-    \ `data/manifest.json`, satisfying the manifest\u2011update requirement. However,\
-    \ it never verifies the downloaded file\u2019s SHA\u2011256 against a known value\
-    \ (or file size) nor aborts on a mismatch, so the checksum\u2011validation step\
-    \ is missing. The next implementer must add post\u2011download checksum comparison\
-    \ and error handling."
-T011:
-  c: false
-  h: ba3d9469e459f111efca86f55fd7523fab65fd9254d12df11d8f62a15f00a164
-  r: "The required output file `data/raw/occurrence_2005_2020.csv` does not exist,\
-    \ and the provided `code/download.py` is truncated and lacks a working dynamic\
-    \ pagination loop (offset is never updated). Consequently the task\u2019s core\
-    \ requirement\u2014fetching records for 2005\u20112020 and saving them with the\
-    \ required metadata columns\u2014is not satisfied."
-T015:
-  c: false
-  h: d408e318bcadc58ab6273f813f47b2b6310fb7666391954fd4e4dc6630ff7a20
-  r: "The provided `code/download.py` only contains a GBIF occurrence\u2011fetching\
-    \ function and lacks any implementation for downloading the 19 WorldClim historical\
-    \ rasters or the CMIP6 SSP2\u20114.5 future rasters, saving them to the required\
-    \ directories, validating their presence, or exiting with code\u202F1 on missing\
-    \ files. No climate raster files are present in the repository."
+  h: 81db228ba4f619bb772e08e9ba1d964559d67174fd148c3644836be29c6f9322
+  r: "I examined `code/download.py` and `code/manifest_manager.py`. The script downloads\
+    \ rasters, fetches a companion `.sha256` file, compares the hash, deletes the\
+    \ file on mismatch, and records the checksum in `data/manifest.json` \u2013 satisfying\
+    \ the raster part of T010. However, the occurrence\u2011CSV download (`fetch_gbif_occurrences`)\
+    \ never attempts to download or verify a `.sha256` file; it only records a checksum\
+    \ after writing the file, so the \u201Cany large CSV\u201D requirement is unmet.\
+    \ Moreover, there is no evidence (e.g., test logs or a run showing an abort with\
+    \ a clear error) that the script aborts on a"
+  sig: e0cf10a567c5274f5edb743c3a575bae3854025229305eb9c1653c717ffcbc46

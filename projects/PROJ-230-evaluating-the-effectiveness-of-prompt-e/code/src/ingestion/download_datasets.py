@@ -1,179 +1,196 @@
 """
 Dataset Ingestion Module for PROJ-230.
 
-This module handles the fetching of raw code translation datasets from HuggingFace
-and caching them to the local filesystem before any preprocessing occurs.
+This script streams the raw code translation datasets from HuggingFace
+and writes each row to a JSON Lines file under ``data/raw/``. It also
+records a log (``ingestion_log.json``) containing the dataset identifier,
+split name, and row count for each successfully fetched split.
 
 Datasets:
-- codeparrot/code-trans-py-js (Python to JavaScript translation pairs)
-- bigcode/evaluation (Reference evaluation set, filtered for py-js pairs if available)
+- codeparrot/code-trans-py-js
+- bigcode/evaluation
 
-Outputs:
-- data/raw/codeparrot_py_js.parquet (Cached raw dataset)
-- data/raw/bigcode_eval_py_js.parquet (Cached raw dataset, if valid pairs found)
+Outputs (per dataset/split):
+- data/raw/<safe_dataset_name>_<split>.jsonl   (one JSON object per line)
+- data/raw/ingestion_log.json                  (metadata about ingestion)
 """
-import os
-import sys
-import logging
-import traceback
-from pathlib import Path
-from datasets import load_dataset, DatasetDict
-import pandas as pd
 
-# Configure logging for the ingestion process
+import json
+import logging
+import sys
+from pathlib import Path
+from typing import List, Dict
+
+from huggingface_hub import hf_hub_download, RepositoryNotFoundError, HfHubHTTPError
+
+# Configure logger
 logger = logging.getLogger(__name__)
 if not logger.handlers:
     handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
 
-# Project root relative to this file (assuming code/src/ingestion/ structure)
-# We navigate up to the project root to find data/
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+# Resolve project root (four levels up from this file)
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+LOG_PATH = DATA_RAW_DIR / "ingestion_log.json"
 
-# Dataset identifiers
+# Datasets to ingest
 DATASET_IDS = [
     "codeparrot/code-trans-py-js",
-    # "bigcode/evaluation" # Note: bigcode/evaluation is often a suite of tasks.
-                          # We will attempt to load the specific subset if known,
-                          # or skip if it doesn't contain direct py-js pairs in the root.
-                          # For now, we focus on the primary codeparrot source which is verified.
-                          # If bigcode/evaluation has a specific 'py-js' split, it would be:
-                          # load_dataset("bigcode/evaluation", "py-js")
+    "bigcode/evaluation",
 ]
 
-def ensure_dirs():
+# Candidate filenames for the default split. Most HF code translation datasets expose a
+# ``train.jsonl`` file; we fall back to other common extensions if needed.
+CANDIDATE_FILENAMES = [
+    "train.jsonl",
+    "train.parquet",
+    "train.csv",
+    "train.txt",
+]
+
+def ensure_dirs() -> None:
     """Create the data/raw directory if it does not exist."""
     try:
         DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Ensured directory exists: {DATA_RAW_DIR}")
-    except Exception as e:
-        logger.error(f"Failed to create directory {DATA_RAW_DIR}: {e}")
+        logger.info(f"Ensured raw data directory exists: {DATA_RAW_DIR}")
+    except Exception as exc:
+        logger.error(f"Failed to create raw data directory: {exc}")
         raise
 
-def fetch_dataset(dataset_id: str, cache_dir: Path):
+def download_split(dataset_id: str, filename: str) -> Path:
     """
-    Fetch a dataset from HuggingFace and cache it locally.
+    Download a specific file from a HuggingFace dataset repository.
 
     Args:
-        dataset_id: The HuggingFace dataset identifier.
-        cache_dir: The directory where the dataset should be cached.
+        dataset_id: The repository identifier on the Hub (e.g., ``codeparrot/code-trans-py-js``).
+        filename: The name of the file to download (e.g., ``train.jsonl``).
 
     Returns:
-        The loaded dataset object.
+        Path to the downloaded file in the local cache.
 
     Raises:
-        Exception: If the dataset cannot be loaded or does not contain required columns.
+        RuntimeError: If the file cannot be downloaded.
     """
-    logger.info(f"Fetching dataset: {dataset_id}")
     try:
-        # Load dataset with caching enabled explicitly
-        # We use streaming=False initially to ensure we get the full structure for validation
-        # but we will process in chunks later if needed.
-        # For T013, we cache the raw data.
-        ds = load_dataset(
-            dataset_id,
-            split="train", # Default to train if not specified, adjust if needed
-            trust_remote_code=True,
-            cache_dir=str(cache_dir / dataset_id.replace("/", "_"))
+        logger.info(f"Attempting to download {filename} from {dataset_id}")
+        local_path = hf_hub_download(
+            repo_id=dataset_id,
+            filename=filename,
+            repo_type="dataset",
+            cache_dir=str(PROJECT_ROOT / ".cache" / "huggingface"),
+            force_download=False,
+            resume_download=True,
         )
-        logger.info(f"Successfully loaded {dataset_id}. Size: {len(ds)} entries.")
-        return ds
-    except Exception as e:
-        logger.error(f"Failed to fetch dataset {dataset_id}: {e}")
-        logger.error(traceback.format_exc())
-        raise
+        logger.info(f"Successfully downloaded {filename} to {local_path}")
+        return Path(local_path)
+    except (RepositoryNotFoundError, HfHubHTTPError) as exc:
+        logger.warning(f"File {filename} not found in {dataset_id}: {exc}")
+        raise RuntimeError(f"Could not find {filename} in {dataset_id}") from exc
+    except Exception as exc:
+        logger.error(f"Unexpected error while downloading {filename} from {dataset_id}: {exc}")
+        raise RuntimeError(f"Failed to download {filename} from {dataset_id}") from exc
 
-def extract_code_columns(dataset, output_path: Path):
+def stream_jsonl_to_output(source_path: Path, dest_path: Path) -> int:
     """
-    Extract 'python_code' and 'javascript_code' columns from the dataset
-    and save to a Parquet file.
+    Stream a JSONL file line‑by‑line into another JSONL file.
 
     Args:
-        dataset: The loaded HuggingFace dataset.
-        output_path: The path to save the extracted data.
+        source_path: Path to the source JSONL file (downloaded from HF).
+        dest_path: Path where the streamed output should be written.
 
-    Raises:
-        ValueError: If required columns are missing.
+    Returns:
+        Number of rows written.
     """
-    required_columns = ["python_code", "javascript_code"]
-    
-    # Check if columns exist
-    missing_cols = [col for col in required_columns if col not in dataset.column_names]
-    if missing_cols:
-        raise ValueError(f"Dataset missing required columns: {missing_cols}. "
-                         f"Available columns: {dataset.column_names}")
-
-    logger.info(f"Extracting columns {required_columns}...")
-    
-    # Select only the required columns
-    extracted = dataset.select_columns(required_columns)
-    
-    # Convert to Pandas for robust saving (Parquet)
-    df = extracted.to_pandas()
-    
-    # Validate data types (ensure they are strings)
-    # This is a preliminary check; deeper validation happens in T013b
-    for col in required_columns:
-        if df[col].isna().any():
-            logger.warning(f"Found {df[col].isna().sum()} null values in {col}. "
-                           "These will be saved but may be filtered later.")
-    
-    # Save to Parquet
-    try:
-        df.to_parquet(output_path, index=False)
-        logger.info(f"Successfully saved extracted data to {output_path}")
-        logger.info(f"Shape: {df.shape}")
-    except Exception as e:
-        logger.error(f"Failed to save dataset to {output_path}: {e}")
-        raise
-
-def main():
-    """Main entry point for the dataset ingestion script."""
-    logger.info("Starting dataset ingestion process...")
-    
-    # 1. Ensure directories exist
-    ensure_dirs()
-    
-    downloaded_files = []
-    
-    for dataset_id in DATASET_IDS:
-        try:
-            # Determine output filename
-            safe_name = dataset_id.replace("/", "_").replace("-", "_")
-            output_filename = f"{safe_name}.parquet"
-            output_path = DATA_RAW_DIR / output_filename
-            
-            # Skip if already exists (idempotent)
-            if output_path.exists():
-                logger.warning(f"Skipping {dataset_id}: {output_path} already exists.")
-                downloaded_files.append(output_path)
+    row_count = 0
+    with source_path.open("r", encoding="utf-8") as src_f, dest_path.open(
+        "w", encoding="utf-8"
+    ) as dst_f:
+        for line in src_f:
+            line = line.strip()
+            if not line:
                 continue
-            
-            # Fetch dataset
-            ds = fetch_dataset(dataset_id, DATA_RAW_DIR)
-            
-            # Extract and save
-            extract_code_columns(ds, output_path)
-            downloaded_files.append(output_path)
-            
-        except Exception as e:
-            logger.error(f"Critical error processing {dataset_id}: {e}")
-            # Continue to next dataset if one fails, but log the failure
+            # Validate that the line is valid JSON; if not, skip.
+            try:
+                json_obj = json.loads(line)
+            except json.JSONDecodeError:
+                logger.debug(f"Skipping malformed JSON line at {source_path}:{row_count + 1}")
+                continue
+            dst_f.write(json.dumps(json_obj, ensure_ascii=False) + "\n")
+            row_count += 1
+    logger.info(f"Wrote {row_count} rows to {dest_path}")
+    return row_count
+
+def process_dataset(dataset_id: str) -> Dict[str, object]:
+    """
+    Process a single dataset: download the default split and stream it to
+    ``data/raw/<safe_name>_<split>.jsonl``.
+
+    Returns a dictionary suitable for inclusion in the ingestion log.
+    """
+    safe_name = dataset_id.replace("/", "_").replace("-", "_")
+    # The default split for these translation datasets is ``train``.
+    split_name = "train"
+
+    # Find a candidate file that exists in the repository.
+    downloaded_path: Path | None = None
+    for candidate in CANDIDATE_FILENAMES:
+        try:
+            downloaded_path = download_split(dataset_id, candidate)
+            # If we successfully downloaded, break.
+            break
+        except RuntimeError:
             continue
 
-    if not downloaded_files:
-        logger.error("No datasets were successfully downloaded. Exiting.")
-        sys.exit(1)
-    
-    logger.info(f"Ingestion complete. Cached {len(downloaded_files)} files in {DATA_RAW_DIR}")
-    for f in downloaded_files:
-        logger.info(f"  - {f}")
+    if downloaded_path is None:
+        raise RuntimeError(
+            f"Could not locate a default split file for {dataset_id}. Tried: {CANDIDATE_FILENAMES}"
+        )
+
+    # Destination path under data/raw
+    dest_path = DATA_RAW_DIR / f"{safe_name}_{split_name}.jsonl"
+    logger.info(f"Streaming {downloaded_path} to {dest_path}")
+
+    row_count = stream_jsonl_to_output(downloaded_path, dest_path)
+
+    return {
+        "dataset_id": dataset_id,
+        "split": split_name,
+        "row_count": row_count,
+    }
+
+def main() -> None:
+    """Entry point for the ingestion script."""
+    logger.info("Starting dataset ingestion (streaming mode)...")
+    ensure_dirs()
+
+    ingestion_log: List[Dict[str, object]] = []
+
+    for dataset_id in DATASET_IDS:
+        try:
+            metadata = process_dataset(dataset_id)
+            ingestion_log.append(metadata)
+            logger.info(
+                f"Successfully processed {dataset_id} (rows: {metadata['row_count']})"
+            )
+        except Exception as exc:
+            logger.error(f"Aborting ingestion due to error with {dataset_id}: {exc}")
+            # Propagate the exception as required by the task spec.
+            raise
+
+    # Write the ingestion log as JSON
+    try:
+        with LOG_PATH.open("w", encoding="utf-8") as log_f:
+            json.dump(ingestion_log, log_f, indent=2, ensure_ascii=False)
+        logger.info(f"Ingestion log written to {LOG_PATH}")
+    except Exception as exc:
+        logger.error(f"Failed to write ingestion log: {exc}")
+        raise
+
+    logger.info("Dataset ingestion completed successfully.")
 
 if __name__ == "__main__":
     main()

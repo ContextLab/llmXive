@@ -1,1 +1,1 @@
-"""Unit tests package for the avian migration project."""
+# Ensure the tests package is recognized as a module.

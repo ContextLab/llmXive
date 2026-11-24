@@ -1,190 +1,304 @@
+"""
+Visualization module for the solar wind – geomagnetic correlation project.
+
+Generates:
+  1. Time‑series overlay plots for each composition parameter vs. each
+     geomagnetic index at each lag (0, 1, 2, 3, 6 h) over the validation
+     period (2018‑01‑01 → 2020‑12‑31).
+  2. Heatmaps of Pearson correlation magnitude (rows = composition
+     parameters, columns = lags) for the full analysis results and for the
+     validation results.
+
+All PNGs are written under the project ``figures/`` directory and are
+constrained to ≤ 5 MB by using a moderate DPI.
+"""
+
 import os
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-from typing import List, Dict, Optional, Tuple
-from datetime import datetime
-from code.config import ACE_VARS, NOAA_VARS
-from code import logger
-from code.analysis.correlation import load_synced_data
 
-# Ensure output directories exist
-FIGURES_DIR = "artifacts/figures"
-os.makedirs(FIGURES_DIR, exist_ok=True)
+from llmxive_toolkit import paths, get_logger
+from code.config import (
+    ACE_VARS,
+    NOAA_VARS,
+    LAGS_HOURS,
+    TEST_START,
+    TEST_END,
+)
+from code.analysis.correlation import (
+    load_synced_data,
+    shift_series,
+)
 
-def plot_time_series_overlay(df: pd.DataFrame, output_path: str, params: Optional[List[str]] = None):
+logger = get_logger(__name__)
+
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+
+
+def _ensure_figures_dir() -> Path:
+    """Return the Path to the figures directory, creating it if needed."""
+    fig_dir = paths.figures()
+    fig_dir.mkdir(parents=True, exist_ok=True)
+    return fig_dir
+
+
+def _filter_validation_period(df: pd.DataFrame) -> pd.DataFrame:
+    """Keep only rows whose timestamp falls within the validation window."""
+    # ``timestamp`` column is timezone‑aware ISO‑8601 strings in the CSV.
+    # pandas reads them as ``datetime64[ns, tz]`` when ``parse_dates`` is used.
+    if not pd.api.types.is_datetime64tz_dtype(df["timestamp"]):
+        df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
+    mask = (df["timestamp"] >= TEST_START) & (df["timestamp"] <= TEST_END)
+    return df.loc[mask].reset_index(drop=True)
+
+
+def plot_time_series_overlay(
+    df: pd.DataFrame,
+    composition: str,
+    geomagnetic: str,
+    lag_hours: int,
+    output_path: Path,
+) -> None:
     """
-    Generate a time-series overlay plot for ACE parameters and NOAA indices.
-    
-    Args:
-        df: Synced dataframe with 'timestamp' and variables.
-        output_path: Path to save the PNG.
-        params: List of variable names to plot (defaults to ACE_VARS).
-    """
-    if params is None:
-        params = ACE_VARS + NOAA_VARS
-    
-    # Filter available columns
-    available_params = [p for p in params if p in df.columns]
-    if not available_params:
-        logger.warning(f"No matching parameters found in dataframe for plotting. Available: {df.columns.tolist()}")
-        return
+    Plot a composition parameter together with a geomagnetic index,
+    applying the requested lag to the composition series.
 
-    plt.figure(figsize=(14, 8))
-    
-    # Normalize data for overlay if ranges differ significantly
-    # Simple approach: plot raw values but use secondary axis if needed, 
-    # or just plot them all if they are somewhat comparable (e.g. normalized)
-    # For this specific task, we plot raw values but might need dual axes for Dst/Kp vs Density/Temp
-    
-    # Separate ACE and NOAA for potential dual axis handling
-    ace_vars = [v for v in available_params if v in ACE_VARS]
-    noaa_vars = [v for v in available_params if v in NOAA_VARS]
-    
-    if ace_vars:
-        ax1 = plt.gca()
-        ax1.set_xlabel('Time')
-        ax1.set_ylabel('ACE Parameters', color='tab:blue')
-        for var in ace_vars:
-            ax1.plot(df['timestamp'], df[var], label=var, alpha=0.7)
-        ax1.tick_params(axis='y', labelcolor='tab:blue')
-        ax1.grid(True, alpha=0.3)
-    
-    if noaa_vars:
-        ax2 = ax1.twinx() if ace_vars else plt.gca()
-        ax2.set_ylabel('NOAA Indices', color='tab:red')
-        for var in noaa_vars:
-            ax2.plot(df['timestamp'], df[var], label=var, linestyle='--', alpha=0.7)
-        ax2.tick_params(axis='y', labelcolor='tab:red')
-    
-    plt.title('Solar Wind Composition & Geomagnetic Indices Time Series')
+    The composition series is shifted **forward** by ``lag_hours`` so that
+    the value at time *t* aligns with the geomagnetic response at *t+lag*.
+    """
+    logger.info(
+        f"Creating TS overlay: {composition} vs {geomagnetic} (lag={lag_hours}h)"
+    )
+
+    # Shift composition series; the shift introduces NaNs at the start.
+    comp_series = shift_series(df[composition], lag_hours)
+    geo_series = df[geomagnetic]
+
+    # Align both series, dropping rows where either is NaN (the shift may
+    # create leading NaNs).
+    plot_df = pd.DataFrame(
+        {
+            "timestamp": df["timestamp"],
+            composition: comp_series,
+            geomagnetic: geo_series,
+        }
+    ).dropna()
+
+    plt.figure(figsize=(12, 6))
+    ax1 = plt.gca()
+    ax1.plot(
+        plot_df["timestamp"],
+        plot_df[composition],
+        label=composition,
+        color="tab:blue",
+        linewidth=1,
+    )
+    ax1.set_ylabel(composition, color="tab:blue")
+    ax1.tick_params(axis="y", labelcolor="tab:blue")
+
+    ax2 = ax1.twinx()
+    ax2.plot(
+        plot_df["timestamp"],
+        plot_df[geomagnetic],
+        label=geomagnetic,
+        color="tab:red",
+        linestyle="--",
+        linewidth=1,
+    )
+    ax2.set_ylabel(geomagnetic, color="tab:red")
+    ax2.tick_params(axis="y", labelcolor="tab:red")
+
+    plt.title(
+        f"{composition.replace('_', ' ').title()} vs {geomagnetic} (lag {lag_hours} h)"
+    )
+    plt.xlabel("Time")
     plt.xticks(rotation=45)
     plt.tight_layout()
-    
-    # Combine legends from both axes
-    lines1, labels1 = ax1.get_legend_handles_labels()
-    lines2, labels2 = ax2.get_legend_handles_labels() if noaa_vars else ([], [])
-    ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
-    
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
-    plt.close()
-    logger.info(f"Saved time-series plot to {output_path}")
 
-def plot_correlation_heatmap(correlation_results: pd.DataFrame, output_path: str):
+    plt.savefig(output_path, dpi=150, bbox_inches="tight")
+    plt.close()
+    logger.info(f"Saved time‑series overlay to {output_path}")
+
+
+def plot_correlation_heatmap(
+    corr_df: pd.DataFrame,
+    output_path: Path,
+    title: str = "Correlation Heatmap",
+) -> None:
     """
-    Generate a correlation heatmap (parameters × lags) for the full dataset.
-    
-    Args:
-        correlation_results: DataFrame containing correlation statistics.
-                            Expected columns: 'ace_var', 'noaa_var', 'lag_hours', 'pearson_r', 'spearman_rho', 'p_value_bonferroni'.
-        output_path: Path to save the PNG.
+    Create a heatmap where rows are composition parameters, columns are
+    lag values, and cell colour encodes the Pearson correlation coefficient.
+    The DataFrame must contain the columns ``ace_var``, ``noaa_var``,
+    ``lag_hours`` and ``pearson_r``.
     """
-    logger.info(f"Generating correlation heatmap for {len(correlation_results)} pairs")
-    
-    # Pivot the data to create a matrix for heatmap
-    # We will plot Pearson R. Rows: ACE vars, Columns: Lags (for a specific NOAA var or combined?)
-    # The task asks for "parameters × lags". Usually this implies a grid of (ACE_VAR, NOAA_VAR) x LAG.
-    # To keep it readable, we might create a multi-index or separate plots per NOAA var.
-    # Given the constraint of a single heatmap, let's try to structure it as:
-    # Rows: ACE_VAR + NOAA_VAR (e.g., "N_p - Kp")
-    # Cols: Lags
-    
-    if 'pearson_r' not in correlation_results.columns:
-        logger.error("Correlation results must contain 'pearson_r' column for heatmap.")
+    if corr_df.empty:
+        logger.warning(f"No correlation data to plot for {output_path}. Skipping.")
         return
 
-    # Ensure lag_hours is numeric and sorted
-    correlation_results = correlation_results.copy()
-    correlation_results['lag_hours'] = pd.to_numeric(correlation_results['lag_hours'], errors='coerce')
-    
-    # Create a unique identifier for the Y-axis (Parameter Pair)
-    correlation_results['pair_label'] = correlation_results['ace_var'].astype(str) + ' vs ' + correlation_results['noaa_var'].astype(str)
-    
-    # Pivot table: Rows = Pair, Cols = Lag, Values = Pearson R
-    heatmap_data = correlation_results.pivot_table(
-        index='pair_label', 
-        columns='lag_hours', 
-        values='pearson_r',
-        aggfunc='first' # Should be unique per pair-lag
+    logger.info(f"Generating heatmap: {output_path}")
+
+    # Build a multi‑index label "ACE – NOAA" for the rows.
+    corr_df = corr_df.copy()
+    corr_df["pair_label"] = (
+        corr_df["ace_var"].astype(str) + " vs " + corr_df["noaa_var"].astype(str)
     )
-    
-    # Sort lags numerically
+    # Ensure numeric lag ordering.
+    corr_df["lag_hours"] = pd.to_numeric(corr_df["lag_hours"], errors="coerce")
+
+    heatmap_data = corr_df.pivot_table(
+        index="pair_label",
+        columns="lag_hours",
+        values="pearson_r",
+        aggfunc="first",
+    )
+    # Sort columns (lags) numerically.
     heatmap_data = heatmap_data.sort_index(axis=1, key=lambda x: x.astype(float))
-    
-    plt.figure(figsize=(12, max(8, len(heatmap_data) * 0.5)))
-    
-    # Use a diverging colormap centered at 0
+
+    plt.figure(figsize=(12, max(6, 0.5 * len(heatmap_data))))
     cmap = plt.cm.RdBu_r
-    vmin = -1.0
-    vmax = 1.0
-    
-    im = plt.imshow(heatmap_data.values, cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax, origin='upper')
-    
-    # Set ticks and labels
-    plt.yticks(range(len(heatmap_data.index)), heatmap_data.index, fontsize=10)
-    plt.xticks(range(len(heatmap_data.columns)), [str(int(lag)) + 'h' if not np.isnan(lag) else 'NaN' for lag in heatmap_data.columns], fontsize=10)
-    
-    # Add colorbar
+    im = plt.imshow(
+        heatmap_data.values,
+        cmap=cmap,
+        aspect="auto",
+        vmin=-1,
+        vmax=1,
+        origin="upper",
+    )
+
+    plt.yticks(
+        range(len(heatmap_data.index)),
+        heatmap_data.index,
+        fontsize=9,
+    )
+    plt.xticks(
+        range(len(heatmap_data.columns)),
+        [f"{int(l)}h" for l in heatmap_data.columns],
+        fontsize=9,
+    )
     cbar = plt.colorbar(im, shrink=0.8)
-    cbar.set_label('Pearson Correlation (r)', rotation=270, labelpad=20)
-    
-    # Annotate cells with values
-    for i in range(len(heatmap_data.index)):
-        for j in range(len(heatmap_data.columns)):
-            val = heatmap_data.values[i, j]
-            if not np.isnan(val):
-                plt.text(j, i, f"{val:.2f}", ha="center", va="center", color="black" if abs(val) < 0.3 else "white", fontsize=8)
-    
-    plt.title('Correlation Heatmap: Solar Wind Parameters vs Geomagnetic Indices (Lagged)', fontsize=14)
-    plt.xlabel('Lag (hours)')
-    plt.ylabel('Variable Pair (ACE vs NOAA)')
-    
+    cbar.set_label("Pearson r", rotation=270, labelpad=15)
+
+    plt.title(title, fontsize=14)
+    plt.xlabel("Lag (hours)")
+    plt.ylabel("Variable pair")
     plt.tight_layout()
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close()
-    logger.info(f"Saved correlation heatmap to {output_path}")
+    logger.info(f"Saved heatmap to {output_path}")
 
-def generate_all_lag_plots(df: pd.DataFrame, output_dir: str = FIGURES_DIR):
-    """
-    Generate individual time-series plots for specific lag combinations if needed,
-    or orchestrate the main visualization pipeline.
-    """
-    # Placeholder for specific lag plots if required by other tasks
-    pass
 
-def run_viz_pipeline(data_path: str = "data/processed/synced.csv", 
-                     correlation_path: str = "data/processed/correlation_results.csv"):
+# ----------------------------------------------------------------------
+# Main pipeline
+# ----------------------------------------------------------------------
+
+
+def run_viz_pipeline(
+    synced_path: str = "data/processed/synced.csv",
+    full_corr_path: str = "results/correlations.csv",
+    val_corr_path: str = "results/validation_correlations.csv",
+) -> None:
     """
-    Main entry point for the visualization pipeline (US3).
-    
-    1. Loads synced data.
-    2. Generates time-series overlay.
-    3. Loads correlation results and generates heatmap.
-    
-    Args:
-        data_path: Path to the synced CSV.
-        correlation_path: Path to the correlation results CSV.
+    Execute the complete visualization pipeline required by US3.
+
+    Steps
+    -----
+    1. Load the synchronized dataset.
+    2. Restrict it to the held‑out validation period.
+    3. For every (composition, geomagnetic, lag) combination create a
+       time‑series overlay PNG named ``ts_overlay_<comp>_lag<h>.png``.
+    4. Load the full‑series correlation results and generate
+       ``heatmap_full.png``.
+    5. Load the validation‑period correlation results and generate
+       ``heatmap_validation.png``.
     """
     logger.info("Starting visualization pipeline...")
-    
-    # 1. Time Series Plot
-    if os.path.exists(data_path):
-        df = load_synced_data(data_path)
-        ts_output = os.path.join(FIGURES_DIR, "time_series_overlay.png")
-        plot_time_series_overlay(df, ts_output)
+
+    # ------------------------------------------------------------------
+    # 1‑2. Load and filter synced data
+    # ------------------------------------------------------------------
+    df_synced = load_synced_data(synced_path)
+    df_val = _filter_validation_period(df_synced)
+
+    figs_dir = _ensure_figures_dir()
+
+    # ------------------------------------------------------------------
+    # 3. Time‑series overlay plots for each lag
+    # ------------------------------------------------------------------
+    for comp in ACE_VARS:
+        if comp not in df_val.columns:
+            logger.warning(f"Composition variable '{comp}' missing in synced data.")
+            continue
+        for geo in NOAA_VARS:
+            if geo not in df_val.columns:
+                logger.warning(f"Geomagnetic variable '{geo}' missing in synced data.")
+                continue
+            for lag in LAGS_HOURS:
+                out_file = figs_dir / f"ts_overlay_{comp}_lag{lag}.png"
+                plot_time_series_overlay(
+                    df_val, comp, geo, lag, out_file
+                )
+
+    # ------------------------------------------------------------------
+    # 4. Heatmap for the full correlation results
+    # ------------------------------------------------------------------
+    if os.path.exists(full_corr_path):
+        full_corr_df = pd.read_csv(full_corr_path)
+        # The correlation CSV produced by the pipeline uses the column
+        # names ``composition_parameter`` and ``geomagnetic_index``.
+        # Rename them to match the expectations of ``plot_correlation_heatmap``.
+        full_corr_df = full_corr_df.rename(
+            columns={
+                "composition_parameter": "ace_var",
+                "geomagnetic_index": "noaa_var",
+                "lag_hours": "lag_hours",
+                "pearson_r": "pearson_r",
+            }
+        )
+        heatmap_full_path = figs_dir / "heatmap_full.png"
+        plot_correlation_heatmap(
+            full_corr_df,
+            heatmap_full_path,
+            title="Correlation Heatmap (Full 1998‑2020 Series)",
+        )
     else:
-        logger.warning(f"Synced data not found at {data_path}. Skipping time series plot.")
-    
-    # 2. Correlation Heatmap
-    if os.path.exists(correlation_path):
-        corr_df = pd.read_csv(correlation_path)
-        heatmap_output = os.path.join(FIGURES_DIR, "correlation_heatmap.png")
-        plot_correlation_heatmap(corr_df, heatmap_output)
+        logger.error(f"Full correlation file not found at {full_corr_path}")
+
+    # ------------------------------------------------------------------
+    # 5. Heatmap for the validation correlation results
+    # ------------------------------------------------------------------
+    if os.path.exists(val_corr_path):
+        val_corr_df = pd.read_csv(val_corr_path)
+        if not val_corr_df.empty:
+            val_corr_df = val_corr_df.rename(
+                columns={
+                    "composition_parameter": "ace_var",
+                    "geomagnetic_index": "noaa_var",
+                    "lag_hours": "lag_hours",
+                    "pearson_r": "pearson_r",
+                }
+            )
+            heatmap_val_path = figs_dir / "heatmap_validation.png"
+            plot_correlation_heatmap(
+                val_corr_df,
+                heatmap_val_path,
+                title="Correlation Heatmap (Validation 2018‑2020)",
+            )
+        else:
+            logger.warning(
+                f"Validation correlation file {val_corr_path} is empty – "
+                "skipping validation heatmap."
+            )
     else:
-        logger.warning(f"Correlation results not found at {correlation_path}. Skipping heatmap.")
-    
+        logger.error(f"Validation correlation file not found at {val_corr_path}")
+
     logger.info("Visualization pipeline completed.")
 
+
 if __name__ == "__main__":
-    # Execute the pipeline if run directly
+    # When executed directly ``python -m code.viz.plots`` the pipeline runs.
     run_viz_pipeline()

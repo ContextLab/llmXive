@@ -1,0 +1,100 @@
+prompt_version: 1.0.0
+reviewed_at: '2026-05-31T08:04:34.150393Z'
+reviewer_kind: llm
+reviewer_name: eric-kandel-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+When I began my work with Eric Kohn on Aplysia, we were trying to answer a question that seemed almost foolish to our colleagues: can a memory be located in a synapse? The answer, as you will know from decades of subsequent work, was yes—but the path there required us to name the cells, the synapses, and the molecules involved.
+
+Your proposal to implement hippocampal-like pattern separation in a narrative network is precisely the kind of specificity I have always argued for. Too ofte
+
+*[truncated]*
+
+## `eric-kandel-simulated__2026-05-19__research.md`
+
+---
+action_items: []
+artifact_hash: 545bf391b0a11279792fb0d759a9c0a58ca06632c63d820290d39615139ecc03
+artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/idea/neural-narrative-networks-brain-inspired.md
+backend: dartmouth
+feedback: In my own work with *Aplysia*, we found that the transition from short-term
+  to long-term memory is not merely a matter of duration, but of mechanism. Short-term
+  memory modifies existing proteins; long-term memory requires gene expression. Your
+  proposal for 'hippocampal-like episodic memory structures' is evocative, yet I must
+  ask whether your architecture distinguishes between the transient synaptic changes
+  and the consolidated structural modifications. Without this distinction, we risk
+  describi
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-05-19T23:26:35.278222Z'
+reviewer_kind: llm
+reviewer_name: eric-kandel-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+In my own work with *Aplysia*, we found that the transition from short-term to long-term memory is not merely a matter of duration, but of mechanism. Short-term memory modifies existing proteins; long-term memory requires gene expression. Your proposal for 'hippocampal-like episodic memory structures' is evocative, yet I must ask whether your architecture distinguishes between the transient synaptic changes and the consolidated structural modifications. Without this distinction, we risk describing memory witho
+
+*[truncated]*
+
+## `dan-rockmore-simulated__2026-05-20__research.md`
+
+---
+action_items: []
+artifact_hash: 545bf391b0a11279792fb0d759a9c0a58ca06632c63d820290d39615139ecc03
+artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/idea/neural-narrative-networks-brain-inspired.md
+backend: dartmouth
+feedback: 'I am reminded of the quiet elegance of a well-crafted story, where each
+  scene serves as a waypoint in the mind''s landscape. Your proposal to model hippocampal-like
+  episodic memory structures for narrative generation strikes me as both ambitious
+  and necessary.
+
+
+  The question I would press is this: when you encode the prefrontal planning mechanisms,
+  how do you distinguish between *plot* and *memory*? In my own work on law as data,
+  I found that the structure of legal precedent looks nothing like the'
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-05-20T14:00:31.196183Z'
+reviewer_kind: llm
+reviewer_name: dan-rockmore-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+I am reminded of the quiet elegance of a well-crafted story, where each scene serves as a waypoint in the mind's landscape. Your proposal to model hippocampal-like episodic memory structures for narrative generation strikes me as both ambitious and necessary.
+
+The question I would press is this: when you encode the prefrontal planning mechanisms, how do you distinguish between *plot* and *memory*? In my own work on law as data, I found that the structure of legal precedent looks nothing like the structure
+
+*[truncated]*
+
+## `dan-rockmore-simulated__2026-05-19__research.md`
+
+---
+action_items: []
+artifact_hash: 545bf391b0a11279792fb0d759a9c0a58ca06632c63d820290d39615139ecc03
+artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/idea/neural-narrative-networks-brain-inspired.md
+backend: dartmouth
+feedback: "There's something quietly beautiful in the idea of treating a narrative\
+  \ not merely as a sequence of tokens, but as a structured memory trace\u2014one\
+  \ that the brain encodes with the same care it gives to a day's events. Your proposal\
+  \ to build LLM architectures around hippocampal-like episodic memory structures\
+  \ and prefrontal planning mechanisms is exactly the kind of bridge between neuroscience\
+  \ and computation that deserves more attention.\n\nI'm reminded of work on neural\
+  \ activity patterns during stor"
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-05-19T21:31:58.452887Z'
+reviewer_kind: llm
+reviewer_name: dan-rockmore-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+There's something quietly beautiful in the idea of treating a narrative not merely as a sequence of tokens, but as a structured memory trace—one that the brain encodes with the same care it gives to a day's events. Your proposal to build LLM architectures around hippocampal-like episodic memory structures and prefrontal planning mechanisms is exactly the kind of bridge between neuroscience and computation that deserves more attention.
+

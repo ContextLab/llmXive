@@ -1,147 +1,169 @@
-import os
+"""
+Network generation script.
+
+Provides a CLI that creates synthetic networks of a specified topology,
+writes each network to an edgelist file, and stores a per‑instance JSON
+metadata file as well as a summary CSV for the whole batch.
+
+The script is deterministic: the global random seed is set from a base
+seed plus the instance index. All generated graphs contain exactly
+500 nodes, matching the project specification.
+"""
+
+import argparse
 import json
 import random
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-import numpy as np
+
 import networkx as nx
+import pandas as pd
+
+from llmxive_toolkit import paths, get_logger
+from utils.metrics import calculate_structural_metrics
+
+log = get_logger(__name__)
 
 def set_global_seed(seed: int) -> None:
-    """Set global random seeds for reproducibility."""
+    """Set global seeds for reproducibility."""
     random.seed(seed)
+    import numpy as np
     np.random.seed(seed)
-    if hasattr(os, 'setenv'):
-        os.environ['PYTHONHASHSEED'] = str(seed)
 
 def generate_erdos_renyi(n: int, p: float, seed: int) -> nx.Graph:
-    """Generate an Erdős-Rényi random graph."""
-    set_global_seed(seed)
-    G = nx.erdos_renyi_graph(n, p, seed=seed)
-    return G
+    """Generate an Erdős‑Renyi (G(n, p)) graph."""
+    return nx.erdos_renyi_graph(n=n, p=p, seed=seed)
 
 def generate_barabasi_albert(n: int, m: int, seed: int) -> nx.Graph:
-    """Generate a Barabási-Albert scale-free network."""
-    set_global_seed(seed)
-    # Ensure m < n
-    m = min(m, n - 1)
-    G = nx.barabasi_albert_graph(n, m, seed=seed)
-    return G
+    """Generate a Barabási‑Albert preferential‑attachment graph."""
+    return nx.barabasi_albert_graph(n=n, m=m, seed=seed)
 
 def generate_watts_strogatz(n: int, k: int, p: float, seed: int) -> nx.Graph:
-    """Generate a Watts-Strogatz small-world network."""
-    set_global_seed(seed)
-    # Ensure k is even and k < n
-    if k % 2 != 0:
-        k += 1
-    k = min(k, n - 1)
-    G = nx.watts_strogatz_graph(n, k, p, seed=seed)
-    return G
+    """Generate a Watts‑Strogatz small‑world graph."""
+    return nx.watts_strogatz_graph(n=n, k=k, p=p, seed=seed)
 
 def ensure_connected(G: nx.Graph, strategy: str = "largest") -> nx.Graph:
-    """
-    Ensure the graph is connected.
-    
-    Strategy:
-    - 'largest': Keep only the largest connected component and re-index nodes.
-    - 'bridge': Add minimal edges to connect components (not implemented yet, raises NotImplementedError).
-    
-    Returns a new connected graph.
-    """
+    """Ensure the returned graph is connected."""
     if nx.is_connected(G):
-        return G.copy()
-    
+        return G
     if strategy == "largest":
-        components = list(nx.connected_components(G))
-        if not components:
-            raise ValueError("Graph has no nodes.")
-        
-        largest_comp = max(components, key=len)
-        H = G.subgraph(largest_comp).copy()
-        
-        # Re-index nodes to 0..N-1 to maintain consistency with simulation expectations
-        mapping = {old: new for new, old in enumerate(H.nodes())}
-        H = nx.relabel_nodes(H, mapping)
-        
-        return H
-    
-    elif strategy == "bridge":
-        raise NotImplementedError("Bridge strategy not yet implemented.")
-    
-    else:
-        raise ValueError(f"Unknown strategy: {strategy}")
+        largest_cc = max(nx.connected_components(G), key=len)
+        subgraph = G.subgraph(largest_cc).copy()
+        mapping = {old_label: new_label for new_label, old_label in enumerate(subgraph.nodes())}
+        return nx.relabel_nodes(subgraph, mapping)
+    raise ValueError(f"Unknown strategy: {strategy}")
 
-def save_network(G: nx.Graph, filepath: Path, seed: int, topology: str) -> None:
-    """Save a network instance to a GraphML file."""
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    G.graph['seed'] = seed
-    G.graph['topology'] = topology
-    nx.write_graphml(G, filepath)
+def _write_edgelist(G: nx.Graph, out_path: Path) -> None:
+    """Write the graph's edge list (one edge per line: u v)."""
+    with out_path.open("w") as f:
+        for u, v in G.edges():
+            f.write(f"{u} {v}\n")
 
-def save_manifest(manifest_path: Path, networks: List[Dict[str, Any]]) -> None:
-    """Save a manifest of all generated networks."""
-    manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(manifest_path, 'w') as f:
-        json.dump(networks, f, indent=2)
+def _write_metadata(metadata: dict, out_path: Path) -> None:
+    """Write a JSON file containing the network metadata."""
+    with out_path.open("w") as f:
+        json.dump(metadata, f, indent=2)
 
-def main():
-    """Main entry point for network generation with connectivity validation."""
-    # Configuration
-    output_dir = Path("data/raw/networks")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Parameters
-    n_nodes = 500
-    seeds = list(range(10))  # Generate 10 instances per topology
-    
-    topology_configs = [
-        {"type": "er", "generator": generate_erdos_renyi, "params": {"p": 0.01}},
-        {"type": "ba", "generator": generate_barabasi_albert, "params": {"m": 3}},
-        {"type": "ws", "generator": generate_watts_strogatz, "params": {"k": 4, "p": 0.1}},
-    ]
-    
-    manifest_data = []
-    
-    for config in topology_configs:
-        print(f"Generating {config['type']} networks...")
-        for seed in seeds:
-            try:
-                # Generate
-                G = config["generator"](n_nodes, **config["params"], seed=seed)
-                
-                # Validate Connectivity (T015)
-                # If disconnected, ensure it becomes connected via largest component
-                original_nodes = G.number_of_nodes()
-                G_connected = ensure_connected(G, strategy="largest")
-                new_nodes = G_connected.number_of_nodes()
-                
-                if new_nodes < original_nodes:
-                    print(f"  Seed {seed}: Disconnected ({original_nodes} nodes). "
-                          f"Kept largest component ({new_nodes} nodes).")
-                
-                # Save
-                filename = f"{config['type']}_seed_{seed}.graphml"
-                filepath = output_dir / filename
-                save_network(G_connected, filepath, seed, config['type'])
-                
-                # Record in manifest
-                manifest_data.append({
-                    "filename": filename,
-                    "topology": config['type'],
-                    "seed": seed,
-                    "nodes": new_nodes,
-                    "edges": G_connected.number_of_edges(),
-                    "connected": True,
-                    "reduced": new_nodes < original_nodes
-                })
-                
-            except Exception as e:
-                print(f"  Error generating seed {seed}: {e}")
-                raise
-    
-    # Save Manifest
-    manifest_path = output_dir / "manifest.json"
-    save_manifest(manifest_path, manifest_data)
-    print(f"Manifest saved to {manifest_path}")
+def _flatten_metrics(metrics: dict, prefix: str = "") -> dict:
+    """Flatten the nested metrics dict for CSV output."""
+    flat = {}
+    for key, value in metrics.items():
+        flat_key = f"{prefix}{key}" if prefix else key
+        # If the value itself is a dict, recurse
+        if isinstance(value, dict):
+            flat.update(_flatten_metrics(value, prefix=f"{flat_key}_"))
+        else:
+            flat[flat_key] = value
+    return flat
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Generate synthetic networks.")
+    parser.add_argument("--topology", choices=["ER", "BA", "WS"], required=False,
+                        help="Generate only the specified topology (default: all three).")
+    parser.add_argument("--instances", type=int, default=None,
+                        help="Number of network instances per topology (default: 50).")
+    parser.add_argument("--seeds", type=int, default=None,
+                        help="Alias for --instances (kept for backward compatibility).")
+    parser.add_argument("--seed", type=int, default=0,
+                        help="Base seed for reproducibility (default: 0).")
+    parser.add_argument("--output", type=str, default=None,
+                        help="Output directory (default: data/raw/networks).")
+    args = parser.parse_args()
+
+    # Determine how many instances to create
+    instances = args.seeds if args.seeds is not None else (
+        args.instances if args.instances is not None else 50
+    )
+
+    # Resolve output directory using llmxive_toolkit helper
+    base_dir = Path(args.output) if args.output else paths.data("raw", "networks")
+    base_dir.mkdir(parents=True, exist_ok=True)
+
+    # Which topologies to generate?
+    topologies = [args.topology] if args.topology else ["ER", "BA", "WS"]
+    N_NODES = 500
+
+    # Collect rows for the summary CSV (one row per instance)
+    for topology in topologies:
+        csv_path = base_dir / f"{topology}_metadata.csv"
+        csv_rows = []
+
+        for idx in range(instances):
+            instance_seed = args.seed + idx
+            set_global_seed(instance_seed)
+
+            # Generate the appropriate graph
+            if topology == "ER":
+                G = generate_erdos_renyi(n=N_NODES, p=0.05, seed=instance_seed)
+            elif topology == "BA":
+                G = generate_barabasi_albert(n=N_NODES, m=3, seed=instance_seed)
+            else:  # WS
+                G = generate_watts_strogatz(n=N_NODES, k=6, p=0.2, seed=instance_seed)
+
+            # Ensure we have a connected component of the requested size
+            G = ensure_connected(G)
+
+            if G.number_of_nodes() != N_NODES:
+                raise RuntimeError(
+                    f"Expected {N_NODES} nodes, got {G.number_of_nodes()}"
+                )
+
+            # File naming follows the required pattern: <TOPO>_<IDX>.edgelist
+            base_name = f"{topology}_{idx:04d}"
+            edgelist_path = base_dir / f"{base_name}.edgelist"
+            metadata_path = base_dir / f"metadata_{base_name}.json"
+
+            # Persist files
+            _write_edgelist(G, edgelist_path)
+            metrics = calculate_structural_metrics(G)
+            metadata = {
+                "topology": topology,
+                "seed": instance_seed,
+                "node_count": G.number_of_nodes(),
+                "edge_count": G.number_of_edges(),
+                "metrics": metrics,
+            }
+            _write_metadata(metadata, metadata_path)
+
+            # Prepare a flat row for the CSV (includes metric columns)
+            row = {
+                "topology": topology,
+                "seed": instance_seed,
+                "node_count": G.number_of_nodes(),
+                "edge_count": G.number_of_edges(),
+            }
+            row.update(_flatten_metrics(metrics, prefix="metric_"))
+            csv_rows.append(row)
+
+        # Write the per‑topology CSV
+        df = pd.DataFrame(csv_rows)
+        # Ensure deterministic column order: topology, seed, node_count, edge_count, then metrics
+        cols = ["topology", "seed", "node_count", "edge_count"] + [
+            c for c in df.columns if c.startswith("metric_")
+        ]
+        df = df[cols]
+        df.to_csv(csv_path, index=False)
+
+    log.info("Network generation completed.")
 
 if __name__ == "__main__":
     main()

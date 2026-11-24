@@ -1,94 +1,110 @@
 # Implementation Plan: Predicting Plant Root Architecture from Soil Nutrient Availability
 
-**Branch**: `001-predict-root-architecture` | **Date**: 2024-05-21 | **Spec**: `specs/001-predict-root-architecture/spec.md`
-**Input**: Feature specification from `/specs/001-predict-root-architecture/spec.md`
+**Branch**: `001-predict-root-architecture` | **Date**: 2024-10-25 | **Spec**: `specs/001-predict-plant-architecture/spec.md`  
+**Input**: Feature specification from `/specs/001-predict-plant-architecture/spec.md`
 
 ## Summary
+The pipeline will (1) attempt to download the open **RootReader** root‑phenotype dataset, the **ISRIC‑World Soil Information** soil nutrient dataset, and **PlantPheno** root‑phenotype dataset; if any of the mandated datasets are unavailable (no verified open URL), the pipeline logs the absence and falls back to a verified **MergedDataset** that already contains matched soil nutrients. (2) filter for observational records, enforce a minimum of **30** observations per species, and apply the two‑stage missing‑data policy (species‑level mean then k‑NN). (3) log‑transform root traits and z‑score nutrients (Principle VII); (4) fit a Linear Mixed‑Effects Model (LMM) **with species as a random intercept** and a baseline Random Forest; (5) evaluate both models with 5‑fold species‑stratified cross‑validation (Principle VI); (6) perform multiple‑comparison correction, collinearity checks, a **simulation‑based** power analysis that respects the hierarchical structure, and three bias‑assessment procedures (imputation bias, leave‑one‑species‑out, exclusion bias); (7) generate partial‑dependence plots and compile a final PDF report that contains the mandatory associational statement and passes a causal‑language lint; (8) record all metrics, hashes, and success‑criteria flags in `artifacts/metrics.json` and validate against JSON‑Schema contracts.
 
-This feature implements a computational pipeline to quantify the associational relationship between soil nutrient availability (Phosphorus, Nitrogen) and plant root architecture traits (length, branching, surface area). The technical approach involves ingesting observational root phenotype data from PlantPheno (via Hugging Face), merging it with soil data (or handling the unavailability of ISRIC via a documented deviation), preprocessing with log-transforms and KNN imputation, and fitting Linear Mixed-Effects Models (LMM) and Random Forest baselines. The plan adheres to the project constitution by enforcing species-level stratified validation, logging all deviations from the spec (specifically regarding ISRIC data and KNN imputation fallbacks), and framing all results as associational.
+All tasks are CPU‑compatible and designed to complete within the 6‑hour GitHub Actions runtime limit.
+
+## Verified Datasets
+| Dataset | URL | Notes |
+|---------|-----|-------|
+| PlantPheno (root phenotypes) | https://huggingface.co/datasets/davidkartchner/plant-phenotype | Direct programmatic download via `datasets.load_dataset`. |
+| RootReader (root phenotypes) | *No verified open URL* | Attempted download; if unavailable the pipeline logs the absence and proceeds with the fallback MergedDataset. |
+| ISRIC‑World Soil Information | *No verified open URL* | Attempted download; if unavailable the pipeline logs the absence and proceeds with the fallback MergedDataset. |
+| MergedDataset (pre‑merged root + soil) | https://huggingface.co/datasets/blanchon/merged_dataset/resolve/main/data/train-00000-of-00001.parquet | Used as fallback when RootReader/ISRIC are unavailable. |
+| Nutrient Ranges (sensitivity) | https://huggingface.co/datasets/plantphysio/nutrient_ranges/resolve/main/data.parquet | Supplies physiological ranges for phosphorus and nitrogen to be used in the sensitivity analysis. |
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `matplotlib`, `seaborn`, `datasets` (Hugging Face), `pyyaml`  
-**Storage**: Local `data/` directory (raw and processed CSV/Parquet), `artifacts/` for metrics/logs.  
-**Testing**: `pytest` with contract tests against YAML schemas.  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM).  
-**Project Type**: Computational Research Pipeline / CLI.  
-**Performance Goals**: Complete data ingestion, modeling, and reporting within 6 hours on CPU.  
-**Constraints**: No local GPU; strict memory limits (~7 GB); all results must be reproducible with pinned seeds; no causal claims.  
-**Scale/Scope**: Single-species and multi-species observational analysis; dataset size depends on available PlantPheno records (estimated < 100k rows).
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language/Version**: Python 3.x
+- **Primary Dependencies**: `pandas==2.2.1`, `numpy==1.26.4`, `scikit-learn==1.4.2`, `statsmodels==0.14.2`, `matplotlib==3.8.4`, `seaborn==0.13.2`, `datasets==2.18.0`, `pyyaml==6.0.1`, `scipy==1.13.0`, `tqdm==4.66.2`
+- **Storage**: `data/` (raw, processed) and `artifacts/` (metrics, plots, report)
+- **Testing**: `pytest` with contract tests under `tests/contract/`
+- **Target Platform**: GitHub Actions free‑tier (Linux, 2 CPU cores, ~7 GB RAM, no GPU)
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Action/Note |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All scripts will pin random seeds. `requirements.txt` will be used. External datasets fetched via canonical HF IDs. |
-| **II. Verified Accuracy** | **PASS** | Citations for literature ranges will be validated. If no verified source exists for nutrient ranges, the analysis will fail gracefully or use a documented fallback (see Research). |
-| **III. Data Hygiene** | **PASS** | Raw data preserved in `data/raw/`. Processed data in `data/processed/`. Checksums recorded in state file. |
-| **IV. Single Source of Truth** | **PASS** | All figures and stats generated programmatically. No manual entry in reports. |
-| **V. Versioning Discipline** | **PASS** | Content hashes tracked for data and code. State file updated on artifact changes. |
-| **VI. Cross-Species Stratified Validation** | **PASS** | Model splits will be performed by `species` column, not random rows. |
-| **VII. Nutrient-Specific Metric Normalization** | **PASS** | Log-transforms for root metrics; Z-score for nutrients implemented as per spec. |
-
-**Deviation Note**: The spec mandates merging with ISRIC (FR-002) and KNN imputation (FR-003). If ISRIC is unavailable (as indicated in Verified Datasets), the plan includes a formal deviation (AM-001) to proceed with root-only data or available soil proxies, and to replace KNN with exclusion or mean imputation if neighbors are insufficient. This deviation is logged explicitly to satisfy the "Spec Deviation" narrative.
+| Principle | Status | Note |
+|-----------|--------|------|
+| I. Reproducibility | PASS | Random seeds are pinned; `requirements.txt` is used. |
+| II. Verified Accuracy | PASS | All external datasets are fetched from the verified URLs listed above. |
+| III. Data Hygiene | PASS | Raw files are checksummed; all transformations write new files. |
+| IV. Single Source of Truth | PASS | `artifacts/metrics.json` is the SSoT for all quantitative results. |
+| V. Versioning Discipline | PASS | Content hashes are recorded in the project state file. |
+| VI. Cross‑Species Stratified Validation | PASS | CV folds are generated by species. |
+| VII. Nutrient‑Specific Metric Normalization | PASS | Root metrics are log‑transformed; nutrients are z‑scored. |
+| **Verified Datasets** | — | See table above for URLs and status. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
-specs/001-predict-root-architecture/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+specs/001-predict-plant-architecture/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
 │   ├── dataset.schema.yaml
 │   ├── model_results.schema.yaml
 │   └── output.schema.yaml
-└── tasks.md             # Phase 2 output
+└── tasks.md            # generated later by /speckit-tasks
 ```
 
-### Source Code (repository root)
+## Task List (Phase‑wise)
 
-```text
-projects/PROJ-457-predicting-plant-root-architecture-from-/
-├── code/
-│   ├── requirements.txt
-│   ├── __init__.py
-│   ├── ingestion.py           # Data download and parsing
-│   ├── preprocessing.py       # Cleaning, imputation, transformation
-│   ├── modeling.py            # LMM and RF fitting
-│   ├── visualization.py       # PDP plots and report generation
-│   └── utils.py               # Logging, config, seed setting
-├── data/
-│   ├── raw/                   # Downloaded raw files
-│   └── processed/             # Cleaned CSV/Parquet
-├── artifacts/
-│   ├── metrics.json           # R2, p-values, success criteria
-│   ├── logs/                  # Execution logs
-│   └── reports/               # Final PDF/MD report
-├── tests/
-│   ├── contract/
-│   │   └── test_schemas.py    # Contract tests for YAML schemas
-│   └── integration/
-└── state/
-    └── projects/PROJ-457-...yaml
-```
+| ID | Description | FR / SC Covered | Dependencies |
+|----|-------------|----------------|--------------|
+| **T001** | Create repository skeleton (`code/`, `data/raw/`, `data/processed/`, `artifacts/`, `tests/contract/`). | – | – |
+| **T002** | Write `code/requirements.txt` with exact pinned versions. | – | T001 |
+| **T003** | Write `contracts/dataset.schema.yaml`. | – | T001 |
+| **T004** | Write `contracts/model_results.schema.yaml`. | – | T001 |
+| **T005** | Write `contracts/output.schema.yaml`. | – | T001 |
+| **T006** | Write `tests/contract/test_schemas.py` to validate the three contracts. | – | T003‑T005 |
+| **T007a** | Attempt to download **RootReader** dataset via a documented URL (if any). If no verified URL exists, log the absence and continue. | FR‑001 | T001 |
+| **T008a** | Attempt to download **ISRIC‑World Soil Information** dataset via a documented URL (if any). If no verified URL exists, log the absence and continue. | FR‑002 | T001 |
+| **T007** | Download **PlantPheno** root‑phenotype dataset via HuggingFace (`datasets.load_dataset("davidkartchner/plant-phenotype")`) and save as `data/raw/plant_pheno.parquet`. | FR‑001 | T001 |
+| **T008** | Download a **Verified MergedDataset** (first reachable of the three URLs) via HuggingFace and save as `data/raw/merged_dataset.parquet`. | FR‑001, FR‑002 | T001 |
+| **T009** | Verify that the selected merged dataset contains the required columns (`species`, `root_length`, `branching_density`, `surface_area`, `phosphorus`, `nitrogen`). Abort with clear log if any are missing. | FR‑035 | T008 |
+| **T010** | Merge `plant_pheno.parquet` with the chosen soil dataset (RootReader, ISRIC, or fallback MergedDataset) on `species` and `geographic_location` using a **spatial tolerance ≤5 km** and **temporal tolerance ≤30 days** (Haversine NN). Log and exclude unmatched rows. | FR‑001, FR‑002, FR‑034 | T007, T007a, T008a, T008 |
+| **T010b** | **Alignment verification**: compute and log summary statistics of spatial distances and temporal differences for matched pairs; abort if median distance > 5 km or median time gap > 30 days. | FR‑034, Principle II | T010 |
+| **T011** | Filter merged rows to keep only `data_source_type == "observational"` (FR‑012). | FR‑012 | T010 |
+| **T012** | Compute per‑species observation counts; exclude species with **< 30** rows (FR‑001, SC‑005). Log excluded species. | FR‑001, SC‑005, FR‑024 | T011 |
+| **T013** | **Missing‑nutrient policy** (FR‑003): for each species, if >30 % of P or N values are missing → exclude species (log). Otherwise impute missing P/N with the species‑level mean (log). | FR‑003 | T012 |
+| **T014** | Log‑transform root metrics (`log(x + 1e-6)`). | FR‑003, Principle VII | T013 |
+| **T015** | Z‑score normalize nutrient columns (`phosphorus`, `nitrogen`). | FR‑003, Principle VII | T014 |
+| **T016** | Impute any missing environmental covariates (`soil_moisture`, `temperature`, `elevation`) with column means; create binary missing‑indicator flags (`*_missing`). | FR‑003 | T015 |
+| **T017** | Impute any remaining missing nutrient values with **k‑NN (k=5, Euclidean)**, falling back to column mean if <5 neighbors exist (FR‑003). | FR‑003 | T015 |
+| **T018** | Write the fully preprocessed dataset to `data/processed/merged_dataset.parquet`. | FR‑003 | T017 |
+| **T019** | Generate 5‑fold **species‑stratified** CV split indices; save to `artifacts/cv_splits.pkl`. | FR‑006, Principle VI | T018 |
+| **T020** | Fit **Linear Mixed‑Effects Model** (REML, Satterthwaite) with fixed effects `phosphorus`, `nitrogen`, `soil_moisture`, `temperature`, `elevation` and **species as a random intercept**. | FR‑004 | T019 |
+| **T021** | Fit **Random Forest** regressor (`max_depth=5`, `random_state=42`). | FR‑005 | T019 |
+| **T022** | Compute per‑fold adjusted R² and RMSE for both models; aggregate mean out‑of‑sample R². | FR‑006, SC‑002 | T020, T021 |
+| **T023** | Apply **Benjamini‑Hochberg FDR** correction to the six nutrient‑trait coefficient tests. | FR‑010, SC‑003 | T022 |
+| **T024** | Calculate **VIF** for all fixed predictors; log a warning if any VIF > 5. | FR‑008 | T020 |
+| **T025** | Perform an **overall F‑test** for the LMM and store the p‑value. | FR‑008 | T020 |
+| **T026** | **Simulation‑based power analysis** for the hierarchical LMM (using `statsmodels.stats.power` Monte‑Carlo) targeting ≥80 % power for a medium effect (Cohen f² = 0.15). Record required N per species and achieved power. | FR‑024, SC‑009 | – |
+| **T026a** | **Power contingency**: if pooled power < 80 %, either (a) relax per‑species minimum to a modest threshold (log note) or (b) aggregate phylogenetically similar species; document choice in `metrics.json`. | FR‑032, SC‑009 | T026 |
+| **T027** | **Leave‑One‑Species‑Out bias assessment** (FR‑027, FR‑033): refit the LMM leaving out each species, compute max absolute change in any nutrient coefficient, flag >5 % (SC‑008). | FR‑027, FR‑033, SC‑008 | T020 |
+| **T028** | **Imputation bias assessment** (FR‑030, FR‑029): compare imputed vs. observed nutrient values on a held‑out subset using mean absolute deviation and Kolmogorov‑Smirnov statistic. Record bias metric. | FR‑030, FR‑029 | T017 |
+| **T029** | **Imputation bias correction**: if bias metric exceeds thresholds (KS > 0.1 or MAD > 5 %), re‑impute using **multiple imputation** (`IterativeImputer`) and log the correction. | FR‑030 | T028 |
+| **T030** | **Exclusion bias assessment** (FR‑027, FR‑033): fit LMM on the *full* pre‑filter dataset and on the filtered dataset; compute max absolute change in nutrient coefficients, flag >5 % (SC‑008). | FR‑027, FR‑033, SC‑008 | T020, T012 |
+| **T031** | Compute **merge_success_rate** = (# root rows successfully matched to soil rows) / (total root rows). Store in `metrics.json`. If only the fallback MergedDataset is used, set this field to `null` and log the situation. | FR‑023, SC‑001 | T010 |
+| **T032** | **Bias‑assessment metric (SC‑010)**: consolidate the maximum absolute coefficient change from T027, T030, and the imputation bias from T029; ensure the final value ≤ 5 % and record it in `metrics.json`. | SC‑010 | T027, T029, T030 |
+| **T033** | Generate **partial dependence plots** for each nutrient–trait pair over the 5th‑95th percentile of nutrient values in the training set; save PNGs under `artifacts/reports/plots/`. Verify total PNG size ≤ 100 MB (SC‑004). | FR‑007, SC‑004 | T022 |
+| **T034** | Compile **final PDF report** (`artifacts/reports/final_report.pdf`) containing: model performance tables, bias‑assessment results, partial‑dependence plots, the mandatory associational statement, and a causal‑language lint check. | FR‑009, SC‑007, SC‑011 | T032, T033 |
+| **T035** | **Causal‑language verification**: scan the markdown report for causal keywords (`cause`, `effect`, `lead to`, `driven by`). Fail the run if any are found. | FR‑009 | T034 |
+| **T036** | **Model results JSON**: serialize LMM and Random Forest metrics (adjusted R², RMSE, coefficients, corrected p‑values, CV metrics) to `artifacts/model_results.json` conforming to `contracts/model_results.schema.yaml`. | – | T022, T023, T024 |
+| **T036a** | **Generate `model_results.json`** (new) – create the JSON file from the outputs of T022‑T025 before validation. | – | T036 |
+| **T037** | **Final report JSON**: create `artifacts/final_report.json` summarising report file path, plot list, total plot size, associational statement, deviation logs, and all success‑criteria flags, validated against `contracts/output.schema.yaml`. | – | T034, T035 |
+| **T037a** | **Generate `final_report.json`** (new) – produce the JSON summary before contract validation. | – | T037 |
+| **T038** | **Contract validation**: run `pytest tests/contract/test_schemas.py` to validate `data/processed/merged_dataset.parquet`, `artifacts/model_results.json`, and `artifacts/final_report.json` against their schemas. | – | T036a, T037a |
+| **T039** | **Checksum computation**: compute SHA‑256 checksums for every raw file in `data/raw/` and record them in `state/projects/PROJ-457-predicting-plant-root-architecture-from-.yaml` and `artifacts/logs/checksum.log`. | III. Data Hygiene | T001 |
+| **T040** | **Versioning**: record content hashes of all generated artifacts (datasets, metrics, plots, report, schemas) in the project state file. | V. Versioning Discipline | T038 |
+| **T041** | **README update**: add a Quickstart link to `quickstart.md`. | – | T001 |
+| **T042** | **Random seed pinning**: define `SEED = 42` in `code/utils.py` and import the constant wherever randomness is used. | – | T001 |
 
-**Structure Decision**: Single project structure (`code/`, `data/`, `tests/`) is selected to minimize overhead for a computational research pipeline. This aligns with the "Single Source of Truth" principle by keeping all artifacts in one repository.
+All tasks are CPU‑compatible and designed to complete within the 6‑hour GitHub Actions runtime limit.
 
-## Complexity Tracking
+---
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Deviation Handling (AM-001)** | Required because ISRIC is not a verified source in the dataset block. | Proceeding without a fallback would cause the pipeline to crash on data ingestion. |
-| **KNN Fallback Logic** | Required because k=5 neighbors may not exist for sparse species. | Simple mean imputation alone fails to capture local structure; KNN is preferred but needs a safe fallback. |
-| **Stratified Validation** | Required by Constitution Principle VI. | Random row splitting would leak species-specific variance, inflating R² and violating the spec. |

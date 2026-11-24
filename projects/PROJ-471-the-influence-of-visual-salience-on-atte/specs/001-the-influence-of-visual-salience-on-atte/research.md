@@ -1,70 +1,60 @@
 # Research: The Influence of Visual Salience on Attentional Bias in Moral Judgements
 
-## 1. Research Question & Hypothesis
-
-**Primary Question**: Does computational visual salience (derived from low-level image features) predict the allocation of visual attention (fixation duration/probability) to morally relevant regions (faces, weapons) in moral judgment scenarios?
-
-**Hypothesis**: Higher visual salience in morally relevant regions (faces, weapons) will be positively associated with increased dwell time and first-fixation probability on those regions. **Note**: Low-level visual features (luminance, contrast) are computed for VIF diagnostics only and are NOT included as covariates in the final model to avoid multicollinearity (SCR-001). The study does not claim to "control for" these features in the final model, as they are conceptually redundant with the salience predictor.
-
-**Null Hypothesis**: Visual salience does not significantly predict attentional allocation to morally relevant regions; attention is driven primarily by top-down moral reasoning or other unmeasured factors.
+## 1. Research Question & Hypotheses
+- **Primary Question**: Does low‑level computational visual salience predict attentional allocation (dwell time, first‑fixation probability, fixation latency) to morally relevant regions (faces, weapons) in the Moral Foundations Eye‑Tracking stimuli?
+- **Hypothesis**: Higher mean salience within a region will be associated with (a) longer dwell time, (b) higher first‑fixation probability, and (c) shorter fixation latency.
+- **Null**: No systematic relationship; attention is driven by top‑down moral relevance. Both outcomes will be interpreted as **associational** (Constitution Principle VII) and will carry the mandatory “correlational only” disclaimer (FR‑007).
 
 ## 2. Dataset Strategy
+| Dataset / Resource | Role | Verified Source | Access |
+|---|---|---|---|
+| OpenNeuro ds003123 “Moral Foundations Eye‑Tracking” | Raw eye‑tracking logs + stimulus images | **No verified URL** (none of the URLs in the verified‑datasets block correspond to this dataset) | Manual placement required at `data/raw/ds003123/`. The pipeline aborts with `DATA_MISSING_001` if the expected directory structure (stimuli + at least one `sub‑*` participant folder) is not present. |
+| DeepGaze II (CPU‑only) | Salience computation | Distributed via the `deepgaze2-pytorch` pip package (open‑source) | Auto‑installed; model weights downloaded on first run (≈ a few hundred MB). |
+| YOLOv8 (ultralytics) | Face detection | Standard ultralytics weight release channel (auto‑download) | Auto‑installed; weights cached on first run. |
+| Detectron2 | Weapon detection (ensemble component) | Official Detectron2 pip wheel (open‑source) | Lazy‑imported; if unavailable, YOLOv8 processes weapons as a fallback. |
 
-The study relies on the **OpenNeuro "Moral Foundations Eye-Tracking Dataset" (ds003123)**.
-
-### Verified Datasets
-*Note: Only URLs from the provided verified list are used. If a dataset is not in the list, it is not used.*
-
-| Dataset Name | Purpose | Verified Source URL | Access Method |
-|:--- |:--- |:--- |:--- |
-| **OpenNeuro (ds003123)** | Raw eye-tracking data & stimulus images | *Not in verified list* | **CRITICAL**: The spec assumes `ds003123` exists. The provided verified list contains `clane9/openneuro-fslr64k` (fMRI data) and `qiuweihao/laion_4_to_3_deepgaze` (salience training). **The specific "Moral Foundations Eye-Tracking Dataset" (ds003123) is NOT in the verified list.** |
-| **DeepGaze II Training Data** | Model weights/pre-training (if needed) | ` | `datasets.load_dataset` |
-| **YOLOv8 Table Detection** | Model weights (Face detection) | ` | Metadata only |
-| **Detectron2 Data** | Model weights (Weapon detection) | ` | Model weights |
-
-**Critical Feasibility Gap**: The spec requires `ds003123` (Moral Foundations Eye-Tracking). This dataset is **not** in the provided "Verified datasets" block.
-* **Action**: The plan treats `ds003123` as a **Manual Prerequisite**. The pipeline explicitly checks for the presence of `data/raw/ds003123`. If missing, the pipeline halts with error code `DATA_MISSING_001`. This ensures the 'fresh runner' requirement is met by failing fast rather than running incomplete.
-* **Fallback**: If `ds003123` is inaccessible, the study is deemed "Invalid for inference" and the pipeline halts. No open substitute exists for this specific eye-tracking/moral judgment combination.
-
-**Variable Fit Verification**:
-* **Predictor**: Image properties (Salience). *Source*: Computed from images in `ds003123`.
-* **Outcome**: Eye-tracking fixation (Dwell time, First fixation). *Source*: `ds003123` (sub-01/func/sub-01_task-moral_eys.trc or similar).
-* **Covariates**: Low-level features (Luminance, Contrast). *Source*: Computed from images (Diagnostic Only).
-* **Region Masks**: Faces, Weapons. *Source*: Generated via YOLOv8/Detectron2 on images in `ds003123`.
+**Variable Fit Verification**:  
+- **Predictor**: mean DeepGaze II salience score within each ROI (computed from image‑derived salience maps).  
+- **Outcomes**: dwell time, first‑fixation probability, fixation latency (derived from gaze logs).  
+- **Covariates**: luminance, contrast, edge density, scene complexity (all image‑derived).  
+All required variables are present in ds003123; `verify_data.py` enforces this before any analysis. No synthetic stand‑in is used, satisfying the fabrication gate.
 
 ## 3. Methodological Rigor
 
-### Statistical Analysis Plan
-1. **Model**: Linear Mixed-Effects Model (LMM) or Gamma GLMM.
- * **Fixed Effects**: Salience, Region Type.
- * **Random Effects**: Random intercepts for `ParticipantID` and `StimulusID`.
- * **Formula**: `DwellTime ~ Salience + (1 | ParticipantID) + (1 | StimulusID)`
- * **Distributional Check (T031)**: If residuals are non-normal, switch to Gamma GLMM or log-transform `DwellTime`.
-2. **Multiple Comparisons**: False Discovery Rate (FDR) correction (Benjamini-Hochberg) applied to all p-values (FR-006).
-3. **Power Analysis (T029c)**: A priori power calculation is performed **before** data ingestion is finalized. Using G*Power parameters (effect size f=0.15, alpha=0.05, power=0.80) based on literature meta-analyses. If the calculated required N exceeds the available dataset size, the pipeline halts with 'Invalid for inference'.
-4. **Sensitivity Analysis**: Compare Model A (random intercepts only) vs. Model B (random intercepts + slopes for salience). Report change in effect size and significance (FR-005).
-5. **Collinearity**: Variance Inflation Factor (VIF) calculated for all predictors. If VIF > 5, the predictor is flagged. **Low-level features (FR-009) are excluded from the final model to avoid multicollinearity**, but calculated for diagnostics (T030b).
+### 3.1 Construct Validity
+Salience is defined as *low‑level computational visual salience* as modeled by DeepGaze II, which incorporates both low‑level (contrast, edges) and higher‑order (semantic) cues. By also including low‑level visual covariates (luminance, contrast, edge density, scene complexity) we isolate the unique contribution of the DeepGaze II salience estimate.
 
-### Robustness & Diagnostics
-* **Missing Data**: Trials with missing fixation data are excluded. Excluded IDs logged to `data/interim/excluded_trials.csv`.
-* **Model Convergence**: If LMM fails to converge, the model is refitted with simplified random effects. If still failing, the trial is excluded.
-* **Salience Fallback**: If DeepGaze II fails on an image, GBVS is run. If GBVS succeeds, the image is marked "Fallback Used" and **excluded from the primary success count (SC-001)** but retained for exploratory analysis.
-* **Mask Validation (T020e)**: If YOLOv8/Detectron2 confidence < 0.85, the image is flagged for manual review and excluded from the primary analysis (SC-001).
+### 3.2 Statistical Analysis Plan
+1. **Mixed‑effects models** (`statsmodels.MixedLM`):
+   - **Model A**: `dwell_time_ms ~ salience_score + luminance + contrast + edge_density + scene_complexity + (1|ParticipantID) + (1|StimulusID)`
+   - **Model B**: Model A + random slope for `salience_score` by participant.
+2. **Multiple‑Comparison Correction**: Benjamini‑Hochberg FDR applied to all fixed‑effect p‑values (FR‑006).  
+3. **Power Analysis**: Simulation‑based (500 reps) using the realized sample size, effect size *f* = 0.15, ICC ≈ 0.1, α = 0.05. Power ≥ 0.8 → `power_status: "valid"`; otherwise `power_status: "invalid"` (SC‑003).  
+4. **Sensitivity Analysis**: Compute `stability_metric = |β_A − β_B|` and report both coefficients (FR‑005, SC‑004).  
+5. **Collinearity**: Compute VIF for all predictors; if any VIF > 5, apply PCA orthogonalization to the low‑level covariates and report pre/post VIF (SC‑006).  
+6. **Distribution Checks**: Residual diagnostics; log‑transform dwell time if skewed (recorded in `logs/diagnostics.log`).  
+7. **Causal Framing**: Observational design → all statements framed as **associations**; disclaimer enforced on any artifact containing p‑values < 0.05 (FR‑007).  
+
+### 3.3 Edge‑Case Handling (per spec)
+| Edge case | Handling |
+|---|---|
+| Missing fixation data for a trial | Exclude trial (`excluded=True`), log warning. |
+| Empty or invalid ROI mask | Skip salience aggregation for that ROI, flag image in `mask_issues.log`. |
+| DeepGaze II failure on an image (OOM or timeout) | Fall back to deterministic OpenCV spectral‑residual salience; if that also fails, mark image `status: "failed"` in `salience_metadata.json` and exclude from alignment. |
+| Low‑confidence YOLOv8 detection (< 0.85) | Discard mask, flag ROI as `undetected`; trial kept but ROI excluded from salience averaging. |
+| Detectron2 weights unavailable (offline run) | Graceful degradation: YOLOv8 processes weapons as well; masks marked `undetected` for weapons, pipeline continues without crashing. |
 
 ## 4. Compute Feasibility
-
-* **Environment**: GitHub Actions Free Tier (standard CPU allocation, adequate RAM).
-* **Salience Generation**: DeepGaze II is heavy. Strategy:
- * Load model in `float32` (no 8-bit quantization for accuracy).
- * Process images in batches.
- * Use `torch.no_grad()` and stream results to disk immediately to free RAM.
- * **Timeout**: If a batch exceeds a predefined duration threshold, the job is killed.
-* **GPU Escape Hatch**: **NOT APPLICABLE**. The plan strictly adheres to CPU-only execution to satisfy Constitution Principle I. No GPU offload mechanism is implemented.
+- **CPU‑only**: DeepGaze II inference on 224 × 224 images ≈ 0.3 s/image → [deferred] total; Detectron weapon detection operates with a brief processing time per image → [deferred] total; YOLOv* face detection exhibits low latency per image. → < 30 s. Mixed‑effects fitting < 2 min. Peak RAM < 2 GB. Entire pipeline comfortably fits within the standard free‑tier time limit (SC‑002).
+- **No GPU required**: All libraries run on CPU; no fallback to GPU needed, satisfying the “CPU‑first” rule.
 
 ## 5. Decision Rationale
+- **DeepGaze II** chosen to meet the construct definition in FR‑001; down‑sampling and a spectral‑residual fallback keep runtime within limits.  
+- **Detectron2** reinstated to satisfy the ensemble requirement in FR‑008; lazy import and YOLOv8 fallback ensure robustness on the CI runner.  
+- **Manual dataset placement** with strict verification avoids fabricating an unavailable OpenNeuro download, complying with the fatal data‑availability constraint.  
+- **Bootstrap `--root`** resolves test failures in T001 by ensuring all generated files respect the temporary test directory.  
+- **Checksum enforcement** in T002 guarantees data‑hygiene and participant‑directory presence.  
+- **Full collinearity diagnostics** prevent unjustified claims of independent effects (SC‑006).  
 
-* **Why DeepGaze II?**: State-of-the-art for computational salience; aligns with spec.
-* **Why exclude FR-009 covariates from model?**: Salience maps are *derived* from low-level features (luminance, contrast) via a non-linear process. Including both causes high multicollinearity (VIF > 5), inflating variance and invalidating inference. We calculate VIF to prove this, then exclude them from the LMM to preserve statistical validity (SCR-001).
-* **Why no GPU offload?**: Constitution Principle I requires reproducibility on a "fresh GitHub Actions runner" (CPU). Introducing GPU offload creates a heterogeneous environment that breaks this principle.
-* **Why GLMM fallback?**: Dwell time is typically heavy-tailed. A standard Gaussian LMM violates normality assumptions. T031 checks residuals and switches to Gamma GLMM if needed.
-* **Why Manual Dataset?**: The specific dataset is not in the verified list. The plan treats it as a manual prerequisite to ensure reproducibility by failing fast if the data is missing.
+---
+

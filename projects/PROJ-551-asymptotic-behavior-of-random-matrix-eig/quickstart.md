@@ -1,109 +1,82 @@
-# Quickstart Guide: Asymptotic Behavior of Random Matrix Eigenvalues
-
-## Overview
-
-This project investigates the asymptotic behavior of eigenvalues in large random matrices
-subjected to sparse perturbations. The core objective is to empirically verify the
-BBP (Baik-Ben Arous-Péché) phase transition threshold $\theta_c$ and analyze the
-sensitivity of this threshold to the sparsity density of the perturbation.
+# Quickstart: Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations
 
 ## Prerequisites
-
-- Python 3.9+
-- Dependencies listed in `code/requirements.txt`
+- Python 3.11 or newer
+- At least **7 GB RAM** and **14 GB free disk** on the CI runner or local machine
+- No GPU required (CPU‑only)
 
 ## Installation
 
 ```bash
-cd code
-pip install -r requirements.txt
+# 1. Clone the repository
+git clone <repo_url>
+cd PROJ-551-asymptotic-behavior-of-random-matrix-eig
+
+# 2. Create and activate a virtual environment
+python -m venv.venv
+source.venv/bin/activate # Windows:.venv\Scripts\activate
+
+# 3. Install exact dependencies
+pip install -r code/requirements.txt
 ```
 
-## Quick Run (Single Instance)
+`code/requirements.txt` pins:
+```
+numpy==1.26.*
+scipy==1.12.*
+pandas==2.2.*
+pyarrow==15.*
+pydantic==2.*
+matplotlib==3.8.*
+tqdm==4.66.*
+jsonschema==4.22.*
+```
 
-To generate a single Wigner matrix instance and analyze its spectrum:
+## Running the Analyses
 
+### 1. Single‑run sanity check (T002)
 ```bash
-cd code
-python analysis/raw_matrix_capture.py --N 1000 --seed 42
-python analysis/results_recorder.py --N 1000 --seed 42 --theta 2.5
+python -m code.main --mode single --N 1000 --seed 42 --theta 2.5 --k 1 --pattern diagonal
 ```
+*Expected*: A JSON report in `data/processed/single_run_results.json` containing one `SimulationRun` and ten `EigenvalueResult` entries. The top eigenvalue should exceed `2.05` (outlier) when `theta > 1`, because outlier detection uses the **theoretical edge 2.0 [UNRESOLVED-CLAIM: c_7ed104bc — status=not_enough_info] plus tolerance 0.05** (not an empirical bulk estimate).
 
-This will produce:
-- `data/raw/matrix_N1000_seed42.npy`
-- `data/processed/single_run_results.json`
-- An entry in `state/metadata_registry.json`
-
-## Full Parameter Sweep
-
-To run the full Monte Carlo sweep across $\theta$ values:
-
+### 2. Full parameter sweep (T004, T005)
 ```bash
-cd code
-python analysis/sweep_matrix_generator.py --grid theta
-python analysis/threshold_sweep.py
-python analysis/threshold_identification.py
+python -m code.analysis.threshold_sweep --grid theta
 ```
+*Output*: `data/processed/mc_results.csv`.
 
-This will produce:
-- Raw matrices in `data/raw/sweep/`
-- Aggregated results in `data/processed/mc_results.csv`
-- Threshold identification in `data/processed/threshold_identification.json`
-- Visualization in `data/figures/outlier_probability_vs_theta.png`
-
-## Sensitivity Analysis
-
-To analyze the effect of sparsity density:
-
+### 3. Sparsity sensitivity (T008)
 ```bash
-cd code
-python analysis/sensitivity_density_sweep.py
-python analysis/sensitivity_variation.py
+python -m code.analysis.sensitivity_analysis
 ```
+*Output*: `data/processed/sensitivity_results.parquet`.
 
-## Methodology Note: The Computational Observer
+### 4. Finite‑size analysis (T011)
+```bash
+python -m code.analysis.finite_size
+```
+*Output*: `data/processed/finite_size_results.parquet` showing how bulk edge and outlier probability vary with \(N\).
 
-This study operates under a strictly observational framework (FR-007). It is crucial
-to distinguish between the mathematical model and any potential physical interpretation.
+## Verifying Results
 
-**The "Observer"**: In the context of this research, the "observer" is the
-deterministic computational algorithm (specifically, the iterative spectral solver)
-that measures spectral statistics within the simulated ensemble. It is not a
-physical entity, nor does it possess a "frame of reference" in the relativistic
-sense.
+### Schema validation
+```bash
+pytest tests/contract/test_schemas.py
+```
+All tests must pass (exit code 0). This ensures every JSON/Parquet file conforms to the contracts.
 
-**Probability as Algorithmic Property**: The "probability" of an outlier emerging
-(e.g., $P(\text{outlier} | \theta)$) is a statistical property of the algorithm's
-interaction with the generated ensemble of random matrices. It represents the
-frequency of a specific spectral configuration observed by the solver across many
-independent runs. It is **not** a claim about a physical stochastic process
-occurring in nature.
-
-**Limitations**: The "sparse perturbations" applied are mathematical constructs
-defined by explicit rank and support density parameters. They are not physical
-noise or fluctuations. No specific physical system is modeled; the findings are
-confined to the mathematical ensemble defined by the Wigner semicircle law and
-the applied perturbations.
-
-## Reproducibility
-
-All random number generators are seeded explicitly. To ensure full reproducibility:
-1. Check `state/metadata_registry.json` for the exact seeds and parameters used.
-2. Ensure the `requirements.txt` versions match the run environment.
-3. Raw data files are checksummed (SHA-256) upon generation and stored in the registry.
-
-## Output Artifacts
-
-- `data/raw/`: Raw matrix instances (`.npy`)
-- `data/processed/`: Aggregated results, thresholds, and fitted parameters
-- `data/figures/`: Visualization plots
-- `state/`: Metadata registry, logs, and validation reports
-- `research.md`: Detailed theoretical background and methodology
+### Reproducibility check (T001)
+```bash
+pytest tests/integration/test_t001.py
+```
+The test re‑runs a single configuration and asserts that the top eigenvalue matches the stored reference within `1e-6`.
 
 ## Troubleshooting
 
-- **Memory Errors**: For $N > 2000$, ensure your environment has sufficient RAM.
- The project is optimized to stay under 7GB for $N=2000$.
-- **Convergence Issues**: If the iterative solver fails to converge, check the
- `data/logs/simulation_run.log` for specific error codes. Increasing the
- `--max-iter` parameter in `config.py` may help.
+| Symptom | Likely Cause | Remedy |
+|---|---|---|
+| **MemoryError** | `N` too large for available RAM | Reduce `--N` to ≤ 1500 or enable streaming mode (`--stream`). |
+| **ARPACK did not converge** | `tol` too strict or maxiter insufficient | Increase `--maxiter` (default 1000) or relax `--tol` (default 1e-10). |
+| **Schema validation fails** | Output file corrupted or missing required fields | Re‑run the failing phase; ensure the corresponding schema file exists under `contracts/`. |
+| **Test T001 fails** | Seed mismatch or nondeterministic RNG usage | Verify that all random calls use the same `numpy.random.default_rng(seed)` instance. |

@@ -1,0 +1,108 @@
+{
+  "trace_id": "training_42_03863",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "apply_theme",
+    "insert_text",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "insert_image",
+    "insert_image",
+    "insert_image"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 4.9559,
+        "saturation": 99.9714
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 10.1162,
+        "y": 45.4274,
+        "length": 86.5645
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 31.1433,
+        "saturation": 93.7422
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 49.2102,
+        "saturation": 5.2197
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 1.5123,
+        "saturation": 26.9582
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 25.3104,
+        "saturation": 76.4903
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 3.9771,
+        "y": 81.9202,
+        "width": 93.1999,
+        "height": 73.0586
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 84.94,
+        "y": 51.5944,
+        "width": 51.5576,
+        "height": 92.1166
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 27.5909,
+        "y": 79.4785,
+        "width": 33.5378,
+        "height": 53.9373
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.936888,
+    "tool_repetition_freq": 0.666667,
+    "arg_semantic_variance": 1043.601949
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 9,
+    "layout_hash": "42-3863-apply_theme"
+  }
+}

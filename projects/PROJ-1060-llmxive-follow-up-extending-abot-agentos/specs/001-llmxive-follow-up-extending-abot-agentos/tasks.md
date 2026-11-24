@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: Create the following directories: `code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `specs/001-symbolic-memory-edge-robotics/contracts/`. Create empty `__init__.py` files in `code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `specs/<spec_id>/contracts/`.
+- [X] T001 Create project structure per implementation plan: Create the following directories: `code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `specs/001-symbolic-memory-edge-robotics/contracts/`. Create empty `__init__.py` files in `code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `specs/<spec_id>/contracts/`.
 - [X] T002 Create `code/requirements.txt` containing pinned versions for: `networkx==3.2.1 `, `pandas==2.1.4 `, `scikit-learn==1.3.2 `, `statsmodels==0.14.1 `, `datasets==2.16.1 `, `transformers==4.37.2 `, `pytest==7.4.3 `, `ruff==0.1.11 `, `black==23.12.1 `, `tracemalloc` (stdlib).
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`: Create `code/.ruff.toml` with `line-length = 88 ` and `select = ["E", "F", "I"]`. Create `code/pyproject.toml` with `[tool.black] line-length = 88 `.
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`: Create `code/.ruff.toml` with `line-length = 88 ` and `select = ["E", "F", "I"]`. Create `code/pyproject.toml` with `[tool.black] line-length = 88 `.
 
 ---
 
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/config.py` with canonical seeds and hyperparameters: `RANDOM_SEED = 42 `, `GRANULARITY = "coarse"`, `PREDICATE_SET = "spatial"`, `MODEL_ID = "google/vit-base-patch16-224"`, `MAX_TRACES = 500 `, `BASELINE_HASH = "sha:abc123..."`.
-- [ ] T005 [P] Implement `code/data_loader.py` to stream **ALFWorld** via `datasets.load_dataset("alfworld/alfworld", split="train", streaming=True)` with checksum verification.
+- [X] T004 Create `code/config.py` with canonical seeds and hyperparameters: `RANDOM_SEED = 42 `, `GRANULARITY = "coarse"`, `PREDICATE_SET = "spatial"`, `MODEL_ID = "google/vit-base-patch16-224"`, `MAX_TRACES = 500 `, `BASELINE_HASH = "sha:abc123..."`.
+- [ ] T005 [P] Implement `code/data_loader.py` to stream **ALFWorld** via `datasets.load_dataset("alfworld/alfworld", split="train", streaming=True)` with checksum verification. <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1; code/data_loader.py exit=1 -->
 - [X] T006 [P] Implement fallback mechanism in `code/data_loader.py` to load versioned artifacts from `data/raw/` if remote download fails (FAIL LOUDLY if neither works).
-- [~] T007 Create `code/metrics.py` defining class `MetricsLogger` with methods: `log_success(bool)`, `log_latency(float)`, `log_memory(float)`, `save_report(str)`; output format JSON/CSV.
-- [~] T008 [P] Setup `pytest` configuration and contract test scaffolding in `tests/`: Create `tests/conftest.py` with `pythonpath = ["code"]` and `addopts = "-v"`.
+- [X] T007 Create `code/metrics.py` defining class `MetricsLogger` with methods: `log_success(bool)`, `log_latency(float)`, `log_memory(float)`, `save_report(str)`; output format JSON/CSV.
+- [ ] T008 [P] Setup `pytest` configuration and contract test scaffolding in `tests/`: Create `tests/conftest.py` with `pythonpath = ["code"]` and `addopts = "-v"`.
 - [~] T009 [P] Define **ALFWorld** ground-truth schema mapping in `data/schemas/ground_truth_mapping.json` with keys: `nodes` (list of tokenized semantic identifier strings), `edges` (list of `{source: string, target: string, predicate: string}`), `predicates` (allowed list: `on_top_of`, `near`, `before`). **Schema Example**: `{"nodes": ["red_cup_kitchen_counter", "table"], "edges": [{"source": "red_cup_kitchen_counter", "target": "table", "predicate": "on_top_of"}]}`.
 - [~] T027a Acquire, install, or containerize the ABot-AgentOS baseline version. **Reproducible Fallback Strategy**: 1) Attempt to pull Docker image `ghcr.io/abot-agentos/baseline` (hash: `sha:abc123...`). 2) If Docker fails, attempt `pip download abot-agentos==1.0.0` and verify the downloaded wheel file's `sha256` hash matches `config.py` `BASELINE_HASH`. If hash mismatch, fail. 3) If both fail, attempt to load versioned baseline artifact from `data/raw/` (hash: `sha:xyz789...`). 4) If all fail, raise `RuntimeError("Baseline acquisition failed: No reproducible artifact found.")` and exit. **DO NOT** transition to `human_input_needed`.
 - [~] T027 Depends on T027a: Implement `code/baseline_runner.py` to execute the neural baseline (ABot-AgentOS v1.0) via `subprocess.run` or import, accepting task traces and returning success/latency metrics. **CRITICAL**: Must instrument the subprocess to capture and log `peak_cpu_memory_mb` using `tracemalloc` or `psutil` and return it in the result dict.

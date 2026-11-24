@@ -36,7 +36,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-304-statistical-analysis-of-publicly-availab/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-304-statistical-analysis-of-publicly-availab/code/main.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-304-statistical-analysis-of-publicly-availab/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-304-statistical-analysis-of-publicly-availab/code/main.py': [Errno 2] No such file or directory
 
 
 ## Declared deliverables still missing
@@ -75,3 +75,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/validation.py` — NOT invoked by the run-book
     - `code/validation_report.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/validation_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+## Platform-owned paths written inside the project
+
+A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

@@ -1,323 +1,195 @@
-"""
-Descriptor Computation Module (T014a-d)
+"""RDKit graph-descriptor computation (FR-001, FR-008) and target
+fallback wiring (T015/T017).
 
-Functions:
-- compute_base_descriptors (T014a)
-- compute_aromaticity (T014b)
-- compute_conjugation (T014c)
-- compute_resonance_proxies (T014d)
+Reads ``data/raw/input.csv`` (or ``data/raw/smiles.csv``), computes the
+graph-based descriptor table, derives the target column via
+``code.target_proxy.apply_target_fallback`` (which also writes
+``data/processed/quantum_proxy_report.json``) and writes
+``data/processed/descriptors.csv``.
 """
 
+import os
+import sys
 import logging
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Optional
+
 import numpy as np
 import pandas as pd
+
+_PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
+
 from rdkit import Chem
-from rdkit.Chem import rdMolDescriptors, Descriptors, rdmolops
-from rdkit.Chem.Scaffolds import MurckoScaffold
-import time
+from rdkit.Chem import Descriptors
 
-logger = logging.getLogger(__name__)
+from llmxive_toolkit import paths, get_logger
+from code.target_proxy import apply_target_fallback
 
-# Configuration for runtime monitoring (FR-010)
-COMPUTE_TIMEOUT_SECONDS = 5.0  # Warning threshold per molecule
+log = get_logger(__name__)
 
-def get_bond_type_order(bond) -> float:
-    """Get bond order (1, 2, 3, 1.5 for aromatic)."""
+DESCRIPTOR_COLUMNS = [
+    "smiles",
+    "aromatic_ring_count",
+    "conjugation_path_length",
+    "average_path_length",
+    "degree_mean",
+    "degree_std",
+    "ring_count",
+    "molecular_weight",
+    "homo_lumo_gap",
+    "is_valid",
+]
+
+
+def _mol_from_smiles(smiles: str):
+    """Parse a SMILES string into an RDKit Mol (or None on failure)."""
+    if not isinstance(smiles, str) or not smiles.strip():
+        return None
+    try:
+        mol = Chem.MolFromSmiles(smiles)
+    except Exception:
+        return None
+    return mol
+
+
+def _is_conjugated_bond(bond) -> bool:
+    """A bond is conjugated when aromatic or bond order >= 2."""
     if bond.GetIsAromatic():
-        return 1.5
-    return float(bond.GetBondTypeAsDouble())
+        return True
+    return bond.GetBondTypeAsDouble() >= 2.0
 
-def get_atomic_number(atom) -> int:
-    """Get atomic number."""
-    return atom.GetAtomicNum()
 
-def get_element_symbol(atom) -> str:
-    """Get element symbol."""
-    return atom.GetSymbol()
-
-def estimate_bond_length(bond) -> float:
-    """Estimate bond length based on bond type and atoms."""
-    # Simplified estimation
-    order = get_bond_type_order(bond)
-    if order >= 3:
-        return 1.20
-    elif order >= 2:
-        return 1.34
-    elif order >= 1.5:
-        return 1.39
-    else:
-        return 1.54
-
-def identify_pi_system(mol: Chem.Mol) -> List[int]:
-    """Identify atoms in pi systems (conjugated/aromatic)."""
-    pi_atoms = []
-    for atom in mol.GetAtoms():
-        if atom.GetIsAromatic() or atom.GetHybridization() == Chem.HybridizationType.SP2:
-            pi_atoms.append(atom.GetIdx())
-    return pi_atoms
-
-def build_huckel_matrix(mol: Chem.Mol) -> np.ndarray:
-    """Build Hückel matrix for a molecule."""
-    # Placeholder for Hückel matrix construction
+def _longest_conjugated_path(mol) -> int:
+    """Longest simple path (in bonds) within the conjugated-bond subgraph."""
     n = mol.GetNumAtoms()
-    H = np.zeros((n, n))
+    if n == 0:
+        return 0
+    adj = {i: set() for i in range(n)}
     for bond in mol.GetBonds():
-        i, j = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
-        H[i, j] = H[j, i] = -1.0  # Beta
-    # Alpha on diagonal (0.0 relative)
-    return H
+        if _is_conjugated_bond(bond):
+            a = bond.GetBeginAtomIdx()
+            b = bond.GetEndAtomIdx()
+            adj[a].add(b)
+            adj[b].add(a)
 
-def compute_huckel_resonance_energy(mol: Chem.Mol) -> float:
-    """Compute Hückel resonance energy."""
-    H = build_huckel_matrix(mol)
-    eigenvalues = np.linalg.eigvalsh(H)
-    # Simple approximation: sum of occupied orbital energies
-    # Assuming 2 electrons per orbital, fill lowest half
-    n_electrons = sum(1 for atom in mol.GetAtoms() if atom.GetIsAromatic()) * 1  # Simplified
-    n_orbitals = len(eigenvalues)
-    occupied = sorted(eigenvalues)[:n_electrons//2]
-    return float(np.sum(occupied))
+    best = 0
 
-def compute_base_descriptors(df: pd.DataFrame) -> pd.DataFrame:
+    def dfs(node: int, visited: set, depth: int):
+        nonlocal best
+        best = max(best, depth)
+        for nb in adj[node]:
+            if nb not in visited:
+                visited.add(nb)
+                dfs(nb, visited, depth + 1)
+                visited.remove(nb)
+
+    for start in range(n):
+        if adj[start]:
+            dfs(start, {start}, 0)
+    return best
+
+
+def _aromatic_ring_count(mol) -> int:
+    """Number of rings whose bonds are all aromatic."""
+    try:
+        rings = Chem.GetSymmSSSR(mol)
+    except Exception:
+        return 0
+    count = 0
+    for ring in rings:
+        atoms = list(ring)
+        bonds = [mol.GetBondBetweenAtoms(atoms[i], atoms[(i + 1) % len(atoms)])
+                 for i in range(len(atoms))]
+        if bonds and all(b is not None and b.GetIsAromatic() for b in bonds):
+            count += 1
+    return count
+
+
+def _average_path_length(mol) -> float:
+    """Average topological distance over all atom pairs (heavy atoms)."""
+    n = mol.GetNumAtoms()
+    if n < 2:
+        return 0.0
+    dm = Chem.GetDistanceMatrix(mol)
+    iu = np.triu_indices(n, k=1)
+    return float(dm[iu].mean())
+
+
+def _compute_descriptors(mol) -> dict:
+    """Return a dictionary of descriptor values for a single RDKit Mol."""
+    degrees = np.array([a.GetDegree() for a in mol.GetAtoms()], dtype=float)
+    try:
+        n_rings = mol.GetRingInfo().NumRings()
+    except Exception:
+        n_rings = 0
+    return {
+        "aromatic_ring_count": _aromatic_ring_count(mol),
+        "conjugation_path_length": _longest_conjugated_path(mol),
+        "average_path_length": _average_path_length(mol),
+        "degree_mean": float(degrees.mean()) if len(degrees) else 0.0,
+        "degree_std": float(degrees.std()) if len(degrees) else 0.0,
+        "ring_count": int(n_rings),
+        "molecular_weight": float(Descriptors.MolWt(mol)),
+        "homo_lumo_gap": np.nan,  # not available from topology alone
+        "is_valid": True,
+    }
+
+
+def compute_all_descriptors(df: pd.DataFrame, smiles_col: str = "smiles") -> pd.DataFrame:
+    """Compute descriptors for every valid SMILES in ``df``.
+
+    Returns a DataFrame with the schema columns only; molecules whose
+    SMILES cannot be parsed are logged as errors and excluded.
     """
-    T014a: Compute base graph descriptors.
-    Columns: degree_mean, degree_std, degree_max, degree_min,
-             path_length_mean, path_length_std, path_length_max, path_length_min
+    rows = []
+    for idx, smiles in df[smiles_col].items():
+        mol = _mol_from_smiles(smiles)
+        if mol is None or mol.GetNumAtoms() == 0:
+            log.error("Invalid SMILES at row %s: %r - excluded", idx, smiles)
+            continue
+        desc = _compute_descriptors(mol)
+        desc["smiles"] = smiles
+        rows.append(desc)
+    out = pd.DataFrame(rows)
+    if not out.empty:
+        out = out[DESCRIPTOR_COLUMNS]
+    return out
+
+
+def main() -> int:
+    """CLI entry point used by ``code/main.py``.
+
+    Reads ``data/raw/input.csv`` (or ``data/raw/smiles.csv``), computes
+    descriptors, applies the target fallback (T015) and writes
+    ``data/processed/descriptors.csv`` plus the quantum-proxy report.
     """
-    def compute_for_molecule(smiles: str) -> Dict[str, float]:
-        try:
-            mol = Chem.MolFromSmiles(smiles)
-            if mol is None:
-                return {
-                    'degree_mean': np.nan, 'degree_std': np.nan, 'degree_max': np.nan, 'degree_min': np.nan,
-                    'path_length_mean': np.nan, 'path_length_std': np.nan, 'path_length_max': np.nan, 'path_length_min': np.nan
-                }
+    input_csv = paths.data("raw", "input.csv")
+    if not input_csv.exists():
+        input_csv = paths.data("raw", "smiles.csv")
+    if not input_csv.exists():
+        raise FileNotFoundError(
+            "No raw input found: expected data/raw/input.csv or "
+            "data/raw/smiles.csv"
+        )
+    raw = pd.read_csv(input_csv)
+    log.info("Loaded %d rows from %s", len(raw), input_csv)
 
-            # Degree (connectivity)
-            degrees = [atom.GetDegree() for atom in mol.GetAtoms()]
-            if not degrees:
-                return {
-                    'degree_mean': 0.0, 'degree_std': 0.0, 'degree_max': 0.0, 'degree_min': 0.0,
-                    'path_length_mean': 0.0, 'path_length_std': 0.0, 'path_length_max': 0.0, 'path_length_min': 0.0
-                }
+    desc = compute_all_descriptors(raw)
+    log.info("Computed descriptors for %d valid molecules", len(desc))
+    if desc.empty:
+        raise ValueError("No valid molecules remained after descriptor computation.")
 
-            degree_mean = float(np.mean(degrees))
-            degree_std = float(np.std(degrees))
-            degree_max = float(np.max(degrees))
-            degree_min = float(np.min(degrees))
+    desc, report = apply_target_fallback(raw, desc)
+    log.info("Target type: %s (fallback_used=%s)",
+             report["target_type"], report["fallback_used"])
 
-            # Path lengths (shortest paths between all pairs)
-            # Using RDKit's GetDistanceMatrix
-            dist_matrix = rdMolDescriptors.GetDistanceMatrix(mol)
-            # Flatten and filter out zeros (self-distances) and infinities
-            paths = []
-            n = len(dist_matrix)
-            for i in range(n):
-                for j in range(i + 1, n):
-                    d = dist_matrix[i, j]
-                    if d > 0 and not np.isinf(d):
-                        paths.append(d)
-
-            if not paths:
-                return {
-                    'degree_mean': degree_mean, 'degree_std': degree_std, 'degree_max': degree_max, 'degree_min': degree_min,
-                    'path_length_mean': 0.0, 'path_length_std': 0.0, 'path_length_max': 0.0, 'path_length_min': 0.0
-                }
-
-            path_length_mean = float(np.mean(paths))
-            path_length_std = float(np.std(paths))
-            path_length_max = float(np.max(paths))
-            path_length_min = float(np.min(paths))
-
-            return {
-                'degree_mean': degree_mean,
-                'degree_std': degree_std,
-                'degree_max': degree_max,
-                'degree_min': degree_min,
-                'path_length_mean': path_length_mean,
-                'path_length_std': path_length_std,
-                'path_length_max': path_length_max,
-                'path_length_min': path_length_min
-            }
-        except Exception as e:
-            logger.warning(f"Error computing base descriptors for SMILES '{smiles}': {e}")
-            return {
-                'degree_mean': np.nan, 'degree_std': np.nan, 'degree_max': np.nan, 'degree_min': np.nan,
-                'path_length_mean': np.nan, 'path_length_std': np.nan, 'path_length_max': np.nan, 'path_length_min': np.nan
-            }
-
-    results = df['smiles'].apply(compute_for_molecule)
-    # Convert list of dicts to DataFrame
-    df_descriptors = pd.DataFrame(results.tolist(), index=df.index)
-    return pd.concat([df, df_descriptors], axis=1)
-
-def compute_aromaticity(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    T014b: Compute aromaticity and ring descriptors.
-    Columns: aromaticity_index, ring_count
-    """
-    def compute_for_molecule(smiles: str) -> Dict[str, float]:
-        try:
-            mol = Chem.MolFromSmiles(smiles)
-            if mol is None:
-                return {'aromaticity_index': np.nan, 'ring_count': np.nan}
-
-            # Ring count
-            ring_info = mol.GetRingInfo()
-            ring_count = float(ring_info.NumRings())
-
-            # Aromaticity index (simplified: ratio of aromatic atoms to total atoms)
-            total_atoms = mol.GetNumAtoms()
-            if total_atoms == 0:
-                aromaticity_index = 0.0
-            else:
-                aromatic_atoms = sum(1 for atom in mol.GetAtoms() if atom.GetIsAromatic())
-                aromaticity_index = float(aromatic_atoms / total_atoms)
-
-            return {
-                'aromaticity_index': aromaticity_index,
-                'ring_count': ring_count
-            }
-        except Exception as e:
-            logger.warning(f"Error computing aromaticity for SMILES '{smiles}': {e}")
-            return {'aromaticity_index': np.nan, 'ring_count': np.nan}
-
-    results = df['smiles'].apply(compute_for_molecule)
-    df_descriptors = pd.DataFrame(results.tolist(), index=df.index)
-    return pd.concat([df, df_descriptors], axis=1)
-
-def compute_conjugation(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    T014c: Compute conjugation descriptors.
-    Columns: conjugation_length, num_conjugated_bonds, conjugation_density
-    """
-    def compute_for_molecule(smiles: str) -> Dict[str, float]:
-        try:
-            mol = Chem.MolFromSmiles(smiles)
-            if mol is None:
-                return {'conjugation_length': np.nan, 'num_conjugated_bonds': np.nan, 'conjugation_density': np.nan}
-
-            # Identify conjugated bonds (alternating single/double/aromatic)
-            # A simple heuristic: count bonds between sp2 or aromatic atoms
-            conjugated_bonds = 0
-            for bond in mol.GetBonds():
-                begin_atom = bond.GetBeginAtom()
-                end_atom = bond.GetEndAtom()
-                if (begin_atom.GetIsAromatic() or begin_atom.GetHybridization() == Chem.HybridizationType.SP2) and \
-                   (end_atom.GetIsAromatic() or end_atom.GetHybridization() == Chem.HybridizationType.SP2):
-                    conjugated_bonds += 1
-
-            # Conjugation length: longest simple path in the conjugated subgraph
-            # This is computationally expensive, so we use a simplified metric:
-            # Number of conjugated bonds
-            conjugation_length = float(conjugated_bonds)
-
-            # Conjugation density: ratio of conjugated bonds to total bonds
-            total_bonds = mol.GetNumBonds()
-            if total_bonds == 0:
-                conjugation_density = 0.0
-            else:
-                conjugation_density = float(conjugated_bonds / total_bonds)
-
-            return {
-                'conjugation_length': conjugation_length,
-                'num_conjugated_bonds': float(conjugated_bonds),
-                'conjugation_density': conjugation_density
-            }
-        except Exception as e:
-            logger.warning(f"Error computing conjugation for SMILES '{smiles}': {e}")
-            return {'conjugation_length': np.nan, 'num_conjugated_bonds': np.nan, 'conjugation_density': np.nan}
-
-    results = df['smiles'].apply(compute_for_molecule)
-    df_descriptors = pd.DataFrame(results.tolist(), index=df.index)
-    return pd.concat([df, df_descriptors], axis=1)
-
-def compute_resonance_proxies(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    T014d: Compute resonance proxies (RDKit Only).
-    Columns: aromatic_ring_count, conjugated_ring_count
-    """
-    def compute_for_molecule(smiles: str) -> Dict[str, float]:
-        start_time = time.time()
-        try:
-            mol = Chem.MolFromSmiles(smiles)
-            if mol is None:
-                return {'aromatic_ring_count': np.nan, 'conjugated_ring_count': np.nan}
-
-            # Aromatic ring count
-            aromatic_ring_count = float(rdMolDescriptors.CalcNumAromaticRings(mol))
-
-            # Conjugated ring count (rings with conjugated bonds)
-            # RDKit doesn't have a direct function, so we approximate:
-            # Count rings that have at least one aromatic bond
-            ring_info = mol.GetRingInfo()
-            conjugated_ring_count = 0
-            for ring in ring_info.AtomRings():
-                # Check if any bond in the ring is aromatic
-                has_aromatic = False
-                for i in range(len(ring)):
-                    atom1_idx = ring[i]
-                    atom2_idx = ring[(i + 1) % len(ring)]
-                    bond = mol.GetBondBetweenAtoms(atom1_idx, atom2_idx)
-                    if bond and bond.GetIsAromatic():
-                        has_aromatic = True
-                        break
-                if has_aromatic:
-                    conjugated_ring_count += 1
-
-            # Runtime monitoring (FR-010)
-            elapsed = time.time() - start_time
-            if elapsed > COMPUTE_TIMEOUT_SECONDS:
-                logger.warning(f"Descriptor computation for '{smiles}' took {elapsed:.2f}s (threshold: {COMPUTE_TIMEOUT_SECONDS}s)")
-
-            return {
-                'aromatic_ring_count': aromatic_ring_count,
-                'conjugated_ring_count': float(conjugated_ring_count)
-            }
-        except Exception as e:
-            logger.warning(f"Error computing resonance proxies for SMILES '{smiles}': {e}")
-            return {'aromatic_ring_count': np.nan, 'conjugated_ring_count': np.nan}
-
-    results = df['smiles'].apply(compute_for_molecule)
-    df_descriptors = pd.DataFrame(results.tolist(), index=df.index)
-    return pd.concat([df, df_descriptors], axis=1)
-
-def compute_all_descriptors(df: pd.DataFrame) -> pd.DataFrame:
-    """Compute all descriptor sets."""
-    df = compute_base_descriptors(df)
-    df = compute_aromaticity(df)
-    df = compute_conjugation(df)
-    df = compute_resonance_proxies(df)
-    return df
-
-def compute_descriptors_batch(smiles_list: List[str]) -> pd.DataFrame:
-    """Compute descriptors for a list of SMILES strings."""
-    df = pd.DataFrame({'smiles': smiles_list})
-    return compute_all_descriptors(df)
-
-def main():
-    """CLI for testing descriptor computation."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Test descriptor computation.")
-    parser.add_argument("--input", type=str, required=True, help="Input CSV with SMILES.")
-    parser.add_argument("--output", type=str, required=True, help="Output CSV path.")
-    args = parser.parse_args()
-
-    from code.logging_config import setup_logging
-    setup_logging()
-
-    df = pd.read_csv(args.input)
-    if 'smiles' not in df.columns:
-        logger.error("Input file must contain 'smiles' column.")
-        return 1
-
-    logger.info("Computing descriptors...")
-    df_desc = compute_all_descriptors(df)
-    df_desc.to_csv(args.output, index=False)
-    logger.info(f"Saved descriptors to {args.output}")
+    out_path = paths.data("processed", "descriptors.csv")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    desc.to_csv(out_path, index=False)
+    log.info("Descriptors written to %s", out_path)
     return 0
 
+
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    raise SystemExit(main())

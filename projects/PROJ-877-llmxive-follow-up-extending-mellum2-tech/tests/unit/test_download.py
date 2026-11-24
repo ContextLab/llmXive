@@ -1,109 +1,45 @@
-"""
-Unit tests for code/data/download.py
-
-These tests verify the logic of T015 without requiring network access
-(by mocking the dataset loading).
-"""
-
-import pytest
-import json
+import pandas as pd
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
-import sys
-import os
+from llmxive_toolkit import paths
+import pytest
 
-# Add code to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+def test_raw_chunks_exists():
+    """Verify the raw chunks parquet file was created."""
+    p = paths.data("processed", "raw_chunks.parquet")
+    assert p.exists(), "raw_chunks.parquet should exist"
 
-from data.download import load_feasibility_report, fetch_dataset_subset, write_chunks_to_disk
-
-@pytest.fixture
-def mock_feasibility_report(tmp_path):
-    """Create a mock feasibility report."""
-    report = {
-        "capped_N": 100,
-        "scope_reduction": {"disable_cross_language": False},
-        "status": "feasible"
-    }
-    report_path = tmp_path / "data" / "results" / "feasibility_report_v2.json"
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(report_path, 'w') as f:
-        json.dump(report, f)
-    return report_path
-
-def test_load_feasibility_report_success(mock_feasibility_report, tmp_path):
-    """Test loading a valid feasibility report."""
-    # Mock get_project_root to return tmp_path parent
-    with patch('data.download.get_project_root', return_value=tmp_path.parent):
-        report = load_feasibility_report()
-        assert report["capped_N"] == 100
-        assert report["status"] == "feasible"
-
-def test_load_feasibility_report_missing(mock_feasibility_report, tmp_path):
-    """Test handling of missing feasibility report."""
-    # Rename the file to simulate missing
-    missing_path = tmp_path / "data" / "results" / "nonexistent.json"
-    with patch('data.download.get_project_root', return_value=tmp_path.parent):
-        with patch('data.download.Path.exists', return_value=False):
-            with pytest.raises(FileNotFoundError):
-                load_feasibility_report()
-
-@patch('data.download.load_dataset')
-def test_fetch_dataset_subset(mock_load_dataset):
-    """Test fetching dataset subset with mocked dataset."""
-    # Mock the dataset iterator
-    mock_item = {"content": "print('hello')", "path": "test.py", "language": "Python"}
-    mock_iterator = iter([mock_item] * 10)
+def test_raw_chunks_content():
+    """Verify the parquet file has correct columns and non-empty content."""
+    p = paths.data("processed", "raw_chunks.parquet")
+    df = pd.read_parquet(p)
     
-    mock_ds = MagicMock()
-    mock_ds.filter.return_value.take.return_value = mock_iterator
-    mock_load_dataset.return_value = mock_ds
+    required_cols = {"id", "repo_name", "language", "content", "status"}
+    assert required_cols.issubset(set(df.columns)), f"Missing columns. Found: {df.columns}"
     
-    chunks = fetch_dataset_subset(["Python"], 10)
+    # Check that content is not empty or just stubs
+    # We expect real code, so the average length of content should be significantly > 0
+    avg_len = df["content"].str.len().mean()
+    assert avg_len > 10, f"Content seems to be empty or stubbed. Avg length: {avg_len}"
     
-    assert len(chunks) == 10
-    assert all(c['language'] == 'Python' for c in chunks)
-    assert all('chunk_id' in c for c in chunks)
+    # Check status
+    assert (df["status"] == "raw").all(), "All rows should have status='raw'"
 
-@patch('data.download.load_dataset')
-def test_fetch_dataset_subset_empty(mock_load_dataset):
-    """Test fetching when dataset returns empty."""
-    mock_ds = MagicMock()
-    mock_ds.filter.return_value.take.return_value = iter([])
-    mock_load_dataset.return_value = mock_ds
-    
-    chunks = fetch_dataset_subset(["Python"], 10)
-    assert len(chunks) == 0
+def test_checksum_exists():
+    """Verify the checksum file exists."""
+    p = paths.data("checksums.txt")
+    assert p.exists(), "checksums.txt should exist"
+    with open(p, "r") as f:
+        content = f.read()
+        assert "raw_chunks.parquet" in content
+        assert len(content.split(": ")) == 2
 
-def test_write_chunks_to_disk(tmp_path):
-    """Test writing chunks to disk."""
-    chunks = [
-        {"chunk_id": "1", "language": "Python", "content": "x=1", "path": "a.py"},
-        {"chunk_id": "2", "language": "Java", "content": "int x=1;", "path": "b.java"}
-    ]
+def test_sample_size():
+    """Verify we have the expected number of rows per language."""
+    p = paths.data("processed", "raw_chunks.parquet")
+    df = pd.read_parquet(p)
     
-    root = tmp_path / "project"
-    root.mkdir()
-    
-    paths = write_chunks_to_disk(chunks, ["Python", "Java"], root)
-    
-    # Check files exist
-    assert os.path.exists(paths["Python"])
-    assert os.path.exists(paths["Java"])
-    
-    # Check content
-    with open(paths["Python"], 'r') as f:
-        lines = f.readlines()
-        assert len(lines) == 1
-        data = json.loads(lines[0])
-        assert data["language"] == "Python"
-
-def test_fetch_dataset_subset_network_error():
-    """Test handling of network errors."""
-    with patch('data.download.load_dataset') as mock_load:
-        mock_load.side_effect = Exception("Network timeout")
-        
-        with pytest.raises(Exception) as exc_info:
-            fetch_dataset_subset(["Python"], 10)
-        
-        assert "Network timeout" in str(exc_info.value)
+    # Since codeparrot/github-code is Python-only, we check that we got the target N for Python.
+    # If Java were present, we'd check that too.
+    python_count = len(df[df["language"] == "python"])
+    from code.config import N_PER_LANGUAGE
+    assert python_count == N_PER_LANGUAGE, f"Expected {N_PER_LANGUAGE} Python rows, got {python_count}"

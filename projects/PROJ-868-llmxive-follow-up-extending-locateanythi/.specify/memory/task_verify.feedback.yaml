@@ -1,0 +1,49 @@
+T001:
+  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
+    exit=1'
+  task: 3b381b8dbbdb7a5457e6481743bf9d50fdb3e48604651ca5b576d0af16490f59
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/data/preprocess.py
+    exit=1'
+  task: 5b7a64793866ca9bce5d97129b2855e0c0db456f8087cffe3e88975e322dc1ac
+T003:
+  reason: "The provided `code/model/sparsity.py` defines `SparsityConfig` with a `mask(num_tokens)`\
+    \ method, but the tests expect a constructor accepting `num_patches` and a `get_mask()`\
+    \ method. Moreover, the mask logic does not produce a global mask for window sizes\
+    \ larger than the grid (e.g., `window_size=16` on a 16\xD716 grid) as required\
+    \ by the test cases. The API mismatch and incorrect masking behavior mean the\
+    \ task\u2019s requirements are not satisfied."
+  task: 2f903abb01ce8461f6564b789d2fa3c794830b203010cd0a72e3fdc38bc4e83a
+T004:
+  reason: "The `code/model/locateany.py` file defines the wrapper, but the integration\
+    \ test cannot run: the test fails during import because the `torch` package is\
+    \ not installed, and the wrapper\u2019s constructor signature (`__init__(self,\
+    \ model, sparsity_config)`) does not match the test\u2019s usage (`LocateAnythingSparsityWrapper(sparsity_config=config)`).\
+    \ Consequently the required forward\u2011pass check and thread\u2011limit assertion\
+    \ are never exercised. The task needs a working environment with `torch` available\
+    \ and a wrapper API that matches the test expectations."
+  task: 79e554ae5331ae176eff551cdaa8ea4863ceade5b59e322bae4c569da534500c
+T005:
+  reason: 'Requested task execution failed; rerun successfully: src/cli/run_experiment.py
+    exit=1'
+  task: c5705f71c772133953497015e1a396cde093e403cf252bea526b9f3596e2d191
+T006:
+  task: 3e27ae5f6c55700f2c57a0a86eb82dd87639c5820821790f56c51862deced8aa
+T007:
+  task: 28e7e344421558353ecdb69498c6a3291e1d237ec9374d90a8427f017e852d41
+T008:
+  task: 4bdb1c7b96634f20e2763715878b2f165532eae9104b14ada352a2b78991f852
+T009:
+  task: 61ee59aa4c32f18d97dd2e9ae5eee80f38ca1d890b51b843855b169cf30c619a
+T010:
+  task: 400d9425d8a579658183c2af887ccee6b26c2efc05e4e582904a4fd92bf06d38
+T011:
+  task: a52356ac53c27cc9bd7564cc5d00be29803621df875e60a91a852eb37d8d84a8
+T012:
+  task: 68904eb3b9e8f1f0825b26902991f5bb68e8993f592e2e739681c4b7b0827231
+T013:
+  task: e01e600bd4f84123c559a086d9330070f9fd537304feb19fe9f42418c8a0cfc6
+T014:
+  task: 54fd388b7ddb3408e9f38622eae6fb77cfa1f8871ffc68eb2440d205d8c3d6a7
+T015:
+  task: d17b0f7cf9461eb643dba4332e435d94561865d221490fcfb475fa20f47eba4a

@@ -1,4 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
+title: "Scenario Dataset Schema"
+description: "Schema for the curated set of morally ambiguous scenarios"
 type: "object"
 properties:
   scenario_id:
@@ -6,16 +8,16 @@ properties:
     description: "Unique identifier for the scenario"
   original_image_path:
     type: "string"
-    description: "Path to the original image file"
+    description: "Path to the original raw image"
   metadata:
     type: "object"
-    description: "Dictionary containing image metadata"
+    description: "Metadata tags and object annotations"
   ambiguity_score:
     type: "number"
-    description: "Mean score from human coding (1-5 Likert scale)"
+    description: "Mean human coding ambiguity rating (1‑5)"
   ambiguity_label:
     type: "boolean"
-    description: "Boolean indicating if the scenario is morally ambiguous"
+    description: "True if mean ≥ 3.5 & κ ≥ 0.6"
 required:
   - scenario_id
   - original_image_path

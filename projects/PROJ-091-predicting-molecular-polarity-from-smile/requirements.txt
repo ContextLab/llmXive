@@ -1,11 +1,11 @@
-rkit
+rdkit
 lightgbm
+shap
 pandas
 numpy
 scikit-learn
-shap
-pyyaml
+qm9pack
 pytest
-safety
-requests
-datasets
+scipy
+pyarrow
+psutil

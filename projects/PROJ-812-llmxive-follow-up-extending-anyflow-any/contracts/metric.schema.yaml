@@ -1,0 +1,19 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: DivergenceMetric
+type: object
+properties:
+  clip_id:
+    type: string
+  divergence:
+    type: number
+    minimum: 0
+  kurtosis:
+    type: number
+  temporal_clustering:
+    type: number
+required:
+  - clip_id
+  - divergence
+  - kurtosis
+  - temporal_clustering
+additionalProperties: false

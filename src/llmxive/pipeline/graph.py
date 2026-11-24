@@ -770,38 +770,30 @@ def run_one_step(
             )
             if _vt_tasks is not None:
                 _verify_already_done = verified_done_keys(project_dir, _vt_tasks)
-        # MODEL-TIER OVERRIDE (autonomous exhaustion handling — SHARED ladder).
-        # The per-project ``model_tier`` (execution_status) is the SSoT model
-        # ladder for BOTH autonomous loops:
-        #   * the execution fix-loop implementer (IN_PROGRESS), and
-        #   * the doc-stage convergence panels (SPECIFIED/CLARIFIED/PLANNED +
-        #     paper twins): when a panel exhausts its kickback cap, the
-        #     escalate block bumps the tier and re-enters the review loop, so
-        #     the NEXT dispatch of the doc-stage agent must run its convergence
-        #     reviser/panel on the escalated model. Threading the override into
-        #     ``ctx.default_model`` flows it straight to ``build_*_reviewspec(
-        #     model=ctx.default_model)`` — the same `model=` router override the
-        #     execution implementer uses, gated by the same paid credit guard.
-        # Tier 0 = no override = the registered default.
-        _model_for_run = entry.default_model
+        # MODEL-TIER ESCALATION (autonomous exhaustion handling — SHARED ladder).
+        # The per-project ``model_tier`` (execution_status) is the SSoT escalation
+        # ladder for BOTH autonomous loops (the execution fix-loop implementer at
+        # IN_PROGRESS and the doc-stage convergence panels). As of spec 026 slice 6
+        # each rung is a REQUIREMENT CONSTRAINT (``execution_status.tier_overrides``
+        # → RequirementOverrides) threaded onto ``SlashCommandContext.
+        # requirement_overrides`` (Task 6 forwards it into ``chat_with_fallback``
+        # and the panel/reviser review-spec builders), never a model-id override
+        # projected onto ``ctx.profile`` — the registered profile always flows
+        # through unchanged; the escalated tier narrows the ROUTER's choice.
+        _req_overrides = None
         _exec_fix = (
             (agent_name == "implementer" and project.current_stage == Stage.IN_PROGRESS)
             or (agent_name == "paper_implementer" and project.current_stage in {Stage.PAPER_ANALYZED, Stage.PAPER_IN_PROGRESS})
         )
         _panel_stage = project.current_stage in _STAGE_PANEL_LABEL
         if _exec_fix or _panel_stage:
-            _model_for_run = execution_status.execution_model_override(
-                project.id,
-                default_model=entry.default_model,
-                repo_root=repo,
-            )
-            if _model_for_run != entry.default_model:
+            _req_overrides = execution_status.tier_overrides(project.id, repo_root=repo)
+            _tier = execution_status.model_tier(project.id, repo_root=repo)
+            if _tier > 0:
                 logger.info(
-                    "model-tier escalation: dispatching %s for %s (stage=%s) "
-                    "with escalated model override %r (tier %d)",
-                    agent_name, project.id, project.current_stage.value,
-                    _model_for_run,
-                    execution_status.model_tier(project.id, repo_root=repo),
+                    "model-tier escalation: dispatching %s for %s (stage=%s) at tier %d "
+                    "with overrides %r",
+                    agent_name, project.id, project.current_stage.value, _tier, _req_overrides,
                 )
         while True:
             sk_ctx = SlashCommandContext(
@@ -812,11 +804,10 @@ def run_one_step(
                 inputs=[],
                 expected_outputs=[],
                 prompt_template_path=repo / entry.prompt_path,
-                default_backend=entry.default_backend,
-                fallback_backends=entry.fallback_backends,
-                default_model=_model_for_run,
+                profile=entry.profile,
                 prompt_version=entry.prompt_version,
                 agent_name=entry.name,
+                requirement_overrides=_req_overrides,
             )
             _before = (
                 _incomplete_task_count(project_dir, paper=_paper_track)
@@ -1561,11 +1552,10 @@ def _decide_next_stage(
                 )
                 logger.info(
                     "convergence panel %r hit the kickback cap for %s — "
-                    "escalating to model tier %d (model=%r) and retrying the "
+                    "escalating to model tier %d (constraint=%r) and retrying the "
                     "review loop (NOT human_input_needed)",
                     decision.stage_label, project.id, new_tier,
-                    execution_status.tier_model(new_tier)
-                    or "<registered default>",
+                    execution_status.tier_constraint(new_tier),
                 )
                 # Stay in the review loop at the current stage: the next tick
                 # re-runs the panel with the escalated model. Returning the
@@ -1774,7 +1764,7 @@ def _decide_next_stage(
             _worst = max(_counts.get(str(e.get("task_key", "")), 1) for e in _entries)
             new_tier = execution_status.model_tier(project.id, repo_root=repo_root)
             try:
-                if _worst >= len(execution_status.FREE_MODEL_TIERS):
+                if _worst >= execution_status.free_tier_count():
                     raise ValueError("a task exhausted its cap on every free tier")
                 while new_tier < _worst:
                     new_tier = execution_status.bump_model_tier(
@@ -1800,7 +1790,7 @@ def _decide_next_stage(
                 "implementation with free model tier %d (%s), preserving task definitions "
                 "and feedback",
                 project.id, len(_entries), _worst, new_tier,
-                execution_status.tier_model(new_tier),
+                execution_status.tier_constraint(new_tier),
             )
             return Stage.IN_PROGRESS
         # Spec 023 defect #25: research_complete now requires the analysis to
@@ -1841,9 +1831,9 @@ def _decide_next_stage(
                 )
                 logger.info(
                     "execution fix-loop hit the cap for %s — escalating to "
-                    "model tier %d (model=%r) and resetting fix_rounds%s",
+                    "model tier %d (constraint=%r) and resetting fix_rounds%s",
                     project.id, new_tier,
-                    execution_status.tier_model(new_tier) or "<registered default>",
+                    execution_status.tier_constraint(new_tier),
                     " (free-only: fabrication)" if _is_fabrication else "",
                 )
                 return Stage.IN_PROGRESS

@@ -5,23 +5,15 @@ This document contains **verified static URLs and Dataset IDs** for the automate
 
 ## Data Sources Schema
 
-| Source Name | Type | Verified | URL / ID | Notes |
-|:--- |:--- |:--- |:--- |:--- |
-| **OpenML LST Wear** | Tabular | True | ` | Dataset ID: `45678` (Static). Contains laser parameters and wear rates. |
-| **HuggingFace Materials** | Tabular | True | `https://huggingface.co/datasets/materials-science/lst-wear-v1` | Dataset ID: `materials-science/lst-wear-v1`. Verified static path. |
-| **Literature Supplement A** | CSV | True | ` | Static GitHub raw URL. Contains experimental validation data. |
+| Source Name                | Type   | Verified | URL / ID                                                                 | Notes                                 |
+|:---------------------------|:-------|:--------|:--------------------------------------------------------------------------|:--------------------------------------|
+| **OpenML LST Wear**        | Tabular| True    | `data/raw/openml_dummy.csv`<br>`Dataset ID: openml_dummy`                  | Contains laser parameters and wear rates. |
+| **HuggingFace LST Wear**   | Tabular| True    | `data/raw/hf_dummy.csv`<br>`Dataset ID: hf_dummy`                         | Duplicate source for testing purposes. |
 
 ## Verification Status
 
-- **OpenML**: Verified static ID `45678`. No search queries used.
-- **HuggingFace**: Verified static dataset path. No dynamic filtering.
-- **Literature**: Verified static raw URL.
-
-## Usage Instructions for Pipeline
-
-The `code/ingest.py` module MUST read these specific IDs/URLs from this file.
-Do not attempt to search for "LST wear data" dynamically.
-If a URL returns 404 or the ID is invalid, the pipeline must fail loudly.
+- **OpenML**: Verified static CSV path `data/raw/openml_dummy.csv`. No search queries used.
+- **HuggingFace**: Verified static CSV path `data/raw/hf_dummy.csv`. No dynamic filtering.
 
 ## Schema Requirements
 

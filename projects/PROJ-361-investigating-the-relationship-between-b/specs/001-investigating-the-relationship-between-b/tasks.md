@@ -43,10 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a [P] Create root directories: `src/`, `tests/`, `data/raw/`, `data/processed/`, `docs/`, `state/`
+- [ ] T001a [P] Create root directories: `src/`, `tests/`, `data/raw/`, `data/processed/`, `docs/`, `state/`
 - [X] T001b [P] Create code structure: `code/preprocessing/`, `code/topology/`, `code/behavioral/`, `code/analysis/`, `code/utils/`, `code/models/`
 - [X] T001c [P] Create test structure: `tests/unit/`, `tests/integration/`
-- [X] T002 [P] Initialize Python 3.11 project with pinned dependencies in `requirements.txt`
+- [ ] T002 [P] Initialize Python 3.11 project with pinned dependencies in `requirements.txt`
 - [ ] T003 [P] Configure linting (flake8), formatting (black), and type checking (mypy)
 
 ---
@@ -100,8 +100,8 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [X] T010 [P] [US1] Unit test for `download_openneuro.py` schema validation in `tests/unit/test_download.py`. **Specifics**: Input: `data/raw/dataset_description.json` (simulated). Expected: `FileNotFoundError` if path missing, `ValueError` if `id` field missing. Assertion: Verify the script raises `RuntimeError` with message "Real data fetch failed" if the OpenNeuro API returns 404.
-- [X] T011 [P] [US1] Unit test for fMRIPrep config schema validation and mock output structure in `tests/unit/test_fmriprep_config.py`. **Specifics**: Verify `run_fmriprep.sh` parses valid BIDS inputs and generates a mock output file structure that matches the expected schema, ensuring reproducibility without running the heavy container in CI.
+- [~] T010 [P] [US1] Unit test for `download_openneuro.py` schema validation in `tests/unit/test_download.py`. **Specifics**: Input: `data/raw/dataset_description.json` (simulated). Expected: `FileNotFoundError` if path missing, `ValueError` if `id` field missing. Assertion: Verify the script raises `RuntimeError` with message "Real data fetch failed" if the OpenNeuro API returns 404.
+- [~] T011 [P] [US1] Unit test for fMRIPrep config schema validation and mock output structure in `tests/unit/test_fmriprep_config.py`. **Specifics**: Verify `run_fmriprep.sh` parses valid BIDS inputs and generates a mock output file structure that matches the expected schema, ensuring reproducibility without running the heavy container in CI.
 
 ### Implementation for User Story 1
 

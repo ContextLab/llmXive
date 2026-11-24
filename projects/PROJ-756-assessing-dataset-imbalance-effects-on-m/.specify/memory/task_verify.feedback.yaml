@@ -5,7 +5,6 @@ T001:
     write only project-owned outputs.'
   task: c59f663131590a68b091b62142bbf57381a58258af8a21ab8582a775c99a51e8
 T001b:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 5d90df9d84c0211c13f2209d0c52e8497a82688aab813837fd60f431c86b4963
 T002:
   task: 75913291504c4bbee4df2388b937d5f77e37b1ba467864479a5e34f20b43c6bf

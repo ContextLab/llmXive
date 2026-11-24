@@ -1,175 +1,123 @@
 """
-Data Hygiene Module for llmXive Project.
+Hygiene script for the llmXive project.
 
-Computes SHA-256 hashes for all files in `data/raw/*`, `data/derived/*`,
-and `data/results/*` (Phase 6 inclusion) and updates the project state
-YAML file with the computed checksums.
+This script computes SHA‑256 hashes for all files under `data/raw/` and
+`data/derived/` (excluding `data/results/` as required by Phase 0) and
+writes a concise report to `data/results/hygiene_report.yaml`.
 
-This module ensures data integrity by verifying that artifacts have not
-been modified since their creation or download.
+The report contains two top‑level keys:
+  - `raw`: mapping of relative file paths (under `data/raw/`) → SHA‑256 hash
+  - `derived`: mapping of relative file paths (under `data/derived/`) → SHA‑256 hash
+  - `generated_at`: ISO‑8601 timestamp of the run
+
+The script is deliberately **read‑only** with respect to the platform‑owned
+`state/` directory. All artifacts are written inside the project's
+`data/` hierarchy, satisfying the platform's constraints.
 """
-import os
-import hashlib
-import yaml
-import json
-from pathlib import Path
-from datetime import datetime
 
-# Project Root (assumed to be the parent of 'code')
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_DERIVED_DIR = PROJECT_ROOT / "data" / "derived"
-DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
-STATE_DIR = PROJECT_ROOT / "state" / "projects"
-STATE_FILE_NAME = "PROJ-893-llmxive-follow-up-extending-s-agent-spat.yaml"
+import hashlib
+import sys
+from datetime import datetime
+from pathlib import Path
+from typing import Dict
+
+# llmxive toolkit utilities for project‑relative paths and logging
+from llmxive_toolkit import paths, get_logger
+
+log = get_logger(__name__)
+
+# Project‑relative directories
+RAW_DIR: Path = paths.data("raw")
+DERIVED_DIR: Path = paths.data("derived")
+RESULTS_DIR: Path = paths.results()  # will resolve to <project>/data/results
+
+# Output file (project‑owned)
+REPORT_PATH: Path = RESULTS_DIR / "hygiene_report.yaml"
+
 
 def compute_sha256(file_path: Path) -> str:
     """
-    Computes the SHA-256 hash of a file.
+    Compute the SHA‑256 hash of a file in a memory‑efficient way.
 
     Args:
         file_path: Path to the file.
 
     Returns:
-        Hexadecimal string of the SHA-256 hash.
+        Hexadecimal SHA‑256 digest.
     """
-    sha256_hash = hashlib.sha256()
+    sha256 = hashlib.sha256()
     try:
-        with open(file_path, "rb") as f:
-            # Read in chunks to handle large files efficiently
+        with file_path.open("rb") as f:
             for chunk in iter(lambda: f.read(8192), b""):
-                sha256_hash.update(chunk)
-        return sha256_hash.hexdigest()
-    except Exception as e:
-        raise IOError(f"Failed to read file {file_path} for hashing: {e}")
+                sha256.update(chunk)
+        return sha256.hexdigest()
+    except Exception as exc:
+        log.error(f"Failed to hash {file_path}: {exc}")
+        raise
 
-def scan_directory_for_hashes(directory: Path, relative_base: Path) -> dict:
+
+def scan_directory(base_dir: Path) -> Dict[str, str]:
     """
-    Recursively scans a directory and computes SHA-256 hashes for all files.
+    Recursively walk a directory and compute SHA‑256 hashes for all files.
+
+    The keys in the returned dictionary are paths **relative to the
+    supplied base_dir**, using POSIX style separators.
 
     Args:
-        directory: The directory to scan.
-        relative_base: The base path to strip from file paths for relative keys.
+        base_dir: Directory to scan.
 
     Returns:
-        A dictionary mapping relative file paths to their SHA-256 hashes.
+        Mapping of relative file path → SHA‑256 hash.
     """
-    hashes = {}
-    if not directory.exists():
-        print(f"Warning: Directory {directory} does not exist. Skipping.")
+    hashes: Dict[str, str] = {}
+    if not base_dir.exists():
+        log.warning(f"Directory does not exist and will be skipped: {base_dir}")
         return hashes
 
-    for root, _, files in os.walk(directory):
-        for file in files:
-            full_path = Path(root) / file
-            # Calculate relative path from the data root (e.g., data/raw/...)
-            try:
-                rel_path = full_path.relative_to(relative_base)
-            except ValueError:
-                # Should not happen if relative_base is correct, but safe fallback
-                rel_path = full_path.relative_to(directory)
-            
-            hash_value = compute_sha256(full_path)
-            hashes[str(rel_path)] = hash_value
-
+    for root, _, files in os.walk(base_dir):
+        for file_name in files:
+            full_path = Path(root) / file_name
+            rel_path = full_path.relative_to(base_dir).as_posix()
+            hashes[rel_path] = compute_sha256(full_path)
+            log.debug(f"Hashed {full_path} → {hashes[rel_path]}")
     return hashes
 
-def load_state_yaml(state_file: Path) -> dict:
+
+def generate_report() -> None:
     """
-    Loads the existing state YAML file if it exists, otherwise returns a new structure.
-
-    Args:
-        state_file: Path to the state YAML file.
-
-    Returns:
-        Dictionary representing the state.
+    Generate the hygiene report and write it to ``REPORT_PATH``.
     """
-    if state_file.exists():
-        with open(state_file, "r", encoding="utf-8") as f:
-            try:
-                return yaml.safe_load(f) or {}
-            except yaml.YAMLError as e:
-                raise RuntimeError(f"Failed to parse existing state file {state_file}: {e}")
-    else:
-        # Initialize a new state structure
-        return {
-            "project_id": "PROJ-893-llmxive-follow-up-extending-s-agent-spat",
-            "last_updated": None,
-            "data_hygiene": {
-                "raw": {},
-                "derived": {},
-                "results": {}
-            }
-        }
+    log.info("Starting hygiene scan...")
+    raw_hashes = scan_directory(RAW_DIR)
+    derived_hashes = scan_directory(DERIVED_DIR)
 
-def save_state_yaml(state_file: Path, state: dict) -> None:
-    """
-    Saves the state dictionary to the YAML file.
+    report_content = {
+        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "raw": raw_hashes,
+        "derived": derived_hashes,
+    }
 
-    Args:
-        state_file: Path to the state YAML file.
-        state: The state dictionary to save.
-    """
-    # Ensure directory exists
-    state_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(state_file, "w", encoding="utf-8") as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
+    # Ensure the results directory exists
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-def main():
-    """
-    Main execution function for data hygiene checks (Phase 6).
-    Includes data/results in the scan.
-    """
-    print(f"Starting Data Hygiene Check for project: {PROJECT_ROOT}")
-    
-    # Ensure state directory exists
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-    state_file = STATE_DIR / STATE_FILE_NAME
+    # Write YAML – using the standard library ``yaml`` is not available,
+    # so we emit a simple YAML representation manually.
+    try:
+        import yaml  # type: ignore
+    except ImportError:
+        log.error("PyYAML is required to write the hygiene report. Install via 'pip install pyyaml'.")
+        sys.exit(1)
 
-    # Load existing state
-    state = load_state_yaml(state_file)
+    with REPORT_PATH.open("w", encoding="utf-8") as f:
+        yaml.safe_dump(report_content, f, sort_keys=False, allow_unicode=True)
 
-    # Update timestamp
-    state["last_updated"] = datetime.now().isoformat()
+    log.info(f"Hygiene report written to {REPORT_PATH}")
+    log.info(f"Processed {len(raw_hashes)} raw files and {len(derived_hashes)} derived files.")
 
-    # Initialize data_hygiene section if missing
-    if "data_hygiene" not in state:
-        state["data_hygiene"] = {"raw": {}, "derived": {}, "results": {}}
-
-    # Scan data/raw
-    print(f"Scanning {DATA_RAW_DIR}...")
-    raw_hashes = scan_directory_for_hashes(DATA_RAW_DIR, DATA_RAW_DIR)
-    state["data_hygiene"]["raw"] = raw_hashes
-    print(f"  Found {len(raw_hashes)} files in raw data.")
-
-    # Scan data/derived
-    print(f"Scanning {DATA_DERIVED_DIR}...")
-    derived_hashes = scan_directory_for_hashes(DATA_DERIVED_DIR, DATA_DERIVED_DIR)
-    state["data_hygiene"]["derived"] = derived_hashes
-    print(f"  Found {len(derived_hashes)} files in derived data.")
-
-    # Scan data/results (Phase 6 addition)
-    print(f"Scanning {DATA_RESULTS_DIR}...")
-    results_hashes = scan_directory_for_hashes(DATA_RESULTS_DIR, DATA_RESULTS_DIR)
-    state["data_hygiene"]["results"] = results_hashes
-    print(f"  Found {len(results_hashes)} files in results data.")
-
-    # Save updated state
-    save_state_yaml(state_file, state)
-    print(f"State updated successfully at {state_file}")
-
-    # Summary
-    print("\n--- Hygiene Summary ---")
-    print(f"Raw files hashed: {len(raw_hashes)}")
-    print(f"Derived files hashed: {len(derived_hashes)}")
-    print(f"Results files hashed: {len(results_hashes)}")
-    total = len(raw_hashes) + len(derived_hashes) + len(results_hashes)
-    print(f"Total files processed: {total}")
-    
-    if total == 0:
-        print("Warning: No data files found in 'data/raw', 'data/derived', or 'data/results'.")
-        print("Ensure data has been downloaded or generated before running hygiene checks.")
 
 if __name__ == "__main__":
-    main()
+    try:
+        generate_report()
+    except Exception as e:
+        log.error(f"Hygiene script failed: {e}")
+        sys.exit(1)

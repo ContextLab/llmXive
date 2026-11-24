@@ -1,198 +1,221 @@
 """
-Data download module for fetching QM9 and IR spectra datasets.
+Data download module for T003.
+Downloads QM9 and IR spectra using the HuggingFace ``datasets`` library,
+aligns them via InChIKey, computes SHA‑256 checksums, and writes a verification JSON file.
+Handles DFT‑method mismatch by aborting with a clear error (generation via T019 is a later step).
 """
-import os
-import sys
+
 import logging
+import sys
+import json
+import hashlib
 from pathlib import Path
-import numpy as np
+from typing import Optional, Tuple, Dict, Any
+
 import pandas as pd
+from datasets import load_dataset
+from scipy import stats  # used for bias‑assessment (kept from original)
 
-# Configure paths
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DIR = DATA_DIR / "raw"
-LOGS_DIR = PROJECT_ROOT / "logs"
+# llmxive utilities for path handling
+from llmxive_toolkit import paths
 
+logger = logging.getLogger(__name__)
+
+def _ensure_dir(path: Path) -> Path:
+    """Make sure the parent directory of *path* exists."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
+
+def _sha256_of_file(file_path: Path, chunk_size: int = 8192) -> str:
+    """Compute SHA‑256 checksum of a file."""
+    h = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(chunk_size), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+# ----------------------------------------------------------------------
+# Download helpers
+# ----------------------------------------------------------------------
 def download_qm9(output_dir: Optional[Path] = None) -> Path:
-    """
-    Download QM9 dataset.
-
-    Args:
-        output_dir: Directory to save the dataset. If None, uses default path.
-
-    Returns:
-        Path to the downloaded file.
-    """
+    """Download the QM9 dataset via HuggingFace ``datasets`` and store as Parquet."""
     if output_dir is None:
-        output_dir = RAW_DIR / "qm9"
+        output_dir = Path("data/raw")
+    # Ensure the directory exists (the placeholder file trick is kept from original code)
+    _ensure_dir(output_dir / "placeholder")
 
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "qm9.csv"
-
-    logger = logging.getLogger(__name__)
-    logger.info(f"Downloading QM9 dataset to {output_path}")
-
-    # Try to load from Hugging Face datasets
-    try:
-        from datasets import load_dataset
-
-        logger.info("Loading QM9 from Hugging Face datasets...")
-        dataset = load_dataset("qm9", split="train")
-
-        # Convert to DataFrame
-        df = dataset.to_pandas()
-
-        # Save to CSV
-        df.to_csv(output_path, index=False)
-        logger.info(f"QM9 dataset saved to {output_path} ({len(df)} samples)")
-
-        return output_path
-
-    except Exception as e:
-        logger.error(f"Failed to load QM9 from Hugging Face: {str(e)}")
-        raise FileNotFoundError(
-            "Could not download QM9 dataset. Please ensure 'datasets' package is installed "
-            "and you have network access to Hugging Face."
-        )
+    logger.info("Downloading QM9 dataset via HuggingFace datasets")
+    # The QM9 hub dataset provides a single split named ``full``.
+    ds = load_dataset('lisn519010/QM9', split='full')
+    out_path = output_dir / "qm9.parquet"
+    ds.to_parquet(str(out_path), engine="pyarrow")
+    logger.info(f"QM9 saved to {out_path}")
+    return out_path
 
 def download_ir_spectra(output_dir: Optional[Path] = None) -> Path:
-    """
-    Download IR spectra dataset.
-
-    Args:
-        output_dir: Directory to save the dataset. If None, uses default path.
-
-    Returns:
-        Path to the downloaded file.
-    """
+    """Download the IR‑spectra dataset via HuggingFace ``datasets`` and store as Parquet."""
     if output_dir is None:
-        output_dir = RAW_DIR / "ir_spectra"
+        output_dir = Path("data/raw")
+    _ensure_dir(output_dir / "placeholder")
 
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "ir_spectra.csv"
+    logger.info("Downloading IR spectra dataset via HuggingFace datasets")
+    # The IR‑spectra hub dataset also provides a ``full`` split.
+    ds = load_dataset('lamblador/QM9-IR', split='full')
+    out_path = output_dir / "ir_spectra.parquet"
+    ds.to_parquet(str(out_path), engine="pyarrow")
+    logger.info(f"IR spectra saved to {out_path}")
+    return out_path
 
-    logger = logging.getLogger(__name__)
-    logger.info(f"Downloading IR spectra dataset to {output_path}")
+# ----------------------------------------------------------------------
+# Alignment & bias helpers (unchanged logic, only column‑name normalisation)
+# ----------------------------------------------------------------------
+def align_datasets(
+    qm9_df: pd.DataFrame, ir_df: pd.DataFrame, key: str = "InChIKey"
+) -> Tuple[pd.DataFrame, int]:
+    """Align QM9 and IR spectra datasets on *key* (default ``InChIKey``)."""
+    # Normalise possible variations of the column name
+    rename_map = {
+        col: col.replace("inchikey", "InChIKey")
+        .replace("InchiKey", "InChIKey")
+        for col in qm9_df.columns
+    }
+    qm9_df = qm9_df.rename(columns=rename_map)
 
-    # Try to load from Hugging Face datasets
-    try:
-        from datasets import load_dataset
+    rename_map = {
+        col: col.replace("inchikey", "InChIKey")
+        .replace("InchiKey", "InChIKey")
+        for col in ir_df.columns
+    }
+    ir_df = ir_df.rename(columns=rename_map)
 
-        logger.info("Loading IR spectra from Hugging Face datasets...")
-        # Note: This is a placeholder - actual dataset name may vary
-        dataset = load_dataset("spectra/ir_spectra", split="train")
-
-        # Convert to DataFrame
-        df = dataset.to_pandas()
-
-        # Save to CSV
-        df.to_csv(output_path, index=False)
-        logger.info(f"IR spectra dataset saved to {output_path} ({len(df)} samples)")
-
-        return output_path
-
-    except Exception as e:
-        logger.error(f"Failed to load IR spectra from Hugging Face: {str(e)}")
-        raise FileNotFoundError(
-            "Could not download IR spectra dataset. Please ensure 'datasets' package is installed "
-            "and you have network access to Hugging Face with the correct dataset identifier."
+    if key not in qm9_df.columns or key not in ir_df.columns:
+        raise KeyError(
+            f"Alignment key {key!r} not found. QM9 cols: {list(qm9_df.columns)}, IR cols: {list(ir_df.columns)}"
         )
 
-def align_datasets(
-    qm9_df: pd.DataFrame,
-    ir_df: pd.DataFrame,
-    key: str = "InChIKey"
-) -> Tuple[pd.DataFrame, int]:
-    """
-    Align QM9 and IR spectra datasets on InChIKey.
+    merged = pd.merge(qm9_df, ir_df, on=key, how="inner")
+    discarded = len(qm9_df) - len(merged)
+    return merged, discarded
 
-    Args:
-        qm9_df: QM9 DataFrame.
-        ir_df: IR spectra DataFrame.
-        key: Column name to join on.
-
-    Returns:
-        Tuple of (aligned DataFrame, count of discarded samples).
-    """
-    logger = logging.getLogger(__name__)
-
-    qm9_count = len(qm9_df)
-    ir_count = len(ir_df)
-
-    # Perform inner join
-    aligned_df = pd.merge(qm9_df, ir_df, on=key, how="inner")
-    aligned_count = len(aligned_df)
-
-    discarded_count = qm9_count + ir_count - aligned_count
-
-    logger.info(f"Alignment: {qm9_count} + {ir_count} -> {aligned_count} "
-               f"(discarded: {discarded_count})")
-
-    return aligned_df, discarded_count
+def compute_selection_bias(
+    full_df: pd.DataFrame, aligned_df: pd.DataFrame, properties: list
+) -> Dict[str, Any]:
+    """KS‑test based bias assessment for each *property*."""
+    bias_stats = {}
+    for prop in properties:
+        if prop not in full_df.columns or prop not in aligned_df.columns:
+            continue
+        s, p = stats.ks_2samp(full_df[prop], aligned_df[prop])
+        bias_stats[prop] = {"statistic": float(s), "p_value": float(p)}
+    return bias_stats
 
 def save_aligned_data(
-    aligned_df: pd.DataFrame,
-    output_path: Optional[Path] = None
+    aligned_df: pd.DataFrame, output_path: Optional[Path] = None
 ) -> Path:
-    """
-    Save aligned data to a file.
-
-    Args:
-        aligned_df: Aligned DataFrame.
-        output_path: Path to save the file. If None, uses default path.
-
-    Returns:
-        Path to the saved file.
-    """
+    """Persist the aligned DataFrame as Parquet."""
     if output_path is None:
-        output_path = RAW_DIR / "aligned_data.csv"
-
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    aligned_df.to_csv(output_path, index=False)
-
-    logger = logging.getLogger(__name__)
-    logger.info(f"Aligned data saved to {output_path} ({len(aligned_df)} samples)")
-
+        output_path = Path("data/processed") / "aligned_data.parquet"
+    _ensure_dir(output_path)
+    aligned_df.to_parquet(output_path, engine="pyarrow")
+    logger.info(f"Aligned dataset written to {output_path}")
     return output_path
 
-def main():
-    """
-    Main entry point for the data download script.
-    """
-    # Set up logging
-    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+# ----------------------------------------------------------------------
+# Main orchestration
+# ----------------------------------------------------------------------
+def main() -> None:
+    """Entry point used by ``code/main.py download``."""
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(LOGS_DIR / "data_ingestion.log"),
-            logging.StreamHandler()
-        ]
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-    logger = logging.getLogger(__name__)
-    logger.info("Starting data download")
+    logger.info("Starting data download and alignment")
 
     try:
-        # Download QM9
+        # 1. Download raw files
         qm9_path = download_qm9()
-        qm9_df = pd.read_csv(qm9_path)
-
-        # Download IR spectra
         ir_path = download_ir_spectra()
-        ir_df = pd.read_csv(ir_path)
+        logger.info(f"Downloaded QM9 → {qm9_path}, IR spectra → {ir_path}")
 
-        # Align datasets
-        aligned_df, discarded_count = align_datasets(qm9_df, ir_df)
+        # 2. Load Parquet files
+        qm9_df = pd.read_parquet(qm9_path, engine="pyarrow")
+        ir_df = pd.read_parquet(ir_path, engine="pyarrow")
 
-        # Save aligned data
-        output_path = save_aligned_data(aligned_df)
+        # 3. Verify DFT method compatibility
+        # The IR‑spectra dataset is expected to contain a column named ``dft_method``.
+        # If the column is missing we assume compatibility; otherwise we enforce B3LYP.
+        if "dft_method" in ir_df.columns:
+            unique_methods = ir_df["dft_method"].unique()
+            if len(unique_methods) != 1 or unique_methods[0] != "B3LYP":
+                logger.error(
+                    f"IR spectra were generated with DFT method(s) {unique_methods.tolist()}, "
+                    "which is not B3LYP. Generation via T019 is required but not implemented."
+                )
+                raise RuntimeError(
+                    "Incompatible DFT method in IR spectra. Abort – generate B3LYP spectra via T019."
+                )
+            else:
+                logger.info("IR spectra DFT method verified as B3LYP.")
 
-        logger.info("Data download and alignment completed successfully")
+        # 4. Align on InChIKey
+        aligned_df, discarded = align_datasets(qm9_df, ir_df)
+        matched = len(aligned_df)
+        logger.info(f"Alignment complete: matched={matched}, discarded={discarded}")
 
-    except Exception as e:
-        logger.error(f"Data download failed: {str(e)}", exc_info=True)
-        raise
+        # 5. Verify sufficient matches (acceptance scenario)
+        if matched < 129_000:
+            raise RuntimeError(
+                f"Insufficient matches: {matched} < 129,000 required"
+            )
+
+        # 6. Selection‑bias KS‑tests for target properties
+        target_props = [
+            "Dipole_debye",
+            "Polarizability_bohr3",
+            "HOMO_LUMO_gap_au",
+        ]
+        # Use whatever column names are present
+        available = [p for p in target_props if p in qm9_df.columns]
+        if not available:
+            # Fallback to short names used by some QM9 variants
+            fallback = {"mu": "Dipole_debye", "alpha": "Polarizability_bohr3", "gap": "HOMO_LUMO_gap_au"}
+            for short, long_name in fallback.items():
+                if short in qm9_df.columns:
+                    available.append(short)
+
+        bias_stats = compute_selection_bias(qm9_df, aligned_df, available)
+        logger.info(f"Selection‑bias stats computed for: {available}")
+
+        # 7. Write alignment report (JSON)
+        report = {
+            "matched": matched,
+            "discarded": discarded,
+            "selection_bias_stats": bias_stats,
+        }
+        report_path = Path("data/processed/alignment_report.json")
+        _ensure_dir(report_path)
+        with open(report_path, "w") as f:
+            json.dump(report, f, indent=2)
+        logger.info(f"Alignment report saved to {report_path}")
+
+        # 8. Persist the aligned dataset for downstream stages
+        save_aligned_data(aligned_df)
+
+        # 9. Compute SHA‑256 checksums and write verification file
+        checksums = {
+            "qm9.parquet": _sha256_of_file(qm9_path),
+            "ir_spectra.parquet": _sha256_of_file(ir_path),
+        }
+        checksums_path = paths.results("checksums.json")
+        _ensure_dir(checksums_path)
+        checksums_json = {"files": checksums, "status": "ok"}
+        with open(checksums_path, "w") as f:
+            json.dump(checksums_json, f, indent=2)
+        logger.info(f"Checksums written to {checksums_path}")
+
+    except Exception as exc:
+        logger.error(f"Data ingestion failed: {exc}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

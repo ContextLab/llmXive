@@ -1,59 +1,71 @@
+"""
+Validator for StateGraph objects.
+
+This module provides a single function ``validate_graph`` that checks whether a
+``StateGraph`` instance contains a reachable path from its ``start`` node to its
+``goal`` node.  If the graph is invalid, a ``RuntimeError`` is raised; otherwise
+the function returns ``None``.  ``ValueError`` is raised for malformed inputs.
+"""
+
 import logging
-from typing import List, Optional
+from typing import Optional
+
 import networkx as nx
+
 from environment.state_graph import StateGraph
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
-def validate_graph(graph: StateGraph) -> bool:
+def validate_graph(sg: Optional[StateGraph]) -> None:
     """
-    Validate that a path exists from the start node to the goal node in the given StateGraph.
+    Validate that a ``StateGraph`` has a reachable path from its start node to its goal node.
 
-    This function constructs a directed NetworkX graph from the StateGraph's nodes and edges,
-    then checks for the existence of a path from the start node to the goal node using
-    networkx.has_path.
+    Parameters
+    ----------
+    sg : StateGraph or None
+        The graph to validate.
 
-    Args:
-        graph (StateGraph): The state graph to validate.
-
-    Returns:
-        bool: True if a path exists from start to goal.
-
-    Raises:
-        RuntimeError: If no path exists from start to goal.
-        ValueError: If the graph is None or invalid structure.
+    Raises
+    ------
+    ValueError
+        If ``sg`` is ``None`` or missing required attributes.
+    RuntimeError
+        If no path exists from ``sg.start`` to ``sg.goal``.
     """
-    if graph is None:
-        logger.error("Validation failed: Input graph is None")
-        raise ValueError("Input graph cannot be None")
+    if sg is None:
+        raise ValueError("StateGraph is None")
 
-    # Convert StateGraph to NetworkX DiGraph
+    # Verify that the essential attributes exist
+    if not hasattr(sg, "start") or not hasattr(sg, "goal"):
+        raise ValueError("StateGraph missing required 'start' or 'goal' attributes")
+
+    # Build a directed NetworkX graph from the StateGraph definition
     G = nx.DiGraph()
+    for node in getattr(sg, "nodes", []):
+        # Assume each node has a unique identifier attribute ``id``
+        node_id = getattr(node, "id", None)
+        if node_id is None:
+            raise ValueError("Node missing 'id' attribute")
+        G.add_node(node_id)
 
-    # Add nodes
-    for node in graph.nodes:
-        G.add_node(node.id, tier=graph.tier, is_start=(node.id == graph.start), is_goal=(node.id == graph.goal))
+    for edge in getattr(sg, "edges", []):
+        # Assume each edge has ``source`` and ``target`` attributes identifying node ids
+        source = getattr(edge, "source", None)
+        target = getattr(edge, "target", None)
+        if source is None or target is None:
+            raise ValueError("Edge missing 'source' or 'target' attribute")
+        G.add_edge(source, target)
 
-    # Add edges with transition probabilities
-    for edge in graph.edges:
-        G.add_edge(edge.source_id, edge.target_id, probability=edge.probability)
+    # Use NetworkX to check for a path from start to goal
+    if not nx.has_path(G, sg.start, sg.goal):
+        raise RuntimeError(
+            f"No path from start node {sg.start} to goal node {sg.goal} in StateGraph {getattr(sg, 'graph_id', '<unknown>')}"
+        )
 
-    # Check if start and goal nodes exist in the graph
-    if graph.start not in G:
-        error_msg = f"Validation failed: Start node {graph.start} not found in graph"
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
-
-    if graph.goal not in G:
-        error_msg = f"Validation failed: Goal node {graph.goal} not found in graph"
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
-
-    # Check for path existence using networkx.has_path
-    if not nx.has_path(G, graph.start, graph.goal):
-        error_msg = f"Validation failed: No path exists from start node {graph.start} to goal node {graph.goal}"
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
-
-    logger.info(f"Validation successful: Path exists from {graph.start} to {graph.goal} in tier {graph.tier}")
-    return True
+    # If validation passes, log at debug level
+    log.debug(
+        "StateGraph %s passed validation (start=%s, goal=%s)",
+        getattr(sg, "graph_id", "<unknown>"),
+        sg.start,
+        sg.goal,
+    )

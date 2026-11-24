@@ -1,94 +1,98 @@
 """
-Utility module for calculating lagged competitive pressure.
-
-This module contains the extracted logic for calculating the number of active
-runners in a time window prior to each run, used as a feature in mixed-effects
-models.
+Helper for computing lagged competitive pressure.
+The public API matches the unit‑tests in ``tests/test_pressure.py``.
 """
 import logging
-from datetime import timedelta
-from typing import List, Dict, Any
+from datetime import datetime, timedelta
+from typing import List, Dict, Any, Optional
 
-logger = logging.getLogger(__name__)
+_log = logging.getLogger(__name__)
+
+def _parse_date(value: Any) -> datetime:
+    """
+    Convert a date string or ``datetime`` to a ``datetime`` object.
+    Accepts ISO‑8601 strings (with or without timezone) and ``datetime`` objects.
+    """
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, str):
+        # Strip trailing Z (UTC) if present
+        value = value.rstrip("Z")
+        try:
+            # Try full ISO format first
+            return datetime.fromisoformat(value)
+        except ValueError:
+            # Fallback: try common date‑only format
+            return datetime.strptime(value, "%Y-%m-%d")
+    raise TypeError(f"Unsupported date type: {type(value)}")
 
 def calculate_lagged_pressure(
     run_records: List[Dict[str, Any]],
-    window_days: int = 30
+    window_days: int = 30,
 ) -> List[Dict[str, Any]]:
     """
-    Calculate lagged competitive pressure for each run record.
-    
-    For each run, this function counts the number of unique runners who submitted
-    runs in the window [run_date - window_days, run_date - 1 day].
-    
-    Args:
-        run_records: List of run record dictionaries. Each must contain:
-            - 'submission_date': datetime object or ISO format string
-            - 'runner_id': unique identifier for the runner
-        window_days: Number of days to look back for competitive pressure.
-                    Default is 30 days.
-    
-    Returns:
-        List of run record dictionaries with an additional 'lagged_competitive_pressure'
-        field containing the count of unique runners in the lookback window.
-    
-    Raises:
-        ValueError: If run_records is empty or missing required fields.
-        TypeError: If submission_date cannot be parsed.
+    Compute lagged competitive pressure for a list of run records.
+
+    The function expects ``run_records`` to be a list of dictionaries,
+    each containing at least ``'submission_date'`` and ``'runner_id'``.
+    It returns a **new list** (the original list is not mutated) where each
+    record has an additional integer field ``'lagged_competitive_pressure'``
+    indicating the number of *other* runs whose ``submission_date`` falls
+    within ``window_days`` days **before** the current record's date.
+
+    Parameters
+    ----------
+    run_records : list[dict]
+        List of run dictionaries.
+    window_days : int, optional
+        Size of the look‑back window in days (default: 30).
+
+    Returns
+    -------
+    list[dict]
+        New list with the pressure column added.
+
+    Raises
+    ------
+    ValueError
+        If any record is missing required keys.
     """
-    if not run_records:
-        logger.warning("Empty run_records provided to calculate_lagged_pressure")
-        return []
-    
-    # Ensure we have datetime objects for sorting and comparison
-    processed_records = []
-    for record in run_records:
-        if 'submission_date' not in record or 'runner_id' not in record:
-            raise ValueError("Each record must contain 'submission_date' and 'runner_id'")
-        
-        # Parse date if it's a string
-        submission_date = record['submission_date']
-        if isinstance(submission_date, str):
-            from datetime import datetime
-            submission_date = datetime.fromisoformat(submission_date.replace('Z', '+00:00'))
-        
-        processed_records.append({
-            **record,
-            '_date': submission_date,
-            'lagged_competitive_pressure': 0  # Placeholder
-        })
-    
-    # Sort by date for efficient processing
-    processed_records.sort(key=lambda x: x['_date'])
-    
-    # Calculate lagged pressure for each record
-    for i, current_record in enumerate(processed_records):
-        current_date = current_record['_date']
-        window_start = current_date - timedelta(days=window_days)
-        window_end = current_date - timedelta(days=1)
-        
-        # Count unique runners in the window
-        # Only consider records before the current one
-        unique_runners = set()
-        for j in range(i):
-            other_record = processed_records[j]
-            other_date = other_record['_date']
-            
-            # Check if this record falls within the window
-            if window_start <= other_date <= window_end:
-                unique_runners.add(other_record['runner_id'])
-            
-            # Optimization: Since records are sorted, we can stop checking
-            # once we go too far back
-            if other_date < window_start:
-                break
-        
-        current_record['lagged_competitive_pressure'] = len(unique_runners)
-        
-        # Remove the temporary date field
-        del current_record['_date']
-    
-    logger.info(f"Calculated lagged pressure for {len(processed_records)} records "
-               f"with a {window_days}-day window")
-    
-    return processed_records
+    # Validate input
+    required_keys = {"submission_date", "runner_id"}
+    for rec in run_records:
+        if not required_keys.issubset(rec):
+            missing = required_keys - rec.keys()
+            raise ValueError(f"Record missing required fields: {missing}")
+
+    # Sort records chronologically (oldest first) to make the sliding window easy
+    sorted_records = sorted(
+        run_records,
+        key=lambda r: _parse_date(r["submission_date"]),
+    )
+
+    # List to accumulate results
+    enriched: List[Dict[str, Any]] = []
+
+    # We'll keep a sliding window of previous dates (as datetime objects)
+    # and simply count how many fall inside the window for each record.
+    prior_dates: List[datetime] = []
+
+    for rec in sorted_records:
+        cur_date = _parse_date(rec["submission_date"])
+
+        # Remove dates that are older than the window
+        cutoff = cur_date - timedelta(days=window_days)
+        prior_dates = [d for d in prior_dates if d > cutoff]
+
+        # The pressure is the number of prior dates still in the window
+        pressure = len(prior_dates)
+
+        # Append current date to the window for future records
+        prior_dates.append(cur_date)
+
+        # Copy record and add the new field
+        new_rec = dict(rec)  # shallow copy is fine
+        new_rec["lagged_competitive_pressure"] = pressure
+        enriched.append(new_rec)
+
+    return enriched

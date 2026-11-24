@@ -1,91 +1,116 @@
----
-description: "Task list template for feature implementation"
----
-
 # Tasks: Structure-Only Surrogate Model for 2D Material Elastic Moduli
 
-**Input**: Design documents from `/specs/001-predicting-the-elastic-moduli/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, `research.md`, `data-model.md`, and the JSON/YAML contracts in `specs/`.  
+All tasks write to project‑owned directories (`code/`, `data/`, `docs/`).  
+Tasks are ordered to respect data flow; a later task never runs before its prerequisites are satisfied.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+---
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+## Phase 0 – Constitution‑title audit (hard gate)
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T060c **[P]** Verify that the project title no longer contains forbidden terms and produce a formal audit report.  
+  *Creates* `code/utils/verify_constitution_title.py` which (1) scans `constitution.md` for the exact phrase **“Structure‑Only Surrogate Model”**, (2) exits with status 1 if any forbidden term (“First‑Principles”, “Schrödinger”, “Hamiltonian”) is found, and (3) writes `data/results/constitution_title_audit.json` conforming to `contracts/constitution_audit_schema.yaml`.  
+  *Verification*: CI runs the script; a non‑zero exit code fails the pipeline, otherwise the JSON file must contain `"status":"PASS"`.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+---
 
-## Path Conventions
+## Phase 1 – Data acquisition & preprocessing  
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+| Task | Description |
+|------|-------------|
 
-## Phase 1: Setup (Shared Infrastructure & Terminology Alignment)
+- [ ] T001 **[P]** Download the raw 2D‑material dataset and apply deterministic source‑selection logic.  
+  *Script*: `code/data/loader.py` (uses `matminer.datasets.load_dataset("elastic_tensor_2015")`).  
+  *Outputs*: `data/raw/raw_dataset.parquet` and `data/raw/metadata.json` (SHA‑256 checksum, chosen source, fallback flag).  
+  *Verification*: `metadata.json` records `"source":"Materials Project"` (or the deterministic fallback) and `"entry_count"` ≥ 1 000; if the count is lower the pipeline proceeds with the actual number (satisfies FR‑011/FR‑012).
 
-**Purpose**: Project initialization and terminology alignment. All tasks in this phase are gated by T060c.
+- [ ] T002 **[P]** Convert CIF structures to graph representations and store the processed dataset.  
+  *Script*: `code/data/graph_builder.py` (parses `structure` column with `pymatgen.CifParser`, builds node features [atomic number, electronegativity, covalent radius, group, period] and edge features [distance, electronegativity difference]).  
+  *Outputs*: `data/processed/graphs_v1.parquet` (validated against `contracts/dataset_schema.yaml`).  
+  *Verification*: A quick‑load test confirms the parquet file contains the required columns and at least the first row passes `graph.schema.yaml`.
 
-- [X] T001a [Setup] Create project directories: Create directories `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/unit/`, `tests/integration/`, `docs/`.
-- [X] T001b [Setup] Initialize state file: Initialize `state/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate.yaml` with an empty `artifact_hashes: {}` map to satisfy Constitution Principle III (Data Hygiene). **Template**: `artifact_hashes: {}`. **Requirement**: This task is a prerequisite for T001c_init.
-- [X] T001c_init [Setup] Compute Initial State Hash: Create `code/utils/hash_manager.py` to compute SHA256 checksums for initial state files (empty `artifact_hashes` map) and update `state/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate.yaml` under `artifact_hashes`. **Requirement**: This task handles the initial empty state. **Requirement**: Dependency: T001b.
-- [X] T002 [Setup] Initialize Python project: Create `code/requirements.txt` with pinned dependencies: `pymatgen`, `torch`, `torch-geometric`, `shap`, `pandas`, `numpy`, `scikit-learn`, `ruff`, `black`.
-- [X] T003a [Setup] Configure linting (ruff): Create `.ruff.toml` with strict rules (E, F, W, I) and line-length=88.
-- [X] T003b [Setup] Configure formatting (black): Create `.black.toml` with line-length=88.
+- [ ] T003 **[P]** Generate a family‑aware train/validation/test split with element‑overlap control.  
+  *Script*: `code/data/split_generator.py`  
+  *Logic*:  
+  1. Define **family** = `space_group` + stoichiometry class (derived from `formula`).  
+  2. Compute an element‑overlap metric; require max shared‑element proportion ≤ 0.20 across splits.  
+  3. Perform a stratified split (70 % train, 15 % val, 15 % test) using `sklearn.model_selection.train_test_split` with `random_state=42` and `stratify=family`.  
+  4. Atomically write `data/processed/split_indices.json` (temp file → `os.rename`).  
+  *Outputs*: `data/processed/split_indices.json` (conforms to `contracts/split_indices_schema.yaml`).  
+  *Verification*: A sanity‑check prints the three split sizes and confirms `family_disjoint=True`.
 
-### Constitutional Title Amendment (Phase 1 Critical Path)
+- [ ] T004 **[P]** Validate the split and record a split‑validation report.  
+  *Script*: `code/model/splitter.py` reads `split_indices.json`, checks that no family appears in more than one split, verifies the element‑overlap constraint, and writes `data/results/split_validation.json` according to `contracts/split_validation_schema.yaml`.  
+  *Verification*: `split_validation.json` must contain `"family_disjoint": true` and `"passed": true`; the CI will fail otherwise.
 
-- [X] T060a [Setup] Draft Constitutional Amendment: Create `state/amendments/Constitutional_Amendment_01.md` documenting the formal amendment of the Constitution (FR-030) title. **Requirement**: Document the rationale (contradiction between 'First-Principles' and 'Surrogate' Spec). **Requirement**: Generate a Sync Impact Report as required by FR-030. **Requirement**: **Artifact Path**: `state/amendments/Sync_Impact_Report_01.md`. **Requirement**: **Schema**: `{"amendment_id": "01", "rationale": "string", "impact": "list of files"}`. **Requirement**: Dependency: None.
-- [X] T060b [Setup] Edit Constitution File: Create `code/utils/constitution_editor.py` to perform the title replacement. **Requirement**: Use the regex pattern `^#\s+.*First-Principles.*$` to locate the title line in `constitution.md` and replace it with `# Structure-Only Surrogate Model for 2D Material Elastic Moduli`. **Requirement**: Update the version line in `constitution.md` to increment the patch version. **Requirement**: **Process**: This task updates the file directly to match the Spec/Plan before the pipeline proceeds, preventing silent drift. **Requirement**: **Verification**: Immediately after editing, the script MUST read the file back and assert the title matches the expected string. If not, exit with code 1. **Requirement**: Dependency: T060a.
-- [X] T060c [Setup] Verify Constitution Update: Create `code/utils/verify_constitution_title.py` to scan `constitution.md` for the exact phrase "Structure-Only Surrogate Model" in the title. **Requirement**: If "First-Principles" is found in the title, exit with code 1 and message "FATAL: Constitution title still claims 'First-Principles'". **Requirement**: If correct, output `data/results/constitution_title_audit.json` with status "PASS". **Requirement**: **Output Schema**: `{"status": "PASS" | "FAIL", "found_title": "string", "expected_title": "Structure-Only Surrogate Model", "timestamp": "ISO8601"}`. **Requirement**: This task is a HARD GATE; all subsequent tasks depend on its success. **Requirement**: Dependency: T060b.
+---
 
-- [X] T004 [Setup] Configure environment: Create `code/utils/config.py` (seeding, paths, CPU limits). **Requirement**: Implement a global seed manager that enforces pinning for `torch`, `numpy`, and `random` across all modules. **Requirement**: Define `MIN_ENTRY_THRESHOLD = 1000`, `MAX_MEMORY_GB = 7.0`, `BOOTSTRAP_ITERATIONS = 1000`, `PERMUTATION_SHUFFLES = 1000` constants in this config file. **Requirement**: Full import path: `code.utils.config`. **Requirement**: Dependency: T060c.
-- [X] T004a [Setup] Verify seed pinning: Create `code/utils/verify_seeds.py` that runs a dummy pipeline step and asserts that `torch`, `numpy`, and `random` seeds are consistently pinned across imports, satisfying Constitution Principle I (Reproducibility). **Requirement**: Dependency: T004, T060c.
-- [X] T005 [Setup] Implement logging: Create `code/utils/logger.py` (structured logs for bias checks). **Requirement**: Dependency: T004, T060c.
-- [X] T006 [Setup] Define constants: Create `code/utils/constants.py` (elastic modulus units). **Requirement**: Dependency: T004, T060c.
-- [X] T007 [Setup] Define data schema: Create `code/data_models/material_graph.py` (nodes, edges, targets). **Requirement**: Dependency: T004, T060c.
-- [X] T008 [Foundation] Implement memory utils: Create `code/utils/memory_utils.py` for dynamic sampling. **Requirement**: Implement a unit test in `tests/unit/test_memory_utils.py` that tests the *logic* of the sampler (e.g., chunk size calculation) without mocking the full data loading pipeline. The unit test verifies the *algorithm*, not the memory usage of a full run. (required for FR-007/SC-004). **Requirement**: Dependency: T004, T060c.
-- [ ] T008a [Foundation] Implement integration test: Create `tests/integration/test_memory_utils.py` to test the memory utils in a simulated pipeline. **Requirement**: Dependency: T013d1, T013d2, T013d3, T013d4, T017b. **Requirement**: Dependency: T008, T060c.
-- [X] T046a [Foundation] Create disclaimer template: Create `code/utils/disclaimer_template.py` containing the mandatory disclaimer string and the Richard Feynman quote as a shared constant. **Requirement**: This constant must be imported by all reporting modules to ensure a Single Source of Truth for project-wide text. **Requirement**: Dependency: T004, T060c.
-- [X] T037 [Foundation] Implement terminology scanner: Create `code/utils/terminology_scanner.py` to scan `code/`, `docs/` for forbidden terms ("First-Principles", "Schrödinger", "Hamiltonian" in the context of the ML model). **Requirement**: Add to `pre-commit` hooks. **Requirement**: Update existing comments in `code/` to replace forbidden terms with "Surrogate" or "Interpolation". **Requirement**: Dependency: T004, T060c.
-- [X] T009 [Foundation] Implement unified dataset loader: Create `code/ingest/loader_base.py` defining an abstract base class `DataLoader` with methods `fetch_data()`, `validate_source()`, and `get_metadata()`. **Requirement**: Support dynamic switching between 'materials_project' and 'aflow' via configuration. **Requirement**: Concrete implementations must inherit from this base. **Requirement**: Dependency: T004, T060c.
-- [X] T009b [Foundation] Implement lock manager: Create `code/ingest/lock_manager.py` to manage `data/.source_state` lock files. **Requirement**: Dependency: T004, T060c.
-- [X] T009a [Foundation] Implement runtime source enforcement: Create `code/ingest/source_enforcer.py` to raise a hard error if more than one data source is active. **Requirement**: Dependency: T009b, T004, T060c.
-- [X] T010 [US1] Implement CIF parser: Create `code/ingest/parse_cif.py` (convert to `MaterialGraph` using `pymatgen`, extract node/edge features). **Requirement**: Dependency: T004, T060c.
-- [X] T011 [US1] Implement 2D filter and tensor validator: Create `code/ingest/filter.py`. **Requirement**: Explicitly filter for entries with **independent elastic tensor components** as mandated by Constitution Principle VI. Log exclusion reasons. **Requirement**: Dependency: T010, T004, T060c.
-- [X] T011a [US1] Validate DFT Ground-Truth Fidelity: Create `code/ingest/continuum_validator.py` to verify that derived Young's/Shear/Poisson values strictly follow continuum mechanics relations from the elastic tensor without hard-coding. **Requirement**: Implement the standard continuum mechanics formulas (Voigt/Reuss/Hill averaging) explicitly in code. **Requirement**: Assert that the derived values match the formulas within a tight tolerance. **Requirement**: Log any deviations. **Requirement**: Satisfies Constitution Principle VI (DFT Ground-Truth Fidelity). **Requirement**: Dependency: T011, T004, T060c.
-- [X] T012 [US1] Implement bias check: Create `code/ingest/bias_check.py` (log reasons for exclusion, flag small families). **Requirement**: Dependency: T011a, T004, T060c.
-- [ ] T013f [US1] Generate Real Family-Based Split: Create `code/ingest/split_generator.py` to generate a stratified split based on chemical prototype/family. **Requirement**: Consume `graphs_v1.parquet` from T013d4. **Requirement**: Deserialize `structure_pickle` using `pickle.load` (protocol 4) or parse `cif_raw` using `pymatgen.io.cif.CifParser` to reconstruct `pymatgen.Structure` objects before matching. **Requirement**: Derive `family_id` by using `pymatgen.core.structure.StructureMatcher` with parameters `lattice_tol=0.01`, `position_tol=0.1`, `angle_tol=5.0` to group them by prototype. **Requirement**: Use `sklearn.model_selection.train_test_split` with `random_state=42` and `stratify` based on `family_id`. **Requirement**: Ensure no training family appears in the test set. **Guarantee**: The split generation logic MUST guarantee SC-002 compliance by design (enforcing family separation algorithmically before write). **Requirement**: Atomically write `data/processed/split_indices.json` with this final stratified split using `tempfile.mkstemp` in the same directory as the target, then `os.rename` to the final path.. **Requirement**: If the file is not written successfully, exit with code 1. **Requirement**: Dependency: T013d4, T004, T060c.
-- [X] T013d1 [US1] Implement download logic: Create `code/ingest/download_worker.py` to fetch raw data from the configured source. **Requirement**: Acquire lock file data/.source_state using `code/ingest/lock_manager.py` (T009b) before fetching and Release lock on completion. **Requirement**: Output to `data/raw/source_data.json`. **Requirement**: Dependency: T009b, T009, T004, T060c.
-- [X] T013d2 [US1] Implement parse logic: Create `code/ingest/parse_worker.py` to convert raw data to `MaterialGraph` objects. **Requirement**: Dependency: T010, T004, T060c.
-- [X] T013d3 [US1] Implement filter logic: Create `code/ingest/filter_worker.py` to apply 2D and tensor filters. **Requirement**: Dependency: T011, T004, T060c.
-- [ ] T013d4 [US1] Implement save logic: Create `code/ingest/save_worker.py` to serialize graphs to `data/processed/graphs_v1.parquet`. **Requirement**: Output to `data/processed/graphs_v1.parquet`. **Requirement**: Output schema MUST include `node_features` (List[List[float]] with inner dimension representing node embeddings), `edge_features` (List[List[float]] with inner dimension), `target_moduli` (Dict[str, float64]), `family_id` (str), **`structure_pickle` (bytes, pickle protocol 4)**, and **`cif_raw` (string, UTF-8)**. **Requirement**: **Reproducibility**: Write the Python version used for pickling to `data/processed/python_version.txt` and record it in `state/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate.yaml`. **Requirement**: Dependency: T012, T004, T060c.
-- [X] T013d0_define [US1] Define Orchestration Logic: Create `code/ingest/pipeline.py` to define the orchestration logic that imports and calls the functions defined in the worker tasks (T013d1-d4). **Requirement**: This task defines the orchestration logic. **Requirement**: Dependency: T013d1, T013d2, T013d3, T013d4, T004, T060c.
-- [ ] T013d0_impl [US1] Implement Worker Imports: Finalize `code/ingest/pipeline.py` to import and orchestrate the worker logic defined in T013d1-d4. **Requirement**: This task implements the imports and calls. **Requirement**: Dependency: T013d0_define, T013d1, T013d2, T013d3, T013d4, T004, T060c.
-- [ ] T017b [US1] Implement validation and logging: Create `code/ingest/validator.py` to validate `split_indices.json`. **Requirement**: Output `data/results/split_validation.json`. **Requirement**: Dependency: T013f, T004, T060c.
-- [ ] T018c-def [US2] Define Training Configuration: Create `code/model/config.py` to define the GNN architecture (≤3 layers, hidden dim ≤64) and hyperparameters. **Requirement**: Dependency: T004, T060c.
-- [ ] T018c-impl [US2] Implement Training Loop Logic: Create `code/model/train_core.py` with the core training logic. **Requirement**: Dependency: T018c-def, T004, T060c.
-- [ ] T018b [US2] Implement training loop: Create `code/model/train.py` to train the GNN on the dataset. **Requirement**: Consume `split_indices.json` from T017b. **Requirement**: Use `tracemalloc` to measure peak memory. **Requirement**: Output `data/processed/model_v1.pt` and `data/results/predictions.json`. **Requirement**: Dependency: T018c-impl, T017b, T004, T060c.
-- [ ] T020a [US2] Implement composition-only baseline: Create `code/analysis/ablation.py` (feed-forward network on Magpie descriptors, no topology). **Requirement**: Output `data/results/composition_baseline.json`. **Requirement**: Dependency: T018b, T004, T060c.
-- [ ] T030a [US2] Implement training loop: Create `code/model/train.py` to train the GNN on the dataset. **Requirement**: Consume `split_indices.json` from T017b. **Requirement**: Use `tracemalloc` to measure peak memory. **Requirement**: Dependency: T018b, T004, T060c.
-- [ ] T036a [US2] Implement evaluation: Create `code/model/eval.py` (MAPE, RMSE, R² for Young's, Shear, Poisson). **Requirement**: Dependency: T018b, T004, T060c.
-- [ ] T021a [US2] Implement Inter-Family Validation: Create `code/eval/inter_family_validator.py` to compute MAPE on the held-out family set. **Requirement**: Dependency: T018b, T017b, T004, T060c.
-- [ ] T021b [US2] Implement Inter-Family Validation Gate: Create `code/eval/gate.py` to enforce SC-002. **Requirement**: **Hard Gate**: If MAPE >= 15%, exit with code 1 and message "SC-002 FAILED: Inter-family MAPE exceeds 15%". **Requirement**: **Output Schema**: `{"status": "PASS" | "FAIL", "mape_value": float, "threshold": 15.0, "message": "string"}`. **Requirement**: Dependency: T021a, T017b, T004, T060c.
-- [ ] T018d [US2] End-to-End Memory Validation: Create `tests/integration/test_memory_full_pipeline.py` to verify peak memory < 7GB. **Requirement**: Dependency: T013d0_impl, T017b, T018c-impl, T004, T060c.
-- [ ] T023 [US3] Implement SHAP calculation: Create `code/analysis/importance.py` to calculate SHAP values for each descriptor using `DeepExplainer` with a background sample of graphs. **Requirement**: Use a portion of the training set as the background sample for DeepExplainer**. **Requirement**: Dependency: T018b, T004, T060c.
-- [ ] T024 [US3] Implement permutation importance: Create `code/analysis/importance.py` to calculate permutation importance scores using a graph-level permutation strategy (shuffling entire graphs). **Requirement**: Perform a permutation test with a sufficient number of shuffles using the drop in R² as the metric. **Requirement**: Dependency: T018b, T004, T060c.
-- [ ] T025 [US3] Implement composition-only baseline: Create `code/analysis/ablation.py` (feed-forward network on Magpie descriptors, no topology). **Requirement**: Output `data/results/composition_baseline.json`. **Requirement**: Dependency: T018b, T004, T060c.
-- [ ] T026 [US3] Implement ablation study: Create `code/analysis/ablation.py` to compare full GNN vs. composition-only, report MAPE delta. **Requirement**: Output `data/results/ablation_report.json`. **Requirement**: Dependency: T025, T018b, T004, T060c.
-- [ ] T027a [US3] Implement data aggregation: Create `code/analysis/aggregate.py` to combine SHAP, permutation, and generalization metrics into a single intermediate JSON. **Requirement**: Dependency: T023, T024, T026, T004, T060c.
-- [ ] T027d [US3] Success Criteria Aggregator: Create `code/eval/aggregator.py` to verify all SCs. **Requirement**: **Hard Gate**: Exit with code 1 if any SC fails. **Requirement**: Dependency: T021b, T021a, T036b, T004, T060c.
-- [ ] T046 [P4] Update README: Update `README.md` to explicitly define the project as a "Surrogate Model" that interpolates DFT data. **Requirement**: Must explicitly state: "Random seeds are pinned in `code/utils/config.py`". **Requirement**: Dependency: T018b, T004, T060c.
-- [ ] T057 [Final] Final Title Audit: Create `code/utils/final_audit.py` to verify all titles and disclaimers. **Requirement**: Dependency: T054, T055, T056, T060c.
-- [ ] T099 [Final] Final Check: Verify all artifacts are generated and hashes are recorded. **Requirement**: Dependency: T027d, T004, T060c.
+## Phase 2 – Model training, evaluation & benchmarking  
 
-# Phase 2: Foundational & User Story 2 (GNN Training)
+- [ ] T005 **[P]** Train a lightweight CPU‑only Message‑Passing Neural Network (MPNN).  
+  *Script*: `code/model/train.py`  
+  *Key points*:  
+  * Uses `torch.device("cpu")`.  
+  * Architecture ≤ 2 message‑passing layers, hidden dimension ≤ 64.  
+  * Records peak memory with `tracemalloc` and `psutil` (must be ≤ 16 GB).  
+  * Performs 5‑fold family‑stratified cross‑validation (stores mean ± std of Young’s/shear MAPE and Poisson MAE).  
+  * Saves `data/processed/model_v1.pt` (torch checkpoint) and `data/results/training_logs.json` (conforms to `contracts/training_logs_schema.yaml`).  
+  *Verification*: `training_logs.json` includes `"peak_memory": {"within_limit": true}` and CV statistics; the script exits with error if memory exceeds the limit.
 
-**Purpose**: Train the surrogate model and evaluate generalization.
+- [ ] T006 **[P]** Evaluate the trained surrogate on the held‑out test families, benchmark against a composition‑only baseline, and record inference latency.  
+  *Script*: `code/model/eval_runner.py`  
+  *Steps*:  
+  1. Load `model_v1.pt` and `split_indices.json`.  
+  2. Compute predictions for every test material, write `data/results/predictions.json` (schema `contracts/predictions_schema.yaml`).  
+  3. Compute surrogate metrics (Young’s & shear MAPE, Poisson MAE) and baseline metrics (linear regression on Magpie descriptors).  
+  4. Perform a paired‑bootstrap test (1 000 resamples) with Holm correction; store p‑values.  
+  5. Measure per‑material CPU inference time with `time.perf_counter()`, store the array, median, and a boolean `within_limit` (≤ 200 ms) in `data/results/generalization_metrics.json` (schema `contracts/results_schema.yaml`).  
+  *Verification*: `generalization_metrics.json` must have `"inference_time":{"within_limit":true}` and `"surrogate"` metrics meeting SC‑006 thresholds (≤ 15 % MAPE, ≤ 0.05 MAE).  
 
-**Note on Parallelism**: While the plan mentions "Parallel Opportunities", the strict data dependencies (US1 data must exist before US2 training) enforce a logical sequence for the *first* execution. Once data is cached, US2 tasks can be re-run independently. T018b depends on T017b (Split Validation) which depends on T013f (Split Generation) which depends on T013d4 (Save Logic). Therefore, US2 cannot start until US1 data pipeline is complete and verified.
+- [ ] T007 **[P]** Perform feature‑importance and ablation analysis to satisfy SC‑005.  
+  *Script*: `code/analysis/feature_importance.py`  
+  *Procedure*:  
+  1. Compute permutation importance for each node‑feature column (drop in Young’s/shear MAPE).  
+  2. Retrain the model with each column removed; record ΔMAPE (must be ≥ 2 pp for qualifying descriptors).  
+  3. Compute SHAP values using `shap.KernelExplainer` on a 200‑sample subset; perform a permutation test (p < 0.05).  
+  4. Select descriptors that (a) rank in the top 5 by permutation importance, (b) have SHAP ranking agreement, and (c) together contribute ≥ 70 % of total importance mass.  
+  5. Write `data/results/feature_importance_report.md` summarizing the top 3–5 descriptors, ΔMAPE values, and SHAP plots.  
+  *Verification*: The markdown must list at least three descriptors meeting all three criteria; the CI runs a lightweight parser to confirm.
+
+---
+
+## Phase 3 – Supporting scientific artifacts  
+
+- [ ] T008 **[P]** Create the mandatory disclaimer template.  
+  *File*: `code/utils/disclaimer_template.py` containing two constants:  
+  ```python
+  DISCLAIMER_TEXT = (
+      "The surrogate model interpolates DFT‑computed elastic tensors; "
+      "it does not solve the Schrödinger equation and therefore is not a "
+      "first‑principles method."
+  )
+  FEYNMAN_QUOTE = "The first principle is that you must not fool yourself—and you are the easiest person to fool."
+  ```  
+  *Verification*: All reporting scripts import `DISCLAIMER_TEXT` and `FEYNMAN_QUOTE`; CI checks that the file exists and the constants match exactly.
+
+- [ ] T009 **[P]** Document an end‑to‑end runnable command in `docs/quickstart.md`.  
+  *Content*: a step‑by‑step guide that (1) runs `python -m code.data.loader`, (2) `python -m code.data.graph_builder`, (3) `python -m code.data.split_generator`, (4) `python -m code.model.train`, (5) `python -m code.model.eval_runner`, and (6) `python -m code.analysis.feature_importance`.  
+  *Verification*: The CI executes the command sequence on a tiny sampled subset (first 100 materials) to ensure no runtime errors; the script prints the paths of the generated artifacts.
+
+---
+
+### Dependency summary
+| Task | Depends on |
+|------|------------|
+| T060c | – |
+| T001 | – |
+| T002 | T001 |
+| T003 | T002 |
+| T004 | T003 |
+| T005 | T004 |
+| T006 | T005 |
+| T007 | T006 |
+| T008 | – (independent) |
+| T009 | All previous tasks (to guarantee the command works) |
+
+All tasks are unchecked (`[ ]`) so that the verifier can confirm the required artifacts are produced during the next execution pass. Completed infrastructure work from earlier iterations (directory creation, logging scaffolds, etc.) has been folded into the relevant scripts and does not need separate checklist items.

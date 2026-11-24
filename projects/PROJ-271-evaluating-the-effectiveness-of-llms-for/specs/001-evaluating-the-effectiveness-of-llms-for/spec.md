@@ -13,11 +13,11 @@ The research system MUST ingest a sampled subset of the `codeparrot/github-code`
 
 **Why this priority**: This establishes the baseline for the "rule-based" detection mode. Without a reliable, reproducible static analysis baseline and the corresponding structural feature vectors, the comparative analysis against LLMs cannot proceed.
 
-**Independent Test**: Can be fully tested by running the data pipeline script on a local subset (e.g., 10 functions) and verifying that a CSV output exists containing the function code, structural metrics, and a list of detected static smells (e.g., `C0111`, `R0913`).
+**Independent Test**: Can be fully tested by running the data pipeline script on a local subset of functions (e.g., a small sample) and verifying that a CSV output exists containing the function code, structural metrics, and a list of detected static smells (e.g., `C0111`, `R0913`).
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid HuggingFace dataset path and a sample size of 800 functions, **When** the pipeline executes, **Then** a `data/static_baseline.csv` file is generated containing 800 rows with columns for `code`, `loc`, `cyclomatic_complexity`, and `static_smell_labels`.
+1. **Given** a valid HuggingFace dataset path and a sample size of a substantial number of functions, **When** the pipeline executes, **Then** a `data/static_baseline.csv` file is generated containing a substantial number of rows with columns for `code`, `loc`, `cyclomatic_complexity`, and `static_smell_labels`.
 2. **Given** a function with known high cyclomatic complexity, **When** the `radon` metrics are computed, **Then** the `cyclomatic_complexity` column reflects the correct integer value according to the `radon` documentation.
 3. **Given** a function containing a clear variable naming violation, **When** Pylint runs, **Then** the `static_smell_labels` column includes the corresponding Pylint error code (e.g., `C0103`).
 

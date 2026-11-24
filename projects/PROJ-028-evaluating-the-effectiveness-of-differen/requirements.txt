@@ -1,3 +1,5 @@
+# Python 3.11 project dependencies
+# Evaluating Prompting Strategies for Code Generation (PROJ-028)
 transformers>=4.36.0
 torch[cpu]>=2.1.0
 datasets>=2.14.0

@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-148-statistical-analysis-of-code-complexity-
-last_run_id: 68e1f2f1-2a3d-4d62-9196-800a1b92b735
+last_run_id: b8b7678c-301a-4ab1-8c7a-6dbbb24ff993
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity
 title: Statistical Analysis of Code Complexity Metrics and Bug Prediction
-updated_at: '2026-06-29T17:39:57.958872Z'
+updated_at: '2026-10-24T04:28:34.868221Z'

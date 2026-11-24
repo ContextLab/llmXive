@@ -186,9 +186,7 @@ def _flesh_out_agent():
     entry = SimpleNamespace(
         name="flesh_out",
         prompt_path="agents/prompts/flesh_out.md",
-        default_backend="dartmouth",
-        fallback_backends=[],
-        default_model="m",
+        profile="standard_generation",
         prompt_version="1.2.0",
     )
     return FleshOutAgent(entry)

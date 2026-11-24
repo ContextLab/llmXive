@@ -1,19 +1,12 @@
 T001a:
-  c: true
-  h: aaaa838d87b6475a11989fd0d0bf8fcd80098ee67049c63cd125e108a833048a
-  r: "Checked the execution log `code/.tasks/T001a.code_setup_dirs.py.log` which shows\
-    \ a successful run of `setup_dirs.py` (exit\u202F0) and stdout confirming that\
-    \ all nine required directories (`src/sim`, `src/analysis`, `src/data`, `src/cli`,\
-    \ `src/tests`, `data/raw`, `data/processed`, `docs`, `state`) were created. The\
-    \ directories exist as indicated, fulfilling the task\u2019s specification."
-  sig: 19e7022f1b1c2a1dfe12056a5b58fcff31aee98a79e454889e9beb4e64db19da
-T001b:
   c: false
-  h: 8a87189e18b3393eff6f0f6bdd9f6bd8169f306f176c992950edd29938afc1ec
-  r: The evidence includes all required `src/*/__init__.py` files and the two `data/*/.gitkeep`
-    files, but the `docs/.gitkeep` and `state/.gitkeep` files are absent from the
-    listed artifacts. These missing files prevent the task from being fully satisfied.
-  sig: 13511dee910d0af5a3dbaffb2d5dd1316d1016de8d7e3ac931eac252b3b57056
+  h: d5c2067b8090828c501c08e25c7fc2a38714873efa4587e2344b9a55c77c866c
+  r: "Checked the project root `projects/PROJ-1034-llmxive-follow-up-extending-infinite-wor`\
+    \ but no evidence was provided that the required directories (`src/sim`, `src/analysis`,\
+    \ `src/data`, `src/cli`, `src/tests`, `data/raw`, `data/processed`, `docs`, `state`)\
+    \ actually exist. The task\u2019s core deliverable \u2013 the created directory\
+    \ skeleton \u2013 is missing."
+  sig: b8acfcab2344aae22bb7fdaa90184996a71ce71406c573e131faf633b21539b2
 T002:
   c: true
   h: 389d66101de4adb5f86ee11bf76ba82cb64797db06a330f9a9cb775d70171944
@@ -50,6 +43,33 @@ T005:
     \ The implementation runs on CPU, respects the throttle, records step latency,\
     \ and returns a populated `SimulationRun`, satisfying the task\u2019s requirement."
   sig: c975e8f5e7458db91e46478f83eec73268fa69bccece7dcf510ad91eb20da5a2
+T006a:
+  c: false
+  h: 3f5e0d3dbcad8d199597c8c9a6cb708ba6a2b2af5ff88e6398069fefded3a554
+  r: "The provided `src/sim/physics_oracle.py` defines a `PhysicsOracle` that can\
+    \ detect violations but never creates or updates a `MetricRecord` (it only imports\
+    \ the class). There is no code that logs the violation values into the `physics_violations`\
+    \ field of a `MetricRecord`, nor any test or verification showing the data flow\
+    \ from the oracle to the record. The task\u2019s core requirement\u2014recording\
+    \ violations in `MetricRecord` and confirming the flow\u2014is therefore unmet."
+  sig: 9e074c3810afcb3a49bca2dab045cbc5cf83ef6e8da79b5008d3f5af422ab4fe
+T006b:
+  c: false
+  h: dbfe5d08b96d2ebb68d08e463a1bf596a1cbdef4decb538985c67ed655bb493c
+  r: "The `src/sim/eco_director.py` file does not contain any use of `resource.setrlimit`,\
+    \ no hard\u2011loop time counter beyond a simple elapsed\u2011time check, and\
+    \ it never emits a signal or calls the termination handler from T008b. The memory\u2011\
+    limit check is a placeholder comment and does not enforce RAM limits, nor does\
+    \ it log the required \u201COut of Bounds\u201D reason such as \u201CMemory Explosion\u201D\
+    . Consequently the task\u2019s core requirements are not satisfied."
+  sig: 2d816585b245e1fef16f8aee4493abdb3ee1a054bff1ac1e0987b409f4bb4e11
+T006c:
+  c: false
+  h: 801e756aaf88e577151f1291bba39b482b1b6737a6030f85d8473ea0e8f7ce10
+  r: "Checked `src/sim/eco_director.py` \u2013 it does not import `src/sim/termination_handler.py`\
+    \ nor invoke any of its termination functions when limits are exceeded. The required\
+    \ integration is missing."
+  sig: e6838f275db014e91ad85188480e2f929fafb0fedda3e18e2eff8d5dec73ad8a
 T007:
   c: true
   h: 6ca565e8a5341ce490de4d20d70c93be054076ce9611c1868e739bc374ce9541
@@ -58,14 +78,21 @@ T007:
     \ appropriate fields (e.g., coherence/diversity/latency metrics, run status/config,\
     \ parameter grid structure), no stubs or placeholders."
   sig: 36f3b9cf2a8a9f84dd56daf3f5092d0ede27658b9e217ccf7d11471d47b5bdd6
+T008b:
+  c: true
+  h: 0a9595747f1d4fb5a1031bb0d9493d55f0f66ff6bd4eebe2b81da6e0cd4f6c96
+  r: "Checked `src/sim/termination_handler.py` \u2013 a non\u2011empty, fully implemented\
+    \ module that provides a `GracefulTerminator` class with state\u2011saving, reason\
+    \ logging, and a clean `sys.exit(0)` exit, meeting all specified requirements."
+  sig: e1731ebfa1292fd361c3c4e1d9aba7f2f38c41579e94be3c489ae008d3ac0fa6
 T010b:
   c: true
-  h: 5b421a33a6c55acdf9fff4234df029c6eaba066ec899911faddc795603debf1a
-  r: "Checked `src/analysis/novelty.py` (15498\u202Fbytes) which defines `calculate_event_entropy(transitions:\
+  h: 310a63a8ea8fe1a20feb7085da6342f9b1439e83f2489ae7653b37227c11a082
+  r: "Checked `src/analysis/novelty.py` (15498\u202Fbytes) \u2013 it defines `calculate_event_entropy(transitions:\
     \ list) -> float` and `quantify_novelty(events: list, base_entropy: float, method:\
-    \ str = \"default\") -> float` with full implementations, error handling, and\
-    \ a configurable `method` argument supporting multiple novelty calculations."
-  sig: 357fec38743443366aac51cd208f2a274051e4e91aecf2991afc7c39946b9b8c
+    \ str = \"default\") -> float` with actual implementations and a `method` argument\
+    \ supporting multiple formulas."
+  sig: 15b440e16801667eef2fedd78e0c59daaa799c6d535929a0e6364d0a9f054490
 T019:
   c: false
   h: ce2c8c1687e344c040a912b5a13803cf319ef6b6a31b902df2a2a6805dcb850f

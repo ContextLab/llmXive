@@ -1,0 +1,426 @@
+{
+  "sample_id": "c4367f231b5dc54f23f2983828562ce3a7555a8a",
+  "type": "intent",
+  "entities": [
+    {
+      "entity": "@@ -0,0 +1,81 @@",
+      "verified": false
+    },
+    {
+      "entity": "+# Generative AI / LLM Policy",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+We appreciate that we can't realistically police how you author your pull requests, which includes whether you employ large-language model (LLM)-based development tools.",
+      "verified": false
+    },
+    {
+      "entity": "+So, we don't.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+However, due to both legal and human reasons, we have to establish boundaries.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+> [!CAUTION]",
+      "verified": false
+    },
+    {
+      "entity": "+> **TL;DR:**",
+      "verified": false
+    },
+    {
+      "entity": "+> - We take the responsibility for this project very seriously and we expect you to take your responsibility for your contributions seriously, too.",
+      "verified": false
+    },
+    {
+      "entity": "+>   This used to be a given, but it changed now that a pull request is just one prompt away.",
+      "verified": false
+    },
+    {
+      "entity": "+>",
+      "verified": false
+    },
+    {
+      "entity": "+> - Every contribution has to be backed by a human who unequivocally owns the copyright for all changes.",
+      "verified": false
+    },
+    {
+      "entity": "+>   No LLM bots in `Co-authored-by:`s.",
+      "verified": false
+    },
+    {
+      "entity": "+>",
+      "verified": false
+    },
+    {
+      "entity": "+> - DoS-by-slop leads to a permanent ban.",
+      "verified": false
+    },
+    {
+      "entity": "+>",
+      "verified": false
+    },
+    {
+      "entity": "+> - Absolutely **no** unsupervised agentic tools like OpenClaw.",
+      "verified": false
+    },
+    {
+      "entity": "+>",
+      "verified": false
+    },
+    {
+      "entity": "+> ---",
+      "verified": false
+    },
+    {
+      "entity": "+>",
+      "verified": false
+    },
+    {
+      "entity": "+> By submitting a pull request, you certify that:",
+      "verified": false
+    },
+    {
+      "entity": "+>",
+      "verified": false
+    },
+    {
+      "entity": "+> - You are the author of the contribution or have the legal right to submit it.",
+      "verified": false
+    },
+    {
+      "entity": "+> - You either hold the copyright to the changes or have explicit legal authorization to contribute them under this project's license.",
+      "verified": false
+    },
+    {
+      "entity": "+> - You understand the code.",
+      "verified": false
+    },
+    {
+      "entity": "+> - You accept full responsibility for it.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+## Legal",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+There is ongoing legal uncertainty regarding the copyright status of LLM-generated works and their provenance.",
+      "verified": false
+    },
+    {
+      "entity": "+Since we do not have a formal [Contributor License Agreement](https://en.wikipedia.org/wiki/Contributor_license_agreement) (CLA), you retain your copyright to your changes to this project.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+Therefore, allowing contributions by LLMs has unpredictable consequences for the copyright status of this project – even when leaving aside possible copyright violations due to plagiarism.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+## Human",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+As the makers of software that is used by millions of people worldwide and with a reputation for high-quality maintenance, we take our responsibility to our users very seriously.",
+      "verified": false
+    },
+    {
+      "entity": "+No matter what LLM vendors or boosters on LinkedIn tell you, we have to manually review every change before merging, because it's **our responsibility** to keep the project stable.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+Please understand that by opening low-quality pull requests you're not helping anyone.",
+      "verified": false
+    },
+    {
+      "entity": "+Worse, you're [poisoning the open source ecosystem](https://lwn.net/Articles/1058266/) that was precarious even before the arrival of LLM tools.",
+      "verified": false
+    },
+    {
+      "entity": "+Having to wade through plausible-looking-but-low-quality pull requests and trying to determine which ones are legit is extremely demoralizing and has already burned out many good maintainers.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+Put bluntly, we have no time or interest to become part of your vibe coding loop where you drop LLM slop at our door, we spend time and energy to review it, and you just feed it back into the LLM for another iteration.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+This dynamic is especially pernicious because it poisons the well for mentoring new contributors which we are committed to.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+## Summary",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+In practice, this means:",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+- Pull requests that have an LLM product listed as co-author can't be merged and will be closed without further discussion.",
+      "verified": false
+    },
+    {
+      "entity": "+  We cannot risk the copyright status of this project.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+  If you used LLM tools during development, you may still submit – but you must remove any LLM co-author tags and take full ownership of every line.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+- By submitting a pull request, **you** take full **technical and legal** responsibility for the contents of the pull request and promise that **you** hold the copyright for the changes submitted.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+  \"An LLM wrote it\" is **not** an acceptable response to questions or critique.",
+      "verified": false
+    },
+    {
+      "entity": "+  **If you cannot explain and defend the changes you submit, do not submit them** and open a high-quality bug report/feature request instead.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+- Accounts that exercise bot-like behavior – like automated mass pull requests – will be permanently banned, whether they belong to a human or not.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+- Do **not** post LLM-generated review comments – we can prompt LLMs ourselves should we desire their wisdom.",
+      "verified": false
+    },
+    {
+      "entity": "+  Do **not** post summaries unless you've fact-checked them and take responsibility for 100% of their content.",
+      "verified": false
+    },
+    {
+      "entity": "+  Remember that *all* LLM output *looks* **plausible**.",
+      "verified": false
+    },
+    {
+      "entity": "+  When using these tools, it's **your** responsibility to ensure that it's also **correct** and has a reasonable signal-to-noise ratio.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+---",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+# Credits, Attribution",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+The original version of this can be found in [pyca/service-identity][] and is",
+      "verified": false
+    },
+    {
+      "entity": "+used with permission from Hynek Schlawack.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+[pyca/service-identity]:",
+      "verified": false
+    },
+    {
+      "entity": "+    https://github.com/pyca/service-identity/blob/fa91bf55cfda64145aa3d202cc84059befb98af4/.github/AI_POLICY.md",
+      "verified": false
+    },
+    {
+      "entity": "@@ -1,7 +1,8 @@",
+      "verified": false
+    },
+    {
+      "entity": "# Contribution Guidelines",
+      "verified": false
+    },
+    {
+      "entity": "Before opening any issues or proposing any pull requests, please read",
+      "verified": false
+    },
+    {
+      "entity": "-our [Contributor's Guide](https://requests.readthedocs.io/en/latest/dev/contributing/).",
+      "verified": false
+    },
+    {
+      "entity": "+our [Contributor's Guide](https://requests.readthedocs.io/en/latest/dev/contributing/)",
+      "verified": false
+    },
+    {
+      "entity": "+as well as our [AI Policy](./AI_POLICY.md).",
+      "verified": false
+    },
+    {
+      "entity": "To get the greatest chance of helpful responses, please also observe the",
+      "verified": false
+    },
+    {
+      "entity": "following additional notes.",
+      "verified": false
+    },
+    {
+      "entity": "@@ -52,3 +53,14 @@ Please be aware of the following things when filing bug reports:",
+      "verified": false
+    },
+    {
+      "entity": "If you do not provide all of these things, it will take us much longer to",
+      "verified": false
+    },
+    {
+      "entity": "fix your problem. If we ask you to clarify these and you never respond, we",
+      "verified": false
+    },
+    {
+      "entity": "will close your issue without fixing it.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+## Good Pull Requests",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+1. Avoid raising duplicate pull requests. *Please* use the GitHub pull request",
+      "verified": false
+    },
+    {
+      "entity": "+   search feature to check whether someone else has already filed a pull",
+      "verified": false
+    },
+    {
+      "entity": "+   request.",
+      "verified": false
+    },
+    {
+      "entity": "+2. When filing a pull request, always include tests that fail without your",
+      "verified": false
+    },
+    {
+      "entity": "+   changes thus preventing the fix from regressing.",
+      "verified": false
+    },
+    {
+      "entity": "+3. Always run the test suite locally",
+      "verified": false
+    },
+    {
+      "entity": "+4. Write commit messages that explain _why_ a change was made beyond \"Fixes",
+      "verified": false
+    },
+    {
+      "entity": "+   #NNNN\". Why is this the right fix? What other options were ruled out? etc.",
+      "verified": false
+    }
+  ]
+}

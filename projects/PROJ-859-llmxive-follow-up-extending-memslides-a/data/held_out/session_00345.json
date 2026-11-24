@@ -1,0 +1,108 @@
+{
+  "trace_id": "held_out_43_00345",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "format_text",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "delete_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 42.1671,
+        "x": 11.8211,
+        "y": 0.8619
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 7.4637,
+        "y": 37.3919,
+        "width": 41.5823,
+        "height": 37.3058
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 66.6296,
+        "y": 63.9888,
+        "width": 31.295,
+        "height": 9.6144
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 29.7793,
+        "y": 47.0778,
+        "width": 34.7409,
+        "height": 10.056
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 35.7721,
+        "saturation": 97.0698
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 88.7371,
+        "saturation": 90.6904
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 93.7106,
+        "saturation": 45.8304
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 40.8948,
+        "saturation": 78.9002
+      }
+    },
+    {
+      "step": 8,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 48.772
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.21489,
+    "tool_repetition_freq": 0.555556,
+    "arg_semantic_variance": 782.083466
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 7,
+    "layout_hash": "43-345-apply_theme"
+  },
+  "variance_multiplier": 1.5
+}

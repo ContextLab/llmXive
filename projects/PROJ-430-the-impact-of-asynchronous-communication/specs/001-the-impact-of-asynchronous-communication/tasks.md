@@ -26,9 +26,9 @@
 
 - [ ] T001 [P] Initialize Project Directory Structure: Execute `mkdir -p projects/PROJ-430-the-impact-of-asynchronous-communication/{code,data,tests,docs,config}`. **Output**: Directory tree. **Verification**: `test -d projects/PROJ-430-the-impact-of-asynchronous-communication/code` and `test -d projects/PROJ-430-the-impact-of-asynchronous-communication/data`. <!-- FIXED: deterministic check -->
 - [ ] T001c [P] Create `.gitignore`: Create `projects/PROJ-430-the-impact-of-asynchronous-communication/.gitignore` excluding `data/raw/*`, `data/derived/*`, `venv/`, `*.pyc`, `__pycache__`. **Output**: `.gitignore` file. **Verification**: `cat.gitignore | grep -q 'data/raw'`. <!-- FIXED: content check -->
-- [ ] T001d [P] Create `requirements.txt`: Pin dependencies (pandas, scikit-learn, nltk, requests, matplotlib, seaborn, pyyaml, langdetect, networkx, pytest, ruff, black, statsmodels, pylmm). **Output**: `requirements.txt` file.
-- [ ] T002a [P] Create Python virtual environment: Execute `python3.11 -m venv venv` in project root. **Output**: `venv/` directory. **Verification**: `venv/bin/python --version` must return `Python 3.11.x`.
-- [ ] T002b [P] Install dependencies: Run `pip install -r requirements.txt` within the virtual environment. **Output**: Installed packages.
+- [X] T001d [P] Create `requirements.txt`: Pin dependencies (pandas, scikit-learn, nltk, requests, matplotlib, seaborn, pyyaml, langdetect, networkx, pytest, ruff, black, statsmodels, pylmm). **Output**: `requirements.txt` file.
+- [X] T002a [P] Create Python virtual environment: Execute `python3.11 -m venv venv` in project root. **Output**: `venv/` directory. **Verification**: `venv/bin/python --version` must return `Python 3.11.x`.
+- [ ] T002b [P] Install dependencies: Run `pip install -r requirements.txt` within the virtual environment. **Output**: Installed packages. <!-- FAILED-IN-EXECUTION: code/install_dependencies.py exit=1 -->
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `.ruff.toml` and `pyproject.toml` with strict rules; run initial lint check.
 
 ---
@@ -39,8 +39,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T004 Setup `code/config.py` for paths, API keys, and deferred thresholds (sample_size, min_events)
-- [~] T005 [P] Implement `code/utils/hygiene.py` for SHA-256 hashing and state updates (Constitution Principle V)
+- [ ] T004 Setup `code/config.py` for paths, API keys, and deferred thresholds (sample_size, min_events)
+- [X] T005 [P] Implement `code/utils/hygiene.py` for SHA-256 hashing and state updates (Constitution Principle V)
 - [~] T006 [P] Setup `data/` directory structure (`raw/`, `derived/`, `validation/`, `logs/`) with `.gitignore` rules (exclude `*.csv`, `*.json` in raw, keep `.gitkeep` in validation)
 - [~] T007 Create base data models/entities in `code/models.py` (Project, Event, ContributorPair, Metric)
 - [~] T008 Configure logging infrastructure in `code/utils/logger.py` with JSON formatting for pipeline monitoring

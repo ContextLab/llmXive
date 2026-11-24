@@ -2774,3 +2774,38 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-03T22:26:58Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/README.md
+  attempts: 1
+  canonical: downloads RSA images from NPPN Plant Phenome Pipeline via MGB3 source
+  claim_id: c_8ba7c1fd
+  context: The pipeline implements a reproducible research pipeline that downloads
+    publicly available RSA images from the NPPN Plant Phenome Pipeline (via the verified
+    MGB3 source).
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Downloads publicly available root system architecture (RSA) images from
+    the NPPN Plant Phenome Pipeline (via the verified MGB3 source).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-22T22:27:18Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/README.md
+  attempts: 1
+  canonical: retrieves physiological traits from TRY database
+  claim_id: c_8f9212e9
+  context: The pipeline extracts quantitative RSA metrics and retrieves physiological
+    traits (e.g., stomatal conductance, photosynthetic rate) from the TRY database.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Retrieves physiological traits (e.g., stomatal conductance, photosynthetic
+    rate) from the TRY database.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-22T22:27:42Z'

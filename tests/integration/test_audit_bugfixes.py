@@ -85,7 +85,6 @@ def test_analyze_includes_constitution_when_provided():
 
     from llmxive.backends.base import ChatResponse
     from llmxive.speckit import analyze_cmd
-    from llmxive.types import BackendName
 
     captured: dict = {}
 
@@ -96,8 +95,8 @@ def test_analyze_includes_constitution_when_provided():
     with patch("llmxive.speckit.analyze_cmd.chat_with_fallback", _fake_chat):
         analyze_cmd.run_analyze(
             spec_text="SPEC", plan_text="PLAN", tasks_text="TASKS",
-            default_backend=BackendName.DARTMOUTH, fallback_backends=[],
-            default_model="qwen.qwen3.5-122b", repo_root=_REPO,
+            profile="standard_generation",
+            repo_root=_REPO,
             constitution_text="CONST-PRINCIPLE-X",
         )
     assert captured, "chat_with_fallback was not invoked"
@@ -110,12 +109,11 @@ def test_analyze_rejects_unknown_kind():
     import pytest as _pt
 
     from llmxive.speckit import analyze_cmd
-    from llmxive.types import BackendName
     with _pt.raises(ValueError):
         analyze_cmd.run_analyze(
             spec_text="", plan_text="", tasks_text="",
-            default_backend=BackendName.DARTMOUTH, fallback_backends=[],
-            default_model="m", repo_root=_REPO, kind="bogus",
+            profile="standard_generation",
+            repo_root=_REPO, kind="bogus",
         )
 
 
@@ -161,7 +159,6 @@ def _make_ctx(project_id: str, project_dir, agent_name: str):
     from pathlib import Path as _P
 
     from llmxive.speckit.slash_command import SlashCommandContext
-    from llmxive.types import BackendName
     return SlashCommandContext(
         project_id=project_id,
         project_dir=project_dir,
@@ -170,9 +167,7 @@ def _make_ctx(project_id: str, project_dir, agent_name: str):
         inputs=[],
         expected_outputs=[],
         prompt_template_path=_P("/dev/null"),
-        default_backend=BackendName.DARTMOUTH,
-        fallback_backends=[],
-        default_model="qwen.qwen3.5-122b",
+        profile="standard_generation",
         prompt_version="1.0.0",
         agent_name=agent_name,
     )

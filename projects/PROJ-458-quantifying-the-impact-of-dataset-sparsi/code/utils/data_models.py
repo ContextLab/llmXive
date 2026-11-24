@@ -6,6 +6,7 @@ from typing import Dict, List, Any, Optional
 import hashlib
 import json
 
+
 @dataclass
 class MaterialEntry:
     """
@@ -34,7 +35,7 @@ class MaterialEntry:
             "formation_energy": self.formation_energy,
             "descriptors": self.descriptors,
             "dft_computed": self.dft_computed,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     @classmethod
@@ -46,8 +47,15 @@ class MaterialEntry:
             formation_energy=data["formation_energy"],
             descriptors=data["descriptors"],
             dft_computed=data.get("dft_computed", True),
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
+
+    def to_json(self, **kwargs) -> str:
+        """Serialize the material entry to a JSON string."""
+        # ``json.dumps`` accepts many optional arguments (e.g., ``indent``)
+        # which we forward via ``**kwargs`` for flexibility.
+        return json.dumps(self.to_dict(), **kwargs)
+
 
 @dataclass
 class SparsitySubset:
@@ -83,12 +91,12 @@ class SparsitySubset:
             "criteria": self.criteria,
             "filename": self.filename,
             "row_count": self.row_count,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
-    def to_json(self) -> str:
-        """Convert to JSON string."""
-        return json.dumps(self.to_dict(), indent=2)
+    def to_json(self, **kwargs) -> str:
+        """Serialize the sparsity subset metadata to a JSON string."""
+        return json.dumps(self.to_dict(), **kwargs)
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'SparsitySubset':
@@ -101,7 +109,7 @@ class SparsitySubset:
             criteria=data.get("criteria", ""),
             filename=data.get("filename"),
             row_count=data.get("row_count", 0),
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
     def update_checksum(self, data_bytes: bytes) -> None:

@@ -1,98 +1,99 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python src/environment/synthetic_mdp.py  --n 50  --rho 0.0  --distribution gaussian  --seed 42`
+  - script usage: `synthetic_mdp.py [-h] [--n-objectives N_OBJECTIVES]`
+  - argparse error: `synthetic_mdp.py: error: ambiguous option: --n could match --n-objectives, --n-states, --n-actions, --noise-correlation`
+- run-book command: `python src/environment/synthetic_mdp.py  --n 20 --rho 0.0 --distribution heavy_tailed --seed 999  --held-out`
+  - script usage: `synthetic_mdp.py [-h] [--n-objectives N_OBJECTIVES]`
+  - argparse error: `synthetic_mdp.py: error: ambiguous option: --n could match --n-objectives, --n-states, --n-actions, --noise-correlation`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): python run_experiment.py --full-sweep; python run_experiment.py --N 10 --k 0.05 --runs 5; 1 command(s) failed: python code/src/derivation/sample_complexity.py --output docs/theoretical_derivation.md (rc=1); 2 declared deliverable(s) absent: data/processed/empirical_results.json; data/processed/statistical_report.json
+**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): python src/derivation/verify_symbolic.py; python src/analysis/statistics.py --sweep window_size  --values 0.01,0.05,0.1; 4 command(s) failed: python src/verification/verify_citations.py (rc=1); python src/environment/synthetic_mdp.py  --n 50  --rho 0.0  --distribution gaussian  --seed 42 (rc=2); python code/src/main.py --config configs/default.yaml (rc=1); 4 declared deliverable(s) absent: data/processed/construct_validity_results.json; data/processed/empirical_results.json; data/processed/noise_properties.json
 
 ## Failing / missing run-book commands
 
-- python run_experiment.py --full-sweep -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/run_experiment.py': [Errno 2] No such file or directory
-- python run_experiment.py --N 10 --k 0.05 --runs 5 -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/run_experiment.py': [Errno 2] No such file or directory
-- python code/src/derivation/sample_complexity.py --output docs/theoretical_derivation.md -> rc=1
-    Starting Sample Complexity Derivation...
+- python src/verification/verify_citations.py -> rc=1
+
+2026-10-18 07:49:26,664 INFO __main__: Pinning random seeds for reproducibility (seed=42)
+2026-10-18 07:49:26,664 INFO __main__: Running lightweight citation verification...
+2026-10-18 07:49:26,664 ERROR __main__: Citation verification failed: 'docs/citations.md' missing or empty.
+
+- python src/derivation/verify_symbolic.py -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/src/derivation/verify_symbolic.py': [Errno 2] No such file or directory
+
+- python src/environment/synthetic_mdp.py  --n 50  --rho 0.0  --distribution gaussian  --seed 42 -> rc=2
+
+usage: synthetic_mdp.py [-h] [--n-objectives N_OBJECTIVES]
+                        [--n-states N_STATES] [--n-actions N_ACTIONS]
+                        [--noise-correlation NOISE_CORRELATION]
+                        [--distribution {linear,sparse,non_convex}]
+                        [--seed SEED]
+synthetic_mdp.py: error: ambiguous option: --n could match --n-objectives, --n-states, --n-actions, --noise-correlation
+
+- python code/src/main.py --config configs/default.yaml -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/code/src/derivation/sample_complexity.py", line 260, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/code/src/derivation/sample_complexity.py", line 231, in main
-    result = derive_sample_complexity_bound()
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/code/src/derivation/sample_complexity.py", line 118, in derive_sample_complexity_bound
-    variance_data = derive_variance_accumulation()
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: derive_variance_accumulation() missing 1 required positional argument: 'N'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/code/src/main.py", line 28, in <module>
+    logging.FileHandler('logs/integration_suite.log'),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
+    StreamHandler.__init__(self, self._open())
+                                 ^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
+    return open_func(self.baseFilename, self.mode,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/logs/integration_suite.log'
+
+- python src/analysis/statistics.py --sweep window_size  --values 0.01,0.05,0.1 -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/src/analysis/statistics.py': [Errno 2] No such file or directory
+
+- python src/environment/synthetic_mdp.py  --n 20 --rho 0.0 --distribution heavy_tailed --seed 999  --held-out -> rc=2
+
+usage: synthetic_mdp.py [-h] [--n-objectives N_OBJECTIVES]
+                        [--n-states N_STATES] [--n-actions N_ACTIONS]
+                        [--noise-correlation NOISE_CORRELATION]
+                        [--distribution {linear,sparse,non_convex}]
+                        [--seed SEED]
+synthetic_mdp.py: error: ambiguous option: --n could match --n-objectives, --n-states, --n-actions, --noise-correlation
+
 
 ## Declared deliverables still missing
 
+- data/processed/construct_validity_results.json
 - data/processed/empirical_results.json
+- data/processed/noise_properties.json
 - data/processed/statistical_report.json
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `mo-gymnasium` to the project's `requirements.txt` and `pip install mo-gymnasium`.
-- **Verified**: this loads **118** real records with fields: state, action, reward, episode_id, next_state, done.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import mo_gymnasium as mg
-
-# Use a valid environment name that exists in the package
-env = mg.make("CartPole-v1")
-
-records = []
-for episode_id in range(2):
-    obs, info = env.reset()
-    done = False
-    while not done:
-        action = env.action_space.sample()
-        next_obs, reward, terminated, truncated, info = env.step(action)
-        done = terminated or truncated
-        records.append({
-            "state": obs,
-            "action": action,
-            "reward": reward,
-            "episode_id": episode_id,
-            "next_state": next_obs,
-            "done": done,
-        })
-        obs = next_obs
-
-print(f"RECORDS={len(records)}")
-print("FIELDS=state,action,reward,episode_id,next_state,done")
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
-
-## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
-
-One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines and that MANY scripts call in DIFFERENT ways. Rewriting the definition to match one caller breaks the others — that is why this keeps failing. Fix the DEFINITION **once** so it is compatible with EVERY call site listed below: accept ``*args, **kwargs``, branch on what was actually passed, and NEVER raise on an unexpected call shape. For an auxiliary utility (e.g. logging), doing nothing on an unrecognized shape is fine. Do NOT edit the call sites — edit only the defining module.
-
-**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
-
-**This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
-
-### `derive_variance_accumulation` — defined in `code/src/derivation/variance_scaling.py`; called 4 way(s):
-
-- code/src/derivation/variance_scaling.py: result = derive_variance_accumulation(N)
-- code/src/derivation/variance_scaling.py: result = derive_variance_accumulation(N_test)
-- code/src/derivation/sample_complexity.py: variance_data = derive_variance_accumulation()
-- code/src/derivation/symbolic_verification.py: derived_expr = derive_variance_accumulation()
-
-Make `derive_variance_accumulation` in `code/src/derivation/variance_scaling.py` accept ALL of the above.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/processed/construct_validity_results.json` is declared but was NOT written. Scripts referencing it:
+    - `code/scripts/validate_construct_validity.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/construct_validity_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/empirical_results.json` is declared but was NOT written. Scripts referencing it:
-    - `code/src/main.py` — NOT invoked by the run-book
+    - `code/scripts/validate_construct_validity.py` — IS a run-book command
+    - `code/scripts/verify_reproducibility.py` — NOT invoked by the run-book
     - `code/src/analysis/stats.py` — NOT invoked by the run-book
     - `code/src/environment/runner.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/empirical_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/src/main.py` — IS a run-book command
+    - `src/analysis/stats.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/empirical_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/noise_properties.json` is declared but was NOT written. Scripts referencing it:
+    - `code/scripts/verify_reproducibility.py` — NOT invoked by the run-book
+    - `code/src/environment/synthetic_mdp.py` — NOT invoked by the run-book
+    - `code/tests/unit/test_mdp_noise_logging.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/noise_properties.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/statistical_report.json` is declared but was NOT written. Scripts referencing it:
-    - `code/src/main.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/statistical_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/scripts/verify_reproducibility.py` — NOT invoked by the run-book
+    - `code/src/main.py` — IS a run-book command
+    - `src/analysis/stats.py` — NOT invoked by the run-book
+    - `scripts/run_full_suite.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/statistical_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

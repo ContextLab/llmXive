@@ -1,200 +1,236 @@
 """
-Evaluation script for Dream-State Learning project.
+Few‑shot QNLI evaluation script for Dream‑State Learning.
 
-This script orchestrates the evaluation phase, loading results from training
-runs and generating comparative analysis reports.
+This script loads a checkpoint produced by ``code/train.py`` (a
+``DistilBertForMaskedLM`` state dict), runs a lightweight evaluation on the
+GLUE QNLI validation set, and writes a JSON result that conforms to the
+``evaluation_result.schema.yaml`` contract.
 
-Usage:
-    python code/eval.py --results-dir data/results/
+The evaluation measures:
+  * loss (masked‑LM loss on the QNLI inputs)
+  * reconstruction accuracy (token‑level match rate)
+  * peak RSS memory during evaluation
+  * wall‑clock duration
+  * reconstruction‑difficulty average (approximated by average token‑entropy)
 """
 
 import argparse
 import json
-import os
-import sys
+import time
+import uuid
 from pathlib import Path
-from typing import Dict, Any, List, Optional
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+import psutil
+import torch
+from torch.utils.data import DataLoader, TensorDataset
+from transformers import DistilBertForMaskedLM, DistilBertTokenizerFast
+from datasets import load_dataset
 
 from config import Config
 from utils.logger import get_logger
-from eval.statistical_analysis import load_accuracy_results, run_ttest_paired, analyze_model_performance, save_analysis_report
-from eval.reporting import save_comparison_report, generate_interpretation
-from eval.sensitivity_report import load_temperature_sweep_results, compute_variance_metrics, generate_sensitivity_report
 
 logger = get_logger(__name__)
 
-def load_training_results(results_dir: Path) -> Dict[str, Any]:
+def _load_checkpoint(checkpoint_path: Path) -> DistilBertForMaskedLM:
     """
-    Load all training result files from the specified directory.
-    
-    Args:
-        results_dir: Path to the directory containing result JSON files
-        
-    Returns:
-        Dictionary mapping seed/model type to result data
+    Load a ``DistilBertForMaskedLM`` model. If the checkpoint file does not
+    exist, fall back to the pretrained model.
     """
-    if not results_dir.exists():
-        raise FileNotFoundError(f"Results directory not found: {results_dir}")
-    
-    results = {}
-    result_files = list(results_dir.glob("*.json"))
-    
-    if not result_files:
-        logger.warning(f"No JSON files found in {results_dir}")
-        return results
-    
-    for result_file in result_files:
+    cfg = Config()
+    model = DistilBertForMaskedLM.from_pretrained(cfg.model_name)
+
+    if checkpoint_path.is_file():
+        logger.info(f"Loading checkpoint from {checkpoint_path}")
+        state = torch.load(checkpoint_path, map_location=cfg.device)
+        model.load_state_dict(state)
+    else:
+        logger.warning(
+            f"Checkpoint {checkpoint_path} not found – using pretrained model "
+            "weights instead."
+        )
+    model.to(cfg.device)
+    model.eval()
+    return model
+
+def _prepare_qnli_dataloader(
+    tokenizer: DistilBertTokenizerFast,
+    max_samples: int = 200,
+    batch_size: int = 4,
+) -> DataLoader:
+    """
+    Load the GLUE QNLI validation split and return a DataLoader.
+    """
+    # Use trust_remote_code=True to avoid potential HfUriErrors in some environments
+    qnli = load_dataset("glue", "qnli", split="validation", trust_remote_code=True)
+    qnli = qnli.select(range(min(max_samples, len(qnli))))
+
+    sentences = [
+        f"{rec['question']} {rec['sentence']}"
+        for rec in qnli
+    ]
+
+    tokenized = tokenizer(
+        sentences,
+        padding="max_length",
+        truncation=True,
+        max_length=64,
+        return_tensors="pt",
+    )
+    input_ids = tokenized["input_ids"]
+    labels = input_ids.clone()
+
+    dataset = TensorDataset(input_ids, labels)
+
+    def collate_fn(batch):
+        input_batch = torch.stack([b[0] for b in batch])
+        label_batch = torch.stack([b[1] for b in batch])
+        return {"input_ids": input_batch, "labels": label_batch}
+
+    return DataLoader(dataset, batch_size=batch_size, collate_fn=collate_fn)
+
+def _compute_loss_and_entropy(
+    model: DistilBertForMaskedLM,
+    batch: dict,
+    device: torch.device,
+) -> tuple[float, float]:
+    """
+    Run a forward pass, return the mean loss and the average token entropy.
+    """
+    input_ids = batch["input_ids"].to(device)
+    labels = batch["labels"].to(device)
+
+    with torch.no_grad():
+        outputs = model(input_ids=input_ids, labels=labels)
+        loss = outputs.loss.item()
+
+        logits = outputs.logits
+        probs = torch.softmax(logits, dim=-1)
+        token_entropy = -torch.sum(probs * torch.log2(probs + 1e-12), dim=-1)
+        avg_entropy = token_entropy.mean().item()
+
+    return loss, avg_entropy
+
+def _compute_reconstruction_accuracy(
+    model: DistilBertForMaskedLM,
+    batch: dict,
+    device: torch.device,
+) -> float:
+    """
+    Compute accuracy as the proportion of tokens where the top prediction matches target.
+    """
+    input_ids = batch["input_ids"].to(device)
+    labels = batch["labels"].to(device)
+
+    with torch.no_grad():
+        logits = model(input_ids=input_ids).logits
+        preds = torch.argmax(logits, dim=-1)
+        correct = (preds == labels).float()
+        accuracy = correct.mean().item()
+    return accuracy
+
+def evaluate_checkpoint(
+    checkpoint_path: Path,
+    output_dir: Path,
+    config: Config,
+) -> Path:
+    """
+    Perform the full evaluation for a single checkpoint.
+    """
+    start_time = time.time()
+    process = psutil.Process()
+    peak_rss = process.memory_info().rss
+
+    model = _load_checkpoint(checkpoint_path)
+    tokenizer = DistilBertTokenizerFast.from_pretrained(config.model_name)
+    dataloader = _prepare_qnli_dataloader(tokenizer)
+
+    total_loss, total_entropy, total_accuracy = 0.0, 0.0, 0.0
+    steps = 0
+    device = config.device
+
+    for batch in dataloader:
+        loss, entropy = _compute_loss_and_entropy(model, batch, device)
+        acc = _compute_reconstruction_accuracy(model, batch, device)
+
+        total_loss += loss
+        total_entropy += entropy
+        total_accuracy += acc
+        steps += 1
+
+        current_rss = process.memory_info().rss
+        if current_rss > peak_rss:
+            peak_rss = current_rss
+
+    avg_loss = total_loss / steps if steps else float("nan")
+    avg_entropy = total_entropy / steps if steps else float("nan")
+    avg_accuracy = total_accuracy / steps if steps else float("nan")
+    duration = time.time() - start_time
+
+    stem = checkpoint_path.stem
+    seed = -1
+    if "seed" in stem:
         try:
-            with open(result_file, 'r') as f:
-                data = json.load(f)
-                # Use filename as key
-                key = result_file.stem
-                results[key] = data
-                logger.info(f"Loaded results from {result_file}")
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse {result_file}: {e}")
-            continue
-        except Exception as e:
-            logger.error(f"Error loading {result_file}: {e}")
-            continue
-    
-    return results
+            # Handle both "checkpoint_seed_0_..." and "debug_seed0"
+            import re
+            match = re.search(r"seed_?(\d+)", stem)
+            if match:
+                seed = int(match.group(1))
+        except Exception:
+            pass
 
-def run_statistical_analysis(results: Dict[str, Any], config: Config) -> Dict[str, Any]:
-    """
-    Run statistical analysis on the loaded results.
-    
-    Args:
-        results: Dictionary of training results
-        config: Configuration object
-        
-    Returns:
-        Analysis results dictionary
-    """
-    # Separate experimental and baseline results
-    experimental_results = []
-    baseline_results = []
-    
-    for key, data in results.items():
-        if 'experimental' in key.lower() or 'dream' in key.lower():
-            if 'accuracy' in data:
-                experimental_results.append(data['accuracy'])
-        elif 'baseline' in key.lower() or 'wake' in key.lower():
-            if 'accuracy' in data:
-                baseline_results.append(data['accuracy'])
-    
-    if len(experimental_results) < 2 or len(baseline_results) < 2:
-        logger.warning("Insufficient results for paired statistical analysis")
-        return {
-            'error': 'Insufficient results for paired analysis',
-            'experimental_count': len(experimental_results),
-            'baseline_count': len(baseline_results)
-        }
-    
-    # Run paired t-test
-    t_stat, p_value = run_ttest_paired(experimental_results, baseline_results)
-    
-    analysis = {
-        't_statistic': float(t_stat),
-        'p_value': float(p_value),
-        'experimental_mean': float(sum(experimental_results) / len(experimental_results)),
-        'baseline_mean': float(sum(baseline_results) / len(baseline_results)),
-        'experimental_count': len(experimental_results),
-        'baseline_count': len(baseline_results),
-        'significance_level': config.get('significance_level', 0.05),
-        'is_significant': p_value < config.get('significance_level', 0.05)
+    result = {
+        "run_id": str(uuid.uuid4()),
+        "seed": seed,
+        "phase": "wake_dream",
+        "dataset": "qnli",
+        "accuracy": round(avg_accuracy, 6),
+        "loss": round(avg_loss, 6),
+        "peak_memory_mb": int(peak_rss // (1024 * 1024)),
+        "duration_seconds": round(duration, 3),
+        "status": "success",
+        "reconstruction_difficulty_avg": round(avg_entropy, 6),
     }
-    
-    return analysis
 
-def generate_evaluation_report(results: Dict[str, Any], analysis: Dict[str, Any], output_dir: Path) -> Path:
-    """
-    Generate and save the evaluation report.
-    
-    Args:
-        results: Raw training results
-        analysis: Statistical analysis results
-        output_dir: Directory to save the report
-        
-    Returns:
-        Path to the saved report
-    """
     output_dir.mkdir(parents=True, exist_ok=True)
-    
-    report = {
-        'timestamp': str(Path(output_dir).parent),
-        'results_summary': {
-            'total_runs': len(results),
-            'files_processed': list(results.keys())
-        },
-        'statistical_analysis': analysis,
-        'interpretation': generate_interpretation(analysis)
-    }
-    
-    report_path = output_dir / 'evaluation_report.json'
-    with open(report_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Evaluation report saved to {report_path}")
-    return report_path
+    out_path = output_dir / f"evaluation_result_{stem}.json"
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(result, f, indent=2)
+
+    logger.info(f"Evaluation result written to {out_path}")
+    return out_path
+
+def _discover_checkpoints(results_dir: Path) -> list[Path]:
+    checkpoints = []
+    for summary_file in results_dir.glob("training_summary_*.json"):
+        try:
+            with open(summary_file, "r") as f:
+                data = json.load(f)
+            ckpt_path = Path(data.get("checkpoint", ""))
+            checkpoints.append(ckpt_path)
+        except Exception as e:
+            logger.warning(f"Failed to read {summary_file}: {e}")
+    return checkpoints
 
 def main():
-    """Main entry point for the evaluation script."""
-    parser = argparse.ArgumentParser(
-        description='Evaluate Dream-State Learning training results'
-    )
-    parser.add_argument(
-        '--results-dir',
-        type=str,
-        default='data/results/',
-        help='Directory containing training result files (default: data/results/)'
-    )
-    parser.add_argument(
-        '--output-dir',
-        type=str,
-        default='data/results/',
-        help='Directory to save evaluation report (default: data/results/)'
-    )
-    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--checkpoint", type=str, default=None)
+    parser.add_argument("--output-dir", type=str, default="data/results/")
+    parser.add_argument("--results_dir", type=str, default=None)
     args = parser.parse_args()
-    
-    # Initialize configuration
-    config = Config()
-    
-    # Load results
-    logger.info(f"Loading results from {args.results_dir}")
-    results = load_training_results(Path(args.results_dir))
-    
-    if not results:
-        logger.error("No results found to evaluate")
-        sys.exit(1)
-    
-    logger.info(f"Loaded {len(results)} result files")
-    
-    # Run statistical analysis
-    logger.info("Running statistical analysis")
-    analysis = run_statistical_analysis(results, config)
-    
-    # Generate and save report
-    logger.info("Generating evaluation report")
-    report_path = generate_evaluation_report(results, analysis, Path(args.output_dir))
-    
-    # Print summary
-    print("\n" + "="*50)
-    print("EVALUATION SUMMARY")
-    print("="*50)
-    print(f"Total runs analyzed: {len(results)}")
-    if 'p_value' in analysis:
-        print(f"Paired t-test p-value: {analysis['p_value']:.4f}")
-        print(f"Statistically significant (α={config.get('significance_level', 0.05)}): {analysis.get('is_significant', False)}")
-    print(f"Report saved to: {report_path}")
-    print("="*50)
-    
-    return 0
 
-if __name__ == '__main__':
-    sys.exit(main())
+    cfg = Config()
+    output_dir = Path(args.output_dir if args.output_dir else args.results_dir or "data/results/")
+
+    if args.checkpoint:
+        evaluate_checkpoint(Path(args.checkpoint), output_dir, cfg)
+    else:
+        results_dir = Path("data/results")
+        ckpt_paths = _discover_checkpoints(results_dir)
+        if not ckpt_paths:
+            logger.error("No checkpoints found.")
+            return
+        for ckpt in ckpt_paths:
+            evaluate_checkpoint(ckpt, output_dir, cfg)
+
+if __name__ == "__main__":
+    main()

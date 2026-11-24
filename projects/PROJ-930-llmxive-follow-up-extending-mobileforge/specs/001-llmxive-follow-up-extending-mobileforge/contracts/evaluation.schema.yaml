@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "EvaluationResult"
-description: "Schema for the evaluation results including statistical tests."
+title: "EvaluationResult (paired t-test)"
+description: "Schema for the evaluation results when using a paired two‑tailed t‑test."
 type: "object"
 properties:
   metrics:
@@ -10,79 +10,54 @@ properties:
         type: "number"
         minimum: 0
         maximum: 1
-      success_rate_baseline:
-        type: "number"
-        minimum: 0
-        maximum: 1
-      step_efficiency_distilled:
-        type: "number"
-      step_efficiency_baseline:
-        type: "number"
+      baseline_metrics:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+            success_rate:
+              type: "number"
+              minimum: 0
+              maximum: 1
+            step_efficiency:
+              type: "number"
+          required:
+            - name
+            - success_rate
+            - step_efficiency
     required:
       - success_rate_distilled
-      - success_rate_baseline
+      - baseline_metrics
   statistical_test:
     type: "object"
     properties:
       test_type:
         type: "string"
-        const: "McNemar"
+        const: "paired_ttest"
+      t_stat:
+        type: "number"
+        description: "Paired t statistic"
       p_value:
         type: "number"
+        description: "Two‑tailed p‑value"
+      corrected_p_value:
+        type: "number"
+        description: "Bonferroni‑adjusted p‑value"
       significant:
         type: "boolean"
-      contingency_table:
-        type: "array"
-        items:
-          type: "array"
-          items:
-            type: "integer"
-          minItems: 2
-          maxItems: 2
-        minItems: 2
-        maxItems: 2
+      effect_size_cohens_d:
+        type: "number"
+        description: "Cohen's d effect size"
     required:
       - test_type
+      - t_stat
       - p_value
+      - corrected_p_value
       - significant
-      - contingency_table
-  power_analysis:
-    type: "object"
-    properties:
-      n_required:
-        type: "integer"
-        minimum: 1
-      power_target:
-        type: "number"
-      effect_size:
-        type: "number"
-      baseline_rate:
-        type: "number"
-      p0_source:
-        type: "string"
-        description: "Source of baseline rate estimate (e.g., 'Pilot Run', 'Fallback 0.5')."
-    required:
-      - n_required
-      - power_target
-      - effect_size
-      - baseline_rate
-      - p0_source
-  sensitivity_report:
-    type: "object"
-    properties:
-      thresholds:
-        type: "array"
-        items:
-          type: "integer"
-      success_rates:
-        type: "array"
-        items:
-          type: "number"
-    required:
-      - thresholds
-      - success_rates
+      - effect_size_cohens_d
 required:
   - metrics
   - statistical_test
-  - power_analysis
-  - sensitivity_report
+additionalProperties: false

@@ -1,0 +1,211 @@
+{
+  "trace_id": "training_42_01450",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "delete_element",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "delete_element",
+    "update_layout",
+    "insert_text",
+    "format_text",
+    "update_layout",
+    "insert_chart",
+    "format_text",
+    "insert_chart",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 22.1662
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 58.0754,
+        "saturation": 52.3068
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 4.123,
+        "saturation": 77.4208
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 34.8029,
+        "saturation": 62.6102
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 96.1638,
+        "saturation": 64.365
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 28.7769,
+        "y": 20.4194,
+        "length": 17.2796
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 85.9074,
+        "y": 80.1762,
+        "length": 18.8101
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 66.547,
+        "y": 49.9584,
+        "length": 30.9196
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 89.1812,
+        "y": 14.8964,
+        "length": 60.4654
+      }
+    },
+    {
+      "step": 9,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 8.9111
+      }
+    },
+    {
+      "step": 10,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 69.761,
+        "padding": 31.0594
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 76.3355,
+        "y": 56.1044,
+        "length": 5.2762
+      }
+    },
+    {
+      "step": 12,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 56.447,
+        "x": 27.0526,
+        "y": 40.7295
+      }
+    },
+    {
+      "step": 13,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 20.161,
+        "padding": 46.1007
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 7.7389,
+        "y": 66.2831,
+        "width": 43.2233,
+        "height": 76.2553,
+        "data_points": 99.8243
+      }
+    },
+    {
+      "step": 15,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 71.1988,
+        "x": 73.8215,
+        "y": 60.568
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 73.4823,
+        "y": 16.2445,
+        "width": 27.1099,
+        "height": 43.3268,
+        "data_points": 52.1853
+      }
+    },
+    {
+      "step": 17,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 36.679,
+        "saturation": 37.7387
+      }
+    },
+    {
+      "step": 18,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 44.107,
+        "saturation": 41.772
+      }
+    },
+    {
+      "step": 19,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 60.5549,
+        "saturation": 45.348
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.635045,
+    "tool_repetition_freq": 0.7,
+    "arg_semantic_variance": 613.193339
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 12,
+    "layout_hash": "42-1450-apply_theme"
+  }
+}

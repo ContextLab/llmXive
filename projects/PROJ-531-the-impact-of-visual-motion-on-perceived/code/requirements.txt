@@ -1,8 +1,4 @@
-python-dotenv  # auto-added: imported by run-book but missing from venv
-matplotlib  # auto-added: imported by run-book but missing from venv
-numpy  # auto-added: imported by run-book but missing from venv
-pandas  # auto-added: imported by run-book but missing from venv
-requests  # auto-added: imported by run-book but missing from venv
-seaborn  # auto-added: imported by run-book but missing from venv
-scikit-learn  # auto-added: imported by run-book but missing from venv
-statsmodels  # auto-added: imported by run-book but missing from venv
+openml>=0.14
+pandas>=2.0
+requests>=2.0
+# Existing dependencies (numpy, scipy, scikit-learn, etc.) are provided by the platform.

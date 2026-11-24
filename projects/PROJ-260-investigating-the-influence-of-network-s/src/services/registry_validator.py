@@ -4,45 +4,11 @@ import sys
 import time
 from pathlib import Path
 from typing import List, Dict, Any
+import requests
+from llmxive_toolkit import paths, get_logger
 
-# Import from local project structure
-try:
-    from src.lib.config import get_project_root, get_config
-except Exception:  # pragma: no cover
-    # Fallback for environments where config utilities are unavailable.
-    def get_project_root() -> Path:
-        """Return the repository root (assumed two levels up from this file)."""
-        return Path(__file__).resolve().parents[2]
-
-    def get_config(*args, **kwargs):
-        return {}
-
-# ----------------------------------------------------------------------
-# Logger setup
-# ----------------------------------------------------------------------
-def setup_logger(name: str, log_file: str) -> logging.Logger:
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-
-    # Avoid adding duplicate handlers if logger is re-used
-    if not logger.handlers:
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-
-        # Console handler (INFO level)
-        ch = logging.StreamHandler(sys.stdout)
-        ch.setLevel(logging.INFO)
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
-
-        # File handler (DEBUG level)
-        fh = logging.FileHandler(log_path)
-        fh.setLevel(logging.DEBUG)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-
-    return logger
+# Initialize logger using the toolkit
+log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
 # Registry handling
@@ -58,7 +24,7 @@ def load_registry(registry_path: Path) -> Dict[str, Any]:
 # ----------------------------------------------------------------------
 # Validation helpers
 # ----------------------------------------------------------------------
-def validate_dataset_id(dataset_id: str, logger: logging.Logger) -> bool:
+def validate_dataset_id(dataset_id: str) -> bool:
     """
     Validate a dataset ID by checking its reachability.
     Supports Zenodo numeric IDs and HuggingFace dataset identifiers.
@@ -67,59 +33,63 @@ def validate_dataset_id(dataset_id: str, logger: logging.Logger) -> bool:
     is_zenodo = dataset_id.isdigit() or "zenodo" in dataset_id.lower()
 
     if is_zenodo:
-        return validate_zenodo_id(dataset_id, logger)
+        return validate_zenodo_id(dataset_id)
     else:
-        return validate_hf_id(dataset_id, logger)
+        return validate_hf_id(dataset_id)
 
-def validate_zenodo_id(dataset_id: str, logger: logging.Logger) -> bool:
+def validate_zenodo_id(dataset_id: str) -> bool:
     """Validate a Zenodo dataset ID via the public Zenodo API."""
-    import requests
-
     url = f"https://zenodo.org/api/records/{dataset_id}"
     try:
-        logger.debug(f"Checking Zenodo ID {dataset_id} at {url}")
+        log.debug(f"Checking Zenodo ID {dataset_id} at {url}")
         response = requests.get(url, timeout=10)
         if response.status_code == 200:
             data = response.json()
             if "metadata" in data:
-                logger.info(f"Zenodo ID {dataset_id} is valid.")
+                log.info(f"Zenodo ID {dataset_id} is valid.")
                 return True
-            logger.warning(f"Zenodo ID {dataset_id} returned 200 but lacks metadata.")
-            return False
-        logger.warning(
-            f"Zenodo ID {dataset_id} returned unexpected status {response.status_code}"
-        )
+            log.warning(f"Zenodo ID {dataset_id} returned 200 but lacks metadata.")
+        else:
+            log.warning(f"Zenodo ID {dataset_id} returned status {response.status_code}")
         return False
     except requests.RequestException as e:
-        logger.error(f"Network error checking Zenodo ID {dataset_id}: {e}")
-        return False
-    except json.JSONDecodeError:
-        logger.error(f"Invalid JSON response for Zenodo ID {dataset_id}")
+        log.error(f"Network error checking Zenodo ID {dataset_id}: {e}")
         return False
 
-def validate_hf_id(dataset_id: str, logger: logging.Logger) -> bool:
-    """Validate a HuggingFace dataset ID using the `datasets` library."""
+def validate_hf_id(dataset_id: str) -> bool:
+    """
+    Validate a HuggingFace dataset ID using the HF Hub API.
+    Handles shorthand IDs by attempting a known project prefix.
+    """
+    # List of potential prefixes for this project's datasets
+    prefixes = ["THZERAOFC/"]
+    
+    # Try the ID as provided
+    if _check_hf_api(dataset_id):
+        log.info(f"HuggingFace dataset {dataset_id} is valid.")
+        return True
+    
+    # If it's a short name (no slash), try the project prefixes
+    if "/" not in dataset_id:
+        for prefix in prefixes:
+            full_id = f"{prefix}{dataset_id}"
+            if _check_hf_api(full_id):
+                log.info(f"HuggingFace dataset {dataset_id} is valid (resolved to {full_id}).")
+                return True
+    
+    log.warning(f"HuggingFace dataset {dataset_id} could not be validated.")
+    return False
+
+def _check_hf_api(dataset_id: str) -> bool:
+    """Helper to check HF Hub API for dataset existence."""
+    url = f"https://huggingface.co/api/datasets/{dataset_id}"
     try:
-        from datasets import get_dataset_config_names
-
-        logger.debug(f"Checking HuggingFace dataset {dataset_id}")
-        try:
-            configs = get_dataset_config_names(dataset_id)
-            logger.info(f"HuggingFace dataset {dataset_id} is valid. Configs: {configs}")
-            return True
-        except Exception as e:
-            logger.warning(f"HuggingFace dataset {dataset_id} validation failed: {e}")
-            return False
-    except ImportError:
-        logger.error(
-            "The 'datasets' library is required for HuggingFace validation but is not installed."
-        )
-        return False
-    except Exception as e:
-        logger.error(f"Unexpected error during HF validation for {dataset_id}: {e}")
+        response = requests.get(url, timeout=10)
+        return response.status_code == 200
+    except requests.RequestException:
         return False
 
-def validate_registry(registry: Dict[str, Any], logger: logging.Logger) -> Dict[str, Any]:
+def validate_registry(registry: Dict[str, Any]) -> Dict[str, Any]:
     """
     Validate all dataset IDs in the supplied registry.
     Returns a dict with lists of valid and invalid IDs and an overall status flag.
@@ -128,7 +98,7 @@ def validate_registry(registry: Dict[str, Any], logger: logging.Logger) -> Dict[
     invalid_ids: List[str] = []
 
     for size, entries in registry.items():
-        logger.info(f"Validating entries for system size {size}")
+        log.info(f"Validating entries for system size {size}")
 
         # Normalise the entry format to a flat list of IDs
         if isinstance(entries, list):
@@ -141,15 +111,14 @@ def validate_registry(registry: Dict[str, Any], logger: logging.Logger) -> Dict[
             else:
                 ids_to_check = [v for v in entries.values() if isinstance(v, str)]
         else:
-            logger.warning(f"Unexpected registry format for size {size}: {type(entries)}")
+            log.warning(f"Unexpected registry format for size {size}: {type(entries)}")
             continue
 
         for dataset_id in ids_to_check:
             if not isinstance(dataset_id, str):
-                logger.warning(f"Skipping non‑string ID in size {size}: {dataset_id}")
                 continue
 
-            if validate_dataset_id(dataset_id, logger):
+            if validate_dataset_id(dataset_id):
                 valid_ids.append(dataset_id)
             else:
                 invalid_ids.append(dataset_id)
@@ -182,7 +151,6 @@ def write_validation_log(log_path: Path, results: Dict[str, Any], registry_path:
         overall = "PASS" if results["all_valid"] else "FAIL"
         f.write(f"\nOverall Status: {overall}\n")
 
-        # Explicit line required by the verification step
         if results["all_valid"]:
             f.write("\nVALIDATION SUCCESS\n")
         else:
@@ -199,47 +167,39 @@ def write_valid_sources(valid_ids: List[str], output_path: Path):
 # ----------------------------------------------------------------------
 def main() -> int:
     """Execute the registry validation workflow."""
-    project_root = get_project_root()
-    registry_path = project_root / "data" / "metadata" / "dataset_registry.json"
-    log_path = project_root / "data" / "metadata" / "registry_validation.log"
-    valid_sources_path = project_root / "data" / "metadata" / "valid_sources.json"
+    registry_path = paths.data("metadata", "dataset_registry.json")
+    log_path = paths.data("metadata", "registry_validation.log")
+    valid_sources_path = paths.data("metadata", "valid_sources.json")
 
-    logger = setup_logger("RegistryValidator", str(log_path))
-
-    logger.info("Starting registry validation...")
+    log.info("Starting registry validation...")
 
     try:
         # Load the registry JSON
-        logger.info(f"Loading registry from {registry_path}")
+        log.info(f"Loading registry from {registry_path}")
         registry = load_registry(registry_path)
 
         # Perform validation
-        logger.info("Validating dataset IDs...")
-        results = validate_registry(registry, logger)
+        log.info("Validating dataset IDs...")
+        results = validate_registry(registry)
 
         # Persist outputs
         write_validation_log(log_path, results, registry_path)
         write_valid_sources(results["valid_ids"], valid_sources_path)
 
         if results["all_valid"]:
-            logger.info("All dataset IDs are valid.")
-            logger.info("VALIDATION SUCCESS")
+            log.info("All dataset IDs are valid.")
+            log.info("VALIDATION SUCCESS")
             return 0
         else:
-            logger.error(
-                f"Validation failed. {len(results['invalid_ids'])} invalid IDs found."
-            )
-            logger.error(
-                "HALTING: Please fix the registry or update VERIFIED_DATASET_IDS in config."
-            )
-            logger.error("VALIDATION FAILED")
+            log.error(f"Validation failed. {len(results['invalid_ids'])} invalid IDs found.")
+            log.error("HALTING: Please fix the registry or update VERIFIED_DATASET_IDS in config.")
             return 1
 
     except FileNotFoundError as e:
-        logger.error(f"FATAL: {e}")
+        log.error(f"FATAL: {e}")
         return 1
     except Exception as e:
-        logger.error(f"FATAL: Unexpected error during validation: {e}")
+        log.error(f"FATAL: Unexpected error during validation: {e}")
         return 1
 
 if __name__ == "__main__":

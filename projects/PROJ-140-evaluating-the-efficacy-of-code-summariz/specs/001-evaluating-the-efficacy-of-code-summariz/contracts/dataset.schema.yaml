@@ -27,3 +27,5 @@ required:
   - bug_id
   - source_code
   - ground_truth_line
+  - context_code
+additionalProperties: false

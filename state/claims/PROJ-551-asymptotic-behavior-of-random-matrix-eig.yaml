@@ -1790,3 +1790,255 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-07T00:54:52Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: mc_results.csv contains 1008 rows, one ARPACK result per run
+  claim_id: c_f84a7108
+  context: Output artifacts of the full theta sweep over the specified parameter grid.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: data/processed/mc_results.csv (1008 rows, one real ARPACK result per run)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:44:14Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: "bulk-edge eigenvalues converge to \xB12.0 per matrix size N"
+  claim_id: c_19eef189
+  context: The sweep records convergence of the bulk spectral edge to the Wigner semicircle
+    edge.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "data/processed/convergence_data.json (per-N bulk-edge convergence to\
+    \ \xB12.0)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:44:14Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: sweep memory usage stays under 7 GB for N=2000
+  claim_id: c_e147bc37
+  context: Troubleshooting note about memory errors in the full parameter sweep.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The sweep is optimized to stay under 7 GB for N=2000.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:44:15Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: pipeline reproduces identical eigenvalues given same seeds and parameters
+  claim_id: c_a43a5aa9
+  context: Reproducibility statement about the seeded random matrix pipeline.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Given the same seeds and parameters, the pipeline reproduces the same
+    eigenvalues (CPU-only ARPACK, scipy.sparse.linalg.eigsh).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:44:15Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: quick run generates single_run_results.json and single_run_summary.csv
+  claim_id: c_3983e158
+  context: The quick run command `python -m code.main --mode single --N 1000 --seed
+    42 --theta 2.5 --k 1 --pattern diagonal` produces these files.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Running the quick single instance command produces data/processed/single_run_results.json
+    and a minimal CSV data/processed/single_run_summary.csv
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T14:14:35Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: mc_results.csv contains 1008 rows each with a real ARPACK result
+  claim_id: c_adec8ad5
+  context: Running the theta sweep over specified grids creates several artifacts,
+    including mc_results.csv.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The full parameter sweep produces data/processed/mc_results.csv with 1008
+    rows, one real ARPACK result per run
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T14:14:35Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: bulk-edge convergence to plusminus 2.0 recorded in convergence_data.json
+  claim_id: c_e5c79116
+  context: "The sweep output includes convergence_data.json documenting bulk\u2011\
+    edge convergence."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The convergence_data.json file records per\u2011N bulk\u2011edge convergence\
+    \ to \xB12.0"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T14:14:35Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: pipeline reproduces identical eigenvalues with identical seeds and parameters
+  claim_id: c_6ef89ebe
+  context: Reproducibility section states that with explicit seeding the same eigenvalues
+    are obtained.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Given the same seeds and parameters, the pipeline reproduces the same
+    eigenvalues
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T14:14:35Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: pipeline reproduces same eigenvalues given same seeds and parameters
+  claim_id: c_f82298d8
+  context: "All random number generators are seeded explicitly. Raw matrix files are\
+    \ checksummed (`data/raw/*.npy`) upon generation into `data/checksums.yaml`. Given\
+    \ the same seeds and parameters, the pipeline reproduces the same eigenvalues\
+    \ (CPU\u2011only ARPACK, `scipy.sparse.linalg.eigsh`)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Given the same seeds and parameters, the pipeline reproduces the same\
+    \ eigenvalues (CPU\u2011only ARPACK, `scipy.sparse.linalg.eigsh`)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T20:07:43Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: all random number generators are seeded explicitly
+  claim_id: c_a199ecbf
+  context: "All random number generators are seeded explicitly. Raw matrix files are\
+    \ checksummed (`data/raw/*.npy`) upon generation into `data/checksums.yaml`. Given\
+    \ the same seeds and parameters, the pipeline reproduces the same eigenvalues\
+    \ (CPU\u2011only ARPACK, `scipy.sparse.linalg.eigsh`)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All random number generators are seeded explicitly.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T20:07:43Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: raw matrix files are checksummed upon generation
+  claim_id: c_906f8dc5
+  context: "All random number generators are seeded explicitly. Raw matrix files are\
+    \ checksummed (`data/raw/*.npy`) upon generation into `data/checksums.yaml`. Given\
+    \ the same seeds and parameters, the pipeline reproduces the same eigenvalues\
+    \ (CPU\u2011only ARPACK, `scipy.sparse.linalg.eigsh`)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Raw matrix files are checksummed (`data/raw/*.npy`) upon generation into
+    `data/checksums.yaml`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T20:07:43Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: single_run_results.json contains one SimulationRun and ten EigenvalueResult
+    entries
+  claim_id: c_f4413808
+  context: 'Expected: A JSON report in data/processed/single_run_results.json containing
+    one SimulationRun and ten EigenvalueResult entries.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A JSON report in data/processed/single_run_results.json containing one
+    SimulationRun and ten EigenvalueResult entries
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T22:12:39Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: top eigenvalue exceeds 2.05 when theta > 1
+  claim_id: c_74fe3203
+  context: The top eigenvalue should exceed 2.05 (outlier) when theta > 1.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The top eigenvalue should exceed 2.05 (outlier) when theta > 1
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T22:12:40Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: theoretical edge of random matrix eigenvalues is 2.0
+  claim_id: c_7ed104bc
+  context: The top eigenvalue should exceed 2.05 (outlier) when theta > 1, because
+    outlier detection uses the theoretical edge 2.0 plus tolerance 0.05
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: theoretical edge 2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-17T22:20:56Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: top eigenvalue exceeds 2.05 when theta > 1
+  claim_id: c_056e45be
+  context: The top eigenvalue should exceed 2.05 (outlier) when theta > 1, because
+    outlier detection uses the theoretical edge 2.0 plus tolerance 0.05
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The top eigenvalue should exceed 2.05 (outlier) when theta > 1
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T22:20:56Z'

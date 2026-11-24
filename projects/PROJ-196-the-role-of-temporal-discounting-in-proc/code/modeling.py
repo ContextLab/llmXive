@@ -24,6 +24,22 @@ logger = logging.getLogger(__name__)
 # Import config utilities
 from config import get_project_root, get_config, get_random_state
 
+# ----------------------------------------------------------------------
+# Load model configuration JSON (T009)
+# ----------------------------------------------------------------------
+MODEL_CONFIG_PATH = os.path.join(get_project_root(), "code", "model", "config.json")
+if os.path.exists(MODEL_CONFIG_PATH):
+    try:
+        with open(MODEL_CONFIG_PATH, "r") as f:
+            MODEL_CONFIG = json.load(f)
+        logger.info(f"Loaded model configuration from {MODEL_CONFIG_PATH}")
+    except Exception as e:
+        logger.warning(f"Failed to load model configuration: {e}")
+        MODEL_CONFIG = {}
+else:
+    logger.warning(f"Model configuration file not found at {MODEL_CONFIG_PATH}")
+    MODEL_CONFIG = {}
+
 def hyperbolic_function(delay: np.ndarray, k: float, V: float = 1.0) -> np.ndarray:
     """
     Calculate the subjective value of a delayed reward using the hyperbolic discounting model.
@@ -54,6 +70,7 @@ def fit_hyperbolic_model(delays: np.ndarray, values: np.ndarray,
         Tuple of (k_value or None, reason_code).
         reason_code can be: "SUCCESS", "NO_SOLUTION", "CONVERGENCE_FAIL", "INVALID_RANGE"
     """
+    import statsmodels.api as sm  # Imported here to avoid circular imports
     try:
         # Validate input ranges
         if np.any(delays < 0) or np.any(values < 0):
@@ -167,6 +184,7 @@ def calculate_vif(df: pd.DataFrame, formula: str) -> Dict[str, float]:
     Returns:
         Dictionary mapping variable names to VIF scores.
     """
+    import statsmodels.api as sm
     # Parse formula to get predictor variables
     # Simple parsing for our specific formula structure
     predictors = []

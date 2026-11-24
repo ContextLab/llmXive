@@ -1720,7 +1720,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-26T07:01:40Z'
 - artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
   attempts: 1
@@ -2289,7 +2289,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-29T17:04:24Z'
 - artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
   attempts: 1
@@ -2667,7 +2667,7 @@
   resolver: resolve_relational
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-20T09:29:45Z'
 - artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
   attempts: 1
@@ -2898,3 +2898,75 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T09:37:01Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/docs/quickstart.md
+  attempts: 1
+  canonical: results written to results/analysis_results.json and plots saved in results/plots
+  claim_id: c_c9119177
+  context: "Running the Pipeline \u2013 the script will write results to results/analysis_results.json\
+    \ and plots to results/plots/"
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Write results to `results/analysis_results.json` and plots to `results/plots/`
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T13:24:20Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/docs/quickstart.md
+  attempts: 1
+  canonical: "synthetic data run stops after metric extraction with validation\u2011\
+    only warning and no hypothesis testing"
+  claim_id: c_1d1b91b0
+  context: "Running the Pipeline \u2013 with synthetic data, the script runs up to\
+    \ metric extraction, logs a validation\u2011only warning, and exits without hypothesis\
+    \ testing."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "With synthetic data, the script runs up to metric extraction, logs a\
+    \ validation\u2011only warning, and exits without hypothesis testing"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T13:24:20Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/docs/quickstart.md
+  attempts: 1
+  canonical: metrics computed on largest connected component when graph is sparse
+    and warnings are issued
+  claim_id: c_af9b1527
+  context: "Troubleshooting \u2013 Disconnected graph warnings appear when the defect\
+    \ network is sparse; metrics are still computed on the largest connected component\
+    \ and flagged in the output."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Disconnected graph warnings appear when the defect network is sparse;
+    metrics are still computed on the largest connected component and flagged in the
+    output
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T13:24:21Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline requires CSV with x, y, and sample_id columns
+  claim_id: c_2cac7dd5
+  context: "Data Setup \u2013 The pipeline expects a CSV file with defect coordinates\
+    \ (`x`, `y`) and a `sample_id` column."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The pipeline expects a CSV file with defect coordinates (`x`, `y`) and
+    a `sample_id` column
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T13:24:22Z'

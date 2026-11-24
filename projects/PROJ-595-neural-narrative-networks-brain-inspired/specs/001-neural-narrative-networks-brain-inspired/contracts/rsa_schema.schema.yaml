@@ -24,7 +24,7 @@ properties:
         minimum: 1
       convergence_variance:
         type: number
-        description: "Variance of p-value over the last 1,000 permutations"
+        description: "Variance of p‑value across the most recent set of permutations"
         minimum: 0
     required:
       - p_value
@@ -34,7 +34,7 @@ properties:
     type: string
     enum:
       - "sae"
-      - "baseline"
+      - "baseline_transformer"
     description: "Type of model used for this result"
   roi:
     type: string

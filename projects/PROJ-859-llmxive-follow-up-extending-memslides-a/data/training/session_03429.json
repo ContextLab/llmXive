@@ -1,0 +1,206 @@
+{
+  "trace_id": "training_42_03429",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 19,
+  "tool_sequence": [
+    "update_layout",
+    "format_text",
+    "resize_element",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "format_text",
+    "insert_image",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "format_text",
+    "delete_element",
+    "delete_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 71.5832,
+        "padding": 95.6055
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 9.7145,
+        "x": 26.3745,
+        "y": 62.4726
+      }
+    },
+    {
+      "step": 2,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 27.2488,
+        "height": 74.566
+      }
+    },
+    {
+      "step": 3,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 94.7174,
+        "padding": 65.1459
+      }
+    },
+    {
+      "step": 4,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 96.6424,
+        "padding": 55.4072
+      }
+    },
+    {
+      "step": 5,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 46.4351,
+        "padding": 72.0535
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 39.0023,
+        "saturation": 68.4699
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 24.2251,
+        "saturation": 41.3056
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 40.0464,
+        "saturation": 53.3692
+      }
+    },
+    {
+      "step": 9,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 79.4594,
+        "saturation": 34.6747
+      }
+    },
+    {
+      "step": 10,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 32.8603,
+        "x": 31.9656,
+        "y": 12.4445
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 43.2688,
+        "y": 69.1004,
+        "width": 57.3497,
+        "height": 22.7868
+      }
+    },
+    {
+      "step": 12,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 64.9212,
+        "y": 47.1729,
+        "width": 13.3281,
+        "height": 62.6692,
+        "data_points": 6.2963
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 20.8947,
+        "y": 58.7941,
+        "width": 99.2607,
+        "height": 21.1844,
+        "data_points": 60.7404
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 8.0851,
+        "y": 32.1285,
+        "width": 1.3221,
+        "height": 69.4891,
+        "data_points": 85.6091
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 82.1636,
+        "y": 26.5409,
+        "width": 72.0897,
+        "height": 34.5399,
+        "data_points": 48.4402
+      }
+    },
+    {
+      "step": 16,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 20.036,
+        "x": 43.0641,
+        "y": 87.3276
+      }
+    },
+    {
+      "step": 17,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 38.0725
+      }
+    },
+    {
+      "step": 18,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 64.238
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.822457,
+    "tool_repetition_freq": 0.631579,
+    "arg_semantic_variance": 671.690319
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 21,
+    "layout_hash": "42-3429-update_layout"
+  }
+}

@@ -1,11 +1,67 @@
+T002:
+  c: true
+  h: c0f025a92c53c60c1f5b0e9c88a5ea731853461152a577ca621a0138c3cfd5d7
+  r: "The `code/requirements.txt` file (resolved at `code/requirements.txt`, 234\u202F\
+    bytes) was examined and contains pinned versions of all required packages: pandas,\
+    \ scipy, statsmodels, scikit-learn, matplotlib, seaborn, pyaml, nbformat, psutil,\
+    \ and datasets. No required entry is missing, satisfying the task specification."
+  sig: eafe3e3cef222adab91aebf75ab8739ea2820a89846dfaeb43ffa9df9118e474
+T003:
+  c: false
+  h: b604fc73264ec9a01b435244543c444b1892225144c46a554b03c3a9bc630202
+  r: "The module `code/utils/hygiene.py` exists and implements SHA-256 hashing plus\
+    \ state-file updates, but the required state YAML (`state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml`)\
+    \ is MISSING on disk, and the recorded test run (`tests/unit/test_hygiene.py`)\
+    \ FAILED with exit 1: \"State file was not created\" \u2014 the test expected\
+    \ the state file at the project-root-relative path but it was never produced.\
+    \ The task's verification requirement (running the helper on a sample file records\
+    \ the correct hash in the state YAML) is therefore not demonstrated; the implementer\
+    \ must fix the p"
+  sig: 693baffe9cb52f181cee4b342b906559436023c792da942a8269425548317b44
+T004:
+  c: false
+  h: 24c47f2a38feae972b97f66664de3590ed2dcd75f5f1d70adf3578874f737145
+  r: "The module `code/utils/contract_validation.py` exists and its 2 unit tests pass,\
+    \ but those tests only exercise `enforce_contract` on synthetic fixtures \u2014\
+    \ there is no evidence the validator was run against the actual JSON artifacts\
+    \ in the project, nor that the contracts in `specs/001-statistical-analysis-of-publicly-availab/contracts/`\
+    \ exist and were matched to artifacts (the collector shows no contracts directory\
+    \ or JSON artifacts, and no execution log of a full validation run). The task's\
+    \ second requirement \u2014 \"Verify the validator passes on all existing JSON\
+    \ files\" \u2014 is therefore unverified; "
+  sig: 8c0f81681893eb7fee77fa24f3cebfd81f1e2cfa06aceeaedf32d53274590c63
+T005:
+  c: false
+  h: 0594ecc3d2bc7f13d8462118ea586ba88370587cace51eff14e0693a95096a85
+  r: "The module exists and contains the exact disclaimer string in `add_disclaimer_to_png`/`inject_disclaimer_into_html`,\
+    \ but the recorded test run (`tests/test_templates_disclaimer.py`, exit 1) shows\
+    \ `test_apply_disclaimer_to_directory` FAILED \u2014 after applying the disclaimer\
+    \ across a directory, validation found no disclosure (`assert False is True`),\
+    \ meaning the directory-wide injection required to stamp every generated output\
+    \ does not actually work. Additionally, the primary header/footer templates (`DEFAULT_LIMITATION_HEADER`,\
+    \ `NOTEBOOK_HEADER_TEMPLATE`, `PLOT_ANNOTATION_TEMPLATE`) do not contai"
+  sig: d90f1c9dec629c514afa328da561a21eb68e1166f2d68de4a48d21d1e95e9f8f
 T007:
   c: false
-  h: eee54c9bb29a5ad6d5f43520ed3e43e4b81a79ee4211eda85c4734dc991c2104
-  r: "The `survey_2023.json` only lists tags without the required category mapping,\
-    \ and `reference_calendar.json` is an empty array instead of containing parsed\
-    \ release\u2011log events with dates. No evidence of actually fetching the HuggingFace\
-    \ dataset or processing release logs is present. The task\u2019s core requirements\
-    \ are therefore unmet."
+  h: 87dc4be6550cb0c9b009fffa02c8fdf2b7156ad5d19e98a3855327314cf13bc1
+  r: 'The file `data/events/reference_calendar.json` exists, is valid JSON with a
+    consistent schema, and passes its test, but the evidence shows it was not downloaded
+    from a verified source: the download script ran in 0.1s with no network activity
+    and simply wrote a hardcoded list of events (source field is the vague "Historical
+    Tech Events", not a verifiable URL/plan-listed source). The task explicitly requires
+    downloading from the verified source listed in the plan; a locally fabricated
+    calendar of plausible events is a synthetic stand-in. The implementer should replace
+    the script with an actual f'
+  sig: 94cb9e44a20f1ef586c97f8962fe92664fc63ee11000723a09cc1297e16859c8
+T008:
+  c: false
+  h: dce4470c06c5b84877f2f29307fa66ccacd90d3a32a62ba850786858d893fdf3
+  r: 'The required artifact `data/raw/PostsTags.parquet` is MISSING (collector-confirmed),
+    and the historical test run shows all 3 tests failing: the download script exited
+    1 after the source URL returned 401/404, and the parquet file was never created.
+    No readable parquet with the expected schema exists, so the task''s core deliverable
+    is not done.'
+  sig: 5450b43808936c69089399d0108142b697985f6659bcc098224d5a9039b00262
 T015:
   c: false
   h: 1750d78f8165560c525f2f60c3f17430d95c6da18ab04409169ea8e3df7dae9f
@@ -21,61 +77,3 @@ T018:
   r: The required artifact `data/processed/trend_results.json` does not exist on disk,
     so the aggregation and finalization step cannot be verified. The implementer must
     create this file with the expected aggregated trend results.
-T030:
-  c: false
-  h: 2f56a0ce1aee02017613f437a30ed604b7e986766986fe679a2fbe4c12bf423a
-  r: The `code/analysis/clustering.py` file is truncated and does not contain a complete
-    implementation of the Cluster Label Alignment Score (the function is cut off).
-    Additionally, the required taxonomy file `data/taxonomy/survey_2023.json` is missing
-    from the repository. Both the core logic and the necessary data source are absent,
-    so the task is not genuinely fulfilled.
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `quickstart.md` file with the required step\u2011by\u2011step reproducibility\
-    \ instructions is present, nor are there any documented updates to `projects/PROJ-298-statistical-analysis-of-publicly-availab/README.md`.\
-    \ The implementer provided no artifacts to verify that the documentation was created\
-    \ or modified."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No cleaned or refactored code files under `code/analysis/` are provided, nor
-    any linting reports or evidence that lint checks were run. The required artifacts
-    (updated source code and linting output) are missing, so the task is not satisfied.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `tests/unit/` files containing new unit tests for the Mann\u2011Kendall,\
-    \ Jaccard, or ADF functions are present; the provided evidence contains only the\
-    \ task description and no actual test code or files, so the required artifact\
-    \ is missing."
-T037a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact such as a requirements file, environment configuration, or a documented\
-    \ virtual\u2011environment setup script is present; the claim that dependencies\
-    \ are installed and a virtual environment is ready cannot be verified from any\
-    \ provided evidence. The implementer must supply concrete files (e.g., `requirements.txt`,\
-    \ `environment.yml`, `setup.sh`, or a reproducible `pipenv/conda` environment)\
-    \ and proof that they have been successfully created."
-T037b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No execution logs, timing records, or any evidence that the `quickstart.md`\
-    \ scripts were run on a CPU\u2011only runner are present. The required artifact\
-    \ (recorded total execution time \u2264\u202F6\u202Fhours) is missing."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No generated reports or visualizations were provided, so there is no way to\
-    \ verify that the mandatory limitation disclosure (\"Limitation: All findings\
-    \ are associational and do not imply causality.\") appears in every artifact as\
-    \ required by FR\u2011011. The implementer must supply the actual report files\
-    \ and visualization outputs for inspection."
-T053:
-  c: false
-  h: 171508999e8d81c2ab8bea9ab4bb2fc2c82cdc38be760ebf6621ba91755f0989
-  r: "The provided `clustering.py` defines a logging helper but never calls it, and\
-    \ the required log file `data/processed/clustering_warnings.log` does not exist.\
-    \ Consequently the fallback\u2011skip\u2011and\u2011log behavior for Levenshtein\
-    \ distances\u202F>\u202F2 is not demonstrated. The task remains unfinished."

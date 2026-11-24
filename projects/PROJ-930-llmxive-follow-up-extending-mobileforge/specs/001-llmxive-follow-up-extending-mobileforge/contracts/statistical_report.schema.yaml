@@ -1,49 +1,35 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "StatisticalReport Schema"
-description: "Schema for the final statistical analysis report including McNemar's test and effect size."
+title: "StatisticalReport"
+description: "Schema for the final statistical analysis report including paired McNemar results."
 type: "object"
 properties:
-  mcnemar_test:
+  mcnemar:
     type: "object"
-    description: "Results of the McNemar's test between distilled and baseline."
+    description: "Results of the McNemar test between distilled and baseline models."
     properties:
-      chi2_statistic:
+      chi2:
         type: "number"
       p_value:
         type: "number"
-        description: "P-value for the hypothesis test (one-tailed derived)."
-      odds_ratio:
-        type: "number"
-        description: "Odds ratio for the paired binary outcome."
       confidence_interval_95:
         type: "array"
         items:
           type: "number"
         minItems: 2
         maxItems: 2
-    required:
-      - "chi2_statistic"
-      - "p_value"
-      - "odds_ratio"
-  effect_size:
-    type: "object"
-    description: "Observed effect size and confidence intervals."
-    properties:
-      cohen_d:
+      effect_size_odds_ratio:
         type: "number"
-        description: "Cohen's d effect size (for continuous metrics)."
-      confidence_interval_95:
-        type: "array"
-        items:
-          type: "number"
-        minItems: 2
-        maxItems: 2
+      significant:
+        type: "boolean"
     required:
-      - "cohen_d"
-      - "confidence_interval_95"
+      - chi2
+      - p_value
+      - confidence_interval_95
+      - effect_size_odds_ratio
+      - significant
   sensitivity_analysis:
     type: "object"
-    description: "Results of the threshold sensitivity sweep."
+    description: "Results of the Levenshtein‑based inconsistency tolerance sweep."
     properties:
       thresholds_tested:
         type: "array"
@@ -57,11 +43,9 @@ properties:
         type: "number"
         description: "Variance in success rates across thresholds."
     required:
-      - "thresholds_tested"
-      - "success_rates"
-      - "variance"
+      - thresholds_tested
+      - success_rates
+      - variance
 required:
-  - "mcnemar_test"
-  - "effect_size"
-  - "sensitivity_analysis"
-additionalProperties: false
+  - mcnemar
+  - sensitivity_analysis

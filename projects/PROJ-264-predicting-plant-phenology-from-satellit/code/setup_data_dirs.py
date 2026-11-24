@@ -1,46 +1,57 @@
 """
-Script to initialize the project's data directory structure.
+Script to create required data directory structure for the project.
 
-Creates `data/raw/` and `data/processed/` directories as required by T001c.
-Also initializes a .gitkeep in each to ensure they are tracked by git.
+This script is part of task T001c and ensures that the following directories
+exist under the project root:
+
+  data/raw/
+  data/processed/
+
+It uses the `llmxive_toolkit.paths` helper which automatically creates any
+missing parent directories.
 """
-import os
-import sys
-from pathlib import Path
 
-def main():
-    # Define the project root relative to this script's location
-    # Assuming script is in code/
-    project_root = Path(__file__).parent.parent
-    data_root = project_root / "data"
-    
-    directories = [
-        data_root / "raw",
-        data_root / "processed"
-    ]
-    
-    created_dirs = []
-    
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(directory.relative_to(project_root)))
-            
-            # Create .gitkeep to ensure directory is tracked
-            gitkeep = directory / ".gitkeep"
-            gitkeep.write_text("# Keep directory in git\n")
-            created_dirs.append(f"  - {gitkeep.relative_to(project_root)}")
-        else:
-            print(f"Directory already exists: {directory.relative_to(project_root)}")
-    
-    if created_dirs:
-        print("Successfully created data directories:")
-        for d in created_dirs:
-            print(f"  {d}")
+from llmxive_toolkit import paths, get_logger
+
+log = get_logger(__name__)
+
+def create_directory(path):
+    """
+    Ensure a directory exists.
+
+    Parameters
+    ----------
+    path : pathlib.Path
+        The directory path to create.
+    """
+    if not path.exists():
+        path.mkdir(parents=True, exist_ok=True)
+        log.info(f"Created directory: {path}")
     else:
-        print("No new directories were created.")
-    
-    return 0
+        log.debug(f"Directory already exists: {path}")
+
+def main() -> int:
+    """
+    Entry point for the script.
+
+    Returns
+    -------
+    int
+        Exit code (0 = success, non‑zero = failure)
+    """
+    try:
+        # Create the required data directories
+        raw_dir = paths.data("raw")
+        processed_dir = paths.data("processed")
+
+        create_directory(raw_dir)
+        create_directory(processed_dir)
+
+        # Success
+        return 0
+    except Exception as e:
+        log.error(f"Failed to create data directories: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

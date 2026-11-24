@@ -715,7 +715,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-10-04T14:37:37Z'
 - artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
   attempts: 1
@@ -812,3 +812,73 @@
   source_type: external
   status: refuted
   updated_at: '2026-10-04T14:40:40Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/quickstart.md
+  attempts: 1
+  canonical: project fetches real scene descriptions from COCO-Captions dataset
+  claim_id: c_063864c0
+  context: "Data Fetching (N=100 Scope) The project fetches real scene descriptions\
+    \ from the COCO\u2011Captions dataset. If that fetch fails, a deterministic fallback\
+    \ script generates valid physics\u2011inferable scenes."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The project fetches real scene descriptions from the COCO\u2011Captions\
+    \ dataset."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:46:52Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/quickstart.md
+  attempts: 1
+  canonical: deterministic fallback script generates valid physics-inferable scenes
+    if fetch fails
+  claim_id: c_4784ad75
+  context: "Data Fetching (N=100 Scope) The project fetches real scene descriptions\
+    \ from the COCO\u2011Captions dataset. If that fetch fails, a deterministic fallback\
+    \ script generates valid physics\u2011inferable scenes."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "If that fetch fails, a deterministic fallback script generates valid\
+    \ physics\u2011inferable scenes."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:46:52Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/quickstart.md
+  attempts: 1
+  canonical: expected number of PNGs approximately 100 per group in generated_images
+  claim_id: c_cab7d4c3
+  context: "Validation - Check data/derived/generated_images/ for the expected number\
+    \ of PNGs (\u2248\u202F100 per group, minus any generation failures)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Check data/derived/generated_images/ for the expected number of PNGs\
+    \ (\u2248\u202F100 per group, minus any generation failures)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:46:53Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/quickstart.md
+  attempts: 1
+  canonical: data fetching scope N 100
+  claim_id: c_954009e5
+  context: "## Data Fetching (N=100 Scope) The project fetches real scene descriptions\
+    \ from the COCO\u2011Captions dataset."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Data Fetching (N=100 Scope)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:46:53Z'

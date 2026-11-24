@@ -1,0 +1,9 @@
+status: none
+intent: System MUST generate binary black hole merger waveforms with masses spanning
+  from the lower end of the considered interval up to 50 solar masses and distances
+  in the range from the lower end of the hundreds of Mpc up to 1000 Mpc using PyCBC
+  (See US-1).
+required_fields: []
+cache_key: 38b8038f7fcff98da10a9e107ecf7dde936248e2b0247e50e9eacd0c957f7e43
+searched_at: '2026-11-14T03:29:37.350149+00:00'
+retry_count: 1

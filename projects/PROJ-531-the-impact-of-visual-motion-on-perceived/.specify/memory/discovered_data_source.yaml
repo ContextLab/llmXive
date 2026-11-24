@@ -1,9 +1,10 @@
 status: none
-intent: Human-avatar interaction motion telemetry agency questionnaire dataset OpenML
-  HuggingFace OSF GitHub python package dataset
+intent: human avatar interaction motion telemetry agency scale dataset OpenML HuggingFace
+  OSF GitHub python package dataset
 required_fields:
 - participant_id
 - trial_id
+- timestamp
 - latency_ms
 - smoothness_metric
 - lead_time_ms
@@ -13,6 +14,6 @@ required_fields:
 - agency_item_4
 - agency_item_5
 - agency_score
-cache_key: 2beeff236cf311dac4910eb5d78fc5c00da3f64a62a54fffb53d547346484e24
-searched_at: '2026-10-10T17:15:37.699671+00:00'
+cache_key: aa07b023e4a2e70d07f8325667fce0fa991895c0f66d516a623d69abeff5f7bb
+searched_at: '2026-10-16T21:29:57.742180+00:00'
 retry_count: 1

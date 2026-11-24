@@ -1,55 +1,26 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "IngestSchema"
-description: "Schema for raw data ingestion from NIST-IR-8200 or similar sources."
-type: "object"
+title: Ingest Schema for Corrosion Data
+description: Schema for raw data ingestion from the NIST Corrosion Database (NIST-IR-8200) as required by FR-001 and FR-011.
+type: object
 properties:
-  record_id:
-    type: "string"
-    description: "Unique identifier for the corrosion record."
-  specific_alloy_designation:
-    type: "string"
-    description: "Unique alloy grade (e.g., 'SS304')."
-  base_metal_family:
-    type: "string"
-    description: "Base metal family (e.g., 'Fe-based')."
   composition:
-    type: "object"
-    description: "Elemental weight fractions."
-    additionalProperties:
-      type: "number"
-      minimum: 0.0
-      maximum: 1.0
-    required:
-      - "Fe"
-      - "Cr"
-      - "Ni"
-  environment:
-    type: "object"
-    description: "Environmental conditions."
-    properties:
-      ph:
-        type: "number"
-        description: "pH value."
-      temperature_celsius:
-        type: "number"
-        description: "Temperature in Celsius."
-      electrolyte_type:
-        type: "string"
-        description: "Type of electrolyte."
-    required:
-      - "ph"
-      - "temperature_celsius"
-      - "electrolyte_type"
+    type: string
+    description: "JSON-encoded string of elemental weight fractions (e.g., '{\"Fe\": 0.7, \"Cr\": 0.18}')"
+  ph:
+    type: number
+    description: "Aqueous pH value of the environment"
+  temperature_celsius:
+    type: number
+    description: "Temperature of the environment in degrees Celsius"
   corrosion_potential_mV:
-    type: "number"
-    description: "Corrosion potential in millivolts vs SHE."
-  measurement_method:
-    type: "string"
-    description: "Standard method used (e.g., 'ASTM G59')."
+    type: number
+    description: "Corrosion potential measured in millivolts (mV) vs SHE"
+  specific_alloy_designation:
+    type: string
+    description: "Unique alloy grade identifier (e.g., 'SS304', 'Inconel625')"
 required:
-  - "record_id"
-  - "specific_alloy_designation"
-  - "composition"
-  - "environment"
-  - "corrosion_potential_mV"
-additionalProperties: false
+  - composition
+  - ph
+  - temperature_celsius
+  - corrosion_potential_mV
+  - specific_alloy_designation

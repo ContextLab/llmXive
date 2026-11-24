@@ -10,19 +10,19 @@
 | Goal | Run a minimal, reproducible end‑to‑end pipeline on a tiny real sample before any heavy computation. |
 |------|-----------------------------------------------------------------------------------------------|
 
-- [X] **T001** [P] Create `requirements.txt` with pinned versions required for the project.  
+- [~] **T001** [P] Create `requirements.txt` with pinned versions required for the project.  
   **Path**: `requirements.txt`  
   **Verification**: `pip install -r requirements.txt` exits with code 0 and `pip list` shows the exact versions.
 
-- [X] **T002** [P] Create the data directory hierarchy (`data/raw/`, `data/processed/`, `data/logs/`).  
+- [~] **T002** [P] Create the data directory hierarchy (`data/raw/`, `data/processed/`, `data/logs/`).  
   **Path**: `data/` subtree  
   **Verification**: `ls -R data/` shows the three sub‑folders and they are writable.
 
-- [ ] **T003** [P] Create `quickstart.md` that documents a single‑command entry point for a sample run.  
+- [~] **T003** [P] Create `quickstart.md` that documents a single‑command entry point for a sample run.  
   **Path**: `quickstart.md`  
   **Verification**: Running the command shown (`python -m code.main --run‑sample`) finishes within 30 s and prints “Sample run completed”.
 
-- [ ] **T004** [P] Add `code/utils/logging.py` with `setup_logger()` that writes JSON‑lines to `data/logs/app.log`.  
+- [~] **T004** [P] Add `code/utils/logging.py` with `setup_logger()` that writes JSON‑lines to `data/logs/app.log`.  
   **Path**: `code/utils/logging.py`  
   **Verification**: Import the module and call `setup_logger()`, then check that `data/logs/app.log` exists and contains at least one JSON line.
 

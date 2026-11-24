@@ -1,64 +1,33 @@
 """
-Custom exceptions for the llmXive research pipeline.
+Exception definitions and helper functions for the llmXive project.
 
-This module defines custom exception classes for handling specific
-failure modes in the symbolic and evolutionary search components.
+This module provides a minimal set of custom exception classes and
+utility functions used across the codebase, particularly by the
+symbolic planner and related components.
 """
 
 class BaseResearchException(Exception):
-    """Base class for all research pipeline exceptions."""
-    def __init__(self, message: str, code: str = "UNKNOWN"):
-        super().__init__(message)
-        self.message = message
-        self.code = code
+    """Base class for all custom research exceptions."""
+    pass
 
-class PARSE_FAILURE(BaseResearchException):
-    """Raised when parsing of constraints or data fails."""
-    def __init__(self, message: str):
-        super().__init__(message, code="PARSE_FAILURE")
+# Specific exception classes
+class ContradictionDetected(BaseResearchException):
+    """Raised when contradictory constraints are detected."""
+    pass
 
-class CONTRADICTION_DETECTED(BaseResearchException):
-    """Raised when a logical contradiction is detected in constraints."""
-    def __init__(self, message: str):
-        super().__init__(message, code="CONTRADICTION_DETECTED")
+class ParseFailure(BaseResearchException):
+    """Raised when constraint parsing fails."""
+    pass
 
-class VERIFIER_ERROR(BaseResearchException):
-    """Raised when the deterministic verifier encounters an error."""
-    def __init__(self, message: str):
-        super().__init__(message, code="VERIFIER_ERROR")
+# Error code constants (used for logging and result objects)
+CONTRADICTION_DETECTED = "CONTRADICTION_DETECTED"
+PARSE_FAILURE = "PARSE_FAILURE"
 
-def raise_parse_failure(message: str):
-    """
-    Helper function to raise a PARSE_FAILURE exception.
-    
-    Args:
-        message: Description of the parsing failure.
-        
-    Raises:
-        PARSE_FAILURE: Always raised with the provided message.
-    """
-    raise PARSE_FAILURE(message)
+# Helper functions to raise the above exceptions with a message
+def raise_contradiction(message: str) -> None:
+    """Raise a ContradictionDetected exception with the given message."""
+    raise ContradictionDetected(message)
 
-def raise_contradiction(message: str):
-    """
-    Helper function to raise a CONTRADICTION_DETECTED exception.
-    
-    Args:
-        message: Description of the contradiction.
-        
-    Raises:
-        CONTRADICTION_DETECTED: Always raised with the provided message.
-    """
-    raise CONTRADICTION_DETECTED(message)
-
-def raise_verifier_error(message: str):
-    """
-    Helper function to raise a VERIFIER_ERROR exception.
-    
-    Args:
-        message: Description of the verifier error.
-        
-    Raises:
-        VERIFIER_ERROR: Always raised with the provided message.
-    """
-    raise VERIFIER_ERROR(message)
+def raise_parse_failure(message: str) -> None:
+    """Raise a ParseFailure exception with the given message."""
+    raise ParseFailure(message)

@@ -1,45 +1,20 @@
-%YAML 1.2
----
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Model Outcome Schema
-description: >
-  Schema for validating model training outcomes and threshold analysis results.
+title: "ModelOutcome"
 type: object
-required:
-  - model_type
-  - threshold
-  - fnr
-  - framing
 properties:
-  model_type:
+  task_id:
     type: string
-    description: Type of model trained
-    enum:
-      - logistic_regression
-      - random_forest
-  threshold:
-    type: number
-    description: Decision boundary threshold used
-    minimum: 0.0
-    maximum: 1.0
-  fnr:
-    type: number
-    description: False Negative Rate achieved at this threshold
-    minimum: 0.0
-    maximum: 1.0
-  framing:
+  dynamic_execution_outcome:
     type: string
-    description: Explicit framing of the results
     enum:
-      - associational
-  correlation_coefficient:
-    type: number
-    description: Correlation between features and target
-  unsafe:
-    type: boolean
-    description: Flag indicating if FNR exceeds safety threshold (0.1%)
-  metadata:
-    type: object
-    description: Additional model metadata
-    additionalProperties: true
-additionalProperties: false
+      - Pass
+      - Fail
+      - "Timeout/Fail"
+  predicted:
+    type: string
+    enum:
+      - Static_Safe
+      - Dynamic_Needed
+required:
+  - task_id
+  - dynamic_execution_outcome

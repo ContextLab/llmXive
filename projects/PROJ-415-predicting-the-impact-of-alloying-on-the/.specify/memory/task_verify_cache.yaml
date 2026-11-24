@@ -7,9 +7,3 @@ T014:
     \ Consequently, the task\u2019s core requirements\u2014excluding rows, logging\
     \ exclusions with a count header, and recording atomic data errors\u2014are not\
     \ fulfilled."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of new unit test files under `tests/unit/` was provided; the claim
-    lacks any actual test code covering the specified edge cases (missing atomic data,
-    single host metal). The required artifacts are missing, so the task is not satisfied.

@@ -1,47 +1,50 @@
-T019:
+T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided no code, configuration, or log output showing that\
-    \ logging for wake/dream phase transitions, entropy metrics, or warm\u2011up status\
-    \ has been added. Without any artifact (e.g., modified training script, logging\
-    \ module, or sample log files), the task requirement is not satisfied. The next\
-    \ implementer must add the required logging statements and supply the resulting\
-    \ code and example logs."
-T037:
+  h: 4f57d2a2ff79cba4861de56738b8caeba235972494728b72039cac9be75ea898
+  r: "The `code/requirements.txt` and `code/config.py` files exist and `config.py`\
+    \ defines `MAX_MEMORY_MB = 6300`, but there is no provided evidence (e.g., install\
+    \ logs, a lock file, or a test run) showing that `pip install -r code/requirements.txt`\
+    \ actually succeeded. Without that verification artifact, the task\u2019s requirement\
+    \ is not fully satisfied."
+  sig: 4db8d14791df46a439985d218006c7e8d493fac432d609c6e5e1081a1118dd43
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided evidence contains only the Dream-State Learning feature specification\
-    \ and no code, script, or report that implements \u201Creporting for variance\
-    \ in final accuracy across temperature sweep.\u201D There is no artifact (e.g.,\
-    \ a generated report, logging output, or function) that computes or displays the\
-    \ variance of final accuracies over different temperature settings, so the task\
-    \ requirement is unmet."
-T053:
+  h: a7aeace6e6459f4f861531e5a29e7ee6f0732eae652ccd4dc79986725e4432fb
+  r: "The provided `trainer.py` and `augment.py` exist, but the unit tests in `tests/unit/test_trainer.py`\
+    \ do not correctly verify the required behavior: (b) low\u2011entropy retries\
+    \ are never exercised (the test calls `train_step_dream` directly, bypassing the\
+    \ retry loop), (c) the high\u2011perplexity test expects a `\"DUMMY_WAKE\"` phase\
+    \ from `train_step_dream`, but the method returns `\"DREAM_SKIPPED\"` (the dummy\u2011\
+    wake conversion only happens in `run_training_loop`), and (d) the token\u2011\
+    parity test miscalculates real\u2011token counts and would fail with the current\
+    \ scheduler logic. Consequently the task\u2019s verificati"
+  sig: 471b9e7dbf5b4c05155eceb8c2f11fe4ae87113d2a971ef422a969f93b62c0d5
+T004:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided evidence only describes the Dream\u2011State Learning feature and\
-    \ its user stories; there is no code, configuration, benchmark results, or documentation\
-    \ showing batching or data\u2011loading optimizations applied across the stories.\
-    \ Consequently, the required performance\u2011optimization artifacts are missing."
-T054:
+  h: 2e730e56cd9692edc8dd8452edf7cb19e3d45b5c8d2d74609aba7768bfca751a
+  r: The repository contains `code/eval.py` that writes a JSON result matching the
+    schema, and the sample `data/results/evaluation_result_debug_seed0.json` conforms
+    to the contract. However, the required checkpoint file (`checkpoints/debug_seed0.pt`)
+    is missing, so the script cannot be demonstrated to run successfully, and there
+    is no execution evidence. Additionally, `code/eval/metrics.py` is only a stub
+    and is not used by `eval.py`, leaving the metric implementation incomplete. Provide
+    the missing checkpoint (or a mock that the script can load) and implement or integrate
+    the metrics module to sat
+  sig: 4cf2e63b07da8ca9c8a0d516d49e2c58bb9e95b65fa73599f610cf771cf99341
+T005:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of any files under `tests/unit/` was provided; the response contains
-    only a feature specification and no actual unit test code or files, so the required
-    additional unit tests are missing.
-T055:
+  h: 06153775f307a7b1173578748ab99326379c906d8c83fc6919446b4cd6448a14
+  r: The quickstart.md file exists and contains a runnable command, and the expected
+    JSON result file is present, but there is no evidence that the command was actually
+    executed in a fresh environment without error (no logs, CI run output, or verification
+    script results). Concrete proof of successful execution is missing.
+  sig: b6f6a46cc6ff5c534fca745d105e82f26cacdff89aef553b0593857d04885138
+T006:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, scripts, checkpoints, or evaluation reports were provided, and the\
-    \ only material shown is a feature specification for a Dream\u2011State Learning\
-    \ experiment, which does not address the \u201CT055 Security hardening\u201D task\
-    \ at all. Consequently, there is no evidence that the required security\u2011\
-    hardening deliverables exist or meet the specification."
-T056:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No validation output, log file, or report for the `quickstart.md` check is present.
-    The implementer provided only the feature specification for Dream-State Learning,
-    with no evidence that the quickstart documentation was parsed, validated, or that
-    any errors were reported or fixed. Consequently the required artifact for task
-    T056 is missing.
+  h: 2af0b86e3e3ee6f78d6b12807b46aec232d3f4b150629357a267b6fae55213a3
+  r: "The integration test `tests/integration/test_token_parity.py` fails \u2013 the\
+    \ subprocess call to `code/baseline.py` exits with status\u202F2 (argparse error),\
+    \ so no log is produced and the token\u2011parity assertion is never evaluated.\
+    \ Consequently the required baseline that mirrors real\u2011token exposure is\
+    \ not verified as functional."
+  sig: a3252ff8fd6ce8953e312c99ec8185b8175f45e51be6315e95414194dced4a65

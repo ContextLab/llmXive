@@ -22,4 +22,4 @@ properties:
   excluded:
     type: boolean
     description: "True if donor dropped due to missing/invalid clinical data "
-    ...
+additionalProperties: false

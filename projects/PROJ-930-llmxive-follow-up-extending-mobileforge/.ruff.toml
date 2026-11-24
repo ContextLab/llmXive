@@ -1,20 +1,18 @@
-# Ruff configuration for llmXive project
+# Ruff configuration for the MobileForge Logic Distillation project.
+# Task T003: linting rules for the repository.
+
 target-version = "py311"
 line-length = 88
 
-[lint]
+[tool.ruff]
 select = [
     "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
     "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "W",  # pycodestyle warnings
 ]
 ignore = [
     "E501", # Line too long (handled by black)
-    "C901", # Too complex
 ]
 
-[lint.per-file-ignores]
+[tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]

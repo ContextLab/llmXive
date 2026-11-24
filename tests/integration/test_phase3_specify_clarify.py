@@ -190,16 +190,13 @@ class TestAtomicWrite:
 class TestInspectionHook:
     def _ctx(self, tmp_path: Path):
         from llmxive.speckit.slash_command import SlashCommandContext
-        from llmxive.types import BackendName
         return SlashCommandContext(
             project_id="PROJ-TEST-hook",
             project_dir=tmp_path,
             run_id="r1", task_id="t1",
             inputs=[], expected_outputs=[],
             prompt_template_path=tmp_path / "ignored.md",
-            default_backend=BackendName.DARTMOUTH,
-            fallback_backends=[],
-            default_model="m",
+            profile="standard_generation",
             prompt_version="1.0.0",
             agent_name="specifier",
         )
@@ -313,7 +310,6 @@ class TestClarifierEchoRejection:
         from llmxive.backends.base import ChatResponse
         from llmxive.speckit.clarify_cmd import CLARIFY_MARKER_RE, ClarifierAgent
         from llmxive.speckit.slash_command import SlashCommandContext
-        from llmxive.types import BackendName
 
         # Build project skeleton
         proj_dir = tmp_path / "projects" / "PROJ-TEST-echo"
@@ -348,9 +344,7 @@ class TestClarifierEchoRejection:
             run_id="r", task_id="t",
             inputs=[], expected_outputs=[],
             prompt_template_path=tmp_path / "ignored.md",
-            default_backend=BackendName.DARTMOUTH,
-            fallback_backends=[],
-            default_model="m",
+            profile="standard_generation",
             prompt_version="1.0.0",
             agent_name="clarifier",
         )

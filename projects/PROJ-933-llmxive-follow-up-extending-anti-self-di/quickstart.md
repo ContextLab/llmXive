@@ -1,72 +1,67 @@
-# Quickstart Guide: llmXive Follow-up
+# Quickstart Guide: llmXive Follow‑up
 
-This guide outlines the steps to execute the full research pipeline.
+This guide walks you through the minimal steps required to set up the project
+and run the pre‑study power analysis that verifies we have enough statistical
+power (≥ 0.8) for the planned Wilcoxon signed‑rank tests.
 
 ## Prerequisites
 
-- Python 3.9+
-- `pip install -r requirements.txt`
+- Python 3.11+ (the environment used by the CI runner)
+- Internet access (to download the required Python packages)
 
-## Execution Order
+## 1. Install dependencies
 
-The pipeline consists of sequential stages. Run them in order.
-
-### 1. Project Setup & Data Fetch
 ```bash
-python code/setup_project.py
-python code/setup_linting.py
-python code/data/download.py
+pip install -r requirements.txt
 ```
 
-### 2. Data Preprocessing & Context Simulation
-```bash
-python code/data/preprocess.py
-```
-*Outputs: `data/context_splits.json`, `data/excluded_prompts.log`, `data/context_stats.json`*
+## 2. Verify configuration
 
-### 3. Inference-Only Pass (Teacher Distribution)
-```bash
-python code/models/inference_only.py --mode inference
-```
-*Outputs: `data/teacher_logits_raw.jsonl`, `data/teacher_distribution.json`*
+The configuration file `config/settings.yaml` is already pinned with the
+required seed (`2026`), hyper‑parameters, and a hard timeout of **5 hours**
+(`18000` s). Feel free to inspect it if you wish.
 
-### 4. Validation of Artifacts (T022)
-```bash
-python code/data/validate_logits.py
-```
-*Verifies `data/teacher_logits_raw.jsonl` completeness.*
+## 3. Run the pre‑study power analysis
 
-### 5. Training Loop (AntiSD)
 ```bash
-# The main entry point wraps the timeout enforcer and training loop
-python main.py --mode train --timeout 19800
-```
-*Note: `--timeout` expects an integer in seconds (e.g., 19800 for 5.5h).*
-*Outputs: `results/training_trajectory.json`, `results/training_metrics.json`, `results/trajectories.jsonl`*
-
-### 6. Analysis & Reporting
-```bash
-python code/models/metrics.py
 python code/analysis/statistical_test.py
-python code/analysis/human_score_ingest.py
-python code/analysis/visualize.py
-python code/analysis/report_generator.py
 ```
-*Outputs: `results/final_report.md`, `results/plots/*`*
 
-## Full Pipeline Run
-To run the entire pipeline (excluding manual human scoring step):
+This script:
+
+* computes the required sample size for a Wilcoxon signed‑rank test
+ with effect size **d = 0.5** (medium) and α = 0.05,
+* enforces the project constraint of **N ≥ 30**,
+* reports the achieved power at the final recommended N,
+* writes the full JSON report to `results/pre_study_power.json`.
+
+You should see a console output similar to:
+
+```
+--- Pre‑study Power Analysis ---
+Target Power: 0.8 [UNRESOLVED-CLAIM: c_61f3aa76 — status=not_enough_info]
+Significance Level (alpha): 0.05
+Assumed Effect Size (d): 0.5 (Medium)
+
+Calculated Minimum Sample Size (N): 28 [UNRESOLVED-CLAIM: c_b3964275 — status=not_enough_info]
+Adjusting N to 30 to satisfy project constraint (N >= 30) for robustness.
+
+Report saved to: results/pre_study_power.json
+Final Recommended Sample Size (N): 30 [UNRESOLVED-CLAIM: c_235a7074 — status=not_enough_info]
+```
+
+Verify that the JSON file exists:
+
 ```bash
-python code/setup_project.py && \
-python code/data/download.py && \
-python code/data/preprocess.py && \
-python code/models/inference_only.py --mode inference && \
-python code/data/validate_logits.py && \
-python main.py --mode train --timeout 19800 && \
-python code/analysis/report_generator.py
+cat results/pre_study_power.json
 ```
 
-## Troubleshooting
-- **Timeout Errors**: Ensure `--timeout` is an integer. The default is 5.5 hours (19800s).
-- **Missing Data Files**: Ensure previous stages completed successfully before running the next.
-- **OOM Errors**: The inference pass uses streaming; if issues persist, reduce batch size in `config/settings.yaml`.
+The file contains fields such as `final_recommended_n` and
+`power_achieved_at_final_n`, which must be ≥ 0.8.
+
+## 4. Continue with the rest of the pipeline
+
+Once the power analysis succeeds, you can proceed with the remaining
+stages described in the project's `quickstart.md` (data download,
+preprocessing, training, etc.). The rest of the pipeline assumes the
+configuration and power‑analysis artifacts are present.

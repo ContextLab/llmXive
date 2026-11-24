@@ -1,0 +1,7 @@
+{
+  "task_id": "T018",
+  "fingerprint": "7d1c1d3fe05917807421f997dacc0f7d3353e31d97b59133c15e53a956d8a38d",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/src/analysis/train.py': imports nonexistent names from sibling files: `from src.models.mpnn import MPNN, load_mpnn_model, train_mpnn` (available: Any, Data, Dict, F, GCNConv, LightweightMPNN, List, Optional...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

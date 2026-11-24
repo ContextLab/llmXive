@@ -16,14 +16,10 @@ properties:
     minimum: 0
     maximum: 1
     description: "Coefficient of determination"
-  mse:
+  mse_cv:
     type: "number"
     minimum: 0
-    description: "Mean squared error (training)"
-  cv_mse:
-    type: "number"
-    minimum: 0
-    description: "Mean squared error (cross-validation)"
+    description: "Mean squared error averaged over 10‑fold time‑series cross‑validation."
   p_values:
     type: "object"
     additionalProperties:
@@ -31,11 +27,19 @@ properties:
       minimum: 0
       maximum: 1
     description: "P-values for coefficients (corrected for autocorrelation)"
+  # Legacy optional fields for backward compatibility (not required by the pipeline)
+  mse:
+    type: "number"
+    minimum: 0
+    description: "Legacy field: mean squared error (if present)."
+  cv_mse:
+    type: "number"
+    minimum: 0
+    description: "Legacy field: cross‑validation MSE (if present)."
 required:
   - coefficients
   - intercept
   - r_squared
-  - mse
-  - cv_mse
+  - mse_cv
   - p_values
 additionalProperties: false

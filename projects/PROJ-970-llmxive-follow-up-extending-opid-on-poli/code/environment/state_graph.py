@@ -1,143 +1,184 @@
 """
-State Graph Module for OPID Routing Complexity Analysis.
+src/environment/state_graph.py
 
-Defines the core data structures for the environment: Node, Edge, and StateGraph.
-These structures represent the synthetic environments used in the simulation.
+Data structures representing a synthetic state‑graph environment.
+
+This module defines three public names:
+  - ``Node`` – a dataclass representing a graph node.
+  - ``Edge`` – a dataclass representing a directed edge between two nodes.
+  - ``StateGraph`` – a dataclass encapsulating a full environment graph.
+
+The ``StateGraph.is_valid`` method builds a ``networkx.DiGraph`` from the
+stored ``nodes`` and ``edges`` and checks that a directed path exists from
+``start`` to ``goal``.  It returns ``True`` when such a path exists and
+raises ``RuntimeError`` when the internal representation is malformed.
 """
 
-import random
-from typing import Dict, List, Optional, Set, Tuple
-from dataclasses import dataclass, field
-import numpy as np
+from __future__ import annotations
 
-@dataclass
+import random
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
+
+import numpy as np
+import networkx as nx
+
+
+@dataclass(frozen=True)
 class Node:
     """
-    Represents a state in the environment.
+    Representation of a node in a ``StateGraph``.
 
-    Attributes:
-        id: Unique identifier for the node.
-        is_start: Boolean flag indicating if this is the start state.
-        is_goal: Boolean flag indicating if this is the goal state.
-        reward: Immediate reward received upon entering this state.
+    Attributes
+    ----------
+    node_id : int | str
+        Unique identifier for the node.  ``int`` is used throughout the
+        code base, but ``str`` is accepted for flexibility.
+    reward : float, default 0.0
+        Immediate reward associated with visiting the node.  Most tiers use
+        sparse rewards, so the default is zero.
+    metadata : dict, optional
+        Arbitrary auxiliary information (e.g. feature vectors).  Not used
+        by the core simulation but kept for extensibility.
     """
-    id: int
-    is_start: bool = False
-    is_goal: bool = False
+    node_id: int | str
     reward: float = 0.0
-
-    def __hash__(self):
-        return hash(self.id)
-
-    def __eq__(self, other):
-        if not isinstance(other, Node):
-            return False
-        return self.id == other.id
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Edge:
     """
-    Represents a directed transition between two nodes.
+    Representation of a directed edge in a ``StateGraph``.
 
-    Attributes:
-        source: The ID of the source node.
-        target: The ID of the target node.
-        probability: The probability of successfully transitioning (0.0 to 1.0).
-        cost: The cost associated with taking this transition (optional).
+    Attributes
+    ----------
+    source : int | str
+        Identifier of the tail node.
+    target : int | str
+        Identifier of the head node.
+    probability : float, default 1.0
+        Transition probability for stochastic environments.  For deterministic
+        tiers this should be ``1.0``; for stochastic tiers it lies in (0, 1].
+    metadata : dict, optional
+        Additional edge‑level information (e.g. cost, label).
     """
-    source: int
-    target: int
+    source: int | str
+    target: int | str
     probability: float = 1.0
-    cost: float = 0.0
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def __hash__(self):
-        return hash((self.source, self.target))
-
-    def __eq__(self, other):
-        if not isinstance(other, Edge):
-            return False
-        return self.source == other.source and self.target == other.target
+    def __post_init__(self) -> None:
+        if not (0.0 < self.probability <= 1.0):
+            raise ValueError(
+                f"Edge probability must be in (0, 1], got {self.probability}"
+            )
 
 
 @dataclass
 class StateGraph:
     """
-    Represents the entire state space of the environment.
+    Container for a synthetic environment graph.
 
-    Attributes:
-        nodes: Dictionary mapping node_id -> Node object.
-        edges: List of Edge objects representing transitions.
-        adjacency: Dictionary mapping node_id -> List of target node_ids for fast lookup.
-        start: ID of the start node.
-        goal: ID of the goal node.
-        tier: Complexity tier identifier (1, 2, or 3).
+    Parameters
+    ----------
+    graph_id : str
+        Human‑readable identifier (e.g. ``tier1_0001``).
+    tier : int
+        Complexity tier (1, 2 or 3).
+    nodes : List[Node]
+        All nodes that belong to the graph.
+    edges : List[Edge]
+        Directed edges connecting the nodes.
+    start : int | str
+        Identifier of the start node.
+    goal : int | str
+        Identifier of the goal node.
+    metadata : dict, optional
+        Arbitrary key‑value pairs describing the graph (e.g. creation time,
+        seed used, reward sparsity, etc.).
     """
-    nodes: Dict[int, Node] = field(default_factory=dict)
+    graph_id: str
+    tier: int
+    nodes: List[Node] = field(default_factory=list)
     edges: List[Edge] = field(default_factory=list)
-    adjacency: Dict[int, List[int]] = field(default_factory=dict)
-    start: Optional[int] = None
-    goal: Optional[int] = None
-    tier: int = 1
+    start: Optional[int | str] = None
+    goal: Optional[int | str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def add_node(self, node: Node) -> None:
-        """Adds a node to the graph."""
-        self.nodes[node.id] = node
-        if node.is_start:
-            self.start = node.id
-        if node.is_goal:
-            self.goal = node.id
-        if node.id not in self.adjacency:
-            self.adjacency[node.id] = []
-
-    def add_edge(self, source: int, target: int, probability: float = 1.0, cost: float = 0.0) -> None:
-        """Adds a directed edge to the graph."""
-        if source not in self.nodes:
-            raise ValueError(f"Source node {source} does not exist.")
-        if target not in self.nodes:
-            raise ValueError(f"Target node {target} does not exist.")
-
-        edge = Edge(source=source, target=target, probability=probability, cost=cost)
-        self.edges.append(edge)
-        self.adjacency[source].append(target)
-
-    def get_outgoing_edges(self, node_id: int) -> List[Edge]:
-        """Returns a list of outgoing edges for a given node."""
-        return [e for e in self.edges if e.source == node_id]
-
-    def get_neighbors(self, node_id: int) -> List[int]:
-        """Returns a list of neighbor node IDs."""
-        return self.adjacency.get(node_id, [])
+    def __post_init__(self) -> None:
+        # Basic sanity checks – they raise early so that callers (e.g.
+        # graph_generator) get a clear error instead of a silent failure.
+        if not self.nodes:
+            raise RuntimeError("StateGraph must contain at least one node.")
+        node_ids = {n.node_id for n in self.nodes}
+        if self.start is None or self.goal is None:
+            raise RuntimeError("Both start and goal node identifiers must be set.")
+        if self.start not in node_ids:
+            raise RuntimeError(f"Start node '{self.start}' not present in node list.")
+        if self.goal not in node_ids:
+            raise RuntimeError(f"Goal node '{self.goal}' not present in node list.")
 
     def is_valid(self) -> bool:
         """
-        Validates the graph structure.
+        Validate the graph structure.
 
-        Checks:
-        1. Start and Goal nodes are defined.
-        2. Start and Goal nodes exist in the graph.
-        3. No self-loops (unless explicitly allowed, but typically not in pathfinding).
-        4. (Optional) Connectivity checks could be added here, but validation
-           logic is often delegated to the Validator module (T014) for path existence.
+        Returns
+        -------
+        bool
+            ``True`` if a directed path exists from ``start`` to ``goal``.
+            ``False`` otherwise.
 
-        Returns:
-            bool: True if the graph is structurally valid, False otherwise.
+        Notes
+        -----
+        The method builds a temporary ``networkx.DiGraph`` from the stored
+        ``nodes`` and ``edges``.  Edge probabilities are stored as edge
+        attributes but do not affect the reachability check – any edge with
+        a non‑zero probability is considered traversable.
         """
-        if self.start is None or self.goal is None:
-            return False
-
-        if self.start not in self.nodes or self.goal not in self.nodes:
-            return False
-
-        # Check for self-loops (optional strictness)
+        # Build a directed graph.
+        G = nx.DiGraph()
+        # Add nodes.
+        for node in self.nodes:
+            G.add_node(node.node_id)
+        # Add edges – only keep edges with a positive probability.
         for edge in self.edges:
-            if edge.source == edge.target:
-                # Depending on spec, self-loops might be allowed or not.
-                # For now, we consider them structurally valid but potentially inefficient.
-                pass
+            if edge.probability > 0.0:
+                G.add_edge(edge.source, edge.target, probability=edge.probability)
+        # Use NetworkX's path existence test.
+        try:
+            reachable = nx.has_path(G, self.start, self.goal)
+        except nx.NetworkXError as exc:
+            raise RuntimeError(
+                f"Invalid start/goal identifiers for graph '{self.graph_id}': {exc}"
+            ) from exc
+        return reachable
 
-        return True
+    # Convenience helpers -------------------------------------------------
+    def to_networkx(self) -> nx.DiGraph:
+        """
+        Convert the ``StateGraph`` into a ``networkx.DiGraph`` instance.
+        Edge probabilities are stored under the ``probability`` attribute.
 
-    def __str__(self) -> str:
-        return (f"StateGraph(tier={self.tier}, nodes={len(self.nodes)}, "
-                f"edges={len(self.edges)}, start={self.start}, goal={self.goal})")
+        Returns
+        -------
+        networkx.DiGraph
+        """
+        G = nx.DiGraph()
+        for node in self.nodes:
+            G.add_node(node.node_id, reward=node.reward, **node.metadata)
+        for edge in self.edges:
+            G.add_edge(
+                edge.source,
+                edge.target,
+                probability=edge.probability,
+                **edge.metadata,
+            )
+        return G
+
+    def __repr__(self) -> str:
+        return (
+            f"StateGraph(id={self.graph_id!r}, tier={self.tier}, "
+            f"nodes={len(self.nodes)}, edges={len(self.edges)}, "
+            f"start={self.start!r}, goal={self.goal!r})"
+        )

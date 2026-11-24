@@ -1,12 +1,11 @@
 """
-llmXive Research Project - Code Package
-
-This package contains the implementation modules for the atmospheric pressure
-and earthquake precursor correlation study.
+Package initialization for the atmospheric pressure-earthquake project.
+Sets deterministic random seeds for reproducibility (task T001).
 """
+import random
+import numpy as np
 
-from .config import Config
-from .utils.logging import setup_logging, get_logger
-
-__version__ = "0.1.0"
-__all__ = ["Config", "setup_logging", "get_logger"]
+# Deterministic seeds for every entry point that imports the code package.
+RANDOM_SEED = 42
+random.seed(RANDOM_SEED)
+np.random.seed(RANDOM_SEED)

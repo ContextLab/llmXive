@@ -1,12 +1,3 @@
-pandas
-numpy
-scikit-learn
-statsmodels
 datasets
-joblib
-scipy
-matplotlib
-seaborn
-pyyaml
-requests
-pytest
+huggingface_hub
+pyarrow==14.0.1

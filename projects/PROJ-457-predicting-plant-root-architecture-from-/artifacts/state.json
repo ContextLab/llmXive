@@ -5,5 +5,10 @@
   "deviation_logged_fr003": true,
   "data_source_type_column": "data_source_type",
   "rows_excluded_by_source": 0,
-  "last_updated": "2023-10-27T10:00:00Z"
+  "last_updated": "2023-10-27T10:00:00Z",
+  "is_isric_verified": false,
+  "isric_verification_checked_at": "2026-10-17T17:15:01.788762+00:00",
+  "deviations": [
+    "ISRIC source not verified \u2013 proceeding without soil interpolation"
+  ]
 }

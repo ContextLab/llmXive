@@ -1,0 +1,16 @@
+{
+  "config_path": "/home/runner/work/llmXive/llmXive/projects/PROJ-451-predicting-the-glass-forming-region-of-m/code/.pre-commit-config.yaml",
+  "repos": [
+    "https://github.com/astral-sh/ruff-pre-commit",
+    "https://github.com/psf/black",
+    "local"
+  ],
+  "hook_ids": [
+    "ruff",
+    "ruff-format",
+    "black",
+    "check-files-exist"
+  ],
+  "required_hooks_present": true,
+  "valid_yaml": true
+}

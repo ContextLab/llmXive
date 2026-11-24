@@ -1,126 +1,105 @@
-# Implementation Plan: llmXive Follow-up: Structural Mismatch Cost in Heterogeneous Retrieval
+# Implementation Plan: Structural Mismatch Cost in Heterogeneous Retrieval
 
-**Branch**: `001-structural-mismatch-cost` | **Date**: 2026-07-10 | **Spec**: `specs/001-structural-mismatch-cost/spec.md`
+**Branch**: `001-structural-mismatch-cost` | **Date**: 2026-10-24 | **Spec**: `specs/001-structural-mismatch-cost/spec.md`
+
+**Input**: Feature specification from `/specs/001-structural-mismatch-cost/spec.md`
 
 ## Summary
-
-This feature implements a rigorous benchmarking suite to quantify the "structural mismatch cost" when executing high-complexity (multi-hop) queries against heterogeneous knowledge sources (Text, Relational, Graph) under strict CPU constraints. The approach involves generating synthetic queries with known plan depths, executing them against lightweight engine simulators (SQLite, NetworkX, RDFLib) with enforced cgroups throttling, and performing an ANCOVA to test for non-linear latency scaling. The plan explicitly addresses the coverage gaps identified in the previous revision: ensuring integer plan depth is persisted, enforcing data hygiene regarding synthetic fallbacks, and guaranteeing the statistical analysis tasks have valid input data.
+We will build a fully reproducible benchmarking suite that measures the **structural mismatch cost**—the non‑linear latency increase for high‑complexity (multi‑hop) queries on **graph** sources compared with **text** and **relational** sources—under strict CPU‑only throttling. The plan covers **every** functional requirement (FR‑001 … FR‑015) and success criterion (SC‑001 … SC‑005), provides a deterministic data pipeline, statistical analysis, and visualisation, and respects all constitution principles.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `datasets` (HuggingFace), `sqlite3` (stdlib), `networkx`, `rdflib` (for RDF), `ruff` (linting), `pytest`.  
-**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/results/`).  
-**Testing**: `pytest` (unit tests for query generator, integration tests for engine latency).  
-**Target Platform**: Linux (GitHub Actions runner).  
-**Project Type**: Research Benchmark Suite / CLI Tool.  
-**Performance Goals**: Execute 500+ queries within 4 hours; latency measurements accurate to <1ms.  
-**Constraints**: Must run on a small number of CPU cores, with limited RAM.. No GPU. No external API calls for data (must use verified HuggingFace/DBpedia URLs).  
-**Scale/Scope**: Multiple source types, 4 complexity levels, A fixed number of queries per level (a predetermined total of runs).
-
-> **Note on Compute**: All statistical analysis (ANCOVA, Sensitivity) and data processing will run on CPU. No GPU-dependent libraries are used. The "throttling" is simulated via `cgroups` if the runner environment permits; if `cgroups` is unavailable, the plan falls back to a strict `time`-based measurement with a note in the metadata, ensuring the experiment remains reproducible even without root privileges. **Crucially, no artificial delay logic (e.g., `time.sleep` proportional to complexity) is used. Latency is measured strictly from the engine's native execution time.**
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies** (pinned in `requirements.txt`):  
+  `pandas==2.2.2`, `numpy==1.26.4`, `pyarrow==15.0.0`, `datasets==2.19.0`, `statsmodels==0.14.2`, `scipy==1.13.0`, `networkx==3.3`, `rdflib==7.0.0`, `ir-datasets==0.5.6`, `ruff==0.4.5`, `pytest==8.2.2`  
+- **Storage**: Local filesystem under `data/` (raw, processed, results).  
+- **Testing**: `pytest` (unit & integration).  
+- **Target Platform**: Linux GitHub Actions free‑tier runner (2 CPU cores, ~7 GB RAM, ≤6 h).  
+- **Constraints**: No artificial `sleep`; enforce CPU quota via cgroups (≤ 1 000 ms per query); 60 s wall‑clock timeout.  
+- **Compute Placement**: **CPU‑first** – all libraries run on the CPU runner; no GPU‑only components.
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research.*
-
-| Principle | Status | Action Required |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/utils.py`. Data fetched from verified DBpedia/Spider URLs. |
-| **II. Verified Accuracy** | **PASS** | All dataset citations in `research.md` restricted to the verified list (DBpedia -10, Spider). |
-| **III. Data Hygiene** | **PASS** | **Hard Abort** logic added: if real data depth is insufficient, the run aborts. Synthetic data is strictly excluded from primary ANCOVA (flagged and logged). Checksums recorded for all raw data. |
-| **IV. Single Source of Truth** | **PASS** | `data/processed/execution_logs.csv` is the single source for all stats. `generation_log.json` is the intermediate SSoT. |
-| **V. Versioning** | **PASS** | Artifact hashes recorded in `state/...yaml` post-run. |
-| **VI. Heterogeneous Fidelity** | **PASS** | Plan enforces real engine execution (SQLite, NetworkX, RDFLib) on real data structures. Synthetic data is a *last resort* stress test with explicit logging and abort conditions. |
-| **VII. Statistical Validation** | **PASS** | ANCOVA and Sensitivity Analysis (Piecewise Regression) implemented in `code/stats.py`. |
+| Principle | Status | Action |
+|-----------|--------|--------|
+| I. Reproducibility | PASS | Fixed random seeds, deterministic loaders, pinned dependencies. |
+| II. Verified Accuracy | PASS | All citations limited to the verified URLs in the “Verified datasets” block. |
+| III. Data Hygiene | PASS | Checksums recorded; no in‑place mutation; synthetic flag distinguishes generated topology. |
+| IV. Single Source of Truth | PASS | `execution_logs.csv`, `anova_results.json`, `interaction_plot.png` are the sole sources for figures/tables. |
+| V. Versioning Discipline | PASS | Artifact hashes stored in project state; `requirements.txt` pins exact versions. |
+| VI. Heterogeneous Source Execution Fidelity | PASS | Real engines (BM25, SQLite, RDFLib) run under cgroups; datasets derived from open DBpedia triples. |
+| VII. Statistical Validation of Non‑Linear Scaling | PASS | Two‑way ANOVA, Tukey HSD, Bonferroni‑corrected sensitivity sweep, slope‑ratio, and diagnostics satisfy the principle. |
 
 ## Project Structure
 
-### Documentation (this feature)
-
-```text
+```
 specs/001-structural-mismatch-cost/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── generation_log.schema.yaml
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── query_instance.schema.yaml
 │   ├── execution_log.schema.yaml
-│   ├── anova_results.schema.yaml
-│   └── statistics-result.schema.yaml
-└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
+│   ├── execution_metric.schema.yaml
+│   └── statistics_result.schema.yaml
+└── tasks.md               # generated later
 ```
 
-### Source Code (repository root)
+Source code (root of the repository)
 
-```text
-projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/
-├── code/
-│   ├── __init__.py
-│   ├── config.py              # Paths, seeds, constants
-│   ├── data_loader.py         # HF dataset fetching & filtering
-│   ├── query_generator.py     # Synthetic query generation with depth labeling
-│   ├── ground_truth_engine.py # Deterministic reference engine (FR-008)
-│   ├── engine_simulator.py    # SQLite, Graph (RDF), Text execution wrappers
-│   ├── benchmark_runner.py    # Main loop with cgroups/throttling logic; writes execution_logs.csv
-│   ├── stats.py               # ANCOVA, Sensitivity Analysis; writes anova_results.json
-│   ├── visualize.py           # Interaction plots
-│   └── main.py                # Entry point
-├── data/
-│   ├── raw/                   # Downloaded datasets (checksummed)
-│   ├── processed/
-│   │   ├── generation_log.json # Intermediate SSoT: Query definitions + Ground Truth
-│   │   └── execution_logs.csv  # FR-003: Query metrics + integer depth (T021 Output)
-│   └── results/
-│       ├── anova_results.json  # FR-005: Stats output (ANCOVA) (T021 Output)
-│       └── sensitivity_analysis.json # FR-007: Threshold sweep (T020 Output)
-├── tests/
-│   ├── unit/
-│   │   ├── test_query_gen.py
-│   │   └── test_stats.py
-│   └── integration/
-│       └── test_benchmark.py
-├── .ruff.toml                 # Linting config (T003)
-├── pyproject.toml             # Build/Lint settings (T003)
-├── requirements.txt
-└── .gitignore
+```
+code/
+├── __init__.py
+├── config.py
+├── data_loader.py               # downloads & checksums datasets
+├── query_generator.py           # synthetic queries + complexity labels
+├── reference_engine.py          # deterministic greedy planner
+├── optimal_planner.py           # exhaustive optimal planner (sampled subset)
+├── engine_simulator.py          # BM25, SQLite, RDFLib wrappers w/ cgroups
+├── benchmark_runner.py          # orchestrates execution & logging
+├── baseline_overhead.py         # measures trivial query latency
+├── stats.py                     # ANOVA, Tukey, chi‑square, sensitivity sweep, slope‑ratio
+├── visualize.py                 # interaction plot generator
+├── generate_execution_metric.py # builds execution_metric.json
+├── quickstart.py                # CLI entry point (supports --run-optimal-planner, --baseline-reps)
+└── main.py                      # top‑level CLI (help, version, stage selection)
+tests/
+├── unit/
+│   ├── test_query_generator.py
+│   ├── test_reference_engine.py
+│   ├── test_optimal_planner.py
+│   └── test_data_loader.py
+└── integration/
+    ├── test_cpu_throttle.py
+    ├── test_benchmark.py
+    └── test_skeleton.py
+requirements.txt
+.ruff.toml                       # corrected TOML (valid syntax)
 ```
 
-**Structure Decision**: Single project structure. The `code/` directory contains the entire research pipeline from data loading to statistical analysis. `data/` is strictly for artifacts. `tests/` validates the generator and statistical logic.
+## Phase Breakdown & FR/SC Mapping
 
-## Complexity Tracking
+| Phase | Tasks | Deliverable(s) | Covered FR / SC |
+|-------|-------|----------------|-----------------|
+| **0 – Optimal Planner (Sampled Subset)** | • Stratified sampling (200 queries).<br>• Exhaustive search over all join/order permutations → `optimal_plan_id`.<br>• Store mapping in `optimal_ground_truth.json`. | `optimal_ground_truth.json` | FR‑004, FR‑008 |
+| **1 – Data Acquisition & Checksum** | • Programmatic download of MS MARCO parquet via `ir_datasets`.<br>• Download DBpedia triples parquet from HuggingFace.<br>• Compute SHA‑256 checksums, write `checksums.txt`. | `data/raw/`, `checksums.txt` | FR‑001 |
+| **2 – Query Generation & Greedy Reference** | • Generate 1 500 synthetic queries (125 per source × 4 complexity levels).<br>• Assign UUID, `source_type`, `complexity_level`, `logical_plan`.<br>• Run deterministic greedy reference engine → `reference_plan_id` (hash‑named `greedy_plan_<8hex>`).<br>• Log depth overflow warnings (`DEPTH_OVERFLOW: query_id=…`).<br>• Validate `generation_log.json` against `query_instance.schema.yaml`. | `generation_log.json` | FR‑002, FR‑008, FR‑015 |
+| **3 – Baseline Overhead Calibration** | • Execute 5 trivial single‑hop queries per engine under cgroups.<br>• Record median latency per engine → `baseline_overhead.json`. | `baseline_overhead.json` | FR‑010 |
+| **4 – Benchmark Execution (CPU‑Throttled)** | • Verify cgroups quota; abort with exit 99 if unavailable (FR‑014).<br>• Enforce ≤ 1 000 ms CPU quota per query; 60 s wall‑clock timeout.<br>• For each query record:<br>  `latency_ms` (baseline‑corrected), `translation_error` (true error vs. optimal **only** for sampled subset), `reference_deviation` (boolean indicating mismatch vs. greedy plan for non‑sampled), `precision_at_10`, `success_flag`, `timeout_flag`, `synthetic_flag`, `throttling_mode`.<br>• Write `execution_logs.csv` (validated by `execution_log.schema.yaml`) and aggregated `execution_metric.json` (validated by `execution_metric.schema.yaml`). | `execution_logs.csv`, `execution_metric.json` | FR‑001, FR‑002, FR‑003, FR‑004, FR‑009, FR‑010, FR‑012, FR‑014, FR‑015 |
+| **5 – Statistical Analysis** | • Two‑way ANOVA on `latency_ms` with factors `source_type` × `complexity_level`; report interaction F, p, 95 % CI.<br>• Diagnostics (Shapiro‑Wilk, Levene); if violated, apply log‑transform or Huber regression.<br>• Tukey HSD post‑hoc (family‑wise ≤ 0.05).<br>• Chi‑square test for `translation_error` vs. `complexity_group` (low = 1‑2, high = 3‑4+).<br>• Sensitivity sweep for cut‑offs {2, 3, 4}: piecewise linear regression → `spike_point`, `slope_change`; Bonferroni‑corrected p‑values (FR‑007, FR‑011).<br>• Slope‑ratio regression (graph vs. text) → `slope_ratio` (must exceed 1.5 for SC‑001).<br>• Precision@10 per source; verify pairwise differences ≤ 0.02 (SC‑002).<br>• Export JSON results (`anova_results.json`, `sensitivity_analysis.json`, `statistics_results.json`). | `anova_results.json`, `sensitivity_analysis.json`, `statistics_results.json` | FR‑005, FR‑007, FR‑011, SC‑001, SC‑002, SC‑004 |
+| **6 – Visualization** | • Interaction plot (`latency_ms` vs. `complexity_level`) with distinct colors per `source_type`; highlight graph line; annotate `spike_point` and slope differences.<br>• Save as `interaction_plot.png`. | `interaction_plot.png` | FR‑006, SC‑005 |
+| **7 – Reporting & Quickstart** | • Assemble figures & tables into `results/`.<br>• Update `quickstart.md` with exact CLI flags (`--run-optimal-planner`, `--baseline-reps=5`).<br>• Provide reproducibility checklist. | Documentation | All SCs (traceability) |
 
-No complexity violations identified. The plan uses standard libraries (`scipy`, `statsmodels`) and avoids complex distributed systems. The "synthetic fallback" is explicitly controlled to prevent Data Hygiene violations.
+## Compute Feasibility
+- All engines are pure‑Python or std‑lib; memory footprint < 7 GB; total runtime ≤ 5 h on the free runner.  
+- No GPU‑only libraries are imported, satisfying the CPU‑first policy.
 
-## Phase Breakdown
+## Decision/Rationale
+1. **CPU‑First** – Chosen libraries run efficiently on the free runner; no need for Kaggle offload.  
+2. **Open Data** – MS MARCO parquet and DBpedia triples parquet are directly downloadable via verified URLs; they satisfy heterogeneous source fidelity.  
+3. **Statistical Rigor** – Multiple‑comparison corrections (Tukey, Bonferroni), power analysis (≥ 0.99 for medium effect), diagnostics, and explicit non‑causal framing meet Constitution Principle VII.  
+4. **Ground‑Truth Clarification** – The **optimal** plan (exhaustive search) is the only true ground truth; the greedy plan is a *reference* used for all non‑sampled queries. The `translation_error` flag is defined **only** for the sampled subset; a separate `reference_deviation` flag records disagreement with the greedy reference for the remainder. This addresses reviewer concerns about conflating heuristic and truth.  
+5. **Edge‑Case Handling** – Depth overflow warnings and cgroup‑failure aborts are explicitly logged and tested (FR‑015, FR‑014).  
+6. **Schema Consolidation** – Duplicate contracts removed; all four required schemas are present and validated.  
+7. **Linting** – `.ruff.toml` will be corrected to a valid TOML configuration, ensuring `ruff check code/` exits 0 and produces `artifacts/ruff_output.txt`.  
 
-### Phase 0: Data Preparation & Ground Truth Generation
-1. Download verified datasets (Spider, DBpedia 2022-10 RDF).
-2. Verify schema depth (Relational joins, Graph edges). **ABORT if depth < 3 for primary analysis.**
-3. Generate synthetic queries with known complexity levels (low, 2, 3, 4+).
-4. **FR-008**: Run `ground_truth_engine.py` to generate optimal plans for every query.
-5. Output `generation_log.json` (SSoT for query definitions).
-
-### Phase 1: Execution Benchmark (T021)
-1. Load `generation_log.json`.
-2. Execute queries against Text, Relational (SQLite), Graph (RDFLib) engines.
-3. Enforce CPU throttling (cgroups or time-based).
-4. Record `latency_ms` (native engine time only).
-5. **Write `data/processed/execution_logs.csv`**:
-   - Columns: `query_id`, `source_type`, `complexity_level` (integer), `latency_ms`, `translation_error`, `success_flag`, `synthetic_flag`, `throttling_mode`.
-   - **Critical**: `complexity_level` MUST be persisted as an integer to satisfy FR-002.
-
-### Phase 2: Statistical Analysis (T018, T020)
-1. **FR-005**: Perform ANCOVA (Complexity as covariate, Source Type as factor) on `execution_logs.csv`.
-   - Output: `data/results/anova_results.json` (T021).
-2. **FR-007**: Perform Sensitivity Analysis (T020):
-   - Loop over cutoffs [, 3, 4].
-   - Fit piecewise regression for each cutoff.
-   - Calculate `spike_point` and `slope_change`.
-   - Output: `data/results/sensitivity_analysis.json`.
-3. Filter out any rows with `synthetic_flag=1` from the primary ANCOVA.
-
-### Phase 3: Visualization & Reporting
-1. Generate interaction plots.
-2. Compile results into final report.
+---

@@ -1,0 +1,130 @@
+{
+  "trace_id": "training_42_03396",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 11,
+  "tool_sequence": [
+    "delete_element",
+    "apply_theme",
+    "apply_theme",
+    "update_layout",
+    "update_layout",
+    "apply_theme",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 11.1848
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 0.5294,
+        "saturation": 96.5533
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 95.7753,
+        "saturation": 11.7937
+      }
+    },
+    {
+      "step": 3,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 25.879,
+        "padding": 14.1477
+      }
+    },
+    {
+      "step": 4,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 14.0991,
+        "padding": 76.3498
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 14.029,
+        "saturation": 96.8893
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 57.0829,
+        "y": 19.1448,
+        "width": 43.5206,
+        "height": 31.8,
+        "data_points": 61.7639
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 79.1552,
+        "y": 73.5812,
+        "width": 97.8697,
+        "height": 47.5,
+        "data_points": 90.3731
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 95.1341,
+        "y": 23.1241,
+        "width": 43.8791,
+        "height": 43.1448,
+        "data_points": 17.7485
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 12.7981,
+        "y": 90.8305,
+        "width": 29.2664,
+        "height": 48.3943,
+        "data_points": 89.8405
+      }
+    },
+    {
+      "step": 10,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 62.7746,
+        "saturation": 5.4463
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.263654,
+    "tool_repetition_freq": 0.636364,
+    "arg_semantic_variance": 1058.94393
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 12,
+    "layout_hash": "42-3396-apply_theme"
+  }
+}

@@ -42,7 +42,7 @@ def test_a_real_turn_is_grounded_in_the_artifact_it_was_given(tmp_path, credenti
     persona = pool.personalities[0]
 
     started = time.monotonic()
-    raw, model = p._grounded_call(
+    raw, model, _backend = p._grounded_call(
         target, persona, repo, persona_framing=persona.prompt_body,
     )
     elapsed = time.monotonic() - started

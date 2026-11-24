@@ -1,2 +1,5 @@
-# Standalone ruff config for IDE integration if pyproject.toml is not picked up
-extend = "pyproject.toml"
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "W", "C90"]
+ignore = []
+fix = true

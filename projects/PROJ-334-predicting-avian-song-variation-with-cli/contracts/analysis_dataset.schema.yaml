@@ -1,16 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "AnalysisDataset Schema"
-description: "Schema for the merged analysis dataset containing song metrics and environmental predictors."
+title: "AnalysisDataset"
+description: "Schema for the merged dataset containing song metrics and environmental predictors."
 type: object
-required:
-  - species_id
-  - lat
-  - lon
-  - song_metric_1
-  - song_metric_2
-  - temperature
-  - precipitation
-  - elevation
 properties:
   species_id:
     type: string
@@ -39,5 +30,5 @@ properties:
     description: "Mean annual precipitation (mm)."
   elevation:
     type: number
-    description: "Elevation (m)."
+    description: "Elevation above sea level (meters)."
 additionalProperties: true

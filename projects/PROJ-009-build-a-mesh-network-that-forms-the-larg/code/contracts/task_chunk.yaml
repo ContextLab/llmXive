@@ -1,0 +1,16 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: TaskChunk
+type: object
+required:
+  - id
+  - size_mb
+  - iterations
+properties:
+  id:
+    type: string
+  size_mb:
+    type: number
+    minimum: 0
+  iterations:
+    type: integer
+    minimum: 0

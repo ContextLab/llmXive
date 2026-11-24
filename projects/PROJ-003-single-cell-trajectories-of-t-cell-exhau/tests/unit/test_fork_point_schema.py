@@ -2,6 +2,7 @@
 Unit tests for the fork_point.schema.yaml schema validation.
 Verifies that the schema correctly defines the output structure for fork-point genes.
 """
+
 import json
 import os
 import yaml
@@ -60,15 +61,15 @@ def test_valid_fork_point_data(schema):
                         "gene_symbol": "CD38",
                         "timing_rank": 1,
                         "timing_pseudotime": 0.15,
-                        "confidence_flag": "high_confidence"
+                        "confidence_flag": "high_confidence",
                     },
                     {
                         "gene_symbol": "TCF7",
                         "timing_rank": 2,
                         "timing_pseudotime": 0.25,
-                        "confidence_flag": "high_confidence"
-                    }
-                ]
+                        "confidence_flag": "high_confidence",
+                    },
+                ],
             }
         ]
     }
@@ -87,9 +88,9 @@ def test_low_confidence_flag(schema):
                         "gene_symbol": "NOTCH1",
                         "timing_rank": 1,
                         "timing_pseudotime": 0.12,
-                        "confidence_flag": "low_confidence"
+                        "confidence_flag": "low_confidence",
                     }
-                ]
+                ],
             }
         ]
     }
@@ -108,9 +109,9 @@ def test_invalid_branch_id_format(schema):
                         "gene_symbol": "CD38",
                         "timing_rank": 1,
                         "timing_pseudotime": 0.1,
-                        "confidence_flag": "high_confidence"
+                        "confidence_flag": "high_confidence",
                     }
-                ]
+                ],
             }
         ]
     }
@@ -145,9 +146,9 @@ def test_invalid_confidence_flag(schema):
                         "gene_symbol": "CD38",
                         "timing_rank": 1,
                         "timing_pseudotime": 0.1,
-                        "confidence_flag": "invalid_flag"
+                        "confidence_flag": "invalid_flag",
                     }
-                ]
+                ],
             }
         ]
     }
@@ -167,9 +168,9 @@ def test_timing_rank_minimum(schema):
                         "gene_symbol": "CD38",
                         "timing_rank": 0,
                         "timing_pseudotime": 0.1,
-                        "confidence_flag": "high_confidence"
+                        "confidence_flag": "high_confidence",
                     }
-                ]
+                ],
             }
         ]
     }
@@ -189,9 +190,9 @@ def test_divergence_score_minimum(schema):
                         "gene_symbol": "CD38",
                         "timing_rank": 1,
                         "timing_pseudotime": 0.1,
-                        "confidence_flag": "high_confidence"
+                        "confidence_flag": "high_confidence",
                     }
-                ]
+                ],
             }
         ]
     }

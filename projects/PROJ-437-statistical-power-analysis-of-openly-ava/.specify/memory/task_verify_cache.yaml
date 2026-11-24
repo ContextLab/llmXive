@@ -1,29 +1,10 @@
-T016:
+V01:
   c: false
-  h: af2c37b242bc1f0a209a7f758f02ba05e8cf38200139787c058a7d4807dcd7d1
-  r: "The provided `code/analysis/glm_fitter.py` is truncated (ends mid\u2011statement)\
-    \ and does not contain a complete reusable function that fits a GLM, computes\
-    \ Cohen\u2019s\u202Fd, returns the required `{\"effect_size\":\u2026, \"p_value\"\
-    :\u2026, \"converged\":\u2026}` dict, nor does it actually write any entries to\
-    \ `data/aggregated/convergence_log.json` (the file is missing). The task\u2019\
-    s core functionality and logging are therefore not satisfied."
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No updated `README.md` file was provided or shown, and there is no evidence that
-    CLI usage examples or installation instructions have been added. The required
-    documentation artifact is missing, so the task is not satisfied.
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code files (e.g., `utils/bootstrap_aggregator.py` or a modified `power_curve_generator.py`)\
-    \ were presented, so we cannot confirm that the aggregation logic was extracted\
-    \ or that a clean multi\u2011kernel, multi\u2011alpha API was added. The required\
-    \ artifacts are missing."
-T049:
-  c: false
-  h: 196de7dfc559b62426c8003f31c909be2bdef3c0b6f4ecf16ba2fdf6250da59a
-  r: "The provided `code/utils/convergence_monitor.py` is truncated (e.g., the tolerance\
-    \ check line is incomplete) and does not contain logic to write the flagged iterations\
-    \ to `results/paper/convergence_report.md`. Moreover, the required `results/paper/convergence_report.md`\
-    \ file is absent. The task\u2019s output specifications are therefore not satisfied."
+  h: 24020ade2ec1597df7dffe5f05cf4946ee8346e58c9436c9cd562b4d6c2eec98
+  r: "The provided evidence includes a valid `requirements.txt` and a fully\u2011\
+    implemented `code/utils/seed_manager.py`, but there are no artifacts for the memory\
+    \ monitor, the `SimulationConfig` and `ReplicationResult` data models, the timer\
+    \ utility, or the execution\u2011order validator required by the V01 scaffolding\
+    \ task. These missing files must be added and contain the specified functionality\
+    \ before the task can be considered complete."
+  sig: d766f391cf4a0589a87c4647bb224b40067b6e8a07c5c1cdaf152b039fc910d8

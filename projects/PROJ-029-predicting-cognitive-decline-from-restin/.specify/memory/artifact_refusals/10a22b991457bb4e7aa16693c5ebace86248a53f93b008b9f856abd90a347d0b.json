@@ -1,0 +1,7 @@
+{
+  "task_id": "T044",
+  "fingerprint": "a114e8c978acc4349df44d5032ac7dd8e32a8d5057ccdbfb3c09f687156f78d5",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'tests/unit/test_collinearity_filter.py': imports nonexistent names from sibling files: `from code import _04_train_model` (available: 00_data_gate, 01_download_and_filter, 02_preprocess_and_parcellate, 03_compute_graph_metrics, 04_train_model, 05_evaluate_model, 06_permutation_test, 06_runtime_verifier...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

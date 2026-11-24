@@ -41,10 +41,10 @@
 
 - [X] T004 [P] Implement `code/utils/data_loader.py` with streaming support for GSMK and HumanEval using `datasets.load_dataset(..., streaming=True)`
 - [X] T005 [P] Implement `code/utils/metrics.py` for latency calculation, accuracy, and correlation coefficient functions
-- [~] T006 [P] Implement `code/utils/collinearity.py` for VIF calculation and residualization/PCA logic
-- [~] T007 [P] Create base schemas in `contracts/` for `FeatureVector`, `GroundTruth`, `Prediction`, and `ModelArtifact` (Files: `contracts/feature_vector.schema.yaml`, `contracts/ground_truth.schema.yaml`, etc.)
-- [~] T008 [P] Configure error handling and logging infrastructure in `code/main.py`
-- [~] T009 [P] Setup environment configuration management for dataset paths and model weights (File: `code/config.py`)
+- [X] T006 [P] Implement `code/utils/collinearity.py` for VIF calculation and residualization/PCA logic
+- [ ] T007 [P] Create base schemas in `contracts/` for `FeatureVector`, `GroundTruth`, `Prediction`, and `ModelArtifact` (Files: `contracts/feature_vector.schema.yaml`, `contracts/ground_truth.schema.yaml`, etc.)
+- [X] T008 [P] Configure error handling and logging infrastructure in `code/main.py`
+- [X] T009 [P] Setup environment configuration management for dataset paths and model weights (File: `code/config.py`)
 - [~] T009a [US1] **FEASIBILITY CHECK**: Implement and run a mini-sweep on a SINGLE sample with a simplified loop (2 block sizes) to validate the CI time limit assumption. **Dependency**: Must run AFTER T004 (data_loader) and T005 (metrics) to ensure data and metrics are available. **Note**: This task does NOT depend on T012 implementation; it uses a simplified manual loop to estimate runtime. **Status**: Verified.
 - [~] T048 [US1] **Explicitly Define Sample Size Limits**: Update `code/config.py` to define `MAX_SAMPLES_PER_DATASET = 500`. **Behavior**: Instead of raising an error, the system must gracefully truncate the dataset to the first `MAX_SAMPLES_PER_DATASET` rows if the input exceeds this limit. Log a warning: "Dataset truncated to first {N} samples per limit." **Dependency**: Must be completed before T012 execution.
 

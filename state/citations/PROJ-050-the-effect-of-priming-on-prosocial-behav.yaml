@@ -1,1 +1,11 @@
-[]
+- artifact_hash: f4d5f7f27e538cac03994d2f051296ea30b755d8cdfee8b1a467d882c1fa496a
+  artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "fddemarco/pushshift-reddit-comments \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/fddemarco/pushshift-reddit-comments
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/fddemarco/pushshift-reddit-comments
+  verified_at: '2026-11-07T05:07:40.523650Z'

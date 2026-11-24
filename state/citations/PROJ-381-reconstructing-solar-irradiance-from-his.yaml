@@ -97,3 +97,14 @@
   verification_status: pending
   verified_against_url: https://www.sidc.be/
   verified_at: '2026-09-06T18:36:55.209658Z'
+- artifact_hash: cebb93a0f685b4f756d37d9cb398123b6b219b2f33e03bbe189b3541925c9f13
+  artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.ngdc.noaa.gov/stp/solar/solar-data/
+  verification_status: mismatch
+  verified_against_url: https://www.ngdc.noaa.gov/stp/solar/solar-data/
+  verified_at: '2026-10-23T17:31:59.808213Z'

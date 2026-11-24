@@ -1,0 +1,15 @@
+scanpy
+harmonypy
+arboreto
+scvelo
+pyscenic
+pandas
+numpy
+scipy
+statsmodels
+matplotlib
+plotly
+pyyaml
+pytest
+datasets
+requests

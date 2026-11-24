@@ -1,40 +1,53 @@
 T001a:
-  c: false
-  h: 3e6b2c9dd44580ba104f031e4cb9b39ebf7b6eddc90766957331b704f5da5959
-  r: No evidence of a `code/` directory at the repository root is provided; the artifact
-    list is empty, so the required directory has not been demonstrated as created.
+  c: true
+  h: 5425f02d56fcfbd8dd03d1ba2e7fd2b0ec13906339796ca9020133552c9a45c0
+  r: The evidence shows a `code/` directory present at the repository root (39 entries)
+    and a successful execution log of `create_code_dir.py` confirming its creation.
+  sig: 7faa8487997867ac6dd11ae4ef97b121a13da05949a50007cb508fd1a818cfa1
 T001b:
   c: false
-  h: 94ea52ccf4f098ed0df3f55820fd444a1e2224193f64ffd82d40c2c661ddc767
-  r: "No evidence of a `tests/` directory at the repository root was provided; the\
-    \ artifact list is empty, so the required directory has not been demonstrated\
-    \ as existing. The implementer must add the `tests/` folder (non\u2011empty or\
-    \ at least present) to satisfy the task."
+  h: 74fffad6f6b626a6bea4b77121a76467f3d09061349d7f34d599120161fee1e7
+  r: "The evidence shows a `tests/` directory (7 entries) exists, but it is located\
+    \ under the project subdirectory `projects/PROJ-029-predicting-cognitive-decline-from-restin/`,\
+    \ not at the repository\u2019s top\u2011level root as the task requires. A repository\u2011\
+    root `tests/` folder is missing."
+  sig: 6ed41838bf5b96a47b01f28d2c858a1f41fcc63224129e5fa0b411bc8b3f9b76
 T001c:
-  c: false
-  h: d6aec8848fa687bd424b05087b7e57c513fa06cc597d97c669f60bf55ed921ea
-  r: No evidence of a `docs/` directory at the repository root is provided; the artifact
-    list is empty, so the required directory has not been demonstrated as existing.
-    The implementer must create the `docs/` folder and show its presence.
+  c: true
+  h: 0743eab2be80ed0cde242ab35095fb4e07ac79e4410fb68312b208d904cdcc1e
+  r: "The evidence shows a `docs/` directory at the repository root containing `index.md`\
+    \ and `quickstart.md` (sha256\u202F16850d4f\u2026). This satisfies the sole requirement\
+    \ of creating the `docs/` directory."
+  sig: f8d5db3bf1786cb4c5234ff2c23e016cae0b50356e9ea59cb23c71f05b3865f6
 T002a:
   c: false
-  h: f1e057f78165af69050b1dfe2429bb3cb315776f983e098acc0c4ea98a4c3742
-  r: No evidence was provided showing that a `data/raw/` directory exists at the repository
-    root; the artifact list is empty, so the required directory cannot be confirmed.
-    The implementer must create the directory (and optionally show its presence, e.g.,
-    via a file listing).
+  h: 1989d0801f6930d6199b6aed8f0971104d5f4a8a6865b7a66d0fc381ba8c0e5e
+  r: "The evidence shows a `data/raw/` directory exists, but it resides inside the\
+    \ project folder `projects/PROJ-029-predicting-cognitive-decline-from-restin/`,\
+    \ not at the repository root as the task requires. A top\u2011level `data/raw/`\
+    \ directory is missing."
+  sig: 85ddb776c81e0cb99e15b69f5badab99bd3c8f2828a209487a4c85a76062b20b
 T002b:
-  c: false
-  h: 791df062c9d5644e732093f8a935edc926c40a2eb96fffb5b0408f9ab630508f
-  r: No evidence of a `data/processed/` directory is provided; the artifact list is
-    empty and the claim cannot be verified. The required directory must be present
-    in the repository root for the task to be considered complete.
+  c: true
+  h: d29d8e8a02d3e40095c7a0be1c2fc5f26f8ef26421aa93bb8754a3eaf1d3498b
+  r: "The evidence shows a `data/processed/` directory (containing a `.gitkeep` file)\
+    \ exists at the repository root, fulfilling the task\u2019s sole requirement to\
+    \ create that directory."
+  sig: 1e03181bebfb14139760f73583b029088958fd9724aca122ea20de8a7bf68e85
 T002c:
+  c: true
+  h: 0ef193e21979cedae11b40ff240b29d23ef3a4a5f51eb9e0d84f7d7fa65b5871
+  r: "The evidence shows a non\u2011empty `data/artifacts/` directory (9 entries)\
+    \ present at the repository root, satisfying the requirement to create that directory."
+  sig: 525901f01844beb1255f7cf08f733e70f296c7d9a09645d4ea0a8b08c1d3d924
+T003a:
   c: false
-  h: d8851e54f3e9176a301e7046553a19dcdf1180f3ee982d389673e8075be898db
-  r: No evidence of a `data/artifacts/` directory at the repository root is provided;
-    the artifact list is empty, so the required directory has not been shown to exist.
-    The implementer must create the directory and confirm its presence.
+  h: fca16b34fff6ad518ebc7973dae3c00a2bd59940a3e7147b6a1bf999bcac3cee
+  r: "The evidence shows a `tests/unit/` directory with many test files, but it resides\
+    \ under the project subdirectory (`projects/PROJ-029-predicting-cognitive-decline-from-restin/tests/unit/`)\
+    \ rather than at the repository root as required. The task\u2019s requirement\
+    \ to create the directory at the repository root is not met."
+  sig: df6b23b5bd6b2c27c2512e10bbf23b2fe619d15e8333f17e2bd26f4a8430cc53
 T017a:
   c: false
   h: ba95e905208ed9b5d76e0510f1a447e829b58516cf3217196eb8fe05ae0b51f0

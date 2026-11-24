@@ -1,16 +1,2 @@
-rdkit
-scikit-learn
 shap
-pandas
-numpy
-datasets
-requests
-pubchempy
-psutil
-matplotlib
-joblib
-pytest
-black
-ruff
-bandit
-py
+# Existing dependencies (numpy, pandas, scikit-learn, matplotlib, rdkit, pubchempy, etc.) are already provided by the base environment.  Adding shap ensures the SHAP interaction computation works.

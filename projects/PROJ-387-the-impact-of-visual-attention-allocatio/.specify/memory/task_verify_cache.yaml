@@ -1,3 +1,54 @@
+T001:
+  c: false
+  h: 8f0b6fa3b408b876ebaaf19fd3095f01ac21f741b92ae5ecd16ea1d69f8f96cf
+  r: "The `scripts/run_pipeline.sh` file exists and correctly checks `data/processed/validation_status.txt`\
+    \ for the string \u201CHALT\u201D. However, the `code/` directory does not match\
+    \ the structure outlined in `plan.md`: it contains extra folders (`.tasks`, `__pycache__`,\
+    \ `data`, `models`, `scripts`) and lacks the expected files such as `ingestion/validate_data.py`,\
+    \ `analysis/lmm_model.py`, `reporting/visualize.py`, `utils/config.py`, etc. The\
+    \ required project structure is therefore not satisfied."
+  sig: 75f0d41ecca9a8e37ed2da9c55766785912ec29ef57e475de5d53f0f70a085c2
+T002:
+  c: false
+  h: 0db2b5b4fe0bfa5b640f3af14ba48520990a583800c8c2ea1704f0bca341587b
+  r: "The repository contains a correctly populated `requirements.txt` with the required\
+    \ packages, but there is no provided evidence (e.g., command output, log, or exit\u2011\
+    code capture) showing that `pip install -r requirements.txt` was executed and\
+    \ returned a zero exit status. The implementer must supply proof that the installation\
+    \ succeeds."
+  sig: 6e96bf5c272512bfd1718888e8f16c0072326e9d528ca47f934d8ef7a52f2bd6
+T003:
+  c: false
+  h: 9bd555dd99a6c3b47b771ff9cd89c7c45dad934100682e9e4efbf4d26cbf464e
+  r: "The `pyproject.toml` correctly contains `[tool.black]` and `[tool.flake8]` sections,\
+    \ but there is no provided evidence (e.g., command output, CI log, test file)\
+    \ showing that `black --check code/` was executed and returned exit code\u202F\
+    0. Without that verification artifact, the task\u2019s requirement is not fully\
+    \ satisfied."
+  sig: ef744566171ca6abf1e5cae00f9f219a80d16db2a8a87577272a547eb7de1351
+T004:
+  c: true
+  h: 8dcd671ad17b3ca8af42e89e6f0556b5a832e1de02844e1507f50d207d47e826
+  r: "The `code/utils/config.py` file exists, is non\u2011empty, and defines `RANDOM_SEED\
+    \ = 42` as required. The `code/utils/logger.py` file also exists, is non\u2011\
+    empty, and provides a global logger setup via `setup_logging` and `get_logger`.\
+    \ Both artifacts meet the task\u2019s specifications."
+  sig: 6c641c6f77ffc33360344167beaec06fa11d96756c71d909641537674d9cb77f
+T005:
+  c: true
+  h: 97d9d7e5bfb11282a82eb21c4c26eea7eeb6c5089a55e39d1b6bde87895cb151
+  r: "Checked the presence of the required directories (`data/raw/`, `data/processed/`,\
+    \ `data/eye-tracking/`, `data/valence/`, `output/plots/`, `output/results/`) which\
+    \ all exist (each containing a `.gitkeep` placeholder), satisfying the task\u2019\
+    s specification."
+  sig: 591cf09a665428a777ff9d044c17612b576ebfc96d3003c55e2926a26aa7c150
+T006:
+  c: true
+  h: 746d97a5e7548029aa5e84de73ab4b2f2a28827e5aca342df0332eec8d3163a6
+  r: "Checked `code/utils/data_integrity.py`, which contains a non\u2011empty implementation\
+    \ of `compute_checksum(file_path)` that reads the file and returns its MD5 hash\
+    \ as a hexadecimal string. This satisfies the stated deliverable."
+  sig: 4ce6430ff0c4e9c46e76abc98cc9a41de7a52adba82fdcc35689e0b673e907d1
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

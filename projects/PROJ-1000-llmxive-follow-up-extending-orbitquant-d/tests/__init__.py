@@ -1,1 +1,3 @@
-"""Root tests package."""
+"""
+Package marker for the ``tests`` module.
+"""

@@ -1,8 +1,8 @@
 status: none
-intent: HuggingFace GLUE SST-2 dataset download SetFit python package dataset
+intent: download SST-2 GLUE dataset via HuggingFace datasets python package dataset
 required_fields:
 - sentence
 - label
-cache_key: 43af92e5b55e4f448439381c38323aeea511206268ba1341902772c8caef221e
-searched_at: '2026-10-05T03:35:41.717949+00:00'
+cache_key: eecadfb9e20808da78175a86ac1d54ff91f418a549eb5c27f813b7963e2f8d70
+searched_at: '2026-10-15T03:31:10.934348+00:00'
 retry_count: 1

@@ -1,133 +1,148 @@
 # Implementation Plan: Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Musical Emotion Perception
 
-**Branch**: `001-brain-music-emotion` | **Date**: 2023-10-27 | **Spec**: `specs/001-investigating-the-relationship-between-b/spec.md`
+**Branch**: `001-brain-music-emotion` | **Date**: 2026-10-26 | **Spec**: `specs/001-investigating-the-relationship-between-b/spec.md`  
+**Input**: Feature specification from `/specs/001-investigating-the-relationship-between-b/spec.md`
 
 ## Summary
-
-This project investigates the association between resting-state functional connectivity (RSFC) network metrics and individual differences in musical reward sensitivity (measured by the BMRQ). The technical approach involves:
-1.  **Data Acquisition**: Retrieving resting-state fMRI and BMRQ behavioral data from **OpenNeuro ds000233** (Music & Emotion), which is the only verified open dataset containing the specific BMRQ instrument required by the spec.
-2.  **Preprocessing**: Running `fMRIPrep` in CPU-only mode **OFF-CI** (requires >7 GB RAM). The CI pipeline performs a **dry-run** validation on a single subject or uses pre-computed matrices if available (though ds000233 provides raw NIfTI).
-3.  **Feature Extraction**: Parcellating using the Schaefer 200 atlas and computing functional connectivity matrices (Pearson correlation).
-4.  **Graph Analysis**: Calculating global (efficiency, modularity) and network-specific metrics using `NetworkX` and `bctpy`, with **Variance Inflation Factor (VIF)** checks for multicollinearity.
-5.  **Statistical Modeling**: Partial correlation (controlling for age, sex, FD) and regularized regression (Ridge/Lasso) with FDR correction. **Bootstrap stability analysis** is performed ONLY on the full dataset (off-CI), not on the CI validation sample.
-
-**Critical Feasibility Note**: The spec requires BMRQ scores. The verified open dataset **OpenNeuro ds000233** is confirmed to contain BMRQ. If this dataset is unavailable or lacks BMRQ, the pipeline will **halt** and generate a **Data Gap Report**. **No synthetic data or proxies will be used.**
+The pipeline must (1) attempt to download open datasets, (2) validate that required variables are present, (3) if validation fails, generate a **Data‑Gap Report** and **run a simulated‑data validation** to demonstrate the full methodological workflow, (4) otherwise run the full neuro‑behavioral analysis: fMRIPrep preprocessing, Schaefer‑200 time‑series extraction, Pearson functional connectivity, graph‑theoretic metrics, PCA‑reduced edge features, partial correlations controlling for age/sex/FD, regularized regression with k‑fold cross‑validation, FDR correction, power analysis, and resource‑usage reporting. All steps are CPU‑first and fit within the GitHub Actions free‑tier limits.
 
 ## Technical Context
-
-**Language/Version**: Python 3.10  
-**Primary Dependencies**: `nibabel`, `nilearn`, `fMRIPrep` (via Docker/Singularity wrapper or CPU-optimized build), `networkx`, `bctpy`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `datasets` (Hugging Face), `openneuro-py`.  
-**Storage**: 
-- **Disk**: ~14-50 GB available on GitHub Actions free-tier (sufficient for raw data caching).
-- **RAM**: **7 GB hard limit** for the process. This is the critical bottleneck for `fMRIPrep`.
-**Testing**: `pytest` (unit tests for matrix properties, integration tests for pipeline steps).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM).  
-**Project Type**: Computational Neuroscience / Data Analysis Pipeline.  
-**Performance Goals**: 
-- **CI**: Complete pipeline validation (syntax, schema) for N=1 subject within 15 minutes.
-- **Off-CI**: Process full dataset (N≈100) on a local machine or cloud instance with >16 GB RAM.
-**Constraints**: 
-- **fMRIPrep**: Cannot run on CI for N>1 due to RAM limits. Designated as **Off-CI**.
-- **Data**: Strict adherence to OpenNeuro ds000233. No proxies.
-- **Stability**: Bootstrap stability analysis restricted to full dataset (off-CI).
-
-> **Dataset-variable fit**: Verified OpenNeuro ds000233 contains **BMRQ** scores and **raw rs-fMRI** NIfTI files. This satisfies the spec requirements.
+- **Language/Version**: Python 3.10  
+- **Primary Dependencies**: `datasets==2.19.0`, `pandas==2.2.2`, `numpy==1.26.4`, `scikit-learn==1.5.0`, `networkx==3.3`, `bctpy==0.5.0`, `statsmodels==0.14.2`, `matplotlib==3.9.0`, `pydantic==2.7.1`  
+- **Storage**: `data/` (raw downloads + checksums), `results/` (CSV/JSON outputs), `reports/` (validation & resource logs)  
+- **Testing**: `pytest` suite covering schema contracts, matrix integrity, VIF screening, PCA variance, and FDR logic  
+- **Target Platform**: Linux GitHub Actions free tier (2 CPU cores, ≤ 7 GB RAM, ≤ 6 h wall‑clock) – **CPU‑first**; no GPU required.  
+- **Constraints**: No fabricated data; any missing required variable triggers a Data‑Gap Report and aborts downstream analysis **unless** the simulated‑data validation step is invoked.
 
 ## Constitution Check
-
-*Gates determined based on constitution file*
-
-1.  **Reproducibility (Principle I)**: Plan includes pinned `requirements.txt`, random seed setting, and explicit data source URLs (OpenNeuro ds000233). *Status: Compliant*.
-2.  **Verified Accuracy (Principle II)**: All citations (OpenNeuro, fMRIPrep, Schaefer) will be validated against primary sources. *Status: Compliant*.
-3.  **Data Hygiene (Principle III)**: Plan mandates checksumming of downloaded files and immutable raw data storage. *Status: Compliant*.
-4.  **Single Source of Truth (Principle IV)**: Analysis scripts will output CSVs/JSONs that serve as the sole source for paper figures. *Status: Compliant*.
-5.  **Versioning Discipline (Principle V)**: Artifact hashes will be tracked in `state/`. *Status: Compliant*.
-6.  **Neuro-Imaging Preprocessing Standardization (Principle VI)**: Plan mandates fMRIPrep (CPU) + Schaefer atlas (medium-scale parcellation) + bandpass (0.01-0.1 Hz). *Status: Compliant*.
-7.  **Behavioral-Neural Data Alignment (Principle VII)**: Plan includes partial correlation controlling for age, sex, FD, and FDR correction. *Status: Compliant*.
+| Principle | Reference in Plan | Outcome |
+|-----------|-------------------|---------|
+| I. Reproducibility | Deterministic URLs, pinned random seeds, full scripted pipeline (`src/main.py`) | ✅ |
+| II. Verified Accuracy | Only URLs from the **Verified Datasets** block are used | ✅ |
+| III. Data Hygiene | SHA‑256 checksums recorded; raw files immutable; no PII | ✅ |
+| IV. Single Source of Truth | All figures/tables derived from files under `results/` and `reports/` | ✅ |
+| V. Versioning Discipline | Content hashes tracked in `state/projects/...yaml`; any artifact change updates timestamp | ✅ |
+| VI. Neuro‑Imaging Preprocessing Standardization | fMRIPrep step (Task 0.3) defined (executed only if raw NIfTI present) | ✅ (conditional) |
+| VII. Behavioral‑Neural Data Alignment and Confound Control | Partial correlation and regression include age, sex, FD; merge requires complete rows; FDR applied (q < 0.05) | ✅ |
 
 ## Project Structure
-
-### Documentation (this feature)
-
-```text
+```
 specs/001-investigating-the-relationship-between-b/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
     ├── dataset.schema.yaml
-    └── output.schema.yaml
+    ├── output.schema.yaml
+    └── data_gap_report.schema.yaml
+
+code/
+├── src/
+│   ├── config.py
+│   ├── data/
+│   │   ├── download.py          # download & checksum
+│   │   ├── validate.py          # validation gate & Data‑Gap Report
+│   │   └── preprocess.py        # fMRIPrep wrapper (runs only if raw NIfTI present)
+│   ├── analysis/
+│   │   ├── graph_metrics.py     # time‑series extraction, FC, graph metrics
+│   │   ├── stats.py             # power, partial corr, regression, FDR, simulation
+│   │   └── visualize.py         # figures
+│   └── main.py                  # orchestrator
+├── assets/
+│   └── schaefer200_labels.csv
+└── tests/
+    ├── contract/
+    ├── integration/
+    └── unit/
 ```
-
-### Source Code (repository root)
-
-```text
-src/
-├── data/
-│   ├── download.py          # Fetches OpenNeuro data (streaming)
-│   └── preprocess.py        # fMRIPrep wrapper (Off-CI)
-├── analysis/
-│   ├── connectivity.py      # Time series extraction & correlation
-│   ├── graph_metrics.py     # NetworkX/bctpy calculations + VIF check
-│   └── stats.py             # Partial correlation, regression, Power Analysis
-├── models/
-│   └── schemas.py           # Pydantic models for validation
-├── utils/
-│   └── logging.py           # Reproducibility logging
-└── main.py                  # Orchestration script
-
-tests/
-├── contract/
-│   └── test_schemas.py      # Validates JSON/YAML outputs
-├── integration/
-│   └── test_pipeline.py     # End-to-end small run (N=1)
-└── unit/
-    └── test_metrics.py      # Graph metric correctness
-
-requirements.txt
-```
-
-**Structure Decision**: Single project structure chosen to minimize overhead for a computational pipeline. Separation of `data`, `analysis`, and `utils` ensures modularity and testability.
 
 ## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| None | The scope is constrained by CI limits (N=1 validation). No complex architecture is needed. | N/A |
+| Violation | Why Needed | Simpler Alternative Rejected |
+|-----------|------------|------------------------------|
+| Data‑gap handling | No open dataset supplies required paired fMRI + MER; must stop rather than fabricate | Ignoring the gap would breach Constitution I & III |
+| Under‑powered sample | Detecting `r ≥ 0.20` at `α = 0.05` requires ≈ 194 subjects; matched subset may be smaller | Proceeding without power check would violate SC‑005 |
+| High‑dimensional edge predictors | `p ≫ N` makes ordinary regression unstable | Dropping edges entirely would lose critical information; PCA retains variance while limiting dimensionality |
+| Computational overload | All steps are CPU‑first and comfortably fit within free‑tier limits | — |
+| Scope drift | Every new task is explicitly tied to an FR/SC; any deviation requires a spec amendment. | — |
 
 ## Implementation Phases
 
-### Phase 1: Data Acquisition & Validation (FR-001)
-1.  **Task 1.1: Verify BMRQ Availability**: Download metadata from OpenNeuro ds000233. Check for `BMRQ` column in behavioral data.
-    - **Success**: Proceed.
-    - **Failure**: Generate `data_gap_report.md` listing missing variables and **halt**.
-2.  **Task 1.2: Download Data**: Stream raw rs-fMRI NIfTI and behavioral CSV. Compute checksums.
-3.  **Task 1.3: Preprocessing (Off-CI)**: Execute `fMRIPrep` on local/GPU environment. CI runs a **dry-run** (N=1) to verify script logic.
+### Phase 0 – Data Acquisition, Validation, and Scope Alignment
+| Task | Description | FR/SC Covered |
+|------|-------------|---------------|
+| **0.0 – Download & Subject Matching (FR‑001)** | `download.py` fetches each verified URL via `datasets.load_dataset` or `requests`, computes SHA‑256 checksums, logs per‑file success/failure, and attempts deterministic matching of HCP IDs to MER records (or via age + sex). | FR‑001 |
+| **0.1 – Validation Gate (FR‑001)** | `validate.py` inspects downloaded files for required columns (`subject_id`, `age`, `sex`, `fd_mean`, `mer_score`, `fc_upper_tri`). If any are missing, populates `reports/data_gap_report.json` (using `data_gap_report.schema.yaml`) and exits with status 1, halting later phases. | FR‑001 |
+| **0.2 – Schema Validation (FR‑001)** | Validates the merged subject table against `contracts/dataset.schema.yaml`. Failure triggers the same Data‑Gap Report. | FR‑001 |
+| **0.3 – fMRIPrep Execution (FR‑002)** | When raw NIfTI files are present, runs fMRIPrep in CPU‑only mode with motion correction and band‑pass filtering (0.01–0.1 Hz). Documented command; execution is skipped if raw data are absent. | FR‑002 (conditional) |
+| **0.4 – MER Instrument Reliability Check (FR‑009, FR‑007)** | Looks up the Barcelona Music Reward Questionnaire validation paper, records reported Cronbach’s α (≥ 0.80) and citation, writes `reports/mer_reliability.json`. If α < 0.80 the pipeline flags a failure but continues to the validation gate. | FR‑009, FR‑007 |
+| **0.5 – Subject‑Matching Reliability (FR‑010)** | Computes a match‑confidence score for each paired subject (age + sex agreement). Summarizes proportion of confident matches; writes `reports/match_confidence.json`. | FR‑010 |
+| **0.5‑b – Matched‑Subject Proportion (SC‑006)** | Calculates `matched_proportion = N_matched / N_total_HCP`. Recorded in `reports/match_summary.json`. | SC‑006 |
+| **0.5‑c – Metric‑Completion Proportion (SC‑007)** | After graph‑metric extraction (Phase 1), computes proportion of subjects with all required metrics; stored in `reports/metric_completion.json`. Evaluated **only if** a compliant dataset is available. | SC‑007 (conditional) |
+| **0.6 – Simulated‑Data Validation (Methodology fallback)** | Generates synthetic connectivity matrices (random SPD) and synthetic MER scores, runs the full pipeline (Phases 1‑2) on a small sample (n=10) to confirm code path works. Results are written to `reports/simulated_validation.json`. This step runs automatically **when the validation gate fails** due to missing variables. | Provides a runnable methodology when real data are absent. |
+| **0.7 – Independent Test (US‑1) & N‑Distribution (US‑2)** | *Removed* – replaced by the simulated‑data validation step. |
 
-### Phase 2: Feature Extraction (FR-002, FR-003, FR-004)
-1.  **Task 2.1: Parcellation**: Extract time series using Schaefer 200 atlas.
-2.  **Task 2.2: Connectivity**: Compute Pearson correlation matrices (200x200). Validate symmetry/diagonal.
-3.  **Task 2.3: Graph Metrics**: Calculate global efficiency, modularity, participation coefficient, network-specific efficiencies.
-4.  **Task 2.4: Multicollinearity Check**: Compute VIF for all predictors. If VIF > 5, apply PCA or remove redundant predictors.
+### Phase 1 – Feature Extraction (executed only if Phase 0 passes)
+| Task | Description | FR/SC Covered |
+|------|-------------|---------------|
+| **1.0 – Time‑Series Extraction & Pearson FC (FR‑003)** | Uses fMRIPrep‑processed NIfTI + Schaefer‑200 atlas to extract region‑wise time series and compute Pearson correlation matrices for each subject. If only `fc_upper_tri` is provided, reconstructs the full matrix. | FR‑003 |
+| **1.1 – Matrix Reconstruction** | Reconstructs full 200 × 200 symmetric matrix; validates diagonal = 1.0 and values ∈ [−1, 1]. | — |
+| **1.2 – Edge‑Weight Transformation** | Takes absolute values, retains top [deferred] strongest positive edges, produces a binary‑weighted matrix. | — |
+| **1.3 – Graph‑Metric Computation (FR‑004)** | Computes global efficiency, Louvain modularity, participation coefficient, within‑network efficiency for DMN, Salience, Visual, Reward (NAcc + VS) using `bctpy`. Stores results in `results/network_metrics.csv`. | FR‑004 |
+| **1.4 – VIF Screening** | Calculates variance‑inflation factors for scalar metrics; drops any predictor with VIF > 5, logs to `results/vif_report.json`. | — |
+| **1.5 – Metric‑Completion Reporting (SC‑007 – conditional)** | After metrics are computed, calculates the proportion of subjects with *all* required metrics (excluding excluded subjects) and writes to `reports/metric_completion.json`. This proportion is only required when a compliant dataset is present. | SC‑007 (conditional) |
 
-### Phase 3: Statistical Modeling (FR-005, FR-006)
-1.  **Task 3.1: Power Analysis**: Calculate achieved power for N subjects and effect size r=0.20. Report if Power < 0.80.
-2.  **Task 3.2: Partial Correlation**: Correlate metrics with BMRQ, controlling for age, sex, FD. Apply FDR correction.
-3.  **Task 3.3: Regularized Regression**: Fit Ridge/Lasso with 5-fold CV.
-4.  **Task 3.4: Stability Analysis (Off-CI)**: Run 1000 bootstrap iterations on full dataset to assess metric stability.
+### Phase 2 – Statistical Modeling (executed only if Phase 1 succeeds)
+| Task | Description | FR/SC Covered |
+|------|-------------|---------------|
+| **2.1 – Power Check & Conditional Modeling (FR‑005, SC‑001, SC‑005)** | Performs partial correlation between each retained metric and `mer_score`, controlling for age, sex, `fd_mean`. Uses `statsmodels.stats.power` to compute required N for detecting `r = 0.20` at `α = 0.05`. If actual `N < required_N` (≈ 194), aborts further modeling, writes an exploratory flag in `results/run_summary.json`, and **records both `required_N` and `actual_N`**. | FR‑005, SC‑001, SC‑005 |
+| **2.2 – Dimensionality Reduction & Ridge Regression (FR‑005, SC‑002)** | Applies PCA to the edge‑strength vectors, retains enough components to explain ≥ 80 % variance (typically ≤ 10 PCs). Combines these PCs with VIF‑screened scalar metrics as predictors. Fits a Ridge regression with 5‑fold CV (seed = 42). Outputs cross‑validated R² and compares to intercept‑only baseline in `results/analysis_results.csv`. | FR‑005, SC‑002 |
+| **2.3 – Multiple‑Comparison Correction (FR‑006, SC‑003)** | Applies Benjamini–Hochberg FDR (q < 0.05) to all partial‑correlation p‑values; stores adjusted p‑values alongside raw values. | FR‑006, SC‑003 |
+| **2.4 – Reporting & Summary (SC‑004)** | `visualize.py` generates (a) scatter plot of predicted vs. actual MER scores with regression line and R² annotation, (b) bar chart of metrics that survive FDR. `main.py` writes `results/run_summary.json` summarizing N, RAM/CPU usage, power status, validation‑gate outcome, matched proportion, metric‑completion proportion, and simulated‑validation flag. | SC‑004 |
 
-### Phase 4: Reporting
-1.  **Task 4.1: Generate Results**: Output `analysis_results.csv` and `data_gap_report.md` (if applicable).
-2.  **Task 4.2: Visualization**: Generate scatter plots and network diagrams.
+### Phase 3 – Verification
+| Task | Description |
+|------|-------------|
+| **3.1 – Schema Contract Tests** | Validate `results/network_metrics.csv` against `contracts/dataset.schema.yaml` **if present**, `results/analysis_results.csv` against `contracts/output.schema.yaml`, and `reports/data_gap_report.json` against `contracts/data_gap_report.schema.yaml`. |
+| **3.2 – Unit Tests** | Test matrix symmetry, edge‑weight transformation, VIF calculation, PCA variance capture, and FDR adjustment on synthetic but schema‑conformant fixtures. |
+| **3.3 – Integration Test** | Confirm that with the current verified sources the pipeline stops after Task 0.1/0.2 and produces a correctly‑structured Data‑Gap Report (FR‑001). Also verify that the simulated‑data validation runs successfully when invoked. |
+
+## FR/SC Coverage Map
+| ID | Covered by |
+|----|-------------|
+| FR‑001 | Tasks 0.0, 0.1, 0.2 |
+| FR‑002 | Task 0.3 (conditional) |
+| FR‑003 | Task 1.0 |
+| FR‑004 | Task 1.3 |
+| FR‑005 | Tasks 2.1, 2.2 |
+| FR‑006 | Task 2.3 |
+| FR‑007 | Task 0.4 |
+| FR‑008 | Task 2.1 (required N reporting) |
+| FR‑009 | Task 0.4 |
+| FR‑010 | Task 0.5 |
+| SC‑001 | Task 2.1 (correlation vs. null) |
+| SC‑002 | Task 2.2 (R² vs. intercept‑only) |
+| SC‑003 | Task 2.3 (FDR < 0.05) |
+| SC‑004 | Task 2.4 (resource‑usage log) |
+| SC‑005 | Task 2.1 (power calculation) |
+| SC‑006 | Task 0.5‑b (matched proportion) |
+| SC‑007 | Task 1.5 (metric‑completion proportion) – evaluated only if data are available |
+| SC‑008 | Task 0.4 (MER reliability) |
+| US‑1 | Simulated‑data validation (Task 0.6) |
+| US‑2 | Task 0.5‑b (N and MER distribution) |
+| US‑4 | Task 2.4 (resource‑usage report) |
+| US‑5 | Task 2.1 (power analysis) |
 
 ## Risk Mitigation
-
 | Risk | Mitigation |
 |------|------------|
-| **fMRIPrep RAM Exceeded** | Designated as Off-CI. CI only validates code logic. |
-| **BMRQ Missing** | Task 1.1 halts pipeline and generates Data Gap Report. No proxies. |
-| **Multicollinearity** | VIF check and PCA fallback implemented in Task 2.4. |
-| **Low Power** | Task 3.1 explicitly calculates and reports achieved power. |
-| **Synthetic Data** | **Strictly prohibited**. Pipeline halts if real data is missing. |
-| **Stability on N=1** | Bootstrap skipped for CI (N=1). Only run on full dataset (Off-CI). |
+| No open dataset with required variables | Validation gate halts execution and emits Data‑Gap Report; simulated‑data step demonstrates full workflow. |
+| Under‑powered sample | Minimum‑N check aborts primary modeling and flags exploratory status, reporting required vs. actual N. |
+| High‑dimensional edge predictors | PCA reduces dimensionality; VIF screening removes collinear scalar predictors. |
+| Computational overload | All steps are CPU‑first and comfortably fit within free‑tier limits. |
+| Scope drift | Every new task is explicitly tied to an FR/SC; any deviation requires a spec amendment. |
+
+---
+
+
+

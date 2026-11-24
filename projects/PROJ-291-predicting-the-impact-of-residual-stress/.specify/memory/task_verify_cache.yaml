@@ -1,9 +1,55 @@
+T001-1:
+  c: true
+  h: e3c895c10359a387f0a87c122d989e18a2e519c0ef579ae57e5d43bd6913b1d3
+  r: "Checked `requirements.txt` (non\u2011empty, all dependencies pinned), `code/src/timing.py`\
+    \ (provides the required `phase_timer` writing to `data/results/runtime_summary.csv`),\
+    \ `quickstart.md` (contains the `python -m code.src.run_e2e` command), and `data/raw/checksums.json`\
+    \ (initialized as an empty JSON object). All required artifacts exist and meet\
+    \ the task specifications."
+  sig: 26c1158c94c7fe9e9135243da23714d99c66e4021a0fe1424a174160259351ad
 T002:
   c: false
-  h: 81ca7d983ac61171ae494ceb272981e384ad5499dfa55769ec304ca7f457c107
-  r: "The repository contains the ingestion script, but the required output file `data/processed/unified_fatigue.csv`\
-    \ was never generated, and the unit\u2011test file `tests/test_ingest.py` is missing,\
-    \ so the pipeline cannot be verified against the synthetic test case. The missing\
-    \ artifacts must be added and the script executed to produce the unified CSV for\
-    \ the task to be considered complete."
-  sig: 2d93bfae8418abd47272d120dcab6d3f8e3745e76c90705cf1e173c55d4ca533
+  h: ebe3789a7f7904aaee22c3597f3461a7a73c31f5fa109cde03de439e1b0bc141
+  r: "The required output artifacts (`data/processed/unified_fatigue.csv`, `data/processed/missing_flags.json`,\
+    \ `logs/proxy_clamp.log`) and the test suite (`code/tests/test_ingest.py`) are\
+    \ missing, and the ingestion code does not perform the checksum\u2011verification\
+    \ step nor does it use the `stress_unit` column with `config.PSI_TO_MPA` for unit\
+    \ conversion or log the clamping count as specified."
+  sig: 8394376c301409e71c1eb888d027b22cb0f1243515493d66ae7ab86780afc728
+T003:
+  c: false
+  h: 7e364f88c5eec9c976ae629b3b95b3e858d52c906e129f4621d3ebeb7b1a4f28
+  r: "The e2e pipeline fails during the ingestion phase because the expected raw file\
+    \ `raw/pipeline_verification.csv` is not present, so `proxy_agreement.csv` and\
+    \ `e2e_summary.json` are never created. Additionally, `proxy_agreement.py` writes\
+    \ a different caveat string than the required \u201Cdeterministic (linear) proxy\
+    \ \u2013 descriptive only\u201D. Both issues must be fixed for the task to be\
+    \ considered complete."
+  sig: 90f943ad11b36d37aeddcbc1aa5d02f282196fcc10b291e691e7ebcdd95bd5cc
+T004:
+  c: false
+  h: 9f9e1599e62ba54c0da5125220fd92a8cb793eeec05271c1b4d08fc34d7ecc26
+  r: "Checked `code/src/build_features.py` (present) but the required output artifacts\
+    \ \u2013 `data/processed/balanced_measured.csv`, `feature_set_A.csv`, `feature_set_B.csv`,\
+    \ `feature_set_B_full.csv`, `feature_set_C.csv`, the scaler files under `code/models/scalers/`,\
+    \ and the verification test `code/tests/test_features.py` \u2013 are all missing.\
+    \ Without these files and tests, the task\u2019s core deliverables are not present."
+  sig: 9c71f855d62f9bff3df4db20677ab294b59ae2a8224274db0803c426c2d4dd79
+T005:
+  c: false
+  h: 2a67685def2d8be4e124af9dd3e7cd5a9c389fa175528b0df64f929de1ec90ac
+  r: 'The repository contains the training script and test suite, but the required
+    output artifacts are absent: `data/results/model_performance.csv` does not exist,
+    and no model files were created under `code/models/<feature_set>/<algorithm>/`
+    (the entire `code/models/` directory is missing). Without these files the verification
+    tests cannot pass, so the task is not fully completed.'
+  sig: f325ac51067ce5c777deafa9383a4ca56c45bf38282dc24e22590ce3aa55b352
+T015:
+  c: false
+  h: 72c273b4ae3e9310bf472fbf48107a50b040febbdb1bc9b98c8edabcaa59dff2
+  r: The repository contains the generator code (`src/data/gen_synthetic.py` and its
+    wrapper) which uses `np.random.default_rng(42)` and writes the CSV and updates
+    `data/raw/checksums.json` when executed, but the required output file `data/raw/synthetic_fatigue.csv`
+    is missing and `data/raw/checksums.json` is still empty. The task demands these
+    artifacts to exist in the project, so they must be generated and committed.
+  sig: fbcedf0825b147d41305b3ec52790801b1204fe90437f1b305ce91be495cb4b6

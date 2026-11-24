@@ -1,0 +1,30 @@
+status: verified
+kind: pypi_package
+ref: lexicalrichness
+access_python: "from lexicalrichness import LexicalRichness\n\ntexts = [\n    \"This\
+  \ is a simple sentence.\",\n    \"Another example of a longer piece of text, which\
+  \ contains multiple words and varied vocabulary.\"\n]\n\nrecords = []\nfor i, txt\
+  \ in enumerate(texts):\n    lr = LexicalRichness(txt)\n    records.append({\n  \
+  \      \"sample_id\": i,\n        \"source_paragraph_id\": i,\n        \"text\"\
+  : txt,\n        \"mtld_score\": lr.mtld,\n        \"ttr_score\": lr.ttr,\n    })\n\
+  \nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=sample_id,source_paragraph_id,text,mtld_score,ttr_score\"\
+  )"
+record_count: 2
+sample_fields:
+- sample_id
+- source_paragraph_id
+- text
+- mtld_score
+- ttr_score
+field_coverage: 0.714
+required_fields:
+- sample_id
+- source_paragraph_id
+- prompt_variant
+- text
+- flesch_kincaid_score
+- mtld_score
+- average_sentence_length
+intent: HuggingFace Wikipedia dataset and MTLD lexical diversity reference python
+  package dataset
+cache_key: 990b297097ab21c596f3f2898b9090c7d218cbe3f948f62d19d08d6afc8da2c5

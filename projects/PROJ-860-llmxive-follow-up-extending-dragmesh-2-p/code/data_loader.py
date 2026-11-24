@@ -1,203 +1,120 @@
 """
-Data loader module for DragMesh-2 dataset.
+Data loader module for the DragMesh-2 dataset.
 
-This module handles the fetching and verification of the DragMesh-2 dataset
-from the HuggingFace Hub. It strictly adheres to the principle of failing loudly
-if the real data source is unavailable, with NO synthetic fallbacks.
+This module fetches the DragMesh-2 manifest from the HuggingFace Hub.
+The loader follows the fail-loud principle: any network, authentication, 
+or file-not-found problem raises an exception and halts the pipeline.
 """
+
 import os
-import sys
 import logging
-import shutil
+import requests
 from pathlib import Path
-from typing import Optional, Dict, Any, List, Tuple
+from typing import Optional
 
-# Attempt to import datasets; if missing, the script will fail loudly as per requirements
 try:
-    from datasets import load_dataset
-except ImportError:
+    from huggingface_hub import hf_hub_download
+except ImportError as exc:
     raise ImportError(
-        "The 'datasets' library is required to fetch DragMesh-2. "
-        "Please install it via: pip install datasets"
-    )
+        "The 'huggingface_hub' library is required to fetch DragMesh-2. "
+        "Install it via: pip install huggingface_hub"
+    ) from exc
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+from llmxive_toolkit import paths
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# Project paths
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DRAGMESH_DATASET_NAME = "dragmesh-2"  # Placeholder ID; updated below with verified source
+DATA_RAW_DIR: Path = paths.data("raw")
+DEFAULT_MANIFEST_PATH: Path = DATA_RAW_DIR / "dragmesh_manifest.jsonl"
 
-# VERIFIED REAL DATA SOURCE:
-# The DragMesh-2 dataset is hosted on HuggingFace. 
-# Using the 'dragmesh' organization's verified dataset.
-# If the exact ID changes, this constant must be updated with the new verified ID.
-# Current verified source: https://huggingface.co/datasets/dragmesh/dragmesh-2
-HUGGINGFACE_DATASET_ID = "dragmesh/dragmesh-2"
+# Corrected HF_REPO_ID based on author attribution (Tianshan Zhang)
+HF_REPO_ID = "TianshanZhang/DragMesh-2"
+HF_MANIFEST_FILENAME = "dragmesh_manifest.jsonl"
 
-def ensure_dirs():
-    """
-    Ensures that the required directory structure exists.
-    Creates data/raw if it does not exist.
-    """
+def _ensure_raw_dir() -> None:
     DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured directory exists: {DATA_RAW_DIR}")
 
-def fetch_dragmesh_manifest(output_dir: Optional[Path] = None) -> Path:
+def _download_and_write_manifest(output_path: Path) -> Path:
     """
-    Fetches the DragMesh-2 dataset manifest and data from HuggingFace Hub.
-    
-    This function uses the `datasets` library to download the dataset.
-    It strictly enforces that the download succeeds. If the network is down,
-    the dataset ID is incorrect, or the file is missing, it raises an exception.
-    
-    Args:
-        output_dir: Directory to save the dataset. Defaults to data/raw.
-        
-    Returns:
-        Path to the directory containing the downloaded dataset.
-        
-    Raises:
-        ConnectionError: If the network request fails or the dataset is unreachable.
-        FileNotFoundError: If the dataset cannot be found on the Hub.
-        Exception: Any other error during download.
+    Fetch the manifest from HuggingFace. 
+    Attempts hf_hub_download first, falling back to a direct HTTP request 
+    to bypass potential local authentication/token conflicts for public repos.
     """
-    if output_dir is None:
-        output_dir = DATA_RAW_DIR
-        
-    ensure_dirs()
-    logger.info(f"Fetching DragMesh-2 dataset from {HUGGINGFACE_DATASET_ID}...")
-    logger.info(f"Target directory: {output_dir}")
+    # Explicitly unset tokens to avoid "Invalid username or password" errors 
+    # caused by stale credentials in the environment or HF config.
+    os.environ.pop("HF_TOKEN", None)
+    os.environ.pop("HUGGING_FACE_HUB_TOKEN", None)
     
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Attempt 1: hf_hub_download (as requested in spec)
     try:
-        # Load the dataset with streaming=False to ensure full download for manifest verification
-        # We use trust_remote_code=False unless the dataset specifically requires it (not typical for standard manifests)
-        dataset = load_dataset(
-            HUGGINGFACE_DATASET_ID,
-            split="train", # Assuming train split contains the manifest/data
-            trust_remote_code=False
+        logger.info(f"Attempting hf_hub_download from repo '{HF_REPO_ID}'...")
+        downloaded_path = hf_hub_download(
+            repo_id=HF_REPO_ID,
+            filename=HF_MANIFEST_FILENAME,
+            repo_type="dataset",
+            token=False # Force public access
         )
+        with Path(downloaded_path).open("rb") as src, output_path.open("wb") as dst:
+            dst.write(src.read())
+        logger.info("Successfully downloaded manifest via hf_hub_download.")
+    except Exception as exc:
+        logger.warning(f"hf_hub_download failed: {exc}. Attempting direct HTTP fallback for public access...")
         
-        # The datasets library typically caches data. To ensure it is in our specific output_dir,
-        # we might need to handle the cache or move files.
-        # However, for a robust fetcher that writes to a specific location, we can iterate
-        # and save the manifest if it's a specific file, or rely on the library's cache.
-        # Given the task requirement to "fetch... to data/raw", and the library's caching behavior,
-        # we will attempt to save the dataset to the target directory if possible,
-        # or at least ensure the data is accessible.
-        
-        # Since `load_dataset` returns a Dataset object, we need to save it to disk
-        # to satisfy the "write to data/raw" requirement if the dataset is meant to be a file.
-        # If the dataset is a collection of files, we might need to download them individually.
-        # Assuming the dataset is a standard HuggingFace dataset with files.
-        
-        # Strategy: Save the dataset to the output directory in a format that preserves the data.
-        # We will save to a subdirectory named after the dataset.
-        target_path = output_dir / "dragmesh-2"
-        target_path.mkdir(parents=True, exist_ok=True)
-        
-        # Save the dataset to parquet or csv in the target directory
-        # This ensures the data is physically present in data/raw
-        dataset.save_to_disk(str(target_path))
-        
-        logger.info(f"Successfully fetched and saved DragMesh-2 to {target_path}")
-        return target_path
-        
-    except Exception as e:
-        # Re-raise as ConnectionError or FileNotFoundError to satisfy the "fail loudly" requirement
-        if "404" in str(e) or "not found" in str(e).lower():
-            logger.error(f"Dataset {HUGGINGFACE_DATASET_ID} not found on HuggingFace Hub.")
-            raise FileNotFoundError(f"Dataset manifest not found: {HUGGINGFACE_DATASET_ID}") from e
-        elif "network" in str(e).lower() or "connection" in str(e).lower():
-            logger.error(f"Network error while fetching {HUGGINGFACE_DATASET_ID}.")
-            raise ConnectionError(f"Failed to connect to HuggingFace Hub: {e}") from e
-        else:
-            logger.error(f"Failed to fetch DragMesh-2: {e}")
-            raise
+        # Attempt 2: Direct HTTP request to the resolve URL
+        # This bypasses the hf_hub authentication logic entirely.
+        url = f"https://huggingface.co/datasets/{HF_REPO_ID}/resolve/main/{HF_MANIFEST_FILENAME}"
+        try:
+            response = requests.get(url, allow_redirects=True, timeout=60)
+            response.raise_for_status()
+            with output_path.open("wb") as dst:
+                dst.write(response.content)
+            logger.info("Successfully downloaded manifest via direct HTTP request.")
+        except Exception as exc2:
+            logger.error(f"Direct HTTP request also failed: {exc2}")
+            raise RuntimeError(
+                f"Unable to retrieve DragMesh-2 manifest from {HF_REPO_ID} via HF Hub or HTTP. "
+                "The repository may be gated or unreachable."
+            ) from exc2
 
-def load_dragmesh_data(data_path: Optional[Path] = None):
-    """
-    Loads the DragMesh-2 data from the specified path.
-    
-    Args:
-        data_path: Path to the dataset directory. Defaults to data/raw/dragmesh-2.
-        
-    Returns:
-        The loaded dataset object.
-        
-    Raises:
-        FileNotFoundError: If the data path does not exist.
-    """
-    if data_path is None:
-        data_path = DATA_RAW_DIR / "dragmesh-2"
-        
-    if not data_path.exists():
-        raise FileNotFoundError(f"DragMesh-2 data not found at {data_path}. "
-                                "Please run fetch_dragmesh_manifest first.")
-        
-    logger.info(f"Loading DragMesh-2 from {data_path}")
-    dataset = load_dataset("parquet", data_dir=str(data_path))
-    return dataset
+    if not output_path.exists() or output_path.stat().st_size == 0:
+        raise RuntimeError("Written manifest is empty or missing.")
+
+    logger.info(f"Manifest successfully written to {output_path}")
+    return output_path
+
+def load_dragmesh_manifest(output_path: Optional[Path] = None) -> Path:
+    if output_path is None:
+        output_path = DEFAULT_MANIFEST_PATH
+
+    if output_path.exists() and output_path.stat().st_size > 0:
+        logger.info(f"Existing manifest found at {output_path}")
+        return output_path
+
+    _ensure_raw_dir()
+    return _download_and_write_manifest(output_path)
 
 def get_manifest_checksum(manifest_path: Path) -> str:
-    """
-    Computes the SHA256 checksum of the manifest file.
-    
-    Args:
-        manifest_path: Path to the manifest file.
-        
-    Returns:
-        SHA256 hash string.
-        
-    Raises:
-        FileNotFoundError: If the manifest file does not exist.
-    """
     import hashlib
-    
     if not manifest_path.exists():
         raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
-        
-    sha256_hash = hashlib.sha256()
-    with open(manifest_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-            
-    return sha256_hash.hexdigest()
+    sha256 = hashlib.sha256()
+    with manifest_path.open("rb") as f:
+        for block in iter(lambda: f.read(4096), b""):
+            sha256.update(block)
+    return sha256.hexdigest()
 
-def main():
-    """
-    Main entry point for fetching the DragMesh-2 dataset.
-    """
-    logger.info("Starting DragMesh-2 fetcher...")
+def main() -> None:
+    logger.info("Starting DragMesh-2 manifest fetch...")
     try:
-        output_path = fetch_dragmesh_manifest()
-        logger.info(f"Fetch complete. Data available at: {output_path}")
-        
-        # Verify the data exists and is non-empty
-        if not output_path.exists():
-            raise FileNotFoundError("Fetched data directory does not exist.")
-        
-        # Check for dataset info file (created by save_to_disk)
-        dataset_info = output_path / "dataset_info.json"
-        if not dataset_info.exists():
-            # If save_to_disk didn't create this, check for any files
-            files = list(output_path.glob("*"))
-            if not files:
-                raise FileNotFoundError("Fetched data directory is empty.")
-                
-        logger.info("Data verification passed.")
-        
-    except (ConnectionError, FileNotFoundError) as e:
-        logger.critical(f"CRITICAL: Data fetch failed: {e}")
-        # Re-raise to ensure the pipeline halts
-        raise
+        manifest_path = load_dragmesh_manifest()
+        checksum = get_manifest_checksum(manifest_path)
+        logger.info(f"Manifest ready at: {manifest_path}")
+        logger.info(f"Manifest SHA256 checksum: {checksum}")
     except Exception as e:
-        logger.critical(f"Unexpected error during fetch: {e}")
+        logger.critical(f"CRITICAL: Data fetch failed: {e}")
         raise
 
 if __name__ == "__main__":

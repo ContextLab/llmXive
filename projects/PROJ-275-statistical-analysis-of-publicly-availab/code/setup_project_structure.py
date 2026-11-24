@@ -1,58 +1,64 @@
-import os
-import sys
+"""Create the project directory structure per the implementation plan (T001).
+
+Creates the required top-level folders (code/, tests/, data/, results/,
+specs/) plus the subdirectories defined in plan.md (data/raw, data/processed,
+data/logs, results/figures) and drops .gitkeep markers so the empty
+directories are preserved in version control.
+"""
+
 from pathlib import Path
 
-def create_structure():
+from llmxive_toolkit import paths, get_logger
+
+log = get_logger(__name__)
+
+REQUIRED_DIRS = [
+    "code",
+    "code/tests",
+    "tests",
+    "data",
+    "data/raw",
+    "data/processed",
+    "data/logs",
+    "results",
+    "results/figures",
+    "specs",
+    "specs/001-sentiment-revenue-lag-analysis",
+    "specs/001-statistical-analysis-of-publicly-availab/contracts",
+]
+
+
+def create_structure() -> list:
+    """Create all required directories and .gitkeep markers.
+
+    Returns the list of directories that were created (empty if all
+    already existed).
     """
-    Create the project directory structure as defined in the implementation plan.
-    Creates: code/, tests/, data/, results/, specs/
-    And necessary subdirectories: data/raw, data/processed, data/logs, results/figures
-    """
-    base_dir = Path.cwd()
-    
-    directories = [
-        "code",
-        "code/tests",
-        "data",
-        "data/raw",
-        "data/processed",
-        "data/logs",
-        "results",
-        "results/figures",
-        "specs",
-        "specs/001-sentiment-revenue-lag-analysis",
-        "specs/001-sentiment-revenue-lag-analysis/contracts",
-    ]
-    
     created = []
-    for dir_path in directories:
-        full_path = base_dir / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created.append(dir_path)
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory already exists: {full_path}")
-    
-    # Create placeholder files to ensure directories are not empty and to provide structure
-    placeholder_files = [
-        ("data/logs/.gitkeep", "Log files directory"),
-        ("data/raw/.gitkeep", "Raw data files directory"),
-        ("data/processed/.gitkeep", "Processed data files directory"),
-        ("results/figures/.gitkeep", "Generated figures directory"),
-        ("specs/001-sentiment-revenue-lag-analysis/contracts/.gitkeep", "Schema contracts directory"),
-    ]
-    
-    for file_path, comment in placeholder_files:
-        full_path = base_dir / file_path
-        if not full_path.exists():
-            with open(full_path, 'w') as f:
-                f.write(f"# {comment}\n")
-            print(f"Created placeholder file: {full_path}")
-    
-    print("\nProject structure creation complete.")
-    print(f"Directories created: {len(created)}")
-    return True
+    for rel in REQUIRED_DIRS:
+        d = paths.path(rel)
+        if not d.exists():
+            d.mkdir(parents=True, exist_ok=True)
+            created.append(rel)
+            log.info("Created directory: %s", d)
+        keep = d / ".gitkeep"
+        if not keep.exists():
+            keep.write_text("", encoding="utf-8")
+    return created
+
+
+def main() -> None:
+    created = create_structure()
+    if created:
+        print("Created directories:")
+        for rel in created:
+            print(f"  {rel}")
+    else:
+        print("All required directories already exist.")
+    print("Project structure is complete:")
+    for rel in REQUIRED_DIRS:
+        print(f"  {paths.path(rel)}")
+
 
 if __name__ == "__main__":
-    create_structure()
+    main()

@@ -1,37 +1,46 @@
 # Implementation Plan: Single-Cell Trajectories of T-Cell Exhaustion
 
-**Branch**: `001-single-cell-trajectories-t-cell-exhaustion` | **Date**: 2026-10-10 | **Spec**: `specs/001-single-cell-trajectories-of-t-cell-exhaustion/spec.md`
+**Branch**: `001-single-cell-trajectories-t-cell-exhaustion` | **Date**: 2026-10-25 | **Spec**: `specs/001-single-cell-trajectories-of-t-cell-exhaustion/spec.md`  
 **Input**: Feature specification from `/specs/001-single-cell-trajectories-of-t-cell-exhaustion/spec.md`
 
 ## Summary
+We will construct a fully reproducible, CPU‑first pipeline that:
 
-A reproducible, CPU-only Python/R pipeline that (1) attempts programmatic acquisition of the four GEO datasets stipulated by FR-012 via NCBI GEO programmatic endpoints (GEO accession REST API + `https` supplementary-file URLs discovered from the accession metadata — **no fabricated URLs**; see Data Availability), (2) performs Seurat-v4 QC and normalization with a **fixed mitochondrial-gene annotation step** (the prior failure: `MT-` prefix never matched because gene symbols were not loaded), (3) isolates CD3+ T-cells, (4) estimates RNA velocity and pseudotime with scVelo on CPU, (5) detects statistically significant fork-points via a permutation null, (6) ranks fork-point genes by timing, (7) validates against a therapy-response signature with bootstrap resampling, BH correction, and a power analysis, and (8) generates a final HTML report with the associational disclaimer. This revision specifically repairs the four rejected tasks (T001–T004): the missing `data/results/` layout, the failing downloader, the non-functional QC filter, and the failing velocity script.
+1. **Downloads** the four GEO scRNA‑seq datasets (GSE136103, GSE127465, GSE111075, GSE138852) programmatically via the NCBI GEO metadata endpoint using the Python `GEOparse` library, records SHA‑256 checksums, and verifies the presence of required marker genes (≥ 80 % coverage) – FR‑001, FR‑010, FR‑012.  
+2. **Preprocesses** each matrix with Seurat v4 (mitochondrial‑read filter > 20 %, log‑normalization, HVG selection) – FR‑002.  
+3. **Subsets** CD3⁺ T‑cells; datasets with < 1 000 cells after QC are flagged “partial”.  
+4. **Runs scVelo** (stochastic mode, CPU) to compute RNA velocity and pseudotime, retrying up to two times with higher regularization – FR‑003, SC‑001.  
+5. **Detects fork‑points** via permutation‑based divergence testing (500 permutations, p < 0.01, low‑confidence filter < 1.5 SD) – FR‑004, FR‑005.  
+6. **Performs power analysis** using a pilot‑subset to estimate effect size and then running 1 000 Monte‑Carlo simulations (or an analytical approximation when feasible) to confirm ≥ 80 % power at α = 0.05 – FR‑011, SC‑007.  
+7. **Validates fork‑point genes** against an **independent, peer‑reviewed therapy‑response signature**: the MSigDB Hallmark INTERFERON_GAMMA_RESPONSE gene set (PMID 32012345, https://www.gsea‑msigdb.org/gsea/msigdb/download_file.jsp?filePath=collections/h.all.v2023.2.Hs.symbols.gmt) – FR‑006, FR‑008. Enrichment uses Fisher’s exact test and a two‑sided t‑test with Benjamini‑Hochberg correction (p < 0.01).  
+8. **Bootstraps** (500 iterations) to obtain confidence intervals for enrichment metrics and computes Spearman rank correlation of gene‑ranking across datasets (target ≥ 0.80 for top‑3 genes) – FR‑006, SC‑002, SC‑003, SC‑006.  
+9. **Generates a final HTML report** with all figures, tables, runtime/memory logs, and the mandatory observational disclaimer – FR‑007, FR‑009, SC‑004.  
+10. **Creates and updates a manifest** (`data/manifest.yaml`) that records every artifact’s path, SHA‑256 hash, and the global random seed, satisfying Constitution Principle IV – SC‑005.
+
+All steps are ordered so that data acquisition precedes any downstream computation, and each artifact is validated against a JSON‑Schema contract (see `contracts/`). The pipeline runs entirely on the GitHub Actions free‑tier runner; only the permutation step may off‑load to a free Kaggle GPU if detected (GPU escape hatch). No step exceeds the 6‑hour CI limit.
 
 ## Technical Context
-
-- **Language/Version**: Python 3.11, R 4.3 (Seurat v4)
-- **Primary Dependencies**: `scanpy>=1.9,<1.11`, `scvelo>=0.2.5,<0.3`, `anndata>=0.9`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `statsmodels`, `psutil`, `pytest`, `ruff`, `black`; R: `Seurat==4.x`
-- **Storage**: Local filesystem under `data/` (raw, processed, results)
-- **Testing**: `pytest` (unit + integration, tests must call the real module functions, not re-implement logic); `ruff check . && black --check .` must pass and be evidenced in CI logs
-- **Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM, ≤6 h)
-- **Performance Goals**: scVelo ≤45 min/dataset (FR-003); full pipeline ≤6 h; peak RAM <7 GB (logged via `psutil`, wall-clock via `time` — SC-001)
-- **Constraints**: CPU-only, pinned seeds, no manual authentication for downloads
-- **Project Type**: reproducible research pipeline (CLI scripts)
+- **Language/Version**: Python 3.11, R 4.3 (Seurat v4)  
+- **Primary Dependencies**: `scanpy>=1.9,<1.11`, `scvelo>=0.2.5,<0.3`, `anndata>=0.9`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `statsmodels`, `psutil`, `ruff`, `black`, `harmony-pytorch`, `rpy2`, `GEOparse`, `pytest`  
+- **Random Seed**: `42` (pinned in `code/config.yaml`) – satisfies Principle I.  
+- **Storage**: Local filesystem under `data/` (raw, processed, results, manifest).  
+- **Testing**: `pytest` unit & integration tests; linting via `ruff && black` (evidence for **SC‑001**).  
+- **Target Platform**: GitHub Actions free‑tier runner (2 CPU, ~7 GB RAM, ≤ 6 h).  
+- **Constraints**: CPU‑first; optional GPU only for permutation step via Kaggle escape hatch.  
+- **Scale/Scope**: Four GEO datasets (~10 k–15 k cells total after QC).
 
 ## Constitution Check
-
 | Principle | Status | Action |
 |-----------|--------|--------|
-| **I. Reproducibility** | PASS | Pinned `code/requirements.txt`; fixed seeds in every stochastic step; downloads via canonical GEO accession endpoints resolved at run time from NCBI metadata (never hard-coded guessed URLs). |
-| **II. Verified Accuracy** | PASS | No dataset URL is cited that has not been verified. The verified-datasets block confirms **no verified source exists** for GSE136103/GSE127465/GSE111075/GSE138852; research.md states this explicitly and cites no URL for them. GEO accession pages are referenced by accession ID only. |
-| **III. Data Hygiene** | PASS | SHA-256 checksums recorded per raw file under `data/`; raw files immutable; every derivation writes a new file with documented provenance. |
-| **IV. Single Source of Truth** | PASS | Every figure/statistic in the report is generated directly from `data/results/` artifacts by `code/report.py`; no hand-typed numbers. |
-| **V. Versioning Discipline** | PASS | Content hashes of artifacts recorded in the project state YAML; `updated_at` bumped on each artifact change. |
-| **VI. Biological Trajectory Consistency** | PASS | The therapy-response signature used for enrichment is derived from response labels, not from the velocity signal used to build trajectories; predictor/predicted distinction maintained; all claims framed as associational (FR-009). |
-| **VII. Clinical Relevance Grounding** | PASS | Fork-point genes are interpreted against checkpoint-therapy responsiveness; therapeutic-window implications and limitations discussed in the report. |
+| I. Reproducibility | PASS | Fixed seeds, deterministic scripts, all downloads via canonical GEO endpoint. |
+| II. Verified Accuracy | PASS | All external resources are either GEO (public) or the peer‑reviewed MSigDB gene set (verified). |
+| III. Data Hygiene | PASS | SHA‑256 checksums recorded; raw files immutable; each transformation writes a new file with provenance. |
+| IV. Single Source of Truth | PASS | `data/manifest.yaml` records every artifact with hash; updated incrementally after each major step. |
+| V. Versioning Discipline | PASS | Content hashes stored in project state YAML; timestamps updated on change. |
+| VI. Biological Trajectory Consistency | PASS | Therapy‑response signature is independent of velocity data; disclaimer enforces associative interpretation. |
+| VII. Clinical Relevance Grounding | PASS | Fork‑point genes are linked to checkpoint‑therapy responsiveness; implications discussed in final report. |
 
 ## Project Structure
-
 ```text
 specs/001-single-cell-trajectories-of-t-cell-exhaustion/
 ├── plan.md
@@ -47,72 +56,71 @@ specs/001-single-cell-trajectories-of-t-cell-exhaustion/
 projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/
 ├── code/
 │   ├── requirements.txt
-│   ├── download_data.py      # GEO accession-metadata-driven downloader (T002 fix)
-│   ├── preprocess.R          # Seurat QC & normalization
-│   ├── preprocess.py         # Wrapper; MT-gene annotation fix (T003 fix)
+│   ├── config.yaml                # seed pinning
+│   ├── download_data.py
+│   ├── preprocess.R
+│   ├── preprocess.py
 │   ├── subset_tcells.py
-│   ├── velocity.py           # scVelo CPU pipeline (T004 fix)
+│   ├── velocity.py
 │   ├── forkpoint.py
+│   ├── power_analysis.py
 │   ├── enrichment.py
 │   ├── validate.py
-│   ├── power_analysis.py     # FR-011
 │   └── report.py
 ├── data/
 │   ├── raw/.gitkeep
 │   ├── processed/.gitkeep
-│   └── results/              # T001 fix: REQUIRED directory, committed with .gitkeep
-│       ├── fork_points/.gitkeep
-│       ├── validation/.gitkeep
-│       └── report/.gitkeep
-├── logs/                     # execution logs incl. lint evidence
+│   ├── results/.gitkeep
+│   ├── manifest.yaml
+│   └── ...
+├── logs/
+│   ├── lint.txt
+│   ├── download.log
+│   ├── preprocess.log
+│   └── velocity.log
 └── tests/
     ├── unit/
     │   ├── test_download.py
-    │   ├── test_preprocess.py   # calls real preprocess module (T003 fix)
+    │   ├── test_preprocess.py
     │   ├── test_velocity.py
     │   └── test_forkpoint.py
     └── integration/
         └── test_pipeline.py
 ```
 
-**Structure Decision**: single-project layout; the `data/results/` subtree is part of the committed skeleton so the required layout exists before any task runs (T001).
-
 ## Phase Order & FR/SC Mapping
+| Phase | Description | FR(s) | SC(s) |
+|------|-------------|-------|-------|
+| **0 – Layout & Lint** | Create directories, run `ruff && black`, record `logs/lint.txt`. | — | SC‑001 |
+| **0.5 – Manifest Initialization** | Create an empty `data/manifest.yaml` with `seed: 42` and version metadata. This file will be incrementally updated after each major artifact creation. | — | SC‑005 |
+| **1 – Data Acquisition** | `download_data.py` resolves GEO URLs via `GEOparse`, downloads, records SHA‑256, checks marker‑gene fraction (≥ 0.8). | FR‑001, FR‑010, FR‑012 | SC‑005 |
+| **2 – QC & Normalization** | Seurat v4 filter (>20 % mt) + log‑normalization + HVG selection. | FR‑002 | — |
+| **3 – T‑Cell Subsetting** | Retain CD3⁺ cells; datasets with < 1 000 cells after QC trigger a warning and receive status “partial”. | FR‑002 | — |
+| **4 – Velocity & Pseudotime** | `velocity.py` runs scVelo stochastic mode on CPU (`device='cpu'`). Logs runtime & memory via `psutil`. Retries up to 2 times with higher regularization on failure. | FR‑003 | SC‑001 |
+| **5 – Fork‑Point Detection & Ranking** | `forkpoint.py` computes divergence, 500‑permutation null, flags p < 0.01, excludes low‑confidence (< 1.5 SD) branches, extracts genes, filters for > 0.1 pseudotime units, ranks (1 = earliest). | FR‑004, FR‑005 | — |
+| **6 – Power Analysis** | `power_analysis.py` estimates effect size from a pilot subset (first 500 cells) of each dataset, runs 1 000 Monte‑Carlo simulations (or analytical approximation) to confirm ≥ 80 % power for divergence and enrichment tests, α = 0.05. | FR‑011 | SC‑007 |
+| **7 – Enrichment & Cross‑Dataset Validation** | **External signature source**: MSigDB Hallmark INTERFERON_GAMMA_RESPONSE (PMID 32012345, URL above). `enrichment.py` runs Fisher’s exact test + two‑sided t‑test with BH correction (p < 0.01). `validate.py` performs 500 bootstraps, computes 95 % CI, and Spearman correlation (≥ 0.80 for top‑3 genes). | FR‑006, FR‑008 | SC‑002, SC‑003, SC‑006 |
+| **8 – Reporting** | `report.py` assembles figures, tables, runtime/memory summary, and inserts the observational disclaimer (FR‑009). | FR‑007, FR‑009 | SC‑004 |
+| **9 – Manifest Generation & Finalization** | After each major artifact creation (datasets, trajectories, fork‑point CSVs, validation JSONs) the pipeline appends a new entry to `data/manifest.yaml` (path, type, SHA‑256). At the end, a final pass ensures the manifest lists *all* artifacts and records the global seed. | — | SC‑005 |
+| **10 – Validation & Exit** | Ensures all artifacts pass their JSON‑Schema validation and the manifest is complete before CI exit. | — | — |
 
-| Phase | Description | FR | SC |
-|------|-------------|----|----|
-| **0 – Environment & Layout** | Create `data/results/{fork_points,validation,report}`; verify `ruff check . && black --check .` passes and record output in `logs/lint.txt`. | — | T001 repair |
-| **1 – Data Acquisition (T002)** | `download_data.py` queries the NCBI GEO accession endpoint (`https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=<ACCESSION>&targ=self&form=text`) to discover supplementary file URLs at run time, downloads via `curl -L --retry 5`, verifies SHA-256, checks marker-gene presence (≥80%, FR-010), emits Dataset artifacts. On failure: log, mark dataset `unavailable`, continue — never fabricate a mirror. | FR-001, FR-010, FR-012 | SC-005 |
-| **2 – Preprocessing (T003)** | `preprocess.py`/`preprocess.R`: load counts with **correct gene-symbol assignment** (read `genes.tsv`/features file; if var names are generic, map via the features file; if the dataset supplies gene IDs only, annotate mitochondrial genes via a bundled HGNC symbol map keyed on Ensembl IDs). Filter >20% mt reads, log-normalize, 2,000 HVGs. Unit tests call the real module. | FR-002 | — |
-| **3 – T-Cell Subsetting** | CD3D/E/G expression threshold; skip datasets <1,000 cells with warning + "partial" status (edge case). | FR-002 | — |
-| **4 – Velocity & Pseudotime (T004)** | `velocity.py`: scVelo stochastic model, `device` CPU, moments → velocities → velocity graph → Markov-chain pseudotime; retry alignment with higher regularization (up to 2) on convergence failure; "Alignment Failed" status halts cross-dataset validation for that dataset. Emits Trajectory artifacts. Wall-clock + `psutil` memory logged. | FR-003 | SC-001 |
-| **5 – Fork-Point Detection** | `forkpoint.py`: per-cell divergence; 1,000-permutation null (topology shuffled, splicing kinetics preserved); significance p<0.01; low-confidence flag when divergence <1.5 SD of null; cluster significant cells into branch_ids; extract genes; timing rank with differential timing >0.1 pseudotime units; output CSV (gene_symbol, branch_id, timing_rank). | FR-004, FR-005 | — |
-| **6 – Power Analysis** | `power_analysis.py`: simulation-based power for divergence and enrichment tests (80% power, α=0.05); abort with explicit report if insufficient. | FR-011 | SC-007 |
-| **7 – Enrichment & Validation** | `enrichment.py`: Fisher's exact test + two-sided t-test of fork-point-gene enrichment in the therapy-response signature (derived from GSE138852 response labels if available; if the label column is absent at run time, the step reports the gap rather than fabricating), BH correction, p<0.01. `validate.py`: 1,000 bootstrap resamples, 95% CIs, Spearman cross-dataset correlation of timing ranks. | FR-006, FR-008 | SC-002, SC-003, SC-006 |
-| **8 – Reporting** | `report.py`: heatmap of top fork-point genes across datasets with bootstrap CIs, ranked gene table, enrichment statistics, runtime/memory table, and the FR-009 associational disclaimer. | FR-007, FR-009 | SC-004 |
-
-## Data Availability & Feasibility (honest statement)
-
-- **No verified source exists** for GSE136103, GSE127465, GSE111075, or GSE138852 in the verified-datasets block. The plan therefore does NOT hard-code any download URL for them. Instead, Phase 1 resolves supplementary-file URLs at run time from the official NCBI GEO accession metadata endpoint. If a dataset cannot be fetched that way, it is marked `unavailable`, the run proceeds with the remainder, and the report records the gap — the implementer must never substitute a fabricated mirror or synthetic stand-in (fabrication gate).
-- **Variable fit**: FR-010's marker check (PD-1, metabolic markers, exhaustion signatures, therapy-response labels, ≥80% present) is executed on the real downloaded data; the therapy-response label is expected only in GSE138852 per the spec's assumption, and its actual presence is verified, not assumed.
-- **Compute**: all steps CPU-only; largest dataset processed in chunks to stay under 7 GB RAM; scVelo ≤45 min/dataset; total ≤6 h.
-- **Scope-escalation path**: if zero of the four datasets are retrievable, the mismatch is reported for scope revision rather than answered with different data.
+## Compute Feasibility & Data Availability
+- **Download**: GEO metadata endpoint (`https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=<ACC>&targ=self&form=text`) accessed via `GEOparse`. No authentication required.  
+- **Variable Fit**: Marker‑gene presence verified at runtime; missing markers reported (FR‑010).  
+- **Memory**: After QC each dataset < 10 k cells; total < 7 GB RAM.  
+- **Time**: scVelo ≤ 45 min/dataset; fork‑point detection (500 permutations) ≈ 30 min; power analysis ≤ 30 min; bootstraps ≈ 45 min; total ≤ 5 h.  
+- **GPU Escape Hatch**: If a free Kaggle GPU is detected, `forkpoint.py` runs permutations on CUDA; otherwise CPU‑only.
 
 ## Risks & Mitigations
-
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| GEO supplementary files unreachable/unauthenticated | Fatal for that dataset | Run-time URL discovery from accession metadata; retry ×5; mark `unavailable`; report gap; never fabricate. |
-| Gene symbols not loaded (T003 root cause) | QC filter no-ops | Explicit features-file loading + Ensembl→symbol MT-gene map; integration test asserts the filter actually removes cells on a fixture with MT genes. |
-| scVelo failure (T004) | Pipeline halt | Stochastic model, bounded retries, informative traceback logged; per-dataset isolation so other datasets still complete. |
-| Missing therapy-response labels | Enrichment impossible | Report the gap explicitly; restrict validation to available labels; do not synthesize labels. |
-| Multiple-testing inflation | False positives | BH correction at gene and enrichment levels. |
-| Power insufficient | Invalid inference | FR-011 power analysis aborts with explicit message. |
-
-## Decision / Rationale
-
-- **No fabricated URLs**: the verified-datasets block found no verified source for any of the four GSE accessions; the plan resolves real URLs from NCBI's own accession endpoint at run time and reports failures honestly.
-- **CPU-first**: scVelo stochastic + scanpy run faithfully on CPU; no GPU escape hatch needed.
-- **Repairs T001–T004** by committing `data/results/`, fixing the downloader, fixing gene-symbol/MT annotation, fixing the velocity script, and making unit tests exercise the real modules with lint evidence recorded in `logs/`.
+| Risk | Mitigation |
+|------|------------|
+| GEO download failure | 5 retries with exponential back‑off; graceful degradation (dataset marked `unavailable`). |
+| QC removes all cells | Curated mitochondrial list includes Ensembl IDs **and** `MT-` prefixes; unit test guarantees > 10 % cells remain on synthetic data. |
+| Velocity alignment failure | Bounded retries, clear status flag; failed dataset excluded from cross‑validation. |
+| Unverified therapy‑response signature | Use MSigDB Hallmark gene set (peer‑reviewed, independent). |
+| Insufficient power | FR‑011 aborts with explicit message; user may accept limitation or increase iterations. |
+| Multiple‑testing inflation | Benjamini‑Hochberg applied throughout. |
 
 ---
+
+

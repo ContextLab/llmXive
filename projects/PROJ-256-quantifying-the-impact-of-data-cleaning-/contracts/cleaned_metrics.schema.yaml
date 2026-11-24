@@ -1,0 +1,89 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Cleaned Metrics Schema"
+description: "Validates metrics for each cleaning variant, including metadata and robustness info."
+type: object
+required:
+  - dataset_id
+  - variant_id
+  - p_value
+  - adjusted_p_value
+  - ci_lower
+  - ci_upper
+  - effect_size
+  - effect_size_change
+  - direction
+  - ci_overlap
+  - p_value_delta
+  - assumptions_met
+  - robust_test_used
+  - metadata
+properties:
+  dataset_id:
+    type: string
+    description: "Matches an entry in dataset_metadata.json."
+  variant_id:
+    type: string
+    description: "Encodes active cleaning steps (e.g., 'outlier_k1.5_imp_mean_enc_onehot')."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+  adjusted_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+  ci_lower:
+    type: number
+  ci_upper:
+    type: number
+  effect_size:
+    type: number
+  effect_size_change:
+    type: number
+    description: "Absolute change in effect size relative to baseline (≥ 0.001 precision)."
+  direction:
+    type: string
+    enum: ["increase", "decrease"]
+  ci_overlap:
+    type: number
+    minimum: 0
+    maximum: 1
+  p_value_delta:
+    type: number
+    description: "Baseline p‑value minus cleaned p‑value (≥ 0.001 precision)."
+  assumptions_met:
+    type: boolean
+  robust_test_used:
+    type: string
+    description: "Name of robust test if assumptions violated; empty string otherwise."
+  metadata:
+    type: object
+    required:
+      - rows_removed
+      - missing_before
+      - missing_after
+      - variance_reduction
+    properties:
+      rows_removed:
+        type: integer
+        minimum: 0
+      missing_before:
+        type: integer
+        minimum: 0
+      missing_after:
+        type: integer
+        minimum: 0
+      variance_reduction:
+        type: number
+        minimum: 0
+        maximum: 1
+  cohens_d:
+    type: number
+    description: "Cohen's d for t‑test variants (optional)."
+  r_squared:
+    type: number
+    description: "R² for regression variants (optional)."
+  effect_size_cv:
+    type: number
+    description: "Coefficient of variation of the primary effect‑size metric (optional)."
+additionalProperties: false

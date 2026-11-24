@@ -1,0 +1,7 @@
+{
+  "task_id": "T012",
+  "fingerprint": "7098a4fda9e8b767ea140d3bbbdc57bf5e660bdc2e566ae7d22be90335ecc602",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused case-insensitive path collision: 'makefile' aliases existing 'Makefile'. Use the existing spelling or a distinct filename."
+}

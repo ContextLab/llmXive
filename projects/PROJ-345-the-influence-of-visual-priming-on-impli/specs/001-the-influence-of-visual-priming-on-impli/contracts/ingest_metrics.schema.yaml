@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Ingest Metrics Schema"
+type: "object"
+properties:
+  total_trials:
+    type: "integer"
+    description: "Total number of trials in the raw dataset"
+    minimum: 0
+  linked_trials:
+    type: "integer"
+    description: "Number of trials successfully linked to stimulus metadata"
+    minimum: 0
+  missing_image_trials:
+    type: "integer"
+    description: "Trials for which the stimulus image file could not be found"
+    minimum: 0
+  missing_metadata_trials:
+    type: "integer"
+    description: "Trials lacking any metadata entry"
+    minimum: 0
+  linkage_percentage:
+    type: "number"
+    description: "Percentage of trials with successful linkage"
+    minimum: 0.0
+    maximum: 100.0
+required:
+  - total_trials
+  - linked_trials
+  - missing_image_trials
+  - missing_metadata_trials
+  - linkage_percentage
+additionalProperties: false

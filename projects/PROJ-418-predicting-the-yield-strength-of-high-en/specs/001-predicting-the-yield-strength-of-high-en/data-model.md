@@ -1,7 +1,7 @@
 # Data Model: Predicting the Yield Strength of High‑Entropy Alloys
 
 ## Overview
-The pipeline works with a small set of well‑defined JSON/YAML schemas that capture raw inputs, derived descriptors, model artifacts, and reporting metadata. All schemas are version‑controlled under `contracts/` and validated with `jsonschema`.
+The pipeline exchanges a small set of well‑defined JSON/YAML artifacts. Each artifact is validated against a schema in `contracts/`. Schemas are version‑controlled and referenced throughout the CI workflow.
 
 ## Schemas
 
@@ -94,7 +94,27 @@ properties:
     description: "Melting temperature (K)."
 ```
 
-### 4. `contracts/metrics.schema.yaml`
+### 4. `contracts/hea_composition.schema.yaml`
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "User‑Provided HEA Composition Record"
+type: object
+additionalProperties: false
+required:
+  - composition
+properties:
+  composition:
+    type: object
+    description: "Mapping from element symbol to atomic fraction (must sum to the overall composition)."
+    patternProperties:
+      "^[A-Z][a-z]?$":
+        type: number
+        minimum: 0
+        maximum: 1
+    minProperties: 1
+```
+
+### 5. `contracts/metrics.schema.yaml`
 ```yaml
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Performance Metrics"
@@ -131,7 +151,7 @@ properties:
     description: "95 % bootstrap confidence interval for Pearson r."
 ```
 
-### 5. `contracts/importance.schema.yaml`
+### 6. `contracts/importance.schema.yaml`
 ```yaml
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Permutation Importance Results"
@@ -156,7 +176,7 @@ properties:
     description: "Holm‑Bonferroni corrected p‑value."
 ```
 
-### 6. `contracts/manifest.schema.yaml`
+### 7. `contracts/manifest.schema.yaml`
 ```yaml
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Provenance Manifest"
@@ -192,4 +212,6 @@ properties:
       type: string
 ```
 
-All schemas are stored under `contracts/` and referenced by the CI validation steps.
+All schemas are stored under `contracts/` and are referenced by the CI validation steps.
+
+---

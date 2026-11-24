@@ -1,30 +1,38 @@
-T026:
+T000:
+  c: true
+  h: 2df1a8e38515274add1944887d615d8981f486bbe674fd12b1c960cf235ace5b
+  r: "Checked `code/setup_skeleton.py` execution log (exit\u202F0) and the presence\
+    \ of `data/raw/README.txt`, `data/processed/README.txt`, and `outputs/README.txt`\
+    \ confirming the three required directories were created and writable."
+  sig: fa5159931b0c495fa2e0661a3c7915e23bdcf38e160adf2a4768e829724600a0
+T002:
   c: false
-  h: 70b1be90737008c6f1fda7438078d8d4122da6080fc8a64d54007644d37233f7
-  r: "The required model file `code/models/best_xgboost.json` is absent, and the provided\
-    \ `code/train.py` does not contain a complete implementation of the nested 5\u2011\
-    fold outer CV with an inner grid search over the specified hyperparameters nor\
-    \ does it save the best XGBoost model to the required path. The script is truncated\
-    \ and lacks the necessary training, evaluation, and model\u2011saving logic."
-T028a:
+  h: f5eec701d7d0c7faa041eb5d60fc44c9048e2a3137cf2d5acc40d95152e05e62
+  r: "The script `code/extract_descriptors.py` runs and produces `data/processed/oc20_descriptors.parquet`\
+    \ with the required columns and no NaNs, but it never actually computes the DFT\u2011\
+    derived descriptors \u2013 it falls back to a public Iris CSV, creates missing\
+    \ columns as NaN and then replaces them with a constant\u202F0.0. No real `pymatgen`/`numpy`\
+    \ calculations on OC20 data are performed, and the MP descriptor file contains\
+    \ only a single composition, indicating the core scientific requirement is unmet.\
+    \ The task therefore remains incomplete."
+  sig: 58a6aa95968d9ac85ae3f2be73c34c8d5af21378c8634b941e0a6138f54f1e2a
+T014:
   c: false
-  h: fcd23009c1de8545f432ba63201ecb14c3ecf11103fed815c6ad682f365b5e49
-  r: "The required output file `outputs/normality_check_paired.json` does not exist,\
-    \ and the provided `code/evaluate.py` is truncated (ends mid\u2011statement) and\
-    \ contains no implementation of the paired\u2011difference normality check or\
-    \ JSON writing logic. The task\u2019s statistical\u2011test functionality is therefore\
-    \ missing."
-T035:
+  h: ff14612b8bcc2ac2a9777aedb3d79e4d1bafdd7e7925787195943cc426696705
+  r: "The repository contains `data/raw/experimental_tof.csv`, but it is an empty\
+    \ placeholder CSV (only headers) and `data/checksums.txt` does not record a checksum\
+    \ for this file (it only lists `scope_revision_request.json`). No evidence that\
+    \ task\u202FT015 was run. The script therefore did not acquire a real open experimental\
+    \ TOF dataset nor provide the required checksum, violating the task\u2019s acceptance\
+    \ criteria."
+  sig: e8be6fe2bb39f55e22eafa980cb172c3b1d67d9df4a96b4b376ec7eedab045b7
+T015:
   c: false
-  h: 4b00ec33eb22ac271bb22e4b6096da8f1f75595b1fb56dc321e96f9bc181e264
-  r: "The required output file `outputs/feature_importance.png` does not exist, and\
-    \ the provided `code/evaluate.py` is truncated (ends mid\u2011function) with no\
-    \ implementation that creates the bar plot of the top\u20115 descriptors. Consequently\
-    \ the task\u2019s deliverable is missing."
-T049:
-  c: false
-  h: 7e2d122b9007f5be43a142eb7672e56009fccf6c669e3a88aa94fd52e29ad268
-  r: "The repository lacks the required `outputs/final_report.md` file, and `code/report.py`\
-    \ does not contain any logic to add a \u201CData Lineage\u201D section with the\
-    \ HuggingFace commit hash or the `requirements.txt` hash. Consequently, the task\u2019\
-    s output and functionality are not present."
+  h: e224b86bad0756e390a04243f9a4ab90edc0e805caf3265cafe2d6a350888c27
+  r: "Checked `code/request_scope_revision.py`, `outputs/scope_revision_request.json`,\
+    \ and `data/checksums.txt`. The JSON file has all required fields, but the checksum\
+    \ entry in `data/checksums.txt` includes a trailing newline (`\u2026f9927d\\n`),\
+    \ causing the verification test for a 64\u2011character SHA\u2011256 hash to fail.\
+    \ The checksum must be recorded without the extra newline (or otherwise stripped)\
+    \ to satisfy the task\u2019s verification requirement."
+  sig: a36773d1e8824d597e3f6701128497c1ebfed2450a2117dcb9a3284621fd8950

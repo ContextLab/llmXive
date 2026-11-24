@@ -1,15 +1,8 @@
 status: none
-intent: HuggingFace dataset tweets text metadata likes retweets replies edit control
-  python package dataset
+intent: download huggingface hub dataset via huggingface_hub python package dataset
 required_fields:
 - text
-- timestamp
-- user_id
-- like_count
-- retweet_count
-- reply_count
-- edit_flag
-- control_flag
-cache_key: d84ceead62147a46eab7a8db2e53dc18ef4000dddf74318d2ded88a4c6772b0e
-searched_at: '2026-10-06T04:12:32.315994+00:00'
+- label
+cache_key: b36d42d60f564e4718a82d0a46d84354629628f72574fd3eb18a0059ac81a03a
+searched_at: '2026-10-18T00:31:15.864237+00:00'
 retry_count: 1

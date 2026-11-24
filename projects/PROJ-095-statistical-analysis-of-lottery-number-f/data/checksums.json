@@ -1,9 +1,9 @@
 {
   "files": {
     "lottery_draws.csv": {
-      "sha256": "placeholder_checksum_will_be_replaced_by_script",
-      "size_bytes": 0,
-      "generated_at": "pending"
+      "sha256": "5e6fe0a6133ec1a9447e239ee28507bb1c91f010b82956a48d75a4645a88bd82",
+      "size_bytes": 2465,
+      "generated_at": "2026-10-19T12:58:35.141675+00:00"
     }
   }
 }

@@ -1,0 +1,118 @@
+{
+  "trace_id": "training_42_00881",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 11,
+  "tool_sequence": [
+    "insert_text",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "format_text",
+    "format_text",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 37.6976,
+        "y": 91.9069,
+        "length": 97.8818
+      }
+    },
+    {
+      "step": 1,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 88.1909
+      }
+    },
+    {
+      "step": 2,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 57.9967
+      }
+    },
+    {
+      "step": 3,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 2.7058
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 13.2585
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 56.342,
+        "x": 84.185,
+        "y": 52.6641
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 50.8734,
+        "x": 58.5455,
+        "y": 59.3476
+      }
+    },
+    {
+      "step": 7,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 35.5972,
+        "padding": 66.8601
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 72.1474,
+        "padding": 27.8006
+      }
+    },
+    {
+      "step": 9,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 59.3799,
+        "padding": 14.08
+      }
+    },
+    {
+      "step": 10,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 29.4743,
+        "padding": 84.2642
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.263654,
+    "tool_repetition_freq": 0.636364,
+    "arg_semantic_variance": 701.857272
+  },
+  "final_state": {
+    "dominant_tool": "delete_element",
+    "slide_element_count": 12,
+    "layout_hash": "42-881-delete_element"
+  }
+}

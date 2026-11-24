@@ -1,167 +1,174 @@
 # Tasks: Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets
 
-**Inputs**: `spec.md`, `plan.md`, original research idea, existing artifacts, and reviewer feedback.
+**Inputs**: `spec.md`, `plan.md`, original research idea, existing artifacts, verifier rejections, reviewer feedback.
 
-The following checklist implements the smallest complete study that satisfies every functional requirement (FR‑001 – FR‑012) and success criterion (SC‑001 – SC‑005). Tasks are ordered to respect data flow and computational dependencies. All tasks are unchecked; completed work from prior iterations is retained but re‑opened where specification‑driven corrections are needed.
-
----
-
-## Phase 1 – Setup and first end‑to‑end analysis
-
-- [ ] T001 [P] [US1] **Create reproducible environment and quick‑start guide**   <!-- FAILED-IN-EXECUTION: scripts/env_check.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/run_pipeline.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/env_check.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/env_check.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/env_check.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/env_check.sh exit=1; scripts/run_pipeline.sh exit=1 -->
-  *Files*: `requirements.txt`, `quickstart.md`, `README.md`  
-  *Actions*:  
-  – Pin exact package versions (Python 3.11, pandas 2.2.*, scikit‑learn 1.5.*, torch 2.3.*, statsmodels 0.14.*, datasets 2.20.*).  
-  – Add a `quickstart.md` section describing the single command to run the full pipeline (`bash run_pipeline.sh`).  
-  – Verify that `pip install -r requirements.txt` completes in ≤ 2 min on the GitHub Actions runner.  
-  *Verification*: Run `make env-check` (provided in `quickstart.md`) and confirm exit code 0.
-
-- [ ] T002 [P] [US1] **Implement data‑ingestion & provenance pipeline**   <!-- FAILED-IN-EXECUTION: code/ingest/ingest.py exit=1 -->
-  *File*: `code/ingest/ingest.py`  
-  *Actions*:  
-  – Download NIST, UCI, and OpenML fatigue datasets from their canonical URLs (hard‑coded, version‑pinned).  
-  – Compute a SHA‑256 checksum for each raw row and store it in a new `checksum` column.  
-  – Convert all stress units to MPa (`1 psi = 0.00689476 MPE`).  
-  – Median‑impute missing numeric values per column.  
-  – Apply the proxy formula `σ_res = k·heat_input·cooling_rate` (k = 0.8 for steel, 0.6 for aluminum) when `residual_stress_measured` is missing; set `is_proxy = True`, store result in `residual_stress_proxy`, and clamp negatives to 0.01 MPa.  
-  – Write the unified CSV to `data/processed/unified_fatigue.csv` and validate against `specs/001-predicting-the-impact-of-residual-stress/contracts/dataset_schema.yaml` using `jsonschema`.  
-  *Verification*: Unit test `tests/test_ingest.py` runs the script on a synthetic 10‑row CSV and asserts (i) checksum column exists, (ii) all stress values are ≤ MPa, (iii) proxy rows are flagged, and (iv) schema validation passes.
-
-- [ ] T003 [P] [US1] **Execute ingestion on a small real subset for early end‑to‑end check**  
-  *File*: `scripts/run_small_ingest.sh` (calls `code/ingest/ingest.py --rows 200`).  
-  *Actions*:  
-  – Process only the first 200 rows of each source dataset to keep RAM < 1 GB.  
-  – Produce `data/processed/unified_fatigue_sample.csv`.  
-  – Log summary statistics (rows processed, % proxy, unit conversion count).  
-  *Verification*: After script finishes, a pytest test `tests/test_small_ingest.py` checks that the output file contains exactly 200 rows and that the `checksum` column matches the recorded SHA‑256 hashes.
+The checklist implements **FR‑001 – FR‑014** and **SC‑001 – SC‑005**. All tasks respect data‑flow ordering, write only to project‑owned paths, and avoid any synthetic fallback for real‑data fetches.
 
 ---
 
-## Phase 2 – Feature set construction, model training & evaluation
+## Phase 1 – Environment, data acquisition, and validation inputs
 
-- [ ] T004 [P] [US2] **Build three feature‑set CSVs (A, B, C)**  
-  *File*: `code/features/build_features.py`  
-  *Actions*:  
-  – Read `data/processed/unified_fatigue.csv`.  
-  – Create `data/processed/feature_set_A.csv` (process parameters only).  
-  – Create `data/processed/feature_set_B.csv` (process + measured residual stress; exclude rows where `is_proxy=True`).  
-  – Create `data/processed/feature_set_C.csv` (process + material properties; no stress column).  
-  – Standardize each numeric column to zero mean / unit variance.  
-  *Verification*: Tests in `tests/test_features.py` assert column presence for each set and that `feature_set_B.csv` contains no `is_proxy=True` rows.
+- [ ] T001 **Establish a reproducible environment and global configuration**  
+  *Files*: `code/src/env_check.py`, `code/src/config.py`, `code/tests/test_env_check.py`  
+  *Actions*  
+  1. Write `env_check.py` that imports the full scientific stack (`pandas`, `numpy`, `scikit‑learn`, `torch` CPU‑only, `statsmodels`, `pyyaml`, `pytest`, `jsonschema`, `psutil`, `openml`, `ucimlrepo`) and exits 0 only if all imports succeed.  
+  2. Create `config.py` defining `SEED = 42`, proxy coefficients `K_STEEL = 0.8`, `K_ALUMINUM = 0.6`, psi‑to‑MPa factor `PSI_TO_MPA = 0.00689476`, and all path constants used downstream.  
+  *Verification*: `pytest code/tests/test_env_check.py` asserts exit 0 and presence of `SEED` in `config.py`.
 
-- [ ] T005 [P] [US2] **Implement model‑training pipeline with CV and hyper‑parameter search**  
-  *File*: `code/models/train.py`  
-  *Actions*:  
-  – Accept a feature‑set path argument.  
-  – Perform stratified 5‑fold CV (stratify by `material_class`).  
-  – For each algorithm (RandomForestRegressor, GradientBoostingRegressor, shallow PyTorch NN) evaluate a grid of 10 hyper‑parameter combos.  
-  – Use fixed random seed `SEED=42` for splits, model initialization, and CV shuffling.  
-  – Record per‑fold MAPE and R²; select the combo with lowest mean CV‑MAPE.  
-  – Save the final model object to `models/{algorithm}_{feature_set}.pt` (or `.pkl` for scikit‑learn).  
-  *Verification*: `tests/test_train.py` runs the script on `feature_set_A.csv` truncated to 300 rows and checks that a model file is created and that the returned CV‑MAPE is a finite float.
+- [X] T001-1 **Pin dependencies, implement timing, and document quickstart**  
+  *Files*: `requirements.txt`, `code/src/timing.py`, `quickstart.md`, `data/raw/checksums.json`  
+  *Actions*  
+  1. Pin every dependency in `requirements.txt` (e.g., `pandas==2.2.*`, `torch==2.3.*+cpu`, `openml==0.14.*`, etc.).  
+  2. Provide a `phase_timer` context manager in `code/src/timing.py` that records wall‑clock seconds and peak RSS (via `psutil`) to `data/results/runtime_summary.csv`.  
+  3. Document the single command `python -m code.src.run_e2e` in `quickstart.md`.  
+  4. Initialize `data/raw/checksums.json` as an empty JSON object to be populated by acquisition tasks.  
+  *Verification*: Verify `requirements.txt` is non-empty and `quickstart.md` contains the e2e command.
 
-- [ ] T006 [P] [US2] **Run full training on all feature sets and generate test‑set performance report**  
-  *File*: `scripts/run_full_training.sh` (orchestrates `code/models/train.py` for A, B, C).  
-  *Actions*:  
-  – Split `unified_fatigue.csv` into stratified train (80 %) / held‑out test (20 %) using `SEED=42`.  
-  – Train each algorithm/feature‑set combination on the full training data.  
-  – Predict fatigue life on the held‑out test set; compute MAPE and R² **overall and per `material_class`**.  
-  – Write a consolidated performance table to `results/performance.csv`.  
-  – **Verification**: Assert that for every algorithm and for each material class `MAPE_B <= 0.9 * MAPE_A` (≥10 % improvement). If any condition fails, the script exits with a non‑zero status.  
-  – Generate `results/runtime_summary.csv` (wall‑clock time, peak memory) and assert limits (≤ 6 h, ≤ 7 GB RAM).  
-  *Verification*: `tests/test_full_training.py` parses `performance.csv` and confirms the ≥10 % improvement condition per material class and that runtime limits are respected.
+- [ ] T014 **Acquire external datasets from OpenML and UCI (fail‑loud, no synthetic fallback)**   <!-- FAILED-IN-EXECUTION: code/src/acquire_external.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/acquire_external.py exit=1 -->
+  *Files*: `code/src/acquire_external.py`, `data/external/acquisition_log.json`, `code/tests/test_acquire.py`  
+  *Actions*  
+  1. Use the `openml` Python client to list and download datasets with tags `fatigue`, `residual stress`, `steel`, `aluminum`. Use `ucimlrepo` similarly.  
+  2. For each candidate, flatten structures and validate against `contracts/dataset_schema.yaml`.  
+  3. Write matching datasets to `data/raw/external_<name>.csv`, add a `source` column, compute SHA‑256 checksums, and update `data/raw/checksums.json`.  
+  4. Record the full query trail in `acquisition_log.json`. The script must raise an exception on any network or parsing error; it must **not** fall back to synthetic data.  
+  *Verification*: `pytest code/tests/test_acquire.py` checks that `acquisition_log.json` exists and that any acquired files match their checksums in `checksums.json`.
 
-- [ ] T013 [P] [US2] **Explicit verification of ≥10 % MAPE reduction across material classes**  
-  *File*: `code/eval/verify_improvement.py`  
-  *Actions*:  
-  – Load `results/performance.csv`.  
-  – For each algorithm, compute the percentage reduction `100 * (MAPE_A - MAPE_B) / MAPE_A` overall and separately for `steel` and `aluminum`.  
-  – Fail with a clear error message if any reduction is < 10 %.  
-  – Output a concise summary `results/improvement_check.txt`.  
-  *Verification*: `tests/test_improvement_check.py` ensures the script returns exit code 0 only when the 10 % threshold is met for all required groups.
-
-- [ ] T007 [P] [US3] **Perform paired t‑tests comparing Feature A vs B errors and enforce 10 % improvement**  
-  *File*: `code/eval/pairwise_test.py`  
-  *Actions*:  
-  – Load test‑set predictions for Model A and Model B (same algorithm).  
-  – Compute absolute errors, then run a paired t‑test.  
-  – Apply Bonferroni correction for the three algorithm families (α = 0.05/3).  
-  – **Additional check**: Verify that the observed MAPE reduction meets the ≥10 % threshold (using the same calculation as T013). If not, emit a warning and set a non‑zero exit status.  
-  – Output statistics (t, df, p‑value, corrected p) to `results/paired_t_test.csv`.  
-  *Verification*: `tests/test_pairwise.py` verifies that the CSV contains columns `t_stat`, `p_uncorrected`, `p_corrected` and that both the statistical significance and the 10 % improvement condition are satisfied.
-
-- [ ] T008 [P] [US3] **Cross‑material transfer learning evaluation**  
-  *File*: `code/eval/cross_material.py`  
-  *Actions*:  
-  – Train on steel‑only subset, test on aluminum‑only subset; then reverse.  
-  – Compute ΔMAPE = MAPE_test_other − MAPE_test_same for each direction.  
-  – Record results in `results/cross_material.csv` with columns `train_material`, `test_material`, `delta_mape`.  
-  *Verification*: `tests/test_cross_material.py` checks that both directions are present and that `delta_mape` is a non‑negative float.
+- [ ] T015 **Generate a deterministic synthetic dataset for pipeline validation only**  
+  *Files*: `code/src/data/gen_synthetic.py`, `data/raw/synthetic_fatigue.csv`, `code/tests/test_gen_synthetic.py`  
+  *Actions*  
+  1. Implement `gen_synthetic.py` using `numpy.random.default_rng(42)`. Produce **10 000** rows conforming to `contracts/dataset_schema.yaml`.  
+  2. Set `source="synthetic"` for every row.  
+  3. Compute SHA‑256 checksum of the resulting file and update `data/raw/checksums.json`.  
+  *Verification*: `pytest code/tests/test_gen_synthetic.py` asserts file existence, row count = 10 000, and byte‑reproducibility.
 
 ---
 
-## Phase 3 – Mediation analysis (measured‑stress subset only)
+## Phase 2 – Ingestion, preprocessing, and thin end‑to‑end run
 
-- [ ] T009 [P] [US3] **Bootstrap mediation analysis (10 000 resamples) on measured‑stress data**  
-  *File*: `code/mediation/boot_mediation.py`  
-  *Actions*:  
-  – Filter `unified_fatigue.csv` to rows where `is_proxy=False`.  
-  – If filtered rows < 50, emit a warning and skip mediation (record `skip_mediation=True` in `results/mediation_summary.csv`).  
-  – For each material class (steel, aluminum) fit a mediation model: process parameters → residual stress (mediator) → fatigue life (outcome), adjusting for other covariates (`elastic_modulus`, `yield_strength`, etc.).  
-  – Perform 10 000 bootstrap resamples to estimate indirect effect, 95 % CI, and proportion mediated.  
-  – Apply Holm‑Bonferroni correction across material classes.  
-  – Save `results/mediation_summary.csv` with columns `material_class`, `indirect_effect`, `ci_lower`, `ci_upper`, `prop_mediated`, `p_corrected`.  
-  *Verification*: `tests/test_mediation.py` confirms that when ≥ 50 rows are present the CSV contains non‑null CI bounds and that corrected p‑values are ≤ 1; when < 50 rows, the CSV contains a single row with `skip_mediation=True`.
+- [ ] T002 **Ingest all raw files, harmonise units, median‑impute, compute proxy, and validate schema**   <!-- FAILED-IN-EXECUTION: code/ingest/ingest.py exit=1 -->
+  *Files*: `code/src/ingest.py`, `data/processed/unified_fatigue.csv`, `data/processed/missing_flags.json`, `logs/proxy_clamp.log`, `code/tests/test_ingest.py`  
+  *Actions*  
+  1. Load the bundled verification CSV, the synthetic CSV, and all external CSVs produced by T014. Verify each file’s SHA‑256 against `checksums.json`; raise on mismatch.  
+  2. Convert residual‑stress units using the `stress_unit` column (psi → MPa using `config.PSI_TO_MPA`).  
+  3. Median‑impute missing numeric columns; record original missingness in `missing_flags.json`.  
+  4. Compute the **linear proxy** for **all rows** as required by FR-003:  
+     `σ_res = k · heat_input · cooling_rate`  
+     (k = 0.8 for steel, 0.6 for aluminum).  
+     Populate `residual_stress_proxy`. Set `is_proxy = True` only when `residual_stress_measured` is missing.  
+  5. Clamp negative proxy values to `0.01 MPa` and log the count to `logs/proxy_clamp.log`.  
+  6. Add a per‑row SHA‑256 checksum column. Validate the full dataframe against `contracts/dataset_schema.yaml`; abort on failure.  
+  7. Write `data/processed/unified_fatigue.csv`.  
+  *Verification*: `pytest code/tests/test_ingest.py` asserts: (a) checksum verification, (b) correct MPa conversion, (c) linear proxy values match formula, (d) schema validation passes.
 
----
-
-## Phase 4 – Reporting, reproducibility, and handoff
-
-- [ ] T010 [P] [US3] **Generate final results report and figures**  
-  *File*: `code/report/generate_report.py`  
-  *Actions*:  
-  – Read all CSVs in `results/` (performance, paired_t_test, cross_material, mediation_summary).  
-  – Produce Matplotlib figures: (i) bar chart of MAPE per feature set, (ii) forest plot of mediation indirect effects, (iii) ΔMAPE cross‑material heatmap.  
-  – Save figures to `results/figures/`.  
-  – Write a Markdown summary `reports/report.md` that links to each table and figure, includes interpretation of SC‑001 – SC‑004, and notes any skipped mediation due to sample‑size limits.  
-  *Verification*: `tests/test_report.py` checks that `reports/report.md` exists, contains at least three figure links, and that each referenced CSV file is present.
-
-- [ ] T011 [P] [US2] **Reproducibility checklist and provenance validation**  
-  *File*: `code/utils/repro_check.py`  
-  *Actions*:  
-  – Verify that `SEED=42` is set in all scripts (`grep` for the constant).  
-  – Re‑compute checksums of raw files in `data/raw/` and compare to the `checksum` column in `unified_fatigue.csv`.  
-  – Parse `results/runtime_summary.csv` and assert that wall‑clock time ≤ 6 h and peak memory ≤ 7 GB (SC‑005).  
-  – Output a human‑readable `results/reproducibility_report.txt` summarizing pass/fail for each check.  
-  *Verification*: `tests/test_repro.py` asserts that the report contains the line `All reproducibility checks passed.` when limits are satisfied.
-
-- [ ] T012 [P] [US1] **Document full pipeline usage and paper‑stage handoff**  
-  *Files*: `README.md`, `quickstart.md`, `reports/paper_handoff.md`  
-  *Actions*:  
-  – `README.md` lists project overview, dataset URLs, and how to obtain raw data.  
-  – `quickstart.md` gives step‑by‑step commands: `bash run_small_ingest.sh`, `bash run_full_training.sh`, `python -m code.report.generate_report`.  
-  – `paper_handoff.md` enumerates the exact artifact locations required for downstream manuscript generation (e.g., `results/performance.csv`, `results/figures/`, `reports/report.md`) and cites the reproducibility report.  
-  *Verification*: Manual inspection test `tests/test_docs.py` ensures each of the three files exists and contains the expected section headers.
+- [ ] T003 **Compute proxy‑measured agreement and run a thin end‑to‑end pipeline**  
+  *Files*: `code/src/proxy_agreement.py`, `code/src/run_e2e.py`, `data/results/proxy_agreement.csv`, `data/results/e2e_summary.json`, `code/tests/test_e2e.py`  
+  *Actions*  
+  1. In `proxy_agreement.py`, compute Pearson *r* and *R²* between `residual_stress_measured` and `residual_stress_proxy` for overlapping rows. Write to `proxy_agreement.csv` with the caveat `"deterministic (linear) proxy – descriptive only"`.  
+  2. `run_e2e.py` orchestrates: **Env → Acquire → Synthetic → Ingest → Proxy‑agreement**. Wrap each phase in `timing.phase_timer`.  
+  3. Script exits 0 only if all phases succeed and unit tests pass.  
+  *Verification*: `pytest code/tests/test_e2e.py` checks that `e2e_summary.json` is produced and `runtime_summary.csv` is populated.
 
 ---
 
-## Dependencies and requirement coverage
+## Phase 3 – Feature construction, model training, and predictive comparison
 
-| Specification Requirement | Satisfying Task(s) |
-|---------------------------|--------------------|
-| FR‑001 (ingest public datasets) | T002 |
-| FR‑002 (median imputation & unit standardisation) | T002 |
-| FR‑003 (proxy calculation & flagging) | T002 |
-| FR‑004 (train three feature‑set models) | T005, T006 |
-| FR‑005 (5‑fold CV & held‑out test) | T005, T006 |
-| FR‑006 (bootstrap mediation, 10 k resamples) | T009 |
-| FR‑007 (report proportion mediated & CI) | T009 |
-| FR‑008 (paired t‑test on MAPEs) | T007 |
-| FR‑009 (stratified analysis by material class) | T009, T008 |
-| FR‑010 (fixed seeds) | T001, T005, T009, T011 |
-| FR‑011 (cross‑material transfer evaluation) | T008 |
-| FR‑012 (exclude proxy rows from mediation) | T009 |
-| SC‑001 – SC‑005 (measurable outcomes & compute limits) | T006, T009, T011 |
-| Constitution VII (≥10 % MAPE improvement) | T006, T013, T007 |
+- [ ] T004 [P] **Construct balanced Feature Set A & B (identical rows), B‑full, and Feature Set C**  
+  *Files*: `code/src/build_features.py`, `data/processed/balanced_measured.csv`, `data/processed/feature_set_A.csv`, `data/processed/feature_set_B.csv`, `data/processed/feature_set_B_full.csv`, `data/processed/feature_set_C.csv`, `code/tests/test_features.py`  
+  *Actions*  
+  1. Filter `unified_fatigue.csv` for `is_proxy == False` and down‑sample to balance steel and aluminum counts (`SEED=42`) → `balanced_measured.csv`.  
+  2. **Feature Set A**: Process parameters only from balanced subset.  
+  3. **Feature Set B**: Process parameters + measured stress from the same balanced subset (identical rows/order as Set A).  
+  4. **Feature Set B‑full**: Full dataset; use measured stress if available, otherwise proxy.  
+  5. **Feature Set C**: Full dataset; process parameters + material properties + stress (measured or proxy).  
+  6. Standardise numeric features and persist scalers under `code/models/scalers/`.  
+  *Verification*: `pytest code/tests/test_features.py` asserts identical row counts for A and B, and that B contains no proxy rows.
 
-All tasks are ordered to respect data dependencies: ingestion → feature construction → model training → performance verification → statistical evaluation → mediation → reporting. The early end‑to‑end run is provided by T003 (small‑subset ingestion) followed by T004‑T006 on the full data, guaranteeing an executable pipeline before any downstream statistical work.
+- [ ] T005 [P] **Train RF, GBM, and shallow NN with 5‑fold CV and held‑out test evaluation**  
+  *Files*: `code/src/train.py`, `data/results/model_performance.csv`, `code/models/<feature_set>/<algorithm>/`, `code/tests/test_train.py`  
+  *Actions*  
+  1. Define a 10‑combination hyper‑parameter grid for RF, GBM, and NN (1 hidden layer, ≤500 epochs).  
+  2. Perform 5‑fold CV stratified by `material_class` on balanced subset (Sets A, B) and full dataset (B-full, C).  
+  3. Select best combo by mean CV‑MAPE, retrain, and save models to `code/models/<feature_set>/<algorithm>/model.pt`.  
+  4. Split balanced measured subset into train (80%) / test (20%) (seed 42). Compute test MAPE & R²; write to `model_performance.csv`.  
+  5. Enforce hard limit of 3600 s for NN training.  
+  *Verification*: `pytest code/tests/test_train.py` checks for model existence and that NN training time ≤ 3600s.
+
+- [ ] T006 [P] **Statistical comparison of Set A vs Set B per material class (Constitution‑VII)**   <!-- FAILED-IN-EXECUTION: code/src/wilcoxon_compare.py exit=1 -->
+  *Files*: `code/src/wilcoxon_compare.py`, `data/results/wilcoxon_results.csv`, `code/tests/test_wilcoxon.py`  
+  *Actions*  
+  1. Compute absolute errors for Models A vs B on identical test rows (measured stress only).  
+  2. Run Wilcoxon signed‑rank test and paired t‑test per material class/algorithm. Apply Bonferroni correction (α = 0.05/3).  
+  3. Implement improvement‑claim gate: `improvement_claim_supported = True` only if (i) MAPE reduction ≥ 10% AND (ii) both Wilcoxon and t-test p‑values < 0.05.  
+  4. Write results to `wilcoxon_results.csv`.  
+  *Verification*: `pytest code/tests/test_wilcoxon.py` validates the boolean flag logic using a known-error fixture.
+
+- [ ] T007 [P] **Cross‑material transfer evaluation with permutation testing (FR‑009, FR‑011)**  
+  *Files*: `code/src/cross_material.py`, `data/results/cross_material.csv`, `code/tests/test_cross_material.py`  
+  *Actions*  
+  1. Train on steel, test on aluminum (and vice-versa) using best hyper-parameters.  
+  2. Compute `delta_mape = MAPE_other - MAPE_same`.  
+  3. Perform 10,000‑permutation test for `delta_mape` significance. Apply Holm‑Bonferroni correction.  
+  4. Write to `cross_material.csv`.  
+  *Verification*: `pytest code/tests/test_cross_material.py` checks for finite delta_mape and p-values in [0,1].
+
+---
+
+## Phase 4 – Mediation analysis
+
+- [ ] T008 **Power‑analysis validation and sample size check**  
+  *Files*: `code/src/power_analysis.py`, `data/results/mediation_validation.json`, `code/tests/test_power.py`  
+  *Actions*  
+  1. Compute required sample size for mediation (f² = 0.15, α = 0.05, power = 0.80) → ≈ 45.  
+  2. Count rows with `is_proxy == False` from real external sources.  
+  3. Produce `mediation_validation.json` recording `n_measured` and whether the sample size meets the ≥ 45 requirement.  
+  4. If `n_measured < 45`, the script must raise a `ValueError` indicating insufficient power for mediation, causing the pipeline to fail (fail-loud).  
+  *Verification*: `pytest code/tests/test_power.py` confirms that a fixture with < 45 measured rows raises a ValueError.
+
+- [ ] T009 **Bootstrap mediation analysis on the measured‑stress subset (FR‑006, FR‑007)**  
+  *Files*: `code/src/boot_mediation.py`, `data/results/mediation_summary.csv`, `figures/mediation_forest.png`, `code/tests/test_mediation.py`  
+  *Actions*  
+  1. Restrict to rows where `is_proxy == False` and `source` is a real external dataset.  
+  2. Define exposure `P = z(heat_input)·z(cooling_rate)`.  
+  3. Fit a‑path (P + controls → stress) and b‑path (stress + P + controls → fatigue life). Controls include elastic modulus, yield strength, and material class.  
+  4. Perform 10,000 bootstrap resamples (seed 42) to estimate indirect effect, direct effect, and proportion mediated. Compute 95% bias‑corrected CIs.  
+  5. Compute VIF for predictors; flag any VIF > 5 in `mediation_summary.csv`.  
+  6. Produce forest‑plot PNG (`figures/mediation_forest.png`) with the caption `"associational – no causal identification"`.  
+  *Verification*: `pytest code/tests/test_mediation.py` checks that the CSV contains finite CI bounds and the forest plot exists.
+
+---
+
+## Phase 5 – Reporting, reproducibility, and handoff
+
+- [ ] T010 **Generate all research figures**  
+  *Files*: `code/src/generate_figures.py`, `figures/mape_bar.png`, `figures/proxy_scatter.png`, `figures/cross_material.png`, `code/tests/test_figures.py`  
+  *Actions*  
+  1. Generate MAPE per feature set bar chart (`figures/mape_bar.png`).  
+  2. Generate proxy‑measured scatter plot with regression line (`figures/proxy_scatter.png`).  
+  3. Generate cross‑material ΔMAPE bar chart (`figures/cross_material.png`).  
+  *Verification*: `pytest code/tests/test_figures.py` asserts that all three PNG files exist and have non-zero size.
+
+- [ ] T010-1 **Synthesize consolidated results report**  
+  *Files*: `code/src/generate_report.py`, `paper/results_report.md`, `code/tests/test_report.py`  
+  *Actions*  
+  1. Aggregate all CSV/JSON artifacts into `paper/results_report.md`.  
+  2. Interpret SC‑001 – SC‑004 results, report the improvement‑claim gate result from T006, and discuss the linear proxy circularity caveat.  
+  3. Reference all figures from T010 and the mediation plot from T009.  
+  *Verification*: `pytest code/tests/test_report.py` asserts the markdown file exists and contains references to all generated figures.
+
+- [ ] T011 **End‑to‑end reproducibility verification (FR‑010, SC‑005)**  
+  *Files*: `code/src/repro_check.py`, `data/results/reproducibility_report.txt`, `code/tests/test_repro.py`  
+  *Actions*  
+  1. Re‑compute SHA‑256 checksums for all raw files and compare against `checksums.json`.  
+  2. Re‑run deterministic synthetic generator and confirm checksum match.  
+  3. Verify `config.SEED` is used in all stochastic steps.  
+  4. Confirm total wall‑clock ≤ 6 h and peak RAM ≤ 7 GB via `runtime_summary.csv`.  
+  5. Re‑execute `python -m code.src.run_e2e` and verify final artifacts are byte‑identical to originals.  
+  6. Write `reproducibility_report.txt` ending with `ALL CHECKS PASSED`.  
+  *Verification*: `pytest code/tests/test_repro.py` checks that the report contains `ALL CHECKS PASSED`.
+
+- [ ] T012 **Create paper‑stage handoff documentation**  
+  *Files*: `paper/paper_handoff.md`, `code/tests/test_handoff.py`  
+  *Actions*  
+  1. List every artifact required for manuscript preparation (CSVs, JSONs, figures, report).  
+  2. Provide the exact command to regenerate the full analysis and the location of `requirements.txt`.  
+  *Verification*: `pytest code/tests/test_handoff.py` asserts the file exists and all listed paths resolve.

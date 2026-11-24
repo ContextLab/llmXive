@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `task-format` (rejected 1x): Tasker must repair ambiguous task identities while preserving requirements. Malformed: []; duplicates: ['T054', 'T055', 'T056', 'T091', 'T091b', 'T091c', 'T116', 'T116_verify']
+- `T001` (rejected 1x): Requested task execution failed; rerun successfully: code/data/fetch_heas.py exit=1
 
 ## Required change
 

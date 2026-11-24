@@ -1,19 +1,9 @@
 status: none
-intent: GEO scRNA-seq T cell exhaustion datasets GSE136103 GSE127465 GSE111075 GSE138852
-  python package dataset
-required_fields:
-- cell_barcode
-- gene_symbol
-- raw_counts
-- mitochondrial_gene_flag
-- CD3D_expression
-- CD3E_expression
-- CD3G_expression
-- PDCD1_expression
-- LAG3_expression
-- TOX_expression
-- therapy_response
-- sample_id
-cache_key: 8293bae3bc9f8e71dc57fa8a25acb04aea214edd5d52efd684d0896dd8f1621b
-searched_at: '2026-10-10T15:51:23.756946+00:00'
+intent: "System MUST download and cache the raw count matrices for the four specified\
+  \ GEO datasets using or without requiring manual authentication. (See US-1) The\
+  \ verified\u2011datasets block indicates **no direct URLs** for the GEO series.\
+  \ Consequently, the downloader resolves URLs at runtime from the NCBI GEO "
+required_fields: []
+cache_key: 0131fc2d581a77de66469842018752535697302293c22653ee0267f3d55d0c4d
+searched_at: '2026-11-16T02:33:27.680682+00:00'
 retry_count: 1

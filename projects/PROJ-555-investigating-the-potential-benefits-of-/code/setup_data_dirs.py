@@ -1,59 +1,58 @@
-import os
+"""Setup required project directory hierarchy with .gitkeep placeholder files.
+
+This script creates the following directories (if they do not already exist):
+  - data/raw/landsat/
+  - data/processed/
+  - data/ecotourism/
+  - data/results/
+  - figures/
+
+An empty ``.gitkeep`` file is placed in each directory to ensure the
+directory is tracked by git even when it contains no other files.
+"""
+
 import logging
 from pathlib import Path
+
+# Project‑level utilities
 from config import ensure_directories
 from logging_config import setup_logging, get_logger
 
-def create_gitkeep(directory_path: Path) -> None:
-    """
-    Creates a .gitkeep file in the specified directory to ensure
-    the directory is tracked by git even if it is empty.
-    
-    Args:
-        directory_path: Path to the directory where .gitkeep should be created.
-    """
-    gitkeep_path = directory_path / ".gitkeep"
-    if not gitkeep_path.exists():
-        try:
-            # Create parent directories if they don't exist
-            directory_path.mkdir(parents=True, exist_ok=True)
-            # Create an empty .gitkeep file
-            gitkeep_path.touch()
-            logging.info(f"Created .gitkeep in {directory_path}")
-        except OSError as e:
-            logging.error(f"Failed to create .gitkeep in {directory_path}: {e}")
-            raise
+def create_gitkeep(directory: Path) -> None:
+    """Create an empty .gitkeep file inside *directory*."""
+    gitkeep_path = directory / ".gitkeep"
+    # ``touch`` with ``exist_ok`` ensures idempotency.
+    gitkeep_path.touch(exist_ok=True)
 
 def main() -> None:
-    """
-    Main entry point for setting up the data directory structure.
-    Creates required directories and initializes .gitkeep files.
-    """
-    logger = get_logger()
-    logger.info("Starting data directory setup...")
+    """Create required directories and populate them with .gitkeep files."""
+    # Initialise logging (writes to data/logs/pipeline.log by default)
+    setup_logging()
+    log: logging.Logger = get_logger(__name__)
 
-    # Define the required directory structure relative to project root
-    # Assuming standard project layout: data/raw/landsat, data/processed, data/ecotourism
-    base_data_dir = Path("data")
-    
-    directories_to_create = [
-        base_data_dir / "raw" / "landsat",
-        base_data_dir / "processed",
-        base_data_dir / "ecotourism"
+    # Ensure any generic project directories are present first.
+    # ``ensure_directories`` is defined in ``code/config.py`` and may
+    # create top‑level folders such as ``data/`` and ``figures/``.
+    try:
+        ensure_directories()
+    except Exception as exc:
+        log.error("ensure_directories failed: %s", exc)
+        raise
+
+    # Define the hierarchy relative to the repository root (current working dir).
+    root = Path.cwd()
+    required_dirs = [
+        root / "data" / "raw" / "landsat",
+        root / "data" / "processed",
+        root / "data" / "ecotourism",
+        root / "data" / "results",
+        root / "figures",
     ]
 
-    # Ensure base data directory exists
-    ensure_directories(str(base_data_dir))
-
-    for directory in directories_to_create:
-        try:
-            create_gitkeep(directory)
-        except Exception as e:
-            logger.error(f"Error creating directory structure for {directory}: {e}")
-            raise
-
-    logger.info("Data directory structure setup complete.")
+    for d in required_dirs:
+        d.mkdir(parents=True, exist_ok=True)
+        create_gitkeep(d)
+        log.info("Created directory and .gitkeep: %s", d)
 
 if __name__ == "__main__":
-    setup_logging()
     main()

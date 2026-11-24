@@ -1,16 +1,14 @@
 status: none
-intent: PhysioNet resting state EEG fatigue ratings PVT Stroop dataset python package
+intent: PhysioNet resting state EEG fatigue rating dataset with PVT python package
   dataset
 required_fields:
 - participant_id
 - eeg_signal
-- eeg_channels
 - sampling_rate
 - fatigue_rating_pre
 - fatigue_rating_post
-- rating_scale
-- timestamp
 - task_condition
-cache_key: b4e7a1b68c496396bcd30cdc06b3f88b89d317a440ebf96d9f76468f2ad3a361
-searched_at: '2026-09-24T19:27:57.099735+00:00'
+- timestamp
+cache_key: 2bfd569fc8bf6ec83ba44556b59b2aa6991452dd33523a75d047c1c7511c56ae
+searched_at: '2026-10-14T16:34:44.892470+00:00'
 retry_count: 1

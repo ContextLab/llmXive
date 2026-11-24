@@ -1,74 +1,46 @@
-T071:
+T001:
+  c: true
+  h: 88eddb15f65b8ceab203251463f6e4c88997e692d32ada27637f2833efffbea0
+  r: "Checked `code/services/generator.py` (deterministic implementation with depth\
+    \ distribution), the generated `data/raw/workflows.json` (log shows 500 entries\
+    \ written), the execution log confirming a successful run with `--n 500 --seed\
+    \ 42`, and the passing unit test `tests/unit/test_generator_distribution.py` that\
+    \ validates count and depth constraints. All artifacts exist, are non\u2011empty,\
+    \ and meet the specified requirements."
+  sig: 0c02d877c377ea440a32da4f79098645e7dc38083f747612ce00c77e7b8d34c9
+T002:
+  c: true
+  h: d7fe99127adbea9ac7d55ee043afeb0506c5289e2149fc06dc1dc4f872c30131
+  r: "Checked `code/models/policy.py` for a pure\u2011Python `OraclePolicyEngine`\
+    \ implementation, `tests/unit/test_oracle.py` for the required budget\u2011cap\
+    \ test, and the recorded pytest run showing both tests passed. All required artifacts\
+    \ exist and behave as specified."
+  sig: a9d8f7bdcdd132ef5ee5061e0de53e521fafea2626dc5f3d615b10fb28dbb8d9
+T003:
+  c: true
+  h: fbe2acea3404f1fc14687c9b703282555ecc8ae9d9b16d131e2e7f947a198794
+  r: The `code/lib/utils.py` file defines a `count_tokens` function that uses `tiktoken.get_encoding("cl100k_base")`
+    to count tokens, and the unit test `tests/unit/test_tokenizer.py` asserts that
+    `"Hello world"` returns 2 tokens. The provided pytest log shows the test ran and
+    passed, confirming correct implementation.
+  sig: 48ebad3b5b88006fdaf59d0d8f504a2d61ca5cb9a77b10b92fe9921da8b3159e
+T005:
+  c: true
+  h: 3a994fd0c72939395f571cbf1310491671836160548b1f401c2274e4b9cb45c5
+  r: "Checked `code/services/executor_compressed.py` for depth\u2011limited extraction,\
+    \ tokenizer use, edge\u2011case handling, and output writing, and verified the\
+    \ generated `data/processed/compressed_context_logs.json` contains the required\
+    \ fields with `context_reduction_pct` set to `\"[deferred]\"` for the single\u2011\
+    node edge cases and that the script runs successfully via the logged command."
+  sig: 7a70d383b20e76e8293d5fe30f4a24de47b9a7b7054b5c60436cb5833cae2071
+T006:
   c: false
-  h: a35cfc2d90d45431e1c366e61923a7b47c44b27195439e6dc6d36e838512c047
-  r: "The only artifact provided is `data/results/reproducibility_report.json`; there\
-    \ is no `README.md` file or any evidence that it contains the required \u201C\
-    Reproducibility and Verification\u201D section describing the pipeline command,\
-    \ checksum verification, interpretation of the JSON report, or instructions for\
-    \ running the invalid\u2011exclusion check (T067). The task\u2019s core deliverable\
-    \ is missing."
-T072a:
-  c: false
-  h: e62edcdd97c5962b5a1aa6dad19ac93cdcb172f7268687ef608120eba0e237c1
-  r: "The provided `code/main.py` is just a placeholder comment and does not contain\
-    \ the pipeline implementation, and `run_metrics.json` records a zero\u2011second\
-    \ duration with no real execution evidence. There are no pytest or schema\u2011\
-    validation logs, nor any proof that the full workflow was actually run or that\
-    \ it stayed within the 6\u2011hour limit. The required artifacts and genuine run\
-    \ data are missing."
-T072c:
-  c: false
-  h: 94bfbb7e595b4a439fb14061e49e24c7e5f51784dc5d2d74668dfd2d78a41b2e
-  r: "The handoff markdown exists, but the referenced figure (`figures/tradeoff_curve.png`)\
-    \ and table (`data/results/tradeoff_curve.csv`) are not present in the provided\
-    \ evidence, nor is there any proof that the reproduced SHA\u2011256 hash matches\
-    \ the hash produced by task\u202FT051. Without those linked artifacts and verification\
-    \ of the reproducibility hash, the handoff note does not fully satisfy the task\
-    \ requirements."
-  sig: e21717d8338bda22c1a426da88a61005b5f348f660e9e8230f492e4f8ebea2ee
-T077:
-  c: false
-  h: 99870899dedff45f20f0d92d185fdbf364bfe314a21a09d9e289510e53022a30
-  r: The claim includes a detailed `docs/adaptive_sampling.md`, but there is no evidence
-    that `services/generator.py` was actually extended (no file shown, no code diff,
-    no execution output demonstrating the `--adaptive` flag or the adaptive depth
-    distribution). Without the modified generator code and proof that it produces
-    the required densified depth distribution, the task is not satisfied.
-T078:
-  c: false
-  h: a0b99fa6085c8132dfae32afb989be6d87a0241d5bcb95176b857b557308ae8e
-  r: The schema file exists and matches the required columns, but `code/main.py` contains
-    only a placeholder comment and does not implement CSV validation, and the required
-    `data/results/tradeoff_curve.csv` file is absent. Both the validation logic and
-    the CSV artifact need to be added.
-T079:
-  c: false
-  h: a90e5b214049c25396feaead2094043d5f2bf8c413f34aac27b7d2554d59c076
-  r: "The repository contains a `src/` mirror with the required sub\u2011directories\
-    \ and a `code/__init__.py` shim that adds `src/` to the package path, but there\
-    \ is no provided evidence that the external plan documentation was updated to\
-    \ reflect the new `src/` layout. Without that artifact, the task is not fully\
-    \ satisfied."
-T080:
-  c: false
-  h: e1f4e64c1af7c60e9fe49b93f66ca596a29152f7b9a8f5526db84f941b07e960
-  r: "The required file `code/lib/utils.py` is missing, so the docstring cannot be\
-    \ updated and there is no evidence that any references to the tokenizer model\
-    \ were corrected. The task\u2019s primary artifact does not exist."
-T081:
-  c: false
-  h: bf616adafedf4bfed69abd8d5b37bfc4d666a6b760a70418f73683357e4bc5ae
-  r: "The required file `services/executor.py` does not exist; the implementation\
-    \ is placed at `code/services/executor.py`, so the task\u2019s specified path\
-    \ is missing. Consequently the integration is not located where the specification\
-    \ demands."
-  sig: 5717d3bd9ea93a822c78f5f19445ccb43c2170128ec91a35530a7e7ec58a43e3
-T082:
-  c: false
-  h: 2ff95e31804b460560d332dda1e4c03dd3a0366e30e92d24319e237c8845e7ee
-  r: "The evidence does not include a `services/analyzer.py` file (or any diff showing\
-    \ a new verification step) that checks the safe\u2011operating\u2011zone threshold\
-    \ and aborts the pipeline when the policy\u2011violation error rate exceeds\u202F\
-    1\u202F%. Without this concrete implementation or test output, the task\u2019\
-    s requirement is not satisfied."
-  sig: b01923292ec9a5ad008d7eac92702293002da3e6d9ecc7e100e5eee364f6a09b
+  h: c62602816d27d4f96689d191a7f8d817647d3b30e34b7cd37109fdff0096f140
+  r: "The provided `code/utils/step_expander.py` correctly reads both log files and\
+    \ writes `data/processed/step_outcomes.json` with the required fields and the\
+    \ `exclude_from_regression` flag, and the JSON file contains 10 records. However,\
+    \ there is no evidence of a dedicated `StepOutcome` model (e.g., a Pydantic or\
+    \ dataclass definition) as required by FR\u2011005, and the repository contains\
+    \ no such model file. Adding the missing model definition will satisfy the full\
+    \ task specification."
+  sig: 92c23ea2bdbafe01cf527763577e9714bb42bbbc16056e8101e79933c1c271c0

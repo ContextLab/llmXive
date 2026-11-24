@@ -33,14 +33,6 @@ STATE_DIR = _PROJECT_ROOT / "state"
 SPECS_DIR = _PROJECT_ROOT / "specs"
 CODE_DIR = _PROJECT_ROOT / "code"
 
-# Ensure directories exist (optional, can be handled by setup scripts)
-# os.makedirs(DATA_RAW, exist_ok=True)
-# os.makedirs(DATA_PROCESSED, exist_ok=True)
-# os.makedirs(RESULTS_DIR, exist_ok=True)
-# os.makedirs(RESULTS_FIGURES, exist_ok=True)
-# os.makedirs(LOGS_DIR, exist_ok=True)
-# os.makedirs(STATE_DIR, exist_ok=True)
-
 # ============================================================================
 # RANDOM SEEDS (Reproducibility)
 # ============================================================================
@@ -128,9 +120,13 @@ LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 # ============================================================================
 # IllustrisTNG API Base URL
 ILLUSTRIS_API_BASE = "https://www.tng-project.org/api"
-# Millennium data is typically from the Virgo consortium; no public API for full catalogs,
-# so we rely on the synthetic generator or local files if available.
-MILLENNIUM_DATA_SOURCE = "local"  # Placeholder for future local path or URL
+# Placeholder for Millennium API base (real endpoint not publicly available)
+MILLENNIUM_API_BASE = "https://example.com/millennium"
+# API token for IllustrisTNG (empty by default; can be set via env var)
+ILLUSTRIS_TOKEN = os.getenv("ILLUSTRIS_TOKEN", "")
+
+# Paths used by the synthetic fallback
+SYNTHETIC_OUTPUT_PATH = str(DATA_RAW / "synthetic_halos.h5")
 
 # ============================================================================
 # HELPER FUNCTIONS (Optional but useful)
@@ -158,6 +154,18 @@ def get_simulation_box_size(simulation_name: str) -> float:
         return BOX_SIZE
 
 # ============================================================================
+# COMPATIBILITY CONSTANTS FOR TESTS
+# ============================================================================
+# These names are expected by the integration test suite.
+SIMULATION_BOX_SIZE = BOX_SIZE
+MIN_PARTICLES = MIN_PARTICLE_COUNT
+SEED = RANDOM_SEED
+DATA_RAW_DIR = str(DATA_RAW)
+DATA_PROCESSED_DIR = str(DATA_PROCESSED)
+RESULTS_DIR = str(RESULTS_DIR)
+HALO_SCHEMA_PATH = str(Path(__file__).resolve().parent / "contracts" / "halo.schema.yaml")
+
+# ============================================================================
 # EXPORTED NAMES
 # ============================================================================
 __all__ = [
@@ -170,5 +178,9 @@ __all__ = [
     "LOG_LEVEL", "LOG_FORMAT",
     "DATA_DIR", "DATA_RAW", "DATA_PROCESSED", "RESULTS_DIR", "RESULTS_FIGURES",
     "LOGS_DIR", "STATE_DIR", "SPECS_DIR", "CODE_DIR",
-    "get_rho_critical_at_z", "get_simulation_box_size"
+    "get_rho_critical_at_z", "get_simulation_box_size",
+    # Compatibility aliases
+    "SIMULATION_BOX_SIZE", "MIN_PARTICLES", "SEED",
+    "DATA_RAW_DIR", "DATA_PROCESSED_DIR", "RESULTS_DIR",
+    "HALO_SCHEMA_PATH"
 ]

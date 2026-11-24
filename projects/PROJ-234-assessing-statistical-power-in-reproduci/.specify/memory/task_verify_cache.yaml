@@ -1,106 +1,32 @@
-T010b:
+T002:
+  c: true
+  h: 13009cbf6bbbe9e79673652dc8abd07a011767bde1c244cbe28b6fa24225b131
+  r: 'Both artifacts exist at the project root with the exact required content: `requirements.txt`
+    contains all eight pinned packages from the spec (plus openml), and `config.yaml`
+    contains `limits.max_runtime_hours: 6` and `limits.max_memory_gb: 7`, which `yaml.safe_load`
+    would parse into the required dict structure. No execution evidence of the pip
+    dry-run was provided, but the file contents match the task''s stated deliverables
+    exactly.'
+  sig: 241b1fb1024a97cc9b36294f94ceb892da376eea69fb127837ae577536a03ac3
+T003:
+  c: true
+  h: aa094afe95d1b18d283f51d2a35551726ae8072238efa0838eaf7a3dd3812ef0
+  r: "Checked the four schema files in `contracts/` (dataset_metadata.schema.yaml,\
+    \ power_audit_result.schema.yaml, extracted_params.schema.yaml, report.schema.yaml)\
+    \ and the execution log `code/.tasks/T003.code_verify_contracts.py.log`, which\
+    \ shows each file parsed with `yaml.safe_load` and passed `jsonschema.Draft7Validator`\
+    \ against a minimal instance. All required artifacts exist, are non\u2011empty,\
+    \ and meet the verification criteria."
+  sig: 25381a5d833cc23c614d5682172b137d91cc050dfd193066b1a7a09a3cd01dd7
+T005:
   c: false
-  h: 37722074178da2410bf730db60663515858240af91abfaeba78ee7309133cc07
-  r: The test `test_dataset_metadata_schema` exists, but the required artifacts `data/raw/openml_metadata_filtered.json`
-    and the schema file `contracts/dataset_metadata.schema.yaml` are missing, so the
-    contract validation cannot be performed.
-T015:
-  c: false
-  h: 4a47fe0244967c92bb0cc1489b8752ff218e8cba810215ff6ce3702061250a7e
-  r: The required artifact `data/ingest.log` does not exist, so no JSON extraction
-    statistics are logged as specified. The implementer must create the `data/ingest.log`
-    file with the appropriate JSON content.
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test, or documentation was provided that shows a check for duplicate\
-    \ IDs and the raising of a `ValueError` when any remain after resolution. The\
-    \ required artifact (implementation of the duplicate\u2011ID validation logic)\
-    \ is missing, so the task is not satisfied."
-T021:
-  c: false
-  h: 40efad785569eb38931520f38b48bb1c83b0de1750e2351146f8313d6f8a48db
-  r: "The `code/02_parse_publications.py` file is truncated and does not contain the\
-    \ logic to iterate over the raw JSON, invoke the full\u2011text fetch, parse results,\
-    \ and write them to `data/processed/extracted_params.json`. Moreover, the required\
-    \ output file `data/processed/extracted_params.json` is absent. The implementation\
-    \ therefore does not fulfill the task\u2019s requirements."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or unit\u2011test files were provided that demonstrate fetching\
-    \ the full\u2011text with `requests.get`, invoking `oa_checker.is_open_access`,\
-    \ handling the paywalled case, or a mock\u2011based test verifying this behavior.\
-    \ The required artifacts are missing, so the task is not satisfied."
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation was provided showing that a DOI metadata API\
-    \ fallback is attempted when full\u2011text fetch fails, that the abstract is\
-    \ parsed with the same regexes, or that the source field is set to `\"abstract\"\
-    `. The required implementation artifact is missing."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission contains only the task description and specification excerpts;
-    there is no code, JSON output, or log evidence showing that entries lacking extractable
-    metrics are marked `"unparseable"` and that a warning is logged without crashing.
-    The required artifact (implementation handling the edge case) is missing.
-T026:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., a JSON/CSV file, database dump, or code that writes extracted
-    records) was provided, and there is no evidence that the system actually saves
-    each extracted record with the required fields. The implementer only supplied
-    a feature specification without any concrete output.
-T029:
-  c: false
-  h: dc2f7f8d3d0d4a83e8e217169816c617b99c3ec570d5f4f20474ed1e20104bb4
-  r: The required unit test file `tests/unit/test_sensitivity.py` is missing from
-    the repository, so no test code or results exist to verify the expected observed
-    power and MDES values. Without the test artifact, the claim cannot be validated.
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or test output was provided that shows entries with `metric_type\
-    \ \"F\"` are converted to Cohen\u2019s\u202Fd, that power values are clamped to\
-    \ \u2264\u202F1.0, or that a warning is logged. The required implementation artifact\
-    \ is missing."
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `audit_report.md` file or its contents were provided, and there is no evidence
-    that a mandatory disclaimer was appended to the end of such a file. The required
-    artifact is missing, so the task is not satisfied.
-T037:
-  c: false
-  h: dc67c1d14774336c9370312d7fb1b48f8587d8fb1035f71c0ca52f9a07b22ef4
-  r: "The required file `data/processed/audit_report.md` does not exist, so the final\
-    \ audit report was not assembled as specified. The task\u2019s primary deliverable\
-    \ is missing."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No refactored files or commit changes are present in the `code/utils/` directory;
-    the implementer provided only a feature specification unrelated to the refactoring
-    task, leaving the required code artifacts missing.
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data files, JSON outputs, or audit report were supplied; the implementer
-    provided only the task description without any of the required artifacts (e.g.,
-    data ingestion script, parsing results, power calculations, or generated report).
-    Consequently, the claim that the performance harness has been run cannot be verified.
-T043:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `audit_report.md` file or any logs/evidence of a successful pipeline run are
-    present; without these artifacts the claim that the full pipeline executed without
-    error cannot be verified. The required output is missing.
-T044:
-  c: false
-  h: 972599fb4c5febe875a4f7f304d39c2ed064c3a99386988dfe1bccfaaef9ab98
-  r: "The required `config.yaml` file is absent, so the limit cannot be read from\
-    \ it, and no evidence of a memory\u2011profiling implementation or enforcement\
-    \ logic is provided. Without the configuration file (or a default fallback) and\
-    \ the corresponding code, the task\u2019s requirement is not met."
+  h: c5c5425a0e89b8711c01dfb92891c964e15a6f05eb3f2aeec1f6fc273dd0f474
+  r: "The ingestion script does not use the provided `api_client` wrapper, filters\
+    \ incorrectly (keeps only entries with a non\u2011null `url` which none of the\
+    \ raw records have, resulting in an empty filtered list), and writes an empty\
+    \ `data/processed/filtered_datasets.json` that does not conform to `contracts/dataset_metadata.schema.yaml`.\
+    \ Moreover, the required test `tests/unit/test_dataset_metadata_schema.py` is\
+    \ missing, so the verification step cannot be performed. The script must be revised\
+    \ to call `utils.api_client.fetch_top_classification_datasets`, correctly filter\
+    \ on `publication_link` or `task_"
+  sig: e297828babb1b0986564444c796d1076174d0ef3c860fda09b0fb87b3a4b0cf3

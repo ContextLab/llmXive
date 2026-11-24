@@ -22,6 +22,7 @@ properties:
       source_app:
         type: "string"
         description: "App name from metadata."
+    # metadata is optional; missing fields will not cause validation failure
   triples:
     type: "array"
     items:
@@ -57,6 +58,6 @@ properties:
           description: "Trajectory status filter."
     description: "List of valid training triples."
 required:
-  - "metadata"
-  - "triples"
+  - metadata
+  - triples
 additionalProperties: false

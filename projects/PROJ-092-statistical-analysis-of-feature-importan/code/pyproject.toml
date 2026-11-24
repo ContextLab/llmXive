@@ -1,36 +1,68 @@
+# Tooling configuration for the Feature Importance Drift Analysis project.
+# Covers formatting (black, isort) and static analysis (pylint).
+# Run from the code/ directory, e.g.:
+#   black .
+#   isort .
+#   pylint --rcfile=pyproject.toml preprocess.py
+
 [tool.black]
-line-length = 88
-target-version = ['py311']
+line-length = 100
+target-version = ["py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.venv
+  | venv
+  | __pycache__
+  | \.git
+  | data
+  | outputs
+  | figures
 )/
 '''
 
 [tool.isort]
 profile = "black"
-line_length = 88
-skip_gitignore = true
+line_length = 100
+known_first_party = [
+    "download",
+    "preprocess",
+    "train_and_importance",
+    "drift_analysis",
+    "significance_test",
+    "null_baseline",
+    "generate_final_report",
+    "main",
+    "utils",
+]
+skip_glob = ["**/.venv/*", "**/venv/*", "data/*", "outputs/*"]
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.pylint.master]
+py-version = "3.11"
+ignore-paths = [
+    ".venv",
+    "venv",
+    "data",
+    "outputs",
+    "figures",
+]
+load-plugins = []
 
 [tool.pylint.messages_control]
 disable = [
-    "C0114",
-    "C0115",
-    "C0116",
-    "R0903",
-    "R0913",
-    "R0914",
-    "W0511",
+    "missing-docstring",
+    "too-few-public-methods",
+    "too-many-locals",
+    "too-many-arguments",
+    "duplicate-code",
+    "fixme",
 ]
 
-[tool.pylint.format]
-max-line-length = 88
+[tool.pylint.basic]
+good-names = ["df", "X", "y", "e", "f", "i", "j", "k", "ok"]
+
+[tool.pylint.design]
+max-args = 10

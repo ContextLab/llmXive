@@ -1,7 +1,0 @@
-T049:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pre\u2011commit configuration or script is present in the provided evidence;\
-    \ the claim that a hook checking for large file uploads or inefficient imports\
-    \ has been added cannot be verified. The required artifact (e.g., a `.pre-commit-config.yaml`\
-    \ entry or custom hook script) is missing."

@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExecutionResultContract"
+type: object
+required:
+  - seed
+  - task_id
+  - condition
+  - k
+  - success
+  - error_type
+  - retrieved_ids
+  - false_positive
+  - execution_time_sec
+properties:
+  seed:
+    type: integer
+    minimum: 0
+    maximum: 4
+    description: "Random seed used for this run (0‑4)."
+  task_id:
+    type: string
+    description: "Identifier of the task (must match an entry in synthetic_tasks.json)."
+  condition:
+    type: string
+    enum: ["baseline", "augmented"]
+    description: "Whether the run used retrieval augmentation."
+  k:
+    type: [integer, "null"]
+    description: "Top‑k retrieval size; null for baseline condition."
+  success:
+    type: boolean
+    description: "True if the agent's command passed the task's validation script."
+  error_type:
+    type: string
+    enum: ["none", "syntax_error", "wrong_command", "infinite_loop", "timeout", "other"]
+    description: "Categorical failure mode; 'none' when success is true."
+  retrieved_ids:
+    type: array
+    items:
+      type: string
+    description: "List of MemoryEntry IDs returned by the retrieval step; empty list if no hits."
+  false_positive:
+    type: boolean
+    description: "True if any retrieved entry is not marked relevant for the task in relevance_map.json."
+  execution_time_sec:
+    type: number
+    minimum: 0
+    description: "Wall‑clock time taken for the agent to produce and execute the command (seconds)."
+description: "Contract ensuring each execution result JSON entry conforms to the schema required for downstream statistical analysis."

@@ -7,3 +7,6 @@ pytest>=7.4
 statsmodels>=0.14
 pyyaml>=6.0
 jsonschema>=4.19
+h5py>=3.10
+# Additional dependencies required for the project
+# Ensure these packages are installed for full functionality.

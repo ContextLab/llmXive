@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2411.08140",
+  "judged_at": "2026-10-21T19:11:03Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "virtual reality exposure therapy for anxiety: a meta-analysis psychology",
+  "rationale": "The paper concerns the core mechanism underlying exposure therapy for anxiety — fear extinction, extinction recall, and relapse — which is the treatment mechanism the user's VRET meta-analysis question rests on (category a). It is a computational model rather than a VR trial, but it directly addresses improving exposure therapy outcomes and would be relevant prior work on the mechanism of exposure-based anxiety treatment.",
+  "relevant": true
+}

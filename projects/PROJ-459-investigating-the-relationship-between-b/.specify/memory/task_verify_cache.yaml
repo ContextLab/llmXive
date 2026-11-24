@@ -9,20 +9,32 @@ T001:
   sig: 3f171c92e99ead34baba4297d512baa2ec9d0b2e777bfd2757603b76967311f9
 T002:
   c: true
-  h: 9e46fad8985517956570768823f0e735e80cdc7be17e5ae546f64d91caa9927e
-  r: "The `requirements.txt` file was found at `projects/PROJ-459-investigating-the-relationship-between-b/requirements.txt`\
-    \ (141\u202Fbytes) and contains exactly the pinned package versions specified\
-    \ in the task. Its content matches the required list with no missing or extra\
-    \ entries."
-  sig: 3d8a2e335c2aa6829a73d958783618ceefcd40dc8f8b48d621b31b860098f1fb
+  h: 755f4ca42c1ae5827e5e0f74a4b086f3ae9cb55d172559fa8fea769a108f8db2
+  r: The `requirements.txt` exists at the project root and contains all nine required
+    pinned packages with exactly the specified versions (nibabel==5.2.0, networkx==3.2.1,
+    scikit-learn==1.3.2, pandas==2.1.4, numpy==1.26.2, scipy==1.11.4, pyyaml==6.0.1,
+    pytest==7.4.3, statsmodels==0.14.0). The extra pyarrow==15.0.0 entry is an additional
+    pinned dependency and does not conflict with the task's requirements.
+  sig: fdfc57e81bb486261805d444ea9d185e9e4e37be4da201994235be9f02dcd19c
+T003:
+  c: false
+  h: 492f03c5d1040dfc622faf46aaf53f1a2205d5dca3f36f597b5211879f0930a8
+  r: The `pyproject.toml` exists with a valid `[tool.black]` config, but the required
+    `.flake8` file is absent from the project root (not listed in artifacts or the
+    `code/` directory listing), so the flake8 half of the task is unconfigured. Additionally,
+    there is no execution evidence that `black --check .` or `flake8 code/` were run
+    and passed.
+  sig: fd7deb7c5f3ede51894d2a61913877b034cd3676e7b17f163be9a65984120ce8
 T004:
   c: true
-  h: 97421089555ee92bc6157f02bb5c3e7cf23029e9ea73cdc8cc78b7265417dfbe
-  r: "Checked `code/config.py` (8136\u202Fbytes) which defines directory paths, hyperparameters\
-    \ with `window_sizes` (20,\u202F30,\u202F40\u202FTRs), includes both dataset IDs\
-    \ `ds000030` and `ds000208`, and provides functions `set_active_dataset_id` and\
-    \ `switch_dataset_on_failure` to change the active dataset when validation fails."
-  sig: 55b35dc3c5c02518fa2d344c488ffa93b3320900d38b802083cd23658e669c4f
+  h: e19f8b612789ea05aadfbd11ec0ba70f55825a5603abaa7da8f464215b0ffdce
+  r: '`code/config.py` exists (11.6 KB) and contains all required elements: project
+    paths (DIRS with data/processed/derived/figures/state), hyperparameters (window_sizes
+    [20,30,40] TRs, step 5, TR_DEFAULT=2.0), both dataset IDs (ds000030, ds000208),
+    and a working switch mechanism (`switch_dataset_on_failure`, `set_active_dataset_id`,
+    `DatasetConfig.register_validation_failure`) that deactivates a failed dataset
+    and falls back to the remaining one. No stubs or placeholders.'
+  sig: 2fc1d81caf67226f09e9ef5a41ee7008d3a117605e321cfa2b1965c70be87b58
 T005:
   c: true
   h: 3bbdcd79af447af5a84846b85c174c3af1f982d19f27101b0c5aed9db78aebd6
@@ -33,13 +45,14 @@ T005:
     \ functions are fully implemented and non\u2011placeholder."
   sig: 3a97c53037c8cb2f6a11f610d21dcdb1751b073982359219dd5c9da2a92f6bff
 T006:
-  c: true
-  h: 794e8bef2168423c36963c8187a559a447c0f577473183a31933259312c1a6c8
-  r: "Checked the provided `code/utils/io.py` (4792\u202Fbytes) and confirmed that\
-    \ it defines the three required functions\u2014`compute_checksum()`, `save_parquet()`,\
-    \ and `load_json()`\u2014with correct signatures and functional implementations\
-    \ that meet the specification."
-  sig: c6b98b8f660109592f91698e77bd8ce3162178cc7acd38d99070aae12ed4cab3
+  c: false
+  h: 79324c860cbd065f98725bc9a5983e146deb36fe7f27efeccb867d6d1d02618d
+  r: The file `code/utils/io.py` exists and implements `save_parquet()` and `load_json()`,
+    but the required `compute_checksum()` function is entirely absent (the module
+    instead adds unrequested `load_parquet`/`save_json` helpers). The next implementer
+    must add a real `compute_checksum()` (e.g., SHA-256 over file contents) to satisfy
+    the task's stated API.
+  sig: 408482ed67667133f5d66e6d6b24d52b9bae3cea553498574b15d4361a87ca63
 T007:
   c: true
   h: cd7167d2ca4c0784cbd8d35859e328aafd5c59dd3174c04493ba3a38a27001ed
@@ -48,3 +61,21 @@ T007:
     \ `CorrelationResult`, and `SensitivityReport` \u2013 with appropriate fields\
     \ and validation, matching the task specification."
   sig: f5782427653cb605f681f33806e63bcfb968c4a03c39d7af3cec744615dfe74f
+T008:
+  c: true
+  h: 775a72075c4352cee9b9f0efe7a964814f682aac3622270251d5f82dafd1d61b
+  r: "The file `code/utils/docker.py` exists (2579 bytes) and implements both required\
+    \ functions: `validate_docker_daemon()` (runs `docker info`, returns bool) and\
+    \ `check_fmriprep_image()` (checks for `fmriprep/fmriprep:latest` via `docker\
+    \ images -q`, returns bool), plus a reasonable `validate_environment()` convenience\
+    \ wrapper \u2014 real subprocess-based implementations, not stubs or placeholders."
+  sig: 7c12877a8a3659dbda511517d4919279cae26d8c17bc7a5253fae0c6078fea9e
+T009:
+  c: false
+  h: af45879fe20e12bb9765ad3f567ef731bc1c832e58b5afdfa07e6f56528a95ef
+  r: "`code/config.py` does contain a real `check_memory_limit()` implementation,\
+    \ but `code/utils/io.py` contains no `monitor_runtime_and_warn()` function at\
+    \ all \u2014 it only has parquet/JSON helpers \u2014 so half of the task's required\
+    \ deliverable is missing. Additionally, the recorded test run for `tests/unit/test_config.py`\
+    \ failed (1 failed, 8 passed), so the config changes are not verified as working."
+  sig: f6ecbd0362d8db32fdb111499fa13b1dda37566de4f6a44f429228e9ba39630b

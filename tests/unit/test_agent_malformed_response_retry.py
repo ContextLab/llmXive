@@ -31,9 +31,7 @@ def _entry() -> AgentRegistryEntry:
         purpose="exercise the malformed-response retry loop",
         prompt_path="agents/prompts/research_reviewer.md",
         prompt_version="1.0.0",
-        default_backend="dartmouth",
-        fallback_backends=[],
-        default_model="qwen.qwen3.5-122b",
+        profile="deep_review",
         wall_clock_budget_seconds=60,
         paid_opt_in=False,
     )

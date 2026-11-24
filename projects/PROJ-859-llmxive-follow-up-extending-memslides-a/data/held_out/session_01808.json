@@ -1,0 +1,106 @@
+{
+  "trace_id": "held_out_43_01808",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "insert_text",
+    "insert_text",
+    "resize_element",
+    "format_text",
+    "delete_element",
+    "update_layout",
+    "update_layout",
+    "insert_chart",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 94.5839,
+        "y": 97.5041,
+        "length": 20.2363
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 95.097,
+        "y": 33.7028,
+        "length": 0.5813
+      }
+    },
+    {
+      "step": 2,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 68.5443,
+        "height": 59.9076
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 11.5989,
+        "x": 53.3521,
+        "y": 18.6752
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 67.5574
+      }
+    },
+    {
+      "step": 5,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 88.9122,
+        "padding": 27.4614
+      }
+    },
+    {
+      "step": 6,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 26.6838,
+        "padding": 92.2136
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 41.743,
+        "y": 77.5982,
+        "width": 98.0041,
+        "height": 26.0575
+      }
+    },
+    {
+      "step": 8,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 45.8873,
+        "height": 43.5832
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.735126,
+    "tool_repetition_freq": 0.333333,
+    "arg_semantic_variance": 947.208635
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 5,
+    "layout_hash": "43-1808-insert_text"
+  },
+  "variance_multiplier": 1.5
+}

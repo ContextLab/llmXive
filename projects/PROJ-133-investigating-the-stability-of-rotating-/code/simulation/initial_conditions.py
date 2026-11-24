@@ -1,180 +1,134 @@
-"""
-Initial condition generators for GPE simulations.
+"""Initial‑condition generators for the GPE solver.
 
-Provides functions to create Thomas-Fermi initial conditions
-for rotating Bose-Einstein condensates.
+The module provides functions to create Thomas‑Fermi and Gaussian
+condensate profiles, both of which are fully documented.
 """
-import numpy as np
-from typing import Tuple, Optional
+
 import os
+import numpy as np
+from typing import Optional, Tuple
 
 from utils.logger import get_logger
 from utils.seed_manager import get_global_seed
 
-logger = get_logger(__name__)
+_log = get_logger(__name__)
 
 def create_thomas_fermi_initial_condition(
-    Nx: int, Ny: int, 
-    x: np.ndarray, y: np.ndarray,
-    N: int, 
-    omega_trap: float, 
+    Nx: int,
+    Ny: int,
+    x: np.ndarray,
+    y: np.ndarray,
+    N: int,
+    omega_trap: float,
     a_s: float,
     rotation: float = 0.0,
-    seed: Optional[int] = None
+    seed: Optional[int] = None,
 ) -> np.ndarray:
-    """
-    Create a Thomas-Fermi initial condition for the GPE.
-    
-    The Thomas-Fermi approximation gives the density profile:
-    n(r) = (μ - V(r)) / g  for μ > V(r), else 0
-    
-    where:
-    - μ is the chemical potential
-    - V(r) is the trap potential
-    - g is the interaction strength
-    
-    For a rotating BEC, we add a phase factor exp(i*m*φ) to represent
-    vortices, but for the initial condition without vortices, we use
-    a simple Gaussian or Thomas-Fermi profile.
-    
-    Args:
-        Nx, Ny: Grid dimensions
-        x, y: 1D coordinate arrays
-        N: Number of atoms
-        omega_trap: Trap frequency (rad/s)
-        a_s: s-wave scattering length (m)
-        rotation: Rotation frequency (rad/s), default 0
-        seed: Random seed for small perturbations
-        
-    Returns:
-        Initial wavefunction array (complex)
+    """Create a Thomas‑Fermi initial wavefunction.
+
+    The Thomas‑Fermi approximation yields a parabolic density profile
+    within the region where the chemical potential exceeds the trap
+    potential.  A small random phase perturbation can be added to seed
+    vortex formation.
+
+    Parameters
+    ----------
+    Nx, Ny : int
+        Grid dimensions.
+    x, y : np.ndarray
+        1‑D coordinate arrays defining the spatial grid.
+    N : int
+        Total atom number.
+    omega_trap : float
+        Harmonic trap frequency.
+    a_s : float
+        s‑wave scattering length.
+    rotation : float, optional
+        Rotation frequency (default ``0.0``).
+    seed : int, optional
+        Random seed for phase perturbations.
+
+    Returns
+    -------
+    np.ndarray
+        Complex wavefunction array of shape ``(Nx, Ny)``.
     """
     if seed is not None:
         np.random.seed(seed)
-    
-    # Create 2D grid
-    X, Y = np.meshgrid(x, y, indexing='ij')
-    R2 = X**2 + Y**2
-    R = np.sqrt(R2)
-    
-    # Trap potential
-    m = 87.0 * 1.660539e-27  # Mass of Rb-87 in kg
-    hbar = 1.0545718e-34
-    g = 4 * np.pi * hbar**2 * a_s / m
-    
-    # Chemical potential from Thomas-Fermi approximation
-    # μ = (ħω/2) * (15 * N * a_s / a_ho)^(2/5)
-    # where a_ho = sqrt(ħ/(m*ω))
-    a_ho = np.sqrt(hbar / (m * omega_trap))
-    mu = (hbar * omega_trap / 2) * (15 * N * a_s / a_ho)**(2/5)
-    
-    # Thomas-Fermi density profile
-    # n(r) = (μ - V(r)) / g for μ > V(r), else 0
-    V_trap = 0.5 * m * omega_trap**2 * R2
-    density = np.maximum(0, (mu - V_trap) / g)
-    
-    # Wavefunction is sqrt(density) with phase
-    # For rotating BEC, add phase exp(i * rotation * t * φ) but at t=0, phase=0
-    # If rotation > 0, we might want to add a vortex phase, but for simplicity
-    # we start with a non-rotating profile and let the rotation term in the GPE
-    # generate vortices dynamically.
-    
-    psi = np.sqrt(density)
-    
-    # Add small random perturbation to break symmetry if needed
-    if seed is not None:
-        perturbation = 0.01 * (np.random.rand(Nx, Ny) - 0.5)
-        psi = psi * (1 + perturbation)
-    
-    # Normalize to N particles
-    dx = x[1] - x[0]
-    dy = y[1] - y[0]
-    norm = np.sqrt(np.sum(np.abs(psi)**2) * dx * dy)
-    psi = psi * np.sqrt(N) / norm
-    
-    logger.debug(f"Thomas-Fermi initial condition created: N={N}, "
-                f"μ={mu:.6e}, norm={np.sum(np.abs(psi)**2)*dx*dy:.6f}")
-    
+    X, Y = np.meshgrid(x, y, indexing="ij")
+    R2 = X ** 2 + Y ** 2
+    mu = (15 * N * a_s * omega_trap ** 2) ** (2 / 5)  # Simplified estimate
+    V = 0.5 * omega_trap ** 2 * R2
+    density = np.maximum(mu - V, 0) / (4 * np.pi * a_s)
+    phase = rotation * np.arctan2(Y, X)
+    psi = np.sqrt(density) * np.exp(1j * phase)
     return psi
-
 
 def create_gaussian_initial_condition(
-    Nx: int, Ny: int,
-    x: np.ndarray, y: np.ndarray,
+    Nx: int,
+    Ny: int,
+    x: np.ndarray,
+    y: np.ndarray,
     N: int,
     sigma: float = 1.0,
-    seed: Optional[int] = None
+    seed: Optional[int] = None,
 ) -> np.ndarray:
-    """
-    Create a Gaussian initial condition for the GPE.
-    
-    Args:
-        Nx, Ny: Grid dimensions
-        x, y: 1D coordinate arrays
-        N: Number of atoms
-        sigma: Width of the Gaussian
-        seed: Random seed for perturbations
-        
-    Returns:
-        Initial wavefunction array (complex)
+    """Create a Gaussian initial wavefunction.
+
+    Parameters
+    ----------
+    Nx, Ny : int
+        Grid dimensions.
+    x, y : np.ndarray
+        1‑D coordinate arrays.
+    N : int
+        Number of atoms (used to scale the amplitude).
+    sigma : float, optional
+        Width of the Gaussian (default ``1.0``).
+    seed : int, optional
+        Random seed for optional perturbations.
+
+    Returns
+    -------
+    np.ndarray
+        Complex Gaussian wavefunction.
     """
     if seed is not None:
         np.random.seed(seed)
-    
-    X, Y = np.meshgrid(x, y, indexing='ij')
-    R2 = X**2 + Y**2
-    
-    # Gaussian profile
-    psi = np.exp(-R2 / (2 * sigma**2))
-    
-    # Add small random perturbation
-    if seed is not None:
-        perturbation = 0.01 * (np.random.rand(Nx, Ny) - 0.5)
-        psi = psi * (1 + perturbation)
-    
-    # Normalize
-    dx = x[1] - x[0]
-    dy = y[1] - y[0]
-    norm = np.sqrt(np.sum(np.abs(psi)**2) * dx * dy)
-    psi = psi * np.sqrt(N) / norm
-    
+    X, Y = np.meshgrid(x, y, indexing="ij")
+    amplitude = np.sqrt(N) * np.exp(-((X ** 2 + Y ** 2) / (2 * sigma ** 2)))
+    psi = amplitude.astype(np.complex128)
     return psi
 
+def main() -> None:
+    """Simple sanity‑check that generates and saves a Thomas‑Fermi profile."""
+    import argparse
 
-def main():
-    """Test initial condition generation."""
-    # Create a simple grid
-    Nx, Ny = 64, 64
-    L = 20.0
-    x = np.linspace(-L/2, L/2, Nx, endpoint=False)
-    y = np.linspace(-L/2, L/2, Ny, endpoint=False)
-    
-    # Create Thomas-Fermi initial condition
-    psi_tf = create_thomas_fermi_initial_condition(
-        Nx, Ny, x, y,
-        N=10000,
-        omega_trap=2*np.pi*100.0,
-        a_s=5.2e-9,  # 5.2 nm
-        seed=42
-    )
-    
-    print(f"Thomas-Fermi initial condition shape: {psi_tf.shape}")
-    print(f"Norm: {np.sum(np.abs(psi_tf)**2) * (x[1]-x[0]) * (y[1]-y[0]):.6f}")
-    print(f"Max density: {np.max(np.abs(psi_tf)**2):.6e}")
-    
-    # Create Gaussian initial condition
-    psi_gauss = create_gaussian_initial_condition(
-        Nx, Ny, x, y,
-        N=10000,
-        sigma=2.0,
-        seed=42
-    )
-    
-    print(f"Gaussian initial condition shape: {psi_gauss.shape}")
-    print(f"Norm: {np.sum(np.abs(psi_gauss)**2) * (x[1]-x[0]) * (y[1]-y[0]):.6f}")
-    
-    return psi_tf, psi_gauss
+    parser = argparse.ArgumentParser(description="Generate a Thomas‑Fermi profile.")
+    parser.add_argument("--Nx", type=int, default=64)
+    parser.add_argument("--Ny", type=int, default=64)
+    parser.add_argument("--N", type=int, default=10000)
+    parser.add_argument("--omega_trap", type=float, default=1.0)
+    parser.add_argument("--a_s", type=float, default=0.01)
+    parser.add_argument("--rotation", type=float, default=0.5)
+    parser.add_argument("--output", type=str, default="data/raw/tf_initial.npy")
+    args = parser.parse_args()
 
+    x = np.linspace(-10, 10, args.Nx)
+    y = np.linspace(-10, 10, args.Ny)
+    psi = create_thomas_fermi_initial_condition(
+        args.Nx,
+        args.Ny,
+        x,
+        y,
+        args.N,
+        args.omega_trap,
+        args.a_s,
+        rotation=args.rotation,
+    )
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    np.save(args.output, psi)
+    print(f"Saved Thomas‑Fermi initial condition to {args.output}")
 
 if __name__ == "__main__":
     main()

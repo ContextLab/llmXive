@@ -1,3 +1,1 @@
-"""
-Utility modules for llmXive research pipeline.
-"""
+"""Utility subpackage for the llmXive follow‑up project."""

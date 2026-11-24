@@ -1,1 +1,1 @@
-"""Quantization subpackage – W2A4 engine and static baseline."""
+# Package marker for code.quantization

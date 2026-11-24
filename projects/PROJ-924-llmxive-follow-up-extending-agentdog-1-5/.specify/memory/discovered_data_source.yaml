@@ -1,5 +1,19 @@
 status: none
-reason: no data intent found in planning artifacts
-cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
-searched_at: '2026-08-13T16:40:02.638976+00:00'
-retry_count: 3
+intent: download safety category log dataset centroids HuggingFace redteam-logs GitHub
+  issues human annotations python package dataset
+required_fields:
+- log_id
+- log_text
+- safety_category
+- component
+- strategy
+- source
+- embedding_vector
+- centroid_label
+- human_annotation
+- annotator_id
+- gold_standard_label
+- novel_attack_flag
+cache_key: 59adf540e092bcd8ca575d3aefa273a6fa83ae7e2a38f9125e23b66139040ed4
+searched_at: '2026-11-08T09:07:24.589220+00:00'
+retry_count: 1

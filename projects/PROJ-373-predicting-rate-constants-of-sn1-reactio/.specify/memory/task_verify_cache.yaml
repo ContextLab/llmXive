@@ -1,17 +1,3 @@
-T011c:
-  c: false
-  h: 6d290c18ba5a28366dc629b8e37d65449aa3d0097e1c66aa31778b21d3d2e4f5
-  r: "The repository lacks the required `data/processed/.pipeline_status` file and\
-    \ the resulting `data/raw/sn1_raw_merged.parquet` output. Moreover, the provided\
-    \ `download.py` does not implement size\u2011based streaming logic, dataset merging,\
-    \ or writing the merged Parquet file, so the core functionality is missing."
-T013b:
-  c: false
-  h: 42de1aff23f1b9ab6251b393cf7bc7eca465d89482dab37d85e796fb9cecaf87
-  r: The required schema file (`exclusion_report.schema.yaml` / `schema.yaml`) is
-    absent, and the expected output `data/processed/exclusion_validation.log` was
-    not created. Consequently the validation step could not be performed and no error
-    log was provided.
 T028:
   c: false
   h: b96c484cb05faa0ac2b698170e56c925771c3252df4d9dbbeabe0837e854ce7f

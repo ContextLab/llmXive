@@ -27,13 +27,24 @@ properties:
     type: integer
     description: "Number of Rotatable Bonds"
   target:
-    type: number
-    description: "Experimental permeability or proxy target value"
+    type:
+      - number
+      - "null"
+    description: "Experimental permeability coefficient if available; null otherwise"
   polymer_type:
     type:
       - string
       - "null"
     description: "Polymer type for stratification (optional)"
+  polymer_type_onehot:
+    type: object
+    description: "One‑hot encoding of polymer type (key = type, value = 0 or 1)"
+    additionalProperties:
+      type: integer
+      enum: [0,1]
+  target_type:
+    type: string
+    description: "Either \"experimental\" or \"surrogate\" indicating the nature of the target column"
 required:
   - smiles
   - mol_valid
@@ -44,4 +55,6 @@ required:
   - hbd
   - rotatable_bonds
   - target
+  - polymer_type_onehot
+  - target_type
 additionalProperties: false

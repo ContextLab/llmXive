@@ -1,54 +1,110 @@
 T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or proof of existence/writability for `data/raw/`, `data/processed/`,
-    `output/plots/`, `code/`, `code/utils/`, `tests/unit/`, `tests/integration/`,
-    or `tests/contract/` under the specified project path were provided. The implementer
-    must supply evidence (e.g., a file tree snapshot or commands confirming the directories
-    exist and are writable).
-T017:
-  c: false
-  h: 972f2f370fcf9478489a7eaeead7fdc92ce354ef6bc605b1d09440b5ede86570
-  r: The required integration test file `tests/integration/test_horizon_masking.py`
-    does not exist in the repository, so the claimed implementation is missing the
-    essential artifact. The task cannot be considered completed until this test file
-    is added with appropriate test code.
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `output/hypothesis_summary.txt` file is present, nor any evidence that `analyze_results.py`\
-    \ was run to produce it. Consequently the required automatically\u2011generated\
-    \ summary does not exist. The implementer must add the script execution and the\
-    \ resulting text file to satisfy US\u20113."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `run_pipeline.sh` script is present in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`;\
-    \ thus the required artifact does not exist, and the task\u2019s requirements\
-    \ (sequencing the four Python scripts with error handling and exit\u2011code logging)\
-    \ are not satisfied."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No output files listed in the task (e.g., `data/raw/*.json`, `data/processed/*.csv`,
-    `output/regression_summary.json`, `output/hypothesis_summary.md`, `output/plots/regime_map.png`)
-    are present or shown, and no evidence that `run_pipeline.sh` was executed on any
-    subset of trajectories. The required artifacts are missing, so the pipeline execution
-    has not been verified.
-T046:
   c: true
-  h: 470023c3dfdb2988f8ab77efcbc851b5db5209af48f12d4eb6bae3cd6d541183
-  r: "The repository contains a non\u2011empty `code/generate_terms.py` that checks\
-    \ for `code/config/user_terms.json`, falls back to the hard\u2011coded default\
-    \ list, and writes `code/config/density_terms.json` with the required `{\"terms\"\
-    : [...]}` schema. The generated `density_terms.json` is present and matches the\
-    \ default list, satisfying the verification criteria."
-T048:
+  h: de2cde45cf43d5cad1bcbde3f31347e521d1ae216aa8b460085567d713db0d37
+  r: All five required directories (`data/raw/`, `data/logs/`, `results/`, `code/`,
+    `tests/`) exist and are non-empty, and `quickstart.md` (1123 bytes) is present
+    with real setup/run instructions rather than a placeholder. The task only asked
+    for the directory tree and a minimal quickstart, both of which are satisfied by
+    the collector-confirmed evidence.
+  sig: bbe82305286888eb6e982f26ebc498df9696c1739de61feb5ccb1af31e0e68a5
+T002:
+  c: true
+  h: f8484932282ffde0fd635e0e2448eaf2606358db14c34027fc092af69698a368
+  r: "Checked `code/config/density_terms.json`, which exists (169\u202Fbytes) and\
+    \ contains a valid JSON object with a non\u2011empty `\"terms\"` array of technical\
+    \ terms. This matches the task\u2019s requirement to generate a default technical\u2011\
+    term list at the specified path."
+  sig: 329284b3793be76885be2ff43af9715914d9f665d22f489cd8c17e8ce6c020e4
+T003:
+  c: true
+  h: a011e79dd8209bff1d30e6dc91269083b3b7465f663226d64608c38f730630b5
+  r: "The file `code/utils/entropy.py` exists (5228 bytes) and implements Shannon\
+    \ entropy on UTF-8 bytes with correct H = -\u03A3p\xB7log2(p), handles empty/single-unique-byte\
+    \ inputs returning 0.0, and provides `clamp_entropy` to replace non-positive values\
+    \ with a positive epsilon, matching the task's stated requirements. No stubs,\
+    \ TODOs, or placeholders are present."
+  sig: 57ab57010b49051de47cfdb2724bb5b57c8b39fbae532e058ff1245c39b5e36c
+T004:
+  c: true
+  h: 978e72f2cdb687909d6831db5d716b533fef7dbea02cfe18ce851ed7e873a2b4
+  r: '`code/utils/heuristics.py` exists (2535 bytes) and implements exactly the required
+    composite density formula `0.6 * entropy_per_token + 0.4 * technical_token_ratio`,
+    with a real technical-token-ratio function, input validation, and clamping. Its
+    dependency `code/utils/entropy.py` is present and provides the imported `entropy_per_token`
+    function, so the module is a genuine, non-stub implementation matching the task.'
+  sig: ef3232f7623c7a5a3c3a5fb6e5f7c510bab8d1f68b1baf57b9c6e724a242b429
+T005:
+  c: true
+  h: 3e627c0ce4dcf8f87b32fc861bc3739082de8686b7d05cac1a9e05a5471968ab
+  r: The file `tests/unit/test_entropy.py` exists (4357 bytes) with substantive, non-stub
+    tests covering `calculate_shannon_entropy`, `clamp_entropy`, and `entropy_per_token`,
+    and the imported module `code/utils/entropy.py` exists with matching implementations
+    (e.g., zero-density clamping to 1e-8, warning logging, per-token division) consistent
+    with the test expectations.
+  sig: c54caddf56a4649e62931c6c06c3dfcc4e3d32bca3a3ec0f0b563850dd347027
+T006:
+  c: true
+  h: 39f4cbf1e1388d0a1b0f6b469f6b396cb145555516c2cd0446c4b38c218de044
+  r: The test file `tests/unit/test_heuristics.py` exists (4.4 KB) with substantive
+    tests covering `calculate_technical_token_ratio` and `calculate_composite_density`,
+    importing the real implementations from `code/utils/heuristics.py` and `code/utils/entropy.py`,
+    both of which exist and behave consistently with the test expectations (e.g.,
+    zero-entropy repeated-character text, TypeError on non-string input, 2/6 ratio
+    case). No stubs, placeholders, or fabricated assertions are present.
+  sig: de436d078e1cd6ab8680b810507b346c4cbb4222808b11083cc62c56bc3e0b94
+T007:
+  c: true
+  h: 70a6d225c7fedd96629240efdabf2ad1f042bead760614dec72e0e91d014443f
+  r: "The artifact `code/config/simulation_config.json` exists (126\u202Fbytes) and\
+    \ contains valid JSON with the required keys \u201Calpha\u201D (\u03B1), \u201C\
+    threshold\u201D, \u201Cseed\u201D, and \u201Cdensity_levels\u201D, satisfying\
+    \ the task specification."
+  sig: 4e81b55ce1b86504d631ca1d4ad6957625da10df6688b76a4353c8fd57bcd406
+T008:
+  c: true
+  h: ca8fedc79e91c4f841056b449e274b78b77edc5e78bab9dc36a640ec21f228c1
+  r: 'The file `code/config/analysis_config.json` exists (194 bytes) and contains
+    all four required keys with sensible values: `min_samples_per_bin: 10`, `splines_df_candidates:
+    [3, 4, 5]`, `density_bins: ["low", "medium", "high"]`, and `horizon_bins: [1..10]`,
+    plus an extra `p_value_threshold` which is harmless.'
+  sig: faa30770e16260da42ce53fadc9da60ae940e1be2d9d11a46324252de6eb73bd
+T009:
+  c: true
+  h: 58ab8228d3bac1c2e3d27bcb9bb840ccb1ac2378802b05c32e33da22e21a4a72
+  r: "Checked `code/validate_config.py` (7599\u202Fbytes) which defines schemas, type\
+    \ and range validation functions, and applies them to both `simulation_config.json`\
+    \ and `analysis_config.json`, reporting errors and exiting with appropriate status.\
+    \ The script fulfills the required schema and range checks for the two config\
+    \ files."
+  sig: 0c4b34ad8d8846407652f54629ee64f2bbfcd6842f33f606befae37645598289
+T010:
+  c: true
+  h: 7a8637267f4336fa0bb2624fdaec9dc46cf03dbc98361f06cc87a7db826fece8
+  r: "Checked the presence and content of `code/validate_grounding_config.py` (6864\u202F\
+    bytes). The script fully implements loading a JSON config, verifies required keys,\
+    \ validates parameters (alpha, threshold, seed, density_levels) and enforces Constitution\u202F\
+    VI rules on `density_weights` (entropy weight > technical weight, sum to\u202F\
+    1). No placeholders or stubs remain."
+  sig: 91f28cfd2b752b5b64b65717ce4121d432ff7f82c23a36a30880b45a26fa05bf
+T011:
   c: false
-  h: f4d244a0553b00416fd4a6477ebc77084422b3ade8d2e3d83d8aa4d1b7f4bdf6
-  r: "The required `data/raw/trajectories.json` file is absent, so the script cannot\
-    \ load the trajectories as mandated. Moreover, the provided `validate_trajectories.py`\
-    \ is truncated and does not show the full validation logic (e.g., iterating over\
-    \ trajectories, checking entropy against requested density, and exiting with appropriate\
-    \ codes). Both the missing input file and the incomplete script mean the task\u2019\
-    s requirements are not satisfied."
+  h: e87073881fa4a9d221e92fb9d5bd61af5eaa687c383c492d9a8ce3a07b7d96e1
+  r: "Checked `code/generate_trajectories.py` and the generated `data/raw/trajectories.jsonl`.\
+    \ The script builds a full list of 500 trajectories in memory and writes it with\
+    \ `json.dump`, not line\u2011by\u2011line streaming as required, and its default\
+    \ output is `trajectories.json` (JSON array) rather than a true JSON\u2011Lines\
+    \ file. Consequently the key \u201Cstream each trajectory to disk line\u2011by\u2011\
+    line to keep RAM \u2264\u202F2\u202FGB\u201D is not satisfied."
+  sig: 6a13c5a88dc99f82c8e9bbe0bdec30f5ebb8d13796479e4e5c14ae8189ec7062
+T013:
+  c: false
+  h: badc7e42183e1dab441dda5e3774f377752e873ee9229788648d16016a68f42f
+  r: "The current `tests/unit/test_density_isolation.py` (627 bytes, single function\
+    \ `test_composite_density_isolated`) does not match the execution log, which claims\
+    \ 10 tests in a `TestDensityIsolation` class (e.g., `test_density_independent_of_agent_output`,\
+    \ `test_no_global_state_dependency`) \u2014 so the recorded run corresponds to\
+    \ a different, since-replaced version of the file, and there is no evidence the\
+    \ current test was ever executed. Additionally, the current test only checks the\
+    \ 0.6/0.4 composite formula; it does not verify independence from agent-output\
+    \ data as the task requires. The implemen"
+  sig: 9923a83f59faa590b0dc3d81ae69fb8615c3cf502f59ef1b6e6c0dd554cffc3d

@@ -8,20 +8,27 @@ properties:
     description: "Name of the metric (e.g., 'interpolation_R2', 'extrapolation_R2')."
   value:
     type: number
-    description: "The measured value of the metric."
+    description: "Measured value of the metric."
   p_value:
     type: number
     minimum: 0
     maximum: 1
-    description: "P-value from the statistical test (e.g., permutation test, Spearman)."
+    description: "P‑value from the associated statistical test."
   test_type:
     type: string
-    enum: ["mann-whitney", "spearman", "cv", "none"]
+    enum:
+      - "mann-whitney"
+      - "spearman"
+      - "cv"
+      - "none"
     description: "Type of statistical test used."
   dataset:
     type: string
-    enum: ["train", "holdout", "novel"]
-    description: "Dataset the metric applies to."
+    enum:
+      - "train"
+      - "holdout"
+      - "novel"
+    description: "Dataset to which the metric applies."
 required:
   - metric_name
   - value

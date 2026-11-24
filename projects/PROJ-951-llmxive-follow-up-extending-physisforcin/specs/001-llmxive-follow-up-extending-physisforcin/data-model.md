@@ -1,43 +1,43 @@
-# Data Model: llmXive follow-up: extending "PhysisForcing"
+# Data Model: llmXive follow‑up: extending "PhysisForcing"
 
 ## Overview
-The pipeline manipulates three core entities:
+
+Four core entities, each with a contract schema under `specs/001-llmxive-physs-filter/contracts/`.
 
 | Entity | Description | Primary Fields |
 |--------|-------------|----------------|
-| **VideoSample** | A single synthetic robotic manipulation video (MP4) together with generation metadata. | `video_id` (str), `prompt` (str), `video_path` (str), `generation_timestamp` (ISO8601), `physics_score` (float, **0 – 1**, normalized), `filter_status` (`"pass"` / `"fail"` / `"error"`), `augmented` (bool) |
-| **CuratedDataset** | CSV manifest of all `VideoSample`s that survived the filter (and any augmentations). | `dataset_id`, `total_samples`, `threshold_percentile` (numeric, e.g., 60), `threshold_score` (absolute score 0‑1), `samples` (list of `VideoSampleRef`), `created_at`, `augmented`, `augmentation_method` |
-| **TrainedModel** | Serialized checkpoint of the distilled diffusion model and its training metadata. | `model_id` (str), `checkpoint_path` (str), `training_epochs` (int), `final_train_loss` (float), `seed` (int), `timestamp` (ISO8601) |
-| **BenchmarkResult** | Evaluation metrics for a given model on a benchmark. | `model_id`, `benchmark_name` (`"R-Bench"` / `"PAI-Bench"`), `score` (float), `score_std` (float), `num_samples` (int) |
-| **TOSTResult** | Outcome of the equivalence test between two models on a benchmark. | `model_id_a`, `model_id_b`, `benchmark_name`, `equivalence_margin` (float), `p_value` (float), `equivalent` (bool) |
+| **VideoSample** | A Wan2.1‑generated robotic‑manipulation video with generation metadata and filter outcome. | `video_id`, `prompt`, `video_path`, `generation_timestamp`, `physics_score`, `filter_status`, `condition` |
+| **PhysicsScore** | Per‑video PyBullet filter output (raw 0–100 internally; normalized 0–1 when written). | `video_id`, `physics_score`, `trajectory_continuity`, `contact_conservation`, `simulation_status`, `passed_filter` |
+| **CuratedDataset** | Manifest of VideoSamples per condition (filtered / unfiltered). | `dataset_id`, `condition`, `total_samples`, `threshold_percentile`, `threshold_score`, `discard_percent`, `retention_rate`, `samples`, `created_at` |
+| **TrainedModel** | ≈ a multi‑million‑parameter distilled diffusion model checkpoint + training metadata. (No formal schema provided; validated informally via training logs.) | `model_id`, `condition`, `checkpoint_path`, `training_epochs`, `final_train_loss`, `training_duration_seconds`, `seed`, `timestamp` |
+| **BenchmarkResult / EvaluationResult** | R‑Bench / PAI‑Bench / MuJoCo scores and TOST outcome per model. | `model_id`, `baseline_model_id`, `r_bench_score`, `pai_bench_score`, `mujoco_physics_score`, `sample_count`, `tost_p_value`, `test_used`, `equivalence_margin`, `equivalent`, `performance_gap_percent`, `pybullet_mujoco_correlation` |
 
-All files are stored under `data/` with the following layout:
+## Storage Layout
 
 ```text
 data/
 ├── raw/
-│   ├── wan2.1/
-│   └── pybullet_examples/
-├── generated/
-│   └── videos/
-├── curated/
-│   └── curated_dataset.csv
-├── models/
-│   └── diffusion_checkpoint.pt
-└── reports/
-    ├── benchmark_RBench.json
-    ├── benchmark_PAIBench.json
-    └── tost_results.json
+│   └── wan21_videos/          # immutable downloads + SHA‑256 checksums
+├── derived/
+│   ├── video_samples/         # one VideoSample JSON per video
+│   ├── physics_scores/        # one PhysicsScore JSON per video
+│   ├── manifests/             # curated_*.json, unfiltered_*.json
+│   └── models/                # diffusion checkpoints (filtered / unfiltered)
+└── reports/                   # benchmark_*.json, tost_results.json, final_summary.md
 ```
 
-## Normalization Note
-All **physics scores** produced by the PyBullet filter are **normalized to the interval [0, 1]**. The filtering step retains videos whose score is at or **above the 60 th percentile** of the batch distribution; the corresponding absolute threshold is stored in the `threshold_score` field of the curated manifest. This ensures consistency between the percentile‑based filter and the absolute score recorded.
+## Score Normalization
 
-## Entities
-(Details omitted for brevity; full field definitions are in the contract schemas.)
+- PyBullet produces raw scores on a **0–100** scale.
+- Scores are **normalized to 0–1** when written to `physics_score.schema.yaml` / `video_sample.schema.yaml`.
+- The curated minimum is the **60th percentile** with raw score = 60 (source: 2506.09162, https://arxiv.org/abs/2506.09162) → normalized threshold **0.60**, stored as `threshold_score`; any video with normalized < 0.60 is discarded. The `filter_discard_percent` (default 40) is recorded for reporting only.
 
 ## Data Hygiene
-- Raw data downloads **must** be checksummed **never** altered in place — transformations produce new files.  
-- **Version** of each artifact is tracked by content hash (e.g., `curated_dataset_8a3f…csv`).  
 
-## Single Source of Truth (​S​S​O​T ​Principle ​II ​III ​IV) ​​ ​  ​  ​ ​ ​ ​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
+- Every raw file SHA‑256‑checksummed; hashes recorded in the project state file.
+- Raw data never modified in place; all transformations write new files under `data/derived/`.
+- No PII in committed data.
+
+## Single Source of Truth
+
+Every figure, statistic, and conclusion in `final_summary.md` is read programmatically from the JSON/CSV artifacts above (SC‑001–SC‑006); no hand‑typed derived numbers.

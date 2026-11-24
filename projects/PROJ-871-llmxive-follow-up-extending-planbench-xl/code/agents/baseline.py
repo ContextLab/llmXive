@@ -2,72 +2,148 @@ import os
 import time
 import torch
 from typing import Any, Dict, List, Optional
+
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
 from agents.base import BaseAgent
 
+
 class BaselineAgent(BaseAgent):
-    """Baseline agent using internal LLM reasoning only."""
-    
+    """Baseline agent using internal LLM reasoning only.
+
+    This agent loads a CPU‑friendly quantised LLaMA‑3 model and generates
+    a response for a given task.  It provides a ``run`` method that
+    conforms to the task specification: the returned dictionary contains
+    at least ``task_id``, ``final_status`` (``\"success\"`` or ``\"failure\"``),
+    and the full LLM reasoning trace (the generated text).
+    """
+
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         super().__init__(config)
-        self.model_name = config.get('model_name', 'meta-llama/Meta-Llama-3-8B')
-        self.max_tokens = config.get('max_tokens', 512)
-        self.temperature = config.get('temperature', 0.7)
+
+        # Default configuration values; users may override via ``config``.
+        default_cfg = {
+            "model_name": "meta-llama/Meta-Llama-3-8B",
+            "max_tokens": 512,
+            "temperature": 0.7,
+        }
+        if config is None:
+            config = {}
+        # Merge defaults with any user‑provided overrides.
+        merged_cfg = {**default_cfg, **config}
+
+        self.model_name = merged_cfg["model_name"]
+        self.max_tokens = merged_cfg["max_tokens"]
+        self.temperature = merged_cfg["temperature"]
+
         self.model = None
         self.tokenizer = None
         self._load_model()
-    
+
+    # ------------------------------------------------------------------
+    # Model loading
+    # ------------------------------------------------------------------
     def _load_model(self) -> None:
-        """Load the LLM model."""
+        """Load the quantised LLaMA‑3 model onto CPU."""
         try:
-            # Quantization config for CPU feasibility
-            quantization_config = BitsAndBytesConfig(
+            # Quantisation config for CPU feasibility (8‑bit via bitsandbytes)
+            quant_cfg = BitsAndBytesConfig(
                 load_in_4bit=True,
                 bnb_4bit_use_double_quant=True,
                 bnb_4bit_quant_type="nf4",
-                bnb_4bit_compute_dtype=torch.float16
+                bnb_4bit_compute_dtype=torch.float16,
             )
-            
+
+            # Load tokenizer and model with the quantisation config.
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             self.model = AutoModelForCausalLM.from_pretrained(
                 self.model_name,
-                quantization_config=quantization_config,
+                quantization_config=quant_cfg,
                 device_map="auto",
-                torch_dtype=torch.float16
+                torch_dtype=torch.float16,
             )
-        except Exception as e:
-            raise RuntimeError(f"Failed to load model: {e}")
-    
-    def execute(self, task: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute the baseline agent on a task."""
-        start_time = time.time()
-        
-        # Construct prompt from task
-        prompt = f"Task: {task.get('instruction', '')}\n"
-        if task.get('context'):
-            prompt += f"Context: {task['context']}\n"
-        
-        # Generate response
-        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
-        outputs = self.model.generate(
+        except Exception as exc:
+            raise RuntimeError(f"Failed to load LLM model '{self.model_name}': {exc}") from exc
+
+    # ------------------------------------------------------------------
+    # Core execution logic
+    # ------------------------------------------------------------------
+    def _generate_response(self, prompt: str) -> str:
+        """Generate a response from the LLM for the supplied prompt."""
+        # Tokenise the prompt and move tensors to the model's device.
+        inputs = self.tokenizer(prompt, return_tensors="pt")
+        inputs = {k: v.to(self.model.device) for k, v in inputs.items()}
+
+        # Generate text.
+        output_ids = self.model.generate(
             **inputs,
             max_new_tokens=self.max_tokens,
             temperature=self.temperature,
-            do_sample=True
+            do_sample=True,
         )
-        
-        response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-        
-        elapsed_time = time.time() - start_time
-        
+
+        # Decode and return the generated text.
+        return self.tokenizer.decode(output_ids[0], skip_special_tokens=True)
+
+    # ------------------------------------------------------------------
+    # Public API required by the specification
+    # ------------------------------------------------------------------
+    def run(self, task: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute the baseline agent on a single task.
+
+        Parameters
+        ----------
+        task: Dict[str, Any]
+            A task dictionary as produced by the injector / extractor.
+
+        Returns
+        -------
+        Dict[str, Any]
+            A result dictionary containing:
+            - ``task_id``: identifier of the task (fallback ``\"unknown\"``)
+            - ``final_status``: ``\"success\"`` if the LLM generated a response,
+              otherwise ``\"failure\"``
+            - ``reasoning_trace``: the full text generated by the LLM
+            - ``execution_time``: wall‑clock seconds spent in the call
+            - ``agent_type``: constant string ``\"baseline\"``
+        """
+        start = time.time()
+
+        # Build a simple prompt from the task fields.
+        prompt_parts = [
+            f"Task: {task.get('instruction', '')}",
+        ]
+        if task.get("context"):
+            prompt_parts.append(f"Context: {task['context']}")
+        prompt = "\n".join(prompt_parts)
+
+        try:
+            response = self._generate_response(prompt)
+            status = "success"
+        except Exception as exc:
+            response = f"Error during generation: {exc}"
+            status = "failure"
+
+        elapsed = time.time() - start
+
         return {
-            'task_id': task.get('id', 'unknown'),
-            'response': response,
-            'status': 'success',
-            'execution_time': elapsed_time,
-            'agent_type': 'baseline'
+            "task_id": task.get("id", task.get("task_id", "unknown")),
+            "final_status": "success" if status == "success" else "failure",
+            "reasoning_trace": response,
+            "execution_time": elapsed,
+            "agent_type": "baseline",
         }
-    
+
+    # ------------------------------------------------------------------
+    # Compatibility shim – some existing scripts expect ``execute``.
+    # ------------------------------------------------------------------
+    def execute(self, task: Dict[str, Any]) -> Dict[str, Any]:
+        """Compatibility wrapper that forwards to :meth:`run`."""
+        return self.run(task)
+
+    # ------------------------------------------------------------------
+    # Reset hook – placeholder for future stateful extensions.
+    # ------------------------------------------------------------------
     def reset(self) -> None:
-        """Reset the agent state."""
+        """Reset internal state (no‑op for the stateless baseline)."""
         pass

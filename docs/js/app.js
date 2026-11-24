@@ -1416,8 +1416,7 @@
       '<div class="am-section am-agent-meta">' +
         '<p>' + escapeHtml(a.purpose || "") + '</p>' +
         '<div class="am-kv"><span>tools</span><div>' + tools + '</div></div>' +
-        '<div class="am-kv"><span>backend</span><div>' + escapeHtml(a.default_backend || "—") + '</div></div>' +
-        '<div class="am-kv"><span>model</span><div>' + escapeHtml(a.default_model || "—") + '</div></div>' +
+        '<div class="am-kv"><span>profile</span><div>' + escapeHtml(a.profile || "—") + '</div></div>' +
         '<div class="am-links">' +
           (a.prompt_github_url ? '<a class="btn" href="' + escapeHtml(a.prompt_github_url) + '" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> View prompt on GitHub</a>' : '') +
           '<a class="btn" href="https://github.com/ContextLab/llmXive/blob/main/agents/registry.yaml" target="_blank" rel="noopener"><i class="fa-solid fa-list"></i> registry.yaml</a>' +

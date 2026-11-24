@@ -7,7 +7,7 @@ properties:
     description: "Core circadian gene."
   tissue:
     type: string
-    description: "GTEx or METSIM tissue name."
+    description: "GTEx tissue name."
   beta:
     type: number
     description: "ANCOVA coefficient for MetS effect."

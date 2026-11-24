@@ -285,7 +285,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-24T09:46:54Z'
 - artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
   attempts: 1
@@ -670,7 +670,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-10-02T15:40:00Z'
 - artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
   attempts: 1
@@ -689,7 +689,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-10-02T15:40:03Z'
 - artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
   attempts: 1
@@ -922,7 +922,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-10-02T15:47:22Z'
 - artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
   attempts: 1
@@ -972,3 +972,119 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-02T15:48:02Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/research.md
+  attempts: 1
+  canonical: OpenML BFI-2 dataset ID 42473
+  claim_id: c_1aa9b425
+  context: "The BFI\u20112 (Big Five Inventory\u20112) dataset provides scores for\
+    \ the five major personality traits ... Dataset ID: 42473"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Dataset ID: 42473'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-20T21:36:17Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/research.md
+  attempts: 1
+  canonical: BFI-2 dataset provides scores for five personality traits
+  claim_id: c_e148d25e
+  context: "Description: The BFI\u20112 (Big Five Inventory\u20112) dataset provides\
+    \ scores for the five major personality traits (Openness, Conscientiousness, Extraversion,\
+    \ Agreeableness, Neuroticism) for a large sample of participants."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The BFI\u20112 dataset provides scores for the five major personality\
+    \ traits (Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism)\
+    \ for a large sample of participants."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-20T21:36:40Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/research.md
+  attempts: 1
+  canonical: BFI-2 dataset CC-BY-4.0 license
+  claim_id: c_1d922585
+  context: "License: Creative Commons Attribution 4.0 International (CC\u2011BY\u2011\
+    4.0). The dataset is openly available for research and redistribution with proper\
+    \ attribution."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The BFI\u20112 dataset is licensed under Creative Commons Attribution\
+    \ 4.0 International (CC\u2011BY\u20114.0)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-20T21:37:05Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/research.md
+  attempts: 1
+  canonical: lastfm_1k dataset contains listening histories for 1000 users
+  claim_id: c_9a048a55
+  context: 'Description: This dataset contains listening histories for 1,000 users
+    from the Last.fm platform, including track IDs, timestamps, and genre tags.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The lastfm_1k dataset contains listening histories for 1,000 users from
+    the Last.fm platform.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-20T21:37:27Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/research.md
+  attempts: 1
+  canonical: lastfm_1k dataset ODbL license
+  claim_id: c_bba87898
+  context: 'License: Open Data Commons Open Database License (ODbL). The data may
+    be used for scientific research provided that any derived works also share the
+    same license.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Open Database License
+      source_id: Q1224853
+      url: https://www.wikidata.org/wiki/Q1224853
+      value: Open Database License
+    filled: true
+  kind: entity_fact
+  raw_text: The lastfm_1k dataset is licensed under the Open Data Commons Open Database
+    License (ODbL).
+  resolved_value: Open Database License
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-20T21:37:37Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/research.md
+  attempts: 1
+  canonical: project uses only authentic public data for analyses; synthetic data
+    only for testing
+  claim_id: c_9cf87d57
+  context: "The project adheres to a Real\u2011First methodology: all analyses are\
+    \ performed on authentic, publicly\u2011available datasets. Synthetic or fabricated\
+    \ data are only employed for unit\u2011testing or CI purposes and are never used\
+    \ in the production pipeline that generates the final scientific results."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All analyses are performed on authentic, publicly\u2011available datasets;\
+    \ synthetic data are only used for unit\u2011testing and are never used in the\
+    \ production pipeline that generates the final scientific results."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T21:37:37Z'

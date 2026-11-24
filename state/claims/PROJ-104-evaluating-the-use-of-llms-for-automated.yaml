@@ -1,0 +1,841 @@
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: 2 CPU cores and ~7 GB RAM are sufficient for the pipeline
+  claim_id: c_6030c685
+  context: Prerequisites list mentions a CPU-only runner (2 CPU cores, ~7 GB RAM is
+    sufficient; no GPU is used anywhere).
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "CPU-only runner (2 CPU cores, ~7 GB RAM is sufficient; no GPU is used\
+    \ anywhere \u2014 NFR-001)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T07:12:09Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: quick smoke test completes in under 30 seconds
+  claim_id: c_2638788f
+  context: "The quick smoke test loads a tiny synthetic commit pair, runs generation,\
+    \ and writes output, completing in well under 30\u202Fseconds."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "It completes in well under 30\u202Fseconds and requires no model downloads."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T07:12:09Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: power analysis report estimated power for sample size n=500
+  claim_id: c_0f472417
+  context: "The Monte\u2011Carlo power analysis writes results/power_report.md, which\
+    \ contains the estimated power for n = 500."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The report contains the estimated power for n = 500
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T07:12:09Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: exploratory flag is true when estimated power is below 0.8
+  claim_id: c_ce2e4dce
+  context: The power report includes an `exploratory` flag that is true exactly when
+    the estimated power is below 0.8.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: exploratory flag that is true exactly when the estimated power is below
+    0.8
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T07:12:09Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: GitHub Actions workflow automatically runs full CPU-only pipeline on
+    every push
+  claim_id: c_d76f9386
+  context: "CI Execution section describes a GitHub Actions workflow that runs the\
+    \ full CPU\u2011only pipeline on every push."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The repository includes a GitHub Actions workflow (.github/workflows/research.yml)\
+    \ that automatically runs the full CPU\u2011only pipeline on every push, caches\
+    \ model weights, and uploads artifacts."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T07:12:09Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: full pipeline runs without manual intervention
+  claim_id: c_01b9a01e
+  context: The CI workflow runs automatically without manual intervention.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: No manual intervention is required.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T07:12:09Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: "2 CPU cores and ~7 GB RAM are sufficient for CPU\u2011only runner, no\
+    \ GPU used"
+  claim_id: c_0d492a52
+  context: "The prerequisites list specifies a CPU\u2011only runner (2 CPU cores,\
+    \ ~7 GB RAM is sufficient; no GPU is used anywhere)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "CPU\u2011only runner (2 CPU cores, ~7\u202FGB RAM is sufficient; no GPU\
+    \ is used anywhere)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-17T08:18:16Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: quick smoke test completes in under 30 seconds
+  claim_id: c_e6cb2d66
+  context: "Running the quick smoke test loads a tiny synthetic commit pair and completes\
+    \ in well under 30\u202Fseconds and requires no model downloads."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "It completes in well under 30\u202Fseconds and requires no model downloads"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T08:18:16Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: power analysis report includes estimated power for sample size 500
+  claim_id: c_af6acb96
+  context: "The Monte\u2011Carlo power analysis writes results/power_report.md; the\
+    \ report contains the estimated power for n = 500."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The report contains the estimated power for n = 500
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T08:18:16Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: "GitHub Actions workflow runs full CPU\u2011only pipeline on every push"
+  claim_id: c_c679eb9d
+  context: "The CI Execution section states the repository includes a GitHub Actions\
+    \ workflow that automatically runs the full CPU\u2011only pipeline on every push."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The repository includes a GitHub Actions workflow that automatically\
+    \ runs the full CPU\u2011only pipeline on every push"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T08:18:16Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: Phase 0 smoke test completes in under 30 seconds
+  claim_id: c_ff1c4cfd
+  context: "This loads one tiny hard\u2011coded synthetic commit pair (a plumbing\
+    \ smoke test only \u2014 never analysis data), invokes the CPU-only generation\
+    \ module, and writes data/generated/phi3-mini/sample_test.txt. It completes in\
+    \ well under 30 seconds and requires no model downloads."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: It completes in well under 30 seconds
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T09:20:13Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: Phase 0 smoke test completes in under 30 seconds and requires no model
+    downloads
+  claim_id: c_add59b88
+  context: "This loads one tiny hard-coded synthetic commit pair (a plumbing smoke\
+    \ test only \u2014 never analysis data), invokes the CPU-only generation module,\
+    \ and writes data/generated/phi3-mini/sample_test.txt. It completes in well under\
+    \ 30 seconds and requires no model downloads."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: It completes in well under 30 seconds and requires no model downloads.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T11:09:01Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: Phase 0 smoke test completes in under 30 seconds
+  claim_id: c_e91f946d
+  context: "This loads one tiny hard-coded commit pair (a plumbing smoke test only\
+    \ \u2014 never analysis data), invokes the CPU-only generation module, and writes\
+    \ data/generated/phi3-mini/sample_test.txt. It completes in well under 30 seconds\
+    \ and requires no model downloads."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: It completes in well under 30 seconds
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T14:09:03Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: quick smoke test completes in under 30 seconds
+  claim_id: c_1755222d
+  context: "The quick smoke test loads one tiny hard\u2011coded commit pair, invokes\
+    \ the CPU\u2011only generation module, writes a sample file, and completes in\
+    \ well under 30 seconds."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: It completes in well under 30 seconds and requires no model downloads.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:23:06Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: "re\u2011running any stage reproduces identical results"
+  claim_id: c_ae87860e
+  context: "All stochastic components use the single pinned seed SEED = 42; re\u2011\
+    running any stage reproduces identical results."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Re\u2011running any stage reproduces identical results."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:23:06Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: quick smoke test completes in under 30 seconds
+  claim_id: c_8f2fd6f3
+  context: "Quick smoke test (Phase\u202F0) loads one tiny hard\u2011coded commit\
+    \ pair, invokes the CPU\u2011only generation module, and writes a sample file."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: It completes in well under 30 seconds
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:30:40Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: power analysis estimated power for sample size 500
+  claim_id: c_2652a2d4
+  context: "Power analysis (Phase\u202F1) runs the Monte\u2011Carlo power analysis\
+    \ for the Friedman test and writes results/power_report.md."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The report contains the estimated power for n = 500
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:30:40Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: quick smoke test completes in under 30 seconds
+  claim_id: c_e5592cf7
+  context: "The quick smoke test loads one tiny hard\u2011coded commit pair, invokes\
+    \ the CPU\u2011only generation module, and writes data/generated/phi3-mini/sample_test.txt.\
+    \ It completes in well under 30\u202Fseconds and requires no model downloads."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "It completes in well under 30\u202Fseconds and requires no model downloads."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:31:26Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: GitHub Actions free tier runner provides about 7 GB RAM and CPU-only
+    resources
+  claim_id: c_03324848
+  context: "The pipeline runs on the GitHub Actions free\u2011tier runner, which provides\
+    \ \u2248\u202F7\u202FGB of RAM and CPU\u2011only resources."
+  evidence:
+    asserted: '7.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The experimental pipeline must run on the GitHub Actions free\u2011tier\
+    \ runner, which provides \u2248\u202F7\u202FGB of RAM and CPU\u2011only resources."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-24T19:32:54Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Phi-3-mini per-commit latency 4.5 seconds on CPU
+  claim_id: c_c0628bd4
+  context: "In the model table, Phi\u20113\u2011mini is listed with an expected per\u2011\
+    commit latency of 4.5 seconds on the CPU."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Phi\u20113\u2011mini (Microsoft) expected per\u2011commit latency (CPU,\
+    \ s) 4.5"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:32:54Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Gemma-2-2b per-commit latency 5.0 seconds on CPU
+  claim_id: c_f4c65f92
+  context: "In the model table, Gemma\u20112\u20112b is listed with an expected per\u2011\
+    commit latency of 5.0 seconds on the CPU."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Gemma\u20112\u20112b (Google) expected per\u2011commit latency (CPU,\
+    \ s) 5.0"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:32:54Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Llama-3.2-3B per-commit latency 5.2 seconds on CPU
+  claim_id: c_23303254
+  context: "In the model table, Llama\u20113.2\u20113B is listed with an expected\
+    \ per\u2011commit latency of 5.2 seconds on the CPU."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Llama\u20113.2\u20113B (Meta) expected per\u2011commit latency (CPU,\
+    \ s) 5.2"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:32:54Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: "Latency estimates based on average over 10 warm\u2011started commits"
+  claim_id: c_07781ceb
+  context: The latency estimates come from a short benchmark averaging over 10 commits
+    on the same runner.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Latency estimates are obtained from a short benchmark on the same runner\
+    \ (average over 10 commits, warm\u2011started model)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:32:54Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: Smoke test completes in under 30 seconds
+  claim_id: c_1f84e20e
+  context: Quick smoke test (Phase 0)... It completes in well under 30 seconds and
+    requires no model downloads.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: It completes in well under 30 seconds and requires no model downloads.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T21:11:47Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: re-running pipeline stages produces identical results
+  claim_id: c_8eaf98c7
+  context: To ensure scientific reproducibility, all stochastic components of the
+    pipeline are pinned to a single global seed defined in code/seeds.py... Re-running
+    any stage will produce identical results.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Re-running any stage will produce identical results.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T21:16:15Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: re-running pipeline stages produces identical results
+  claim_id: c_d9b4c010
+  context: 'To ensure scientific reproducibility, all stochastic components of the
+    pipeline are pinned to a single global seed defined in code/seeds.py... Verification:
+    Re-running any stage produces identical results.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Re-running any stage produces identical results.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T21:35:33Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 2
+  canonical: Phase 0 smoke test completes in under 30 seconds
+  claim_id: c_045c75b4
+  context: This loads one tiny hard-coded commit pair (a plumbing smoke test only),
+    invokes the CPU-only generation module, and writes data/generated/phi3-mini/sample_test.txt.
+    It completes in well under 30 seconds and requires no model downloads.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: It completes in well under 30 seconds
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T21:35:33Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: repositories cloned include pandas, requests, scikit-learn, flask, and
+    django
+  claim_id: c_4567f0ff
+  context: 'What happens: 1. The Monte-Carlo power analysis runs -> results/power_report.md.
+    2. Repositories (pandas, requests, scikit-learn, flask, django) are cloned.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Repositories (pandas, requests, scikit-learn, flask, django) are cloned.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T21:35:33Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: commits from last two years touching .md or .rst files are extracted
+  claim_id: c_34df2b79
+  context: 'What happens: ... 3. Commits from the last two years that touch .md/.rst
+    are extracted -> data/raw/commit_pairs.csv.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Commits from the last two years that touch .md/.rst are extracted
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T21:35:33Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: LLMs used for generation are Phi-3-mini, Gemma-2-2b, and Llama-3.2-3B
+  claim_id: c_7025cf7d
+  context: 'What happens: ... 5. Each LLM (Phi-3-mini, Gemma-2-2b, Llama-3.2-3B) generates
+    a documentation update per commit on CPU, with a 60 s timeout and up to 2 retries.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Each LLM (Phi-3-mini, Gemma-2-2b, Llama-3.2-3B) generates a documentation
+    update per commit on CPU
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T21:35:34Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: quick smoke test completes in under 30 seconds
+  claim_id: c_cbcc52ca
+  context: "The quick smoke test loads one tiny hard\u2011coded commit pair, invokes\
+    \ the CPU\u2011only generation module, and writes data/generated/phi3-mini/sample_test.txt."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: It completes in well under 30 seconds and requires no model downloads.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T09:28:30Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: power analysis report includes estimated power for n=500
+  claim_id: c_014e4d6b
+  context: Running the power analysis writes results/power_report.md, which includes
+    the estimated power for n = 500 and an exploratory flag.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The report contains the estimated power for n = 500
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T09:28:30Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: re-running any stage reproduces identical results
+  claim_id: c_3924e858
+  context: "All stochastic components use the single pinned seed SEED = 42 ... Re\u2011\
+    running any stage reproduces identical results."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Re\u2011running any stage reproduces identical results."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T09:32:29Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: quick smoke test completes in under 30 seconds
+  claim_id: c_48d9d4f8
+  context: "Quick smoke test (Phase\u202F0) ... It completes in well under 30\u202F\
+    seconds and requires no model downloads."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The quick smoke test completes in well under 30\u202Fseconds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T09:32:30Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: power analysis estimates power for n=500
+  claim_id: c_89fa132e
+  context: "Power analysis (Phase\u202F1) ... The report contains the estimated power\
+    \ for n\u202F=\u202F500 ..."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The Monte\u2011Carlo power analysis estimates power for n\u202F=\u202F\
+    500."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T09:32:30Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: full pipeline runs phase-0 smoke test and phase-1 power analysis and
+    exits successfully
+  claim_id: c_fef7b45b
+  context: "Running the Full Pipeline ... until the remaining tasks land, --full runs\
+    \ every implemented stage (currently the Phase\u20110 smoke test and Phase\u2011\
+    1 power analysis), reports the not\u2011yet\u2011implemented stages as pending,\
+    \ and exits successfully ..."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The full pipeline runs the Phase\u20110 smoke test and Phase\u20111 power\
+    \ analysis and exits successfully."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T09:32:30Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: ci workflow runs full cpu-only pipeline on every push
+  claim_id: c_96b1a7e4
+  context: "CI Execution ... the repository includes a GitHub Actions workflow that\
+    \ automatically runs the full CPU\u2011only pipeline on every push, caches model\
+    \ weights, and uploads artefacts."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The CI workflow automatically runs the full CPU\u2011only pipeline on\
+    \ every push."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T09:32:30Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: 5-sample subset of commit-message/documentation-diff pairs
+  claim_id: c_6044dbbf
+  context: "The quick smoke test (Phase\u202F0) runs a command that downloads a real\
+    \ 5\u2011sample subset of commit\u2011message / documentation\u2011diff pairs\
+    \ from the five target repositories."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The quick smoke test (Phase\u202F0) downloads a real 5\u2011sample subset\
+    \ of commit\u2011message / documentation\u2011diff pairs from the five target\
+    \ repositories via the data\u2011extraction script."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T10:26:28Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline completes in under a minute on GitHub Actions free tier runner
+  claim_id: c_861c432f
+  context: "The pipeline completes in well under a minute on a standard GitHub\u2011\
+    Actions free\u2011tier runner."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The pipeline completes in well under a minute on a standard GitHub\u2011\
+    Actions free\u2011tier runner."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T10:26:28Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: power analysis estimated power for n = 500
+  claim_id: c_c20ad3ce
+  context: "Runs the Monte\u2011Carlo power analysis for the Friedman test and writes\
+    \ results/power_report.md. The report contains the estimated power for n\u202F\
+    =\u202F500."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The power analysis report contains the estimated power for n\u202F=\u202F\
+    500."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T10:26:28Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 0
+  canonical: GitHub Actions free tier runner provides approximately 7 GB RAM and CPU-only
+    resources
+  claim_id: c_fd3096dd
+  context: "The experimental pipeline must run on the GitHub Actions free\u2011tier\
+    \ runner, which provides \u2248\u202F7\u202FGB of RAM and CPU\u2011only resources."
+  evidence:
+    asserted: '7.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The experimental pipeline must run on the GitHub Actions free\u2011tier\
+    \ runner, which provides \u2248\u202F7\u202FGB of RAM and CPU\u2011only resources."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-26T16:15:26Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Phi-3-mini has 3.0 billion parameters
+  claim_id: c_b1e0f1fb
+  context: "The chosen models are: Phi\u20113\u2011mini (Microsoft) | Parameters (\u2248\
+    \u202FB) 3.0"
+  evidence:
+    asserted: '3.0'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: "Phi\u20113\u2011mini (Microsoft) has 3.0\u202FB parameters."
+  resolved_value: '2'
+  resolver: approximate
+  source_hash: 290a41cc5fb1b98dcc344e1c80bbc36f6fae8c957aab54f9535e67f96da14e06
+  source_type: external
+  status: verified
+  updated_at: '2026-10-26T16:15:27Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Gemma-2-2b has 2.0 billion parameters
+  claim_id: c_8375a3e0
+  context: "The chosen models are: Gemma\u20112\u20112b (Google) | Parameters (\u2248\
+    \u202FB) 2.0"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Gemma\u20112\u20112b (Google) has 2.0\u202FB parameters."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-26T16:17:30Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Llama-3.2-3B has 3.0 billion parameters
+  claim_id: c_3de623ab
+  context: "The chosen models are: Llama\u20113.2\u20113B (Meta) | Parameters (\u2248\
+    \u202FB) 3.0"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "Llama 3.2 3B\u2019s Feedback for Programming Exercises"
+      source_id: '2504.01054'
+      url: https://arxiv.org/abs/2504.01054
+      value: 3B
+    filled: true
+  kind: numeric
+  raw_text: "Llama\u20113.2\u20113B (Meta) has 3.0\u202FB parameters."
+  resolved_value: 3B
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-26T16:18:06Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Phi-3-mini per-commit CPU latency 4.5 seconds
+  claim_id: c_9dabb723
+  context: "Latency estimates are obtained from a short benchmark on the same runner\
+    \ (average over 10 commits, warm\u2011started model). Expected per\u2011commit\
+    \ latency (CPU, s) 4.5."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Expected per\u2011commit latency for Phi\u20113\u2011mini on CPU is 4.5\
+    \ seconds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T16:18:06Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Gemma-2-2b per-commit CPU latency 5.0 seconds
+  claim_id: c_7f9a709e
+  context: "Latency estimates are obtained from a short benchmark on the same runner\
+    \ (average over 10 commits, warm\u2011started model). Expected per\u2011commit\
+    \ latency (CPU, s) 5.0."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Expected per\u2011commit latency for Gemma\u20112\u20112b on CPU is 5.0\
+    \ seconds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T16:18:06Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Llama-3.2-3B per-commit CPU latency 5.2 seconds
+  claim_id: c_b5f9c7db
+  context: "Latency estimates are obtained from a short benchmark on the same runner\
+    \ (average over 10 commits, warm\u2011started model). Expected per\u2011commit\
+    \ latency (CPU, s) 5.2."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Expected per\u2011commit latency for Llama\u20113.2\u20113B on CPU is\
+    \ 5.2 seconds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T16:18:06Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Benchmark averaged over 10 commits with warm-started model
+  claim_id: c_7287cc44
+  context: "Latency estimates are obtained from a short benchmark on the same runner\
+    \ (average over 10 commits, warm\u2011started model)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The benchmark averaged over 10 commits with a warm\u2011started model."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T16:18:06Z'

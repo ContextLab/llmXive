@@ -11,14 +11,14 @@ properties:
     description: "Reference to the task specification."
   predicates:
     type: "array"
+    description: "List of logical predicates (e.g., 'Graspable(A)', 'On(A, B)')."
     items:
       type: "string"
-    description: "List of logical predicates (e.g., 'Graspable(A)', 'On(A, B)')."
   affordances:
     type: "array"
+    description: "List of available actions for objects in this state."
     items:
       type: "string"
-    description: "List of available actions for objects in this state."
   connectivity_graph:
     type: "object"
     description: "Adjacency list representation of object connectivity."
@@ -30,10 +30,10 @@ properties:
     type: "string"
     description: "The type of graph used for this state (for ablation)."
 required:
-  - state_id
-  - task_id
-  - predicates
-  - affordances
-  - connectivity_graph
-  - graph_type
+  - "state_id"
+  - "task_id"
+  - "predicates"
+  - "affordances"
+  - "connectivity_graph"
+  - "graph_type"
 additionalProperties: false

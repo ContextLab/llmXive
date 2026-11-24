@@ -1,14 +1,18 @@
-pandas==2.0.3
-numpy==1.24.3
-scipy==1.11.1
-networkx==3.1
-pytest==7.4.0
-spacy==3.7.0
-statsmodels==0.14.0
-datasets==2.14.0
-huggingface_hub==0.17.0
-llama-cpp-python==0.2.0
-psutil==5.9.5
-llama_cpp  # auto-added: imported by run-book but missing from venv
-torch  # auto-added: imported by run-book but missing from venv
-pyyaml  # auto-added: imported by run-book but missing from venv
+# Pinned dependencies for PROJ-894 (llmXive follow-up: graph memory).
+# numpy is pinned to a 1.x line compatible with pyarrow 16 and the
+# platform's preinstalled scientific stack (a newer pyarrow demanding
+# numpy>=2 previously broke `import datasets`).
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.1
+pyarrow==16.1.0
+datasets==2.19.2
+networkx==3.3
+sentence-transformers==3.0.1
+transformers==4.44.2
+bitsandbytes==0.43.3
+llama-cpp-python==0.2.90
+timeout-decorator==0.5.0
+pytest==8.2.2
+PyYAML==6.0.1
+requests==2.32.3

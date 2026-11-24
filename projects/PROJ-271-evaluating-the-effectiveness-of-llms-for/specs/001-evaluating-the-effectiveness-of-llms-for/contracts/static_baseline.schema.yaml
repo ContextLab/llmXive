@@ -36,6 +36,7 @@ required:
   - source_code
   - loc
   - cyclomatic_complexity
+  - nesting_depth
   - static_labels
   - normalized_static_labels
 additionalProperties: false

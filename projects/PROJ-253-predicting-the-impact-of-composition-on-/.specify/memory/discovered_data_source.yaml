@@ -1,0 +1,14 @@
+status: none
+intent: Materials Project perovskite band gap dataset Zenodo download python package
+  dataset
+required_fields:
+- formula
+- band_gap
+- mean_electronegativity
+- atomic_radius_variance
+- tolerance_factor
+- oxidation_state_variance
+- octahedral_factor
+cache_key: c794462667237abc7a9db5b3a79197ab87928771c4c24e484601c826709490f8
+searched_at: '2026-10-25T17:09:25.055038+00:00'
+retry_count: 1

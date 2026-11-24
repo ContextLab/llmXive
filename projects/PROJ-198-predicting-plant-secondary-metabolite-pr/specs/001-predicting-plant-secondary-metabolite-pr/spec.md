@@ -66,14 +66,14 @@ The researcher needs to perform a sensitivity analysis on any decision cutoffs (
 ### Functional Requirements
 
 - **FR-001**: System MUST download genome assemblies and GFF annotation files from NCBI RefSeq or Phytozome for a user-defined list of plant species. (See US-1)
-- **FR-002**: System MUST execute antiSMASH 7.0 on each genome to predict BGCs and parse the JSON output to generate a binary presence matrix and a count matrix for BGC diversity. (See US-1)
-- **FR-003**: System MUST download metabolite abundance tables from PMDB or MetaboLights, harmonize identifiers using InChIKeys, add a pseudo-count of 1, and apply log-transformation to normalize distributions. (See US-1)
+- **FR-002**: System MUST execute antiSMASH (current version) on each genome to predict BGCs and parse the JSON output to generate a binary presence matrix and a count matrix for BGC diversity. (See US-1)
+- **FR-003**: System MUST download metabolite abundance tables from PMDB or MetaboLights, harmonize identifiers using InChIKeys, add a small pseudo‑count to avoid zero values, and apply log‑transformation to normalize distributions. (See US-1)
 - **FR-004**: System MUST align genomic features and metabolite targets into a single matrix, filtering out any species that lack data in either modality. (See US-1)
 - **FR-005**: System MUST train regression models (Random Forest, Elastic Net, Gradient Boosting) using scikit-learn with k-fold cross-validation and stratified splitting by phylogenetic clade. (See US-2)
 - **FR-006**: System MUST evaluate model performance on a hold-out test set using R² and Pearson correlation, and compare results against a Phylogenetic Permutation baseline (multiple iterations). (See US-2)
 - **FR-007**: System MUST perform a sensitivity analysis by sweeping BGC detection thresholds over a set of representative values and report the variation in R² and error rates. (See US-3)
 - **FR-008**: System MUST generate a final report that includes model performance metrics, feature importance rankings, and the sensitivity analysis results with threshold justifications. (See US-3)
-- **FR-009**: System MUST map specific BGC types to metabolite classes using the MIBiG 3.0 ontology; if no match is found, assign the feature to the 'unknown' class. (See US-1)
+- **FR-009**: System MUST map specific BGC types to metabolite classes using the current MIBiG ontology; if no match is found, assign the feature to the ‘unknown’ class. (See US-1)
 - **FR-010**: System MUST implement Phylogenetic Generalized Least Squares (PGLS) as the primary regression model to account for phylogenetic non-independence. (See US-2)
 
 ### Key Entities

@@ -1,11 +1,11 @@
 status: none
-intent: download Python function dataset from HuggingFace CodeSearchNet python dataset
-  python package dataset
+intent: HuggingFace Python function dataset static analysis metrics LOC cyclomatic
+  complexity pylint python package dataset
 required_fields:
 - function_code
 - loc
 - cyclomatic_complexity
-- pylint_errors
-cache_key: aabb36d90cb513d51450be24bd8ae6c9709ef499c58cd8dd4e34134d600946d1
-searched_at: '2026-10-05T23:44:11.641942+00:00'
+- pylint_smell_labels
+cache_key: afb7ec06b8e15c7c0bb06aed541678a0637d6c0cf7cba2b57e2a53be2edb0857
+searched_at: '2026-10-24T20:49:45.028142+00:00'
 retry_count: 1

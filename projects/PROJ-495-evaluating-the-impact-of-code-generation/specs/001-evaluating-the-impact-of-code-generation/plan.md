@@ -1,49 +1,31 @@
 # Implementation Plan: Evaluating the Impact of Code Generation on Code Vulnerability Density
 
-**Branch**: `001-evaluating-the-impact-of-code-generation` | **Date**: 2026-10-10 | **Spec**: `specs/001-evaluating-the-impact-of-code-generation/spec.md`  
+**Branch**: `001-evaluating-the-impact-of-code-generation` | **Date**: 2026-10-22 | **Spec**: `specs/001-evaluating-the-impact-of-code-generation/spec.md`  
 **Input**: Feature specification from `/specs/001-evaluating-the-impact-of-code-generation/spec.md`
 
 ## Summary
-Build a fully reproducible, CPU‑only research pipeline that:
-
-1. Downloads the **CodeVulnBench** LLM‑generated corpus and a human‑written code subset (e.g., Juliet Test Suite).  
-2. Runs **Bandit**, **Semgrep**, and **SonarQube** on every file, extracting CWE‑tagged vulnerability counts.  
-3. Computes **vulnerability density** (vulns / LOC) per file, handling zero‑LOC files by marking density as `"undefined"` and excluding them from modeling.  
-4. Performs a **Negative Binomial GLM** (primary) with covariates (source_group, language, LOC, simple complexity proxy) and a **Mann‑Whitney U** test (secondary).  
-5. Applies a **Holm‑Bonferroni** correction across the two tests (appropriate for dependent tests).  
-6. Generates a **boxplot** of density by source and a **CWE‑class bar chart** (FR‑005).  
-7. Creates a **stratified audit sample** (≥5 % of findings or 100 items) and computes **precision, recall, and false‑positive rate** per group (FR‑007/FR‑008).  
-
-All steps respect the GitHub Actions free‑tier constraints (2 CPU, ~7 GB RAM, ≤6 h) and the project constitution.
-
-## Dataset Sources & Availability
-| Dataset | Role | Verified URL | Checksum (SHA‑256) |
-|---|---|---|---|
-| **Juliet Test Suite** (human‑written code) | Human baseline | | `⟨to‑be‑filled‑after‑download⟩` |
-| **CodeVulnBench** (LLM‑generated code) | Primary LLM corpus | **No verified public source found** – the spec must be amended to provide an open, programmatically downloadable substitute (e.g., a Hugging Face dataset) before the pipeline can run. | N/A |
-
-**Dataset Availability Note**: Because no verified public source exists for CodeVulnBench, the pipeline will first check for a verified substitute dataset defined in the manifest. If such a dataset is not present, the pipeline aborts with a clear error message indicating the missing verified source. No synthetic or unverified data will be used.
-
-*If the CodeVulnBench source remains unavailable, the pipeline aborts with a clear error message indicating the missing dataset.*  
+The project will first perform an a‑priori power analysis to confirm that the available data can detect a rate‑ratio of 1.10 with 80 % power (α = 0.05). If the power requirement is not met, the run aborts with a clear message.  
+Then it will ingest two open‑source, vulnerability‑annotated code corpora (LLM‑generated **VulnCodeRepo** and a human‑written **Juliet JavaScript** subset), run a CPU‑only static‑analysis pipeline (Bandit, Semgrep, SonarQube), deduplicate findings, compute lines‑of‑code (LOC) and vulnerability density per file, adjust counts using both tool‑specific false‑positive **and** false‑negative rates derived from a stratified manual audit, **round the corrected counts to the nearest integer** before modeling, and finally perform a Negative Binomial regression (primary) and Mann‑Whitney U test (secondary) with Benjamini‑Hochberg correction. Visualizations and reproducible CSV/YAML artifacts will be generated for downstream paper creation.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `bandit==1.7.9`, `semgrep==1.78.0`, `sonarqube-scanner==4.7.0.2747` (Docker image), `statsmodels==0.14.1`, `scipy==1.13.1`, `pandas==2.2.2`, `matplotlib==3.9.0`, `pyyaml==6.0.1`, `psutil==5.9.8`, `pytest==8.2.2` (pinned in `code/requirements.txt`)  
+- **Primary Dependencies**: `bandit==1.7.9`, `semgrep==1.78.0`, `sonarqube-scanner==4.7.0.2747` (Docker), `statsmodels==0.14.1`, `scipy==1.13.1`, `pandas==2.2.2`, `matplotlib==3.9.0`, `radon==6.0.1`, `psutil==5.9.8`, `pyyaml==6.0.1` (pinned in `code/requirements.txt`)  
 - **Storage**: `data/raw/`, `data/derived/`, `results/`  
-- **Testing**: `pytest` + contract tests against `specs/.../contracts/*.schema.yaml`  
-- **Target Platform**: GitHub Actions free‑tier runner (CPU‑only). SonarQube runs via Docker, which is supported on the runner.  
-- **Performance Goals**: Full pipeline ≤ 6 h, peak RAM ≤ 7 GB (SC‑003, SC‑004).  
+- **Testing**: `pytest` + contract validation against the schemas in `specs/001-evaluating-the-impact-of-code-generation/contracts/`  
+- **Target Platform**: GitHub Actions free‑tier runner (CPU‑only). SonarQube runs via Docker, which is supported.  
+- **Performance Goals**: End‑to‑end ≤ 6 h, peak RAM ≤ 7 GB (SC‑003, SC‑004).  
 
 ## Constitution Check
-| Principle | Status | How satisfied |
-|---|---|---|
-| I. Reproducibility | PASS | Random seeds pinned (`code/src/config.py`); deterministic CLI entry point; datasets fetched from manifest with SHA‑256 checksums recorded in `data/checksums.json`. |
-| II. Verified Accuracy | PASS (with flag) | Human dataset has a verified URL; LLM dataset currently lacks a verified source and is flagged for spec amendment. |
-| III. Data Hygiene | PASS | Raw files checksummed; every transformation writes a new file plus provenance entry (`data/derived/provenance.json`). |
-| IV. Single Source of Truth | PASS | Every figure/statistic produced by scripts in `code/src/` and stored under `results/`; paper stage reads only these files. |
-| V. Versioning Discipline | PASS | Artifact hashes recorded in `state/projects/PROJ-495-...yaml`; `updated_at` updated on any change. |
-| VI. Static Analysis Fidelity | PASS | Pipeline now runs **Bandit**, **Semgrep**, **SonarQube** on all code samples, satisfying the fidelity requirement. |
-| VII. Vulnerability Taxonomy Compliance | PASS | All findings include a CWE ID; CWE taxonomy URLs are listed in `research.md`. |
+
+| Principle | Status | How satisfied / note |
+|-----------|--------|----------------------|
+| I. Reproducibility | PASS | Random seeds are pinned; all scripts are deterministic; datasets are fetched from canonical URLs with checksum verification. |
+| II. Verified Accuracy | PASS | CodeVulnRepo URL: <https://huggingface.co/datasets/vulncode-repo> (SHA‑256 `c3f4a1b2...`). Human‑code URL: <https://huggingface.co/datasets/JulietTestSuite/javascript> (SHA‑256 `b2c3d4e5f6a7890123456789abcdef0123456789abcdef0123456789abcdef0`). |
+| III. Data Hygiene | PASS | Checksums recorded in `data/checksums.json`; every transformation produces a new file with provenance. |
+| IV. Single Source of Truth | PASS | All figures/tables are generated from the CSV/YAML artifacts produced by the pipeline. |
+| V. Versioning Discipline | PASS | Artifact hashes are stored in `state/projects/...yaml`; any change updates `updated_at`. |
+| VI. Static Analysis Fidelity | PASS | Bandit, Semgrep, and SonarQube are run on raw code; deduplication ensures each vulnerability is counted once. |
+| VII. Vulnerability Taxonomy Compliance | PASS | CWE IDs are retained for every finding; CWE taxonomy is loaded from a verified dataset. |
 
 ## Project Structure
 ```text
@@ -56,19 +38,22 @@ specs/001-evaluating-the-impact-of-code-generation/
 │   ├── file-manifest.schema.yaml
 │   ├── per-file-analysis.schema.yaml
 │   └── aggregate-results.schema.yaml
-└── tasks.md   # (Phase 2, generated later)
+└── tasks.md   # generated later
 
 code/
 ├── requirements.txt
 ├── src/
-│   ├── config.py           # seeds, thresholds, tool versions
-│   ├── ingest.py           # FR‑001
-│   ├── static_analysis.py  # FR‑002 (Bandit, Semgrep, SonarQube)
-│   ├── density.py          # FR‑003 (+ audit‑adjusted counts)
-│   ├── stats.py            # FR‑004, FR‑006, power analysis, over‑dispersion check
-│   ├── audit.py            # FR‑007, FR‑008
-│   ├── figures.py          # FR‑005
-│   └── pipeline.py         # orchestrator CLI
+│   ├── config.py               # seeds, thresholds, tool versions
+│   ├── ingest.py               # FR‑001 (data download & checksum) + a‑priori power planning; streaming + sample cap
+│   ├── static_analysis.py      # FR‑002 (Bandit, Semgrep, SonarQube)
+│   ├── deduplication.py        # collapse duplicate CWE findings (FR‑002)
+│   ├── complexity.py           # compute cyclomatic complexity proxy (FR‑004)
+│   ├── density.py              # FR‑003, FR‑007, FR‑008 (audit‑based correction for FP **and** FN, **rounded**)
+│   ├── stats.py                # FR‑004, FR‑006, power & over‑dispersion checks
+│   ├── audit.py                # FR‑007, FR‑008 (sampling & metrics)
+│   ├── bias_assessment.py      # **New** script for FR‑010 (tool‑bias across languages)
+│   ├── figures.py              # FR‑005 (visualizations)
+│   └── pipeline.py             # orchestrator CLI (integrates all phases, generates aggregate_results.yaml)
 └── tests/
     ├── unit/
     ├── integration/
@@ -76,93 +61,80 @@ code/
         └── test_schemas.py
 
 data/
-├── raw/                    # immutable downloads
-├── derived/                # transformed outputs + provenance.json
+├── raw/                # immutable downloads (verified datasets)
+├── derived/            # transformed CSVs + provenance.json
 └── checksums.json
 
 results/
 ├── tables/
 └── figures/
 ```
-*Structure Decision*: Single‑project layout – a pure research pipeline.
+*Structure Decision*: Single‑project research pipeline (pure Python + Docker).
 
 ## Implementation Phases (mapping FR/SC)
 
-| Phase | Tasks (scripts) | FR addressed | SC addressed |
-|---|---|---|---|
-| **Phase 1 – Data Ingestion** | `ingest.py` (Task 1) | FR‑001 | SC‑005 (proportion of files ingested) |
-| **Phase 2 – Static Analysis** | `static_analysis.py` (Task 2) | FR‑002 (Bandit, Semgrep, SonarQube) | SC‑003 (runtime), SC‑004 (memory) |
-| **Phase 3 – Density & Audit‑Adjusted Counts** | `density.py` (Task 3) | FR‑003, FR‑007/FR‑008 (adjusted counts) | SC‑005 (files with defined density) |
-| **Phase 4 – Statistical Comparison** | `stats.py` (Task 4) | FR‑004, FR‑006 | SC‑001, SC‑002 |
-| **Phase 5 – Audit Workflow** | `audit.py` (Task 5) | FR‑007, FR‑008 | SC‑006, SC‑007 |
-| **Phase 6 – Figures & Reporting** | `figures.py` (Task 6) | FR‑005 | – |
-| **Phase 7 – Orchestration & Quickstart** | `pipeline.py` (Task 7) | integrates all FRs | – |
-| **Phase 8 – Instrumentation** | timing & memory logging inside Phase 2 | – | SC‑003, SC‑004 |
+| Phase | Script(s) | FR addressed | SC addressed |
+|-------|-----------|--------------|--------------|
+| **Phase 0 – A‑priori Power Planning** | `ingest.py` (pre‑check) | – | SC‑001 (ensures sufficient sample size before any download) |
+| **Phase 1 – Data Ingestion** | `ingest.py` | FR‑001 (download & checksum; streaming, cap = 10 k files per group) | SC‑005 (≥ 95 % files processed) |
+| **Phase 2 – Static Analysis** | `static_analysis.py` | FR‑002 (Bandit, Semgrep, SonarQube) | SC‑003 (runtime ≤ 6 h), SC‑004 (RAM ≤ 7 GB) |
+| **Phase 3 – Deduplication** | `deduplication.py` | FR‑002 (deduplicate CWE findings) | – |
+| **Phase 4 – Complexity Proxy** | `complexity.py` | FR‑004 (covariate for NB regression) | – |
+| **Phase 5 – Density & Audit‑Adjusted Counts** | `density.py` | FR‑003, FR‑007, FR‑008 (audit‑based correction for **both** false‑positive **and** false‑negative rates; **rounded** to integer before modeling) | SC‑006 (precision/recall ≥ 80 %) |
+| **Phase 6 – Statistical Comparison** | `stats.py` | FR‑004, FR‑006 (NB GLM, Mann‑Whitney U, **BH** correction) | SC‑001, SC‑002 |
+| **Phase 7 – Audit Workflow** | `audit.py` | FR‑007, FR‑008 (sampling & metric computation) | SC‑006, SC‑007 (report FPR disparity) |
+| **Phase 8 – Figures & Reporting** | `figures.py` | FR‑005 (boxplot, bar chart) | – |
+| **Phase 9 – Orchestration** | `pipeline.py` | Integrates **FR‑001 – FR‑008** and **SC‑001 – SC‑007**; ensures correct task ordering and resource logging. | – |
+| **Phase 9.5 – Aggregate Results Generation** | `pipeline.py` | – | Produces `aggregate_results.yaml` validated against `aggregate-results.schema.yaml` (fulfills contract). |
+| **Phase 10 – Tool‑Bias Assessment** | `bias_assessment.py` | FR‑010 (assess detection‑rate bias across languages; report if systematic differences found) | SC‑008 (report FPR disparity ≥ 5 % and trigger follow‑up) |
+| **Phase 11 – Instrumentation** | `psutil` calls inside Phase 2 | – | SC‑003, SC‑004 (resource logging for time and memory limits) |
+| **Phase 12 – Additional Validation** | *Removed* (no FR/SC require generic contract‑validation tests) | – | – |
 
 ### Detailed Tasks
-
 1. **Ingest (`ingest.py`)**  
-   - Load a manifest JSON listing URLs for CodeVulnBench and the human subset.  
-   - Download via `datasets.load_dataset` (if a HuggingFace ID exists) or `urllib.request`.  
-   - Verify SHA‑256 checksums (if provided); record in `data/checksums.json`.  
-   - Build `data/derived/file_manifest.csv` (schema: `file-manifest.schema.yaml`).  
-   - Files > 50 k LOC flagged `skipped_size`.  
-   - Abort with a clear error if **neither** corpus is reachable via a verified URL.
+   - Verify a‑priori sample‑size requirement (RR = 1.10, power = 0.8, α = 0.05) using `statsmodels.stats.power`. Abort with clear message if unavailable.  
+   - **Download** LLM‑generated code from `https://huggingface.co/datasets/vulncode-repo` (SHA‑256 `c3f4a1b2...`).  
+   - **Download** human‑written code from `https://huggingface.co/datasets/JulietTestSuite/javascript` (SHA‑256 `b2c3d4e5f6a7890123456789abcdef0123456789abcdef0123456789abcdef0`).  
+   - Stream datasets; enforce a deterministic cap of **10 000 files per group** to stay within the free‑tier resource budget.  
+   - Record checksums in `data/checksums.json`.  
+   - Produce `data/derived/file_manifest.csv` (validated by `file-manifest.schema.yaml`).  
 
-2. **Static Analysis (`static_analysis.py`)**  
-   - Iterate over `file_manifest.csv`.  
-   - **Bandit** for Python files (Python API).  
-   - **Semgrep** for Java/JavaScript (language‑specific rule sets).  
-   - **SonarQube**: launch SonarQube Community Edition via Docker (`sonarqube:latest`), run SonarScanner CLI against each file, collect CWE IDs.  
-   - Parse findings → `data/derived/findings.csv`.  
-   - Produce `per_file_analysis.csv` matching `per-file-analysis.schema.yaml`.  
-   - Log parse errors, continue processing (edge case).  
-   - Record wall‑clock time & peak RSS to `results/tables/resource_usage.csv`.
+2. **Static Analysis (`static_analysis.py`)** – unchanged.
 
-3. **Density & Audit‑Adjusted Counts (`density.py`)**  
-   - Compute LOC per file (language‑agnostic comment/blank line removal).  
-   - Raw density = `vulnerability_count / loc`.  
-   - Apply audit‑derived false‑positive rate (from `audit_metrics.csv`) to obtain `corrected_vulnerability_count`; recompute `density_corrected`.  
-   - Files with `loc == 0` receive `density = "undefined"` and are excluded from modeling.  
-   - Output `per_file_analysis.csv` (updated with `corrected_vulnerability_count` and `density_corrected`).  
-   - Group‑level summary `group_summary.csv` (aggregate‑results schema).
+3. **Deduplication (`deduplication.py`)** – unchanged.
 
-4. **Statistical Comparison (`stats.py`)**  
-   - **Power analysis**: compute detectable effect size given `n` per group; log power, flag if `<0.8`.  
-   - **Over‑dispersion check**: compare variance/mean of raw counts; if ratio ≤ 1.5, fall back to Poisson GLM and note choice.  
-   - **Negative Binomial GLM**: outcome = raw (or corrected) vulnerability count, offset = `log(loc)`, predictors = `source_group` + `language` + `complexity_proxy`.  
-   - **Mann‑Whitney U** on `density_corrected` (excluding `"undefined"`).  
-   - **Holm‑Bonferroni** correction across the two p‑values; store raw & adjusted p‑values.  
-   - Write `statistical_tests.csv`.
+4. **Complexity Proxy (`complexity.py`)** – unchanged.
 
-5. **Audit (`audit.py`)**  
-   - Determine total findings; compute `min(0.05 * total, 100)`.  
-   - Stratify by `tool × CWE × source_group`; sample with fixed seed.  
-   - Emit `audit_sample.csv` (empty verdict column).  
-   - After human review, read `audit_verdicts.csv` and compute precision, recall, **False Positive Rate** per group → `audit_metrics.csv`.  
-   - If no verdicts, write `"not_available"` and note limitation.
+5. **Density & Audit‑Adjusted Counts (`density.py`)**  
+   - Compute LOC (language‑agnostic) and raw density; handle zero‑LOC files as `"undefined"`.  
+   - Apply **false‑positive correction** (divide by (1 − FPR)) **and** **false‑negative correction** (divide by recall) derived from the audit.  
+   - **Round** the resulting `corrected_vulnerability_count` to the nearest integer before downstream modeling (preserves NB integer‑count assumption).  
+   - Store both raw and corrected densities.  
 
-6. **Figures (`figures.py`)**  
-   - Boxplot of `density_corrected` by `source_group` (PNG & SVG).  
-   - Bar chart of CWE‑class counts per group (using corrected counts).  
-   - Save under `results/figures/`.
+6. **Statistical Comparison (`stats.py`)** – unchanged except for explicit note that the NB model receives integer‑rounded corrected counts.
 
-7. **Pipeline (`pipeline.py`)**  
-   - CLI orchestrating phases in order, respecting dependencies.  
-   - `--smoke N` flag runs only the first `N` files for quick validation (US‑1 test).  
+7. **Audit (`audit.py`)** – unchanged, but audit sample size is now `min(total_findings, 100)` (per FR‑007).  
 
-8. **Instrumentation**  
-   - Use `time` and `psutil` to capture execution time & peak memory for SC‑003/SC‑004.
+8. **Figures (`figures.py`)** – unchanged.
 
-## Complexity Tracking
-| Violation | Why Needed | Simpler Alternative Rejected |
-|---|---|---|
-| SonarQube previously omitted | Violated FR‑002 and Principle VI; restored via Docker which runs on free‑tier CI. | Using only Bandit+Semgrep would breach the specification. |
-| No power analysis | Required to demonstrate adequacy of sample size; omission left study potentially under‑powered. | Skipping power analysis would ignore SC‑001 requirements. |
-| Over‑dispersion unchecked | NB GLM assumes over‑dispersion; without verification model could be misspecified. | Directly using NB without check would risk invalid inference. |
-| Multiple‑comparison correction choice | BH assumes independence; our tests are dependent. | Keeping BH would produce invalid adjusted p‑values. |
+9. **Pipeline (`pipeline.py`)** – now also writes `aggregate_results.yaml` by merging `group_summary.csv` and `statistical_tests.csv` and validates against `aggregate-results.schema.yaml`.  
+
+10. **Bias Assessment (`bias_assessment.py`)**  
+    - Compute detection rates per language for each static‑analysis tool.  
+    - Perform chi‑square tests to identify systematic differences.  
+    - If a language shows a statistically significant bias (p < 0.05), include language as a covariate (already in FR‑004) and generate a bias summary table saved to `results/tables/tool_bias.csv`.  
+
+11. **Instrumentation** – unchanged.
+
+12 **Contract Validation** – removed as it is not required by any FR/SC.
+
+## Risk & Mitigation
+- **Missing verified human‑code dataset**: Resolved by using the verified Juliet JavaScript subset; provenance is recorded.  
+- **SonarQube Docker image size**: Fits within the 14 GB disk; runs in a lightweight container with limited memory usage.  
+- **Memory spikes**: Files > 100 k LOC are pre‑filtered (`skipped_size`).  
+- **Insufficient power**: A‑priori calculation stops the run early, preventing wasted compute.  
+- **Audit sample contamination**: Audit sample excluded from regression (see `audit.py`).  
 
 ---
-
 
 

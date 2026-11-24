@@ -1,86 +1,102 @@
 # Research: Virtual Tactile Zero-Shot Adaptation
 
 ## Problem Statement
-
-Current dexterous hand manipulation policies (e.g., PICA) rely on static reward functions tuned for specific friction coefficients. When deployed on novel articulated objects with unseen damping or friction properties, these policies often fail due to mismatched contact dynamics (slipping or sticking). Physical tactile sensors are often unavailable or unreliable in simulation-to-real transfers. This research investigates whether a "Virtual Tactile" **Dynamic Resistance Proxy** (correcting the spec's "stiffness" terminology) can provide sufficient feedback for zero-shot adaptation of reward weights.
-
-**Scientific Correction**: The metric $k_{est} = |\Delta \tau| / |\Delta v|$ represents **dynamic impedance** (force rate/velocity), not material stiffness (force/displacement). In a sliding regime, this ratio correlates with friction and normal force. The research hypothesis is refined to: "Can a dynamic resistance proxy derived from kinematic-torque derivatives enable zero-shot adaptation?"
+Static reward functions for dexterous hand manipulation (e.g., PICA) fail when the friction of a novel articulated object lies outside the training distribution. Physical tactile sensors are unavailable in many simulators. This work investigates whether a **Dynamic Resistance Proxy** (`k_norm`)—computed from torque and velocity derivatives—can supply sufficient feedback for *zero‑shot* adaptation of reward weights, enabling the policy to succeed on high‑ and low‑friction objects without prior exposure.
 
 ## Dataset Strategy
 
-The project relies on the **DragMesh-2** dataset as the geometric foundation for generating novel articulated objects.
+| Dataset | Purpose | Loader / URL | Verification |
+|---|---|---|---|
+| **DragMesh‑2** | Base geometries for generating novel articulated objects | `datasets.load_dataset("AIGeeksGroup/DragMesh-2", split="train")` or direct download ` | **Verified** (provided in the “Verified datasets” block) |
 
-| Dataset Name | Purpose | Source/Loader | Verification Status |
-| :--- | :--- | :--- | :--- |
-| **DragMesh-2** | Source of base geometries for generating novel articulated objects with randomized friction. | `https://huggingface.co/datasets/AIGeeksGroup/DragMesh-2/resolve/main/dataset_manifest.jsonl` | **Verified**: Direct download URL provided in spec. |
-
-**Data Availability & Feasibility**:
-- The DragMesh-2 manifest is a JSONL file, easily parseable by Python without external credentials.
-- The project will **stream** or **download** this manifest to generate a subset of novel objects locally.
-- **No access-gated data** is required. The physics simulation (PyBullet) runs locally on the CI runner.
-- **Dataset-variable fit**: The study requires geometry (meshes) and friction coefficients. The DragMesh-2 manifest provides geometry; friction coefficients will be randomized in the simulation environment (FR-003), not extracted from the dataset itself. This is a valid fit as the dataset provides the *base* geometry, and the *physics parameters* are controlled by the simulation engine.
+- **Availability**: Direct HTTP download; no credentials required.  
+- **Variable Fit**: The manifest supplies mesh identifiers; friction coefficients are assigned programmatically during object generation (FR‑010). No other external variables are needed.  
 
 ## Methodology
 
-### 1. Virtual Tactile Dynamic Resistance Proxy (FR-001, FR-006, FR-007)
-The core hypothesis is that contact resistance can be proxied by the ratio of torque change to velocity change.
-- **Formula**: $k_{est} = \frac{|\Delta \tau_{hand}|}{|\Delta v_{object}|}$
-- **Filtering**: To mitigate simulation jitter, a moving average filter with window size $W=5$ is applied to $\Delta \tau_{hand}$ before division. (Source: Gaussian filter, https://en.wikipedia.org/wiki/Gaussian_filter).
-- **Stiction Handling**: If $|\Delta v_{object}| < \epsilon$ (where $\epsilon = 10^{-4}$), the denominator is clamped to $\epsilon$ to prevent division by zero, resulting in a high $k_{est}$ that triggers high detachment penalties.
-- **Clamping**: $k_{est}$ is clamped to a bounded range $[k_{min}, k_{max}]$ to prevent reward explosion.
-- **Terminology**: This is explicitly labeled as a "Dynamic Resistance Proxy" in all logs and analysis, correcting the spec's "stiffness" label.
-- **Construct Validity**: The proxy measures the *effective* contact resistance (friction + normal force) in the sliding regime. While it does not isolate material stiffness, it captures the *combined* physical resistance that causes the static policy to fail, making it a valid control signal for adaptation.
+### 1. Dynamic Resistance Proxy (FR‑001, FR‑006, FR‑007)
+- Compute per‑timestep:  
 
-### 2. Adaptive Reward Scheduler (FR-002)
-- **Logic**:
-  - If $k_{est} > 1.0$ (High Resistance): Increase detachment reward ($r_{detach}$) by $\ge 20\%$.
-  - If $k_{est} < 0.2$ (Low Resistance): Decrease contact maintenance reward ($r_{contact}$) by $\le 15\%$.
-- **Goal**: Dynamically penalize slipping in high-friction scenarios and reduce over-constraint in low-friction scenarios.
+  \[
+  k_{\text{norm}} = \frac{|\Delta \tau_{\text{hand}}|}{\max(|\Delta v_{\text{object}}|,\;\epsilon)\; N}
+  \]  
 
-### 3. Zero-Shot Evaluation Protocol (FR-003, FR-005, SC-006)
-- **Novel Object Generation**: Generate a diverse set of articulated objects with randomized friction coefficients (low to high) distinct from the training distribution.
-- **Baseline**: Static PICA policy (fixed reward weights).
-- **Adaptive**: Policy using the Dynamic Resistance Proxy and scheduler.
-- **Ablation Study**: Policy using **Random Noise** as the proxy (to isolate the estimator's contribution).
-- **Metric**: Success rate (binary: goal reached within time limit).
-- **Statistical Test**: **Generalized Linear Mixed Model (GLMM)** with a logit link, treating "Object ID" as a random effect and "Policy Type" as a fixed effect. This corrects the spec's invalid t-test requirement.
-- **Target**: $p < 0.05$ and $\ge 15\%$ improvement (SC-001).
+  with \(\epsilon = 10^{-4}\) and clamping to \([10^{-4}, 10]\).  
+- Apply a **moving average filter** (window = 5) to \(|\Delta \tau_{\text{hand}}|\) before division (source: Gaussian filter, https://en.wikipedia.org/wiki/Gaussian_filter).  
+- Log `N` (normal contact force) each timestep (FR‑009).
 
-### 4. Compute Feasibility (FR-004, SC-003, SC-004)
-- **Platform**: CPU-only (PyBullet `p.connect(p.DIRECT)`).
-- **Memory**: Target < 6GB RAM.
-- **Time**: Target < 6 hours wall-clock.
-- **Strategy**:
-  - Use a small subset of objects for the full experiment.
-  - Limit simulation steps per episode to a predefined maximum.
-  - Use CPU-optimized `torch` (no CUDA).
-  - **No GPU escape hatch needed**: The method is purely heuristic and statistical, requiring no large model training or diffusion.
+**Construct Validity Note**: While `k_norm` is influenced by object geometry and mass (through torque and velocity), normalizing by the estimated normal force `N` mitigates these confounds, making the ratio more directly reflective of surface friction. The subsequent **controlled correlation experiment** (see §4) explicitly tests this relationship.
 
-## Domain Shift Definition (Addressing Methodology Concern)
+### 2. Adaptive Reward Scheduler (FR‑002, FR‑011)
+- Compute the percentile of the current `k_norm` within the **training‑distribution** proxy values (collected during baseline training).  
+- If percentile > 90 % → increase detachment reward `r_detach` by **≥ 20 %**.  
+- If percentile < 10 % → decrease contact reward `r_contact` by **≥ 15 %**.  
 
-To ensure the "zero-shot" claim is valid:
-- **Training Distribution**: The static PICA baseline is assumed to be tuned on a standard set of objects with friction coefficients $\mu \in [, 0.6]$.
-- **Test Distribution**: The novel objects are generated with friction coefficients uniformly sampled from a realistic operational range.
-- **Zero-Shot Validation**: The experiment explicitly verifies that the test set contains objects with $\mu < 0.3$ and $\mu > 0.6$. The analysis will report the fraction of test objects falling outside the training range to confirm the domain shift. If >50% of objects fall within the training range, the experiment is re-run with a wider sampling range.
+**Sensitivity Analysis**: Task T045b will evaluate alternative thresholds (80/20, 85/15) to ensure robustness; the final thresholds will be chosen based on highest improvement without destabilizing training.
+
+### 3. Zero‑Shot Evaluation (FR‑003, FR‑010, SC‑001, SC‑002)
+- **Novel Object Set**: A specific number of articulated objects, each with friction coefficient ∈ [0.8, 1.2] (high) or ≤ 0.1 (low), i.e., outside the training range [0.2, 0.6].  
+- **Policies**:  
+  1. **Static PICA** (baseline).  
+  2. **Adaptive PICA** (uses `k_norm`).  
+  3. **Ablation – Random Proxy** (random values in the same range, no signal).  
+
+- **Metric**: Binary *success* (goal reached within time limit).  
+- **Ablation Design**: Each object is evaluated under **all three policies** with identical initial conditions; only the proxy value differs, controlling for object‑specific factors (mass, geometry).
+
+### 4. Correlation‑Validation Experiment (FR‑008, SC‑006)
+- Run **≥ 30** trials where the true friction coefficient is known.  
+- Record `k_norm` **and** the normal force `N`.  
+- Two analysis variants:  
+  1. **N‑normalized correlation**: compute Pearson r between `k_norm / N` and ground‑truth friction.  
+  2. **Partial correlation**: compute Pearson r between `k_norm` and friction while controlling for `N`.  
+- Pass condition: \(r ≥ 0.8\) in either variant.
+
+### 5. Statistical Analysis (FR‑005, SC‑005)
+- **GLMM**: Fit a **Generalized Linear Mixed Model** (logit link) with:  
+  - Fixed effect: `policy_type` (adaptive vs static).  
+  - Random intercept: `object_id`.  
+  - Report **p < 0.05** for the policy effect and improvement % (target ≥ 15 %).  
+- **Paired t‑test** (Constitution Principle VII): For each object, compute the difference in success (adaptive − static). Perform a paired‑t‑test across the selected objects.; report p‑value and effect size. This satisfies the mandated validation method.  
+
+### 6. Compute Feasibility (FR‑004, SC‑003, SC‑004)
+- All code runs on **CPU‑only** PyBullet (`p.connect(p.DIRECT)`).  
+- No CUDA imports; `torch` installed with `+cpu`.  
+- Target wall‑clock ≤ 6 h, peak RAM ≤ 7 GB on a free‑tier GitHub Actions runner.  
+- If resource usage exceeds limits, the pipeline will automatically down‑sample the number of objects (up to a minimum of 10) and re‑run; power analysis (Task T045) will flag any resulting power loss.
 
 ## Decision/Rationale
 
 | Decision | Rationale |
-| :--- | :--- |
-| **GLMM over T-Test** | Binary success rates (0/1) violate the normality assumption of the t-test. GLMM correctly models the binomial distribution and accounts for the paired nature of the data (same object, different policies). |
-| **Ablation Study** | Necessary to prove the *estimator* is the cause of improvement, not just the presence of *any* adaptive signal. Comparing "True Proxy" vs "Random Proxy" isolates the signal's value. |
-| **CPU-Only Execution** | Mandated by Constitution Principle VI and SC-003. The method (heuristic ratio + GLMM) is computationally light and does not require GPU acceleration. |
-| **Moving Average Filter (W=5)** | Selected to balance noise reduction with responsiveness. A larger window would lag behind rapid friction changes; a smaller window would be insufficient against jitter. |
-| **DragMesh-2 Manifest** | Selected as the sole data source. It provides the necessary geometry for the "Novel Object Set" and is directly downloadable without credentials. |
-| **Dynamic Resistance Proxy** | Reframed from "stiffness" to "dynamic resistance" to account for the confounding variable of normal force, ensuring construct validity. |
+|---|---|
+| **GLMM + Paired t‑test** | Binary outcomes demand a GLMM for mixed‑effects inference *and* a paired‑t‑test to satisfy Constitution Principle VII. Both are run; GLMM handles random effects, t‑test provides the mandated direct comparison. |
+| **Ablation with Random Proxy** | Controls for object‑specific factors by evaluating all policies on the *same* objects with identical seeds; only the proxy is randomized. |
+| **CPU‑only execution** | Mandated by Constitution Principle VI and SC‑003/SC‑004; enforced by Task T015d. |
+| **Moving‑average window = 5** | Directly matches the verified filter size (Gaussian filter source). |
+| **DragMesh‑2 as sole data source** | Open, programmatically downloadable, and provides required geometry; friction is assigned during generation, meeting dataset‑variable fit. |
+| **Dynamic Resistance Proxy construct validity** | Acknowledged that torque and velocity derivatives also depend on geometry and mass; justified via the *controlled* correlation experiment that normalizes by contact force `N`. |
+| **Reward thresholds** | Sensitivity analysis (Task T045b) will verify that 90th/10th percentiles are robust; alternative thresholds are explored. |
+| **Power analysis** | Quick analytical check (Task T045) ensures sufficient statistical power; if under‑powered, object count is increased up to 20 while staying within the 6 h budget. |
 
 ## Risks & Mitigations
 
-- **Risk**: Simulation instability due to high friction values.
-  - **Mitigation**: Strict clamping of $k_{est}$ (FR-007) and adaptive time-step scaling in PyBullet if forces exceed thresholds.
-- **Risk**: Insufficient statistical power (Type II error).
-  - **Mitigation**: If the initial set of objects yield $p > 0.05$, the plan allows for increasing the sample size to a larger cohort of objects (within the 6-hour limit).
-- **Risk**: Derivative noise rendering $k_{est}$ useless.
-  - **Mitigation**: The moving average filter (FR-006) is a hard requirement. If noise persists, the filter window will be increased in the next iteration.
-- **Risk**: Spec Conflict (FR-005).
-  - **Mitigation**: Generate "Spec Amendment Proposal" artifact before analysis. Implement GLMM regardless of the current spec text.
+| Risk | Likely Cause | Fix |
+|---|---|---|
+| Simulation instability at extreme friction | Too high/low friction causing exploding forces | Clamp `k_norm` (FR‑007) and cap reward scaling; fallback to reduced timestep if PyBullet reports high forces. |
+| Insufficient statistical power | Only a limited number of objects for GLMM | Power analysis (T045) will trigger increase of `--num_objects` up to 20; GLMM and paired t‑test will be re‑run. |
+| Noisy derivatives | Simulation jitter | Apply mandatory moving‑average filter; if still noisy, increase window size to 7 in a secondary run (still documented). |
+| Spec‑analysis mismatch | Amendment proposal replaces paired‑t‑test | Amendment adds paired‑t‑test *in addition* to GLMM; both are documented and versioned. |
+| Memory overflow | Large logs or many objects | Stream CSV rows during GLMM fitting; limit episode length and use PyBullet’s `MAX_SUBSTEPS` to reduce state size. |
+
+---
+
+
+## Expected Deliverables
+- **Generated objects** (`data/generated/novel_objects/*.json`).  
+- **Simulation logs** (`data/logs/simulation_run_*.csv`).  
+- **Correlation experiment results** (`data/logs/correlation_results.json`).  
+- **Statistical analysis outputs** (`data/logs/glmm_summary.txt`, `data/logs/paired_t_test.txt`).  
+- **Experiment summary** (`data/logs/experiment_summary.json`).  
+- **Documentation** (`docs/README.md`, `docs/CHANGELOG.md`).  
+
+All artifacts are checksum‑validated and referenced in the project state YAML for reproducibility.

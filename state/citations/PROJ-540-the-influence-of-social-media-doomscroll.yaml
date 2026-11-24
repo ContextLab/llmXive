@@ -9,14 +9,102 @@
   verification_status: mismatch
   verified_against_url: https://raw.githubusercontent.com/example/data/main/survey.csv
   verified_at: '2026-09-20T23:27:30.298993Z'
-- artifact_hash: 8b5cd9a0afe654fdfcc9f546657389399ce2ec2cb8f47d6c1c5579b073d2c9a8
+- artifact_hash: 5c476e0f83e4ec4216e3f1c3ad069495e356fbc388fb1435b0535524a43417e4
+  artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/specs/001-the-influence-of-social-media-doomscroll/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/pew/social_media_anxiety`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/pew/social_media_anxiety
+  verified_at: '2026-10-14T12:22:58.555394Z'
+- artifact_hash: 5c476e0f83e4ec4216e3f1c3ad069495e356fbc388fb1435b0535524a43417e4
+  artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/specs/001-the-influence-of-social-media-doomscroll/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/gsstein/mini-xlsum/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65c4ca71a221b2b4e90a5251/0774cedcbe7b4bf4c09f54c4469cdac501d5ff8eafc2b5ba5ba1dc785af98c67?xip=OPyAPYc1OyU&X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1791984178&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVjNGNhNzFhMjIxYjJiNGU5MGE1MjUxLzA3NzRjZWRjYmU3YjRiZjRjMDlmNTRjNDQ2OWNkYWM1MDFkNWZmOGVhZmMyYjViYTViYTFkYzc4NWFmOThjNjdcXD94aXA9T1B5QVBZYzFPeVUmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxOTg0MTc4fX19XX0_&Signature=MEQCICLkKbeYwUloGbAAKDeurVVZscuYodEIeorCUK66S17rAiAr%7E2gBVD7RNIFyEN3mHV6Jr4ALCdaeYvh98NkM4hqbdg__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-14T12:22:58.555394Z'
+- artifact_hash: 5c476e0f83e4ec4216e3f1c3ad069495e356fbc388fb1435b0535524a43417e4
+  artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/specs/001-the-influence-of-social-media-doomscroll/plan.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/gsstein/0-percent-human-dataset-og/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65cc118c29bf2dd27cc8028f/bd36a6f47baf48a44fb4a0a209327c120ace033e32fe60915db554b0927e61bc?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&xip=OPyAPYc1OyU&user_id=public&X-Xet-Cas-Uid=public&Expires=1791984179&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVjYzExOGMyOWJmMmRkMjdjYzgwMjhmL2JkMzZhNmY0N2JhZjQ4YTQ0ZmI0YTBhMjA5MzI3YzEyMGFjZTAzM2UzMmZlNjA5MTVkYjU1NGIwOTI3ZTYxYmNcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnhpcD1PUHlBUFljMU95VSZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxOTg0MTc5fX19XX0_&Signature=MEUCIBKqy4S98s1Ufss-m9BRsEnjA0R40FEX3jV6qbe3x2o7AiEAvO1ZBgUID37qsMMDtzmBDOUSw1pbcocR1ftFSF3jRrc_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-14T12:22:58.555394Z'
+- artifact_hash: 5c476e0f83e4ec4216e3f1c3ad069495e356fbc388fb1435b0535524a43417e4
+  artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/specs/001-the-influence-of-social-media-doomscroll/plan.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/gsstein/100-percent-human-dataset/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65d952bbc4e405cdec696a33/6d46e50667bde37c7e04bbdcb8f3a99edb669272b32c5be76881984f12645382?user_id=public&X-Xet-Cas-Uid=public&xip=OPyAPYc1OyU&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1791984180&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVkOTUyYmJjNGU0MDVjZGVjNjk2YTMzLzZkNDZlNTA2NjdiZGUzN2M3ZTA0YmJkY2I4ZjNhOTllZGI2NjkyNzJiMzJjNWJlNzY4ODE5ODRmMTI2NDUzODJcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9T1B5QVBZYzFPeVUmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxOTg0MTgwfX19XX0_&Signature=MEQCICMzu5ZhzRQ9RYBEgxZp-A4otBKz8UeowhGSwA5SeubyAiADopmzYbHozIbQjaPs0GXFBeWw9ZKYDWvCeadyTWGGGQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-14T12:22:58.555394Z'
+- artifact_hash: 5993a2782774a5efac7fc3373a92ce25a5cdeafdbac270b2c1555acf6741344c
   artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/specs/001-the-influence-of-social-media-doomscroll/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: NHANES Questionnaires, Datasets, and Related Documentation
+  fetched_title: null
   kind: url
-  value: https://wwwn.cdc.gov/nchs/nhanes/ContinuousNhanes/Default.aspx?BeginYear=2017`
+  value: https://huggingface.co/datasets/pew/social_media_anxiety`
   verification_status: pending
-  verified_against_url: https://wwwn.cdc.gov/nchs/nhanes/ContinuousNhanes/Default.aspx?BeginYear=2017
-  verified_at: '2026-09-22T14:51:06.475909Z'
+  verified_against_url: https://huggingface.co/datasets/pew/social_media_anxiety
+  verified_at: '2026-10-14T12:23:12.380413Z'
+- artifact_hash: 5993a2782774a5efac7fc3373a92ce25a5cdeafdbac270b2c1555acf6741344c
+  artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/specs/001-the-influence-of-social-media-doomscroll/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/gsstein/mini-xlsum/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65c4ca71a221b2b4e90a5251/0774cedcbe7b4bf4c09f54c4469cdac501d5ff8eafc2b5ba5ba1dc785af98c67?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&xip=OPyAPYc1OyU&X-Xet-Cas-Uid=public&Expires=1791984192&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVjNGNhNzFhMjIxYjJiNGU5MGE1MjUxLzA3NzRjZWRjYmU3YjRiZjRjMDlmNTRjNDQ2OWNkYWM1MDFkNWZmOGVhZmMyYjViYTViYTFkYzc4NWFmOThjNjdcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJnhpcD1PUHlBUFljMU95VSZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxOTg0MTkyfX19XX0_&Signature=MEYCIQDvv0GptoTB1vnbFOxeXLd6Nyo6uBuoZmFRVEZqXzoBowIhANKvA0a3vaRrp-ToZMmVDx48RaYxv3dg1h%7EE03uMDc3A&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-14T12:23:12.380413Z'
+- artifact_hash: 5993a2782774a5efac7fc3373a92ce25a5cdeafdbac270b2c1555acf6741344c
+  artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/specs/001-the-influence-of-social-media-doomscroll/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/gsstein/0-percent-human-dataset-og/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65cc118c29bf2dd27cc8028f/bd36a6f47baf48a44fb4a0a209327c120ace033e32fe60915db554b0927e61bc?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&xip=OPyAPYc1OyU&X-Xet-Cas-Uid=public&Expires=1791984193&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVjYzExOGMyOWJmMmRkMjdjYzgwMjhmL2JkMzZhNmY0N2JhZjQ4YTQ0ZmI0YTBhMjA5MzI3YzEyMGFjZTAzM2UzMmZlNjA5MTVkYjU1NGIwOTI3ZTYxYmNcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJnhpcD1PUHlBUFljMU95VSZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxOTg0MTkzfX19XX0_&Signature=MEUCIEXQzwe3gVOb4VRAuwqHZasU-Aicw0Um0D-I0fxXsoOhAiEAjtZ7mhjLfNqSQxOO9n4sDoJp%7EkEEQlT9nS7msG6Asgg_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-14T12:23:12.380413Z'
+- artifact_hash: 5993a2782774a5efac7fc3373a92ce25a5cdeafdbac270b2c1555acf6741344c
+  artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/specs/001-the-influence-of-social-media-doomscroll/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/gsstein/100-percent-human-dataset/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65d952bbc4e405cdec696a33/6d46e50667bde37c7e04bbdcb8f3a99edb669272b32c5be76881984f12645382?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&xip=OPyAPYc1OyU&X-Xet-Cas-Uid=public&user_id=public&Expires=1791984194&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVkOTUyYmJjNGU0MDVjZGVjNjk2YTMzLzZkNDZlNTA2NjdiZGUzN2M3ZTA0YmJkY2I4ZjNhOTllZGI2NjkyNzJiMzJjNWJlNzY4ODE5ODRmMTI2NDUzODJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnhpcD1PUHlBUFljMU95VSZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxOTg0MTk0fX19XX0_&Signature=MEUCIF3AhJy%7Ejm1ehEOf6qJqt3O5C0PHlQThpyGFIFHNt8fOAiEA1UO2U2QceObnm5woZAcV%7Edz6cPR6ASIopi8e3EmwTOw_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-14T12:23:12.380413Z'
+- artifact_hash: 960bdeafa5d18d33b7cab295ef1b9aaf0a8c0315cc34bfb5fcfcc7b5515f0e6c
+  artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/specs/001-the-influence-of-social-media-doomscroll/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/pew/social_media_anxiety`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/pew/social_media_anxiety
+  verified_at: '2026-10-14T12:23:32.774760Z'

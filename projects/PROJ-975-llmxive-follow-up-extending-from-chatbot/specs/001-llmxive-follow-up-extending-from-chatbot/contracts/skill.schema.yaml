@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Skill Schema"
+title: "SkillSchema"
 description: "Schema for synthetic skill definitions with embeddings."
 type: "object"
 properties:
@@ -16,9 +16,9 @@ properties:
     type: "array"
     items:
       type: "number"
-    minItems: 768
-    maxItems: 768
-    description: "768-dimensional embedding vector."
+    minItems: 384
+    maxItems: 384
+    description: "A high-dimensional embedding vector (output of all‑MiniLM‑L6‑v2)."
   usage_count:
     type: "integer"
     minimum: 0

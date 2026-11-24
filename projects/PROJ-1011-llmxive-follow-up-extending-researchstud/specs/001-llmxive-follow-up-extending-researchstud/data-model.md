@@ -1,14 +1,14 @@
 # Data Model: llmXive follow-up: extending "ResearchStudio-Idea"
 
+*(In-place revision; entities preserved, artifact paths aligned to the redone tasks, checksum location unified, alignment rubric documented.)*
+
 ## 1. Overview
 
-This document defines the data structures used for the `001-llmxive-extension` feature. All data is stored in JSON/JSONL format for portability and versioning.
+All data is stored as JSON/JSONL/CSV for portability and versioning. Every file under `data/` is checksummed in a `data/CHECKSUMS` manifest (mirrored in the project state `artifact_hashes` map, per constitution III); derivations never modify inputs in place.
 
 ## 2. Entities
 
 ### 2.1 Abstract
-Represents a research proposal text with metadata.
-
 ```json
 {
   "id": "string (unique hash)",
@@ -19,26 +19,24 @@ Represents a research proposal text with metadata.
   "acceptance_status": "string (accepted, rejected)",
   "source_url": "string",
   "checksum": "string",
-  "source_type": "string (primary, fallback)"
+  "source_type": "string (primary, fallback, fixture)"
 }
 ```
 
-### 2.2 PatternCard
-Represents one of the 15 ML-derived ideation patterns.
+*Role note*: `acceptance_status` is provenance/ingestion-hygiene metadata only; it is not a variable in any statistical analysis.
 
+### 2.2 PatternCard
 ```json
 {
   "id": "string (pattern-001 to pattern-015)",
   "name": "string",
   "description": "string",
-  "structural_constraints": ["string", "string"],
+  "structural_constraints": ["string"],
   "embedding_vector": "list[float]"
 }
 ```
 
 ### 2.3 ProblemStatement
-A non-ML problem statement extracted from the corpus.
-
 ```json
 {
   "id": "string",
@@ -49,13 +47,11 @@ A non-ML problem statement extracted from the corpus.
 ```
 
 ### 2.4 Proposal
-A generated research idea.
-
 ```json
 {
   "id": "string",
   "problem_statement_id": "string",
-  "type": "string (pattern_guided, random_pattern, baseline)",
+  "type": "string (pattern_guided, baseline)",
   "content": "string",
   "generation_metadata": {
     "model": "string",
@@ -68,33 +64,43 @@ A generated research idea.
 ```
 
 ### 2.5 Rating
-Expert evaluation score.
-
 ```json
 {
   "id": "string",
   "proposal_id": "string",
-  "expert_id": "string",
+  "expert_id": "string (anonymized)",
   "metric": "string (feasibility, bottleneck, alignment)",
   "score": "integer (1-5)",
-  "comments": "string (optional)"
+  "comments": "string (optional)",
+  "mock": "boolean (true only for dry-run fixture ratings)"
 }
 ```
 
+*Alignment rubric (anti-circularity)*: "alignment" scores reflect the proposal's fit to the **problem statement and its domain context** — never to the pattern cards, which are not shown to raters. The full rubric text is embedded in the `instructions` field of `blinded_batches.csv`.
+
+### 2.6 Result Artifacts (single source of truth for the report)
+- `data/results/generated_proposals.jsonl` — all proposals (T030/T059a input).
+- `data/results/blinded_batches.csv` — metadata-stripped distribution batches (T059a), including the complete rating instructions with the problem-statement-anchored alignment rubric.
+- `data/results/ratings_filled.csv` — mock (dry-run) or real ratings (T059b/T065).
+- `data/results/power_analysis_config.json` — n, α, target effect size, achieved power (T024b), reported against the 0.8 power convention.
+- `data/results/validity_metrics.json` — alignment difference from expert scores (T036).
+- `data/results/analysis_report.md` — final report, generated from the above (T037).
+
 ## 3. Data Flow
 
-1.  **Raw Data**: Downloaded from sources -> `data/raw/corpus.jsonl`.
-2.  **Processed Data**: Parsed, validated, and filtered -> `data/processed/corpus_clean.jsonl`.
-3.  **Embeddings**: Pattern cards and problem statements encoded -> `data/processed/embeddings.jsonl`.
-4.  **Validation**: Pattern mapping hold-out set -> `data/processed/pattern_validation.jsonl`.
-5.  **Generated Proposals**: LLM output -> `data/processed/proposals.jsonl`.
-6.  **Ratings**: Expert input -> `data/processed/ratings.csv`.
-7.  **Results**: Statistical output -> `data/processed/results.json`.
+1. **Raw**: download/fixture → `data/raw/corpus_raw.jsonl` (checksummed, immutable).
+2. **Processed**: validated/balanced → `data/processed/corpus_clean.jsonl`.
+3. **Embeddings**: → `data/processed/embeddings.jsonl`.
+4. **Proposals**: → `data/results/generated_proposals.jsonl`.
+5. **Blinded batches**: → `data/results/blinded_batches.csv`.
+6. **Ratings**: → `data/results/ratings_filled.csv` (mock flag distinguishes dry-run).
+7. **Results**: → `data/results/power_analysis_config.json`, `data/results/validity_metrics.json`, `data/results/analysis_report.md`.
 
 ## 4. Constraints
 
-*   **Uniqueness**: All `id` fields must be unique within their entity type.
-*   **Validity**: `abstract` field must be non-empty. `score` must be 1-5.
-*   **Privacy**: No PII in `data/`. Expert IDs are anonymized.
-*   **Checksums**: Every file in `data/` must have a corresponding checksum in `state/`.
-*   **IRR**: Ratings file must include a `krippendorff_alpha` field in the metadata header.
+- **Uniqueness**: all `id` fields unique within entity type.
+- **Validity**: non-empty `abstract`; `score` in 1–5; exactly one pattern-guided and one baseline proposal per problem statement (FR-003 pairing).
+- **Privacy**: no PII in `data/`; expert IDs anonymized.
+- **Checksums**: every `data/` file recorded in the `data/CHECKSUMS` manifest (mirrored in the project state `artifact_hashes` map).
+- **Ordering**: IRR computed on raw ratings before outlier removal (T055 → T033).
+- **Mock labeling**: any fixture/mock artifact carries `mock: true` / `source_type: fixture`; the final report must label dry-run results as such.

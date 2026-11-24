@@ -11,44 +11,22 @@ required:
 properties:
   evolved_task_id:
     type: string
-    description: "Identifier for the evolved task variant."
+    description: "Unique identifier for the evolved task."
   base_task_id:
     type: string
-    description: "Original task identifier from which this variant was derived."
+    description: "Identifier of the original task."
   modifications:
     type: array
     items:
       type: string
-    description: "Human‑readable description of each change applied during evolution."
+    description: "List of textual descriptions of the changes applied to the original task."
   predicted_penalty:
     type: number
-    description: "Penalty score predicted by the regression model for this evolved task."
+    description: "Penalty score predicted by the regression model."
   task:
-    type: object
-    description: "Full task definition (matches the Task schema)."
-    required:
-      - task_id
-      - goal
-      - environment
-      - optimal_path_length
-      - tool_diversity_k
-      - features
-    properties:
-      task_id:
-        type: string
-      goal:
-        type: string
-      environment:
-        type: object
-        additionalProperties: true
-      optimal_path_length:
-        type: ["integer", "null"]
-      tool_diversity_k:
-        type: integer
-      features:
-        type: object
-        additionalProperties: true
+    $ref: "task.schema.yaml"
   generation_timestamp:
     type: string
-    format: date-time
-    description: "When the evolution script generated this task."
+    format: "date-time"
+    description: "Timestamp when the evolution script generated the record."
+additionalProperties: false

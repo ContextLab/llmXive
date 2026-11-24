@@ -20,40 +20,42 @@ T001:
   sig: a0cbdedaf27d1edda3223ca2e57d4fc4378ffafe70b4d7654d85ad2c04dfde28
 T001a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: 'I looked for a `pipeline/loader.py` file containing a `verify_urls(urls: List[str])`
-    implementation and for an accompanying test that checks unreachable URLs raise
-    an error, but no such files or code were presented. The required function and
-    its verification test are missing, so the task is not satisfied.'
+  h: 7dbe80ba3162c9ee9e90bb0f48507b94172e1d4a41c34eb28638d3c6d3c1dd74
+  r: The `tests/unit/test_data_loader.py` file exists and contains detailed tests
+    for `verify_urls`, but the test suite cannot be collected/run because importing
+    `code/pipeline/loader.py` (required for the `exponential_backoff` decorator) raises
+    an `ImportError` from the `datasets` library, which depends on a newer NumPy/pyarrow
+    version. This import error aborts test execution, so the required unit test does
+    not actually pass. The task needs the import issue resolved (e.g., make the `datasets`
+    import lazy or adjust dependencies) so the tests can run successfully.
+  sig: 3a23f1e07e17ead111eadf985e38e9b1baadf301a8d7996419a685d84ae65b29
 T001b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test files, or documentation for `download_and_checksum(dataset_name,\
-    \ dest_path)` were provided, nor any evidence that a SHA\u2011256 checksum file\
-    \ is written or that a verification test was added. The required implementation\
-    \ and its test are missing."
+  h: 8a9265b07a06ee7d2f9bf859bef963536322c7bfdd7ec56d145829bdc01863c0
+  r: "The only unit\u2011test file (`tests/unit/test_data_loader.py`) exercises `verify_urls`\
+    \ and the `exponential_backoff` decorator, but it contains no test case that imports\
+    \ or validates the `download_and_checksum` function. A test for `download_and_checksum`\
+    \ is required to satisfy task T001b."
+  sig: 972da6dec4a3a2b75505aa3a1ee06cb00f0b20568864347de326c5cc3a0f9fc1
 T001c:
-  c: true
-  h: e1e87909139dc17215b4a820ea42611ff9bc4e29e11d077d5c2e6e4681d140f6
-  r: 'The implementation exists in `code/utils/data_loader.py` (re-exported via top-level
-    `utils/data_loader.py`): `verify_urls` performs HEAD requests wrapped by the `exponential_backoff`
-    decorator from `pipeline/loader` (30s initial delay, 5 retries, per FR-011) and
-    raises `ValueError` naming the unreachable URL. The required unit tests in `tests/unit/test_data_loader.py`
-    mock HTTP with `responses`, cover both the success and failure/retry paths (asserting
-    6 calls = 1 + 5 retries), and match the task''s verification requirement; no execution
-    logs were supplied, but the artifacts'' content genuinely '
-  sig: f8b969f12cabc5b9ce9db52fda3d1b66ab46d76569932075f2c5c8c863df30c2
+  c: false
+  h: 7a357fcbea16da8a9c5d2d966a3fc4349ed2c96fc07721f8e50961eb0b86ddd7
+  r: "The `utils/data_loader.py` file only re\u2011exports `verify_urls` from `code.utils.data_loader`\
+    \ and does not contain its own implementation, while the unit test imports `verify_urls`\
+    \ from `pipeline.loader` instead of `utils.data_loader`. Consequently the required\
+    \ function is not directly implemented in the specified module and the provided\
+    \ test does not verify it. The task\u2019s requirement is therefore unmet."
+  sig: 9ed1b1f08116e69c8d872878b594a0f7f3ee6261a1fdea67105d3e818f4952d6
 T001d:
-  c: true
-  h: 19fbb0c4eef148be7a200f59850458dd7dee06e1d30a8e085d48e5193f0b48cd
-  r: '`code/pipeline/loader.py` contains a real, non-stub `download_and_checksum(dataset_name,
-    dest_path)` that downloads via HuggingFace `datasets`, computes a SHA-256 directory
-    checksum, and writes a `SHA256SUM` file alongside the data (with idempotent caching),
-    and `tests/unit/test_data_loader.py` adds substantive unit tests verifying the
-    returned 64-char digest, the SHA256SUM file''s existence/content, and consistency
-    with `calculate_directory_checksum`. The stubs present in the file are for other,
-    later tasks (load_openwebtext etc.), not this deliverable.'
-  sig: 34ff751262f5a46eff4464f9f8bacea9879e0b33e020084fdd99097d0614fa04
+  c: false
+  h: a5bb93e83a52daa8c71a330c75428da96880a2d850446f8f476331146f08e1ec
+  r: "The repository contains a `download_and_checksum` implementation, but the claimed\
+    \ verification unit test (`tests/unit/test_data_loader.py`) does **not** test\
+    \ this function \u2013 it only covers `verify_urls` and the `exponential_backoff`\
+    \ decorator. A test exercising `download_and_checksum` (e.g., mocking `datasets.load_dataset`\
+    \ and checking that a `SHA256SUM` file is created and the correct checksum is\
+    \ returned) is missing. Adding such a test is required to satisfy the task."
+  sig: 3670d62b2933ba0005a0d66c6dc77427df7c6b80687d31b0410f82a881ee38af
 T001e:
   c: true
   h: dcf72f37c8a2e14a93eaf93e1645156696b0015203bcafe80ba7c3e2c1d85128
@@ -99,6 +101,14 @@ T007:
   r: No code for `run_bootstrap_and_regression` is present, nor evidence that it reads
     `NUM_RESAMPLES` from `config.py` or that a verification test was added. The required
     implementation and test artifacts are missing.
+T008:
+  c: false
+  h: 18df09178b58221943c16464f51f85bb56ffb251a4fc92d02b2333ecae84f4d0
+  r: "The unit\u2011test `test_parse_research_md` fails because `config.MAX_PARAM_INCREASE_RATIO`\
+    \ is read as\u202F1.0 instead of being clamped to\u202F0.30, violating the requirement\
+    \ that any value from `research.md` exceeding 0.30 must be capped. The `config.py`\
+    \ therefore does not correctly enforce the ratio limit."
+  sig: 86e202a0708fba1fdd607be6e8e1f8bc5fa53d386ddc1a70fa234f482edf4922
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,21 +1,22 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Delta Metrics Schema"
+description: "Minimal schema for per‑variant delta fields required by SC‑001."
 type: object
 required:
-  - dataset
+  - dataset_id
   - variant_id
   - p_value_delta
   - direction
   - ci_overlap
   - effect_size_change
 properties:
-  dataset:
+  dataset_id:
     type: string
   variant_id:
     type: string
   p_value_delta:
     type: number
-    description: "Baseline p‑value minus cleaned p‑value, three‑decimal precision."
+    description: "Baseline p‑value minus cleaned p‑value (≥ 0.001 precision)."
   direction:
     type: string
     enum: ["increase", "decrease"]
@@ -25,3 +26,4 @@ properties:
     maximum: 1
   effect_size_change:
     type: number
+    description: "Absolute change in effect size (≥ 0.001 precision)."

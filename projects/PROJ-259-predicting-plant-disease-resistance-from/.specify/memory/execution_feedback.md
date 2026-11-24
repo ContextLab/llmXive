@@ -37,12 +37,6 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 ## Failing / missing run-book commands
 
-- python -c "import scikit_learn, pandas, statsmodels; print('OK')" -> rc=1
-
-Traceback (most recent call last):
-  File "<string>", line 1, in <module>
-ModuleNotFoundError: No module named 'scikit_learn'
-
 - python code/cli.py run --output-dir results/ -> rc=2
 
 usage: cli.py [-h] [--demo]

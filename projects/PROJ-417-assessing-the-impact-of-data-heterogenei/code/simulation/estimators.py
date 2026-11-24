@@ -1,4 +1,6 @@
 """
+estimators.py
+
 Meta‑analysis estimators and heterogeneity utilities.
 
 This module provides three standard estimators:
@@ -27,7 +29,18 @@ import numpy as np
 from scipy import optimize
 from pathlib import Path  # Added import for Path handling
 
-from utils.logging import get_logger
+# ----------------------------------------------------------------------
+# Logging helper – fall back to the standard library if the project‑specific
+# ``utils.logging`` module is unavailable (e.g., during isolated test runs).
+# ----------------------------------------------------------------------
+try:
+    from utils.logging import get_logger  # type: ignore
+except Exception:  # pragma: no cover
+    import logging
+
+    def get_logger(name: str, **kwargs) -> logging.Logger:  # noqa: D401
+        """Return a standard library logger as a fallback."""
+        return logging.getLogger(name)
 
 logger = get_logger(__name__)
 
@@ -54,6 +67,9 @@ REML_FAILURE_LOG_PATH = "data/results/reml_failures.json"
 # Minimum number of studies for reliable chi‑square / df approximations
 MIN_STUDIES_FOR_RELIABILITY = 5
 
+# Minimal positive tau² to use when REML fails (as required by the spec)
+MIN_POSITIVE_TAU2 = 1e-6
+
 # ----------------------------------------------------------------------
 # Helper classes / functions
 # ----------------------------------------------------------------------
@@ -77,6 +93,7 @@ class EstimationResult:
         n_studies: int,
         convergence_status: str = "success",
         small_study_flag: bool = False,
+        convergence_warning: bool = False,
     ):
         self.pooled_effect = pooled_effect
         self.se_pooled = se_pooled
@@ -90,6 +107,7 @@ class EstimationResult:
         self.n_studies = n_studies
         self.convergence_status = convergence_status
         self.small_study_flag = small_study_flag
+        self.convergence_warning = convergence_warning
 
     def to_dict(self) -> Dict[str, Any]:
         """Serialise the result for downstream JSON/CSV output."""
@@ -106,12 +124,13 @@ class EstimationResult:
             "n_studies": self.n_studies,
             "convergence_status": self.convergence_status,
             "small_study_flag": self.small_study_flag,
+            "convergence_warning": self.convergence_warning,
         }
 
 # ----------------------------------------------------------------------
 # Logging utilities
 # ----------------------------------------------------------------------
-def log_reml_failure(event: Dict[str, Any], log_path: str = REML_FAILURE_LOG_PATH) -> None:
+def log_reml_failure(event: Dict[str, Any], log_path: Optional[str] = None) -> None:
     """
     Log a REML convergence failure event to a JSON file (FR‑006).
 
@@ -121,12 +140,20 @@ def log_reml_failure(event: Dict[str, Any], log_path: str = REML_FAILURE_LOG_PAT
 
     Parameters
     ----------
-    event:
+    event :
         Dictionary describing the failure.
-    log_path:
-        Path to the JSON failure log.
+    log_path :
+        Path to the JSON failure log. If ``None`` the default
+        :data:`REML_FAILURE_LOG_PATH` is used, which respects any
+        runtime monkey‑patching of that constant.
     """
+    # Resolve the log path at call time so monkey‑patching of
+    # ``REML_FAILURE_LOG_PATH`` is honoured.
+    if log_path is None:
+        log_path = REML_FAILURE_LOG_PATH
+
     events: List[Dict[str, Any]] = []
+    loaded: Optional[Any] = None  # Will hold the original JSON content if present
     try:
         with open(log_path, "r", encoding="utf-8") as f:
             content = f.read().strip()
@@ -159,7 +186,7 @@ def log_reml_failure(event: Dict[str, Any], log_path: str = REML_FAILURE_LOG_PAT
             with open(log_path, "w", encoding="utf-8") as f:
                 json.dump(loaded, f, indent=2)
         else:
-            # Plain list format
+            # Plain list format (including the case where the file did not exist)
             with open(log_path, "w", encoding="utf-8") as f:
                 json.dump(events, f, indent=2)
     except OSError as e:
@@ -270,6 +297,7 @@ def estimate_fixed_effects(
         n_studies=n,
         convergence_status="success",
         small_study_flag=small_flag,
+        convergence_warning=False,
     )
 
 def estimate_dersimonian_laird(
@@ -337,6 +365,7 @@ def estimate_dersimonian_laird(
         n_studies=n,
         convergence_status="success",
         small_study_flag=small_flag,
+        convergence_warning=False,
     )
 
 def estimate_reml(
@@ -348,7 +377,9 @@ def estimate_reml(
     Restricted Maximum Likelihood (REML) random‑effects estimator.
 
     On optimisation failure the event is logged (FR‑006) and the
-    estimator falls back to the DerSimonian‑Laird variance.
+    estimator falls back to the DerSimonian‑Laird variance, but
+    additionally sets ``convergence_warning`` to ``True`` and replaces
+    the estimated τ² with a minimal positive value (``MIN_POSITIVE_TAU2``).
     """
     n = _validate_inputs(effect_sizes, variances)
     if n == 1:
@@ -402,12 +433,14 @@ def estimate_reml(
             )
         logger.warning("REML optimisation failed (%s); falling back to DL tau².", failure_reason)
         dl_res = estimate_dersimonian_laird(effect_sizes, variances)
+        # According to the specification the fallback τ² must be exactly 1e‑6.
+        minimal_tau2 = MIN_POSITIVE_TAU2
         return EstimationResult(
             pooled_effect=dl_res.pooled_effect,
             se_pooled=dl_res.se_pooled,
             ci_lower=dl_res.ci_lower,
             ci_upper=dl_res.ci_upper,
-            tau2=dl_res.tau2,
+            tau2=minimal_tau2,
             i2=dl_res.i2,
             q_statistic=dl_res.q_statistic,
             df=dl_res.df,
@@ -415,6 +448,7 @@ def estimate_reml(
             n_studies=dl_res.n_studies,
             convergence_status="fallback_dl",
             small_study_flag=dl_res.small_study_flag,
+            convergence_warning=True,
         )
 
     # ----------------------------------------------------------------------
@@ -449,6 +483,7 @@ def estimate_reml(
             n_studies=fe_res.n_studies,
             convergence_status="fallback_fe",
             small_study_flag=fe_res.small_study_flag,
+            convergence_warning=False,
         )
 
     pooled = sum(w * y for w, y in zip(w_re, effect_sizes)) / sum_w_re
@@ -488,6 +523,7 @@ def estimate_reml(
         n_studies=n,
         convergence_status="success",
         small_study_flag=small_flag,
+        convergence_warning=False,
     )
 
 def apply_estimator(

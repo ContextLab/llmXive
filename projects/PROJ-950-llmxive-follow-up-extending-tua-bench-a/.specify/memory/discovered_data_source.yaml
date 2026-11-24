@@ -1,0 +1,15 @@
+status: none
+intent: download TUA-Bench scientific workflow tasks dataset from HuggingFace python
+  package dataset
+required_fields:
+- task_id
+- task_type
+- description
+- steps
+- expected_output
+- complexity
+- input
+- command_sequence
+cache_key: 4cc73e31c7db4229c58874cde85abb8db372694e1e6430b9cf442514bf850ea9
+searched_at: '2026-10-20T10:34:13.832807+00:00'
+retry_count: 1

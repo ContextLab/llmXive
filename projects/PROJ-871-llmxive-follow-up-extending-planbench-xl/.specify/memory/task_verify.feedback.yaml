@@ -1,17 +1,10 @@
 T001:
-  reason: "The required directories `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/`,\
-    \ `data/`, and `tests/` do exist, but they are populated with many files and sub\u2011\
-    folders rather than being empty as the task specifies. The artifact therefore\
-    \ does not meet the \u201Cempty directories\u201D requirement. The implementer\
-    \ must provide truly empty `code/`, `data/`, and `tests/` directories (or at least\
-    \ no files beyond the required placeholder structure)."
+  reason: 'Requested task execution failed; rerun successfully: code/verify_scaffold.py
+    exit=1'
   task: a7e90cb3f3caf66afdca832e1b96310acebd921a5b895f1ba540129131159dfd
 T002:
-  reason: "The provided `requirements.txt` matches the requested pinned versions,\
-    \ but the required `requirements_checksum.txt` (containing the SHA\u2011256 checksum)\
-    \ and the `setup_log.txt` showing a successful `pip install -r requirements.txt`\
-    \ and `pip list` are absent. Without these verification artifacts the task is\
-    \ not fully satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/setup_requirements.py
+    exit=1'
   task: b3285e51b0e711140fafd47a9922ee03d0f97c5a4781bb43ec9225ecaf98c520
 T003:
   reason: The required `.gitignore` file at `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/.gitignore`
@@ -38,6 +31,8 @@ T008:
 T009:
   task: 40fb7ae7f712263b768edd55b5414a666410c51eefc490c7bc89db383be7966c
 T010:
+  reason: 'Requested task execution failed; rerun successfully: code/run_baseline.py
+    exit=1; code/run_augmented.py exit=1'
   task: c1a0ad2bcdf42f0b1ae12517279116201d738f51646f5d7c9c2e41ecbb575126
 T011:
   task: 335259627599f07cee19de0cedddd2289773c9382ea21708e03b43110f8db29a

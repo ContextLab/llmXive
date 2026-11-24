@@ -1,12 +1,20 @@
-"""
-Script to create the required project directory tree and capture a
-filesystem snapshot (up to depth 3) in logs/structure.txt.
+"""Project scaffolding for the VAERS statistical analysis pipeline (T001).
+
+Creates the required directory layout (including ``data/processed/``,
+which a previous run omitted) and writes the filesystem evidence
+artifact ``logs/structure.txt`` containing the output of
+``tree -a -L 3`` (falling back to ``find . -maxdepth 3 -type d`` when
+the ``tree`` binary is unavailable).
+
+Usage:
+    python code/create_structure.py
 """
 
-import sys
+import subprocess
 from pathlib import Path
 
-# List of directories that must exist for the project
+from llmxive_toolkit import paths
+
 REQUIRED_DIRS = [
     "src",
     "src/data",
@@ -14,63 +22,91 @@ REQUIRED_DIRS = [
     "src/utils",
     "src/validation",
     "tests",
+    "tests/unit",
+    "tests/integration",
     "data",
     "data/raw",
     "data/processed",
+    "data/results",
     "output",
     "output/figures",
     "output/temporal_profiles",
-    "contracts",
     "logs",
 ]
 
 
-def _create_directories(root: Path) -> None:
+def create_directories(root: Path | None = None) -> list[Path]:
+    """Create all required project directories (idempotent).
+
+    Returns the list of directories that were newly created.
     """
-    Create all directories listed in REQUIRED_DIRS under the given root.
+    base = Path(root) if root else paths.root
+    created: list[Path] = []
+    for rel in REQUIRED_DIRS:
+        d = base / rel
+        if not d.exists():
+            d.mkdir(parents=True, exist_ok=True)
+            created.append(d)
+    return created
+
+
+def write_structure_snapshot(root: Path | None = None) -> Path:
+    """Capture a three-level directory listing into logs/structure.txt.
+
+    Prefers the system ``tree -a -L 3`` command; if it is not
+    installed, falls back to ``find . -maxdepth 3 -type d``.
     """
-    for rel_dir in REQUIRED_DIRS:
-        dir_path = root / rel_dir
-        dir_path.mkdir(parents=True, exist_ok=True)
+    base = Path(root) if root else paths.root
+    logs_dir = base / "logs"
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    out_file = logs_dir / "structure.txt"
 
+    try:
+        result = subprocess.run(
+            ["tree", "-a", "-L", "3"],
+            cwd=str(base),
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=60,
+        )
+        listing = result.stdout
+    except (FileNotFoundError, subprocess.CalledProcessError,
+            subprocess.TimeoutExpired):
+        result = subprocess.run(
+            ["find", ".", "-maxdepth", "3", "-type", "d"],
+            cwd=str(base),
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=60,
+        )
+        listing = result.stdout
 
-def _write_snapshot(root: Path, output_file: Path, max_depth: int = 3) -> None:
-    """
-    Write a simple tree‑like snapshot of the directory hierarchy up to
-    ``max_depth``. The format is lightweight – each line contains the
-    relative path of a file or directory (directories end with a slash).
-    """
-    lines = []
+    if not listing.strip():
+        raise RuntimeError(
+            "Failed to capture directory structure: both 'tree' and "
+            "'find' produced empty output."
+        )
 
-    root = root.resolve()
-
-    def walk(current: Path, depth: int) -> None:
-        if depth > max_depth:
-            return
-        for entry in sorted(current.iterdir()):
-            rel = entry.relative_to(root)
-            line = str(rel) + ("/" if entry.is_dir() else "")
-            lines.append(line)
-            if entry.is_dir():
-                walk(entry, depth + 1)
-
-    walk(root, 0)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    output_file.write_text("\n".join(lines), encoding="utf-8")
+    out_file.write_text(listing, encoding="utf-8")
+    return out_file
 
 
 def main() -> None:
-    """
-    Main entry point:
-    1. Create the required directory tree.
-    2. Write the snapshot to logs/structure.txt.
-    """
-    root = Path.cwd()
-    _create_directories(root)
-    snapshot_path = root / "logs" / "structure.txt"
-    _write_snapshot(root, snapshot_path, max_depth=3)
-    print(f"Directory snapshot written to {snapshot_path}")
-    sys.exit(0)
+    created = create_directories()
+    if created:
+        print(f"Created {len(created)} directories:")
+        for d in created:
+            print(f"  {d.relative_to(paths.root)}")
+    else:
+        print("All required directories already exist.")
+
+    out_file = write_structure_snapshot()
+    size = out_file.stat().st_size
+    print(f"Wrote {out_file} ({size} bytes)")
+    if size == 0:
+        raise RuntimeError("logs/structure.txt is empty")
 
 
 if __name__ == "__main__":

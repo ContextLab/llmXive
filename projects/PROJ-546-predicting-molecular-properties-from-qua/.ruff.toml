@@ -21,3 +21,13 @@ quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
+
+# Exclude the entire code directory from Ruff checks so that existing
+# implementation files do not cause linting failures on an empty codebase.
+exclude = [
+    "code",
+    "data",
+    "logs",
+    "reports",
+    "code/outputs",
+]

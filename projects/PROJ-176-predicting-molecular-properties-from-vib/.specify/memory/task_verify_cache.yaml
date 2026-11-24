@@ -1,27 +1,31 @@
-T010:
+T001:
   c: false
-  h: 894ca0afc13e21c62ee0353f603695a6e8f2a5af9b9c0aa939051ea7d465033d
-  r: The required artifact `tests/test_data_alignment.py` does not exist in the repository,
-    so the contract test for data alignment cannot be verified. The missing file must
-    be added with appropriate InChIKey matching checks.
-T034:
+  h: 499e1fd2fdc4dfe244473f476994ee3a57fc98f225cf394e072fbbaa1e63115f
+  r: "The required artifact `logs/compileall.log` is not present in the collected\
+    \ evidence \u2014 the collector confirmed `config/seeds.yaml` (valid, correct\
+    \ seeds) and `results/structure_report.txt` (lists all required directories),\
+    \ but no `logs/` directory or compileall log was resolved, and the historical\
+    \ scaffold run's stdout merely claims it wrote the file. The implementer must\
+    \ actually create `logs/compileall.log` (e.g., by running `python -m compileall\
+    \ code/` with output redirected there) so the required artifact exists on disk."
+  sig: 901a13f33c2297cc415e6a19633b818a5f86cbda40d09e0323663bc9e1b870c6
+T002:
   c: false
-  h: 5088c97fea62715d49cce22f8f636b78c3545b902a71e283a71d1e025ffd4f62
-  r: The repository lacks the required `results/evaluation_metrics.json` file, and
-    `code/utils/update_state.py` contains only generic hashing utilities without any
-    explicit logic that hashes that specific JSON file. Both the artifact and the
-    targeted functionality are missing.
-T043:
+  h: 7d30455f21a40ec3f98f02e87e5dc34d03aec3aa2d6bbb3e25ab0568e5ad0da5
+  r: The collector evidence shows only `dataset.schema.yaml` exists in the contracts
+    directory; `model_output.schema.yaml` and `evaluation_results.schema.yaml` are
+    explicitly MISSING, so two of the three required schema artifacts were not materialized.
+    The implementer must copy/create those two YAML schema files into `specs/001-predict-molecular-properties/contracts/`
+    (non-empty, valid YAML) to complete the task.
+  sig: f735b50605c1405d47e84d1305a8715d32b8c2279f5408f785a3fd2df1f684d6
+T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No logs, output files, or screenshots showing that `ruff check --fix` was executed\
-    \ on the `code/` directory, nor any evidence of an exit code\u202F0 or that reported\
-    \ issues were fixed. The required artifact (proof of a successful static analysis\
-    \ run) is missing."
-T045:
-  c: false
-  h: 16ea45c20837e3e89a7a092f734a2c69f69b705c012801306c21593650ffc60f
-  r: "The required output file `results/runtime_verification.json` is missing, and\
-    \ there is no evidence that `code/main.py` was executed end\u2011to\u2011end,\
-    \ timed, and compared against the 6\u2011hour limit. The task\u2019s core deliverable\
-    \ is therefore not present."
+  h: d2ecc2acfa2ed13568ef50ce9a6293c4b9d59bce1ac529cbd739cd0791ba4c3c
+  r: 'The required artifacts are missing or empty: `data/raw/qm9.parquet` is 0 bytes,
+    `data/raw/ir_spectra.parquet` and `results/checksums.json` do not exist, and the
+    recorded test run failed (exit 1) because `ds.to_parquet(..., engine="pyarrow")`
+    passes an invalid keyword to pyarrow. The script also deviates from the spec (uses
+    `split=''full''` instead of `split=''train''`, no `cache_dir=''data/raw''`, no
+    reference-checksum comparison, and no T019 invocation on DFT mismatch), so the
+    download pipeline has never successfully run.'
+  sig: 561f12ea48a835c65795705406714dfb6e2194a2e48ded2a6d20c25d569c014c

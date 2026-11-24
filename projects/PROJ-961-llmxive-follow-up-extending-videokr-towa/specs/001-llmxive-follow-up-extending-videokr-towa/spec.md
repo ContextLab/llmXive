@@ -1,6 +1,6 @@
 # Specification: Video Reasoning Threshold Analysis
 **Project**: llmXive follow-up: extending "VideoKR: Towards Knowledge- and Reasoning-Intensive Video Understanding"
-**Version**: 1.1 (Corrected)
+**Version**: 1.2 (Revised)
 **Date**: 2023-10-27
 **Status**: Active
 
@@ -11,102 +11,194 @@ This specification defines the requirements for analyzing the "reasoning cliff" 
 ## 2. User Stories
 
 ### US1: Data Ingestion and Structural Annotation
-As a researcher, I want to download the VideoKR-SFT dataset and annotate each question with the exact shortest-path hop count from the ground-truth knowledge graph, so that I can stratify performance by reasoning complexity.
+As a researcher, I want to download the VideoKR‑SFT dataset and annotate each question with the exact shortest‑path hop count from the ground‑truth knowledge graph, so that I can stratify performance by reasoning complexity.
 
-### US2: Accuracy Stratification and Threshold Detection
-As a researcher, I want to calculate accuracy per hop-bin and detect a non-linear "reasoning cliff" using a Permutation Test, so that I can quantify the threshold where reasoning capability breaks down.
+### US2: Accuracy Stratification, Threshold Detection, and Model‑Based Evaluation
+As a researcher, I want to calculate accuracy per hop‑bin, detect a non‑linear "reasoning cliff" using both a permutation change‑point test **and** a likelihood‑ratio test (LRT) between linear and piecewise‑linear models, and train a text‑only logistic regression model to predict correctness, so that I can quantify the threshold where reasoning capability breaks down and validate it against a predictive baseline.
 
 ### US3: Sensitivity Analysis of Threshold Definition
-As a researcher, I want to verify the robustness of the detected "cliff" by sweeping threshold definitions, so that I can ensure the finding is not an artifact of a specific binning choice.
+As a researcher, I want to verify the robustness of the detected "cliff" by sweeping threshold definitions and by controlling for plausible confounds (question difficulty, video length, answer type), so that I can ensure the finding is not an artifact of a specific binning choice or omitted variable bias.
+
+### US4: Runtime Monitoring
+As a researcher, I want the pipeline to log total end‑to‑end runtime and automatically compare it against a predefined continuous‑integration (CI) runtime limit, so that I can enforce reproducibility constraints in automated testing environments.
+
+### US5: Memory Usage Monitoring
+As a researcher, I want the pipeline to record peak memory consumption and compare it against a CI memory limit (7 GB), so that resource usage stays within CI sandbox constraints.
 
 ## 3. Functional Requirements
 
 ### FR-001: Data Annotation
-The system must ingest the VideoKR-SFT dataset and the associated Knowledge Graph.
-- Output: `data/processed/annotated_videokr.csv`
-- Columns: `id`, `question`, `answer`, `chain_length` (integer), `chain_bin` (categorical), `correctness`.
+The system must ingest the VideoKR‑SFT dataset and the associated Knowledge Graph, and produce an annotated CSV that conforms to the project's schema contract (`contracts/annotated_questions.schema.yaml`).  
+- Output: `data/processed/annotated_videokr.csv`  
+- Columns (exactly as required by the **updated** schema):  
+  - `question_id` (string)  
+  - `question_text` (string)  
+  - `answer_text` (string)  
+  - `chain_length` (integer, 1, 2, 3…) – shortest‑path hop count  
+  - `status` (string, e.g., `"annotated"`)  
+
+*Note*: The `predicted_correctness` column required by the original schema is omitted here; it will be added later by **FR-013 (Predicted Correctness Injection)** after the annotation stage. The schema file will be revised accordingly (see FR‑012).
 
 ### FR-002: Binning Strategy
-The system must generate a binned column `chain_bin` from `chain_length` for categorical analysis.
-- Default bins: '1', '2', '3+'.
-- Logic: Aggregate hop counts >= 3 into the '3+' category.
+The system must generate a separate file containing the categorical **hop_bin** for each question.  
+- Output: `data/processed/chain_bins.csv`  
+- Columns: `question_id`, `hop_bin` (categorical values `'1'`, `'2'`, `'3+'` where all hop counts ≥ 3 are aggregated).  
+- Logic: Aggregate hop counts ≥ 3 into the `'3+'` category. (See US1)
 
 ### FR-003: Stratified Accuracy
-The system must calculate accuracy rates for each hop-bin (1-hop, 2-hop, 3+).
-- Output: `data/processed/accuracy_binned.png` and summary table.
-- Constraint: If a bin has <50 samples, the system must flag for bin merging or deferral (see T020a).
+The system must calculate accuracy rates for each hop‑bin (1‑hop, 2‑hop, 3+).  
+- Output: `data/processed/accuracy_binned.png`, `data/processed/accuracy_binned.csv`.  
+- Constraint: If a bin contains **fewer than the sample size determined by FR‑011** (minimum required per‑bin n), the system must flag the bin for merging or defer the statistical test for that bin. (See US1)
 
-### FR-004: Threshold Detection (Permutation Test)
-The system must detect the optimal "knot" (threshold hop count) where accuracy drops significantly.
-- Methodology: Permutation Test (n=1000) for change-point detection.
-- Grid Search: Iterate knot locations from 1 to 5.
-- Correction: Apply Bonferroni correction for multiple comparisons.
-- **Note**: This requirement explicitly overrides the initial LRT proposal. The Plan's "Complexity Tracking" table mandates the Permutation Test to avoid inflated Type I errors from data-driven knot selection.
+### FR-004: Threshold Detection (Permutation Test & Logistic‑Regression LRT)
+The system must detect the optimal “knot” (threshold hop count) where accuracy drops significantly.  
+
+- **Permutation Test**: Operates on raw per‑sample correctness labels (binary 0/1), not on aggregated bin means. Perform a non‑parametric change‑point test with **10,000 permutations**.  
+
+- **Likelihood‑Ratio Test (LRT)**: Fit a **logistic regression** (binomial GLM) of correctness vs. hop count as the null model, and a piecewise‑logistic model with a knot at each candidate location (1 – 5). Compare models with an LRT to obtain a p‑value.  
+
+- Grid Search: Evaluate knot locations across the early portion of the range up to five.  
+- Multiple‑Comparison Correction: Apply Bonferroni correction across the five knot tests.  
+- Output: `data/processed/threshold_results.json` containing both permutation‑test and LRT p‑values, the selected knot, and significance flags. (See US2)
 
 ### FR-005: Continuous Visualization
-The system must generate a continuous plot of accuracy vs. hop count to visualize the trend without binning artifacts.
-- Output: `data/processed/accuracy_vs_hop_raw.png`.
-- Method: Scatter plot with LOESS smooth trend line.
-- Output Data: `data/processed/accuracy_vs_hop_raw.csv`.
+The system must generate a continuous plot of accuracy vs. hop count to visualize the trend without binning artifacts.  
+- Output: `data/processed/accuracy_vs_hop_raw.png`.  
+- Method: Scatter plot of raw binary correctness against hop count with a LOESS smooth trend line.  
+- Output Data: `data/processed/accuracy_vs_hop_raw.csv`. (See US2)
 
 ### FR-006: Runtime Measurement
-The system must log the total end-to-end runtime of the pipeline.
-- Output: `data/processed/runtime_log.json`.
-- Constraint: Must explicitly compare against the CI limit and flag if exceeded.
+The system must log the total end‑to‑end runtime of the pipeline and compare it against the CI runtime limit (i.e., the predefined maximum allowable duration). Runtime monitoring is essential for reproducible research pipelines and to respect CI sandbox constraints.  
+- Output: `data/processed/runtime_log.json` containing fields `total_seconds` and `limit_exceeded` (boolean). (See US4)
 
 ### FR-007: [REMOVED] Generalized Additive Models (GAM)
-**STATUS**: REMOVED.
-**Reason**: The Plan's "Complexity Tracking" table explicitly rejects GAMs for this task due to statistical invalidity on discrete ordinal variables (hop counts). The Permutation Test (FR-004) is the approved methodology for non-linearity detection.
-**Resolution**: This requirement is removed from the specification to resolve the contradiction with the Plan (Issue F001).
+**STATUS**: REMOVED.  
+**Reason**: The Plan’s “Complexity Tracking” table explicitly rejects GAMs for this task due to statistical invalidity on discrete ordinal variables (hop counts). The permutation test and LRT are the approved methodologies for non‑linearity detection. (Retained for traceability; not active.)
+
+### FR-008: Sensitivity Analysis of Threshold Definition
+The system must repeat the threshold detection (both permutation test and LRT) under three alternative binning schemes:
+
+1. **Scheme A** – `'1', '2', '3+'` (identical to the default binning).  
+2. **Scheme B** – `'1', '2', '3', '4+'` (aggregates hop counts ≥ 4 into `'4+'`).  
+3. **Scheme C** – `'1', '2', '3', '4', '5+'` (aggregates hop counts ≥ 5 into `'5+'`).  
+
+The term “initial” corresponds to hop count 1.  
+- Output: `data/processed/sensitivity_analysis.json` with per‑scheme knots and significance flags. (See US3)
+
+### FR-009: Memory Usage Logging
+The system must record peak memory consumption during execution and compare it against the CI memory limit. Memory monitoring is required to guarantee that the pipeline can run within the limited resources of CI environments, ensuring reproducibility.  
+- Output: `data/processed/memory_log.json` containing fields `peak_gb` and `limit_exceeded` (boolean). (See US5)
+
+### FR-010: Predictive Model & Likelihood‑Ratio Evaluation
+The system must train a logistic regression model using only text‑only features (e.g., TF‑IDF of question and answer) to predict correctness, and evaluate whether adding hop‑count as a predictor significantly improves fit via an LRT.  
+- Steps:  
+  1. Train baseline model on text features.  
+  2. Train extended model adding `chain_length` as an additional feature.  
+  3. Perform LRT between baseline and extended models.  
+- Output: `data/processed/model_lrt_results.json` with LRT statistic, p‑value, and conclusion. (See US2)
+
+### FR-011: Power Analysis for Per‑Bin Sample Size
+Before conducting statistical tests, the system must perform a power analysis to determine the minimum number of samples required per hop‑bin to detect an effect size of **0.1** with **80 % power** at **α = 0.05** (two‑sided).  
+- The computed minimum n is recorded in `data/processed/power_analysis.json` and used by FR‑003 to validate bin adequacy. (See US1)
+
+### FR-012: Covariate Extraction for Confound Adjustment
+The system must extract the following covariates for each question to enable confound‑adjusted analyses required by SC‑006 and SC‑003:  
+- **question_difficulty** (float, 0–1): sourced from the dataset’s `difficulty_score` column.  
+- **video_length_seconds** (float): sourced from accompanying video metadata file `metadata/video_lengths.csv`.  
+- **answer_type** (categorical, `"multiple_choice"` or `"open_ended"`): derived from the answer format field in the original dataset.  
+These covariates are added to `data/processed/annotated_videokr.csv` (as new columns) and are used in the adjusted LRTs.  
+
+### FR-013: Predicted Correctness Injection
+The system must run the logistic regression model from FR-010 on the annotated data and write the predicted probability of correctness to a new column `predicted_correctness` (float, 0–1) in `data/processed/annotated_videokr.csv`.  
+- Output: the same CSV file now containing the additional column.  
+- This step follows FR-010 model training and is required for downstream analysis. (See US2)
+
+### FR-014: Data Ingestion Script Success
+The data download and ingestion script (`code/ingest/download_data.py`) must complete without error, exiting with status code 0. Failure must be logged and abort the pipeline.  
+- Output: log entry in `data/processed/ingest_log.json` with field `exit_code`. (See US1)
 
 ## 4. Data Model
 
 ### 4.1 Input Data
-- **VideoKR-SFT**: A CSV/JSONL dataset of video questions, answers, and correctness labels.
-- **Knowledge Graph**: A graph structure (nodes and edges) representing entities and relationships required for reasoning.
+- **VideoKR‑SFT**: A CSV/JSONL dataset of video questions, answers, and correctness labels, including `difficulty_score` and answer format fields.  
+- **Knowledge Graph**: A graph structure (nodes and edges) representing entities and relationships required for reasoning.  
+- **Video Metadata**: `metadata/video_lengths.csv` containing `video_id` and `length_seconds`.
 
 ### 4.2 Annotated Output
-- **CSV**: `data/processed/annotated_videokr.csv`
- - `id`: Unique identifier (string)
- - `question`: Question text (string)
- - `answer`: Ground truth answer (string)
- - `chain_length`: Shortest path hops (integer, 1, 2, 3...)
- - `chain_bin`: Binned category (string: '1', '2', '3+')
- - `correctness`: Binary correctness (boolean/float)
+- **CSV**: `data/processed/annotated_videokr.csv` (see FR‑001, FR‑012, FR‑013).  
+- **Bin Mapping**: `data/processed/chain_bins.csv` (see FR‑002).  
+- **Stratified Accuracy Visuals**: `data/processed/accuracy_binned.png` and `data/processed/accuracy_binned.csv` (see FR‑003).  
+- **Raw Accuracy Visuals**: `data/processed/accuracy_vs_hop_raw.png` and `data/processed/accuracy_vs_hop_raw.csv` (see FR‑005).  
 
 ## 5. Success Criteria
 
 ### SC-001: Annotation Coverage
-- Log total input records, unresolvable count, and annotated count.
-- Output: `data/processed/annotation_coverage.json`.
+- Log total input records, unresolvable count, and annotated count.  
+- Output: `data/processed/annotation_coverage.json`. (See US1)
 
 ### SC-002: Threshold Significance
-- Explicitly compare calculated p-value against alpha=0.05.
-- Output: `data/processed/threshold_results.json` with `is_significant` boolean and `conclusion` string.
+- Explicitly compare calculated p‑values (both permutation test and LRT) against **α = 0.05**.  
+- Output: `data/processed/threshold_results.json` with `is_significant` boolean and `conclusion` string. (See US2)
 
-### SC-003: Robustness Verification
-- Verify if the "cliff" remains significant (p < 0.05) in >= 2 of 3 threshold definitions.
-- Output: `data/processed/stability_metric.json` with `robustness_status` ('PASS'/'FAIL').
+### SC-003: Robustness Verification (Binning & Confounds)
+- Verify that the “cliff” remains significant (p < 0.05) in **≥ 2 of 3** binning schemes **and** after controlling for question difficulty, video length, and answer type (via covariate‑adjusted LRT).  
+- Output: `data/processed/stability_metric.json` with `robustness_status` (`PASS`/`FAIL`). (See US3)
 
 ### SC-004: Runtime Compliance
-- Measure total runtime and compare against CI limits.
-- Output: `limit_exceeded` flag in `runtime_log.json`.
+- Measure total runtime and compare against the CI runtime limit of **7200 seconds**; set `limit_exceeded` flag accordingly.  
+- Output: `data/processed/runtime_log.json`. (See US4)
 
 ### SC-005: Memory Compliance
-- Measure peak memory usage and compare against 7GB limit.
-- Output: `limit_exceeded` flag in `memory_log.json`.
+- Measure peak memory usage and compare against the CI memory limit of **7 GB**; set `limit_exceeded` flag accordingly.  
+- Output: `data/processed/memory_log.json`. (See US5)
+
+### SC-006: Extended Confound Robustness
+- Perform additional regression analyses including covariates for question difficulty (float), video length (seconds), and answer type (categorical). Confirm that the identified knot remains significant after adjusting for these covariates (p < 0.05).  
+- Output: `data/processed/confound_adjusted_lrt.json` with adjusted LRT results. (See US3)
+
+### SC-007: Model LRT Evaluation
+- Verify that `model_lrt_results.json` contains the LRT statistic, p‑value, and a boolean `is_significant` indicating whether adding hop count improves the model (p < 0.05).  
+- Output: `data/processed/model_lrt_results.json`. (See US2)
+
+### SC-008: Predicted Correctness Column Validation
+- Confirm that `annotated_videokr.csv` includes a `predicted_correctness` column with values in the range [0, 1] for every record after FR‑013 execution.  
+- Output: validation flag in `data/processed/predicted_correctness_check.json`. (See US2)
+
+### SC-009: Ingestion Script Success
+- Check `ingest_log.json` for `exit_code` = 0; if not, set `limit_exceeded` flag to true and abort further processing.  
+- Output: `data/processed/ingest_log.json`. (See US1)
+
+### SC-010: Real Dataset Usage
+- Ensure that the pipeline processes the official VideoKR‑SFT dataset files (`data/raw/videokr_sft.csv` etc.). Verify source file checksum matches the known release checksum; abort if mismatch.  
+- Output: `data/processed/dataset_verification.json` with `checksum_match: true/false`. (See US1)
+
+### SC-011: Correctness Label Integrity
+- Confirm that the `correctness` labels used in all analyses are taken directly from the original dataset without synthetic generation. Log a verification flag `original_labels_used: true`.  
+- Output: `data/processed/label_integrity_check.json`. (See US2)
 
 ## 6. Methodology Notes
 
-### 6.1 Change-Point Detection
-The project uses a Permutation Test for change-point detection rather than a Likelihood Ratio Test (LRT) or Generalized Additive Models (GAM). This decision is based on the Plan's "Complexity Tracking" table, which highlights the risks of data-driven knot selection with LRT and the statistical invalidity of GAMs on discrete ordinal variables.
+### 6.1 Change‑Point Detection
+The project employs **both** a permutation‑based change‑point test (operating on raw binary correctness) and a **logistic‑regression** likelihood‑ratio test (LRT) comparing a null logistic model to a piecewise‑logistic model. This dual approach satisfies Constitution VII (mandatory LRT) while providing a non‑parametric robustness check.
 
 ### 6.2 Handling Small Bins
-If a bin (e.g., '3+') has fewer than 50 samples, the system will attempt to merge it with the adjacent bin. If the merged bin is still underpowered, the statistical test for that specific comparison will be deferred, and the reason will be logged. No synthetic data will be generated to fill gaps.
+If a bin contains fewer samples than the minimum required by the power analysis (FR‑011), the system will attempt to merge it with the adjacent bin. Should the merged bin still fall below the required n, the statistical test for that bin is deferred and logged.
+
+### 6.3 Predictive Baseline Model
+A logistic regression model using only textual features serves as a baseline. Adding hop count as a predictor tests whether structural reasoning information provides additional explanatory power, evaluated via LRT (FR‑010).
+
+### 6.4 Runtime & Memory Limits
+- **CI runtime limit**: 7200 seconds (2 hours).  
+- **CI memory limit**: 7 GB.  
+
+These limits are enforced by FR‑006 and FR‑009 respectively and are justified as essential for reproducible CI‑based research pipelines.
 
 ## 7. Revision History
 
 | Version | Date | Author | Changes |
 |:--- |:--- |:--- |:--- |
-| 1.0 | 2023-10-20 | Research Team | Initial draft including FR-007 (GAM). |
-| 1.1 | 2023-10-27 | Research Team | **Removed FR-007** to align with Plan's Complexity Tracking table (Resolves F001). |
+| 1.0 | 2023-10-20 | Research Team | Initial draft including FR‑007 (GAM). |
+| 1.1 | 2023-10-27 | Research Team | Removed FR‑007 to align with Plan's Complexity Tracking table (Resolves F001). |
+| 1.2 | 2023-10-27 | Research Team | Added missing FR/SC links, defined CI limits, introduced power analysis, reinstated FR‑007 as removed for traceability, added FR‑008‑012, SC‑006, and predictive‑model requirement to satisfy methodological and scientific‑soundness concerns. |
+| 1.3 | 2023-10-27 | Research Team | Fixed internal consistency (removed `predicted_correctness` from FR‑001), unified naming to `hop_bin`, added covariate extraction FR‑012, replaced linear model with logistic regression in FR‑004, justified runtime and memory monitoring, expanded Data Model with missing visual artefacts. |
+| 1.4 | 2023-10-25 | Research Team | Added FR‑013 (Predicted Correctness Injection), FR‑014 (Ingestion Script Success), clarified binning schemes, specified permutation count, introduced SC‑007 to SC‑011 for new requirements, linked all new FRs/SCs to relevant User Stories. |

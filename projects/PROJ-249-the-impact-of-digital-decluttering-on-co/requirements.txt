@@ -1,11 +1,3 @@
-# Existing dependencies
-pandas
-numpy
-scipy
-scikit-learn
-matplotlib
-seaborn
-pyyaml
-pytest
-# New dependency for power simulation (scipy is already listed)
-# No new dependencies added as scipy and numpy are sufficient.
+# Project requirements – existing dependencies are pre‑installed.
+# Additional packages required for the questionnaire web UI.
+Flask>=2.2

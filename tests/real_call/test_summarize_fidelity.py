@@ -23,7 +23,6 @@ pytestmark = pytest.mark.skipif(
     reason="real-call test; set LLMXIVE_REAL_TESTS=1 to enable",
 )
 
-MODEL = "qwen.qwen3.5-122b"
 TOKEN_BUDGET = 2_000  # forces overflow + a couple of real summarization calls
 
 
@@ -60,16 +59,14 @@ def test_summarize_real_llm_loses_no_critical_element(tmp_path):
         )
         resp = chat_with_fallback(
             [ChatMessage(role="user", content=prompt)],
-            default_backend="dartmouth",
-            fallback_backends=[],
-            model=MODEL,
+            profile="cheap_structured",
         )
         return (resp.text or "").strip()
 
     block = summarize(
         doc,
         goal="preserve every URL, DOI, arXiv id, numeric result, and FR/SC/task id verbatim",
-        model=MODEL,
+        profile="cheap_structured",
         token_budget=TOKEN_BUDGET,
         cache_dir=tmp_path,
         summarize_fn=real_summary_fn,

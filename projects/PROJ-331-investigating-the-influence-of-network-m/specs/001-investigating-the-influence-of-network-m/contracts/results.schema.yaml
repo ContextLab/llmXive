@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Results Schema"
-description: "Schema for statistical results and subject metrics"
+description: "Schema for statistical results and subject metrics."
 type: "object"
 properties:
   subject_metrics:
@@ -26,6 +26,14 @@ properties:
           type: "number"
         motif_isolated_z:
           type: "number"
+        age:
+          type: ["number", "null"]
+        sex:
+          type: ["string", "null"]
+        head_motion:
+          type: ["number", "null"]
+        scanner_site:
+          type: ["string", "null"]
       required:
         - subject_id
         - rsfc_strength

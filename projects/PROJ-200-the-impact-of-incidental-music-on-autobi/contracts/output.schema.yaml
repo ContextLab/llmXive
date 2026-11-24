@@ -1,32 +1,28 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Output Schemas
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schemas"
 definitions:
   RegressionResults:
     type: object
     properties:
-      model_name:
+      term:
         type: string
-      coefficient_residualized_exposure:
+      estimate:
         type: number
-      se_residualized_exposure:
+      std_error:
         type: number
-      pvalue_residualized_exposure:
+      t_value:
         type: number
-      coefficient_popularity:
+      p_value:
         type: number
-      pvalue_popularity:
-        type: number
-      r_squared:
-        type: number
-      vif_residualized_exposure:
-        type: number
-      vif_popularity:
+      vif:
         type: number
     required:
-      - model_name
-      - coefficient_residualized_exposure
-      - pvalue_residualized_exposure
-
+      - term
+      - estimate
+      - std_error
+      - t_value
+      - p_value
+      - vif
   SensitivityAnalysis:
     type: object
     properties:
@@ -34,15 +30,15 @@ definitions:
         type: integer
       match_rate:
         type: number
-      coefficient_residualized_exposure:
+      coefficient_adolescent_exposure:
         type: number
-      pvalue_residualized_exposure:
+      pvalue_adolescent_exposure:
         type: number
     required:
       - levenshtein_threshold
       - match_rate
-      - coefficient_residualized_exposure
-
+      - coefficient_adolescent_exposure
+      - pvalue_adolescent_exposure
   PermutationResults:
     type: object
     properties:
@@ -58,5 +54,7 @@ definitions:
         type: integer
     required:
       - observed_statistic
+      - null_distribution_mean
+      - null_distribution_std
       - p_value
       - iterations

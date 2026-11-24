@@ -1,1 +1,33 @@
-[]
+- artifact_hash: 916809cb91dfe4492a1e463878afb2d1a32af5c16684af88b4b7ad585f6c87cf
+  artifact_path: projects/PROJ-242-mapping-cosmic-microwave-background-cold/specs/001-mapping-cosmic-microwave-background-cold/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Planck Legacy Archive
+  kind: url
+  value: https://pla.esac.esa.int
+  verification_status: pending
+  verified_against_url: https://pla.esac.esa.int
+  verified_at: '2026-10-20T08:50:02.607567Z'
+- artifact_hash: 916809cb91dfe4492a1e463878afb2d1a32af5c16684af88b4b7ad585f6c87cf
+  artifact_path: projects/PROJ-242-mapping-cosmic-microwave-background-cold/specs/001-mapping-cosmic-microwave-background-cold/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Coming Soon
+  kind: url
+  value: https://data.sdss.org
+  verification_status: pending
+  verified_against_url: https://data.sdss.org
+  verified_at: '2026-10-20T08:50:02.607567Z'
+- artifact_hash: 916809cb91dfe4492a1e463878afb2d1a32af5c16684af88b4b7ad585f6c87cf
+  artifact_path: projects/PROJ-242-mapping-cosmic-microwave-background-cold/specs/001-mapping-cosmic-microwave-background-cold/spec.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: DES Data Management
+  kind: url
+  value: https://des.ncsa.illinois.edu
+  verification_status: pending
+  verified_against_url: https://des.ncsa.illinois.edu
+  verified_at: '2026-10-20T08:50:02.607567Z'

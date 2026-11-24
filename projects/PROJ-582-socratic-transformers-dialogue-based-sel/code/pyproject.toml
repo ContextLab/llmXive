@@ -45,4 +45,4 @@ ignore = ["E501", "B008"]
 [tool.black]
 line-length = 88
 target-version = ["py39"]
-include = '\.pyi?$'
+include = '\\.pyi?$'

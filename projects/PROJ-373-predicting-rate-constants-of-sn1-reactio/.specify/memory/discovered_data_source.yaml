@@ -1,11 +1,12 @@
 status: none
-intent: download SN2 kinetic dataset from HuggingFace as python package dataset
+intent: download SN kinetic reaction dataset from HuggingFace and Open Reaction Database
+  python package dataset
 required_fields:
 - SMILES
 - rate_constant
 - temperature
 - solvent
 - substrate_class
-cache_key: bfc9ed95f862b3bb995e62822713bfe81adfd51a1d0f0433f42f8f507e190b7b
-searched_at: '2026-10-03T04:17:23.272444+00:00'
+cache_key: 0ad4eadc5e05aed28ce74cf00b05fdad9fcbb3e267e2bb0761b9ac4bbb4d1202
+searched_at: '2026-10-14T10:28:57.244652+00:00'
 retry_count: 1

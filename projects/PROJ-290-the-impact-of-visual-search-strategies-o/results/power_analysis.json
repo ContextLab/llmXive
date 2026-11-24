@@ -1,0 +1,18 @@
+{
+  "analysis_type": "a_priori_power_analysis",
+  "parameters": {
+    "effect_size_d": 0.5,
+    "target_power": 0.8,
+    "alpha": 0.05,
+    "two_tailed": true
+  },
+  "results": {
+    "required_sample_size_per_group": 64,
+    "total_required_sample_size": 128,
+    "achieved_power_at_required_n": 0.8014595579287103
+  },
+  "interpretation": {
+    "status": "success",
+    "message": "To detect an effect size of d=0.5 with 80% power at alpha=0.05 (two-tailed), a sample size of 64 participants per group (total N=128) is required."
+  }
+}

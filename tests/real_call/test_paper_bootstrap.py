@@ -7,11 +7,18 @@ from pathlib import Path
 
 import pytest
 
-from llmxive.agents.task_verifier import DEFAULT_MODEL, verified_done_keys
+from llmxive.agents.task_verifier import VERIFIER_PROFILE, verified_done_keys
 from llmxive.backends.router import chat_with_fallback
 from llmxive.speckit.paper_implement_cmd import PaperImplementerAgent
 from llmxive.speckit.slash_command import SlashCommandContext
-from llmxive.types import BackendName
+
+
+def _leader(profile: str) -> str:
+    """The model the selector ranks first for ``profile`` on the live snapshot."""
+    from llmxive.model_selection.route import resolve_chain
+
+    return resolve_chain([], profile=profile, max_tokens=1)[1].candidates[0].model_ref.model_id
+
 
 pytestmark = pytest.mark.skipif(
     os.environ.get('LLMXIVE_REAL_TESTS') != '1' or not os.environ.get('DARTMOUTH_CHAT_API_KEY'),
@@ -46,18 +53,18 @@ def test_real_empty_source_paper_bootstrap(tmp_path, monkeypatch):
     memory.mkdir(parents=True)
     (memory / 'constitution.md').write_text('Do not invent scientific results. Only scaffold the selected task.')
     ctx = SlashCommandContext(project.name, project, 'real-bootstrap', 'T001', [], [], repo / 'unused',
-                              BackendName.DARTMOUTH, [], DEFAULT_MODEL, '1', 'paper_implementer')
+                              'deep_code', '1', 'paper_implementer')
     agent = PaperImplementerAgent()
     step = agent.mechanical_step(ctx)
     assert not (project / 'paper/source').exists()
     messages = agent.build_prompt(ctx, step)
-    response = chat_with_fallback(messages, default_backend='dartmouth', fallback_backends=[], model=DEFAULT_MODEL)
-    assert response.model == DEFAULT_MODEL
+    response = chat_with_fallback(messages, profile=ctx.profile)
+    assert response.model == _leader(ctx.profile)
     (tmp_path / 'author-response.json').write_text(json.dumps({'model': response.model, 'text': response.text}, indent=2))
     agent.write_artifacts(ctx, step, response)  # real independent verification is inside the production writer
-    assert verifier_models == [DEFAULT_MODEL]
+    assert verifier_models == [_leader(VERIFIER_PROFILE)]
     assert (project / 'paper/source/main.tex').is_file()
-    assert verified_done_keys(project, tasks, model=DEFAULT_MODEL) == {'T001'}
+    assert verified_done_keys(project, tasks) == {'T001'}
     assert '[X] T001' in tasks.read_text() and '[ ] T002' in tasks.read_text()
     assert not (memory / 'human_input_needed.yaml').exists()
     # Hosted PR workers intentionally lack TeX; local acceptance additionally

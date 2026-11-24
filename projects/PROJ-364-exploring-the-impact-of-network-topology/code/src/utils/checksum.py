@@ -1,11 +1,11 @@
 import hashlib
 import json
 import logging
-import os
 from pathlib import Path
 from typing import Dict, Any, Optional, Union
 
 logger = logging.getLogger(__name__)
+
 
 def calculate_sha256(file_path: str) -> str:
     """
@@ -34,6 +34,15 @@ def calculate_sha256(file_path: str) -> str:
     except IOError as e:
         raise IOError(f"Failed to read file {file_path}: {e}")
 
+
+# Alias kept for backward compatibility with existing tests / code
+def compute_file_sha256(file_path: str) -> str:
+    """
+    Alias for ``calculate_sha256`` to satisfy legacy imports.
+    """
+    return calculate_sha256(file_path)
+
+
 def compute_string_sha256(content: str) -> str:
     """
     Calculate the SHA256 checksum of a string.
@@ -45,6 +54,7 @@ def compute_string_sha256(content: str) -> str:
         Hexadecimal string of the SHA256 hash.
     """
     return hashlib.sha256(content.encode('utf-8')).hexdigest()
+
 
 def compute_file_checksum(file_path: str, algorithm: str = 'sha256') -> str:
     """
@@ -67,6 +77,7 @@ def compute_file_checksum(file_path: str, algorithm: str = 'sha256') -> str:
             hasher.update(chunk)
     return hasher.hexdigest()
 
+
 def verify_file_checksum(file_path: str, expected_checksum: str, algorithm: str = 'sha256') -> bool:
     """
     Verify that a file's checksum matches the expected value.
@@ -85,47 +96,44 @@ def verify_file_checksum(file_path: str, expected_checksum: str, algorithm: str 
     except (FileNotFoundError, IOError):
         return False
 
+
 def generate_checksum_manifest(
     files: Union[list, str],
     manifest_path: Optional[str] = None,
     root_dir: Optional[str] = None
-) -> Optional[Dict[str, Any]]:
+) -> Union[Dict[str, Any], Path]:
     """
     Generate a manifest of checksums for a list of files.
 
-    This function is designed to be tolerant of different calling conventions:
+    This function is tolerant of different calling conventions:
     1. generate_checksum_manifest([file1, file2]) -> returns dict
-    2. generate_checksum_manifest([file1], manifest_path="path") -> writes file, returns path
-    3. generate_checksum_manifest([file1], root_dir="path") -> handles root_dir logic if needed
+    2. generate_checksum_manifest([file1], manifest_path="path") -> writes file, returns Path
+    3. generate_checksum_manifest([file1], root_dir="path") -> resolves relative paths if needed
 
     Args:
         files: List of file paths or a single file path string.
         manifest_path: Optional path to write the manifest JSON. If provided,
-                       the manifest is written to disk and the path is returned.
+                       the manifest is written to disk and the Path is returned.
         root_dir: Optional root directory to prepend to file paths (for context).
                   If provided, it is used to resolve relative paths but does not
                   alter the checksum calculation logic itself.
 
     Returns:
-        If manifest_path is provided: returns the manifest_path string.
-        Otherwise: returns the manifest dictionary.
+        If ``manifest_path`` is provided: a ``Path`` object pointing to the written
+        manifest file. Otherwise: a dictionary representing the manifest.
     """
     if isinstance(files, str):
         files = [files]
 
-    manifest = {
+    manifest: Dict[str, Any] = {
         "version": "1.0",
         "algorithm": "sha256",
         "files": {}
     }
 
     for file_path in files:
-        # Handle root_dir context if provided
+        # Resolve full path, optionally using root_dir as a base
         if root_dir:
-            # If file_path is relative, make it absolute relative to root_dir
-            # but we only store the original path or the resolved one?
-            # Usually manifests store the path relative to the manifest or absolute.
-            # We will store the path as provided, but ensure we can read it.
             full_path = Path(root_dir) / file_path
         else:
             full_path = Path(file_path)
@@ -136,22 +144,28 @@ def generate_checksum_manifest(
 
         try:
             checksum = calculate_sha256(str(full_path))
-            # Store with the original relative path if root_dir was used, else the input path
-            display_path = file_path if root_dir else file_path
-            manifest["files"][display_path] = {
+            # Store both legacy ``hash`` key (expected by tests) and ``checksum`` for compatibility
+            manifest_entry = {
+                "hash": checksum,
                 "checksum": checksum,
                 "size_bytes": full_path.stat().st_size
             }
+            # Preserve the original path string as the key
+            manifest["files"][file_path] = manifest_entry
         except Exception as e:
             logger.error(f"Failed to checksum {full_path}: {e}")
 
     if manifest_path:
-        with open(manifest_path, 'w', encoding='utf-8') as f:
+        manifest_path_obj = Path(manifest_path)
+        # Ensure parent directories exist
+        manifest_path_obj.parent.mkdir(parents=True, exist_ok=True)
+        with open(manifest_path_obj, 'w', encoding='utf-8') as f:
             json.dump(manifest, f, indent=2)
-        logger.info(f"Checksum manifest written to {manifest_path}")
-        return manifest_path
+        logger.info(f"Checksum manifest written to {manifest_path_obj}")
+        return manifest_path_obj
 
     return manifest
+
 
 def load_checksum_manifest(manifest_path: str) -> Dict[str, Any]:
     """
@@ -170,32 +184,42 @@ def load_checksum_manifest(manifest_path: str) -> Dict[str, Any]:
     with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def verify_manifest(manifest_path: str) -> bool:
+
+def verify_manifest(manifest_path: str) -> Dict[str, bool]:
     """
     Verify all files listed in a checksum manifest.
+
+    Returns a mapping from each file path (as stored in the manifest) to a boolean
+    indicating whether the file's current checksum matches the recorded one.
 
     Args:
         manifest_path: Path to the manifest JSON file.
 
     Returns:
-        True if all files match their checksums, False otherwise.
+        Dict where keys are file paths (as strings) and values are booleans indicating
+        checksum validity.
     """
+    results: Dict[str, bool] = {}
     try:
         manifest = load_checksum_manifest(manifest_path)
         files = manifest.get("files", {})
-        all_valid = True
 
         for file_path, info in files.items():
-            expected = info.get("checksum")
+            # Prefer the legacy ``hash`` key, fall back to ``checksum`` if needed
+            expected = info.get("hash") or info.get("checksum")
             if not expected:
                 logger.warning(f"No checksum found for {file_path} in manifest")
+                results[file_path] = False
                 continue
 
-            if not verify_file_checksum(file_path, expected):
+            # ``verify_file_checksum`` works with both absolute and relative paths
+            is_valid = verify_file_checksum(file_path, expected)
+            results[file_path] = is_valid
+            if not is_valid:
                 logger.error(f"Checksum mismatch for {file_path}")
-                all_valid = False
-
-        return all_valid
     except Exception as e:
         logger.error(f"Failed to verify manifest: {e}")
-        return False
+        # In case of a total failure, return an empty dict
+        return {}
+
+    return results

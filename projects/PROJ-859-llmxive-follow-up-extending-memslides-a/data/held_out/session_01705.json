@@ -1,0 +1,213 @@
+{
+  "trace_id": "held_out_43_01705",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "delete_element",
+    "resize_element",
+    "insert_chart",
+    "insert_chart",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "delete_element",
+    "update_layout",
+    "format_text",
+    "insert_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "update_layout"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 14.7876
+      }
+    },
+    {
+      "step": 1,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 4.5501,
+        "height": 97.8253
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 15.0324,
+        "y": 64.2542,
+        "width": 78.1939,
+        "height": 62.5952
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 66.9063,
+        "y": 75.6189,
+        "width": 65.1811,
+        "height": 55.031
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 75.6974,
+        "saturation": 19.7168
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 79.3871,
+        "saturation": 22.8144
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 15.6359,
+        "saturation": 22.6295
+      }
+    },
+    {
+      "step": 7,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 71.1904
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 76.0982,
+        "padding": 39.1167
+      }
+    },
+    {
+      "step": 9,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 8.2969,
+        "x": 79.9078,
+        "y": 17.2024
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 47.9972,
+        "y": 18.0038,
+        "length": 15.5584
+      }
+    },
+    {
+      "step": 11,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 93.4667,
+        "x": 18.7511,
+        "y": 25.1732
+      }
+    },
+    {
+      "step": 12,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 32.7428,
+        "x": 24.3453,
+        "y": 75.3114
+      }
+    },
+    {
+      "step": 13,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 41.9879,
+        "x": 71.5014,
+        "y": 76.4487
+      }
+    },
+    {
+      "step": 14,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 17.5785,
+        "x": 33.539,
+        "y": 82.0649
+      }
+    },
+    {
+      "step": 15,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 92.1064,
+        "x": 37.1072,
+        "y": 40.9099
+      }
+    },
+    {
+      "step": 16,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 15.1149,
+        "x": 78.408,
+        "y": 19.9714
+      }
+    },
+    {
+      "step": 17,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 68.9317,
+        "x": 25.5856,
+        "y": 28.4974
+      }
+    },
+    {
+      "step": 18,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 40.6391,
+        "x": 39.1286,
+        "y": 65.884
+      }
+    },
+    {
+      "step": 19,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 85.3552,
+        "padding": 25.4279
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.634245,
+    "tool_repetition_freq": 0.65,
+    "arg_semantic_variance": 739.12039
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 9,
+    "layout_hash": "43-1705-format_text"
+  },
+  "variance_multiplier": 1.5
+}

@@ -1,42 +1,41 @@
 T001:
-  task: f1e95fed63a95063ec8f06afd8dcc9da6b793d264d363290960ff76089e47df2
+  task: adcb2f85a318093a8a00a0010b0a02f3e655c9f5af03b8eb92ccaed4f4dde693
 T002:
-  reason: "The required `.gitignore` file at the repository (project) root is not\
-    \ present in the collected evidence at all \u2014 no artifact entry exists for\
-    \ it. Without the file, the required exclusion patterns cannot be verified, and\
-    \ the `git check-ignore` verification commands (exit 0 for `data/raw/snps_raw.vcf.gz`,\
-    \ exit 1 for `data/raw/source_log.txt`) cannot pass; the implementer must create\
-    \ `.gitignore` with the exact five specified patterns."
-  task: 5db875919000366551154095583cc5a9263d145b7e54412e8accadfa93c6b6be
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
+  task: 1fab365fab6eb452060952121d4b385cffa3781cecaea9af48747f6488702d95
 T003:
-  task: 932d1a332e7af45b961c7caf00f986c61e9af44e4ace5c23c72e549d4b4770c0
+  task: b8222475e2b9aa0215ce0dcc46ea6bf678ace1fa93d541169b65e010266d908a
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/data_ingestion/fetch_dbsnp.py
-    exit=1'
-  task: 51c23a569a12ad13f4d07e4ebfae1ac41f076fc1c8ff5e973a6f4c0a7e8aa03c
+  task: 7b5f58967c5f64e04b6627a2575a10797efda1a1f1f995005dbe256fa588a2a3
 T005:
-  task: 54533be42fa706dc3cc866b0abe92bcb8858142642647263cdfdaacb3361fa78
+  task: fbbc84c7cfd49056d8cdf891c44e2067d08ba8f7e103c365ad827558b7b79630
 T006:
-  task: 0c1d9136a8486311720dd6e4d750b45c372b1c2859eddda1ff32ed535554adba
+  task: b0b91fc7a9935046f20101cff6a3d0bc9031e4cbf68bf528ccc0fcd1e98b959d
 T007:
-  task: 1abd984ba5327e826418955c2f01142f8867e25b251b4f35b777e64563e9ffd4
+  task: 0b160edf1332c484b846a099c4cba4339540f1da42e9c3b012fe3e43ee54ac46
 T008:
-  task: 6fd5e8a381520c33e6a5bf66bb2b8cb3645d83642e47db58698b530b0771f297
+  task: 549cfe9d33bfb17b0cc5b609ff199664e93b344776d3cd5fde974bba035d30d0
 T009:
-  task: c098d8349a90c583e7fafe67cce32f14180abc8519dfd02c6402127c57821155
+  task: 24885521664e18099e6e42a4ce3d0930a6072f842056170c9c210165850688f0
 T010:
-  task: dc6269366213763ef924faeddd405064899b9d5293014831d626b26505d84771
+  task: 752530fa5a4cdb1f5f880600803ac7860dad52ab131d23495d534650904f9067
 T011:
-  task: e04370c5c96933f7d57f5e1df7bcfaf74d6236c3fa0d624382a1bf693606e726
+  task: 4c727db9ef0f6917a6ad3bad4c53c0da1cc675611aac6a79c08bb90a712b5851
 T012:
-  task: da033cf6d78e1c5d44415ea2786c87225f8047d5eef18fe9b5c8ec59edce8f06
+  task: 23f7c09b33517dc6c0dd5b11558d4bbcca516ab2a9b2c36ea947537662d1cef5
 T013:
-  task: 13fc744d724456d1f798385daa2df48a209e4b2ce31fa62b20e1231d7def5b0b
+  task: 1aa559638c583b6ee7178da68eac4442b02f250a4574a5908963221c870ee8b9
 T014:
-  task: edc7776314a9fe31268229a09f479d653ac18aef3be7ad63269c98dca829f15b
+  task: 72167798631b2790dd37358477c7f73372a4a56c43241c5ca22df3e6df71b023
 T015:
-  task: f9646cb04e02a25fdc7b3ea45b0d26ced72cb6ee3a56bed1fd76a397b6cfd50a
+  task: 01783eea849d536102b3da0246287eb4bdf9ea8e48c8ef666c1f631ac906dfe6
 T016:
-  task: 876f87b5d1d5e78692430bfd2f90791e5e01e553f362b3e8446d3de2ab56b2b7
+  task: 9ed7fc8433ee9dbe8daf18cf0515dcacc5288672443617f956499afe6f348992
 T017:
-  task: fc3aafa7ffdeee22cdf9d1f2c0cc120a56d102e05c3d21dc283b453d55bd62b6
+  task: 493a838f8d0100d0618738cadb3510a49c3ceb105d104c98b3dcb058ea6449f3
+T018:
+  task: 5573c19bf9d1eba10e3c9042defa6b272ab90cc782693cd21bf8ce8114ec3f33
+T019:
+  task: c69ee99dfe2fc001ded976d2064db7d6b7f2320c6357a7cefed8deda6513d9f2
+T020:
+  task: 6dc485c2ed3c0dbfbbfb4af1433c7ae03bb80f245d3e42da6f45a0021a5a9d8c

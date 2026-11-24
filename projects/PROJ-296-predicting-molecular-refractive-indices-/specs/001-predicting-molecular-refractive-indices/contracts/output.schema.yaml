@@ -21,9 +21,9 @@ properties:
   error_baseline:
     type: "number"
     description: "Absolute error of baseline."
-  attribution_scores:
+  top_features:
     type: "array"
-    description: "Normalized attribution scores for top 10 features."
+    description: "Normalized attribution scores for top features."
     items:
       type: "object"
       properties:
@@ -45,4 +45,5 @@ required:
   - pred_ri_baseline
   - error_gnn
   - error_baseline
+  - top_features
 additionalProperties: false

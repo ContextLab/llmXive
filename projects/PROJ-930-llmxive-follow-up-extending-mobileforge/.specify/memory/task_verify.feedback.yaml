@@ -1,0 +1,62 @@
+T001:
+  reason: 'The evidence confirms only the top-level directories (`code/`, `data/`,
+    `outputs/`) and some subdirectories (`code/data/`, `code/tests/`, `code/utils/`,
+    `data/processed/`), but the required nested directories are not shown to exist:
+    `code/models/` is absent from the 28-entry `code/` listing, and there is no evidence
+    of `code/data/raw`, `code/data/processed`, `code/data/evaluation`, `code/tests/unit`,
+    `code/tests/integration`, or `data/raw` (the `data/` listing contains only 4 entries
+    with no `raw/` directory; checksums.json references to `data/raw/...` files are
+    not proof those paths exist at'
+  task: 0b95ce60d5289d14226227233e721cb10e6685a45f625b0b69464950b8334e59
+T002:
+  task: b3772d14fb0e795473d2175e5c351b1f5239d20ce32e2630de995fdace6e8d47
+T003:
+  task: ad5a92ead3758ddc99605d93e1955e0a5f139b4b5f3d5fcbe7d1e7a21a7b40cc
+T004:
+  task: 7ee8b470a6747ced2a1fa2bdbe316dde3ee085b08acaf2a1e10816a17a192734
+T005:
+  task: eec72fd7164af4f8f1fac07cd531873d35ee2132134c5ccd90d01ab793f984c3
+T006:
+  task: 1d186b14c82c9e91c1b12f41abdbe91e3fbc6e1da824f5ff3c521e479c3e2126
+T007:
+  task: 47e9695df357f279967c27d39ecc4c50e5e9a6f860b91d64eb3e1581ce09a52d
+T008:
+  reason: "The required script `data/raw/download_mobileforge.py` (and `code/data/raw/download_mobileforge.py`)\
+    \ does not exist at all, so the core deliverable is missing. Moreover, the download\
+    \ log shows the dataset actually fetched was `OSTShushack/ExtractionDataset`,\
+    \ not the required `mobileforge/logs`, and the checksums.json contains only 3\
+    \ files checksummed against the saved dataset while the log claims success \u2014\
+    \ the artifacts contradict the task's stated requirements."
+  task: eb9dd80f416e32c7d89376215bcdc951dc82cf4c65a76388463fe800a6581fce
+T009:
+  reason: 'Requested task execution failed; rerun successfully: code/data/raw/validate_extraction_dataset.py
+    exit=1'
+  task: 26f49bb3ba6f508ab49d8cbfdaad944c94f9c4899a9e2926e28a579152c8261c
+T010:
+  task: 85da004ed37ccb17ca870111a32528557183d9671af7c037bf32752f1a82584e
+T011:
+  task: 4ce3405198861c9d81744deb59173282aeb3a1c5ba1112417e2211371bf3c8ab
+T012:
+  task: e90a580142a7762b140cfe0679a890a577b9d9e09d9f2e684635b0000b351693
+T013:
+  task: 745ad6298e776891c9f8990308a091dbde13644ae5c535fe2926d978ccc68b10
+T014:
+  task: 5ba8a90cdae3ae21f43a6b4b45f23b31fa428153338d8f18b59e6a17b95c6569
+T015:
+  task: 4f64be9c3839a55ab342340138e09bc229cbccdeda1e0def7d7ef324d2d6d883
+T016:
+  task: 5cf1c39d30070de36946997e99c95536ab02401664ce81e81ac289b434080c57
+T017:
+  task: 72c001f0677fd06272f54e17f45e63e46680581fc8d1e1aabcd3f4e8e297493c
+T018:
+  task: c97f5ee1b6fbd5e4d887cf5e2b5fe7d60195e70102e10c2e0bf4324c597ccbe2
+T019:
+  task: 5e590e65dc55e3c8ce3c63623342a863b000523801331d5989c5650a49d8f8fc
+T020:
+  task: 2c24d08ef0a359e31b697e32adde6b58ac2496ea607e5e3eb17d3732f9b77ccd
+T021:
+  task: 77af878c07290a39a5a9028ec713017433a4c0efadf114bb3aaadcca0681eecd
+T022:
+  task: 61e1ed34af761bf59e74a345e1f5dddb19d3913c96966369e954c91281466934
+T023:
+  task: 0a8ca250be7bdc1b881afd59294251fde1e50fa61f4793613724615f26618bad

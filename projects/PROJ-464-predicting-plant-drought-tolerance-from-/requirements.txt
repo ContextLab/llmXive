@@ -6,12 +6,7 @@ statsmodels>=0.14.0
 opencv-python-headless>=4.8.0
 scikit-image>=0.21.0
 requests>=2.31.0
-huggingface_hub>=0.16.0
-pytest>=7.0.0
 networkx>=3.0
-caper>=1.0.0
-power>=1.0
-matplotlib>=3.7.0
-seaborn>=0.12.0
-pyyaml>=6.0
-pydantic>=2.0.0
+pyyaml
+power
+huggingface_hub>=0.23.0

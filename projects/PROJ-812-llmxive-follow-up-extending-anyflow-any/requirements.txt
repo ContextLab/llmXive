@@ -1,15 +1,28 @@
+# Core dependencies (pre‑installed in the execution environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Project‑specific dependencies
+streamlit
+opencv-python-headless
+pillow
+# The following are already pinned elsewhere in the project but are listed
+# for completeness; they will be ignored if already present.
 onnxruntime
 torch
-scikit-learn
-pandas
-opencv-python-headless
 datasets
 ucimlrepo
 raft-torch
 rich
-scipy
 huggingface_hub
 diptest
-streamlit
-pyyaml
-jsonschema

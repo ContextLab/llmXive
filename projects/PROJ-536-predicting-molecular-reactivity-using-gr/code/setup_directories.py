@@ -1,50 +1,42 @@
+"""
+Script to create the required project directory hierarchy.
+Executes the equivalent of:
+    mkdir -p src/data src/models src/analysis src/config src/utils \
+    tests/contract tests/integration tests/unit
+"""
+
 import os
-import sys
+from llmxive_toolkit import paths, get_logger
+
+log = get_logger(__name__)
 
 def create_directories():
     """
-    Creates the project directory structure for the Molecular Reactivity prediction pipeline.
-    Executes the equivalent of:
-    mkdir -p src/data src/models src/analysis src/config src/utils tests/contract tests/integration tests/unit
+    Create the directory structure required for the project.
+    Uses llmxive_toolkit.paths to ensure folders are created inside the project root.
     """
-    # Define the root directory (assuming the script is run from the project root)
-    # The task description implies creating these relative to the project root.
-    # We will create them in the current working directory.
-    
-    base_dirs = [
-        "src/data",
-        "src/models",
-        "src/analysis",
-        "src/config",
-        "src/utils",
-        "tests/contract",
-        "tests/integration",
-        "tests/unit"
+    # List of directory specifications relative to the project root
+    dirs = [
+        ("src", "data"),
+        ("src", "models"),
+        ("src", "analysis"),
+        ("src", "config"),
+        ("src", "utils"),
+        ("tests", "contract"),
+        ("tests", "integration"),
+        ("tests", "unit"),
     ]
 
-    created = []
-    skipped = []
+    for parts in dirs:
+        # paths.path creates the full Path and ensures the parent directories exist
+        dir_path = paths.path(*parts)
+        dir_path.mkdir(parents=True, exist_ok=True)
+        log.info(f"Created directory: {dir_path}")
 
-    for dir_path in base_dirs:
-        try:
-            if not os.path.exists(dir_path):
-                os.makedirs(dir_path, exist_ok=True)
-                created.append(dir_path)
-            else:
-                skipped.append(dir_path)
-        except OSError as e:
-            print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
-
-    print(f"Directories created: {len(created)}")
-    for d in created:
-        print(f"  - {d}")
-    
-    if skipped:
-        print(f"Directories already existing: {len(skipped)}")
-        for d in skipped:
-            print(f"  - {d}")
-
-    return created + skipped
+def main():
+    """Entry point for the script."""
+    create_directories()
+    log.info("Project directory hierarchy created successfully.")
 
 if __name__ == "__main__":
-    create_directories()
+    main()

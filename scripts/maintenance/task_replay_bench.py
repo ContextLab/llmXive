@@ -46,13 +46,12 @@ def _copy_run(run: Path, project_id: str, dest: Path) -> Path:
     return dest / "projects" / project_id
 
 
-def _attempt(run: Path, project_id: str, variant: str, model: str, keep: Path | None = None) -> dict:
+def _attempt(run: Path, project_id: str, variant: str, profile: str, keep: Path | None = None) -> dict:
     from llmxive.agents import task_verifier
     from llmxive.backends.router import chat_with_fallback
     from llmxive.speckit import scorecard
     from llmxive.speckit.implement_cmd import ImplementerAgent
     from llmxive.speckit.slash_command import SlashCommandContext
-    from llmxive.types import BackendName
 
     root = Path(tempfile.mkdtemp(prefix="llmxive-bench-"))
     try:
@@ -62,8 +61,7 @@ def _attempt(run: Path, project_id: str, variant: str, model: str, keep: Path | 
         ctx = SlashCommandContext(
             project_id=project_id, project_dir=project, run_id="bench", task_id="bench", inputs=[],
             expected_outputs=[], prompt_template_path=root / "agents/prompts/implementer_research.md",
-            default_backend=BackendName.DARTMOUTH, fallback_backends=[], default_model=model,
-            prompt_version="bench", agent_name="implementer")
+            profile=profile, prompt_version="bench", agent_name="implementer")
         agent = ImplementerAgent()
         mech = agent.mechanical_step(ctx)
         task = mech.get("next_task_id")
@@ -74,7 +72,7 @@ def _attempt(run: Path, project_id: str, variant: str, model: str, keep: Path | 
         before = scorecard.current(memory, task)
         messages = agent.build_prompt(ctx, mech)
         started = time.monotonic()
-        reply = chat_with_fallback(messages, default_backend="dartmouth", fallback_backends=[], model=model)
+        reply = chat_with_fallback(messages, profile=profile)
         seconds = time.monotonic() - started
         agent.write_artifacts(ctx, mech, reply)
         after = scorecard.current(memory, task)
@@ -90,7 +88,7 @@ def _attempt(run: Path, project_id: str, variant: str, model: str, keep: Path | 
                 spec_context=(tasks_path.parent / "spec.md").read_text(encoding="utf-8")
                 if (tasks_path.parent / "spec.md").is_file() else "",
                 notes_path=memory / "task_verifier_notes.md", state_path=memory / "task_verify.yaml",
-                project_id=project_id, repo_root=root, model=model)
+                project_id=project_id, repo_root=root)
             row = next((r for r in reversed(scorecard.history(memory, task)) if "judge" in r["values"]), None)
             verdict = None if row is None else row["values"]["judge"]
             reason = next((why for key, why in result["rejected"] if key == task), "")
@@ -120,7 +118,9 @@ def main() -> int:
     parser.add_argument("runs", nargs="+", type=Path)
     parser.add_argument("--samples", type=int, default=3)
     parser.add_argument("--variants", default="1,3", help="candidate replies per retry, comma-separated")
-    parser.add_argument("--model", default="openai.gpt-oss-120b")
+    parser.add_argument("--profile", default=None,
+                        help="requirement profile for the implementer replies "
+                             "(default: the implementer's profile in agents/registry.yaml)")
     parser.add_argument("--out", type=Path)
     parser.add_argument("--keep", type=Path, help="directory to keep each attempt's logs and memory in")
     args = parser.parse_args()
@@ -130,6 +130,8 @@ def main() -> int:
     os.environ["DARTMOUTH_CHAT_API_KEY"] = load_dartmouth_key()
     os.environ["LLMXIVE_RECEIPT_KEY"] = load_signing_key().decode()
     os.environ["LLMXIVE_PAID_OPT_IN"] = "0"
+    from llmxive.agents import registry
+    profile = args.profile or registry.get("implementer").profile
 
     rows = []
     for run in args.runs:
@@ -138,7 +140,7 @@ def main() -> int:
             for variant in args.variants.split(","):
                 for sample in range(args.samples):
                     try:
-                        row = _attempt(run.resolve(), project_id, variant, args.model, args.keep)
+                        row = _attempt(run.resolve(), project_id, variant, profile, args.keep)
                     except Exception as exc:  # one failed trial must not lose the others
                         row = {"task": "?", "variant": variant, "error": f"{type(exc).__name__}: {exc}"[:300]}
                     row.update(run=run.name, sample=sample)

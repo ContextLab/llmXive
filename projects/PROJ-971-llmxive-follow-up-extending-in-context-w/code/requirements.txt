@@ -1,0 +1,2 @@
+# Project dependencies
+gymnasium==0.29.*

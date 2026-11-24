@@ -1,82 +1,80 @@
 # Research: Assessing the Validity of Statistical Significance in Randomized Controlled Trials with Missing Data
 
 ## Problem Definition
+Complete‑Case (CC) analysis is the default handling of missing data in many randomized controlled trials (RCTs). Under Missing Not At Random (MNAR) or Missing At Random (MAR) conditions, CC can inflate Type I error rates, leading to false claims of efficacy. This study quantifies that inflation, identifies missingness‑rate “tipping points” where CC becomes unreliable, and evaluates whether Multiple Imputation (MI) and Inverse‑Probability Weighting (IPW) restore nominal error rates.
 
-The study investigates the robustness of Complete-Case (CC) analysis in Randomized Controlled Trials (RCTs) when data is missing. While CC is standard, it can inflate Type I error rates (false positives) under Missing Not At Random (MNAR) or even Missing At Random (MAR) conditions. The goal is to quantify this inflation, identify "tipping points" (missingness rates where error exceeds nominal levels), and demonstrate the superiority of Multiple Imputation (MI) and Inverse Probability Weighting (IPW) (specifically for MAR, while noting IPW limitations for MNAR).
+**Limitation**: No open‑source RCT dataset with genuine treatment and outcome columns is verified for this project. Consequently, we **simulate** an RCT by adding synthetic treatment and outcome variables to verified observational datasets (and to any verified RCTs that lack the required columns). This approach preserves a known null hypothesis while respecting data‑availability constraints.
 
 ## Dataset Strategy
+Only the datasets listed in the verified block are used. When a dataset lacks a treatment or outcome column, we synthesize them as described in the methodology.
 
-The simulation requires RCT datasets with treatment, outcome, and covariates. The plan uses the following verified sources. **Note**: The spec requires a "true null" hypothesis. The implementation will permute treatment labels *before* simulating missingness to ensure the ground truth effect is zero.
+| Dataset | Verified URL | Format | Role |
+|---------|--------------|--------|------|
+| **RCT‑1** (synthetic treatment/outcome if needed) | https://huggingface.co/datasets/cardiffnlp/TSAR2025_SharedTask_RCTS_Trial-Data/resolve/main/tsar2025_trial.jsonl | JSONL | Primary RCT source (used if it already contains treatment/outcome). |
+| **MCAR‑0** | https://huggingface.co/datasets/mcarthuradal/malawi/resolve/main/booklets/bk0-00000-of-00001.parquet | Parquet | Observational source for MCAR simulations. |
+| **MAR‑0** | https://huggingface.co/datasets/markov-ai/cad-1000-hours/resolve/main/autocad/59f5afb1-7193-4434-83ef-bad577bf09ed/output_files/output.csv | CSV | Observational source for MAR simulations. |
 
-| Dataset Name | Verified URL / ID | Type | Suitability |
-| :--- | :--- | :--- | :--- |
-| **OpenML Diabetes** | `openml.org/d/42803` | Tabular | **Primary Target**. Contains numeric outcome (diabetes status) and covariates (age, BMI, etc.). Lacks explicit "treatment" column; we will simulate a binary treatment assignment (p=0.5) to create a synthetic null hypothesis for the permutation step. *Note: This is a standard proxy for RCT simulation when real treatment data is unavailable in tabular public sets.* |
-| **OpenML Heart Disease** | `openml.org/d/451` | Tabular | **Secondary Target**. Contains numeric outcome (presence of heart disease) and covariates. Similar to Diabetes, will use synthetic treatment assignment for the null hypothesis. |
-| **OpenML Breast Cancer** | `openml.org/d/151` | Tabular | **Fallback**. Contains binary outcome and covariates. Used if Diabetes/Heart lack sufficient sample size or covariate diversity. |
-
-**Dataset Selection Rationale**:
-- **OpenML Datasets**: These are verified, tabular, and accessible via the `openml` library (programmatic download). They contain the necessary numeric structure for statistical testing.
-- **MNAR/MAR Specific Datasets**: The provided "Verified datasets" block includes specific MNAR/MAR datasets. However, these are likely *already* missing or synthetic. **Crucial Decision**: The spec requires simulating missingness on *complete* data. Therefore, we will **NOT** use the pre-missing MNAR datasets as the base. Instead, we will use the **OpenML** datasets (assuming they are complete or can be cleaned to complete) and *simulate* the missingness mechanisms (MCAR, MAR, MNAR) ourselves using the logic defined in FR-002.
-- **Constraint**: If a dataset lacks a "treatment" column, we will generate a synthetic binary treatment column (p=0.5) to serve as the variable for permutation. This is a standard practice in simulation studies to establish a known null hypothesis when real RCT data is not available in a public, tabular format. If a dataset lacks a numeric outcome, it will be skipped.
+*No verified MNAR or IPW datasets exist; the MNAR mechanism is simulated algorithmically (see Methodology).*
 
 ## Methodology
 
-### 1. Ground Truth Calibration (FR-003)
-To ensure the "true effect" is zero:
-1. Load the selected dataset.
-2. If no "treatment" column exists, generate a synthetic binary treatment column (p=0.5).
-3. **Permute** the treatment assignment column randomly (shuffling labels).
-4. Verify that the original association between treatment and outcome is broken (p-value > 0.5 in a quick t-test).
-5. **Crucial Note**: The **outcome values remain unchanged**. Only the treatment labels are shuffled. This ensures the outcome distribution (required for MNAR simulation) is preserved while the treatment effect is nullified.
+### 1. Data Preparation
+- Load each verified dataset via `datasets.load_dataset` or `pandas`.
+- Verify that at least two numeric covariates exist; if not, generate **independent** synthetic covariates `X1`, `X2` (no imposed correlation).
+- If a binary treatment column is missing, create `treatment` ~ Bernoulli(0.5).
+- If an outcome column is missing, generate a continuous outcome `outcome` ~ N(0,1); for binary scenarios, threshold at 0 to obtain a 0/1 variable.
 
-### 2. Missingness Simulation (FR-002)
-Three mechanisms will be simulated on the permuted data:
-- **MCAR**: Randomly drop rows with probability $p$ (independent of any variable).
-- **MAR**: Drop rows with probability $p$ dependent on an observed covariate (e.g., `age` or `bmi`).
-- **MNAR**: Drop rows with probability $p$ dependent on the **original outcome value**.
-  - *Correction*: The spec's instruction to use "permuted outcome values" is scientifically invalid for MNAR. This plan overrides it.
-  - **Procedure**:
-    1. Calculate missingness probability based on the **true, unpermuted** outcome value (e.g., higher probability of missingness for high values).
-    2. Mask the outcome for those selected rows.
-    3. The analysis set will lack the value that determined its own missingness, satisfying the MNAR definition.
+### 2. Ground‑Truth Calibration (FR‑003)
+- **Permutation**: Randomly shuffle the `treatment` column (fixed seed) to guarantee a true null effect. For MNAR simulations, also shuffle the outcome column before missingness injection.
+- Verify the null by running a quick t‑test (continuous) or chi‑square test (binary); the p‑value should be > 0.5.
 
-### 3. Analysis Methods (FR-005)
-- **Complete-Case (CC)**: Discard any row with missing data. Perform t-test (continuous) or Wilcoxon (binary).
-- **Multiple Imputation (MI)**: Use `miceforest` library. This library natively supports generating $m$ distinct stochastic imputations and applying Rubin's Rules for valid variance estimation. (Replacing `sklearn.IterativeImputer` which does not support true MI).
-- **Inverse Probability Weighting (IPW)**: Calculate propensity scores for missingness based on observed covariates, weight observations, and perform weighted regression/t-test.
-  - *Note*: IPW is theoretically valid for MAR. For MNAR, IPW will likely fail to correct bias (as missingness depends on unobserved outcomes). The study will report this failure as a valid scientific finding.
+### 3. Missingness Simulation (FR‑002)
+- **MCAR**: Randomly mask a proportion *p* of rows, independent of any variable.
+- **MAR**: Mask rows with probability proportional to a selected observed covariate (e.g., `X1`). Probability function:  
+  `p_i = min(1, rate * (X1_i - min(X1)) / (max(X1) - min(X1)))`.
+- **MNAR**: Mask rows with probability proportional to the **permuted outcome** values (preserves the null hypothesis).  
+- Missingness rates sweep from **0.05 to 0.25** in **0.05** increments (5 steps) as required by FR‑004.
 
-### 4. Error Calculation (FR-006)
-- Run **2000** Monte Carlo iterations per condition (increased from 500 to reduce standard error from ~0.01 to ~0.005).
-- Count how many times $p < 0.05$.
-- **Empirical Type I Error** = (Count of rejections) / 2000.
-- **Binomial Test**: Test if the observed count significantly deviates from the expected count (2000 * 0.05).
+### 4. Analysis Methods (FR‑005)
+| Method | Implementation |
+|--------|----------------|
+| **Complete‑Case (CC)** | Drop any row with a missing value;<br>– Continuous outcome → Student’s *t*‑test;<br>– Binary outcome → **Logistic regression** (fallback to chi‑square/Fisher’s exact when expected cell counts < 5) (FR‑007). |
+| **Multiple Imputation (MI)** | Use `miceforest` with `m=5` imputations; pool test statistics via Rubin’s Rules; binary outcomes analysed with logistic regression. |
+| **Inverse‑Probability Weighting (IPW)** | Fit a logistic model of missingness using observed covariates; compute inverse‑probability weights; run weighted *t*‑test (continuous) or weighted logistic regression (binary). |
 
-### 5. Tipping Point Identification (FR-004, FR-008)
-- Sweep missingness rates across a range of values.
-- Apply FDR correction (Benjamini-Hochberg) across all conditions.
-- **Sequence**:
-  1. Perform Binomial test for each condition to get raw p-value.
-  2. Aggregate all A set of raw p-values.
-  3. Apply FDR correction to get adjusted q-values.
-  4. Identify the "tipping point" as the **lowest missingness rate** where:
- - Empirical Error Rate > 1.10 * 0.05 ([deferred] relative increase).
-     - FDR-corrected q-value < 0.05.
+### 5. Error Metric Computation (FR‑003, SC‑001, SC‑003, SC‑004)
+- For each (dataset, mechanism, missingness rate, method) condition, run **≥ 15 000** Monte‑Carlo iterations (fixed seed) using batch processing.
+- Record each p‑value → `PValueDistribution` contract (**FR‑010**); also store iteration‑level metadata as `ErrorMetric`.
+- Empirical Type I error = proportion of p‑values < 0.05.
+- Conduct a **Kolmogorov‑Smirnov (KS) test** comparing the observed p‑value distribution to Uniform(0,1) (α = 0.05) to satisfy SC‑003.
 
-## Statistical Rigor & Feasibility
+### 6. Tipping‑Point Identification (FR‑004)
+- Aggregate empirical error rates across the five missingness rates for each mechanism.
+- Declare a *tipping point* as the **lowest missingness rate** where:  
+  1. Empirical CC error > 0.055 (i.e., >10 % relative increase over 0.05).  
+  2. The dataset has **N ≥ 100** rows (otherwise the condition is flagged and excluded).  
+- Record the flag in the `ComparisonResult` artifact (SC‑002).
 
-- **Multiple Comparisons**: FDR correction is mandatory (FR-008) to control the family-wise error rate across the 72 tests.
-- **Power Limitation**: 2000 iterations yield a standard error of $\sqrt{0.05 \times 0.95 / 2000} \approx 0.0049$. This provides sufficient power to distinguish 0.05 from 0.055 ([deferred] increase) with reasonable confidence.
-- **Collinearity**: If synthetic covariates are generated for MAR, their correlation with the outcome is fixed at r=0.3 (FR-009) to ensure validity.
-- **Compute Feasibility**:
-  - **CPU**: The simulation is CPU-bound. 2000 iterations x 72 conditions = 144,000 tests. With vectorization and `joblib` (2 cores), this should complete in < 5 hours.
-  - **Memory**: Streaming the dataset and processing in batches (e.g., a fixed number of iterations at a time) ensures RAM usage stays within acceptable limits.
-  - **GPU**: Not required. Statistical tests are efficiently handled by `scipy`/`statsmodels` on CPU. `miceforest` is also CPU-optimized.
+### 7. Comparative Validation (FR‑005, SC‑005)
+- At each identified tipping point, construct a paired 2 × 2 table of per‑iteration rejection outcomes for CC vs. MI (and CC vs. IPW).
+- Apply a **McNemar’s test** to assess whether CC has a significantly higher rejection rate than the comparator (paired design).
+- Compute the ratio `error_CC / error_MI` (or `/ error_IPW`).
+- Use a **paired bootstrap** (e.g., 2000 resamples) to obtain a 95 % confidence interval for this ratio; declare `validated_tipping_point` true if the lower bound exceeds 2 **and** the McNemar’s test p‑value < 0.05.
+- Store the McNemar p‑value, bootstrap CI, and boolean flag in `ComparisonResult`.
 
-## Decision/Rationale
+### 8. Statistical Rigor Summary
+- **Multiple Comparisons**: Benjamini‑Hochberg correction applied only to the set of McNemar’s tests across mechanisms (consistent with the original scope; FR‑008 was removed).  
+- **Power**: 15 000 iterations give a standard error of √[0.05·0.95/15000] ≈ 0.0018, satisfying the ≥ 80 % power requirement for detecting a relative increase to 0.055 (SC‑004).  
+- **Causal Assumptions**: Treatment permutation ensures a purely observational null; any causal language is limited to “association under the null”.  
+- **Measurement Validity**: Continuous outcomes use *t*‑test; binary outcomes use logistic regression (or chi‑square/Fisher when appropriate) (FR‑007).  
+- **Collinearity**: Synthetic covariates are generated independently to avoid multicollinearity concerns.
 
-- **Why Permute Treatment Only?**: To satisfy Constitution Principle VI (Simulation Ground-Truth Calibration). Permuting treatment breaks the causal link (null hypothesis) without destroying the outcome distribution needed for MNAR simulation.
-- **Why Not Use Pre-Missing Datasets?**: The provided MNAR datasets are likely already missing or synthetic in a way that doesn't allow us to control the *mechanism* or the *rate*. We need to *generate* the missingness to sweep rates from [deferred] to [deferred].
-- **Why `miceforest`?**: `sklearn`'s `IterativeImputer` is deterministic or single-imputation. `miceforest` provides true Multiple Imputation with Rubin's Rules, which is required for valid variance estimation.
-- **Why IPW for MNAR?**: We include IPW for MNAR to demonstrate its theoretical failure. The study will explicitly state that IPW cannot correct MNAR bias without auxiliary data, which is a critical finding.
-- **Why FDR?**: Testing a large number of conditions without correction would lead to several false positives by chance alone. FDR ensures the identified "tipping points" are statistically robust.
+## Decision / Rationale
+- **Synthetic RCT Construction**: Because verified RCTs with full treatment/outcome metadata are scarce, we synthesize missing columns while preserving a true null hypothesis. This satisfies FR‑001 and is explicitly noted as a limitation.  
+- **MNAR Mechanism**: Implemented using the *permuted* outcome values, guaranteeing the null and adhering to FR‑002.  
+- **Binary Outcome Tests**: Unified on logistic regression (with chi‑square/Fisher fallback when appropriate) complying with FR‑007.  
+- **CPU‑First Strategy**: All libraries run efficiently on the free‑tier runner; no GPU off‑load is required.  
+
+---
+
+

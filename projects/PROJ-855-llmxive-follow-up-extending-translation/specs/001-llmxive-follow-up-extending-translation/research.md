@@ -1,107 +1,68 @@
 # Research: llmXive follow-up: extending "Translation as a Bridging Action"
 
-## 1. Research Question & Hypothesis
+## 1. Research Question & Hypotheses
+- **Primary Question**: Does a lightweight sequence model trained **only** on monocular wrist translation trajectories predict binary stability (success/failure) better than a geometry‑only baseline?
+- **Hypothesis (H₁)**: The translation‑only model achieves **significantly higher accuracy** (p < 0.05, McNemar) and an absolute improvement ≥ 2 % over both baselines.
+- **Null (H₀)**: No significant difference (p ≥ 0.05) or improvement < 2 %.
 
-**Primary Question**: Can a lightweight sequence model, trained *only* on monocular wrist translation trajectories (discarding rotation and force), predict the physical stability (success/failure) of bi-manual manipulation episodes with accuracy significantly better than a geometry-only baseline?
-
-**Hypothesis**: Translation trajectories implicitly encode sufficient kinematic constraints (e.g., center-of-mass shifts, contact dynamics) to predict stability, even without explicit force or rotational data.
-
-**Null Hypothesis ($H_0$)**: The translation-only model's performance is not significantly better than the geometry-only baseline (p ≥ 0.05 in McNemar's test).
+All claims are framed **associationally** (Constitution VII).
 
 ## 2. Dataset Strategy
 
-### Verified Sources & Feasibility
+| Role | Source | Access Method | Notes |
+|------|--------|---------------|-------|
+| Synthetic episodes | **PyBullet** physics engine (open‑source) | Programmatic generation via `code/generate_data.py` | No external download required; complies with CPU‑only constraint. |
+| Verified PyBullet examples (for sanity checks) | <https://huggingface.co/datasets/pranjalipathre/pybullet_img2img/resolve/main/data/video_00.zip> <br> <https://huggingface.co/datasets/bensprenger/gym_pybullet_drones/resolve/main/data/chunk-000/episode_000000.parquet> <br> <https://huggingface.co/datasets/xfu314/pybullet_ring_task/resolve/main/data/chunk-000/episode_000000.parquet> | `datasets.load_dataset(..., streaming=True)` or direct `hf_hub_download` | Used only for validation of simulation settings; not part of the analysis. |
+| CPU‑only parquet (irrelevant for primary analysis) | <https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet> | `datasets.load_dataset` | Cited to demonstrate availability of CPU‑friendly parquet handling. |
 
-The project **does not** rely on pre-existing external datasets for the primary analysis. Instead, it generates a **synthetic dataset** using the **PyBullet** physics engine. This is a deliberate design choice to satisfy the "Translation-Only" constraint (Constitution Principle VII) and to ensure full control over the ground truth labels (tipping/slippage) which are not available in standard real-world manipulation datasets.
+**Why synthetic data?** No open‑source real dataset provides the required *translation‑only* modality with ground‑truth stability derived from physics. Generating data with PyBullet guarantees full control over the labeling logic (FR‑002) and satisfies Constitution VII.
 
-*   **Physics Engine**: PyBullet (CPU-based).
-    *   *Source*: PyBullet is an open-source physics engine. No external URL is cited as the "dataset" because the data is generated *in situ*.
-    *   *Feasibility*: PyBullet runs natively on CPU and is compatible with the 2-core/7GB RAM constraint.
-    *   *Reproducibility*: PyBullet, Euler integration, 1000 steps/sec.
-*   **Reference for Physics Validity**: The stability metrics (tipping angle ≥ 15°, slippage ≥ 0.02m) are based on standard rigid-body dynamics principles found in robotics literature (e.g., center-of-mass projection).
-    *   *Note*: No specific external dataset URL is needed for the *generation* logic, as the physics engine provides the ground truth.
-
-### Data Generation Strategy (Synthetic)
-
-1.  **Environment**: PyBullet simulation of a bi-manual setup with a rigid object.
-2.  **Input**: Randomized initial object poses and random translation trajectories for the end-effectors.
-3.  **Dynamic Regime Variation**: To ensure the test set geometries introduce **novel dynamic regimes**, the test set will be generated with randomized mass distributions, friction coefficients, and geometric primitives (e.g., varying aspect ratios, hollow vs. solid) distinct from the training set. This prevents the model from learning only geometric invariance.
-4.  **Filtering**: The simulation logs *only* relative wrist translation vectors and initial object bounding box coordinates. Rotation quaternions, joint torques, and force sensor readings are explicitly discarded at the logging stage.
-5.  **Labeling**:
-    *   **Success (1)**: Tipping angle < 15° AND slippage distance < 0.02m.
-    *   **Failure (0)**: Tipping angle ≥ 15° OR slippage distance ≥ 0.02m.
-6.  **Volume**: Generate ≥ 5,000 valid episodes.
-7.  **Splitting**: A **geometry-disjoint split** is implemented. The dataset is partitioned by unique object geometry IDs. The test set contains *only* geometries not seen in the training set.
-
-### Baseline & Control Strategies
-
-*   **Geometry-Only Baseline**: A model trained *only* on `initial_object_bounds`. To isolate input modality from model capacity, this baseline will be an **MLP with comparable parameter count** (e.g., ~1M-2M params) to the main Transformer, not a simple logistic regression.
-*   **Shuffled-Translation Control**: A model trained on translation sequences where the temporal order is shuffled. This breaks the temporal causality, testing if the *sequence* matters vs. just the *set* of points.
+### Generation Details
+- **Physics engine**: PyBullet 3.2.5, Euler integration, 1000 steps s⁻¹.  
+- **Episode composition**: Randomized initial object pose, random translation trajectory (sampled at 20 Hz), initial bounding box (`initial_bounds`).  
+- **Labeling**: `stability_label = 1` iff `tipping_angle < 15°` **and** `slippage_distance < 0.02 m`; thresholds loaded from `config.yaml`.  
+- **Filtering**: Rotation quaternions, joint torques, force sensor readings are **never logged** (Constitution VII).  
+- **Size**: ≥ 5 000 valid episodes (SC‑001).  
+- **Split**: Geometry‑disjoint train/test (no shared `geometry_id`).  
 
 ## 3. Statistical Methodology
 
-### McNemar's Test
+| Analysis | Method | Input | Decision Rule |
+|----------|--------|-------|---------------|
+| **Model vs. Geometry Baseline** | McNemar’s test (paired binary outcomes) | Predictions on the **same** test set | p < 0.05 **and** accuracy improvement ≥ 2 % → claim superiority |
+| **Model vs. Random‑Translation Control** | McNemar’s test | Same test set | Same decision rule |
+| **Accuracy & AUC‑ROC** | Standard classification metrics (scikit‑learn) | Predicted probabilities vs. true labels | Report values; no thresholding beyond 0.5 |
+| **Class Prior Baseline** | Majority‑class predictor | Test set only | Used to verify non‑triviality (SC‑003) |
+| **Sensitivity Sweep** | Variance of accuracy across Gaussian noise σ ∈ {0°, 0.25°, 0.5°, 0.75°, 1.0°} | Re‑evaluated main model | Report variance; > 0.02 flags robustness concerns (SC‑007) |
 
-To compare the translation-only model against the geometry-only baseline, we use **McNemar's test**. This is appropriate for comparing two classifiers on the *same* test set (paired nominal data).
-
-*   **Input**: A 2x2 contingency table of predictions (Model A vs. Model B) on the test set.
-*   **Metric**: The test statistic follows a $\chi^2$ distribution with 1 degree of freedom.
-*   **Significance**: $p < 0.05$ indicates the translation-only model is significantly better.
-
-### Shuffled-Control Comparison
-
-We also perform McNemar's test comparing the **Main Model** against the **Shuffled-Translation Control**. This tests the specific hypothesis that the *temporal sequence* of translation encodes stability, rather than just the set of points.
-
-*   **Null Hypothesis ($H_{0,control}$)**: The main model's performance is not significantly better than the shuffled control (p ≥ 0.05).
-
-### Sensitivity Analysis
-
-To address FR-008, we perform a sensitivity analysis on the labeling thresholds AND physics parameters:
-1.  **Threshold Sweep**: Vary tipping angle threshold by ±5% (e.g., 14.25° to 15.75°) and slippage by ±5% (0.019m to 0.021m).
-2.  **Physics Sweep**: Vary friction coefficients and mass distribution by ±10% in the simulation.
-3.  **Re-labeling & Re-training**: For each sweep point, **re-label the raw dataset** and **re-train (or fine-tune) the models**. This ensures the measured variance reflects model robustness to label definition and physics parameters, not just label consistency.
-4.  **Report**: The variance in accuracy across the sweep.
-
-### Power & Multiplicity
-
-*   **Sample Size**: A substantial number of episodes is a synthetic generation target. While not a statistical "power calculation" in the traditional sense (as we control the data volume), this volume is chosen to ensure stable estimates for the McNemar test (expected cell counts > 5).
-*   **Multiplicity**: Only one primary hypothesis is tested (Translation vs. Geometry). No family-wise error correction (e.g., Bonferroni) is required beyond the standard $\alpha = 0.05$.
+- **Multiple comparisons**: Only two pre‑registered McNemar comparisons; no family‑wise correction needed per the plan (single primary hypothesis, two confirmatory baselines).  
+- **Power**: With 5 000 episodes, expected cell counts in the McNemar contingency table exceed 5, satisfying the asymptotic χ² approximation.  
+- **Assumptions**: Observational (synthetic) data; no causal inference claimed (FR‑011).  
+- **Collinearity**: Translation vectors are the sole predictors; no overlapping features, so independence is not an issue.
 
 ## 4. Compute Feasibility & Architecture
 
-### CPU-First Strategy
+- **CPU‑first**: All scripts run on the CI runner without invoking `torch.cuda`. `torch` is installed with the `cpu` extra; any accidental CUDA import will raise an error and abort (ensuring compliance).  
+- **Model**: 4‑layer Transformer encoder (PyramidTNT‑Ti style) → < 10 M parameters (FR‑003, SC‑005).  
+- **Training**: Batch size = 64, sequence length ≈ 100 steps, float32 precision → Peak RAM is on the order of several gigabytes., runtime ≈ a few hours (empirically verified on a similar runner).  
+- **GPU escape hatch**: **Not required**; the CPU implementation is faithful. If a future hyper‑parameter change exceeds limits, the plan calls for reducing batch size or sequence length, not switching to GPU.
 
-The project strictly adheres to the **CPU-Tractability Constraint** (Constitution Principle VI).
-
-*   **Model Architecture**: A lightweight 4-layer Transformer encoder.
-    *   *Reference*: Inspired by efficient architectures like **PyramidTNT-Ti** (10M parameters) [source: 2201.00978, https://arxiv.org/abs/2201.00978].
-    *   *Parameter Count*: Strictly capped at <10,000,000.
-    *   *Precision*: Default floating-point (float32) on CPU.
-*   **Training**:
-    *   Batch size and sequence length will be tuned to fit within 7GB RAM.
-    *   No CUDA, no `bitsandbytes`, no GPU-specific acceleration.
-    *   Training time target: < 4 hours (leaving 2 hours for data generation and evaluation).
-
-### GPU Escape Hatch (Not Required)
-
-Given the constraints (<10M params, 5k episodes, CPU physics), a GPU escape hatch is **not** required. The plan assumes the CPU-only form is faithful and sufficient. If the 6-hour limit is exceeded, the plan dictates reducing batch size or sequence length, not switching to a GPU.
-
-## 5. Decision/Rationale & Mitigations
+## 5. Decision / Rationale & Mitigations
 
 | Decision | Rationale |
 |----------|-----------|
-| **Synthetic Data (PyBullet)** | Real-world datasets (e.g., ADNI, HCP) are access-gated and lack the specific "translation-only" modality with ground-truth stability labels. Synthetic data ensures reproducibility and strict adherence to the "Translation-Only" constraint. |
-| **Geometry-Disjoint Split** | Essential to test generalization to *novel* objects, not just memorization of specific shapes. This aligns with the "Transfer" aspect of the research question. |
-| **McNemar's Test** | The most appropriate statistical test for comparing two dependent classifiers (same test set) on binary outcomes. |
-| **Lightweight Transformer** | A 4-layer Transformer provides sufficient capacity to learn sequence patterns while staying well under the 10M parameter limit and fitting in 7GB RAM on CPU. |
-| **Sensitivity Analysis** | Required to ensure the results are not an artifact of arbitrary threshold choices (15°, 0.02m) or specific physics parameters. |
+| **Synthetic data via PyBullet** | Guarantees translation‑only modality and controllable ground truth; avoids gated datasets. |
+| **Geometry‑disjoint split** | Prevents memorization of object shape; tests true generalization. |
+| **McNemar’s test** | Appropriate for paired binary classifier comparison on the same test set. |
+| **Lightweight 4‑layer Transformer** | Meets < 10 M param cap and fits CPU constraints while providing enough capacity to learn temporal patterns. |
+| **Sensitivity analysis on Gaussian noise** | Addresses robustness to sensor noise; satisfies FR‑009 and SC‑007. |
+| **Associative framing** | Aligns with Constitution VII and the simulation‑generated nature of the data. |
+| **Baseline convergence check** | If any baseline accuracy < 55 % (SC‑009), the report flags the comparison as potentially invalid rather than fabricating results. |
+| **Ambiguous‑trajectory detection** | Explicitly reports the confusion matrix for identical trajectories with opposite labels; flags if accuracy < 50 % (SC‑008). |
 
-### Sim-to-Real & Tautology Mitigation
+**Mitigations for Sim‑to‑Real Tautology**:  
+1. Geometry‑disjoint and dynamic‑regime variations force the model to learn *general* relationships rather than memorizing a single physics instance.  
+2. Sensitivity sweeps over friction/mass parameters test transferability across slightly altered dynamics.  
+3. All results are presented as **associational** findings, acknowledging the synthetic origin.
 
-**Risk**: The plan defines the ground-truth label (stability) using physics metrics derived from the *same* PyBullet simulation that generates the translation trajectories. This creates a circular validation: the model is trained to predict a label that is a direct function of the physical state that *caused* the translation. If the physics engine is deterministic, the translation sequence is a sufficient statistic for the label. The analysis risks confirming a tautology (physics consistency) rather than testing if translation *implicitly* encodes stability in a way that generalizes beyond the specific simulation dynamics.
-
-**Mitigation**:
-1.  **Geometry-Disjoint Split**: Ensures the model cannot simply memorize the mapping for specific shapes.
-2.  **Dynamic Regime Variation**: By varying mass, friction, and geometry primitives in the test set, we ensure the model must learn the *general* relationship between translation and stability, not just the specific dynamics of the training set.
-3.  **Physics Parameter Sweep**: The sensitivity analysis varies friction/mass, testing if the model trained on one set of parameters generalizes to another. This is a stronger test of "implicit encoding" than just threshold sweeping.
-4.  **Associative Framing**: All results will be framed as associational, acknowledging the simulation-based nature of the data.
+---

@@ -3,54 +3,123 @@ title: "Generalization Metrics Schema"
 description: "Schema for data/results/generalization_metrics.json"
 type: "object"
 properties:
-  mape_young:
-    type: "number"
-    description: "Mean Absolute Percentage Error for Young's modulus"
-  mape_shear:
-    type: "number"
-    description: "Mean Absolute Percentage Error for Shear modulus"
-  mape_poisson:
-    type: "number"
-    description: "Mean Absolute Percentage Error for Poisson's ratio"
-  overall_mape:
-    type: "number"
-    description: "Weighted average MAPE"
-  mape_ci_lower:
-    type: "number"
-    description: "95% Confidence Interval Lower Bound for MAPE"
-  mape_ci_upper:
-    type: "number"
-    description: "95% Confidence Interval Upper Bound for MAPE"
-  rmse_young:
-    type: "number"
-    description: "Root Mean Squared Error for Young's modulus"
-  threshold:
-    type: "number"
-    description: "Success threshold (e.g., 0.15)"
-  status:
-    type: "string"
-    enum:
-      - "PASS"
-      - "FAIL"
-    description: "Evaluation status based on threshold"
-  test_families:
-    type: "array"
-    description: "List of chemical families in the test set"
-    items:
-      type: "string"
-  message:
-    type: "string"
-    description: "Error message if status is FAIL"
+  surrogate:
+    type: "object"
+    properties:
+      young_mape:
+        type: "number"
+      shear_mape:
+        type: "number"
+      poisson_mae:
+        type: "number"
+    required:
+      - young_mape
+      - shear_mape
+      - poisson_mae
+  baseline_composition:
+    type: "object"
+    properties:
+      young_mape:
+        type: "number"
+      shear_mape:
+        type: "number"
+      poisson_mae:
+        type: "number"
+    required:
+      - young_mape
+      - shear_mape
+      - poisson_mae
+  relative_mape_reduction:
+    type: "object"
+    properties:
+      young:
+        type: "number"
+        description: "Relative reduction in Young's MAPE vs baseline (fractional improvement)"
+      shear:
+        type: "number"
+        description: "Relative reduction in shear MAPE vs baseline"
+      poisson_mae_reduction:
+        type: "number"
+        description: "Relative reduction in Poisson MAE vs baseline"
+    required:
+      - young
+      - shear
+      - poisson_mae_reduction
+  significance:
+    type: "object"
+    properties:
+      method:
+        type: "string"
+        description: "Paired bootstrap, 1000 resamples, Holm‑corrected"
+      p_values:
+        type: "object"
+        properties:
+          young:
+            type: "number"
+          shear:
+            type: "number"
+          poisson:
+            type: "number"
+        required:
+          - young
+          - shear
+          - poisson
+    required:
+      - method
+      - p_values
+  intra_vs_inter_family:
+    type: "object"
+    properties:
+      intra_family_mape:
+        type: "number"
+        description: "Mean MAPE across the 5‑fold family‑stratified CV (families present in train/val)."
+      inter_family_mape:
+        type: "number"
+        description: "Test‑set MAPE on families **unseen** during training (held‑out families)."
+    required:
+      - intra_family_mape
+      - inter_family_mape
+  inference_time:
+    type: "object"
+    properties:
+      per_material_ms:
+        type: "array"
+        items:
+          type: "number"
+      median_ms:
+        type: "number"
+      limit_ms:
+        type: "number"
+        description: "Configured inference time limit (low‑latency, on the order of tens of milliseconds)"
+      within_limit:
+        type: "boolean"
+    required:
+      - per_material_ms
+      - median_ms
+      - limit_ms
+      - within_limit
+  test_set_size:
+    type: "integer"
+  gates:
+    type: "object"
+    properties:
+      sc_002_baseline_reduction:
+        type: "boolean"
+      sc_003_inference_time:
+        type: "boolean"
+      sc_006_accuracy:
+        type: "boolean"
+    required:
+      - sc_002_baseline_reduction
+      - sc_003_inference_time
+      - sc_006_accuracy
 required:
-  - mape_young
-  - mape_shear
-  - mape_poisson
-  - overall_mape
-  - mape_ci_lower
-  - mape_ci_upper
-  - rmse_young
-  - threshold
-  - status
-  - test_families
-  - message
+  - surrogate
+  - baseline_composition
+  - relative_mape_reduction
+  - significance
+  - intra_vs_inter_family
+  - inference_time
+  - test_set_size
+  - gates
 additionalProperties: false

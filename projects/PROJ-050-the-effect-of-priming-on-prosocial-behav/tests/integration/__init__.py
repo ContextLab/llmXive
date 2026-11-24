@@ -1,1 +1,1 @@
-"""Integration tests for end-to-end pipelines."""
+# Integration test package initialization

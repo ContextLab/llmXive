@@ -37,48 +37,43 @@
 Execute the full pipeline end-to-end:
 
 ```bash
-python code/validate.py && \
-python code/ingest.py && \
-python code/preprocess.py && \
-python code/train.py && \
-python code/interpret.py
+python -m code.main ingest && \
+python -m code.main preprocess && \
+python -m code.main train && \
+python -m code.main interpret && \
+python -m code.main report
 ```
 
 ### Step-by-Step Breakdown
 
-1.  **Validation (`validate.py`)**:
-    - Checks for the existence of required directories (`data/raw`, `data/processed`).
-    - Verifies dataset record count (SC-004). Halts if < 100 records.
-    - Runs Power Analysis on the normalized subset.
-
-2.  **Ingestion (`ingest.py`)**:
-    - Downloads data from the verified HuggingFace URL.
+1.  **Ingestion (`ingest`)**:
+    - Downloads data from the verified sources listed in `specs/001-predicting-the-impact-of-laser-surface-t/research.md`.
     - Maps columns to the canonical schema.
-    - Calculates SHA-256 checksums and updates `state/projects/PROJ-293-predicting-the-impact-of-laser-surface-t.yaml`.
+    - Calculates SHA‑256 checksums and updates `state/projects/PROJ-293-predicting-the-impact-of-laser-surface-t.yaml`.
     - Outputs `data/intermediate/merged.csv`.
 
-3.  **Preprocessing (`preprocess.py`)**:
-    - Drops records with missing predictors.
-    - Applies Archard's law normalization (or flags as 'raw').
-    - Runs Shapiro-Wilk/Levene's tests on the raw subset.
+2.  **Preprocessing (`preprocess`)**:
+    - Drops records with missing required predictors.
+    - Applies Archard's law normalization (or flags as `raw`).
+    - Runs Shapiro‑Wilk/Levene's tests on the raw subset.
     - Performs VIF reduction (deterministic strategy).
     - Outputs `data/processed/cleaned.csv`.
 
-4.  **Training (`train.py`)**:
-    - Runs GridSearchCV (10+ combinations) using `Pipeline` to prevent leakage.
-    - Performs Leave-One-Material-Class-Out CV (or K-Fold fallback).
-    - Saves best model to `models/best_model.pkl`.
+3.  **Training (`train`)**:
+    - Runs GridSearchCV (≥10 combos) using a scikit‑learn `Pipeline` to prevent leakage.
+    - Performs Leave‑One‑Material‑Class‑Out CV (or K‑Fold fallback).
+    - Saves the best model to `models/best_model.pkl`.
 
-5.  **Interpretation (`interpret.py`)**:
+4.  **Interpretation (`interpret`)**:
     - Computes SHAP values.
     - Runs permutation significance testing.
-    - Applies Causal Language Filter to the report.
+    - Applies the causal‑language filter to the final report.
     - Generates plots in `reports/`.
 
 ## Expected Outputs
 
-- `data/processed/cleaned.csv`: Final analysis-ready dataset.
-- `models/best_model.pkl`: Serialized best-performing model.
+- `data/processed/cleaned.csv`: Final analysis‑ready dataset.
+- `models/best_model.pkl`: Serialized best‑performing model.
 - `reports/model_report.json`: Metrics (R², MAE, VIF, power analysis results).
 - `reports/shap_summary.png`: Feature importance visualization.
 
@@ -87,4 +82,4 @@ python code/interpret.py
 - **`data_schema_mismatch`**: The source dataset lacks required LST columns. Check the `research.md` for verified source content.
 - **`data_insufficiency_error`**: Fewer than 100 records found. The study scope is reduced to "pilot" or halted.
 - **`runtime_timeout`**: Pipeline exceeded the planned duration. Reduce grid search size or sample size in `train.py`.
-- **`raw_subset_invalid`**: The raw subset failed Shapiro-Wilk or Levene's tests. Sensitivity analysis skipped.
+- **`raw_subset_invalid`**: The raw subset failed Shapiro‑Wilk or Levene's tests. Sensitivity analysis skipped.

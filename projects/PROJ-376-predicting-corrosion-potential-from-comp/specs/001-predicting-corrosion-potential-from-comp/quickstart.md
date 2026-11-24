@@ -1,91 +1,82 @@
 # Quickstart: Predicting Corrosion Potential from Composition and Environment
 
 ## Prerequisites
-
-*   Python 3.11+
-*   pip / virtualenv
-*   Access to GitHub Actions (for CI execution) or a local environment with substantial RAM.
+- Python 3.11+  
+- `git`  
+- Access to GitHub Actions (or a local Linux environment with ≥ 2 CPU cores and ~7 GB RAM).  
 
 ## Installation
 
-1.  **Clone the Repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-376-predicting-corrosion-potential-from-comp
-    ```
+```bash
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-376-predicting-corrosion-potential-from-comp
 
-2.  **Create Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+# Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+# Install dependencies
+pip install -r code/requirements.txt
+```
 
 ## Configuration
 
-1.  **Set Random Seeds**:
-    Create `code/config/seeds.yaml` (if not present):
-    ```yaml
-    random_seed: 42
-    numpy_seed: 42
-    tensorflow_seed: 42
-    ```
+Create the required config files (if not already present):
 
-2.  **Define Paths**:
-    Create `code/config/paths.yaml`:
-    ```yaml
-    raw_data_dir: "data/raw"
-    processed_data_dir: "data/processed"
-    logs_dir: "data/logs"
-    contracts_dir: "contracts"
-    ```
+```yaml
+# code/config/seeds.yaml
+random_seed: 42
+numpy_seed: 42
+```
+
+```yaml
+# code/config/paths.yaml
+raw_data_dir: "data/raw"
+processed_data_dir: "data/processed"
+logs_dir: "data/logs"
+contracts_dir: "contracts"
+```
 
 ## Running the Pipeline
 
-The pipeline is executed via the CLI script. It handles download, validation, training, and evaluation.
+The pipeline is orchestrated via `run_pipeline.py`. Each stage can be run independently; the pipeline will stop automatically if any validation fails.
 
-### Step 1: Data Ingestion & Validation
 ```bash
+# 1️⃣ Data ingestion (will attempt NIST‑IR‑8200; expect a halt if unavailable)
 python code/cli/run_pipeline.py --stage download
+
+# 2️⃣ Schema validation (checks record count & required fields)
 python code/cli/run_pipeline.py --stage validate
-```
-*   This will attempt to download data from the NIST Internal Report series.
-*   If the dataset is < 500 records or missing required fields, the script will **halt** and report `SchemaMismatchError`.
-*   If NIST fails, it will attempt to load OpenCorrosion.
-*   If both fail, it will generate synthetic data (Simulation Mode) or halt.
 
-### Step 2: Model Training
-```bash
+# 3️⃣ Preprocessing & train‑test split (includes environment balancing)
+python code/cli/run_pipeline.py --stage preprocess
+
+# 4️⃣ Model training (Random Forest & Gradient Boosting)
 python code/cli/run_pipeline.py --stage train
-```
-*   Trains Random Forest and Gradient Boosting models.
-*   Uses "Leave-One-Specific-Alloy-Out" split (or GroupKFold fallback).
-*   Logs metrics to `data/logs/pipeline.log`.
 
-### Step 3: Evaluation & Interpretation
-```bash
+# 5️⃣ Evaluation (R², RMSE, learnability classification)
 python code/cli/run_pipeline.py --stage evaluate
+
+# 6️⃣ Interpretability (Conditional Permutation Importance & ALE plots)
 python code/cli/run_pipeline.py --stage interpret
 ```
-*   Generates R², RMSE, and null baseline comparison.
-*   Computes permutation importance with FDR correction.
-*   Generates partial dependence plots (via `interpret.py`).
 
-## Output Artifacts
+**Important**:  
+- If the ingestion stage cannot retrieve ≥ 500 valid records with ≥ 10 distinct alloys, the pipeline will raise `SchemaMismatchError` and stop, per FR‑014 and FR‑017.  
+- No synthetic data are generated; the failure is reported in `data/logs/pipeline.log`.  
 
-*   `data/processed/clean_dataset.parquet`: Cleaned and split dataset.
-*   `data/logs/schema_validation.log`: Log of validation steps.
-*   `data/logs/pipeline.log`: Full execution log.
-*   `results/metrics.json`: Final model performance metrics.
-*   `results/feature_importance.png`: Visualization of top features.
-*   `results/pdp_plots/`: Partial dependence plots for key interactions.
+## Expected Outputs
+- `data/processed/clean_dataset.parquet` – ready‑to‑train dataset.  
+- `results/metrics.json` – R², RMSE, learnability flag.  
+- `results/feature_importance.png` – top‑5 conditional importance plot.  
+- `results/ale_plots/` – ALE plots for key composition‑environment interactions.  
+- `data/logs/pipeline.log` – full execution trace, including any back‑off retries (FR‑015).  
 
 ## Troubleshooting
+- **`SchemaMismatchError`** – Check `data/logs/schema_validation.log` for the exact record count and missing fields.  
+- **Network errors (429)** – The downloader automatically retries with exponential backoff; see `data/logs/download.log`.  
+- **Memory errors** – The downloader streams data (`streaming=True`) to stay within the 7 GB RAM limit.  
 
-*   **SchemaMismatchError**: The dataset downloaded has < 500 valid records or is inaccessible. This is a hard stop per the spec. Check the `data/logs/schema_validation.log` for details on missing fields.
-*   **NIST-IR-8200 Unreachable**: If the download fails, check network connectivity. The pipeline will attempt OpenCorrosion or Simulation Mode.
-*   **Memory Error**: Ensure the dataset is being streamed or chunked. If the raw file is too large, the `download_nist.py` script uses `streaming=True`.
+---
+

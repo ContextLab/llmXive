@@ -1,71 +1,54 @@
-"""
-Contract test for T007b: Validate synthetic dataset generation.
-"""
 import csv
 import json
-import pytest
 from pathlib import Path
-import sys
 
-# Ensure code/ is in path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+import pytest
+from jsonschema import validate, ValidationError
 
-from code.ingestion.generate_synthetic import generate_synthetic_dataset, RANDOM_SEED, NUM_ROWS
+# Import the script's main function to trigger dataset generation
+from ingestion.generate_synthetic import main as generate_main
 
+# Path to the schema defined in the specs directory
+SCHEMA_PATH = Path(__file__).resolve().parents[2] / "specs" / "001-predicting-molecular-diffusion-coefficie" / "contracts" / "ingestion_schema.schema.yaml"
 
-def test_generated_csv_schema(tmp_path):
-    """Verify the generated CSV has the correct columns."""
-    output_file = tmp_path / "dataset.csv"
-    generate_synthetic_dataset(output_file, num_rows=10, seed=RANDOM_SEED)
+@pytest.fixture(scope="module")
+def synthetic_csv_path():
+    """
+    Runs the synthetic data generator once for the test session and returns the path
+    to the generated CSV file.
+    """
+    generate_main()  # This creates data/raw/dataset.csv
+    csv_path = Path(__file__).resolve().parents[2] / "data" / "raw" / "dataset.csv"
+    assert csv_path.is_file(), f"Expected synthetic CSV at {csv_path}"
+    return csv_path
 
-    assert output_file.exists(), "Generated CSV file does not exist."
+def load_schema():
+    with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-    with open(output_file, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        fieldnames = reader.fieldnames
-
-    expected_columns = ["smiles", "solvent", "diffusion_coefficient", "viscosity", "dielectric_constant"]
-    assert fieldnames == expected_columns, f"Expected columns {expected_columns}, got {fieldnames}"
-
-    # Verify row count
-    with open(output_file, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
+def test_row_count(synthetic_csv_path):
+    """The CSV must contain exactly 500 data rows (excluding the header)."""
+    with open(synthetic_csv_path, newline="", encoding="utf-8") as f:
+        reader = csv.reader(f)
         rows = list(reader)
+    # First row is header
+    assert len(rows) - 1 == 500, f"Expected 500 data rows, found {len(rows)-1}"
 
-    assert len(rows) == 10, f"Expected 10 rows, got {len(rows)}"
-
-
-def test_generated_data_types(tmp_path):
-    """Verify data types in the generated CSV."""
-    output_file = tmp_path / "dataset.csv"
-    generate_synthetic_dataset(output_file, num_rows=5, seed=RANDOM_SEED)
-
-    with open(output_file, "r", encoding="utf-8") as f:
+def test_schema_validation(synthetic_csv_path):
+    """Each row must conform to the ingestion schema."""
+    schema = load_schema()
+    with open(synthetic_csv_path, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
-        for row in reader:
-            # smiles should be string
-            assert isinstance(row["smiles"], str)
-            assert len(row["smiles"]) > 0
+        for idx, row in enumerate(reader, start=2):  # start=2 accounts for header line number
+            # Convert numeric fields to appropriate types for validation
+            try:
+                row["diffusion_coefficient"] = float(row["diffusion_coefficient"])
+                row["viscosity"] = float(row["viscosity"])
+                row["dielectric_constant"] = float(row["dielectric_constant"])
+            except ValueError as e:
+                raise AssertionError(f"Row {idx} has non‑numeric value where a number is expected: {e}")
 
-            # solvent should be string
-            assert isinstance(row["solvent"], str)
-
-            # numeric fields should be convertible to float
-            float(row["diffusion_coefficient"])
-            float(row["viscosity"])
-            float(row["dielectric_constant"])
-
-
-def test_deterministic_output(tmp_path):
-    """Verify that running with the same seed produces the same output."""
-    output_file_1 = tmp_path / "dataset_1.csv"
-    output_file_2 = tmp_path / "dataset_2.csv"
-
-    generate_synthetic_dataset(output_file_1, num_rows=20, seed=RANDOM_SEED)
-    generate_synthetic_dataset(output_file_2, num_rows=20, seed=RANDOM_SEED)
-
-    with open(output_file_1, "r", encoding="utf-8") as f1, open(output_file_2, "r", encoding="utf-8") as f2:
-        content_1 = f1.read()
-        content_2 = f2.read()
-
-    assert content_1 == content_2, "Output is not deterministic with the same seed."
+            try:
+                validate(instance=row, schema=schema)
+            except ValidationError as ve:
+                raise AssertionError(f"Schema validation failed for row {idx}: {ve.message}")

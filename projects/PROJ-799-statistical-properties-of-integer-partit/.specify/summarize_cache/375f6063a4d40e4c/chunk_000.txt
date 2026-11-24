@@ -1,0 +1,108 @@
+# Implementation Plan: Statistical Properties of Integer Partitions Into Distinct Prime Summands
+
+**Branch**: `001-statistical-properties-of-integer-partitions-into-distinct-prime-summands`  
+**Date**: 2026-10-22  
+**Spec**: `specs/001-statistical-properties-of-integer-partitions-into-distinct-prime-summands/spec.md`  
+**Input**: Feature specification from `specs/001-statistical-properties-of-integer-partitions-into-distinct-prime-summands/spec.md`
+
+## Summary
+The pipeline will (1) generate the prime list up to 50 000, (2) compute exact distinct‑prime partition counts `p_P_n` via a memory‑optimised dynamic‑programming (DP) algorithm, (3) evaluate a **pure analytic Meinardus asymptotic** `Q_as_n` that contains **no density terms** (see scientific‑soundness note below), (4) engineer log‑residuals `R_n` and the three prime‑density predictors plus a prime‑gap control, (5) fit a pre‑registered ordinary least‑squares (OLS) regression (with optional ridge for stability) and perform a formal power analysis, (6) benchmark the model with a time‑series 10‑fold cross‑validation and a null‑model comparison, (7) generate diagnostic visualisations, and (8) enforce reproducibility, data‑hygiene, and contract validation throughout. All steps are CPU‑first and respect the GitHub Actions free‑tier limits.
+
+## Technical Context
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `numpy`, `scipy`, `scikit-learn`, `statsmodels`, `matplotlib`, `sympy`, `pytest` (pinned in `requirements.txt`).  
+- **Storage**: CSV files under `data/` (raw, processed, reports).  
+- **Testing**: `pytest` with unit, integration, and JSON‑schema contract tests.  
+- **Target Platform**: Linux (`ubuntu‑latest`) CI runner, 2 vCPU, ≤7 GB RAM, ≤6 h wall‑clock.  
+- **Constraints**: Peak RAM ≤ 6 GB; total runtime ≤ 6 h; no GPU required.  
+
+## Constitution Check
+| Principle | Status | Evidence |
+|-----------|--------|----------|
+| I. Reproducibility | ✅ | `requirements.txt` pins all versions; random seeds are fixed; CI runs in isolated venv. |
+| II. Verified Accuracy | ✅ | All citations are to primary sources (Meinardus, prime‑zeta, Mertens). |
+| III. Data Hygiene | ✅ | Checksums recorded; transformations write new files; no in‑place edits. |
+| IV. Single Source of Truth | ✅ | Every statistic originates from a row in `data/processed/features.csv`. |
+| V. Versioning Discipline | ✅ | Artifacts carry content hashes; state file updated on change. |
+| VI. Finite‑Regime Error Term Precision | ✅ | Exact DP counts are used; residuals computed only after both exact and asymptotic values exist. |
+| VII. Density‑Dependent Correlation Rigor | ✅ | Model includes only theoretically motivated density features; baseline contains no density term, avoiding circularity. |
+
+## Project Structure
+```text
+specs/001-statistical-properties-of-integer-partitions-into-distinct-prime-summands/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── dataset.schema.yaml
+│   ├── feature_set.schema.yaml
+│   ├── features.schema.yaml
+│   ├── model_output.schema.yaml
+│   ├── output.schema.yaml
+│   ├── partition_record.schema.yaml
+│   └── regression_output.schema.yaml
+└── tasks.md   # generated later
+```
+
+```text
+projects/PROJ-799-statistical-properties-of-integer-partit/
+├── code/
+│   ├── __init__.py
+│   ├── generate_primes.py                # sieve of Eratosthenes
+│   ├── generate_partitions.py            # DP algorithm with detailed docstring (T031)
+│   ├── compute_baseline.py               # pure analytic Meinardus asymptotic
+│   ├── validate_meinardus.py             # pole/analytic checks + fallback
+│   ├── feature_engineering.py            # residuals + density features + gap_n
+│   ├── fit_model.py                      # OLS (optional ridge), VIF handling, BH correction, HAC SE, power analysis
+│   ├── cross_validate.py                 # time‑series 10‑fold CV, block‑bootstrap, Ljung‑Box
+│   ├── visualize.py                      # residual vs. fitted plot
+│   └── main.py                           # orchestrates tasks in order
+├── data/
+│   ├── raw/
+│   │   └── primes_up_to_50000.csv
+│   ├── processed/
+│   │   ├── partition_counts.csv
+│   │   ├── baseline_values.csv
+│   │   ├── features.csv                 # created by T016b
+│   │   ├── model_results.json
+│   │   └── residuals_plot.png
+│   └── reports/
+│       └── applicability_report.json
+├── tests/
+│   ├── unit/
+│   │   ├── test_dp_logic.py
+│   │   ├── test_baseline.py
+│   │   ├── test_features_non_null.py    # contains `test_features_non_null`
+│   │   └── test_schema_contracts.py
+│   ├── integration/
+│   │   └── test_pipeline.py
+│   └── contract/
+│       └── test_schemas.py
+├── requirements.txt
+└── README.md
+```
+
+## Complexity Tracking
+| Need | Reason | Simpler Alternative Rejected |
+|------|--------|------------------------------|
+| Batch DP processing | Full DP array would exceed RAM; batching keeps peak < 1 GB. | In‑memory DP would crash the runner. |
+| Time‑Series CV | Autocorrelation in ordered `n` makes standard K‑fold invalid. | Standard K‑fold would leak future information. |
+| Null‑model comparison | Required to demonstrate that density predictors add information beyond the baseline. | Skipping null model would leave the claim unsupported. |
+| Multicollinearity mitigation | π(n) and 1/ln n are highly collinear; we will **orthogonalise** π(n) against 1/ln n when VIF > 5 (or drop the higher‑VIF predictor). | Ignoring collinearity would invalidate p‑values. |
+| Power analysis | Autocorrelation reduces effective sample size; we compute detectable effect size for α=0.05, power = 0.8. | No power justification would be a methodological gap. |
+| Confounder control | Prime‑gap length `gap_n` and the index `n` may explain systematic deviations unrelated to density; they are included as controls. | Omitting confounders could produce spurious associations. |
+| Resource constraints | Batching, vectorised NumPy, and streaming ensure ≤ 6 GB RAM and ≤ 6 h runtime. | A naïve implementation would exceed CI limits. |
+
+## Task List (mapping FR/SC)
+
+| ID | Description | FR/SC Covered | Prerequisites |
+|----|-------------|---------------|----------------|
+| **T001** | Generate prime list up to 50 000 using sieve of Eratosthenes (`generate_primes.py`). | FR‑004, FR‑001 (prime list) | – |
+| **T002** | Implement DP count of distinct‑prime partitions (`generate_partitions.py`). | FR‑001 | T001 |
+| **T031** | Add comprehensive docstring to `generate_partitions.py` that explains the generating function \(\prod_{p\in\mathbb{P}}(1+q^{p})\) and its distinction from \(\prod_{k\ge1}(1-q^{k})^{-1}\). The file already exists; this task enriches it with the required documentation. | FR‑001, FR‑012 | T002 |
+| **T003** | Compute calibrated **pure analytic Meinardus** asymptotic `Q_as_n` (no density terms). | FR‑002 | – |
+| **T004** | Validate Meinardus conditions; produce `applicability_report.json` (`validate_meinardus.py`). | FR‑002 | – |
+| **T005** | Feature engineering: compute `R_n` (sentinel ‑9999 for non‑positive inputs), `π(n)`, `1/ln(n)`, cumulative reciprocal‑prime sum, `gap_n`, and merge with DP & baseline → `features.csv`. | FR‑003, FR‑004, FR‑005, FR‑010, FR‑013 | T001, T002, T003 |
+| **T016b** | Ensure `features.csv` contains columns `n, p_P_n, Q_as_n, R_n, pi_n, inv_log_n, cum_density, gap_n`; rows with `p_P_n=0` have `R_n` set to **‑9999**. Provide unit test `test_features_non_null.py` asserting **no missing numeric values** in regression columns. | FR‑003, FR‑004, FR‑005, SC‑003 | T005 |
+| **T006** | Fit **pre‑registered OLS** (optional ridge) regression, compute VIF, orthogonalise or drop collinear predictors, apply Benjamini‑Hochberg correction, HAC‑adjusted SEs, and conduct the power analysis (FR‑010). Output `model_results.json` **including a `model_type` field** (\"OLS\" or \"Ridge\"). | FR‑005, FR‑010, SC‑001, SC‑005 | T016b |

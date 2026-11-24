@@ -1,9 +1,23 @@
+# Project dependencies
 pandas
 numpy
 scipy
 scikit-learn
-pyyaml
-requests
 biom-format
-python-dotenv
-statsmodels
+requests
+PyYAML
+ruff
+black
+datasets>=2.0.0
+# The following are pre‑installed in the execution environment:
+# - numpy
+# - pandas
+# - scipy
+# - scikit-learn
+# - matplotlib
+# - seaborn
+# - pytest
+# - jsonschema
+# - requests
+# - psutil
+# - llmxive_toolkit

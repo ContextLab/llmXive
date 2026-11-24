@@ -36,15 +36,15 @@ def generate_final_report() -> None:
     context_path = Path(CONFIG.data_processed) / "report_context.json"
     if not context_path.exists():
         raise FileNotFoundError(f"Report context not found: {context_path}")
-    
+
     context = load_json_safe(str(context_path))
-    
+
     # Extract relevant sections
     model_metrics = context.get("model_metrics", {})
     collinearity = context.get("collinearity_diagnostic", {})
     feature_importance = context.get("feature_importance_summary", {})
     methodological_flags = context.get("methodological_flags", {})
-    
+
     # Build report content
     report_lines = [
         "# Final Report: Predicting Poisson's Ratio of Aluminum Alloys",
@@ -59,105 +59,109 @@ def generate_final_report() -> None:
         "",
         "## Feature Importance",
     ]
-    
+
     if feature_importance:
         report_lines.append(f"- Top Element: {feature_importance.get('top_element', 'N/A')}")
         report_lines.append(f"- Second Element: {feature_importance.get('second_element', 'N/A')}")
         report_lines.append(f"- Importance Ratio: {feature_importance.get('ratio', 'N/A'):.2f}")
-    
-    report_lines.extend([
-        "",
-        "## Collinearity Diagnostic",
-        f"- ILR VIF Pass Flag: {collinearity.get('pass_flag', 'N/A')}",
-        "",
-        "## Methodological Limitations",
-    ])
-    
+
+    report_lines.extend(
+        [
+            "",
+            "## Collinearity Diagnostic",
+            f"- ILR VIF Pass Flag: {collinearity.get('pass_flag', 'N/A')}",
+            "",
+            "## Methodological Limitations",
+        ]
+    )
+
     if methodological_flags.get("mae_flag"):
         report_lines.append(methodological_flags.get("narrative_limitation", ""))
-    
+
     if not collinearity.get("pass_flag", True):
-        report_lines.append("High collinearity detected in ILR features (VIF > 5). The model uses ILR transformation to mitigate this, but interpretability is limited.")
-    
-    report_lines.extend([
-        "",
-        "## Disclaimer",
-        "The results presented in this report are **associational (not causal)**. The model identifies statistical patterns in the data but does not establish causal relationships between alloy composition and Poisson's ratio.",
-        ""
-    ])
-    
+        report_lines.append(
+            "High collinearity detected in ILR features (VIF > 5). The model uses ILR transformation to mitigate this, but interpretability is limited."
+        )
+
+    report_lines.extend(
+        [
+            "",
+            "## Disclaimer",
+            "The results presented in this report are **associational (not causal)**. The model identifies statistical patterns in the data but does not establish causal relationships between alloy composition and Poisson's ratio.",
+            "",
+        ]
+    )
+
     report_content = "\n".join(report_lines)
-    
+
     # Save report
-    report_path = Path(CONFIG.results) / "final_report.md"
+    report_path = Path(CONFIG.results_dir) / "final_report.md"
     report_path.parent.mkdir(parents=True, exist_ok=True)
     with open(report_path, "w") as f:
         f.write(report_content)
-    
+
     logger.info(f"Final report saved to {report_path}")
 
 def validate_report_framing() -> bool:
     """Validate that the report contains required framing."""
-    report_path = Path(CONFIG.results) / "final_report.md"
+    report_path = Path(CONFIG.results_dir) / "final_report.md"
     if not report_path.exists():
         return False
-    
+
     with open(report_path, "r") as f:
         content = f.read()
-    
+
     # Check for required phrases
     has_limitations = "Methodological Limitations" in content
     has_disclaimer = "associational (not causal)" in content.lower()
-    
-    return has_limitations and has_disclaimer
 
-def main() -> None:
-    """Main entry point for report generation."""
-    log_operation("report_generation_start")
-    
-    # Aggregate context for report (if not already done)
-    # This task assumes T030a-aggregate has run, but we can do a quick check
-    context_path = Path(CONFIG.data_processed) / "report_context.json"
-    if not context_path.exists():
-        # If context is missing, we try to aggregate here as a fallback
-        # This ensures the pipeline doesn't fail if T030a-aggregate was skipped
-        aggregate_report_context()
-    
-    generate_final_report()
-    
-    if not validate_report_framing():
-        logger.warning("Report validation failed: missing required framing.")
-        sys.exit(1)
-    
-    log_operation("report_generation_end")
+    return has_limitations and has_disclaimer
 
 def aggregate_report_context() -> None:
     """Aggregate all results into report_context.json."""
     # Load all required artifacts
-    model_metrics = load_json_safe(str(Path(CONFIG.results) / "model_metrics.json"))
-    collinearity = load_json_safe(str(Path(CONFIG.results) / "collinearity_diagnostic.json"))
-    feature_importance = load_json_safe(str(Path(CONFIG.results) / "feature_importance_summary.json"))
-    methodological_flags = load_json_safe(str(Path(CONFIG.results) / "methodological_flags.json"))
-    residuals = load_json_safe(str(Path(CONFIG.results) / "residuals.json"))
-    
+    model_metrics = load_json_safe(str(Path(CONFIG.results_dir) / "model_metrics.json"))
+    collinearity = load_json_safe(str(Path(CONFIG.results_dir) / "collinearity_diagnostic.json"))
+    feature_importance = load_json_safe(str(Path(CONFIG.results_dir) / "feature_importance_summary.json"))
+    methodological_flags = load_json_safe(str(Path(CONFIG.results_dir) / "methodological_flags.json"))
+    residuals = load_json_safe(str(Path(CONFIG.results_dir) / "residuals.json"))
+
     # Load model path (just the string)
-    model_path = str(Path(CONFIG.models) / "rf_model.pkl")
-    
+    model_path = str(Path(CONFIG.models_dir) / "rf_model.pkl")
+
     context = {
         "model_metrics": model_metrics,
         "collinearity_diagnostic": collinearity,
         "feature_importance_summary": feature_importance,
         "methodological_flags": methodological_flags,
         "residuals": residuals,
-        "model_path": model_path
+        "model_path": model_path,
     }
-    
+
     context_path = Path(CONFIG.data_processed) / "report_context.json"
     context_path.parent.mkdir(parents=True, exist_ok=True)
     with open(context_path, "w") as f:
         json.dump(context, f, indent=2)
-    
+
     logger.info(f"Report context aggregated to {context_path}")
+
+def main() -> None:
+    """Main entry point for report generation."""
+    log_operation("report_generation_start")
+
+    # Ensure aggregated context exists
+    context_path = Path(CONFIG.data_processed) / "report_context.json"
+    if not context_path.exists():
+        # Fallback aggregation if previous step was skipped
+        aggregate_report_context()
+
+    generate_final_report()
+
+    if not validate_report_framing():
+        logger.warning("Report validation failed: missing required framing.")
+        sys.exit(1)
+
+    log_operation("report_generation_end")
 
 if __name__ == "__main__":
     main()

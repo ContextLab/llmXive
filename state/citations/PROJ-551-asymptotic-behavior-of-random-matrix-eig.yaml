@@ -1,1 +1,34 @@
-[]
+- artifact_hash: 7a64e13a19f4774d7b70a9cf27761c5632d34f9ece9578617c547bb42dae4247
+  artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '0812.2602'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-10-18T00:52:51.619894Z'
+- artifact_hash: f37893c6c491f9086f834cab6deaf6f4715057ad1649212413a785c8246d30e9
+  artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[0812.2602] The statistical restricted isometry property and the
+    Wigner semicircle distribution of incoherent dictionaries'
+  kind: url
+  value: https://arxiv.org/abs/0812.2602
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/0812.2602
+  verified_at: '2026-10-18T00:52:59.335424Z'
+- artifact_hash: f37893c6c491f9086f834cab6deaf6f4715057ad1649212413a785c8246d30e9
+  artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '0812.2602'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-10-18T00:52:59.335424Z'

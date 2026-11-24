@@ -1,3 +1,58 @@
+T001:
+  c: true
+  h: 4417f63a345c6e67094e707bc8cef885b7a38726307b91277a963ca71c2c6366
+  r: "Checked the `projects/PROJ-173-quantifying-the-impact-of-transposable-e/` directory,\
+    \ which contains the expected top\u2011level files (`README.md`, `pyproject.toml`,\
+    \ `requirements.txt`, etc.) and the required sub\u2011directories (`code/`, `data/`,\
+    \ `docs/`, `tests/`, `results/`, `specs/`, `.specify/`, etc.) matching the implementation\
+    \ plan\u2019s project structure."
+  sig: 0ca135d66676973c6659c14789d7bda01e53f3c1765d6ee59b496cc488deba0f
+T002:
+  c: true
+  h: 9294fb19f69ab43db595dde91e4cbb7abb7000e62ac45a330b88df46d75eece2
+  r: "The `requirements.txt` file was found at `projects/PROJ-173-quantifying-the-impact-of-transposable-e/requirements.txt`\
+    \ and contains all required packages (pandas, scikit-learn, statsmodels, numpy,\
+    \ scipy, requests, biopython, pyyaml, lxml, matplotlib, shapely) along with additional\
+    \ optional entries. The file is non\u2011empty and correctly initializes the Python\
+    \ project as specified."
+  sig: 01d3e98a9cf4893dc380b92c9b8670d38160a7c3d6730cc4d8f5990bde86f979
+T003:
+  c: false
+  h: 2da83c95492d2de4d13cd24e0b0aef76106cb6789c8a96f548b59aa2193719cf
+  r: "The only artifact is a log from `code/run_lint_format.py` which exits successfully\
+    \ but reports an error: \u201CFailed to run pre-commit run --all-files: No such\
+    \ file or directory: 'pre-commit'\u201D. No configuration files (e.g., `pyproject.toml`,\
+    \ `.ruff.toml`, `.pre-commit-config.yaml`) or a populated lint/format report are\
+    \ provided, indicating that the linting/formatting tools are not properly set\
+    \ up. The task therefore remains unfinished."
+  sig: 55b00e0e813828a83da9735788fc733b2b555f2c5c8cd240187485dbaca2c1b3
+T004:
+  c: true
+  h: cdb9a38a6ff0c57617a7f264a2f8be7c818f5cb45530c5b192b65628bf58025d
+  r: "Checked `code/data_generator.py` \u2013 it defines `generate_te_genotypes` that\
+    \ writes a CSV with 200 lines per TE, includes a 10\u202F% chance of monomorphic\
+    \ TEs, and draws polymorphic TE frequencies from a uniform\u202F[0.05,\u202F0.95]\
+    \ distribution. The execution log shows the function ran, created the raw TE genotype\
+    \ file, and later filtered monomorphic entries, confirming raw output contained\
+    \ monomorphic TEs."
+  sig: bf48e03ba4eb4004b55d13ee5ac28573a21fe5249625100f5d3398aa67228d6b
+T004A:
+  c: true
+  h: 4bd41e1903e2496fb931be24df98c73c47e7a028eaeeb587e1460d3ad7c64217
+  r: "The `code/data_generator.py` file contains the `generate_expression_data` function,\
+    \ which creates a TPM matrix CSV by sampling log\u2011normal\u2011like values\
+    \ for each gene across multiple lines and adds a 1e\u20116 constant to avoid zeros,\
+    \ fulfilling FR\u2011001. The implementation writes the generated data to CSV\
+    \ via `write_csv`, confirming the required behavior."
+  sig: 65b4f5608663b20dcb295c9d98d16a3f7059326b5d9cecaacd7e145713806fdc
+T004B:
+  c: true
+  h: 266d47f1c01858e0a61effe70965490f8393309c0582fffafd74ff6047f74bec
+  r: "Checked `code/data_generator.py` \u2013 it defines `generate_population_pcs`\
+    \ that writes a CSV with PC1\u2011PC3 columns, and `write_dataset_metadata` that\
+    \ creates a YAML file containing `\"quantification_method\": \"TEaware\"`. Both\
+    \ required artifacts are present and correctly implemented."
+  sig: ebee842bbec181a079611f895196ef3ce663271c30eb41c8430f800cf72b3a0e
 T012:
   c: false
   h: fbb48bf19017e4f46d697b105e430d2ae199ca1f794870016a67fb79202bb051

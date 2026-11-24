@@ -17,15 +17,23 @@ DEFAULT_ITERATIONS = 1000
 # Minimum number of alpha levels required by SC-004
 MIN_ALPHA_LEVELS = 3
 
-def validate_config(cfg: Dict[str, Any]) -> None:
+def validate_config(cfg: Optional[Dict[str, Any]] = None) -> None:
     """Validate simulation configuration parameters.
 
+    If ``cfg`` is ``None`` the default configuration is loaded via
+    :func:`load_config` and validated.
+
     Args:
-        cfg: Configuration dictionary.
+        cfg: Optional configuration dictionary. When omitted, the default
+             configuration (as defined by the module constants) is used.
 
     Raises:
-        ValueError: If n_clusters < 50.
+        ValueError: If ``n_clusters`` < 50.
     """
+    if cfg is None:
+        # Load defaults without parsing any CLI arguments
+        cfg = load_config(cli_args=[])
+
     if cfg.get('n_clusters', DEFAULT_N_CLUSTERS) < 50:
         raise ValueError(f"n_clusters must be >= 50, got {cfg['n_clusters']}")
 
@@ -39,7 +47,7 @@ def validate_alpha_levels(alphas: List[float]) -> None:
         alphas: List of significance levels (floats).
 
     Raises:
-        ValueError: If len(alphas) < 3.
+        ValueError: If ``len(alphas)`` < 3.
     """
     if not isinstance(alphas, list) or len(alphas) < MIN_ALPHA_LEVELS:
         raise ValueError(
@@ -65,7 +73,7 @@ def load_config(cli_args: Optional[List[str]] = None) -> Dict[str, Any]:
     4. Return the final config.
 
     Args:
-        cli_args: Optional list of CLI arguments (sys.argv[1:] if None).
+        cli_args: Optional list of CLI arguments (``sys.argv[1:]`` if ``None``).
 
     Returns:
         Complete configuration dictionary.
@@ -82,7 +90,7 @@ def load_config(cli_args: Optional[List[str]] = None) -> Dict[str, Any]:
         'cluster_std': CLUSTER_STD_SIZE,
         'seed': DEFAULT_SEED,
         'iterations': DEFAULT_ITERATIONS,
-        'n_obs_per_cluster': None, # Calculated later or set via CLI
+        'n_obs_per_cluster': None,  # Calculated later or set via CLI
         'n_permutations': 1000,
         'output': None,
         'verbose': False
@@ -102,17 +110,22 @@ def load_config(cli_args: Optional[List[str]] = None) -> Dict[str, Any]:
 
     return cfg
 
-def parse_cli_args(args: Union[List[str], argparse.Namespace], cfg: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+def parse_cli_args(
+    args: Union[List[str], argparse.Namespace, Dict[str, Any]],
+    cfg: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
     """Parse CLI arguments and update configuration.
 
     Supports multiple call patterns for flexibility:
-    1. parse_cli_args() -> Returns config with defaults (not supported directly, use load_config)
-    2. parse_cli_args(args) -> Parses args and returns new config
-    3. parse_cli_args(args, cfg) -> Parses args and updates existing config
-    4. parse_cli_args(cfg) -> Updates existing config with defaults (no CLI)
+    1. ``parse_cli_args()`` -> Returns config with defaults (not supported directly,
+       use :func:`load_config`).
+    2. ``parse_cli_args(args)`` -> Parses ``args`` and returns new config.
+    3. ``parse_cli_args(args, cfg)`` -> Parses ``args`` and updates existing ``cfg``.
+    4. ``parse_cli_args(cfg)`` -> Updates existing config with defaults (no CLI).
 
     Args:
-        args: Either a list of CLI strings, an argparse.Namespace, or a config dict.
+        args: Either a list of CLI strings, an ``argparse.Namespace``, a config
+              ``dict``, or a config ``dict`` used as the sole argument.
         cfg: Optional existing config dict to update.
 
     Returns:
@@ -147,7 +160,7 @@ def parse_cli_args(args: Union[List[str], argparse.Namespace], cfg: Optional[Dic
             'verbose': False
         }
 
-    # If args is a Namespace, convert to list
+    # If args is a Namespace, convert to dict
     if isinstance(args, argparse.Namespace):
         args = vars(args)
 

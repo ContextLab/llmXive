@@ -1,0 +1,138 @@
+{
+  "trace_id": "training_42_02825",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 12,
+  "tool_sequence": [
+    "apply_theme",
+    "format_text",
+    "format_text",
+    "format_text",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "format_text",
+    "insert_text",
+    "delete_element",
+    "delete_element",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 37.0858,
+        "saturation": 7.892
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 67.9157,
+        "x": 45.0411,
+        "y": 82.6726
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 77.4971,
+        "x": 4.164,
+        "y": 33.4788
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 84.0766,
+        "x": 10.6057,
+        "y": 17.7383
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 82.1858,
+        "y": 60.4889,
+        "width": 12.7585,
+        "height": 16.0228
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 82.1141,
+        "y": 42.363,
+        "width": 40.5369,
+        "height": 84.4194
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 77.5229,
+        "y": 45.4584,
+        "width": 69.2278,
+        "height": 33.4823
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 20.4942,
+        "x": 85.2727,
+        "y": 20.8198
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 35.8457,
+        "y": 0.208,
+        "length": 23.8323
+      }
+    },
+    {
+      "step": 9,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 75.7542
+      }
+    },
+    {
+      "step": 10,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 56.4597
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 28.8879,
+        "y": 90.8093,
+        "length": 49.8475
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.517106,
+    "tool_repetition_freq": 0.583333,
+    "arg_semantic_variance": 781.723662
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 15,
+    "layout_hash": "42-2825-format_text"
+  }
+}

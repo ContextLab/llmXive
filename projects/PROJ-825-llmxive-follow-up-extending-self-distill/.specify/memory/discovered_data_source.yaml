@@ -1,17 +1,15 @@
 status: none
-intent: ALFWorld WebShop trajectory dataset with student entropy gating scores python
-  package dataset
+intent: ALFWorld and WebShop environments dataset python package dataset
 required_fields:
-- environment_name
 - episode_id
 - step_index
-- token_entropy
-- context_stability
+- observation_text
+- action
+- reward
+- next_observation
+- student_token_entropy
+- retrieved_context_similarity
 - gating_score
-- cumulative_reward
-- episode_reward
-- success_flag
-- timestamp
-cache_key: 0191115fe2702416d3a852d8fb2b2016768392625b9c627a8893617f8fc91fc0
-searched_at: '2026-08-04T20:39:18.302213+00:00'
+cache_key: b64bb964e4c3d73f0321dca8f6bce93acd9362a7f68b195ddb0c5d0b51cfe873
+searched_at: '2026-10-18T14:37:38.049535+00:00'
 retry_count: 1

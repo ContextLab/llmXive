@@ -1,15 +1,12 @@
 status: none
-intent: cellular automata stochastic physics sandbox dataset python package for simulation
-  baseline
+intent: stochastic physics sandbox grid world generator python package dataset
 required_fields:
-- time_step
-- grid_state
-- external_noise
-- agent_collisions
-- next_grid_state
-- neighborhood_radius
-- memory_depth
-- update_function
-cache_key: bbf74082c88470de9f063a4d7e6e1edf545f4f18dd85ad7f00c9557d451966ed
-searched_at: '2026-10-11T03:49:13.330865+00:00'
+- grid_state_matrix
+- time_step_index
+- external_noise_vector
+- agent_positions
+- cell_state_history
+- environmental_force_vectors
+cache_key: eb0e6183b6e85271aee95170acedd563524f22fedeeb0d35c3c35e404ca92a1c
+searched_at: '2026-10-14T09:30:34.523223+00:00'
 retry_count: 1

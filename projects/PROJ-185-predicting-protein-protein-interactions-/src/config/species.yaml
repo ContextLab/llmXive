@@ -1,8 +1,6 @@
-# Species configuration for PROJ-185
-# Default species list with GEO series identifiers
-arabidopsis:
-  organism: "Arabidopsis thaliana"
-  taxid: 3702
-  geo_series:
-    - GSE12345
-    - GSE67890
+Arabidopsis:
+  accessions:
+    - GSE5620          # expected ≥30 samples, will be downloaded
+    - GSE152416        # <30 samples, will be skipped
+  held_out_series: GSE152416
+  min_samples: 50

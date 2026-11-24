@@ -1,0 +1,4 @@
+# Project‑wide dependencies (standard library packages are omitted)
+# rdkit, interpret, scikit‑learn and pandas are already available in the
+# execution environment via the base image.  No additional third‑party
+# packages are required for the ingestion step.

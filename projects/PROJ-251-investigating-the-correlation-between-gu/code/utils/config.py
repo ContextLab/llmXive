@@ -21,6 +21,10 @@ def get_env_var(key: str, default=None):
 def get_sra_accession():
     return get_env_var("SRA_ACCESSION")
 
+def get_hf_dataset_id():
+    """Return the Hugging Face dataset identifier if set, otherwise None."""
+    return get_env_var("HF_DATASET_ID")
+
 def get_use_synthetic_data():
     val = get_env_var("USE_SYNTHETIC_DATA", "false").lower()
     return val in ("true", "1", "yes")

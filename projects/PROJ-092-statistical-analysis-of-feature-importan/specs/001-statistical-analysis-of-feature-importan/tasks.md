@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`projects/PROJ-092-statistical-analysis-of-feature-importan/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
-- [ ] T003 [P] Configure linting (flake8/pylint) and formatting (black/isort) tools
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
+- [X] T003 [P] Configure linting (flake8/pylint) and formatting (black/isort) tools
 
 ---
 
@@ -57,7 +57,7 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T004 Setup data directory structure (`data/raw`, `data/processed`, `outputs`)
+- [X] T004 Setup data directory structure (`data/raw`, `data/processed`, `outputs`)
 - [X] T005 [P] Implement data download and verification script in `code/download.py` (FR-001)
 - [ ] T006 [P] Create base configuration and logging infrastructure in `code/utils/`
 - [~] T007 Create data schema definitions in `contracts/` (dataset, drift_metric, importance_profile)
@@ -115,10 +115,10 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 3
 
 - [~] T021 [P] [US3] Implement Mann-Kendall trend test in `code/significance_test.py` to return Kendall's Tau (FR-005)
-- [ ] T022 [US3] Implement trend direction logic: report "monotonic decrease" if Tau < 0 (FR-005)
+- [~] T022 [US3] Implement trend direction logic: report "monotonic decrease" if Tau < 0 (FR-005)
 - [~] T018 [US3] Implement "high drift" flagging logic in `code/drift_analysis.py`: **read `outputs/null_baseline.json` (from T020) and p-value (from T023)**, flag transitions ONLY if the block permutation p-value < 0.05 (FR-004b) <!-- FAILED: unspecified -->
-- [ ] T024 [US3] Add logic to handle small sample size constraints (n < 10) and rely on permutation p-values (FR-008)
-- [ ] T025 [US3] Integrate all metrics (Spearman rho, Kendall tau, p-value) into final `outputs/drift_metrics.csv` (FR-006)
+- [~] T024 [US3] Add logic to handle small sample size constraints (n < 10) and rely on permutation p-values (FR-008)
+- [ ] T025 [US3] Integrate all metrics (Spearman rho, Kendall tau, p-value) into final `outputs/drift_metrics.csv` (FR-006) <!-- FAILED-IN-EXECUTION: code/main.py exit=-1 (TIMEOUT) -->
 - [~] T026a [US3] Implement aggregation logic in `code/main.py` to **compute global stats from `drift_metrics.csv` and stability metrics from T012b** for robustness measurement (SC-003, FR-006)
 - [ ] T026b [US3] Implement final report generation in `outputs/global_stats.json` to serialize aggregated stats with keys: `mean_rho`, `trend_direction`, `p_value`, `stable_window_count` (SC-003, FR-006)
 

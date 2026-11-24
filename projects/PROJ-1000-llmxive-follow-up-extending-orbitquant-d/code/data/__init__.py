@@ -1,1 +1,1 @@
-"""Data subpackage – utilities for downloading and preprocessing datasets."""
+# Package marker for code.data

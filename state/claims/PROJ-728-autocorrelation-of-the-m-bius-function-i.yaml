@@ -260,3 +260,272 @@
   source_type: external
   status: verified
   updated_at: '2026-10-09T12:43:31Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: "demo verifies end-to-end workflow without full 10\u2077-element computation"
+  claim_id: c_bd96198c
+  context: "This command will: ... The demo verifies that the end\u2011to\u2011end\
+    \ workflow is functional without requiring the full 10\u2077\u2011element computation."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The demo verifies that the end\u2011to\u2011end workflow is functional\
+    \ without requiring the full 10\u2077\u2011element computation."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T04:16:30Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: "M\xF6bius array unique values are -1, 0, and 1"
+  claim_id: c_3c1dd1f9
+  context: "After a successful run you can check the generated M\xF6bius array; the\
+    \ expected output is Unique values: [-1  0  1]."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Expected output: Unique values: [-1  0  1]'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T04:16:30Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: "M\xF6bius sequence generated for N=2000"
+  claim_id: c_8fec1d56
+  context: "This command will: 1. Generate a small M\xF6bius sequence (`data/raw/mobius_array.npy`)\
+    \ for `N=2000`."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Generate a small M\xF6bius sequence (`data/raw/mobius_array.npy`) for\
+    \ `N=2000`."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T04:34:52Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: full pipeline processes 10^7 elements
+  claim_id: c_81ab7c67
+  context: "Running the Full Pipeline \u2013 To run the complete analysis (the full\
+    \ 10\u2077\u2011element sieve, ...)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "To run the complete analysis (the full 10\u2077\u2011element sieve, all\
+    \ interval lengths, full permutation set, and all visualisations), simply omit\
+    \ the `--demo` flag."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T04:34:52Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: "M\xF6bius array unique values are -1, 0, 1"
+  claim_id: c_e4cb2959
+  context: "Verification \u2013 Check the generated M\xF6bius array: Expected output:\
+    \ Unique values: [-1  0  1]"
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Expected output: Unique values: [-1  0  1]'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T04:34:52Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: single autocorrelation computed for first window
+  claim_id: c_1c119f30
+  context: 'This command will: 3. Compute a single autocorrelation for the first window
+    (`data/processed/demo_autocorr.csv`).'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Compute a single autocorrelation for the first window (`data/processed/demo_autocorr.csv`).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T04:34:52Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: single heatmap figure generated
+  claim_id: c_5f72452d
+  context: "This command will: 4. Produce a single heat\u2011map figure (`outputs/figures/heatmap_demo.png`)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Produce a single heat\u2011map figure (`outputs/figures/heatmap_demo.png`)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T04:34:52Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: "demo creates M\xF6bius sequence of length 2000 stored as int8 array"
+  claim_id: c_80f0d0cb
+  context: "The demo creates the following artefacts: data/mobius_array.npy \u2013\
+    \ a small M\xF6bius sequence (N\u202F=\u202F2000) stored as an int8 NumPy array."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The demo creates a small M\xF6bius sequence (N\u202F=\u202F2000) stored\
+    \ as an int8 NumPy array in data/mobius_array.npy."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:07:29Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: demo creates JSON file with one window start index per interval length
+  claim_id: c_9d8ae6fb
+  context: "The demo creates the following artefacts: data/window_starts.json \u2013\
+    \ a JSON file containing one window start index for each interval length."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The demo creates a JSON file data/window_starts.json containing one window
+    start index for each interval length.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:07:29Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: demo autocorrelation CSV contains value for window length 1000 and lag
+    1
+  claim_id: c_4cad5215
+  context: "The demo creates the following artefacts: data/processed/demo_autocorr.csv\
+    \ \u2013 a CSV with a single autocorrelation value for the first window (L\u202F\
+    =\u202F1000, h\u202F=\u202F1)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The demo creates a CSV file data/processed/demo_autocorr.csv with a single\
+    \ autocorrelation value for the first window (L\u202F=\u202F1000, h\u202F=\u202F\
+    1)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:07:29Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: demo creates heatmap PNG of autocorrelation
+  claim_id: c_f5d446a1
+  context: "The demo creates the following artefacts: figures/heatmap_demo.png \u2013\
+    \ a PNG heat\u2011map visualising the demo autocorrelation."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The demo creates a PNG heat\u2011map visualising the demo autocorrelation\
+    \ at figures/heatmap_demo.png."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:07:30Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: demo command exits with status 0 and produces expected files
+  claim_id: c_635bb2cc
+  context: "Running the demo command exits with status\u202F0 and produces the files\
+    \ listed above."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Running the demo command exits with status\u202F0 and produces the files\
+    \ listed above."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:07:30Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: quickstart file contains '--demo' string
+  claim_id: c_28322aaa
+  context: The quickstart file contains the string `--demo`.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The quickstart file contains the string `--demo`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:07:30Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: full data set size is ten million elements
+  claim_id: c_b2fe369b
+  context: "To process the full data set (N\u202F=\u202F10\u2077, all windows, permutations,\
+    \ visualisations, etc.) omit the `--demo` flag."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The full data set processed by the pipeline contains N\u202F=\u202F10\u2077\
+    \ elements."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:07:30Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: "demo produces M\xF6bius sequence of size 2000"
+  claim_id: c_f7ddfa7a
+  context: "The demo command produces the following files: - data/mobius_array.npy\
+    \ \u2013 A small M\xF6bius sequence ($N=2000$) stored as an int8 NumPy array."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "A small M\xF6bius sequence ($N=2000$) stored as an `int8` NumPy array."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:26:19Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: demo produces autocorrelation for L=1000 and h=1
+  claim_id: c_f371ec6c
+  context: "The demo command produces the following files: - data/processed/demo_autocorr.csv\
+    \ \u2013 A CSV containing the normalized autocorrelation for the first sampled\
+    \ window ($L=1000, h=1$)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A CSV containing the normalized autocorrelation for the first sampled
+    window ($L=1000, h=1$).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:26:19Z'

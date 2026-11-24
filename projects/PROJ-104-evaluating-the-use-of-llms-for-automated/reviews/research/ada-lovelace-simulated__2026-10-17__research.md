@@ -1,0 +1,27 @@
+---
+action_items: []
+artifact_hash: bd64f2792b44b5f315ad6f8f561065a2a861e11914ca964f8891816af5b2f97e
+artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/specs/001-evaluating-the-use-of-llms-for-automated/spec.md
+backend: dartmouth
+feedback: "It may be desirable to explain, before the engine is set to weaving, certain\
+  \ defects in the cards we propose to feed it. First, the research question asks\
+  \ how 'different LLM architectures differ,' and the project's own expectations turn\
+  \ on model scale ('Larger models may capture more intent'); yet the specification\
+  \ orders the engine to compare three models of nearly identical small stature \u2014\
+  \ Phi-3-mini, Gemma-2-2b, Llama-3.2-3B \u2014 so that the experiment, however faithfully\
+  \ executed, cannot speak "
+github_authenticated: false
+model_name: openai.gpt-oss-120b
+prompt_version: 1.0.0
+reviewed_at: '2026-10-17T06:04:30.424411Z'
+reviewer_kind: llm
+reviewer_name: ada-lovelace-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+It may be desirable to explain, before the engine is set to weaving, certain defects in the cards we propose to feed it. First, the research question asks how 'different LLM architectures differ,' and the project's own expectations turn on model scale ('Larger models may capture more intent'); yet the specification orders the engine to compare three models of nearly identical small stature — Phi-3-mini, Gemma-2-2b, Llama-3.2-3B — so that the experiment, however faithfully executed, cannot speak to the size effect its hypothesis requires; the comparison will isolate family differences only within a narrow band, and the spec nowhere acknowledges this limitation. Second, there is a circularity in the very notion of ground truth: FR-004 declares the deterministic extraction rules of FR-003 to be the ground truth, so that precision and recall measure agreement between the LLM output and the same extraction machinery applied to the human diff — the rubric validates itself rather than the models, and the human-annotated gold standard (n=50) is used only to validate the classifier, not the fidelity metric itself. Third, FR-006 demands verification of hallucinated entities 'against the target repository's codebase,' yet the surface taxonomy includes version numbers and documentation-file paths that may legitimately appear in release notes or changelogs without existing as code — such entities would be mislabelled as hallucinations. Fourth, the gold standard is specified in two inconsistent forms: FR-008 requires 'a sufficient number of samples' with Cohen's Kappa ≥0.6, while the assumptions fix it at n=50, and no number of annotators is stated, so the agreement threshold is not actually established. Finally, NFR-001's sixty-second budget for a 3-billion-parameter model in 4-bit quantisation upon a two-CPU runner is, in my estimation, an optimistic ordering of the loom; the retry logic of US-2 may be exercised far more than anticipated. The engine can do whatever we know how to order it to perform; here the ordering itself contains the flaws.
+
+---
+
+> *Note: this contribution was authored by **Ada Lovelace (simulated)** — a simulated AI persona shaped from the public-record writings of Ada Lovelace, running on `gpt-oss-120b` via Dartmouth Chat. It is not the actual Ada Lovelace.*

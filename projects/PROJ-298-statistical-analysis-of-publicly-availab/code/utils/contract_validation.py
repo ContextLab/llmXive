@@ -12,6 +12,10 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import yaml
 
+# Default contracts directory (relative to project root)
+_default_contracts_dir: Path = Path(
+    "specs/001-statistical-analysis-of-publicly-availab/contracts"
+)
 
 class ContractValidationError(Exception):
     """Exception raised when contract validation fails."""
@@ -54,7 +58,7 @@ def validate_type(value: Any, expected_type: str) -> bool:
     """
     Validate that a value matches the expected type.
 
-    Supported types: string, number, integer, boolean, array, object, null
+    Supported types: string, number, integer, array, object, null
 
     Args:
         value: The value to validate
@@ -100,7 +104,11 @@ def validate_schema(
     if "required" in schema:
         for field in schema["required"]:
             if field not in data:
-                errors.append(f"Missing required field: {path}.{field}" if path else f"Missing required field: {field}")
+                errors.append(
+                    f"Missing required field: {path}.{field}"
+                    if path
+                    else f"Missing required field: {field}"
+                )
 
     # Validate properties
     if "properties" in schema:
@@ -117,7 +125,10 @@ def validate_schema(
                         )
 
                 # Array items validation
-                if prop_schema.get("type") == "array" and "items" in prop_schema:
+                if (
+                    prop_schema.get("type") == "array"
+                    and "items" in prop_schema
+                ):
                     if isinstance(value, list):
                         for idx, item in enumerate(value):
                             item_path = f"{current_path}[{idx}]"
@@ -128,7 +139,10 @@ def validate_schema(
                                 errors.extend(item_errors)
 
                 # Object nested validation
-                if prop_schema.get("type") == "object" and "properties" in prop_schema:
+                if (
+                    prop_schema.get("type") == "object"
+                    and "properties" in prop_schema
+                ):
                     if isinstance(value, dict):
                         nested_valid, nested_errors = validate_schema(
                             value, prop_schema, current_path
@@ -139,16 +153,23 @@ def validate_schema(
                 # String constraints
                 if prop_schema.get("type") == "string":
                     if isinstance(value, str):
-                        if "minLength" in prop_schema and len(value) < prop_schema["minLength"]:
+                        if (
+                            "minLength" in prop_schema
+                            and len(value) < prop_schema["minLength"]
+                        ):
                             errors.append(
                                 f"String too short at {current_path}: minimum length {prop_schema['minLength']}"
                             )
-                        if "maxLength" in prop_schema and len(value) > prop_schema["maxLength"]:
+                        if (
+                            "maxLength" in prop_schema
+                            and len(value) > prop_schema["maxLength"]
+                        ):
                             errors.append(
                                 f"String too long at {current_path}: maximum length {prop_schema['maxLength']}"
                             )
                         if "pattern" in prop_schema:
                             import re
+
                             if not re.match(prop_schema["pattern"], value):
                                 errors.append(
                                     f"Pattern mismatch at {current_path}: expected pattern {prop_schema['pattern']}"
@@ -157,11 +178,17 @@ def validate_schema(
                 # Number constraints
                 if prop_schema.get("type") in ["number", "integer"]:
                     if isinstance(value, (int, float)):
-                        if "minimum" in prop_schema and value < prop_schema["minimum"]:
+                        if (
+                            "minimum" in prop_schema
+                            and value < prop_schema["minimum"]
+                        ):
                             errors.append(
                                 f"Value too low at {current_path}: minimum {prop_schema['minimum']}"
                             )
-                        if "maximum" in prop_schema and value > prop_schema["maximum"]:
+                        if (
+                            "maximum" in prop_schema
+                            and value > prop_schema["maximum"]
+                        ):
                             errors.append(
                                 f"Value too high at {current_path}: maximum {prop_schema['maximum']}"
                             )
@@ -206,10 +233,10 @@ def validate_artifact(
     if contract_path:
         contract_file = Path(contract_path)
     elif contract_name:
-        contract_file = Path("contracts") / f"{contract_name}.json"
+        contract_file = _default_contracts_dir / f"{contract_name}.json"
     else:
         # Infer contract name from artifact name
-        contract_file = Path("contracts") / f"{artifact_path.stem}.json"
+        contract_file = _default_contracts_dir / f"{artifact_path.stem}.json"
 
     if not contract_file.exists():
         raise FileNotFoundError(f"Contract file not found: {contract_file}")
@@ -242,7 +269,9 @@ def validate_all_artifacts(
         Dictionary mapping artifact names to (is_valid, errors) tuples
     """
     artifacts_dir = Path(artifacts_dir)
-    contracts_dir = Path(contracts_dir) if contracts_dir else Path("contracts")
+    contracts_dir = (
+        Path(contracts_dir) if contracts_dir else _default_contracts_dir
+    )
 
     results = {}
 
@@ -257,7 +286,10 @@ def validate_all_artifacts(
         except ContractValidationError as e:
             results[artifact_file.name] = (False, e.details)
         except Exception as e:
-            results[artifact_file.name] = (False, [f"Unexpected error: {str(e)}"])
+            results[artifact_file.name] = (
+                False,
+                [f"Unexpected error: {str(e)}"],
+            )
 
     return results
 
@@ -276,7 +308,9 @@ def get_contract_for_artifact(
         Path to the contract file if found, None otherwise
     """
     artifact_path = Path(artifact_path)
-    contracts_dir = Path(contracts_dir) if contracts_dir else Path("contracts")
+    contracts_dir = (
+        Path(contracts_dir) if contracts_dir else _default_contracts_dir
+    )
 
     contract_name = f"{artifact_path.stem}.json"
     contract_path = contracts_dir / contract_name

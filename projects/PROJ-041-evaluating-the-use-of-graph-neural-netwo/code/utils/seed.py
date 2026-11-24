@@ -1,65 +1,37 @@
 """
-Deterministic random seed management for reproducible experiments.
+seed.py
+--------
 
-This module provides utilities to set and retrieve random seeds across
-Python's random module, NumPy, and PyTorch to ensure reproducibility.
+Deterministic seed handling utilities.
+Provides a single public function ``set_seed`` that seeds the Python
+``random`` module, NumPy, and (if available) PyTorch for reproducible
+experiments.
 """
 
 import os
 import random
+
 import numpy as np
-import torch
-from typing import Optional
 
-# Default seed value for reproducibility
-DEFAULT_SEED = 42
+try:
+    import torch
+except Exception:  # torch may not be installed in minimal environments
+    torch = None  # type: ignore
 
 
-def set_seed(seed: Optional[int] = None) -> int:
+def set_seed(seed: int) -> None:
     """
-    Set random seeds for reproducibility across all libraries.
-    
-    Args:
-        seed: The seed value to use. If None, uses DEFAULT_SEED.
-    
-    Returns:
-        The seed value that was set.
+    Set the random seed for Python's ``random``, NumPy, and PyTorch
+    (if installed) to ensure deterministic behaviour.
+
+    Parameters
+    ----------
+    seed: int
+        The seed value to use.
     """
-    if seed is None:
-        seed = DEFAULT_SEED
-    
-    # Set Python's random seed
     random.seed(seed)
-    
-    # Set NumPy's random seed
+    os.environ["PYTHONHASHSEED"] = str(seed)
     np.random.seed(seed)
-    
-    # Set PyTorch's random seeds
-    torch.manual_seed(seed)
-    
-    # For CUDA reproducibility (if available)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
-        # Ensure deterministic behavior
-        torch.backends.cudnn.deterministic = True
-        torch.backends.cudnn.benchmark = False
-    
-    return seed
 
-
-def get_seed_value() -> int:
-    """
-    Retrieve the current seed value from the environment or default.
-    
-    Returns:
-        The seed value, either from the SEED environment variable
-        or the DEFAULT_SEED.
-    """
-    env_seed = os.getenv('SEED')
-    if env_seed is not None:
-        try:
-            return int(env_seed)
-        except ValueError:
-            pass
-    return DEFAULT_SEED
+    if torch is not None:
+        torch.manual_seed(seed)

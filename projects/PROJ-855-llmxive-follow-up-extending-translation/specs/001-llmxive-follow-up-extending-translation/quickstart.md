@@ -1,93 +1,98 @@
 # Quickstart: llmXive follow-up: extending "Translation as a Bridging Action"
 
 ## Prerequisites
+- Python 3.10+  
+- GitHub Actions‑compatible runner (multiple CPU cores, 7 GB RAM) or a local Linux/macOS machine with similar resources.  
+- Sufficient disk space (on the order of gigabytes) for raw and processed data.
 
-- Python 3.10+
-- A minimal CPU core configuration, 7GB RAM (GitHub Actions Free Tier compatible)
-- Disk space: sufficient capacity (for simulation and data)
-
-## 1. Setup Environment
-
-Clone the repository and install dependencies.
-
+## 1. Clone & Set Up Environment
 ```bash
-cd projects/PROJ-855-llmxive-follow-up-extending-translation
+git clone 
+cd PROJ-855-llmxive-follow-up-extending-translation
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## 2. Generate Synthetic Dataset
+## 2. Verify Configuration
+The file `code/config.yaml` contains all thresholds and random seeds. You may edit it, but the default values satisfy the specification.
 
-Run the data generation script. This will create the raw dataset and validate the schema.
+```bash
+cat code/config.yaml
+```
 
+## 3. Generate Synthetic Dataset
 ```bash
 python code/generate_data.py --config code/config.yaml
 ```
+- **Outputs**: `data/raw/synthetic_episodes.parquet`, `data/checksums.json`  
+- **Checks**: script validates schema (`contracts/dataset.schema.yaml`) and logs any crashes, automatically replacing failed episodes.
 
-*   **Output**: `data/raw/synthetic_episodes.parquet`, `data/checksums.json`
-*   **Validation**: The script asserts ≥5,000 rows, no forbidden columns, and valid schema.
-
-## 3. Prepare Data Splits
-
-Split the raw data into geometry-disjoint train/test sets.
-
+## 4. Create Geometry‑Disjoint Train/Test Splits
 ```bash
-python code/utils.py --split --input data/raw/synthetic_episodes.parquet
+python code/split_data.py --input data/raw/synthetic_episodes.parquet \
+    --train data/processed/train.parquet \
+    --test data/processed/test.parquet
 ```
+- Guarantees no `geometry_id` overlap between splits (SC‑code).
 
-*   **Output**: `data/processed/train.parquet`, `data/processed/test.parquet`
-
-## 4. Train Models
-
-Train the main model, baseline, and control.
-
+## 5. Train Models (CPU‑only)
 ```bash
-# Main Translation-Only Model
-python code/train_model.py --input data/processed/train.parquet --output data/processed/trained_model.pt
+# Main translation‑only Transformer
+python code/train_model.py --train data/processed/train.parquet \
+    --output data/processed/trained_model.pt
 
-# Geometry-Only Baseline (MLP)
-python code/train_baseline.py --input data/processed/train.parquet --output data/processed/baseline_model.pt
+# Geometry‑Only baseline (MLP)
+python code/train_baseline.py --train data/processed/train.parquet \
+    --output data/processed/geometry_baseline.pt
 
-# Shuffled Translation Control
-python code/train_control.py --input data/processed/train.parquet --output data/processed/control_model.pt
+# Random‑Translation control
+python code/train_control.py --train data/processed/train.parquet \
+    --output data/processed/random_baseline.pt
 ```
+Each script prints the total parameter count and writes `model_summary.txt`. All training runs on CPU; `torch.cuda.is_available()` must be `False`.
 
-*   **Validation**: Each script logs the parameter count and ensures it is <10M.
-
-## 5. Evaluate & Report
-
-Run the evaluation script to compute metrics and perform statistical tests.
-
+## 6. Evaluate & Perform Statistical Tests
 ```bash
 python code/evaluate.py \
-  --model data/processed/trained_model.pt \
-  --baseline data/processed/baseline_model.pt \
-  --control data/processed/control_model.pt \
-  --test data/processed/test.parquet \
-  --output data/processed/metrics_report.json
+    --model data/processed/trained_model.pt \
+    --baseline data/processed/geometry_baseline.pt \
+    --control data/processed/random_baseline.pt \
+    --test data/processed/test.parquet \
+    --output data/processed/metrics_report.json
 ```
+- Generates accuracies, AUC‑ROC, confusion matrix, McNemar p‑values (SC‑003, SC‑004, SC‑006).  
+- **Enforces** that the translation‑only model improves accuracy by **≥ 2 %** over both baselines; the script aborts with an error if this condition is not met.
 
-*   **Output**: `data/processed/metrics_report.json` containing accuracy, p-values, and confusion matrix.
+## 7. Sensitivity Analysis (Optional)
+```bash
+python code/sensitivity.py \
+    --model data/processed/trained_model.pt \
+    --test data/processed/test.parquet \
+    --output data/sweep/variance_report.json
+```
+Reports variance of accuracy across the prescribed Gaussian‑noise levels (σ ∈ {0.0, 0.001, 0.002, 0.003, 0.004} m).
 
-## 6. Sensitivity Analysis (Optional)
-
-Run the sensitivity sweep to check robustness.
+## 8. Full Reproducibility Check
+To confirm the pipeline is fully reproducible, delete all generated artifacts and rerun:
 
 ```bash
-python code/sensitivity.py --config code/config.yaml --output data/sweep/
-```
-
-## 7. Reproducibility Check
-
-To verify the entire pipeline from scratch:
-
-```bash
-rm -rf data/processed/ data/raw/synthetic_episodes.parquet
+rm -rf data/raw/* data/processed/*
 python code/generate_data.py --config code/config.yaml
-python code/utils.py --split --input data/raw/synthetic_episodes.parquet
-python code/train_model.py --input data/processed/train.parquet --output data/processed/trained_model.pt
-python code/evaluate.py --model data/processed/trained_model.pt --test data/processed/test.parquet --output data/processed/metrics_report.json
+python code/split_data.py --input data/raw/synthetic_episodes.parquet \
+    --train data/processed/train.parquet \
+    --test data/processed/test.parquet
+python code/train_model.py --train data/processed/train.parquet \
+    --output data/processed/trained_model.pt
+python code/evaluate.py \
+    --model data/processed/trained_model.pt \
+    --baseline data/processed/geometry_baseline.pt \
+    --control data/processed/random_baseline.pt \
+    --test data/processed/test.parquet \
+    --output data/processed/metrics_report.json
 ```
 
-Verify that the results in `metrics_report.json` match the previous run (within statistical variance).
+The newly produced `metrics_report.json` should match the previous one within statistical variance, satisfying Constitution I.
+
+---
+

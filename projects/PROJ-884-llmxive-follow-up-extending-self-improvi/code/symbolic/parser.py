@@ -1,297 +1,198 @@
 """
-code/symbolic/parser.py
+Symbolic parser for puzzle constraints.
 
-Implements the formal language parser to convert puzzle constraints into a
-structure parseable by the symbolic planner.
-
-This module defines the grammar for constraints (equality, inequality, adjacency,
-etc.) and provides the `PuzzleParser` class to validate and transform raw puzzle
-data into formal `FormalConstraint` objects.
+This module provides:
+- Data structures representing formal constraints.
+- A lightweight ``PuzzleParser`` that can turn simple textual
+  constraints into ``FormalConstraint`` objects.
+- ``parse_dataset_file`` that reads a JSON dataset file and returns a list of puzzle dictionaries (used by the pilot run).
 """
 
 import json
-import re
-from typing import Dict, Any, List, Optional, Tuple
-from pathlib import Path
-from dataclasses import dataclass, field
-from enum import Enum
 import logging
+import re
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-from code.exceptions import PARSE_FAILURE, raise_parse_failure
-from code.symbolic.exclusion_logger import ExclusionLogger, ExclusionEvent
+from llmxive_toolkit import get_logger
 
-# Configure logging
-logger = logging.getLogger(__name__)
+# Import the custom exception raising helper
+from code.exceptions import raise_parse_failure
 
+log = get_logger(__name__)
 
 class FormalConstraintType(Enum):
-    """Enumeration of supported formal constraint types."""
-    EQUALITY = "equality"
-    INEQUALITY = "inequality"
-    ADJACENCY = "adjacency"
-    RANGE = "range"
-    UNIQUE = "unique"
-    EXISTENCE = "existence"
-    IMPLICATION = "implication"
-    NEGATION = "negation"
-
+    """Enumeration of supported constraint types."""
+    EQUALITY = "equality"            # A = B
+    INEQUALITY = "inequality"        # A != B
+    VALUE_ASSIGNMENT = "value_assignment"  # A = 5
+    ALL_DIFFERENT = "all_different"  # ALLDIFF A B C
 
 @dataclass
 class FormalConstraint:
-    """
-    Represents a parsed formal constraint.
-
-    Attributes:
-        type: The type of constraint (e.g., equality, inequality).
-        variables: List of variable names involved in the constraint.
-        value: The target value or comparison value (optional).
-        operator: The comparison operator (e.g., '==', '!=', '<', '>', 'adj').
-        metadata: Additional context or parameters for the constraint.
-    """
-    type: FormalConstraintType
-    variables: List[str] = field(default_factory=list)
-    value: Optional[Any] = None
-    operator: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert the constraint to a dictionary for serialization."""
-        return {
-            "type": self.type.value,
-            "variables": self.variables,
-            "value": self.value,
-            "operator": self.operator,
-            "metadata": self.metadata
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "FormalConstraint":
-        """Create a FormalConstraint from a dictionary."""
-        return cls(
-            type=FormalConstraintType(data["type"]),
-            variables=data.get("variables", []),
-            value=data.get("value"),
-            operator=data.get("operator"),
-            metadata=data.get("metadata", {})
-        )
-
+    """A parsed, formal representation of a single constraint."""
+    constraint_type: FormalConstraintType
+    variables: List[str]
+    value: Optional[Any] = None  # Only used for VALUE_ASSIGNMENT
 
 class PuzzleParser:
     """
-    Parses raw puzzle constraints into formal language structures.
+    Minimal parser that understands a small subset of constraint syntax.
 
-    This class validates constraints against a defined grammar and transforms
-    them into `FormalConstraint` objects that the `SymbolicPlanner` can process.
+    Supported patterns:
+    - Equality:      ``X = Y``
+    - Inequality:    ``X != Y``
+    - Value assign:  ``X = 5`` (integer or float)
+    - All-different: ``ALLDIFF X Y Z`` (case‑insensitive)
     """
 
-    def __init__(self, exclusion_logger: Optional[ExclusionLogger] = None):
+    _equality_pat = re.compile(r"^\s*([A-Za-z]\w*)\s*=\s*([A-Za-z]\w*)\s*$")
+    _inequality_pat = re.compile(r"^\s*([A-Za-z]\w*)\s*!=\s*([A-Za-z]\w*)\s*$")
+    _value_assign_pat = re.compile(r"^\s*([A-Za-z]\w*)\s*=\s*([0-9]+(?:\.[0-9]+)?)\s*$")
+    _alldiff_pat = re.compile(r"^\s*ALLDIFF\s+([A-Za-z]\w*(?:\s+[A-Za-z]\w*)+)\s*$", re.IGNORECASE)
+
+    def __init__(self, *args, **kwargs):
+        log.debug("PuzzleParser instantiated (real implementation).")
+
+    def parse(self, constraint_str: str) -> FormalConstraint:
         """
-        Initialize the parser.
-
-        Args:
-            exclusion_logger: An optional ExclusionLogger instance to log parsing failures.
+        Parse a single constraint string into a ``FormalConstraint``.
+        Raises ``ParseFailure`` if the string does not match any supported pattern.
         """
-        self.exclusion_logger = exclusion_logger
-        self._compiled_patterns = self._compile_patterns()
+        log.debug(f"Parsing constraint: {constraint_str!r}")
 
-    def _compile_patterns(self) -> Dict[str, re.Pattern]:
-        """Compile regex patterns for constraint parsing."""
-        patterns = {
-            "variable": re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$'),
-            "number": re.compile(r'^-?\d+(\.\d+)?$'),
-            "string_literal": re.compile(r'^"[^"]*"$'),
-            "comparison_op": re.compile(r'^(==|!=|<=|>=|<|>|adj)$'),
-            "range_op": re.compile(r'^(in|between)$'),
-        }
-        return patterns
+        # Equality (variable = variable)
+        m = self._equality_pat.match(constraint_str)
+        if m:
+            var1, var2 = m.group(1), m.group(2)
+            return FormalConstraint(
+                constraint_type=FormalConstraintType.EQUALITY,
+                variables=[var1, var2]
+            )
 
-    def _validate_variable_name(self, name: str) -> bool:
-        """Validate a variable name against the grammar."""
-        if not name:
-            return False
-        return bool(self._compiled_patterns["variable"].match(name))
+        # Inequality (variable != variable)
+        m = self._inequality_pat.match(constraint_str)
+        if m:
+            var1, var2 = m.group(1), m.group(2)
+            return FormalConstraint(
+                constraint_type=FormalConstraintType.INEQUALITY,
+                variables=[var1, var2]
+            )
 
-    def _validate_value(self, value: Any, expected_type: str = "any") -> bool:
-        """Validate a constraint value."""
-        if expected_type == "number":
-            return bool(self._compiled_patterns["number"].match(str(value)))
-        if expected_type == "string":
-            return bool(self._compiled_patterns["string_literal"].match(str(value)))
-        return True
+        # Value assignment (variable = number)
+        m = self._value_assign_pat.match(constraint_str)
+        if m:
+            var, val_str = m.group(1), m.group(2)
+            # Convert to int if possible, else float
+            value: Any = int(val_str) if val_str.isdigit() else float(val_str)
+            return FormalConstraint(
+                constraint_type=FormalConstraintType.VALUE_ASSIGNMENT,
+                variables=[var],
+                value=value
+            )
 
-    def _parse_single_constraint(self, constraint_def: Dict[str, Any]) -> FormalConstraint:
+        # All‑different
+        m = self._alldiff_pat.match(constraint_str)
+        if m:
+            vars_part = m.group(1)
+            vars_list = vars_part.split()
+            return FormalConstraint(
+                constraint_type=FormalConstraintType.ALL_DIFFERENT,
+                variables=vars_list
+            )
+
+        # If none matched, raise a parse failure
+        raise_parse_failure(f"Unable to parse constraint: {constraint_str}")
+
+    def parse_constraints(self, constraints: List[str]) -> List[FormalConstraint]:
         """
-        Parse a single constraint definition into a FormalConstraint.
-
-        Args:
-            constraint_def: Dictionary containing constraint details.
-
-        Returns:
-            A FormalConstraint object.
-
-        Raises:
-            PARSE_FAILURE: If the constraint cannot be parsed.
+        Parse a list of constraint strings.
+        Returns a list of ``FormalConstraint`` objects.
+        If any constraint cannot be parsed, a ``PARSE_FAILURE`` is raised.
         """
-        constraint_type_str = constraint_def.get("type")
-        if not constraint_type_str:
-            raise_parse_failure("Missing constraint type", constraint_def)
+        parsed: List[FormalConstraint] = []
+        for c in constraints:
+            parsed.append(self.parse(c))
+        return parsed
 
-        try:
-            constraint_type = FormalConstraintType(constraint_type_str)
-        except ValueError:
-            raise_parse_failure(f"Unknown constraint type: {constraint_type_str}", constraint_def)
-
-        variables = constraint_def.get("variables", [])
-        if not isinstance(variables, list):
-            variables = [variables]
-
-        # Validate variables
-        for var in variables:
-            if not self._validate_variable_name(var):
-                raise_parse_failure(f"Invalid variable name: {var}", constraint_def)
-
-        value = constraint_def.get("value")
-        operator = constraint_def.get("operator")
-
-        # Validate operator based on type
-        if constraint_type in [FormalConstraintType.EQUALITY, FormalConstraintType.INEQUALITY]:
-            if not operator or not self._compiled_patterns["comparison_op"].match(operator):
-                raise_parse_failure(f"Invalid operator for {constraint_type.value}: {operator}", constraint_def)
-
-        return FormalConstraint(
-            type=constraint_type,
-            variables=variables,
-            value=value,
-            operator=operator,
-            metadata=constraint_def.get("metadata", {})
-        )
-
-    def parse_constraints(self, constraints: List[Dict[str, Any]]) -> List[FormalConstraint]:
-        """
-        Parse a list of raw constraints into formal constraints.
-
-        Args:
-            constraints: List of constraint dictionaries.
-
-        Returns:
-            List of FormalConstraint objects.
-
-        Raises:
-            PARSE_FAILURE: If any constraint fails to parse and no logger is available.
-        """
-        formal_constraints = []
-        failed_count = 0
-
-        for i, constraint_def in enumerate(constraints):
-            try:
-                parsed = self._parse_single_constraint(constraint_def)
-                formal_constraints.append(parsed)
-            except PARSE_FAILURE as e:
-                failed_count += 1
-                error_msg = str(e)
-                logger.warning(f"Failed to parse constraint at index {i}: {error_msg}")
-
-                if self.exclusion_logger:
-                    event = ExclusionEvent(
-                        reason="PARSE_FAILURE",
-                        details={"constraint_index": i, "error": error_msg, "raw_constraint": constraint_def},
-                        timestamp=datetime.now().isoformat()
-                    )
-                    self.exclusion_logger.log(event)
-
-        if failed_count == len(constraints) and not formal_constraints:
-            raise_parse_failure("All constraints failed to parse", constraints)
-
-        return formal_constraints
-
-    def parse_puzzle(self, puzzle_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Parse a complete puzzle instance.
-
-        Args:
-            puzzle_data: Dictionary containing puzzle details including constraints.
-
-        Returns:
-            Dictionary with parsed puzzle structure.
-        """
-        constraints_raw = puzzle_data.get("constraints", [])
-        if not isinstance(constraints_raw, list):
-            raise_parse_failure("Constraints must be a list", puzzle_data)
-
-        parsed_constraints = self.parse_constraints(constraints_raw)
-
-        return {
-            "id": puzzle_data.get("id"),
-            "initial_state": puzzle_data.get("initial_state"),
-            "target_state": puzzle_data.get("target_state"),
-            "constraints": [c.to_dict() for c in parsed_constraints],
-            "metadata": puzzle_data.get("metadata", {}),
-            "parsing_status": "success"
-        }
-
-
-def main():
+def parse_dataset_file(file_path: Path) -> List[Dict[str, Any]]:
     """
-    Command-line interface for testing the parser.
+    Load a JSON dataset file containing puzzle definitions.
+
+    The function expects the file to have a top‑level ``puzzles`` key
+    (as produced by the pilot dataset generator).  It returns the list
+    of puzzle dictionaries.
+
+    Args:
+        file_path: Path to the JSON file.
+
+    Returns:
+        List of puzzle dictionaries.
+    """
+    if not file_path.exists():
+        log.error(f"Dataset file not found: {file_path}")
+        raise FileNotFoundError(f"Dataset file not found: {file_path}")
+
+    log.info(f"Loading puzzle dataset from {file_path}")
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    puzzles = data.get("puzzles")
+    if puzzles is None:
+        log.error("Dataset JSON does not contain a 'puzzles' field.")
+        raise ValueError("Invalid dataset format: missing 'puzzles' key.")
+
+    log.info(f"Loaded {len(puzzles)} puzzles.")
+    return puzzles
+
+def main() -> None:
+    """
+    CLI entry point for manual testing of the parser.
+
+    It loads a dataset file, parses each puzzle's constraints and
+    optionally writes the parsed representation to an output JSON file.
     """
     import argparse
 
-    parser = argparse.ArgumentParser(description="Test the Puzzle Parser")
-    parser.add_argument("--input", type=str, required=True, help="Path to JSON file with puzzle data")
-    parser.add_argument("--output", type=str, required=True, help="Path to output JSON file")
-    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
-
+    parser = argparse.ArgumentParser(description="Parse puzzle constraints from a dataset")
+    parser.add_argument("--input", type=str, required=True, help="Path to input puzzle JSON file")
+    parser.add_argument("--output", type=str, default=None, help="Path to write parsed constraints (optional)")
     args = parser.parse_args()
 
-    if args.verbose:
-        logging.basicConfig(level=logging.DEBUG)
-    else:
-        logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO)
 
-    # Load input data
-    input_path = Path(args.input)
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        sys.exit(1)
+    # Load puzzles
+    puzzles = parse_dataset_file(Path(args.input))
 
-    with open(input_path, 'r') as f:
+    puzzle_parser = PuzzleParser()
+    results = []
+
+    for puzzle in puzzles:
+        puzzle_id = puzzle.get("metadata", {}).get("source_id", "unknown")
+        constraints_raw = puzzle.get("constraints", [])
         try:
-            data = json.load(f)
-        except json.JSONDecodeError as e:
-            logger.error(f"Invalid JSON in input file: {e}")
-            sys.exit(1)
+            formal = puzzle_parser.parse_constraints(constraints_raw)
+            # Convert FormalConstraint objects to simple dicts for JSON serialisation
+            formal_dicts = [
+                {
+                    "type": fc.constraint_type.value,
+                    "variables": fc.variables,
+                    "value": fc.value if hasattr(fc, "value") else None,
+                }
+                for fc in formal
+            ]
+            results.append({"puzzle_id": puzzle_id, "parsed_constraints": formal_dicts})
+        except Exception as e:
+            results.append({"puzzle_id": puzzle_id, "error": str(e)})
 
-    # Initialize parser and exclusion logger
-    exclusion_logger = ExclusionLogger(output_path=Path("data/processed/exclusions.json"))
-    puzzle_parser = PuzzleParser(exclusion_logger=exclusion_logger)
-
-    # Parse
-    try:
-        if isinstance(data, list):
-            results = [puzzle_parser.parse_puzzle(p) for p in data]
-        else:
-            results = [puzzle_parser.parse_puzzle(data)]
-
-        # Save output
-        output_path = Path(args.output)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2)
-
-        logger.info(f"Successfully parsed {len(results)} puzzle(s). Output saved to {output_path}")
-
-        # Log exclusions if any
-        exclusion_logger.flush()
-        logger.info(f"Exclusion log saved to {exclusion_logger.output_path}")
-
-    except PARSE_FAILURE as e:
-        logger.error(f"Parsing failed: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1)
-
+    if args.output:
+        with open(args.output, "w", encoding="utf-8") as out_f:
+            json.dump(results, out_f, indent=2)
+        log.info(f"Parsed constraints written to {args.output}")
+    else:
+        print(json.dumps(results, indent=2))
 
 if __name__ == "__main__":
     main()

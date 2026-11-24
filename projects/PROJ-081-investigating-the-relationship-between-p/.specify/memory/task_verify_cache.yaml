@@ -1,0 +1,9 @@
+T002:
+  c: true
+  h: 1bc85b1defaa2d1e4eb3cf6518422683f62317077522861b0ec5a87d832018b5
+  r: "Checked `code/src/preprocess.py` \u2013 it concatenates, renames, filters, flags\
+    \ documented absences, caps herbivory outliers, Z\u2011scores metabolites, validates\
+    \ against the schema, writes the Parquet file and checksum log. Verified `code/tests/test_preprocess.py`\
+    \ runs these checks, and the generated `data/processed/clean.parquet` and `outputs/preprocessing_log.json`\
+    \ exist with correct contents."
+  sig: 37057dd7d7c6006db62aaea8934ac01449f911651187a07e0709892d97944724

@@ -1,4 +1,6 @@
 """
-Statistics module for data aggregation, statistical analysis (ANOVA), and
-significance testing.
+Statistics subpackage.
+
+Implements Two‑Way ANOVA, Dunnett post‑hoc tests, and aggregation of
+simulation results.
 """

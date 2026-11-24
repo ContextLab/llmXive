@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AdapterModelOutput"
+type: "object"
+required:
+  - record_id
+  - predicted_success_prob
+  - selected_head_id
+  - inference_latency_ms
+  - memory_usage_mb
+properties:
+  record_id:
+    type: "string"
+    description: "Links to the originating StructuralRecord."
+  predicted_success_prob:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Model output probability of task success."
+  selected_head_id:
+    type: "string"
+    description: "Policy head ID chosen by the adapter."
+  inference_latency_ms:
+    type: "number"
+    minimum: 0
+    description: "Wall‑clock inference latency in milliseconds."
+  memory_usage_mb:
+    type: "number"
+    minimum: 0
+    description: "Peak RSS memory usage during inference (MiB)."
+additionalProperties: false

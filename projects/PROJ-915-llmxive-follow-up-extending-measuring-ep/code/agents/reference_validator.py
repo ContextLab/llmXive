@@ -2,6 +2,7 @@
 Reference Validator Agent: Verifies citations in research.md against primary sources.
 Used for T045b to verify baseline ASR values.
 """
+
 import json
 import logging
 import os
@@ -11,35 +12,37 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+
 
 class ReferenceValidator:
     """
     Validates references found in a markdown file against external sources.
     Currently supports extracting citations and checking for existence.
     """
+
     def __init__(self, research_doc_path: Path):
         self.research_doc_path = research_doc_path
         if not self.research_doc_path.exists():
             raise FileNotFoundError(f"Research document not found: {self.research_doc_path}")
-    
+
     def extract_citations(self) -> list:
         """
         Extract citations from the research document.
         Pattern: (Author, Year) or similar.
         """
-        with open(self.research_doc_path, 'r', encoding='utf-8') as f:
+        with open(self.research_doc_path, "r", encoding="utf-8") as f:
             content = f.read()
-        
+
         # Simple regex for (Author, Year)
-        pattern = r'\(([A-Za-z\s]+),\s*(\d{4})\)'
+        pattern = r"\(([A-Za-z\s]+),\s*(\d{4})\)"
         matches = re.findall(pattern, content)
         return [{"author": m[0].strip(), "year": m[1]} for m in matches]
 
     def verify_citation(self, author: str, year: str) -> bool:
         """
-        Verify a citation. 
+        Verify a citation.
         In a real implementation, this would query an API (e.g., Crossref, PubMed).
         For this task, we simulate a check or return True if the format is valid.
         """
@@ -57,21 +60,21 @@ class ReferenceValidator:
         all_valid = True
 
         for citation in citations:
-            is_valid = self.verify_citation(citation['author'], citation['year'])
-            results.append({
-                "citation": f"{citation['author']} ({citation['year']})",
-                "valid": is_valid
-            })
+            is_valid = self.verify_citation(citation["author"], citation["year"])
+            results.append(
+                {"citation": f"{citation['author']} ({citation['year']})", "valid": is_valid}
+            )
             if not is_valid:
                 all_valid = False
 
         return {
             "document": str(self.research_doc_path),
             "total_citations": len(citations),
-            "valid_citations": sum(1 for r in results if r['valid']),
+            "valid_citations": sum(1 for r in results if r["valid"]),
             "all_valid": all_valid,
-            "details": results
+            "details": results,
         }
+
 
 def main():
     """
@@ -80,9 +83,9 @@ def main():
     """
     import argparse
 
-    parser = argparse.ArgumentParser(description='Validate references in a research document.')
-    parser.add_argument('--input', required=True, help='Path to the research markdown file')
-    parser.add_argument('--output', required=True, help='Path to save the verification JSON')
+    parser = argparse.ArgumentParser(description="Validate references in a research document.")
+    parser.add_argument("--input", required=True, help="Path to the research markdown file")
+    parser.add_argument("--output", required=True, help="Path to save the verification JSON")
     args = parser.parse_args()
 
     input_path = Path(args.input)
@@ -95,15 +98,15 @@ def main():
     try:
         validator = ReferenceValidator(input_path)
         report = validator.validate_all()
-        
+
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(report, f, indent=2)
-        
+
         logger.info(f"Verification complete. Report saved to {output_path}")
-        if not report['all_valid']:
+        if not report["all_valid"]:
             logger.warning("Some citations could not be verified.")
-            sys.exit(1) # Exit with error if verification fails
+            sys.exit(1)  # Exit with error if verification fails
         else:
             sys.exit(0)
 
@@ -111,5 +114,6 @@ def main():
         logger.error(f"Validation failed: {e}")
         sys.exit(1)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

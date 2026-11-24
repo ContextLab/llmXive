@@ -24,9 +24,9 @@ properties:
   avg_move_time_black:
     type: "number"
     description: "Average move time for Black in seconds."
-  material_imbalance_move5:
+  material_imbalance_move10:
     type: "number"
-    description: "Material difference at move 5 (White - Black)."
+    description: "Material difference at move 10 (White - Black)."
   outcome:
     type: "number"
     description: "Actual result (1.0, 0.5, or 0.0)."
@@ -42,16 +42,16 @@ properties:
     description: "Difference between actual and expected outcome."
     minimum: -1.0
     maximum: 1.0
+  time_control:
+    type: "string"
+    description: "Time‑control category (blitz, rapid, classical)."
 required:
   - game_id
-  - white_rating
-  - black_rating
   - eco_code
   - eco_family
   - avg_move_time_white
   - avg_move_time_black
-  - material_imbalance_move5
+  - material_imbalance_move10
   - outcome
-  - elo_expected_prob
-  - outcome_deviation
+  - time_control
 additionalProperties: false

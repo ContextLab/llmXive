@@ -1,35 +1,35 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "CollinearityDiagnostic"
-description: "Schema for Variance Inflation Factor (VIF) diagnostics on raw predictors. IMPORTANT: VIF MUST be computed on raw atomic fractions, NOT on ILR-transformed features."
-type: "object"
+description: "Variance Inflation Factor diagnostics on raw compositional predictors."
+type: object
 required:
-  - "Cu_vif"
-  - "Mg_vif"
-  - "Si_vif"
-  - "Zn_vif"
-  - "Mn_vif"
-  - "max_vif"
-  - "is_flagged"
+  - Cu_vif
+  - Mg_vif
+  - Si_vif
+  - Zn_vif
+  - Mn_vif
+  - max_vif
+  - is_flagged
 properties:
   Cu_vif:
-    type: "number"
-    description: "VIF for Copper."
+    type: number
+    description: "VIF for Copper atomic fraction."
   Mg_vif:
-    type: "number"
-    description: "VIF for Magnesium."
+    type: number
+    description: "VIF for Magnesium atomic fraction."
   Si_vif:
-    type: "number"
-    description: "VIF for Silicon."
+    type: number
+    description: "VIF for Silicon atomic fraction."
   Zn_vif:
-    type: "number"
-    description: "VIF for Zinc."
+    type: number
+    description: "VIF for Zinc atomic fraction."
   Mn_vif:
-    type: "number"
-    description: "VIF for Manganese."
+    type: number
+    description: "VIF for Manganese atomic fraction."
   max_vif:
-    type: "number"
-    description: "Maximum VIF among all predictors."
+    type: number
+    description: "Maximum VIF among the five predictors."
   is_flagged:
-    type: "boolean"
-    description: "True if max_vif > 5, indicating high collinearity."
+    type: boolean
+    description: "True if max_vif > 5."
 additionalProperties: false

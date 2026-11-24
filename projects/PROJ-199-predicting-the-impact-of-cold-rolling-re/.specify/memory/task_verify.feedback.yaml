@@ -1,0 +1,108 @@
+T001a:
+  task: 002c68835d0cd022887f85263acd5d59d33631a1066b42dec586daa8587670ca
+T001b:
+  task: c4ce0c36e3cf7c986fa5c618da4a8fa194c3f583d3f7db5cafc84ab8be670546
+T001c:
+  task: 86a807381fea4b4cadd8f851e26ee1ec44f194d1632fa5d8b5b75dde26632292
+T001d:
+  task: 09baa245a2860caa8f3228c1d0a1113b843b55b15639d008366d4d8441e850d8
+T002:
+  reason: "The task requires creating a `.gitignore` covering Python, data, and IDE\
+    \ files, but the evidence collector lists no artifacts on disk \u2014 no `.gitignore`\
+    \ (or any file) was found in the project root `projects/PROJ-199-predicting-the-impact-of-cold-rolling-re`.\
+    \ With no file present, the requirement is unmet; the implementer must actually\
+    \ create a non-empty `.gitignore` including Python artifacts (e.g. `__pycache__/`,\
+    \ `*.pyc`), data outputs, and IDE files (e.g. `.vscode/`, `.idea/`)."
+  task: 536c8cf0f894f321a1a61453fdff6e6c6ccc1b47aa99cd7f0717eb4caf2fb04f
+T003:
+  task: dfb27e9836b451b4fbeeeb9894294b12204bb6d659845a05560704526916c8b6
+T004:
+  task: f232398a5b81da2ed0389eda736be570e7544f270f39321c44ddc299a362c38b
+T005:
+  task: 936e820d19090f86f3129773a4c27d0895f28029bec647eb186eefaedfd9ad3c
+T006:
+  task: 7c43ea72895c4d3d1d42a2a7017cc1accbe43233e84488a4732ec38005fee7f4
+T007:
+  task: 8634050ef37fee0d42f2d73881e37bcf6730593ada90ab46e1357302ccc2e503
+T008a:
+  task: 519e00e47d6c9b1375349a63dfceea8ada52f2122c1a47e91966f94b6af200d8
+T008b:
+  task: 60d94e7244b33239b53f62ff8e1375741daac05c4ab53aca9954fda183717fac
+T009a:
+  task: c5115c97a101f5b437993016e663251315cc853922a0c63e9298d9278b5018a8
+T010:
+  task: 212db14d1353cd1d2f984072d821fb36abab1e3eb6c3560de7516674a7f9c384
+T011:
+  task: 21753671fd6c2e61f76d9d6c09371ee0fb01a68fcf6a5d070b1b6b629bc8b398
+T012:
+  task: 8b32c9cd004da9416bd6cbcb740018337a74454e1f160965da6ea74202c9f8ee
+T012b:
+  task: 6b2a9803c5422a8ce79fe4ab5352233524868a1ff04cbd0feabc36ba304e5510
+T014:
+  task: 671e5a5365864bcdba9c97e441c166457b5f02b391aa4ed753d7bdbf10805203
+T015:
+  reason: 'Requested task execution failed; rerun successfully: code/data/consolidate_cleaned.py
+    exit=1'
+  task: e55322a83f2b5d332458ddab5cc86a9f23ccf7fe1acdcf8c36a65a4559c502d1
+T016:
+  task: 4cb1a4400a179c87ada08ac98c015ca4e6dff83d87971757ed6d3aab0af057bb
+T017:
+  task: 9c248226128b393c393faa6b16add238e2ab5cd606b4822b199fc59a71cf9a23
+T018:
+  task: 078fa73d489b7bb38255a88c7b351745cf3360798596bbeb6764a9f9660cc8e1
+T018b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/features/benchmark_validation.py,
+    data/processed/descriptors.csv, data/processed/benchmark_data.json, data/processed/benchmark_validation_report.json'
+  task: 44a61dd775b74d956223718e7e6a82700f34c404cbf0c41d0f8c0a10c5bb1665
+T018c:
+  task: 7da46d90453d2fd21c3c69cbf79ecd41ee54bb11964cd40fa993fd61160df739
+T019:
+  task: 6cc0809db4efb802ca5efbb7a1645223e27c7b588152b4866c58c282286f4a10
+T020a:
+  task: 9f46e174ca78d253d648532e273f94cb49acb29ff671c24bb966576586d480e0
+T020b:
+  task: f8620d40445536d6e571ac76bde52c6f7ba8c63947e6ff3210594b81b20af56f
+T021:
+  task: 72abc793e595b911c669fec346a7d5a0a1b226ba38ccf7b09d1295d088dcfa2c
+T022:
+  task: 432f75b0dc2ae86a783d9f8dd5b39ff21d2f284b844f5e192bd05bb56dd557bf
+T023:
+  task: 100bd0524d11fb78961cba305b129bc5d646267eed30af3f7b1ffd36c0c0bd56
+T024:
+  task: 2ed7ca36ca5b37f2399d001c96a87394266883d060fe3b4212213772cfae5fa0
+T025:
+  task: 30b414f7d32aba718f1643f1a4c520fb6007394c28e463cf0b6901d89bc1a3f4
+T026:
+  task: 1a120c2cd4bf6cb7a78c5f262582fd12d227111dbc213806b46f9f504a725215
+T027:
+  task: 06ca5f1fb88c5b90214efbfb8bba5dceabca80da06da0a61620bc9e2604c4d21
+T028:
+  task: 442d8854a113fab72b0d7d7eb7226f21457c293926aa17fe4fa54c51123e3837
+T029:
+  task: 7f06dc41b8e9c708faac3e601f69a85aa3597ba42b9d350676caedda4f135102
+T030:
+  task: 6c29f48db6fd35f51cff3aa526593dbe4d7aaa431c4146586973b43c71314a62
+T031:
+  task: 8c688c62f4545a07546d31d9dc13fef0566838339f110ee2e82cdc1f4159a232
+T032:
+  task: 6df4fdc6179671d9b8c13dadd102f946701d3188e2dd2dcca875c11c322f2915
+T033:
+  task: a654197f52469a26ba4b9b389fdf00b56aeedbedf47c68b931f15649c0a7b479
+T034:
+  task: 3049fefb220fd7c30399ca33cdcaf890a136a184aeb7e1bf481fd4919df860d5
+T035:
+  task: cd22151df1ec642f0ee382acebab203ae113f58b293128e5fd18ee486831961a
+T036:
+  task: 5d5306c4393cd1b370ed65d3f05e698a1024a47ae504302f058aaee13b8758bb
+T037:
+  task: d0340a963a6a56c6412377deec8ffb063342b09cca30ddc3d043e16a2b747350
+T045:
+  task: 244468a64b51fc815ebb16b7b709ddd9a5266324344ce56c9c0ea5356ce4f92f
+T046:
+  task: 7dd2f9527c3afcd297b8f818776a4ce967082e44ee5a9f779b04a0330d3ceb64
+T047:
+  task: 59424a9a6260dfbdd08f2160136a1c3c3be7e000affa04cdb54759f6e4e8784e
+T048:
+  task: 4e8e5bdca53e882ff4fd437834f64705545821d2628960c778db44a33704e636
+T049:
+  task: 1e1319b9c6cfd547bad621a1bfaec12eb19c2b2c9a47c472ca1502a84340f64d

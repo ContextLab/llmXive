@@ -1,9 +1,27 @@
-T009a:
-  c: false
-  h: 535b1256a90b667478bd0e6c248b773c660715812c2538800843bd567da53d85
-  r: The required file `src/data/materials.py` does not exist, so no dictionary or
-    runtime reading of `R_lattice` from `config.yaml` is present. The task is therefore
-    not satisfied.
+T002:
+  c: true
+  h: 6c16c3d8a4f9a916468753cf288ad1d1400704f965093ead524378590e645593
+  r: "The `requirements.txt` file is present at the specified path, is non\u2011empty\
+    \ (144\u202Fbytes), and lists exact version pins for all libraries (e.g., `networkx==3.2.1`,\
+    \ `pandas==2.2.2`, etc.), satisfying the task\u2019s requirement to provide a\
+    \ pinned requirements file."
+  sig: cce2840901f3c23ae89294b5efc524ab73f71bf63b29d09c72021c357c37d36e
+T003:
+  c: true
+  h: e01966c15ae76ee2a1901f2925c107075a0e83224e5d7c99713a59206cdaa0e2
+  r: "Checked the `docs/quickstart.md` file (3424\u202Fbytes) which provides installation\
+    \ instructions, dependency setup, and step\u2011by\u2011step commands to run the\
+    \ full pipeline on a minimal synthetic dataset, fulfilling the quickstart documentation\
+    \ requirement."
+  sig: 4a1b91f1d8b69f220df8936b343eb4aaa022ea8d6b4e0f5e11ea6cee61e41aa9
+T004:
+  c: true
+  h: 3b5fdfb37067262dc6f9bd6ae57f2372e2f691165b5c51e825cf73f860a6148a
+  r: "Checked the `config.yaml` file (1053\u202Fbytes) at the project root; it contains\
+    \ the required keys `proximity_threshold`, `scaling_factor`, `validation_mode`,\
+    \ and `statistical_override` with concrete default values, fulfilling the task\
+    \ specification."
+  sig: 86ce5caac3a7c10041233b619f7f7c930d7f6efedcf92020fb9d1229b7b9501f
 T013:
   c: false
   h: 1e9d80d8351dbb7a4e986096f3f9dd4ca93a6d6f42935c1b5b7618950ef2532f

@@ -1,21 +1,29 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
+
 **Verdict**: pass
-The question asks about a specific neurobiological mechanism (the extent to which structural hub integrity mediates the link between functional connectivity and behavioral deficits) rather than the performance of a specific algorithm. The methodology (mediation analysis) is a standard statistical tool to test the phenomenon, not the subject of the inquiry itself.
+
+The question investigates whether structural hub centrality (a neuroanatomical property) mediates the link between whole‑brain functional connectivity strength (a neurophysiological measure) and ADOS‑2 social‑communication scores (a behavioral phenotype) in ASD. It focuses on a substantive brain‑behavior relationship and does not hinge on the performance of any particular analysis technique.
 
 ### Circularity check
+
 **Verdict**: pass
-The predictor (structural centrality) is derived from diffusion MRI tractography, while the functional connectivity strength is derived from resting-state fMRI time series correlations. These are distinct imaging modalities measuring different physical properties (white matter fiber density vs. hemodynamic synchronization), ensuring the variables are not mechanically guaranteed to correlate by construction.
+
+Predictor X (global functional connectivity strength) is derived from resting‑state fMRI time series, mediator M (DMN eigenvector centrality) is computed from diffusion‑MRI–derived structural connectivity matrices, and outcome Y (ADOS‑2 scores) is a clinical assessment collected independently. These three data streams are distinct, so the mediation relationship is not mechanically guaranteed.
 
 ### Triviality check
+
 **Verdict**: pass
-Both outcomes are scientifically informative: a significant mediation effect would identify structural hubs as the primary bottleneck for functional-behavioral coupling in ASD, suggesting structural repair strategies; a null result would imply that functional-behavioral links are driven by dynamic, non-hub-specific mechanisms or compensatory reorganization independent of static structural topology. Neither outcome is predetermined by current domain knowledge.
+
+Both a significant mediation effect and a null mediation would provide novel insight: a positive finding would suggest structural hubs constrain functional dys‑connectivity linked to behavior, whereas a null result would indicate that functional abnormalities relate to symptoms independently of structural hub integrity. Neither outcome is predetermined by existing literature.
 
 ### Question-narrowing check
+
 **Verdict**: pass
-The question explicitly names a relationship between biological variables (structural topology, functional dynamics, and clinical severity) within a specific population (ASD). It does not frame the inquiry around computational constraints, model architectures, or resource budgets.
+
+The formulation names a domain‑level mediation relationship (“how does structural centrality mediate the functional‑behavior link”) rather than imposing constraints on a specific algorithm, hardware, or runtime budget.
 
 ### Overall verdict
+
 **Verdict**: validated
-The research question is well-formed, targeting a genuine mechanistic gap in understanding ASD pathophysiology without falling into implementation-method narrowing or circular construction traps. The proposed mediation analysis using independent multimodal data sources (dMRI and fMRI) is a valid approach to test the hypothesis that structural hubs constrain functional-behavioral relationships.

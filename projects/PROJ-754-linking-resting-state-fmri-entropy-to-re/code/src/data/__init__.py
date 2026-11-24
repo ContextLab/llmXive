@@ -1,1 +1,2 @@
-"""Data acquisition and preprocessing modules."""
+# Package initializer for data acquisition and QC.
+pass

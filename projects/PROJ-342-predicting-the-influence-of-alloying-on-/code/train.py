@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any, Union
 
 # Import from local modules as per API surface
-from resource_monitor import resource_monitor, ResourceLimitExceeded
+from resource_monitor import resource_monitor, ResourceLimitExceeded, limit_resources
 from descriptors import get_project_root, setup_logging as setup_desc_logging
 
 def setup_logging_custom():
@@ -43,7 +43,7 @@ def load_prepared_data(data_path: str) -> Tuple[pd.DataFrame, np.ndarray, np.nda
     """
     logger = logging.getLogger(__name__)
     df = pd.read_csv(data_path)
-    
+
     # Ensure required columns exist
     required_cols = ['radius_mismatch', 'electronegativity_diff', 'VEC', 'Tg', 'family']
     for col in required_cols:
@@ -92,7 +92,7 @@ def generate_stratification_status_file(was_warned: bool, families: np.ndarray, 
     else:
         status_data = {"status": "no_warning"}
         logger.info("Generated stratification_status.json: no warning triggered.")
-    
+
     output_path = project_root / "data" / "processed" / "stratification_status.json"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
@@ -118,22 +118,20 @@ def calculate_null_model_r2(y: np.ndarray) -> float:
         return 0.0
     return 1 - (ss_res / ss_tot)
 
-@resource_monitor(runtime_limit_h=6.0, memory_limit_gb=7.0)
+@limit_resources(cpu_limit=6 * 3600, ram_limit=7 * 1024)
 def train_and_evaluate(X: np.ndarray, y: np.ndarray, families: np.ndarray, logger: logging.Logger, project_root: Path):
     """
     Train the final model, evaluate, and save artifacts.
     """
     logger.info("Starting model training and evaluation...")
-    
+
     # Hyperparameter search (limited to 10 combos as per FR-003)
-    # Grid: max_depth in [3, 5, 7], n_estimators in [50, 100, 200]
+    depths = [3, 5, 7]
+    estimators = [50, 100, 200]
     best_score = -np.inf
     best_params = {}
     best_model = None
 
-    depths = [3, 5, 7]
-    estimators = [50, 100, 200]
-    
     logger.info("Performing grid search for hyperparameters...")
     for d in depths:
         for n in estimators:
@@ -143,7 +141,6 @@ def train_and_evaluate(X: np.ndarray, y: np.ndarray, families: np.ndarray, logge
                 if score > best_score:
                     best_score = score
                     best_params = {'max_depth': d, 'n_estimators': n}
-                    # Train the model on full data for this config to keep it as candidate
                     candidate_model = GradientBoostingRegressor(max_depth=d, n_estimators=n, random_state=42)
                     candidate_model.fit(X, y)
                     best_model = candidate_model
@@ -156,30 +153,30 @@ def train_and_evaluate(X: np.ndarray, y: np.ndarray, families: np.ndarray, logge
 
     logger.info(f"Best parameters: {best_params}, Best LOFO R2: {best_score:.4f}")
 
-    # Retrain best model on full data (it was already trained in the loop, but ensure final state)
+    # Retrain best model on full data (already trained during search)
     final_model = GradientBoostingRegressor(**best_params, random_state=42)
     final_model.fit(X, y)
 
-    # Calculate metrics
+    # Metrics
     y_pred = final_model.predict(X)
     mae = mean_absolute_error(y, y_pred)
     r2 = r2_score(y, y_pred)
     null_r2 = calculate_null_model_r2(y)
-    
+
     # Feature importances
     feature_names = ['radius_mismatch', 'electronegativity_diff', 'VEC']
     importances = dict(zip(feature_names, final_model.feature_importances_.tolist()))
 
     logger.info(f"Final Model Metrics: R2={r2:.4f}, MAE={mae:.4f}, Null R2={null_r2:.4f}")
 
-    # Save Model (T024a)
+    # Save Model
     model_path = project_root / "artifacts" / "models" / "best_model.pkl"
     model_path.parent.mkdir(parents=True, exist_ok=True)
     with open(model_path, 'wb') as f:
         pickle.dump(final_model, f)
     logger.info(f"Model saved to {model_path}")
 
-    # Save Metrics (T024b)
+    # Save Metrics
     metrics = {
         "R2": float(r2),
         "MAE": float(mae),
@@ -195,33 +192,27 @@ def train_and_evaluate(X: np.ndarray, y: np.ndarray, families: np.ndarray, logge
 
     return final_model, metrics
 
-def save_artifacts(model, metrics, project_root: Path):
-    """
-    Placeholder for additional artifact saving if needed.
-    """
-    pass
-
 def run_training_pipeline():
     """
     Main entry point for the training pipeline.
     """
     logger = setup_logging_custom()
     project_root = get_project_root()
-    
+
     # Load data
     data_path = project_root / "data" / "processed" / "descriptors.csv"
     if not data_path.exists():
         raise FileNotFoundError(f"Input data file not found: {data_path}")
-    
+
     df, X, y, families = load_prepared_data(str(data_path))
-    
+
     # Stratification check
     was_warned = check_family_stratification(families, logger)
     generate_stratification_status_file(was_warned, families, logger, project_root)
-    
+
     # Train and evaluate
     model, metrics = train_and_evaluate(X, y, families, logger, project_root)
-    
+
     logger.info("Training pipeline completed successfully.")
 
 def main():

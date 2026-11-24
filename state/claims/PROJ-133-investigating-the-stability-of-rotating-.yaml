@@ -1,0 +1,17 @@
+- artifact_path: projects/PROJ-133-investigating-the-stability-of-rotating-/README.md
+  attempts: 1
+  canonical: "full 64\xD764 grid scan approx 300 runs with 5 repeats each"
+  claim_id: c_31cc4c73
+  context: "The following single command reproduces the full 64\u202F\xD7\u202F64\
+    \ grid scan (\u2248300 runs, 5 repeats each) and writes all raw outputs to `data/raw/`."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The following single command reproduces the full 64\u202F\xD7\u202F64\
+    \ grid scan (\u2248300 runs, 5 repeats each) and writes all raw outputs to `data/raw/`."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-12T18:18:45Z'

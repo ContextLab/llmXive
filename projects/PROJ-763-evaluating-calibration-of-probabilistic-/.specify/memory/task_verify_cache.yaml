@@ -1,0 +1,9 @@
+T001:
+  c: false
+  h: 78ef7a360d45960b2d774ab3d9ee53ea1149cbf18d2717833ea6e012a6327e5a
+  r: "The provided `code/src/download.py` does not implement the required download\u2011\
+    via\u2011wget, SHA\u2011256 verification, or writing of `data/raw/subseasonal_rodeo.tar.gz`;\
+    \ instead it performs a data\u2011availability gate on parquet files. Moreover,\
+    \ the expected archive file `data/raw/subseasonal_rodeo.tar.gz` is missing. The\
+    \ task\u2019s core requirement is therefore not satisfied."
+  sig: 5faffb717b497d9ea51ab5ac44faf2738d0f238113ce4cc6f1a3d27ac4404ced

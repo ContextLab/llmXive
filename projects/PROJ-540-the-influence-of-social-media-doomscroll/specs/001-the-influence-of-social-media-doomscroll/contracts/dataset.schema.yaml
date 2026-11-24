@@ -11,13 +11,14 @@ properties:
     minimum: 0
   anxiety_score:
     type: "number"
-    description: "Outcome anxiety score (anticipatory or general proxy)."
+    description: "Outcome anxiety score (validated scale or flagged proxy)."
     minimum: 0
   baseline_anxiety:
-    type: "number"
-    description: "Baseline or trait anxiety score."
+    type:
+      - "number"
+      - "null"
+    description: "Baseline or trait anxiety score; may be null if instrument overlaps with outcome."
     minimum: 0
-    nullable: true
   age:
     type: "integer"
     description: "Participant age in years."
@@ -25,29 +26,28 @@ properties:
     maximum: 100
   gender:
     type: "string"
-    enum:
-      - "Male"
-      - "Female"
-      - "Non-binary"
-      - "Other"
-    description: "Categorical gender."
+    description: "Gender category."
   social_media_engagement:
-    type: "number"
-    description: "Proxy for social media engagement (used in robustness check)."
+    type:
+      - "number"
+      - "null"
+    description: "Overall social-media engagement; required only for robustness check."
     minimum: 0
-    nullable: true
   instrument_source:
     type: "string"
-    description: "Name of the anxiety instrument used."
+    description: "Name of the anxiety instrument (e.g., GAD-7 or documented proxy)."
   measurement_timepoint:
     type: "string"
-    description: "Timepoint of measurement (e.g., 'pre', 'post', 'trait')."
+    description: "Timepoint of measurement (pre, post, or trait)."
   proxy_flag:
     type: "boolean"
-    description: "True if 'general_anxiety' was used as a proxy for 'anticipatory_anxiety'."
+    description: "True if the anxiety score is a proxy for anticipatory anxiety (FR-008)."
   coupling_risk:
     type: "boolean"
-    description: "True if baseline and outcome anxiety risk mathematical coupling."
+    description: "True if baseline and outcome anxiety may be mathematically coupled."
+  proxy_validated:
+    type: "boolean"
+    description: "True if the proxy anxiety instrument is on the validated whitelist."
 required:
   - participant_id
   - news_exposure_freq
@@ -58,4 +58,5 @@ required:
   - measurement_timepoint
   - proxy_flag
   - coupling_risk
+  - proxy_validated
 additionalProperties: false

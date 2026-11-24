@@ -7,8 +7,10 @@ name: Publication Sign-off Poll
 # stage. Uses no untrusted input in run: steps (vote PARSING happens in
 # Python via the GitHub API, never shell-interpolated).
 on:
-  schedule:
-    - cron: '25 */2 * * *'   # every 2 hours, offset 25min
+  # SCHEDULE PAUSED 2026-11-23: manual dispatch only until reliable performance and
+  # quality are verified. To restore, uncomment the block below.
+  # schedule:
+  #   - cron: '25 */2 * * *'   # every 2 hours, offset 25min
   workflow_dispatch:
 permissions:
   actions: write

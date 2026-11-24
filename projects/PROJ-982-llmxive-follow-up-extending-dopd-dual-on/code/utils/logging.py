@@ -1,132 +1,109 @@
 """
-Logging utilities for training metrics.
+TrainingLogger – writes per‑step metrics to a JSON‑Lines file and
+optionally records structured events (e.g., λ‑switches) to a legacy JSON
+file.
+
+The logger is deliberately lightweight: it does not perform schema
+validation itself (tests validate against the contract), but it guarantees
+that the required files exist and that each line is a valid JSON object.
 """
+
 import json
 import os
-import numpy as np
-from typing import Dict, Any, List, Optional
 from datetime import datetime
+from pathlib import Path
+from typing import Dict, Any
 
 class TrainingLogger:
     """
-    Logger for training metrics.
+    Logger for DOPD / Uniform training runs.
+
+    Parameters
+    ----------
+    run_id: str
+        Identifier for the run (e.g., ``dopd_seed_42``). Used only for
+        traceability; it is written into each JSON‑Lines entry.
+    output_dir: str
+        Directory where ``training_log.jsonl`` and ``training_log.json``
+        will be created (e.g., ``data/raw``).
+    seed: int
+        Seed associated with the run – also stored in each log line.
     """
-    def __init__(self, run_id: str, output_dir: str, seed: int = None):
+
+    def __init__(self, run_id: str, output_dir: str, seed: int):
         self.run_id = run_id
-        self.output_dir = output_dir
         self.seed = seed
-        self.metrics: Dict[str, List[Any]] = {
-            'step': [],
-            'reward': [],
-            'loss': [],
-            'accuracy': [],
-            'entropy': [],
-            'timestamp': []
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Paths for the two log artifacts.
+        self.jsonl_path = self.output_dir / "training_log.jsonl"
+        self.json_path = self.output_dir / "training_log.json"
+
+        # Ensure both files exist.
+        self.jsonl_path.touch(exist_ok=True)
+        if not self.json_path.exists():
+            # Initialise with an empty JSON object.
+            with self.json_path.open("w", encoding="utf-8") as f:
+                json.dump({}, f, indent=2)
+
+    def log_step(
+        self,
+        step: int,
+        reward: float,
+        loss: float,
+        accuracy: float,
+        entropy: float,
+    ) -> None:
+        """
+        Append a single training‑step record to the JSON‑Lines file.
+
+        The record contains the minimal fields required by the
+        ``training_log.schema.yaml`` contract.
+        """
+        entry: Dict[str, Any] = {
+            "run_id": self.run_id,
+            "seed": self.seed,
+            "step": step,
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "reward": reward,
+            "loss": loss,
+            "accuracy": accuracy,
+            "entropy": entropy,
         }
-        self.start_time = datetime.now()
+        with self.jsonl_path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\n")
 
-        os.makedirs(output_dir, exist_ok=True)
+    def log_event(self, event: Dict[str, Any]) -> None:
+        """
+        Record a structured event (e.g., a λ‑switch) in the legacy
+        ``training_log.json`` file.
 
-    def log_step(self, step: int, reward: float, loss: float,
-                 accuracy: float = None, entropy: float = None):
-        """Log metrics for a training step."""
-        self.metrics['step'].append(step)
-        self.metrics['reward'].append(reward)
-        self.metrics['loss'].append(loss)
-        if accuracy is not None:
-            self.metrics['accuracy'].append(accuracy)
-        if entropy is not None:
-            self.metrics['entropy'].append(entropy)
-        self.metrics['timestamp'].append(datetime.now().isoformat())
+        The file stores a single JSON object; new keys are merged into it.
+        If a key already exists, it is overwritten with the latest value.
+        """
+        # Load existing content.
+        if self.json_path.exists():
+            with self.json_path.open("r", encoding="utf-8") as f:
+                try:
+                    data = json.load(f)
+                except json.JSONDecodeError:
+                    data = {}
+        else:
+            data = {}
 
-    def get_summary(self) -> Dict[str, Any]:
-        """Get summary statistics of logged metrics."""
-        summary = {
-            'run_id': self.run_id,
-            'seed': self.seed,
-            'duration': str(datetime.now() - self.start_time),
-            'total_steps': len(self.metrics['step'])
-        }
+        # Merge the incoming event.
+        data.update(event)
 
-        if self.metrics['reward']:
-            summary['reward_mean'] = np.mean(self.metrics['reward'])
-            summary['reward_std'] = np.std(self.metrics['reward'])
-            summary['reward_max'] = np.max(self.metrics['reward'])
-            summary['reward_min'] = np.min(self.metrics['reward'])
+        # Write back atomically.
+        tmp_path = self.json_path.with_suffix(".tmp")
+        with tmp_path.open("w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+        tmp_path.replace(self.json_path)
 
-        if self.metrics['loss']:
-            summary['loss_mean'] = np.mean(self.metrics['loss'])
-            summary['loss_std'] = np.std(self.metrics['loss'])
-            summary['loss_final'] = self.metrics['loss'][-1]
-
-        if self.metrics['accuracy']:
-            summary['accuracy_mean'] = np.mean(self.metrics['accuracy'])
-            summary['accuracy_final'] = self.metrics['accuracy'][-1]
-
-        if self.metrics['entropy']:
-            summary['entropy_mean'] = np.mean(self.metrics['entropy'])
-            summary['entropy_final'] = self.metrics['entropy'][-1]
-
-        return summary
-
-    def save_metrics(self, filename: str = None):
-        """Save metrics to a JSON file."""
-        if filename is None:
-            filename = f"{self.run_id}_metrics.json"
-
-        filepath = os.path.join(self.output_dir, filename)
-
-        summary = self.get_summary()
-        summary['metrics'] = self.metrics
-
-        with open(filepath, 'w') as f:
-            json.dump(summary, f, indent=2)
-
-        return filepath
-
-def log_training_metrics(logger: TrainingLogger, step: int, reward: float,
-                         loss: float, accuracy: float = None, entropy: float = None):
-    """
-    Convenience function to log training metrics.
-
-    Args:
-        logger: TrainingLogger instance.
-        step: Current training step.
-        reward: Reward obtained.
-        loss: Loss value.
-        accuracy: Optional accuracy metric.
-        entropy: Optional action entropy.
-    """
-    logger.log_step(step, reward, loss, accuracy, entropy)
-
-def calculate_action_entropy(action_probs: np.ndarray) -> float:
-    """
-    Calculate the entropy of an action distribution.
-
-    Args:
-        action_probs: Probability distribution over actions.
-
-    Returns:
-        Entropy value (in nats).
-    """
-    # Avoid log(0)
-    action_probs = np.clip(action_probs, 1e-10, 1.0)
-    entropy = -np.sum(action_probs * np.log(action_probs))
-    return entropy
-
-def calculate_training_accuracy(predictions: np.ndarray, targets: np.ndarray) -> float:
-    """
-    Calculate accuracy between predictions and targets.
-
-    Args:
-        predictions: Predicted actions.
-        targets: Target actions.
-
-    Returns:
-        Accuracy as a fraction (0.0 to 1.0).
-    """
-    if len(predictions) == 0:
-        return 0.0
-
-    correct = np.sum(predictions == targets)
-    return correct / len(predictions)
+    def save_metrics(self) -> None:
+        """
+        Placeholder for any finalisation logic.  Currently a no‑op because
+        all metrics are written incrementally via ``log_step``.
+        """
+        pass

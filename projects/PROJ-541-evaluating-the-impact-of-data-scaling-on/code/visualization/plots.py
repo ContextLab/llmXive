@@ -1,4 +1,5 @@
 """Visualization module for the llmXive data scaling impact study."""
+
 from __future__ import annotations
 
 import logging
@@ -17,6 +18,7 @@ logger = logging.getLogger(__name__)
 # Ensure the plot output directory exists
 FIGURES_DIR = Path("results/figures")
 FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+
 
 def calculate_confidence_interval(
     successes: int, total: int, alpha: float = 0.05
@@ -133,12 +135,17 @@ def generate_error_rate_plot(
     # Prepare data for plotting
     plot_data = []
     for _, row in df.iterrows():
-        plot_data.append({
-            "x": method_to_x[row["scaling_method"]],
-            "y": row["error_rate"],
-            "yerr": [[row["error_rate"] - row["ci_lower"]], [row["ci_upper"] - row["error_rate"]]],
-            "label": f"{row.get('test_type', 'test')} - {row.get('config_id', 'config')}"
-        })
+        plot_data.append(
+            {
+                "x": method_to_x[row["scaling_method"]],
+                "y": row["error_rate"],
+                "yerr": [
+                    [row["error_rate"] - row["ci_lower"]],
+                    [row["ci_upper"] - row["error_rate"]],
+                ],
+                "label": f"{row.get('test_type', 'test')} - {row.get('config_id', 'config')}",
+            }
+        )
 
     # Plot
     for item in plot_data:
@@ -150,7 +157,7 @@ def generate_error_rate_plot(
             capsize=5,
             label=item["label"],
             markersize=8,
-            linestyle="None"
+            linestyle="None",
         )
 
     # Set x-axis ticks and labels
@@ -165,7 +172,7 @@ def generate_error_rate_plot(
         color="red",
         linestyle="--",
         linewidth=2,
-        label=f"Significance Threshold ($\\alpha$ = {alpha_threshold})"
+        label=f"Significance Threshold ($\\alpha$ = {alpha_threshold})",
     )
     plt.legend(bbox_to_anchor=(1.05, 1), loc="upper left")
 
@@ -195,7 +202,9 @@ def generate_sensitivity_plot(
     if df is None:
         input_path = Path("results/sensitivity_analysis.csv")
         if not input_path.exists():
-            logger.warning(f"Sensitivity analysis file not found: {input_path}. Skipping plot.")
+            logger.warning(
+                f"Sensitivity analysis file not found: {input_path}. Skipping plot."
+            )
             return
         df = pd.read_csv(input_path)
 
@@ -212,7 +221,7 @@ def generate_sensitivity_plot(
         y="error_rate",
         hue="scaling_method",
         marker="o",
-        err_style="band"
+        err_style="band",
     )
 
     plt.xlabel("Alpha Threshold")

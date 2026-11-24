@@ -1,0 +1,7 @@
+{
+  "task_id": "T001",
+  "fingerprint": "6493e6154d78277a0e0f222be67f7a1ac9365dbf32fcd320efb443d423a8ad24",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'tests/unit/test_download.py': unresolved names ['sys'] \u2014 likely missing imports. Add the necessary `import` or `from ... import ...` statements."
+}

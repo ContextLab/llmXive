@@ -1,31 +1,34 @@
-T031:
-  c: false
-  h: 99f3fee4a6c76cef548dcc56c5cb6a061d23659c8af23aa419b07c2b52d86c1d
-  r: "The `code/analysis/stats.py` file references `RHO_CRITICAL` (and `ENVIRONMENT_THRESHOLD`)\
-    \ from `code/config.py`, but the required `code/config.py` file is missing, so\
-    \ the import and the explicit use of the critical density cannot work. Additionally,\
-    \ the environment binning relies on an undefined `ENVIRONMENT_THRESHOLD` rather\
-    \ than the hard\u2011coded \u0394\u202F=\u202F200 boundary required by the task.\
-    \ The next implementer must add a proper `code/config.py` defining `RHO_CRITICAL`\
-    \ (and set the threshold to 200) and ensure the mass\u2011binning uses the specified\
-    \ boundaries."
-T033:
-  c: false
-  h: 99f3fee4a6c76cef548dcc56c5cb6a061d23659c8af23aa419b07c2b52d86c1d
-  r: "The provided `stats.py` file does not contain any implementation of the Benjamini\u2011\
-    Hochberg multiple\u2011testing correction, nor does it reference a threshold from\
-    \ `code/config.py`. Moreover, the required `code/config.py` file is missing entirely,\
-    \ so the function cannot obtain the needed threshold. The task\u2019s core requirement\
-    \ is therefore not satisfied."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No PNG or PDF files are present in a `results/figures/` directory, nor is there
-    any code or script shown that writes visualizations to that location. The required
-    artifact (saved visualizations) is missing, so the task is not satisfied.
-T043:
-  c: false
-  h: 366587ffcef7bf49c64deda71e8c279b67b471e45876b360b2e5c77e17b627e0
-  r: The repository lacks the required `code/main.py` script and the generated `results/timing.json`
-    file, so the pipeline cannot be timed or validated as specified. These essential
-    artifacts must be added and the timing assertion verified.
+T003:
+  c: true
+  h: 2aa9fbaeedaa7062c5cf895b465474a2b8a596a8ab65e1b96ce3933301b13762
+  r: Checked the `pyproject.toml` file (resolved path `pyproject.toml`) and confirmed
+    it contains `[tool.black] line-length = 88` and `[tool.flake8] max-line-length
+    = 100` as required.
+  sig: 73affb02e7b9d0877ab4d56adc42922cb16f5eb45c4a37a927763b6ded0dbd03
+T004:
+  c: true
+  h: 77c5622972d88aae362f69f549b7245a26de4c3498d8fe6b1aa9ceafa39f62c4
+  r: "The `code/config.py` file (7330\u202Fbytes) exists and defines reproducible\
+    \ random seeds, directory path constants, simulation box sizes for Millennium\
+    \ and TNG100, and critical density constants (both `RHO_CRITICAL_H2` and `RHO_CRITICAL`\
+    \ with a helper function). Its content matches the task\u2019s specification without\
+    \ placeholders or stubs."
+  sig: 6dc6fd2a052d2895847944cf9ea7505ebbc0a2f60cf7d08cc8a6e9aeb4ff6464
+T006:
+  c: true
+  h: 2e562fa16402dcc0ff9bfa59309a86f75645ce03866e4f4535569181a5a4fb0b
+  r: "Checked `code/utils/logging.py` (3560\u202Fbytes) \u2013 it defines the required\
+    \ `setup_logging()` and `get_logger(name)` functions, creates the log directory,\
+    \ avoids duplicate handlers, and uses the log level/format from `code/config.py`.\
+    \ The implementation fulfills the logging infrastructure specification."
+  sig: 9ee2b7aac46e4cfa63be675d26bf7a64254fa66b84b1dc63c2e6fe4f423f8c05
+? "T031\u2013T035, T037 [US3] Statistical analysis implementation in `code/analysis/stats.py`\
+  \ and `code/analysis/visualize.py` (FR-007 to FR-012)"
+: c: true
+  h: 29454e667af4e474715d8e3b64eb3576b99a91b6536ba6fd5340224060d2641f
+  r: "Checked `code/analysis/stats.py` and `code/analysis/visualize.py`; both files\
+    \ exist, are non\u2011empty, and implement mass/environment binning, KS tests,\
+    \ Benjamini\u2011Hochberg correction, Spearman correlations, Bullock comparison,\
+    \ and generation of PNG visualizations as required by FR\u2011007\u202F\u2013\u202F\
+    FR\u2011012. No missing or placeholder code was found."
+  sig: 46492cd4b018572605c73d4709e50ff018580666c267d635a0ff09e2633eed70

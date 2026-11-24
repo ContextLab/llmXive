@@ -1,1 +1,3 @@
-"""Integration tests for end-to-end workflows."""
+"""
+integration tests subpackage initializer.
+"""

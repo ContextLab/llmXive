@@ -1,107 +1,63 @@
-# Quickstart: llmXive follow-up: extending "Scalable Visual Pretraining for Language Intelligence"
+# Quickstart: llmXive follow-up (Re‑plan v4)
 
-This guide gets you from a fresh GitHub Actions runner to a complete end‑to‑end run of the pipeline.
-
-## 1. Setup Environment
 ```bash
-# Create a fresh virtualenv (GitHub Actions does this automatically)
-python -m venv .venv
-source .venv/bin/activate
-
-# Install exact dependencies
+# 1. Set up a virtual environment
+python -m venv .venv && source .venv/bin/activate
 pip install -r code/requirements.txt
-```
 
-## 2. Verify Data Availability
-```bash
+# 2. Download & verify the real dataset (single verified URL)
+# NOTE: Replace the SHA256 placeholder with the actual checksum of the parquet.
+# The script will abort if the computed checksum does not match.
 python -m src.data.download \
-    --primary-name docbank \
-    --fallback-name pubmed-layout
-```
-*The script will attempt to fetch the named datasets. If the combined page count < 10 000, it will abort with a clear error (FR‑007).*
+  --url https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet \
+  --output data/raw/mixsub_overlap.parquet \
+  --provenance data/raw/provenance.json \
+  --sha256 3a1f5e8b9c2d4f6e7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f
+# Exits non‑zero with a clear message if download fails, checksum mismatch,
+# or row count < 10 000 (FR‑007). Records column inventory + label semantics.
 
-## 3. Preprocess & Validate
-```bash
+# 3. Preprocess (schema validation; skips+logs invalid rows)
 python -m src.data.preprocess \
-    --input-dir data/raw \
-    --output-path data/processed/document_pairs.parquet \
-    --schema contracts/documentpair.schema.yaml
-```
-*Checksums are recorded; any missing `layout_annotations` generate a warning and the page is skipped.*
+  --input data/raw/mixsub_overlap.parquet \
+  --output data/processed/document_pairs.parquet \
+  --schema contracts/documentpair.schema.yaml
 
-## 4. Generate Visual Latents (CPU‑only)
-```bash
-python -m src.data.latent_generator \
-    --input-path data/processed/document_pairs.parquet \
-    --output-path data/processed/document_pairs_with_latent.parquet \
-    --encoder-name layoutlmv3-base \
-    --device cpu
-```
-*If the encoder cannot be loaded on CPU, the script exits with an informative message (edge case handling).*
+# 4. Structural latent generation (deterministic, CPU) + non‑degeneracy gate
+python -m src.features.structure \
+  --input data/processed/document_pairs.parquet \
+  --output data/processed/document_pairs_with_latent.parquet
+# Exits non‑zero with a clear scope‑mismatch error if the feature matrix is degenerate.
 
-## 5. Create Consistent Train/Val/Test Splits
-```bash
+# 5. Create splits
 python -m src.utils.split_generator \
-    --input-path data/processed/document_pairs_with_latent.parquet \
-    --output-dir data/splits \
-    --seed 42 \
-    --train-ratio 0.8 --val-ratio 0.1 --test-ratio 0.1
-```
-*Generates `data/splits/train_idx.json`, `val_idx.json`, `test_idx.json` used by both distilled and baseline models.*
+  --input data/processed/document_pairs_with_latent.parquet \
+  --output-dir data/splits --seed 42
 
-## 6. Train Distilled Model (several seeds)
-```bash
-for SEED in {42..56}; do
-  python -m src.models.distilled \
-      --data-path data/processed/document_pairs_with_latent.parquet \
-      --splits-dir data/splits \
-      --seed $SEED \
-      --output-dir artifacts/models/distilled_$SEED \
-      --max-epochs 5 \
-      --batch-size 16
+# 6. Train student + per‑seed re‑trained baseline + random‑latent control across seeds
+# Fixed seed set: a contiguous block of ten consecutive seeds.
+for SEED in 42 43 44 45 46 47 48 49 50 51; do
+  python -m src.models.distilled  --data data/processed/document_pairs_with_latent.parquet --splits data/splits --seed $SEED --out artifacts/models/distilled_$SEED
+  python -m src.models.baseline   --data data/processed/document_pairs_with_latent.parquet --splits data/splits --seed $SEED --out artifacts/models/baseline_$SEED
+  python -m src.models.random_latent --data data/processed/document_pairs_with_latent.parquet --splits data/splits --seed $SEED --out artifacts/models/random_latent_$SEED
 done
-```
-*Training respects the 7 GB RAM ceiling; batch size may be auto‑reduced if OOM is detected.*
 
-## 7. Train Baseline Models (one per seed)
-```bash
-for SEED in {42..56}; do
-  python -m src.models.baseline \
-      --data-path data/processed/document_pairs.parquet \
-      --splits-dir data/splits \
-      --seed $SEED \
-      --output-dir artifacts/models/baseline_$SEED \
-      --max-epochs 5 \
-      --batch-size 16
-done
+# 7. Leakage pre‑check + orthogonalization + downstream evaluation + statistics
+python -m src.eval.downstream \
+  --models artifacts/models --splits data/splits \
+  --results artifacts/eval/results.json
+# Runs the label‑semantics/leakage pre‑check first; if the label is a trivial
+# function of the input text, `results.json` records the finding and no
+# augmented‑vs‑baseline gain is claimed.
+
+# 8. Inspect results (single source of truth)
+python -m json.tool artifacts/eval/results.json
+
+# 9. Run contract tests
+pytest tests/ -k contract
 ```
 
-## 8. Downstream Evaluation (optional)
-```bash
-# Run only if a verified downstream reasoning benchmark is available.
-if [ -f data/processed/downstream_test.parquet ]; then
-  python -m src.eval.downstream \
-      --distilled-dir artifacts/models/distilled_*/ \
-      --baseline-dir artifacts/models/baseline_*/ \
-      --test-data data/processed/downstream_test.parquet \
-      --results-path artifacts/eval/downstream_results.json
-fi
-```
-*The script computes accuracy/F1 for both models, runs a paired t‑test (or Wilcoxon if normality fails) across the fifteen seeds, and writes a JSON report.*
-
-## 9. Inspect Results
-```bash
-cat artifacts/eval/downstream_results.json | python -m json.tool
-```
-*Key fields: `mean_accuracy_augmented`, `mean_accuracy_baseline`, `p_value`, `validation_mse`. All must satisfy the success criteria (SC‑001…SC‑007).*
-
-## 10. Reproducibility Check
-Run the full CI workflow locally (or rely on GitHub Actions) to ensure that the same hashes and results are reproduced.
-
-```bash
-pytest -k "contract" tests/
-```
-*Contract tests validate that `documentpair.schema.yaml` matches the actual parquet schema.*
+> **Note**: The visual‑encoder / image‑latent component of the original spec is **not executed** – no verified dataset provides page images or layout annotations, and FR‑008's independence claim is not executable in the reframed design. See the *Scope Revision* and *Required spec amendments* sections of `plan.md`.
 
 ---
+
 

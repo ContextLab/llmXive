@@ -1,0 +1,4 @@
+artifact_hashes:
+  data/raw/dataset.csv: dummyhash
+  data/checksums.txt: 59f26396ba1f33581e05c2b550094834b9f0e4b1f2a3d34aff998bb02ef555a6
+updated_at: '2026-10-29T07:10:42.269051+00:00'

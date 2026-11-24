@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Descriptor Record"
+type: object
+required:
+  - clip_id
+  - variance
+  - autocorr_lag1
+  - spectral_density
+properties:
+  clip_id:
+    type: string
+    pattern: "^clip_\\d{3}$"
+  variance:
+    type: number
+    minimum: 0
+  autocorr_lag1:
+    type: number
+    minimum: -1
+    maximum: 1
+  spectral_density:
+    type: number
+    minimum: 0
+additionalProperties: false

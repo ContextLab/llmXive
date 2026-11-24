@@ -1,0 +1,101 @@
+{
+  "trace_id": "training_42_01345",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 8,
+  "tool_sequence": [
+    "format_text",
+    "resize_element",
+    "update_layout",
+    "delete_element",
+    "apply_theme",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 63.3754,
+        "x": 30.7601,
+        "y": 37.4081
+      }
+    },
+    {
+      "step": 1,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 15.6556,
+        "height": 75.6123
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 0.951,
+        "padding": 24.3292
+      }
+    },
+    {
+      "step": 3,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 20.8419
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 69.498,
+        "saturation": 63.2222
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 1.9966,
+        "y": 17.8232,
+        "width": 16.7173,
+        "height": 0.5652,
+        "data_points": 5.0512
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 10.3499,
+        "y": 11.6346,
+        "width": 16.2464,
+        "height": 26.6451,
+        "data_points": 23.5796
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 10.6186,
+        "y": 96.0994,
+        "width": 68.5717,
+        "height": 90.9917,
+        "data_points": 94.9098
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.667462,
+    "tool_repetition_freq": 0.25,
+    "arg_semantic_variance": 959.389926
+  },
+  "final_state": {
+    "dominant_tool": "insert_chart",
+    "slide_element_count": 6,
+    "layout_hash": "42-1345-insert_chart"
+  }
+}

@@ -1,9 +1,15 @@
 status: none
-intent: download UCI Online Retail dataset from UCI repository python package dataset
+intent: UCI Online Retail dataset python package for generating clustered data with
+  ICC python package dataset
 required_fields:
-- cluster_id
-- outcome
-- treatment
-cache_key: 5d2d19810b6c5d80ee469aa2c0f56fb85662ab6e8d3dedc2b67773e5311a28ef
-searched_at: '2026-10-08T12:39:44.019785+00:00'
+- InvoiceNo
+- StockCode
+- Description
+- Quantity
+- InvoiceDate
+- UnitPrice
+- CustomerID
+- Country
+cache_key: 4c803152979cd227b9e49d6715ab51bb63627c6532510486b2a2ff93d95c1d50
+searched_at: '2026-10-13T11:36:05.945799+00:00'
 retry_count: 1

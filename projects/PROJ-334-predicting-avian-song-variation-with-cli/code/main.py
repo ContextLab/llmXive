@@ -5,7 +5,7 @@ import argparse
 import sys
 import logging
 from pathlib import Path
-from config import Config
+from config import Config, load_config
 from utils import setup_logging
 
 # Import setup_dirs functions to allow running T004 directly
@@ -37,7 +37,8 @@ def main() -> None:
         logger.warning(f"Config file {config_path} not found. Using defaults.")
         config = Config()
     else:
-        config = Config.load(config_path)
+        # Use the convenience wrapper that respects overrides, env vars, etc.
+        config = load_config(config_path)
 
     if args.stage:
         run_stage(args.stage, config)

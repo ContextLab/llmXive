@@ -1,1 +1,2 @@
-"""Unit test suite."""
+# Package initializer for unit tests.
+pass

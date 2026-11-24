@@ -1,0 +1,104 @@
+{
+  "trace_id": "held_out_43_01992",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "format_text",
+    "insert_text",
+    "update_layout",
+    "insert_text",
+    "insert_text",
+    "delete_element",
+    "delete_element",
+    "resize_element",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 33.7509,
+        "x": 58.3056,
+        "y": 62.3571
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 16.048,
+        "y": 99.758,
+        "length": 99.6073
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 38.6545,
+        "padding": 60.8727
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 23.2979,
+        "y": 15.6663,
+        "length": 40.5608
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 38.9837,
+        "y": 83.5166,
+        "length": 38.7159
+      }
+    },
+    {
+      "step": 5,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 81.2217
+      }
+    },
+    {
+      "step": 6,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 44.0504
+      }
+    },
+    {
+      "step": 7,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 48.3933,
+        "height": 26.5841
+      }
+    },
+    {
+      "step": 8,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 91.0012,
+        "height": 65.5939
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.522955,
+    "tool_repetition_freq": 0.444444,
+    "arg_semantic_variance": 671.819291
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 8,
+    "layout_hash": "43-1992-insert_text"
+  },
+  "variance_multiplier": 1.5
+}

@@ -1,47 +1,39 @@
 """
 Preprocess module for merging COCO captions with a diverse external prompt set.
-Produces data/processed/prompts.csv and train/test splits.
+Produces data/processed/prompts.csv.
 """
 import csv
-import random
 import sys
 from pathlib import Path
 from typing import List, Dict, Any
 
+# Ensure the project root is on the import path
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
-
 from config import Config
 
 def merge_and_deduplicate(coco: List[Dict[str, Any]], diverse: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     seen = set()
     merged = []
-    for src in (coco, diverse):
-        for entry in src:
-            caption = entry.get('caption')
-            if caption and caption not in seen:
-                seen.add(caption)
-                merged.append(entry)
+    # Process COCO validation first
+    for entry in coco:
+        caption = entry.get('caption')
+        if caption and caption not in seen:
+            seen.add(caption)
+            merged.append({
+                "image_id": entry.get('id', 'unknown'),
+                "caption": caption
+            })
+    # Process diverse prompts
+    for entry in diverse:
+        caption = entry.get('caption')
+        if caption and caption not in seen:
+            seen.add(caption)
+            merged.append({
+                "image_id": entry.get('prompt_id', 'unknown'),
+                "caption": caption
+            })
     return merged
-
-def split_data(data: List[Dict[str, Any]], train_ratio: float = 0.8, seed: int = 42):
-    random.seed(seed)
-    shuffled = data.copy()
-    random.shuffle(shuffled)
-    split_idx = int(len(shuffled) * train_ratio)
-    return shuffled[:split_idx], shuffled[split_idx:]
-
-def write_csv(data: List[Dict[str, Any]], filepath: Path):
-    if not data:
-        filepath.parent.mkdir(parents=True, exist_ok=True)
-        filepath.touch()
-        return
-    fieldnames = list(data[0].keys())
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    with open(filepath, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(data)
 
 def main():
     config = Config()
@@ -61,30 +53,20 @@ def main():
         diverse_prompts = list(csv.DictReader(f))
 
     # 3. Merge and Deduplicate
-    merged = merge_and_deduplicate(coco_captions, diverse_prompts)
-    
-    # T002 requirement: prompts.csv with image_id, caption
-    # Normalize keys to image_id, caption for the final output
-    normalized = []
-    for item in merged:
-        normalized.append({
-            "image_id": item.get("id", "unknown"),
-            "caption": item.get("caption", "")
-        })
+    normalized = merge_and_deduplicate(coco_captions, diverse_prompts)
 
     if len(normalized) < 400:
         raise RuntimeError(f"Insufficient prompts after merge: {len(normalized)}. Expected >= 400.")
 
-    # 4. Write full prompts.csv
+    # 4. Write prompts.csv
     full_path = config.processed_data_dir / "prompts.csv"
-    write_csv(normalized, full_path)
+    full_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(full_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["image_id", "caption"])
+        writer.writeheader()
+        writer.writerows(normalized)
 
-    # 5. Train/Test Split
-    train, test = split_data(normalized, train_ratio=0.8, seed=config.seed)
-    write_csv(train, config.processed_data_dir / "prompts_train.csv")
-    write_csv(test, config.processed_data_dir / "prompts_test.csv")
-
-    print(f"Preprocessing complete. Total prompts: {len(normalized)}, Train: {len(train)}, Test: {len(test)}")
+    print(f"Preprocessing complete. Total unique prompts: {len(normalized)}")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,96 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Report"
+type: object
+required:
+  - cv_metrics
+  - test_metrics
+  - bootstrap_ci
+  - paired_ttest
+  - feature_importances
+properties:
+  cv_metrics:
+    type: object
+    description: "Cross‑validation summary for each model."
+    patternProperties:
+      "^(RandomForest|GradientBoosting)$":
+        type: object
+        required:
+          - rmse_mean
+          - rmse_std
+          - mae_mean
+          - mae_std
+          - r2_mean
+          - r2_std
+        properties:
+          rmse_mean:
+            type: number
+          rmse_std:
+            type: number
+          mae_mean:
+            type: number
+          mae_std:
+            type: number
+          r2_mean:
+            type: number
+          r2_std:
+            type: number
+  test_metrics:
+    type: object
+    required:
+      - model_name
+      - rmse
+      - mae
+      - r2
+    properties:
+      model_name:
+        type: string
+      rmse:
+        type: number
+      mae:
+        type: number
+      r2:
+        type: number
+  bootstrap_ci:
+    type: object
+    required:
+      - rmse_lower
+      - rmse_upper
+      - confidence
+    properties:
+      rmse_lower:
+        type: number
+      rmse_upper:
+        type: number
+      confidence:
+        type: number
+        description: "Confidence level (e.g., 0.95)."
+  paired_ttest:
+    type: object
+    required:
+      - t_statistic
+      - p_value
+      - alpha
+    properties:
+      t_statistic:
+        type: number
+      p_value:
+        type: number
+      alpha:
+        type: number
+        description: "Significance threshold (0.05)."
+  feature_importances:
+    type: array
+    description: "Sorted list of descriptor importance objects."
+    items:
+      type: object
+      required:
+        - feature
+        - importance
+      properties:
+        feature:
+          type: string
+          description: "Descriptor name (e.g., 'A_radius')."
+        importance:
+          type: number
+          description: "Relative importance (normalized to sum = 1)."
+additionalProperties: false

@@ -1,9 +1,12 @@
 status: none
-intent: The Pile text generation dataset huggingface datasets python package dataset
+intent: OpenWebText The Pile Common Crawl text corpus for language model generation
+  python package dataset
 required_fields:
-- text
-- source
-- metadata
-cache_key: 473cb827ca7209c3b02b9a4f072c52a66dc1ee7cff6cc5a7faec9c9e4e35dc35
-searched_at: '2026-10-10T03:31:01.028732+00:00'
+- document_text
+- url
+- date_published
+- language
+- source_dataset
+cache_key: f7b64363e76c8a80358824d796541d09e8dcb015329ac8ccc45b34a3bc170012
+searched_at: '2026-10-23T09:37:16.191999+00:00'
 retry_count: 1

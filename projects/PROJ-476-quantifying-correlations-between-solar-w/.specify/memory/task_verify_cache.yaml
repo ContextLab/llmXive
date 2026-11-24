@@ -1,10 +1,25 @@
 T001:
+  c: true
+  h: 5ee2806a6cea75abe776f7bb1c681fc24191ae43d871814eaa8852b5c983f2eb
+  r: "The directory hierarchy (code/data, code/analysis, code/viz, code/tests, data/raw,\
+    \ data/processed, results, figures) exists as listed, the quickstart markdown\
+    \ at `specs/001-quantifying-correlations-between-solar-w/quickstart.md` contains\
+    \ the exact line `python -m code.main --stage all`, and the log `code/.tasks/T001.code_main.py.log`\
+    \ confirms that `python -m code.main --help` runs successfully with exit code\u202F\
+    0."
+  sig: edf07770b35a1ed272a824609bd1ba624d0d2bf89d7d8b6fe3fcebda0b49d516
+T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing, command output, or any other proof that the specified folders
-    (`code/data`, `code/analysis`, `code/viz`, `code/tests`, `artifacts/figures`,
-    `artifacts/reports`, `state/`) were actually created is present. Without such
-    evidence the task requirement cannot be confirmed.
+  h: dbae956e04fd0efe1a0bd3c0c2c40550cbc39e9a5bbdf4525db2c38efdd93f50
+  r: The required test `code/tests/test_sync.py` is MISSING, so the mandated verification
+    (`pytest code/tests/test_sync.py::test_sync_monthly`) cannot pass. The output
+    `data/processed/synced.csv` contains only 24 rows covering a single day (2003-10-01)
+    of obviously synthetic, perfectly-linear fixture data (no real ACE/NOAA raw data
+    exists in `data/raw/`), not a representative month of real data; the fixture fallback
+    fabricates the "real data" requirement. Additionally, no interpolated rows exist
+    (all `interpolated_flag=False`), so the gap-interpolation behavior is untested/undemonstrated,
+    and the s
+  sig: e1e2737addb6df3af958c7842d139ce25ed4510f042cea4fd2b52487d79ea483
 T005:
   c: false
   h: 58b418a2cc42df68ff97c0487ecc9331459d9653698b02507efd69cd0785c4ab
@@ -13,24 +28,3 @@ T005:
     \ end_date) -> str` and `fetch_noaa(start_date, end_date) -> str` that simply\
     \ return the hard\u2011coded paths. Consequently the file does not meet the task\u2019\
     s specification."
-T013c:
-  c: false
-  h: 1311c7da7c05c40f9bc3eb9b1999ae3587bd344e230add0e77561ebbdc3d7a6a
-  r: "The `write_synced_csv` function in `code/data/align.py` is truncated and does\
-    \ not show the full implementation (e.g., the column\u2011assertion list is incomplete\
-    \ and there is no code that checks for NaNs or writes to `data/processed/synced.csv`).\
-    \ Moreover, the required output file `data/processed/synced.csv` does not exist.\
-    \ Both the function implementation and the expected output are missing."
-T019:
-  c: false
-  h: b44cde29835b4fa3ee028917511fcff06fbb35974f17cc17a044ae4d8b1184d0
-  r: "The repository lacks the required `data/processed/correlation_results.csv` file,\
-    \ and the `test_pipeline_correlation_full_run` function in `code/tests/test_pipeline.py`\
-    \ is truncated and does not contain the logic to check the row count. The integration\
-    \ test therefore cannot verify the 30\u2011row requirement."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No Markdown report file was supplied, and there is no evidence of any content\
-    \ stating whether the Helium\u2011Dst correlation exceeds |r|\u202F>\u202F0.5.\
-    \ Without the required artifact, the task is not satisfied."

@@ -38,7 +38,6 @@ from __future__ import annotations
 
 import logging
 import re
-from collections.abc import Sequence
 
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import chat_with_fallback
@@ -138,9 +137,7 @@ def extract_queries(
     *,
     field: str | None = None,
     n: int = DEFAULT_QUERY_COUNT,
-    model: str = "openai.gpt-oss-120b",
-    default_backend: str = "dartmouth",
-    fallback_backends: Sequence[str] = ("local",),
+    profile: str = "cheap_structured",
 ) -> list[str]:
     """Decompose the research question into N short keyword queries.
 
@@ -163,9 +160,7 @@ def extract_queries(
                 ChatMessage(role="system", content=_QUERY_EXTRACTOR_SYSTEM_PROMPT),
                 ChatMessage(role="user", content=user_payload),
             ],
-            default_backend=default_backend,
-            fallback_backends=list(fallback_backends),
-            model=model,
+            profile=profile,
         )
     except Exception as exc:
         LOGGER.warning("[query-extractor] backend failure; using deterministic fallback: %s", exc)

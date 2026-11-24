@@ -1,108 +1,24 @@
-T005b:
+T001:
   c: false
-  h: 017664fc75b8de54195b0e78dd77c052fe32bd449620eb5caaa4532a5a4f8105
-  r: "The `code/simulation/logger.py` file is present, but the provided excerpt ends\
-    \ before the implementations of `setup_logger`, `inject_batch_context`, and `save_seed_config`;\
-    \ none of these functions are shown, and there is no code that validates, appends\
-    \ to `data/config/seed_config.json`, handles file\u2011locking errors, or returns\
-    \ the updated config object as required. Consequently the required functionality\
-    \ is not demonstrably implemented. The missing implementations must be added to\
-    \ satisfy the task."
-T028a:
+  h: 9cd11ec8a663a1e5c118dc182cff8f9d8cd7c7985ad5d46b76270e5fa63d4ca4
+  r: "The config files (`code/requirements.txt`, `code/pyproject.toml`, `code/ruff.toml`,\
+    \ `code/.pre-commit-config.yaml`, `code/__init__.py`, `code/tests/__init__.py`)\
+    \ exist with plausible content, but `README.md` was not confirmed to exist (\"\
+    NOT INSPECTED\" due to evidence limit, with no resolved path shown), and there\
+    \ is no execution evidence for any of the three verification steps \u2014 no log\
+    \ or output showing `pip install -r code/requirements.txt` succeeded in a fresh\
+    \ venv, or that `ruff check .` and `black --check .` returned exit code 0. The\
+    \ next implementer should confirm README.md exists and pro"
+  sig: 4317ccadcf53793e1cbb62cb4c7df782d12de7add5339604e673a9873e4ee6e7
+T002:
   c: false
-  h: 7c480ebea748c0b882aa42a0b013d00695380b85ac19da470d99cc578e3440eb
-  r: "The required output file `results/simulation_results.csv` does not exist, and\
-    \ the provided `code/main.py` excerpt stops mid\u2011function without showing\
-    \ a full iteration loop, CSV writing, or the time\u2011limit/exit\u2011code logic.\
-    \ Consequently the deliverable specified in the task is not present."
-T028b:
-  c: false
-  h: 0aaaf589fdd7c3d4c2e1ed84795107daef8e89080e2f21c906e6ee37b2f84eb8
-  r: "The repository lacks a `results/partial_checkpoint.csv` file and the unit tests\
-    \ do not verify checkpoint saving. Moreover, the provided `test_main.py` contains\
-    \ no assertions about partial results being written, and the visible portion of\
-    \ `code/main.py` does not show any checkpoint\u2011writing logic. Implement the\
-    \ checkpoint mechanism in `main.py` and add a test that confirms `partial_checkpoint.csv`\
-    \ is created and populated as expected."
-T028c:
-  c: false
-  h: fea79b5cc60d1d06cca36d75ec6e38b808ea68248be489026915c126f2e6a48a
-  r: "The repository contains a `write_simulation_results` function and unit tests,\
-    \ but the required output file `results/simulation_results.csv` is not present,\
-    \ and there is no evidence that the main simulation loop actually invokes this\
-    \ function to write to that path. Consequently the task\u2019s core requirement\u2014\
-    producing the aggregated CSV at the specified location\u2014is not satisfied."
-T039:
-  c: false
-  h: 7ce3bfe1c83a7a1af0d44673bce7447d7abc93bd6b75a815203391c8869d2f3b
-  r: "The required artifact `results/comparison_report.md` is missing, and the only\
-    \ test present writes to `results/test_comparison_report.md` (a different path)\
-    \ and is truncated, so it does not verify the exact schema or content demanded.\
-    \ The task\u2019s deliverable has not been produced."
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No documentation files or updates in `docs/` or `quickstart.md` were provided;
-    the only evidence shown relates to feature specifications, not to any changed
-    or added documentation. The required artifacts are missing.
-T043:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No unit test files were presented in `code/tests/unit/`, and there is no evidence
-    that tests covering extreme outliers or constant data have been added. The required
-    artifacts are missing, so the task is not satisfied.
-T044:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a quickstart.md validation run (e.g., execution logs, output\
-    \ screenshots, or a reproducibility report) was provided, and no artifacts confirming\
-    \ end\u2011to\u2011end reproducibility are present. The implementer therefore\
-    \ has not satisfied the task requirement."
-T046:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No streaming loader code, data, or documentation is present; the only artifacts\
-    \ referenced are the high\u2011level feature specification for data scaling simulations,\
-    \ which does not include any implementation of a streaming loader. Consequently\
-    \ the required artifact is missing."
-T047:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or visualizations were supplied; the implementer did not\
-    \ provide the synthetic data generator, scaling\u2011and\u2011testing pipeline,\
-    \ or aggregated results required by the user stories. Consequently the task\u2019\
-    s core artifacts are missing."
-T048:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No dataset configuration file or updated configuration content is present; the\
-    \ only provided material is a high\u2011level feature specification without any\
-    \ concrete artifact (e.g., a YAML/JSON config file, diff, or commit) showing that\
-    \ IDs from\u202Fresearch.md were incorporated. The required update is therefore\
-    \ missing."
-T049:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or visualizations were supplied; the implementer did not\
-    \ provide the required simulation generator, scaling\u2011and\u2011testing pipeline,\
-    \ or aggregation/visualization artifacts described in the user stories. Consequently\
-    \ the task\u2019s deliverables are missing."
-T050:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or results were supplied; the implementer did not provide\
-    \ the required simulation generator, scaling pipeline, statistical test outputs,\
-    \ or any aggregated visualizations. Consequently, the task\u2019s core deliverables\
-    \ are absent."
-T053b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `plan.md` file is presented, and there is no evidence that the \u201C\
-    Complexity Tracking\u201D section was edited to replace the specified statement.\
-    \ The required artifact is missing, so the task is not satisfied."
-T065:
-  c: false
-  h: 759ee0a69262705f2a1ca2ead1c276145e0a02b3c86d3051dfff7b334f3e38e8
-  r: The `code/simulation/config.py` file does not contain a `CONFIG_MATRIX` constant
-    defining the required list of dictionaries, and the expected unit test `code/tests/unit/simulation/test_config.py`
-    is missing entirely. Both the artifact and its verification are absent.
+  h: 3276bac1f96f042747501ad2dc32a1f40ab2b63d709d57fdc9619051b10c7e99
+  r: "The required test run fails: the recorded execution log shows `pytest code/tests/unit/test_generator.py`\
+    \ exits 1 with 2 failures \u2014 `test_skewness_within_01_of_target[2.0]` (sample\
+    \ skewness 1.89, off by 0.11 > 0.1 tolerance) and `test_from_config` (test passes\
+    \ `mean=` but `SimulationConfig` has no `mean` field, only `mean_diff`). The generator\
+    \ and test files exist and are substantive, but the verification requirement \"\
+    pytest passes\" is not met; fix the skewness realization for target 2.0 (e.g.,\
+    \ larger n, moment matching, or different skewed distribution) and correct the\
+    \ `SimulationConfig` field"
+  sig: cbcf8a7943c26317689e19219548c4d9264de108a7d2a842df8a77bf65113e9e

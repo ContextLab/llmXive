@@ -1,39 +1,35 @@
 import csv
-import os
+import datetime
 from pathlib import Path
-from typing import Optional
-from datetime import datetime
-from config import get_config
+from llmxive_toolkit import paths
 
 def log_exclusion(reason: str, subject_id: str) -> None:
     """
-    Logs an exclusion event to the data exclusion log file.
-    
-    Args:
-        reason: The standardized reason code (e.g., 'MISSING_SCAN', 'MISSING_SCORE', 'HIGH_MOTION').
-        subject_id: The ID of the excluded subject.
-        
-    The log file is stored at: data/interim/data_exclusion_log.txt
-    Format: CSV with columns: subject_id, reason, timestamp
+    Log a subject exclusion event to ``data/interim/data_exclusion_log.txt``.
+
+    The log file is a CSV with three columns:
+    ``subject_id,reason,timestamp``.
+    If the file does not exist, it is created with a header row.
+
+    Parameters
+    ----------
+    reason : str
+        One of the standardized exclusion reason codes
+        (e.g., ``MISSING_SCAN``, ``MISSING_SCORE``, ``HIGH_MOTION``).
+    subject_id : str
+        The identifier of the subject being excluded.
     """
-    config = get_config()
-    log_path = Path(config.DATA_PATH) / "interim" / "data_exclusion_log.txt"
-    
-    # Ensure directory exists
+    # Resolve the log file path using the toolkit helper (ensures correct root)
+    log_path = Path("data", "interim", "data_exclusion_log.txt")
     log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    timestamp = datetime.now().isoformat()
-    
-    file_exists = os.path.exists(log_path)
-    
-    with open(log_path, 'a', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['subject_id', 'reason', 'timestamp'])
-        
-        if not file_exists:
-            writer.writeheader()
-        
-        writer.writerow({
-            'subject_id': subject_id,
-            'reason': reason,
-            'timestamp': timestamp
-        })
+
+    # Determine whether we need to write a header
+    write_header = not log_path.is_file()
+
+    timestamp = datetime.datetime.utcnow().isoformat()
+
+    with open(log_path, "a", newline="") as csvfile:
+        writer = csv.writer(csvfile)
+        if write_header:
+            writer.writerow(["subject_id", "reason", "timestamp"])
+        writer.writerow([subject_id, reason, timestamp])

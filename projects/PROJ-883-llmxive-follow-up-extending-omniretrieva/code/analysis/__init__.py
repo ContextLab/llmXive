@@ -1,1 +1,2 @@
-"""Analysis modules."""
+# Package initialization for statistical analysis.
+pass

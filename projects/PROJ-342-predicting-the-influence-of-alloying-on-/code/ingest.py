@@ -2,18 +2,19 @@ import os
 import sys
 import logging
 import json
-import hashlib
-import time
+import argparse
+import re
+from pathlib import Path
+from typing import Tuple, Dict, Any, Optional
+
 import pandas as pd
 import yaml
 import jsonschema
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
 
-from zenodo_client import DataUnavailableError, DataInsufficientError, fetch_from_zenodo
-from resource_monitor import resource_monitor, ResourceLimitExceeded
+from zenodo_client import DataUnavailableError, DataInsufficientError, download_csv_from_zenodo
+from resource_monitor import limit_resources
 
-def setup_logging():
+def setup_logging() -> logging.Logger:
     """Configure logging for the ingest module."""
     project_root = get_project_root()
     logs_dir = project_root / "logs"
@@ -30,202 +31,192 @@ def setup_logging():
     )
     return logging.getLogger(__name__)
 
-def get_project_root():
-    """Return the project root directory."""
+def get_project_root() -> Path:
+    """Return the absolute path to the project root."""
     return Path(__file__).resolve().parent.parent
 
-def calculate_checksum(file_path: Path) -> str:
-    """Calculate SHA256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
-def validate_tg_range(df: pd.DataFrame) -> bool:
-    """Check if Tg values are within a reasonable range (e.g., 100K to 1500K)."""
-    if 'Tg' not in df.columns:
-        return False
-    # Filter out non-numeric or NaN for check
-    valid_tg = df['Tg'].dropna()
-    if len(valid_tg) == 0:
-        return False
-    return valid_tg.min() > 50 and valid_tg.max() < 2000
-
-def fetch_from_zenodo_wrapper(primary_doi: str, fallback_doi: str) -> Tuple[pd.DataFrame, str]:
+def parse_composition_string(comp_str: Any) -> Optional[Dict[str, float]]:
     """
-    Fetch data from Zenodo. Try primary DOI first, then fallback.
-    Returns (DataFrame, used_doi).
+    Parses composition strings (e.g., 'Zr50Cu40Al10') or JSON strings 
+    into a dictionary of atomic fractions.
     """
-    logger = logging.getLogger(__name__)
-    data_dir = get_project_root() / "data" / "raw"
-    data_dir.mkdir(parents=True, exist_ok=True)
+    if not comp_str or pd.isna(comp_str):
+        return None
+    
+    if isinstance(comp_str, dict):
+        return comp_str
 
-    primary_path = data_dir / f"zenodo_{primary_doi.split('.')[-1]}.csv"
-    fallback_path = data_dir / f"zenodo_{fallback_doi.split('.')[-1]}.csv"
-
-    # Check local cache first
-    if primary_path.exists():
-        logger.info(f"Primary file found locally: {primary_path}")
+    # Try JSON first
+    if isinstance(comp_str, str) and (comp_str.startswith('{') and comp_str.endswith('}')):
         try:
-            df = pd.read_csv(primary_path)
-            if validate_tg_range(df) and len(df) > 0:
-                return df, primary_doi
-            else:
-                logger.warning("Local primary file invalid. Re-fetching.")
-        except Exception as e:
-            logger.warning(f"Error reading local primary file: {e}. Re-fetching.")
+            return json.loads(comp_str.replace("'", '"'))
+        except json.JSONDecodeError:
+            pass
 
-    if fallback_path.exists():
-        logger.info(f"Fallback file found locally: {fallback_path}")
-        try:
-            df = pd.read_csv(fallback_path)
-            if validate_tg_range(df) and len(df) > 0:
-                logger.warning("FALLBACK_USED: Using cached fallback data.")
-                return df, fallback_doi
-            else:
-                logger.warning("Local fallback file invalid. Re-fetching.")
-        except Exception as e:
-            logger.warning(f"Error reading local fallback file: {e}. Re-fetching.")
+    # Try regex for 'Zr50Cu40Al10' format
+    if isinstance(comp_str, str):
+        pattern = re.compile(r'([A-Z][a-z]?)(\d+(?:\.\d+)?)')
+        matches = pattern.findall(comp_str)
+        if matches:
+            total = sum(float(count) for _, count in matches)
+            if total > 0:
+                return {symbol: float(count)/total for symbol, count in matches}
+    
+    return None
 
-    # Fetch from API
-    logger.info(f"Attempting to fetch from Zenodo DOI: {primary_doi}")
-    try:
-        df = fetch_from_zenodo(primary_doi)
-        df.to_csv(primary_path, index=False)
-        logger.info(f"Primary DOI data saved to {primary_path}")
-        return df, primary_doi
-    except DataUnavailableError as e:
-        logger.warning(f"Primary DOI {primary_doi} failed: {e}")
-        logger.info(f"Attempting fallback DOI: {fallback_doi}")
-        try:
-            df = fetch_from_zenodo(fallback_doi)
-            df.to_csv(fallback_path, index=False)
-            logger.warning("FALLBACK_USED: Fallback DOI succeeded.")
-            return df, fallback_doi
-        except DataUnavailableError:
-            raise DataUnavailableError("Both primary and fallback DOIs are unavailable.")
-    except Exception as e:
-        logger.error(f"Unexpected error fetching primary DOI: {e}")
-        # Try fallback on unexpected error too
-        logger.info(f"Attempting fallback DOI due to error: {fallback_doi}")
-        try:
-            df = fetch_from_zenodo(fallback_doi)
-            df.to_csv(fallback_path, index=False)
-            logger.warning("FALLBACK_USED: Fallback DOI succeeded after error.")
-            return df, fallback_doi
-        except Exception as e2:
-            raise DataUnavailableError(f"Primary failed: {e}. Fallback also failed: {e2}")
-
-def load_and_validate_data(df: pd.DataFrame, logger: logging.Logger) -> Tuple[pd.DataFrame, float, int, int]:
+def validate_and_clean_chunk(chunk: pd.DataFrame, schema: Dict, source_doi: str, logger: logging.Logger) -> pd.DataFrame:
     """
-    Validate and clean data.
-    Returns cleaned DataFrame, retention_rate, raw_count, cleaned_count.
+    Validates a chunk of data against the schema and cleans it.
     """
-    if len(df) < 1:
-        raise DataInsufficientError("Dataset has fewer than 1 row.")
+    processed_rows = []
+    
+    for idx, row in chunk.iterrows():
+        row_dict = row.to_dict()
+        
+        # 1. Tg value check (FR-001)
+        tg = row_dict.get('tg_value')
+        if pd.isna(tg) or tg is None:
+            continue
+        
+        # 2. Composition check (FR-001)
+        elements_raw = row_dict.get('elements')
+        elements_parsed = parse_composition_string(elements_raw)
+        if not elements_parsed:
+            continue
+        
+        row_dict['elements'] = elements_parsed
 
-    # Check for critical columns
-    if 'Tg' not in df.columns:
-        raise ValueError("Dataset missing 'Tg' column.")
+        # 3. Metadata enrichment
+        row_dict['source'] = source_doi
+        row_dict['status'] = 'valid'
+        if 'record_id' not in row_dict or pd.isna(row_dict['record_id']):
+            row_dict['record_id'] = str(idx)
+        
+        # Infer family from primary element if missing
+        if 'family' not in row_dict or pd.isna(row_dict['family']):
+            primary_el = max(elements_parsed, key=elements_parsed.get)
+            row_dict['family'] = f"{primary_el}-based"
 
-    initial_count = len(df)
+        # 4. Schema validation
+        try:
+            jsonschema.validate(instance=row_dict, schema=schema)
+            processed_rows.append(row_dict)
+        except jsonschema.ValidationError as ve:
+            logger.debug(f"Row {idx} failed schema validation: {ve.message}")
+            continue
 
-    # Drop rows with missing Tg
-    df_clean = df.dropna(subset=['Tg'])
+    return pd.DataFrame(processed_rows)
 
-    # Drop rows with missing composition (if column exists)
-    if 'composition' in df_clean.columns:
-        df_clean = df_clean.dropna(subset=['composition'])
-
-    cleaned_count = len(df_clean)
-    retention_rate = cleaned_count / initial_count if initial_count > 0 else 0.0
-
-    logger.info(f"Raw rows: {initial_count}, Cleaned rows after NaN drops: {cleaned_count}, Retention rate: {retention_rate:.2%}")
-
-    # -----------------------------------------------------------------
-    # Schema validation (JSON Schema) – performed per‑row, but we do NOT
-    # discard rows solely because they fail validation; we only log the
-    # failure to satisfy the “validate each chunk” requirement.
-    # -----------------------------------------------------------------
-    schema_path = get_project_root() / "specs" / "001-predicting-the-influence-of-alloying-on" / "contracts" / "dataset.schema.yaml"
-    try:
-        with open(schema_path, "r") as f:
-            schema = yaml.safe_load(f)
-    except Exception as e:
-        logger.warning(f"Could not load dataset schema at {schema_path}: {e}")
-        schema = None
-
-    if schema is not None:
-        for idx, row in df_clean.iterrows():
-            # Build a minimal dict for validation. We include only fields that
-            # exist in the row; missing required fields will raise ValidationError.
-            row_dict = {k: row[k] for k in row.index if pd.notnull(row[k])}
-            try:
-                jsonschema.validate(instance=row_dict, schema=schema)
-            except jsonschema.ValidationError as ve:
-                logger.warning(f"Schema validation failed for row {idx}: {ve.message}")
-            except jsonschema.SchemaError as se:
-                logger.error(f"Invalid schema definition: {se}")
-                break  # schema broken – stop further validation
-
-    if cleaned_count < 1:
-        raise DataInsufficientError("No valid rows remaining after cleaning.")
-
-    return df_clean, retention_rate, initial_count, cleaned_count
-
-def save_cleaned_data(df: pd.DataFrame, output_path: Path, logger: logging.Logger):
-    """Save cleaned data to CSV."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Cleaned data saved to {output_path}")
-
-def write_ingestion_stats(source_doi: str, retention_rate: float, raw_count: int, cleaned_count: int, project_root: Path):
-    """Write ingestion statistics to JSON."""
-    stats = {
-        "source_doi": source_doi,
-        "retention_rate": retention_rate,
-        "raw_count": raw_count,
-        "cleaned_count": cleaned_count
-    }
-    stats_path = project_root / "data" / "ingestion_stats.json"
-    with open(stats_path, 'w') as f:
-        json.dump(stats, f, indent=2)
-
-@resource_monitor(runtime_limit_h=2.0, memory_limit_gb=7.0)
-def run_ingestion():
-    """Main ingestion pipeline."""
+@limit_resources(cpu_limit=2 * 3600, ram_limit=7 * 1024)
+def run_ingestion() -> None:
+    """Execute the full ingestion pipeline."""
     logger = setup_logging()
     project_root = get_project_root()
 
-    # Config
     primary_doi = "10.5281/zenodo.10043838"
     fallback_doi = "10.5281/zenodo.11023456"
 
+    # 1. Fetch raw data
+    data_dir = project_root / "data" / "raw"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    
+    used_doi = primary_doi
+    raw_path = data_dir / "metallic_glass_raw.csv"
+    
     try:
-        df, used_doi = fetch_from_zenodo_wrapper(primary_doi, fallback_doi)
-        logger.info(f"Data fetched successfully from {used_doi}")
-
-        df_clean, rate, raw, clean = load_and_validate_data(df, logger)
-
-        output_path = project_root / "data" / "processed" / "cleaned_mg.csv"
-        save_cleaned_data(df_clean, output_path, logger)
-
-        write_ingestion_stats(used_doi, rate, raw, clean, project_root)
-        logger.info("Ingestion complete.")
-
+        download_csv_from_zenodo(primary_doi, raw_path)
+        logger.info(f"Successfully fetched primary DOI: {primary_doi}")
     except DataUnavailableError as e:
-        logger.error(f"DATA_UNAVAILABLE: {e}")
-        raise
-    except DataInsufficientError as e:
-        logger.error(f"DATA_INSUFFICIENT: {e}")
-        raise
+        logger.warning(f"Primary DOI failed: {e}. Attempting fallback...")
+        used_doi = fallback_doi
+        try:
+            download_csv_from_zenodo(fallback_doi, raw_path)
+            logger.info(f"Successfully fetched fallback DOI: {fallback_doi}")
+        except DataUnavailableError as fe:
+            logger.error("Both primary and fallback DOIs are unavailable.")
+            raise DataUnavailableError("Both primary and fallback DOIs are unavailable.") from fe
+
+    # 2. Load Schema
+    schema_path = project_root / "specs" / "001-predicting-the-influence-of-alloying-on" / "contracts" / "dataset.schema.yaml"
+    try:
+        with open(schema_path, "r", encoding="utf-8") as f:
+            schema = yaml.safe_load(f)
     except Exception as e:
-        logger.error(f"Unexpected error during ingestion: {e}")
+        logger.error(f"Could not load schema at {schema_path}: {e}")
         raise
 
-def main():
-    run_ingestion()
+    # 3. Stream, Validate and Clean
+    cleaned_path = project_root / "data" / "processed" / "cleaned_data.csv"
+    cleaned_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    raw_count = 0
+    cleaned_count = 0
+    first_chunk = True
+    
+    try:
+        # Use chunksize=1000 to stay within RAM budget
+        reader = pd.read_csv(raw_path, chunksize=1000)
+        for chunk in reader:
+            raw_count += len(chunk)
+            
+            # Normalize column names to match schema (Tg -> tg_value)
+            if 'Tg' in chunk.columns and 'tg_value' not in chunk.columns:
+                chunk = chunk.rename(columns={'Tg': 'tg_value'})
+            
+            cleaned_chunk = validate_and_clean_chunk(chunk, schema, used_doi, logger)
+            cleaned_count += len(cleaned_chunk)
+            
+            mode = 'w' if first_chunk else 'a'
+            header = True if first_chunk else False
+            cleaned_chunk.to_csv(cleaned_path, index=False, mode=mode, header=header)
+            first_chunk = False
+    except Exception as e:
+        logger.error(f"Error during streaming processing: {e}")
+        raise
+
+    if cleaned_count == 0:
+        raise DataInsufficientError("No valid records remained after cleaning.")
+
+    # 4. Emit Statistics
+    retention_rate = cleaned_count / raw_count if raw_count > 0 else 0.0
+    stats = {
+        "source_doi": used_doi,
+        "raw_count": raw_count,
+        "cleaned_count": cleaned_count,
+        "retention_rate": retention_rate
+    }
+    stats_path = project_root / "data" / "ingestion_stats.json"
+    with open(stats_path, "w", encoding="utf-8") as f:
+        json.dump(stats, f, indent=2)
+    
+    logger.info(f"Ingestion complete. Source: {used_doi}, Raw: {raw_count}, Cleaned: {cleaned_count}, Rate: {retention_rate:.2%}")
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Metallic-glass data ingestion")
+    parser.add_argument("--verify-only", action="store_true", help="Verify data availability without writing processed files.")
+    args, _ = parser.parse_known_args()
+
+    if args.verify_only:
+        logger = setup_logging()
+        project_root = get_project_root()
+        primary_doi = "10.5281/zenodo.10043838"
+        fallback_doi = "10.5281/zenodo.11023456"
+        data_dir = project_root / "data" / "raw"
+        data_dir.mkdir(parents=True, exist_ok=True)
+        raw_path = data_dir / "metallic_glass_raw.csv"
+        try:
+            download_csv_from_zenodo(primary_doi, raw_path)
+            logger.info("Primary DOI verification successful.")
+        except DataUnavailableError:
+            raw_path = data_dir / "metallic_glass_raw.csv"
+            try:
+                download_csv_from_zenodo(fallback_doi, raw_path)
+                logger.info("Fallback DOI verification successful.")
+            except DataUnavailableError as e:
+                logger.error(f"Verification failed: {e}")
+                sys.exit(1)
+    else:
+        run_ingestion()
 
 if __name__ == "__main__":
     main()

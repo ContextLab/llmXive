@@ -1,172 +1,186 @@
----
-description: "Task list for Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions"
----
+# Tasks: Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions  
 
-# Tasks: Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions
+**Inputs**: `spec.md`, `plan.md`, existing repository artifacts.  
 
-**Input**: Design documents from `/specs/001-sentiment-drift/`  
-**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`  
-
-**Tests**: Test tasks are included where the specification explicitly requests verification.  
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format
-`- [ ] T### [P?] [Story] description – **file(s)**`
-
-- **[P]** – can run in parallel (different files, no dependencies)  
-- **[Story]** – US1, US2, or US3 (corresponds to the user story)  
-- **file(s)** – exact path(s) affected by the task  
+The following checklist implements the full research pipeline required by the specification.  
+Unchecked boxes (`- [ ]`) indicate work that still needs to be performed; once a task is completed and its artefacts pass the independent tests described in the indented lines, the box should be checked.
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 1 – Project bootstrap & environment  
 
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 [P] Initialize project directory structure (`code/`, `data/raw/`, `data/processed/`, `data/metadata/`, `results/`, `tests/`, `artifacts/`, `docs/`, `scripts/`) – **file(s)**: `scripts/init_dirs.sh`
-- [ ] T002 Create `code/requirements.txt` with pinned dependencies (`pandas`, `numpy`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`, `requests`, `datasets`, `fredapi`, `pygdelt`, `nbformat`, `nbconvert`, `ruff`, `black`) – **file(s)**: `code/requirements.txt`
-- [ ] T003 Initialize a Python 3.10 virtual environment in `venv/` and install the dependencies – **file(s)**: `scripts/create_venv.sh`
-- [ ] T004 Configure linting (`ruff`) and formatting (`black`) tools – **file(s)**: `.ruff.toml`, `pyproject.toml`
-- [ ] T005 Create concrete JSON Schema definitions for `TimeSeries`, `ModelResult`, and `RecessionPeriod` – **file(s)**: `code/contracts/timeseries_schema.json`, `code/contracts/model_result_schema.json`, `code/contracts/recession_period_schema.json`
-- [ ] T006 Implement `code/update_state.py` to compute SHA‑256 hashes for **each** artifact in `data/`, `code/`, and `results/` and write per‑file checksums to `state/projects/...yaml` – **file(s)**: `code/update_state.py`
-- [ ] T007 Create `.env.example` with placeholders for `FRED_API_KEY` and `HF_TOKEN` – **file(s)**: `.env.example`
-- [ ] T075 Create a real `.env` file from `.env.example` (to be populated by the researcher) and verify that `code/data_ingestion.py` reads API keys from it – **file(s)**: `.env`, `tests/integration/test_env_loading.py`
-- [ ] T074 Verify that a real `.env` file is populated from `.env.example` and that `code/data_ingestion.py` reads API keys from it – **file(s)**: `.env`, `tests/integration/test_env_loading.py`
+- [ ] T001 [P1] [US-1] **Create project layout, environment files, and sanity‑check script**  
+  - Ensure directories `code/`, `data/raw/`, `data/processed/`, `data/metadata/`, `outputs/figures/`, `notebooks/`, `scripts/`, `tests/` exist.  
+  - Add `.env.example` with placeholders `FRED_API_KEY` and `TWITTER_BEARER_TOKEN`; copy to `.env` and verify both variables are set.  
+  - Provide `scripts/check_env.py` that loads the variables via `python‑dotenv` and exits with status 0 if both are present, otherwise prints a clear error message.  
+  - **Verification**: Run `python scripts/check_env.py`; it must exit cleanly and print the two variable names.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 2 – Data acquisition  
 
-**Purpose**: Core infrastructure that must be complete before any user story can start  
+- [ ] T002 [P1] [US-1] **Download macro‑economic series from the official FRED API**   <!-- FAILED-IN-EXECUTION: code/ingest/fetch_fred.py exit=1 -->
+  - Use `fredapi` to fetch quarterly GDP (`GDP`), unemployment rate (`UNRATE`), and consumer confidence (`CSCICP03`).  
+  - Save as `data/raw/fred/fred_gdp.csv`, `data/raw/fred/fred_unrate.csv`, `data/raw/fred/fred_consumer_confidence.csv`.  
+  - Compute SHA‑256 checksums for each CSV and record them in `data/checksums.json`.  
+  - Log each source URL (including API endpoint and series ID) in `results/fred_download_log.json`.  
+  - **Verification**: Each CSV must contain at least 30 rows and a header row; the log file must be valid JSON with three entries; `data/checksums.json` must contain matching SHA‑256 entries.
 
-- [ ] T008 Create `code/data_ingestion.py` skeleton with wrappers for the FRED API (`fredapi.Fred`) and the HuggingFace dataset loader – **file(s)**: `code/data_ingestion.py`
-- [ ] T009 Create `code/preprocessing.py` skeleton for resampling, linear interpolation, and stationarity‑related diagnostics – **file(s)**: `code/preprocessing.py`
-- [ ] T010 Create `code/modeling.py` skeleton for ADF, Johansen, VAR/VECM fitting, and Granger causality – **file(s)**: `code/modeling.py`
-- [ ] T011 Create `code/validation.py` skeleton for Moving Block Bootstrap (MBB) and sensitivity analysis – **file(s)**: `code/validation.py`
-- [ ] T012 Create `code/visualization.py` skeleton for time‑series plots, NBER recession shading, impulse‑response functions, and heatmaps – **file(s)**: `code/visualization.py`
-- [ ] T013 Run a pilot sensitivity sweep on a small sample to determine concrete masking proportions and the acceptable absolute p‑value shift threshold; write these values to `code/config.yaml` as `sensitivity_masking_proportions` and `p_value_shift_threshold` – **file(s)**: `code/config.yaml`
-- [ ] T014 [P] Contract test for `TimeSeries` schema – **file(s)**: `tests/contract/test_timeseries_schema.py`
-- [ ] T015 [P] Contract test for `ModelResult` schema – **file(s)**: `tests/contract/test_model_result_schema.py`
-- [ ] T016 [P] Contract test for `RecessionPeriod` schema – **file(s)**: `tests/contract/test_recession_period_schema.py`
-- [ ] T017 [P] Verify that per‑file checksums are recorded after each data download – **file(s)**: `tests/integration/test_checksum_recording.py`
-- [ ] T062 Add per‑file checksum generation for raw data files (e.g., `data/raw/*.csv`) and record them in the state file – **file(s)**: `code/update_state.py`, `tests/integration/test_raw_checksum.py`
-- [ ] T067 Validate that `code/preprocessing.py` writes `TimeSeries` objects conforming to the schema – **file(s)**: `tests/contract/test_timeseries_output.py`
-- [ ] T068 Validate that `code/modeling.py` writes `ModelResult` objects conforming to the schema – **file(s)**: `tests/contract/test_model_result_output.py`
-- [ ] T069 Validate that `code/visualization.py` writes `RecessionPeriod` objects conforming to the schema – **file(s)**: `tests/contract/test_recession_period_output.py`
+- [ ] T003 [P1] [US-1] **Download verified sentiment dataset from HuggingFace**  
+  - Stream the open dataset `allenai/tweet_sentiment` via `datasets.load_dataset(..., streaming=True)` and write the raw records to `data/raw/sentiment_raw.csv`.  
+  - Abort with a clear error if the final record count is < 10 000 (FR‑015).  
+  - Compute SHA‑256 checksum of `sentiment_raw.csv` and add it to `data/checksums.json`.  
+  - **Verification**: `wc -l data/raw/sentiment_raw.csv` ≥ 10 000 and the file is a valid CSV with columns `text`, `label`; checksum entry exists.
 
-**Checkpoint**: Foundational work complete → user‑story implementation can begin.
-
----
-
-## Phase 3: User Story 1 – Data Acquisition, Alignment, and Preprocessing (Priority: P1) 🎯 MVP  
-
-**Goal**: Ingest historical sentiment and macro‑economic data, align to **quarterly** frequency (core requirement) and also produce a **monthly** version for bootstrap validation, handling missing data via documented linear interpolation.
-
-**Independent Test**: Running the ingestion and preprocessing scripts must produce `data/processed/aligned_quarterly.csv` (quarterly) and `data/processed/aligned_monthly.csv` (monthly) with the required completeness and logging.
-
-### Tests (optional – write first, ensure they fail)
-
-- [ ] T018 [P] [US1] Contract test for `aligned_quarterly.csv` schema – **file(s)**: `tests/contract/test_timeseries_schema_quarterly.py`
-- [ ] T018b [P] [US1] Contract test for `aligned_monthly.csv` schema – **file(s)**: `tests/contract/test_timeseries_schema_monthly.py`
-- [ ] T019 [P] [US1] Integration test for the full data‑alignment pipeline – **file(s)**: `tests/integration/test_data_alignment.py`
-- [ ] T020 [P] [US1] Unit tests for interpolation methods (linear vs forward‑fill) – **file(s)**: `tests/unit/test_interpolation.py`
-- [ ] T065 Compute data completeness (percentage of non‑missing points) after interpolation and assert ≥ 95 % – **file(s)**: `code/preprocessing.py`, `tests/contract/test_data_completeness.py`
-- [ ] T070 [P] Contract test that data completeness ≥ 95 % – **file(s)**: `tests/contract/test_data_completeness.py`
-
-### Implementation
-
-- [ ] T021 [US1] Download quarterly GDP (`FRED/GDP`) via the FRED API; store raw CSV in `data/raw/fred_gdp.csv` – **file(s)**: `code/data_ingestion.py`, `data/raw/fred_gdp.csv`
-- [ ] T022 [US1] Download unemployment (`FRED/UNRATE`) via the FRED API; store raw CSV in `data/raw/fred_unrate.csv` – **file(s)**: `code/data_ingestion.py`, `data/raw/fred_unrate.csv`
-- [ ] T023 [US1] Download consumer‑confidence series (`FRED/CONSUMER_CONF`) via the FRED API; store raw CSV in `data/raw/fred_consumer_confidence.csv` – **file(s)**: `code/data_ingestion.py`, `data/raw/fred_consumer_confidence.csv`
-- [ ] T024 [US1] Download the HuggingFace sentiment dataset `snap-cornell/twitter-roberta-base-sentiment-dataset`; store as `data/raw/sentiment_hf.csv` – **file(s)**: `code/data_ingestion.py`, `data/raw/sentiment_hf.csv`
-- [ ] T025 [US1] Resample daily sentiment to **monthly** positive/negative/neutral ratios, store as `data/processed/aligned_monthly.csv`.  
-- [ ] T061 [US1] Aggregate the monthly sentiment ratios to **quarterly** frequency (average of the three months in each quarter) and merge with macro series, apply **linear interpolation** for any missing macro values (only if missing rate ≤ 5 %). Log the interpolation method and percentage imputed in `data/processed/data_quality_log.json`; output final quarterly dataset as `data/processed/aligned_quarterly.csv`. – **file(s)**: `code/preprocessing.py`, `data/processed/aligned_quarterly.csv`, `data/processed/data_quality_log.json`
-- [ ] T026 [US1] Compute per‑month sentiment sample size; flag months where sample size < 100 tweets or average confidence < 0.7 as low‑confidence; propagate these flags to the quarterly aggregation (exclude flagged months from quarterly averages) and record flags in `data/processed/data_quality_log.json`. – **file(s)**: `code/preprocessing.py`, `data/processed/data_quality_log.json`
-- [ ] T027 [US1] Verify that `aligned_quarterly.csv` contains **no missing values** after interpolation; raise an exception if any remain. – **file(s)**: `code/preprocessing.py`
-- [ ] T058 [P] Verify that `code/preprocessing.py` raises an exception when missing values remain after interpolation – **file(s)**: `code/preprocessing.py`, `tests/unit/test_missing_values_exception.py`
-
-**Checkpoint**: User Story 1 functional and independently testable.
+- [ ] T004 [P1] [US-1] **Extract sentiment scores with confidence ≥ 0.7**  
+  - Run `code/ingest/sentiment_extraction.py` (RoBERTa‑base) on `sentiment_raw.csv`; output `data/processed/sentiment_extracted.csv` containing columns `date`, `pos_ratio`, `neg_ratio`, `neu_ratio`, `media_volume`, `avg_confidence`.  
+  - Record model name, tokenizer version, and confidence threshold in `metadata/sentiment_extraction.json`.  
+  - **Verification**: The output CSV must have a row for every day present in the raw data and `media_volume` ≥ 30 for at least 90 % of days; the JSON must contain the fields `model`, `tokenizer`, `confidence_threshold`.
 
 ---
 
-## Phase 4: User Story 2 – Statistical Modeling, Stationarity Testing, Causal Inference & Validation (Priority: P2)
+## Phase 3 – Pre‑processing & alignment  
 
-**Goal**: Run stationarity diagnostics, select optimal lag order, fit VAR or VECM on the **quarterly** series, perform Granger causality tests, and validate results with Moving Block Bootstrap (using the **monthly** series) and out‑of‑sample recession hold‑outs.
+- [ ] T005 [P1] [US-1] **Merge macro and sentiment data to monthly frequency with interpolation & imputation comparison**  
+  - Resample daily sentiment ratios to monthly averages; compute `media_volume` per month and flag months with `< 30` posts or `avg_confidence < 0.7` as low‑confidence.  
+  - Perform **linear interpolation** for missing macro values (only if missing ≤ 5 % per series).  
+  - Independently perform **Kalman‑Smoother** imputation for the same missing points.  
+  - Compute lag‑1 autocorrelation for each series under both imputation methods; if the absolute difference exceeds **0.05**, select the method with the smaller difference (prefer linear unless Kalman improves autocorrelation).  
+  - Transform the three sentiment ratios into two additive log‑ratio (ILR) components (`sentiment_ilr_1`, `sentiment_ilr_2`).  
+  - Write `data/processed/aligned_monthly.csv`.  
+  - Generate `data/processed/data_quality_log.json` documenting: interpolation method chosen, percentages of imputed points per series, lag‑1 autocorrelation values for both methods, and low‑confidence month flags.  
+  - **Verification**: The CSV must validate against `aligned_timeseries.schema.yaml`; the JSON log must contain keys `imputation_method`, `interpolation_percent_*`, `lag1_acf_linear`, `lag1_acf_kalman`, `low_confidence_months`.
 
-**Independent Test**: Execution of `code/modeling.py` and `code/validation.py` must produce `results/model_stats.json`, `results/validation_stats.json`, and `results/holdout_validation.json` with all required statistics.
+- [ ] T006 [P1] [US-1] **Aggregate monthly data to quarterly frequency**  
+  - Average the three months of each quarter for all numeric fields; propagate the low‑confidence flag (quarter is low‑confidence if any constituent month is flagged).  
+  - Produce `data/processed/aligned_quarterly.csv` and update `data/processed/data_quality_log.json` with quarterly interpolation percentages and flag summaries.  
+  - **Verification**: The quarterly CSV must validate against `aligned_data.schema.yaml`; at least 95 % of quarters must have interpolation ≤ 5 % and low‑confidence flag ≤ 20 % (FR‑010a).
 
-### Tests (optional)
+- [ ] T022 [P1] [US-1] **Enforce abort on excessive low‑confidence quarters**  
+  - After T006, compute the proportion of low‑confidence quarters.  
+  - If the proportion exceeds **20 %** of total quarters, abort the pipeline with a clear error message indicating the failure of FR‑010a.  
+  - **Verification**: Pipeline exits with non‑zero status and descriptive error when the threshold is crossed.
 
-- [ ] T028 [P] [US2] Contract test for `model_stats.json` schema – **file(s)**: `tests/contract/test_model_results_schema.py`
-- [ ] T029 [P] [US2] Integration test for the full Granger‑causality pipeline – **file(s)**: `tests/integration/test_granger_causality.py`
-- [ ] T030 [P] [US2] Unit tests for ADF and Johansen implementations – **file(s)**: `tests/unit/test_stationarity.py`
-- [ ] T031 [P] Contract test that all Granger‑causality p‑values are < 0.05 – **file(s)**: `tests/contract/test_granger_significance.py`
-- [ ] T032 [P] Contract test that data completeness ≥ 95 % – **file(s)**: `tests/contract/test_data_completeness.py`
-- [ ] T069 [P] Contract test for `ModelResult` schema compliance – **file(s)**: `tests/contract/test_model_result_output.py`
-
-### Implementation
-
-- [ ] T033 [US2] **Out‑of‑sample validation**: Using `data/metadata/recession_periods.json` (produced by T045) hold out all months belonging to each NBER‑defined recession period, re‑fit the quarterly VAR/VECM on the remaining data, forecast the held‑out months, compute RMSE and coverage; store results in `results/holdout_validation.json`. – **file(s)**: `code/validation.py`, `results/holdout_validation.json`
-- [ ] T034 [US2] Implement Augmented Dickey‑Fuller (ADF) test for each series; if a series remains non‑stationary after first differencing, automatically apply a log or Box‑Cox transformation; write ADF results to `results/adf_results.json`. – **file(s)**: `code/modeling.py`, `results/adf_results.json`
-- [ ] T035 [US2] Implement the Johansen cointegration test; **prioritize the Trace statistic** for rank selection; write results to `results/cointegration.json`. – **file(s)**: `code/modeling.py`, `results/cointegration.json`
-- [ ] T036 [US2] Determine the optimal lag length via Akaike Information Criterion (AIC) for the chosen model (VAR or VECM); write the selected lag to `results/lag_selection.json`. – **file(s)**: `code/modeling.py`, `results/lag_selection.json`
-- [ ] T037 [US2] Fit the appropriate model (VAR if no cointegration, VECM otherwise) using the lag order from T036; serialize the fitted model to `results/model_fit.pkl` and record summary statistics in `results/model_stats.json`. – **file(s)**: `code/modeling.py`, `results/model_fit.pkl`, `results/model_stats.json`
-- [ ] T038 [US2] Run Granger‑causality F‑tests for all direction pairs; append p‑values and F‑statistics to `results/model_stats.json`. – **file(s)**: `code/modeling.py`, `results/model_stats.json`
-- [ ] T039 [US2] Implement Moving Block Bootstrap (MBB) **on the monthly dataset** (`data/processed/aligned_monthly.csv`) with **block length = 1 month**, 1 000 iterations, and a convergence check (CI width stabilises < 1 % over three successive runs); calculate 95 % confidence intervals and verify CI width ≤ 20 % of the original point estimate; write outcomes to `results/validation_stats.json`. – **file(s)**: `code/validation.py`, `results/validation_stats.json`
-- [ ] T040 [US2] Validate sentiment drift against NBER recession dates (using `data/metadata/recession_periods.json` from T045); compare drift onset timing with recession start/end and store results in `results/drift_nber_validation.json`. – **file(s)**: `code/validation.py`, `results/drift_nber_validation.json`
-- [ ] T041 [US2] Compute Variance Inflation Factor (VIF) for GDP and Unemployment; write VIF values to `results/vif_report.json` and note joint‑relationship interpretation. – **file(s)**: `code/modeling.py`, `results/vif_report.json`
-- [ ] T042 [US2] Execute the sensitivity analysis defined in `code/config.yaml`; for each masking proportion, randomly mask data, re‑interpolate, re‑run the full modeling pipeline, and record absolute p‑value shifts; **assert that every shift ≤ `p_value_shift_threshold` (0.01)**; write summary to `results/sensitivity_analysis.json`. – **file(s)**: `code/validation.py`, `results/sensitivity_analysis.json`
-
-**Checkpoint**: User Story 2 functional and independently testable.
+- [ ] T020 [P1] [US-1] **Validate overall quarterly coverage ≥ 95 %**  
+  - Count total expected quarterly timestamps between the earliest and latest dates in the macro series.  
+  - Verify that at least 95 % of those timestamps are present in `aligned_quarterly.csv`.  
+  - Abort with an informative error if the coverage falls below the threshold.  
+  - **Verification**: Coverage metric is computed and logged; pipeline fails if < 0.95.
 
 ---
 
-## Phase 5: User Story 3 – Visualization, Robustness Validation, and Reporting (Priority: P3)
+## Phase 4 – Diagnostic checks, feasibility, & model fitting  
 
-**Goal**: Produce publication‑ready visualizations, embed all results in a reproducible Jupyter notebook, and generate a final PDF report.
+- [ ] T007 [P2] [US-2] **Stationarity, VIF, cointegration, lag selection, and feasibility check**  
+  - Run ADF tests on every quarterly series; if non‑stationary, difference once and re‑test. If still non‑stationary, apply log or Box‑Cox transformation (FR‑009).  
+  - Compute Variance Inflation Factors for GDP, UNRATE, and Consumer Confidence; flag any VIF ≥ 33 (FR‑020).  
+  - Perform Johansen cointegration test; select rank using the trace statistic, applying the conflict‑resolution rule described in FR‑013.  
+  - Choose optimal VAR lag via AIC (max 4 quarters).  
+  - Verify feasibility: `num_parameters ≤ floor(observations/5)` (FR‑021); if violated, automatically reduce lag order and log the decision.  
+  - Log the **imputation method** used (from T005) and the **percentage of interpolated points** for each series as required by FR‑011.  
+  - Consolidate all results in `results/diagnostics.json`.  
+  - **Verification**: `results/diagnostics.json` must contain keys `adf`, `vif`, `cointegration_rank`, `optimal_lag`, `feasibility`, `imputation_method`, `interpolation_percent_*`, and each sub‑object must include p‑values, test statistics, and any transformation actions taken.
 
-**Independent Test**: The notebook `notebooks/analysis_master.ipynb` runs from start to finish without errors and produces the expected figures in `artifacts/figures/` and the PDF `artifacts/report.pdf`.
-
-### Tests (optional)
-
-- [ ] T043 [P] Contract test for figure‑metadata schema (recession shading, URLs/DOIs) – **file(s)**: `tests/contract/test_figure_metadata.py`
-- [ ] T044 [P] Integration test that the full pipeline (ingestion → modeling → validation → visualization) produces a runnable notebook – **file(s)**: `tests/integration/test_full_pipeline.py`
-- [ ] T071 [P] Integration test that the master notebook runs end‑to‑end without error – **file(s)**: `tests/integration/test_notebook_execution.py`
-
-### Implementation
-
-- [ ] T045 [US3] Fetch official NBER recession dates from the verified CSV source `https://raw.githubusercontent.com/datasets/nber-business-cycle-dating/master/data/nber-cycles.csv`; store as `data/metadata/recession_periods.json` and compute a checksum – **file(s)**: `code/visualization.py`, `data/metadata/recession_periods.json`
-- [ ] T046 [US3] Implement time‑series plots of sentiment, GDP, and unemployment with recession shading; save PNG and PDF versions to `artifacts/figures/time_series.png` (and `.pdf`) – **file(s)**: `code/visualization.py`, `artifacts/figures/time_series.png`
-- [ ] T047 [US3] Implement impulse‑response function (IRF) plots for each variable pair and cross‑correlation heatmaps; store in `artifacts/figures/irf_*.png` and `artifacts/figures/cross_corr_heatmap.png` – **file(s)**: `code/visualization.py`, `artifacts/figures/irf_sentiment_gdp.png`, `artifacts/figures/cross_corr_heatmap.png`
-- [ ] T048 [US3] Assemble the master notebook `notebooks/analysis_master.ipynb` that sequentially runs all scripts, displays figures, and includes narrative text; embed dataset URLs, DOIs, and configuration details in a metadata cell – **file(s)**: `notebooks/analysis_master.ipynb`
-- [ ] T049 [US3] Convert the notebook to a PDF report `artifacts/report.pdf` using `nbconvert` with a custom LaTeX template that preserves figure captions and recession shading – **file(s)**: `artifacts/report.pdf`
-- [ ] T050 [US3] Update the project state file (`state/projects/...yaml`) with hashes of all final artifacts (`aligned_quarterly.csv`, `model_stats.json`, `validation_stats.json`, `report.pdf`, etc.) – **file(s)**: `code/update_state.py`, `state/projects/...yaml`
-- [ ] T052 [P] Refactor code for readability and performance: enforce lint (`ruff`), formatting (`black`), and run a benchmark script (`scripts/performance_benchmark.sh`) ensuring total runtime < 4 h and peak memory < 5 GB – **file(s)**: `scripts/performance_benchmark.sh`, `code/`
-- [ ] T053 [P] Add comprehensive edge‑case unit tests (`tests/unit/test_edge_cases.py`) covering API failures, non‑stationary fallback paths, extreme missing‑data scenarios, and collinearity diagnostics – **file(s)**: `tests/unit/test_edge_cases.py`
-- [ ] T054 [P] Create quick‑start validation script `scripts/quickstart.sh` that clones the repo, installs dependencies, runs the full pipeline, and checks that all expected artifacts exist; add integration test `tests/integration/test_quickstart.sh` – **file(s)**: `scripts/quickstart.sh`, `tests/integration/test_quickstart.sh`
-- [ ] T055 [P] Verify that `.env` is populated from `.env.example` and that `code/data_ingestion.py` reads API keys from it – **file(s)**: `.env.example`, `tests/integration/test_env_loading.py`
-- [ ] T056 [P] Verify that the virtual environment (`venv/`) is created and that `pip freeze` matches `code/requirements.txt` – **file(s)**: `scripts/create_venv.sh`, `tests/integration/test_venv_creation.py`
-- [ ] T057 [P] Verify that `code/config.yaml` contains the keys `sensitivity_masking_proportions` and `p_value_shift_threshold` – **file(s)**: `code/config.yaml`, `tests/unit/test_config_values.py`
-- [ ] T058 [P] Verify that `code/preprocessing.py` raises an exception when missing values remain after interpolation – **file(s)**: `code/preprocessing.py`, `tests/unit/test_missing_values_exception.py`
-- [ ] T059 [P] Verify that the master notebook runs end‑to‑end without error (re‑uses T071) – **file(s)**: `tests/integration/test_notebook_execution.py`
-- [ ] T060 [P] Verify that all generated figures include recession shading and that the final PDF report metadata lists all dataset URLs/DOIs – **file(s)**: `tests/contract/test_figure_metadata.py`
-
-**Checkpoint**: All deliverables for User Story 3 are generated and reproducible.
+- [ ] T008 [P2] [US-2] **Fit VAR or VECM and compute Granger‑causality statistics**  
+  - Based on the cointegration rank, fit a VAR (rank 0) or VECM (rank > 0) using the selected lag. Serialize the fitted model to `results/model_fit.pkl`.  
+  - Generate `results/model_stats.json` summarising `model_type`, `optimal_lag`, `cointegration_rank`, and a list of bidirectional Granger‑causality results (direction, F‑stat, p‑value, Benjamini‑Hochberg‑adjusted p‑value).  
+  - **Verification**: The JSON must contain 12 direction entries (sentiment ↔ each macro variable) and all p‑values must be ≤ 1.0; the pickle file must be loadable with `statsmodels`.
 
 ---
 
-## Phase 6: Polish & Cross‑Cutting Concerns
+## Phase 5 – Robustness validation  
 
-**Purpose**: Final refinements that affect the whole project.
+- [ ] T009 [P3] [US-3] **Moving Block Bootstrap (MBB) validation with convergence check**  
+  - Apply MBB to the **monthly** aligned data (`aligned_monthly.csv`) with 1 000 iterations, block length = 13 weeks (≈ 1 quarter).  
+  - Compute 95 % confidence intervals for each VAR coefficient; verify that:  
+    1. CI width for `sentiment_ilr_1 → gdp_growth` ≤ 20 % of its point estimate,  
+    2. The interval contains the point estimate,  
+    3. Coefficient‑of‑variation < 0.1,  
+    4. CI width stabilises (change < 1 %) over three consecutive iteration batches (convergence).  
+  - Store results and a pass/fail flag in `results/bootstrap_validation.json`.  
+  - **Verification**: The JSON must include `ci_lower`, `ci_upper`, `point_estimate`, `width_ratio`, `cv`, and `converged` (true/false); all criteria must be satisfied for a pass.
 
-- [ ] T051 [P] Update documentation in `docs/data_sources.md` to include a full bibliography of dataset URLs, DOIs, and citation information – **file(s)**: `docs/data_sources.md`
-- [ ] T052 [P] Refactor code for readability and performance: enforce lint (`ruff`), formatting (`black`), and run a benchmark script (`scripts/performance_benchmark.sh`) ensuring total runtime < 4 h and peak memory < 5 GB – **file(s)**: `scripts/performance_benchmark.sh`, `code/`
-- [ ] T053 [P] Add comprehensive edge‑case unit tests (`tests/unit/test_edge_cases.py`) covering API failures, non‑stationary fallback paths, extreme missing‑data scenarios, and collinearity diagnostics – **file(s)**: `tests/unit/test_edge_cases.py`
-- [ ] T054 [P] Create quick‑start validation script `scripts/quickstart.sh` that clones the repo, installs dependencies, runs the full pipeline, and checks that all expected artifacts exist; add integration test `tests/integration/test_quickstart.sh` – **file(s)**: `scripts/quickstart.sh`, `tests/integration/test_quickstart.sh`
-- [ ] T055 [P] Verify that `.env` is populated from `.env.example` and that `code/data_ingestion.py` reads API keys from it – **file(s)**: `.env.example`, `tests/integration/test_env_loading.py`
-- [ ] T056 [P] Verify that the virtual environment (`venv/`) is created and that `pip freeze` matches `code/requirements.txt` – **file(s)**: `scripts/create_venv.sh`, `tests/integration/test_venv_creation.py`
-- [ ] T057 [P] Verify that `code/config.yaml` contains the keys `sensitivity_masking_proportions` and `p_value_shift_threshold` – **file(s)**: `code/config.yaml`, `tests/unit/test_config_values.py`
-- [ ] T058 [P] Verify that `code/preprocessing.py` raises an exception when missing values remain after interpolation – **file(s)**: `code/preprocessing.py`, `tests/unit/test_missing_values_exception.py`
-- [ ] T059 [P] Verify that the master notebook runs end‑to‑end without error (re‑uses T071) – **file(s)**: `tests/integration/test_notebook_execution.py`
-- [ ] T060 [P] Verify that all generated figures include recession shading and that the final PDF report metadata lists all dataset URLs/DOIs – **file(s)**: `tests/contract/test_figure_metadata.py`
+- [ ] T010 [P3] [US-4] **Sensitivity analysis on data masking**  
+  - For masking proportions 0.05, 0.10, and 0.15: randomly mask that fraction of quarterly observations, re‑interpolate using the method selected in T005, re‑run the full modeling pipeline (T007–T008), and compute the absolute shift in each Granger‑causality p‑value relative to the baseline.  
+  - Use the fixed random seed defined in T019.  
+  - Assert that every shift ≤ 0.01 (FR‑012).  
+  - Summarise results in `results/sensitivity_analysis.json`.  
+  - **Verification**: JSON must contain an array of objects with fields `masking_proportion`, `direction`, `p_value_shift`; all `p_value_shift` values ≤ 0.01.
+
+- [ ] T011 [P3] [US-3] **Rolling‑origin out‑of‑sample forecast**  
+  - Hold out the most recent 8 quarters, then iteratively expand the training window, refit the selected model, and forecast the hold‑out period.  
+  - Compute RMSE and MAE for each horizon and aggregate into `results/forecast_validation.json`.  
+  - **Verification**: The JSON must contain keys `rmse`, `mae`, `average_rmse`, `average_mae`; values must be numeric.
+
+---
+
+## Phase 6 – Recession metadata, change‑point detection, & visualisation  
+
+- [ ] T012 [P3] [US-3] **Download and store official NBER recession dates**  
+  - Retrieve `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/datasets/nber-business-cycle-dating/master/data/nber-cycles.csv` — HTTP 404] and convert to JSON `data/metadata/recession_periods.json` with fields `start_date`, `end_date`, `label`.  
+  - **Verification**: The JSON file must contain at least three recession periods and be valid JSON.
+
+- [ ] T013 [P3] [US-3] **PELT change‑point detection on sentiment ILR components**  
+  - Run `ruptures` with BIC penalty and minimum segment length = 2 quarters on `sentiment_ilr_1` and `sentiment_ilr_2`.  
+  - Compute the proportion of detected breakpoints that fall within ±1 quarter of any NBER recession start or end; require ≥ 80 % (SC‑014).  
+  - Output `results/pelt_breakpoints.json` containing breakpoints and the alignment metric.  
+  - **Verification**: JSON must include `breakpoints` (list of dates) and `alignment_proportion` ≥ 0.80.
+
+- [ ] T014 [P3] [US-3] **Generate all required visual artefacts**  
+  - Time‑series plot of sentiment ILR components and macro variables with NBER recession shading (`outputs/figures/time_series.png`).  
+  - Impulse‑response function plots for each VAR/VECM coefficient (`outputs/figures/irf_*.png`).  
+  - Cross‑correlation heatmap between sentiment and each macro series (`outputs/figures/cross_corr_heatmap.png`).  
+  - Save each figure as both PNG **and** PDF.  
+  - **Verification**: The `outputs/figures/` directory must contain the listed files; each file size > 5 KB.
+
+---
+
+## Phase 7 – Reproducible notebook & project hand‑off  
+
+- [ ] T015 [P3] [US-3] **Assemble a fully reproducible Jupyter notebook**  
+  - `notebooks/sentiment_drift_analysis.ipynb` must sequentially execute every script from T002 through T014, display all figures, and embed a narrative discussion of results, including the disclaimer from FR‑019 that Granger causality indicates predictive precedence only.  
+  - Export the notebook to HTML (`outputs/report.html`) and PDF (`outputs/report.pdf`).  
+  - **Verification**: Running `jupyter nbconvert --to notebook --execute notebooks/sentiment_drift_analysis.ipynb` must complete without errors; the exported PDF must be non‑empty and contain all figure captions.
+
+- [ ] T016 [P3] [US-3] **Provide quick‑start script and integration test**  
+  - `scripts/quickstart.sh` creates a virtual environment, installs `requirements.txt`, runs the notebook, and then checks for the presence of the key artefacts: `data/processed/aligned_quarterly.csv`, `results/model_stats.json`, `results/bootstrap_validation.json`, `outputs/report.pdf`, and all figure files.  
+  - Add `tests/integration/test_quickstart.sh` that invokes `quickstart.sh` and asserts each artefact exists and matches its SHA‑256 checksum recorded in `data/checksums.json`.  
+  - **Verification**: The integration test must exit with status 0 on a clean run.
+
+- [ ] T019 [P1] [US-2] **Set and record a fixed random seed for all stochastic procedures**  
+  - Define a project‑wide seed (e.g., `12345`) in a constants module `code/constants.py`.  
+  - Ensure all bootstrap, sensitivity, and any randomised modeling steps import this seed.  
+  - Record the seed value in `outputs/model_results.json` under the field `random_seed`.  
+  - **Verification**: The seed value appears in `model_results.json` and all stochastic scripts reference `code/constants.py`.
+
+- [ ] T021 [P1] [US-1] **Compute SHA‑256 hashes for all generated artifacts and update project state**  
+  - After each major phase, compute SHA‑256 hashes for new files and write them to `data/checksums.json`.  
+  - Update `state/projects/PROJ-069-statistical-analysis-of-sentiment-drift-.yaml` `artifact_hashes` map with the new hashes (this file is managed by the platform; the task writes the updated content).  
+  - **Verification**: `data/checksums.json` contains entries for every artifact listed in the verification mapping; the state YAML reflects the same hashes.
+
+---
+
+### Verification mapping (summary)
+
+| Spec requirement | Task(s) fulfilling it |
+|------------------|------------------------|
+| FR‑001, FR‑002, FR‑015, FR‑018 | T002, T003 |
+| FR‑010a, FR‑011 | T005, T006 |
+| FR‑017 | T005 (imputation comparison) |
+| FR‑003, FR‑009, FR‑013, FR‑021 | T007 |
+| FR‑004, FR‑020 | T007 (VIF) & T008 (Granger) |
+| FR‑014 | T012, T013 |
+| FR‑022 | T009 (with convergence) |
+| FR‑012 | T010 |
+| FR‑006 | T011 |
+| FR‑005, FR‑007 | T014, T015 |
+| FR‑019 | T015 (disclaimer) |
+| SC‑001 … SC‑014 | Covered by the corresponding validation tasks (T007‑T014) |
+| SC‑003 (reproducibility) | T015, T016, T019 |
+| SC‑002 (data completeness) | T002, T003, T005, T006, T020 |
+| SC‑014 (breakpoint‑recession metric) | T013 |
+| Constitution Principles I, III, V, VI, VII | T001, T002, T003, T005, T007, T019, T021 |
+
+---  
+
+*All tasks remain unchecked (`- [ ]`) until their artefacts are produced and the verification steps succeed. Once a task is completed, the box should be ticked.*  

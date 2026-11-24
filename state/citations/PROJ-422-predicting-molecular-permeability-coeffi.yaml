@@ -1,66 +1,88 @@
-- artifact_hash: 1e82283f0fb57a6784a06967b3c858daee0ae1077bbdb59a9698bcba156c7690
+- artifact_hash: 2f511a961367aa60729b2dfba05bfbf984ddf4896f31f0673198efe8b2df3e4a
   artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/research.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: test-00000-of-00001.parquet
-  kind: url
-  value: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67f936282a27347d7152f248/fdee916ffc0fe277c8fc069720c777adc7315d078281cb4dc3f709675b0c437e?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1787773344&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdmOTM2MjgyYTI3MzQ3ZDcxNTJmMjQ4L2ZkZWU5MTZmZmMwZmUyNzdjOGZjMDY5NzIwYzc3N2FkYzczMTVkMDc4MjgxY2I0ZGMzZjcwOTY3NWIwYzQzN2VcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODc3NzMzNDR9fX1dfQ__&Signature=MEUCIQCwrWdtES4hYvZrTegE7MBlo6hf4WOToPap5PFgAdVS-wIgEMUfSVezbVbqfo4vwj0GJU2wZZqGWSeHt40Z42DY0FQ_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-26T18:42:24.529664Z'
-- artifact_hash: 1e82283f0fb57a6784a06967b3c858daee0ae1077bbdb59a9698bcba156c7690
-  artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: test-00000-of-00001.parquet
-  kind: url
-  value: https://huggingface.co/datasets/fabikru/half-of-chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67f93784363323dfcd48a46f/fdee916ffc0fe277c8fc069720c777adc7315d078281cb4dc3f709675b0c437e?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1787773349&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdmOTM3ODQzNjMzMjNkZmNkNDhhNDZmL2ZkZWU5MTZmZmMwZmUyNzdjOGZjMDY5NzIwYzc3N2FkYzczMTVkMDc4MjgxY2I0ZGMzZjcwOTY3NWIwYzQzN2VcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODc3NzMzNDl9fX1dfQ__&Signature=MEUCIF4bqKq-zTX8eccRbZrx9gm-HWnYUSWoSVThOuiWzpe5AiEAw3iItFTeSCeI0pcCqfimGFaEuzoMGtAQ2HKfntIRq9U_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-26T18:42:24.529664Z'
-- artifact_hash: 1e82283f0fb57a6784a06967b3c858daee0ae1077bbdb59a9698bcba156c7690
-  artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/research.md
-  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: test-00000-of-00015-27ed436361d9186e.parquet
   kind: url
-  value: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet`
+  value: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/642c21d86c11a741c521acc3/05f01d12e9eebd2f505bdbe0e04adf1b38d046376106167292c9c772a6fc9a2f?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00015-27ed436361d9186e.parquet%3B+filename%3D%22test-00000-of-00015-27ed436361d9186e.parquet%22%3B&Expires=1787773352&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQyYzIxZDg2YzExYTc0MWM1MjFhY2MzLzA1ZjAxZDEyZTllZWJkMmY1MDViZGJlMGUwNGFkZjFiMzhkMDQ2Mzc2MTA2MTY3MjkyYzljNzcyYTZmYzlhMmZcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNS0yN2VkNDM2MzYxZDkxODZlLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDE1LTI3ZWQ0MzYzNjFkOTE4NmUucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg3NzczMzUyfX19XX0_&Signature=MEYCIQDoX2pXmy8ypMQVQiz2S%7EM2IBdA7niQivVRDiejSUXi%7EgIhAP4KPurPLczG7IM2nYgw2XxJgu9wkwetyxtR7vUBBeuN&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-26T18:42:24.529664Z'
-- artifact_hash: 1e82283f0fb57a6784a06967b3c858daee0ae1077bbdb59a9698bcba156c7690
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/642c21d86c11a741c521acc3/05f01d12e9eebd2f505bdbe0e04adf1b38d046376106167292c9c772a6fc9a2f?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00015-27ed436361d9186e.parquet%3B+filename%3D%22test-00000-of-00015-27ed436361d9186e.parquet%22%3B&xip=awHuwsBER08&X-Xet-Cas-Uid=public&user_id=public&Expires=1792881998&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQyYzIxZDg2YzExYTc0MWM1MjFhY2MzLzA1ZjAxZDEyZTllZWJkMmY1MDViZGJlMGUwNGFkZjFiMzhkMDQ2Mzc2MTA2MTY3MjkyYzljNzcyYTZmYzlhMmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNS0yN2VkNDM2MzYxZDkxODZlLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDE1LTI3ZWQ0MzYzNjFkOTE4NmUucGFycXVldCUyMiUzQiZ4aXA9YXdIdXdzQkVSMDgmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5Mjg4MTk5OH19fV19&Signature=MEUCIHhaJnRjIOv813iS-SZRtEzwPl66JyaJPICwDCXTu%7EqLAiEAm%7Ea%7EDhH2EPN4bam17c--aFLtVixmrLkDw6m1v6gSxGE_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-24T21:46:38.373099Z'
+- artifact_hash: 2f511a961367aa60729b2dfba05bfbf984ddf4896f31f0673198efe8b2df3e4a
   artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/research.md
-  cite_id: c-004
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: data.csv
   kind: url
-  value: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv`
+  value: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/644573a053ecc52f50f2bd0f/524a7e5d5f65d3c105c046a5e8da86bcee0d64a844d59402fb617e230beacee1?user_id=public&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data.csv%3B+filename%3D%22data.csv%22%3B&Expires=1787773356&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0NTczYTA1M2VjYzUyZjUwZjJiZDBmLzUyNGE3ZTVkNWY2NWQzYzEwNWMwNDZhNWU4ZGE4NmJjZWUwZDY0YTg0NGQ1OTQwMmZiNjE3ZTIzMGJlYWNlZTFcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YS5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYXRhLmNzdiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg3NzczMzU2fX19XX0_&Signature=MEUCIQDoy10jBxaI7waPUynj%7EwyLhsz2ena9Cy7x8f0o-JeScwIgciMgXCyke4u2-WG0DmurrvmAaKcm1F-G1um98E5%7E0LE_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-26T18:42:24.529664Z'
-- artifact_hash: 1e82283f0fb57a6784a06967b3c858daee0ae1077bbdb59a9698bcba156c7690
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/644573a053ecc52f50f2bd0f/524a7e5d5f65d3c105c046a5e8da86bcee0d64a844d59402fb617e230beacee1?xip=awHuwsBER08&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data.csv%3B+filename%3D%22data.csv%22%3B&Expires=1792882001&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0NTczYTA1M2VjYzUyZjUwZjJiZDBmLzUyNGE3ZTVkNWY2NWQzYzEwNWMwNDZhNWU4ZGE4NmJjZWUwZDY0YTg0NGQ1OTQwMmZiNjE3ZTIzMGJlYWNlZTFcXD94aXA9YXdIdXdzQkVSMDgmcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YlM0IrY2hhcnNldCUzRHV0Zi04JlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhLmNzdiUzQitmaWxlbmFtZSUzRCUyMmRhdGEuY3N2JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI4ODIwMDF9fX1dfQ__&Signature=MEUCIHojDqmPeQybYf%7El%7EZNzjcOIe7H1ZFfKAda%7ENyY2z1nAAiEAzHKpW25hCIy-Z%7EZZK6jfEnurL1hnfw%7EkvS1xmeQoaf0_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-24T21:46:38.373099Z'
+- artifact_hash: 2f511a961367aa60729b2dfba05bfbf984ddf4896f31f0673198efe8b2df3e4a
   artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/research.md
-  cite_id: c-005
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: train-00000-of-00001.parquet
   kind: url
-  value: https://huggingface.co/datasets/Alan123/hba_hbd_tpsa_grpo/resolve/main/data/train-00000-of-00001.parquet`
+  value: https://huggingface.co/datasets/nglebm19/rdkit_chemical/resolve/main/data/train-00000-of-00001.parquet
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/691a8b8eb9d00158e249626e/82059ec7857eb8bb8ce797a633df6fbadb7cb5f9d950ccede71972562bac39a4?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1787773360&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxYThiOGViOWQwMDE1OGUyNDk2MjZlLzgyMDU5ZWM3ODU3ZWI4YmI4Y2U3OTdhNjMzZGY2ZmJhZGI3Y2I1ZjlkOTUwY2NlZGU3MTk3MjU2MmJhYzM5YTRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Nzc3MzM2MH19fV19&Signature=MEUCIATi3WZ6lfTdw3dM5nvugUvjTi41cLHEHN0U6a6ZjTwRAiEAlj5haq0lRO%7EcDbsf5CEGlsvIdgXQVexvXDvOkf%7E7pzk_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-26T18:42:24.529664Z'
-- artifact_hash: 2a54439456ba98257bdfac6fc0f348556ae7664a8bc392fac1a7df2026d1bfd0
-  artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/tasks.md
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67f2270fbb64c89707694e08/832a2c80df4a784516e31954e66295f25517c311a4cf433720ad5c6ef062538a?X-Xet-Cas-Uid=public&user_id=public&xip=awHuwsBER08&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&Expires=1792882003&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdmMjI3MGZiYjY0Yzg5NzA3Njk0ZTA4LzgzMmEyYzgwZGY0YTc4NDUxNmUzMTk1NGU2NjI5NWYyNTUxN2MzMTFhNGNmNDMzNzIwYWQ1YzZlZjA2MjUzOGFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZ4aXA9YXdIdXdzQkVSMDgmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0cmFpbi0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI4ODIwMDN9fX1dfQ__&Signature=MEUCIQCBLDjRFBELF-rc0jciePWbqgFPKT6N2VWcgy2SKr3LQQIgM2S3Af8s4sth52l%7EngkpjaRK0EMjdI%7EoIBlbazs58OM_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-24T21:46:38.373099Z'
+- artifact_hash: 2f511a961367aa60729b2dfba05bfbf984ddf4896f31f0673198efe8b2df3e4a
+  artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67f936282a27347d7152f248/fdee916ffc0fe277c8fc069720c777adc7315d078281cb4dc3f709675b0c437e?xip=awHuwsBER08&X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1792882003&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdmOTM2MjgyYTI3MzQ3ZDcxNTJmMjQ4L2ZkZWU5MTZmZmMwZmUyNzdjOGZjMDY5NzIwYzc3N2FkYzczMTVkMDc4MjgxY2I0ZGMzZjcwOTY3NWIwYzQzN2VcXD94aXA9YXdIdXdzQkVSMDgmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyODgyMDAzfX19XX0_&Signature=MEUCIQCp5s2YH-PDbF2ttkODs-rlcpAtbDNWWSpJ35TFPv42FgIgJxTphZTQgrgn6lMj2ReRbR-luLBTFwguF80nMnq5V6o_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-24T21:46:38.373099Z'
+- artifact_hash: 2f511a961367aa60729b2dfba05bfbf984ddf4896f31f0673198efe8b2df3e4a
+  artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/research.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/fabikru/half-of-chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67f93784363323dfcd48a46f/fdee916ffc0fe277c8fc069720c777adc7315d078281cb4dc3f709675b0c437e?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&xip=awHuwsBER08&user_id=public&Expires=1792882005&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdmOTM3ODQzNjMzMjNkZmNkNDhhNDZmL2ZkZWU5MTZmZmMwZmUyNzdjOGZjMDY5NzIwYzc3N2FkYzczMTVkMDc4MjgxY2I0ZGMzZjcwOTY3NWIwYzQzN2VcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnhpcD1hd0h1d3NCRVIwOCZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyODgyMDA1fX19XX0_&Signature=MEYCIQD%7EfxkLo2thVa5g%7EnodGJ7H1Of9YD8chfksM6IqgD2ogQIhANSenLMKxk%7EhGm-BAm-HRtEpAgbXY2bp7GT8WGRX3bl2&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-24T21:46:38.373099Z'
+- artifact_hash: 2f511a961367aa60729b2dfba05bfbf984ddf4896f31f0673198efe8b2df3e4a
+  artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/research.md
+  cite_id: c-006
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/Alan123/hba_hbd_tpsa_grpo/resolve/main/data/train-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/691a8b8eb9d00158e249626e/82059ec7857eb8bb8ce797a633df6fbadb7cb5f9d950ccede71972562bac39a4?xip=awHuwsBER08&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1792882006&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxYThiOGViOWQwMDE1OGUyNDk2MjZlLzgyMDU5ZWM3ODU3ZWI4YmI4Y2U3OTdhNjMzZGY2ZmJhZGI3Y2I1ZjlkOTUwY2NlZGU3MTk3MjU2MmJhYzM5YTRcXD94aXA9YXdIdXdzQkVSMDgmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0cmFpbi0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI4ODIwMDZ9fX1dfQ__&Signature=MEUCIQDsxY-mp1fQ63hIpZ3XbXRVd5uhqksHiuLE8ue2yyglswIgITtxO7gsrdHNKqwDZM3yZez5DwHy%7E3odpGf5lpGgBzw_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-24T21:46:38.373099Z'
+- artifact_hash: e8537ac0c2fd43ef2092c9440e089c54a7096f560a4bb6a0f59203756da7c4af
+  artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/spec.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: schema#
+  fetched_title: null
   kind: url
-  value: http://json-schema.org/draft-07/schema#
-  verification_status: pending
-  verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-10-08T13:03:58.951578Z'
+  value: https://example.com/permeability-dataset-1.csv
+  verification_status: mismatch
+  verified_against_url: https://example.com/permeability-dataset-1.csv
+  verified_at: '2026-10-26T09:50:03.401892Z'
+- artifact_hash: e8537ac0c2fd43ef2092c9440e089c54a7096f560a4bb6a0f59203756da7c4af
+  artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://example.com/permeability-dataset-2.csv
+  verification_status: mismatch
+  verified_against_url: https://example.com/permeability-dataset-2.csv
+  verified_at: '2026-10-26T09:50:03.401892Z'

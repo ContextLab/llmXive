@@ -1,21 +1,38 @@
-T022:
+T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or log files implementing the reflective masking loop (mask\
-    \ \u2192 predict \u2192 unmask \u2192 convergence check) are provided; the claim\
-    \ contains only a textual placeholder without any executable artifact. Consequently,\
-    \ the required implementation cannot be verified."
-T025:
+  h: 83c3bf49d6f7d1cef2fa2d62c7421316dcff1dfbd530770ce8d7f8ea8e9c8d8c
+  r: "The directory tree and `code/requirements.txt` exist and contain the required\
+    \ entries, and three `__init__.py` files are present, but there is no provided\
+    \ evidence (e.g., command output or logs) that `pip install -r code/requirements.txt`\
+    \ actually succeeded or that `ruff check --output-format=concise` exited with\
+    \ status\u202F0. These execution confirmations are required to complete the task."
+  sig: 52bcb279f43075d61648724e1c5126f16434a04f8dd8cfcd2a8f72cae9a38ba4
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or log file implementing a hard turn limit and marking exceeded\
-    \ runs as \u201Cfailure\u201D was provided; the evidence section contains no artifacts\
-    \ to verify that the required functionality exists. The task therefore remains\
-    \ unfulfilled."
-T030:
+  h: adf254cef0599d6a11e88eac34b2ef214c381d81f5263a860ed45deb8ee4d9bb
+  r: "The `graph_generator.py` correctly avoids heavy imports, but the test suite\
+    \ does not pass: `test_nx_set_seed_compatibility` fails (NetworkX has no `set_seed`),\
+    \ and the integration test (`test_cli_generation_integration`) fails because the\
+    \ generated data shows a Pearson |r|\u202F\u2248\u202F0.96, far above the required\u202F\
+    <\u202F0.2. Moreover, the integration test that should run the generator on a\
+    \ tiny seed is skipped (dataset files missing) and does not actually validate\
+    \ a freshly\u2011generated JSONL file. The required lightweight integration test\
+    \ is therefore missing or incorrect."
+  sig: afd4952f5e2a932aa343f7f4902064cea4ae43d31eb045cf0d08474ebfd32398
+T003:
   c: false
-  h: ac1bac62cde16da4f98a796a60827c4a9eee079247f40cf0e88e3c9dc6d9bf33
-  r: The required `code/analyzer.py` file does not exist, causing import errors in
-    the test. Moreover, the provided `tests/test_analyzer.py` is truncated, contains
-    no actual test functions, and relies on the missing analyzer module, so it does
-    not constitute a complete contract test.
+  h: 80a7c8a271964dab0407983e36283ee832ece544c5e1f3f75d1dcffd7461009c
+  r: "The log shows the generation script ran and claimed to write checksum files,\
+    \ but the actual checksum files (`data/checksums_primary.txt`, `data/checksums_aux.txt`)\
+    \ are not present in the evidence, nor is there any proof that subtasks T014\u2011\
+    T016 were executed or that the checksums were validated. Provide the checksum\
+    \ files and verification output (or logs) to satisfy the task."
+  sig: 1047c8070579e114d234ed5975d1819b2e014a529334fda776a2028d83fc64c1
+T014:
+  c: true
+  h: 7a52159f287df696794e29cd7a3bab4b9c8fea1cdc79f0b8ba1193b7e14a7726
+  r: "Checked `code/graph_generator.py` and `code/utils/graph_utils.py`; they exist,\
+    \ are non\u2011empty, implement DAG generation with controllable nesting depth\
+    \ and branching factor, enforce acyclicity/solvability, and compute the required\
+    \ metrics, and the script runs successfully producing output."
+  sig: 2b116f574c2aa56cbe8542a2058e611efef8f6360ff74aee723defc12f05f07f

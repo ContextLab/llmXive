@@ -1,53 +1,21 @@
-"""
-Unit tests for the I/O utilities in ``code/utils/io.py``.
-These tests verify that parquet files can be saved and loaded correctly,
-and that the MD5 checksum functions operate as expected.
-"""
-import pandas as pd
 import pytest
+import pandas as pd
 from pathlib import Path
+from llmxive_toolkit import paths
+from code.utils.io import save_parquet, load_parquet, sha256_checksum
 
-# Import the utilities from the project's utils package
-from utils.io import save_parquet, load_parquet, compute_md5, verify_md5
+def test_parquet_io_without_pyarrow(tmp_path: Path):
+    """Ensure parquet I/O works using fastparquet fallback when pyarrow is missing."""
+    df = pd.DataFrame({"a": [1, 2, 3], "b": ["x", "y", "z"]})
+    file_path = tmp_path / "test.parquet"
+    # Save parquet; should succeed regardless of pyarrow availability
+    save_parquet(df, file_path)
+    # Load back and compare
+    loaded = load_parquet(file_path)
+    pd.testing.assert_frame_equal(df, loaded)
 
-
-def test_save_and_load_parquet(tmp_path: Path):
-    """Save a simple DataFrame to parquet and load it back."""
-    # Create a small DataFrame
-    df_original = pd.DataFrame({"col_a": [1, 2, 3], "col_b": ["x", "y", "z"]})
-
-    # Define the output parquet path
-    parquet_path = tmp_path / "sample.parquet"
-
-    # Save the DataFrame
-    save_parquet(df_original, parquet_path)
-
-    # Ensure the file was created
-    assert parquet_path.is_file(), "Parquet file was not created"
-
-    # Load the DataFrame back
-    df_loaded = load_parquet(parquet_path)
-
-    # Verify that the loaded DataFrame matches the original
-    pd.testing.assert_frame_equal(df_original, df_loaded)
-
-
-def test_md5_checksum_and_verification(tmp_path: Path):
-    """Compute an MD5 checksum for a parquet file and verify it."""
-    df = pd.DataFrame({"x": [10, 20], "y": [0.1, 0.2]})
-    parquet_path = tmp_path / "checksum_test.parquet"
-
-    # Save the DataFrame so we have a real file on disk
-    save_parquet(df, parquet_path)
-
-    # Compute the checksum
-    checksum = compute_md5(parquet_path)
-
-    # The checksum should be a 32‑character hexadecimal string
-    assert isinstance(checksum, str) and len(checksum) == 32
-
-    # Verification should succeed with the correct checksum
-    assert verify_md5(parquet_path, checksum) is True
-
-    # Verification should fail with an incorrect checksum
-    assert verify_md5(parquet_path, "0" * 32) is False
+    # Check SHA-256 checksum matches expected length and hex format
+    checksum = sha256_checksum(file_path)
+    assert isinstance(checksum, str)
+    assert len(checksum) == 64
+    int(checksum, 16)  # should not raise

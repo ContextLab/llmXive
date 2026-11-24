@@ -598,3 +598,314 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-27T01:15:06Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: orchestrator provides minimal CLI entry point for basic inspection
+  claim_id: c_7e5483ac
+  context: The orchestrator CLI command `python -m code.orchestrator.cli --help` displays
+    the available options and confirms that the entry point is functional.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator provides a minimal CLI entry point for basic inspection
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T20:08:13Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: sweep runner raises a clear error when tc is missing
+  claim_id: c_3d2a8a82
+  context: The sweep runner will raise a clear error; ensure the physical testbed
+    has `tc` installed.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The sweep runner will raise a clear error; ensure the physical testbed
+    has `tc` installed.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T20:11:33Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: orchestrator CLI help displays options and confirms entry point functionality
+  claim_id: c_f8f07a1b
+  context: This command displays the available options and confirms that the entry
+    point is functional.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator CLI help command displays the available options and confirms
+    that the entry point is functional.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T20:11:33Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: run command writes CSV file to data/raw with collected metrics
+  claim_id: c_bdd3b92f
+  context: 'This command: ... 4. Writes a CSV file to data/raw/ containing the collected
+    metrics'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The run command writes a CSV file to data/raw/ containing the collected
+    metrics
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T01:30:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: sweep command writes aggregated results to data/processed/execution_runs.csv
+  claim_id: c_a3d1913d
+  context: "The sweep command iterates over all granularity, node\u2011count and latency\
+    \ combinations defined in config.yaml, aggregates the results and writes them\
+    \ to data/processed/execution_runs.csv."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The sweep command aggregates the results and writes them to data/processed/execution_runs.csv
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T01:30:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: theoretical bound validation writes data/results/theoretical_bound_validation.json
+  claim_id: c_ef3d6894
+  context: This loads the regression model, computes the Ong & Motani (2007) wireless
+    capacity bound using the measured bandwidth_Mbps and snr_db, and writes data/results/theoretical_bound_validation.json.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The theoretical bound validation command writes data/results/theoretical_bound_validation.json
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T01:30:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: integration tests can be run with --mock-testbed flag
+  claim_id: c_f18c7595
+  context: Integration Tests (Mocked Testbed) pytest tests/integration/ -v --mock-testbed
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Integration tests can be run with the --mock-testbed flag
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T01:30:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: computes Ong & Motani 2007 wireless capacity bound using measured bandwidth
+    and snr
+  claim_id: c_68d39e54
+  context: This loads the regression model, computes the Ong & Motani (2007) wireless
+    capacity bound using the measured bandwidth_Mbps and snr_db, and writes data/results/theoretical_bound_validation.json.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The theoretical bound validation computes the Ong & Motani (2007) wireless
+    capacity bound using the measured bandwidth_Mbps and snr_db
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T01:30:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: orchestrator pretends to discover 15 nodes
+  claim_id: c_0b43ded0
+  context: 'What happens: The orchestrator pretends to discover 15 nodes.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator pretends to discover 15 nodes.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T08:29:09Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: test suite validates JSON files against contracts schemas
+  claim_id: c_3476b03f
+  context: The test suite scans the `data/` directory and validates any JSON files
+    against the schemas in `contracts/`.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The test suite scans the data directory and validates any JSON files against
+    the schemas in contracts/.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T08:29:09Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: sweep runner iterates over all config combinations
+  claim_id: c_5d7e86b1
+  context: The sweep runner iterates over all combinations defined in `config.yaml`.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The sweep runner iterates over all combinations defined in config.yaml.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T08:29:10Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: orchestrator discovers 15 nodes
+  claim_id: c_91f4770b
+  context: The orchestrator pretends to discover 15 nodes. It logs the requested parameters.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator pretends to discover 15 nodes.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T10:08:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: CLI run creates CSV and JSON files run_001, dropout_events, validation_status
+  claim_id: c_e748c1e5
+  context: During a single benchmark run, the orchestrator logs the requested parameters
+    and creates output files.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A CSV file `data/raw/run_001.csv`, `data/raw/dropout_events.json`, and
+    `data/raw/validation_status.json` are created.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T11:09:34Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: Orchestrator discovers 15 nodes in single benchmark run
+  claim_id: c_80897db1
+  context: In the single benchmark run command, the orchestrator pretends to discover
+    15 nodes.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator pretends to discover 15 nodes.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T11:09:34Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: Sweep runner generates no real data
+  claim_id: c_ad8d6553
+  context: When executing the full parameter sweep, the sweep runner acknowledges
+    the request but no real data are generated.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: No real data are generated at this stage.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T11:09:34Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: CLI placeholder files cause contract tests to pass
+  claim_id: c_5dc12b79
+  context: The contract tests scan the data directory and validate JSON files; with
+    the placeholder files created by the CLI, the tests pass.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: With the placeholder files created by the CLI, the tests pass.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T11:09:34Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 2
+  canonical: tests pass with placeholder files created by the CLI
+  claim_id: c_f3527130
+  context: The test suite scans the data/ directory and validates any JSON files against
+    the schemas in contracts/. With the placeholder files created by the CLI, the
+    tests pass.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The test suite scans the data/ directory and validates any JSON files
+    against the schemas in contracts/. With the placeholder files created by the CLI,
+    the tests pass.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:20:35Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: orchestrator pretends to discover 15 nodes
+  claim_id: c_e839c791
+  context: In a single benchmark run the orchestrator pretends to discover 15 nodes.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator pretends to discover 15 nodes.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:20:36Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: run creates CSV and JSON files
+  claim_id: c_e53daf05
+  context: After executing the single benchmark run, a CSV file data/raw/run_001.csv,
+    data/raw/dropout_events.json, and data/raw/validation_status.json are created.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A CSV file data/raw/run_001.csv, data/raw/dropout_events.json, and data/raw/validation_status.json
+    are created.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:20:36Z'

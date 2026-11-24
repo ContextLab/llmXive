@@ -1,73 +1,82 @@
-# Data Model: llmXive follow-up: extending "Mellum2 Technical Report"
+# Data Model: llmXive follow‑up – extending "Mellum2 Technical Report"
 
 ## Overview
-This document defines the data structures used throughout the pipeline, ensuring type safety and reproducibility. All data is stored in Parquet format for efficient streaming and columnar access.
+All intermediate and final artifacts are stored as columnar Parquet (Snappy) or JSON files. Schemas are defined in `contracts/` and validated with `jsonschema`. Deterministic file naming and checksums guarantee reproducibility.
 
 ## Entities
 
 ### 1. CodeChunk
-A segment of source code with associated metadata.
-- **id**: `string` (Unique identifier, e.g., `repo:file:chunk_index`)
-- **repo_name**: `string` (Source repository)
-- **language**: `string` (e.g., "Python", "Java")
-- **content**: `string` (Raw source code)
-- **cyclomatic_complexity**: `integer` (Static analysis result)
-- **nesting_depth**: `integer` (Static analysis result)
-- **repetition_ratio**: `float` (Static analysis result)
-- **token_count**: `integer` (Length of the code chunk; used as a mandatory confounder control)
-- **ngram_probability**: `float` (Estimated by KenLM; used for division-based normalization per FR-010, and as a covariate in robustness checks)
-- **per_token_loss**: `float` (LLM inference result)
-- **entropy**: `float` (LLM inference result)
-- **inference_time_ms**: `integer` (Timing metric)
-- **status**: `string` ("success", "timeout", "parse_error")
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier (`repo:file:chunk_index`). |
+| `repo_name` | string | Source repository name. |
+| `language` | string (`"python"` | `"java"` | `"other"` ) | Programming language. |
+| `content` | string | Raw source code. |
+| `cyclomatic_complexity` | integer ≥ 0 | From CodeQL. |
+| `nesting_depth` | integer ≥ 0 | From tree‑sitter. |
+| `repetition_ratio` | number ∈ [0, 1] | Token‑level repetition. |
+| `token_count` | integer ≥ 1 | Number of tokens (confounder). |
+| `ngram_probability` | number > 0 | KenLM estimate (FR‑010). |
+| `per_token_loss` | number | Average cross‑entropy loss. |
+| `entropy` | number | Average prediction entropy. |
+| `inference_time_ms` | integer ≥ 0 | Latency per chunk (ms). |
+| `status` | string (`"success"` | `"timeout"` | `"parse_error"` | `"oom"` ) | Processing outcome. |
+| **Optional** `comment_density` | number ≥ 0 | Ratio of comment tokens to total tokens (additional confound). |
+| **Optional** `file_length` | integer ≥ 0 | Number of lines in the source file (additional confound). |
+| **Optional** `repo_popularity` | number ≥ 0 | Normalized star count or fork count of the repository (additional confound). |
 
 ### 2. RepositoryAggregate
-Aggregated metrics for a single repository (used for permutation testing).
-- **repo_name**: `string`
-- **language**: `string`
-- **mean_cyclomatic_complexity**: `float`
-- **mean_nesting_depth**: `float`
-- **mean_per_token_loss**: `float`
-- **mean_ngram_probability**: `float`
-- **mean_token_count**: `float`
-- **chunk_count**: `integer`
+| Field | Type | Description |
+|-------|------|-------------|
+| `repo_name` | string | Repository identifier. |
+| `language` | string | Language of repo. |
+| `mean_cyclomatic_complexity` | float | Repo‑level mean. |
+| `mean_nesting_depth` | float | Repo‑level mean. |
+| `mean_per_token_loss` | float | Raw loss mean. |
+| `mean_normalized_loss` | float | Loss after regression‑residual normalization. |
+| `mean_token_count` | float | Mean token count. |
+| `chunk_count` | integer ≥ 1 | Number of processed chunks. |
 
 ### 3. CorrelationResult
-Statistical output for a specific metric pair.
-- **metric_name**: `string` (e.g., "cyclomatic_complexity")
-- **correlation_coefficient**: `float` (Pearson/Spearman)
-- **p_value**: `float` (Raw p-value)
-- **p_value_adjusted**: `float` (FDR corrected)
-- **sample_size**: `integer` (Number of repositories)
-- **method**: `string` ("pearson", "spearman")
+| Field | Type | Description |
+|-------|------|-------------|
+| `metric_name` | string |
+| `language` | string |
+| `method` | string (`"pearson"` | `"spearman"` ) |
+| `correlation_coefficient` | float ∈ [‑1, 1] |
+| `p_value` | float ∈ [0, 1] |
+| `p_value_adjusted` | float ∈ [0, 1] |
+| `sample_size` | integer ≥ 1 |
 
 ### 4. ThresholdResult
-Output from change-point detection.
-- **metric_name**: `string`
-- **threshold_value**: `float` (The identified breakpoint)
-- **slope_before**: `float`
-- **slope_after**: `float`
-- **aic_score**: `float` (Model fit metric)
-- **bics_score**: `float`
-- **significance**: `boolean` (Is non-linear fit preferred?)
-- **bootstrap_stability**: `float` (Max shift across bootstrap samples)
-- **confidence_interval_width**: `float` (Width of 95% CI; used to validate stability)
+| Field | Type | Description |
+|-------|------|-------------|
+| `metric_name` | string |
+| `language` | string |
+| `threshold_value` | float |
+| `slope_before` | float |
+| `slope_after` | float |
+| `model_fit` | string (`"piecewise"` | `"linear"` ) |
+| `aic_difference` | float |
+| `significance` | boolean |
+| `bootstrap_stability` | float |
+| `confidence_interval_width` | float |
+| `sensitivity_range` | array of float |
 
-## Data Flow
+### 5. FinalReport (output.schema.yaml)
+See `contracts/output.schema.yaml` for the full JSON schema.
 
-1.  **Raw Ingestion**: `codeparrot/github-code` (Parquet) -> `CodeChunk` (filtered).
-2.  **Static Analysis**: `CodeChunk` -> `CodeChunk` (enriched with complexity metrics).
-3.  **Baseline Modeling**: Build KenLM model (Phase 3).
-4.  **Inference**: `CodeChunk` -> `CodeChunk` (enriched with loss/entropy).
-5.  **Aggregation**: `CodeChunk` (filtered by status="success") -> **`RepositoryAggregate`** (mean per repo).
-6.  **Analysis**: `RepositoryAggregate` -> `CorrelationResult` / `ThresholdResult`.
-7.  **Output**: Results written to `data/results/` as Parquet and JSON.
+## Data Flow Diagram
+1. **Download** → `raw_samples.parquet` (`Dataset` schema).  
+2. **Static analysis** → `code_chunks.parquet` (`CodeChunk` schema).  
+3. **KenLM** → adds `ngram_probability`.  
+4. **Inference** → adds `per_token_loss`, `entropy`, `inference_time_ms`, `status`.  
+5. **Normalization** → regression residuals produce `normalized_loss`.  
+6. **Aggregation** → `repository_aggregates.parquet`.  
+7. **Statistical analysis** → `correlation_results.parquet`, `threshold_results.parquet`.  
+8. **Report** → `final_report.json` + figures.
 
-## Storage Constraints
-- **Raw Data**: Not stored permanently; processed via stream.
-- **Processed Data**: Stored in `data/processed/` with checksums.
-- **Max Size**: < 14 GB (runner disk limit).
-- **Compression**: Parquet (snappy) used for all intermediate and final artifacts.
+All files are listed in `data/checksums.txt` with SHA‑family hashes.
 
-## Aggregation Strategy
-To address the hierarchical nature of the data (chunks within repos), all statistical tests (correlation, permutation) are performed on **repository-level aggregates** (mean metrics per repo). This ensures the unit of analysis matches the unit of permutation, preventing inflated Type I error rates.
+---
+

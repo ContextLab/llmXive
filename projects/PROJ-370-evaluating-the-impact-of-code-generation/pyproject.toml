@@ -39,6 +39,8 @@ extend-exclude = '''
     | data
     | results
     | logs
+    | state
+    | \.github
 )/
 '''
 
@@ -53,6 +55,8 @@ extend-exclude = [
     "__pycache__",
     ".venv",
     "venv",
+    "state",
+    ".github",
 ]
 
 [tool.ruff.lint]
@@ -71,6 +75,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "code/tests/*" = ["S101"] # assert allowed in tests
+"tests/*" = ["S101"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["code", "src"]

@@ -214,7 +214,6 @@ def test_engine_path_reraises_transient_backend_error(tmp_path, monkeypatch):
     from llmxive.speckit import _tasker_engine_bridge as bridge
     from llmxive.speckit import tasks_cmd
     from llmxive.speckit.slash_command import SlashCommandContext
-    from llmxive.types import BackendName
 
     project_dir = tmp_path / "projects" / "PROJ-903"
     (project_dir / ".specify" / "memory").mkdir(parents=True)
@@ -243,9 +242,7 @@ def test_engine_path_reraises_transient_backend_error(tmp_path, monkeypatch):
         inputs=[],
         expected_outputs=["tasks.md"],
         prompt_template_path=Path("prompts/x.md"),
-        default_backend=BackendName.DARTMOUTH,
-        fallback_backends=[],
-        default_model="m",
+        profile="standard_generation",
         prompt_version="1.0.0",
         agent_name="tasker",
     )
@@ -278,7 +275,6 @@ def test_engine_path_non_transient_failure_escalates_not_advances(tmp_path, monk
     from llmxive.speckit import _tasker_engine_bridge as bridge
     from llmxive.speckit.slash_command import SlashCommandContext
     from llmxive.state import escalations
-    from llmxive.types import BackendName
 
     project_dir = tmp_path / "projects" / "PROJ-904"
     (project_dir / ".specify" / "memory").mkdir(parents=True)
@@ -313,9 +309,7 @@ def test_engine_path_non_transient_failure_escalates_not_advances(tmp_path, monk
         inputs=[],
         expected_outputs=["tasks.md"],
         prompt_template_path=Path("prompts/x.md"),
-        default_backend=BackendName.DARTMOUTH,
-        fallback_backends=[],
-        default_model="m",
+        profile="standard_generation",
         prompt_version="1.0.0",
         agent_name="tasker",
     )

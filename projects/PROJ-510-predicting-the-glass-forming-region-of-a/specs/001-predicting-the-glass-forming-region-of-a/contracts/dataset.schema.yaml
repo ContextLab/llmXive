@@ -26,7 +26,7 @@ properties:
   mixing_enthalpy:
     type: number
     description: "kJ/mol"
-  atomic_size_mismatch:
+  atomic_size_difference:
     type: number
     description: "Dimensionless"
   electronegativity_variance:
@@ -42,7 +42,7 @@ required:
   - fractions
   - critical_cooling_rate
   - mixing_enthalpy
-  - atomic_size_mismatch
+  - atomic_size_difference
   - electronegativity_variance
   - source_label
 additionalProperties: false

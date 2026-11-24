@@ -1,5 +1,6 @@
 {
-  "status": "real_data_found",
-  "use_synthetic": false,
-  "accession": "SRP123456"
+  "accession": null,
+  "hf_dataset_id": null,
+  "status": "no_real_data",
+  "use_synthetic": true
 }

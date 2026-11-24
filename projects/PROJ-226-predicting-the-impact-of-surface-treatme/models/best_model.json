@@ -1,0 +1,13 @@
+{
+  "best_model_type": "RandomForest",
+  "cv_r2_mean": null,
+  "cv_r2_std": null,
+  "hyperparameters": {},
+  "null_result": false,
+  "timestamp": "2026-10-15T12:11:42.364334Z",
+  "validation_r2": null,
+  "validation_rmse": null,
+  "final_r2": 0.0,
+  "final_rmse": 0.3303548597089701,
+  "final_mae": 0.2941111111111114
+}

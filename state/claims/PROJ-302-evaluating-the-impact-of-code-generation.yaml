@@ -1701,3 +1701,35 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-24T15:28:39Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/docs/quickstart.md
+  attempts: 1
+  canonical: runtime total less than or equal to 6 hours
+  claim_id: c_190b49e2
+  context: The validation checklist includes a check that the runtime report shows
+    total <= 6 h.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: '`data/processed/runtime_report.json` shows total <= 6 h.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T16:20:12Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/docs/quickstart.md
+  attempts: 1
+  canonical: all standardized mean differences less than 0.1
+  claim_id: c_66ab34f0
+  context: The validation checklist includes a check that the covariate balance file
+    shows all SMD < 0.1.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: '`data/processed/covariate_balance.json` shows all SMD < 0.1.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T16:20:12Z'

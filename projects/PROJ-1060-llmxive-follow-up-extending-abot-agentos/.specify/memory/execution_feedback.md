@@ -15,11 +15,11 @@ The gate detected that your reported numbers are NOT real measurements: they are
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
 - run-book command: `python code/data_loader.py --download --dataset alfworld/alfworld`
-  - script usage: `data_loader.py [-h] [--sample SAMPLE]`
-  - argparse error: `data_loader.py: error: unrecognized arguments: --download --dataset alfworld/alfworld`
+  - script usage: `data_loader.py [-h] {download,verify,sample} ...`
+  - argparse error: `data_loader.py: error: argument command: invalid choice: 'alfworld/alfworld' (choose from 'download', 'verify', 'sample')`
 - run-book command: `python code/data_loader.py --verify`
-  - script usage: `data_loader.py [-h] [--sample SAMPLE]`
-  - argparse error: `data_loader.py: error: unrecognized arguments: --verify`
+  - script usage: `data_loader.py [-h] {download,verify,sample} ...`
+  - argparse error: `data_loader.py: error: the following arguments are required: command`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
@@ -29,13 +29,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data_loader.py --download --dataset alfworld/alfworld -> rc=2
 
-usage: data_loader.py [-h] [--sample SAMPLE]
-data_loader.py: error: unrecognized arguments: --download --dataset alfworld/alfworld
+usage: data_loader.py [-h] {download,verify,sample} ...
+data_loader.py: error: argument command: invalid choice: 'alfworld/alfworld' (choose from 'download', 'verify', 'sample')
 
 - python code/data_loader.py --verify -> rc=2
 
-usage: data_loader.py [-h] [--sample SAMPLE]
-data_loader.py: error: unrecognized arguments: --verify
+usage: data_loader.py [-h] {download,verify,sample} ...
+data_loader.py: error: the following arguments are required: command
 
 - python code/main.py --config config/default.yaml -> rc=1
 
@@ -54,9 +54,11 @@ Traceback (most recent call last):
 NameError: name 'Dict' is not defined. Did you mean: 'dict'?
 
 - python code/experiment_runner.py --mode baseline-only -> rc=1
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/code/data_loader.py", line 41, in stream_alfworld_traces
+-abot-agentos/code/data_loader.py", line 110, in load_traces_as_list
+    for trace in stream_alfworld_traces(
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/code/data_loader.py", line 84, in stream_alfworld_traces
     raise RuntimeError(
-RuntimeError: Failed to load ALFWorld traces from remote or local sources. Error: pyarrow requires NumPy 2.0 or newer, found 1.26.4. Please ensure 'data/raw/' contains valid trace files or 'datasets' package is installed with network access.
+RuntimeError: Checksum verification failed for local file data/raw/alfworld_traces.json. Delete the corrupted file and re‑download.
 
 During handling of the above exception, another exception occurred:
 

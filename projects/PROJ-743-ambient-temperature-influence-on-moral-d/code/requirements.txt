@@ -1,14 +1,1 @@
-pandas
-numpy
-scikit-learn
-statsmodels
 cdsapi
-pyarrow
-geopandas
-matplotlib
-seaborn
-geopy
-shapely
-ruff
-black
-requests

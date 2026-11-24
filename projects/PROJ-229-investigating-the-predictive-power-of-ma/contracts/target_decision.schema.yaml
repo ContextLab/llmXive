@@ -35,4 +35,4 @@ properties:
     type: boolean
     description: |
       Indicates whether the decision fell back to the proxy target due to
-      insufficient data for the primary target.<|endoftext|>
+      insufficient data for the primary target.

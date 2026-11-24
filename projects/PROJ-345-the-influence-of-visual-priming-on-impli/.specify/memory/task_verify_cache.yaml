@@ -1,3 +1,10 @@
+T001:
+  c: true
+  h: b0d932dba33c8787e47c791208751f4e269e80b4351e1be5b4678d900fb56f8e
+  r: Checked the pytest run (`tests/test_create_core_dirs.py`) which passed, confirming
+    the four directories exist, and the script log (`code/create_core_dirs.py`) showing
+    it created/ensured `data/raw`, `data/processed`, `data/primes`, and `data/targets`.
+  sig: 5f86e3ef62ca1a5fdc8567c81695644445e17dfe32f9f3518ccc05a1881724ee
 T004:
   c: false
   h: a35067f29585011c6b532fbfd507089b1ad3341e1325e2fd326889965c17a987
@@ -33,13 +40,6 @@ T012:
   r: "The required file `tests/integration/test_ingest_integration.py` is missing\
     \ from the repository, so no integration test for missing image handling exists.\
     \ The task\u2019s primary artifact is absent, making the claim unsubstantiated."
-T022b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or output artifacts were provided; the claim contains only a\
-    \ description of user stories unrelated to the \u201CHuman\u2011Rated Ambiguity\
-    \ Verification Gate\u201D task, and there is no evidence that any required script,\
-    \ model, or report was created. The required deliverables are missing."
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -62,24 +62,3 @@ T037:
     \ valence\u201D limitation. Without a tangible artifact containing those statements,\
     \ the task is not satisfied. The next implementer must supply the final report\
     \ (e.g., PDF or markdown) where these limitations are clearly mentioned."
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or documentation demonstrating that data chunking/sampling logic\
-    \ has been optimized to handle >7\u202FGB datasets is present; the only artifacts\
-    \ described relate to data ingestion, modeling, and reporting, not to performance\
-    \ optimization. The required performance\u2011related artifact is missing."
-T042:
-  c: false
-  h: 2b9b35add2f9dfbea2bfc07cb69b238e335f2cfeb60c42781064c8956ca05795
-  r: The required output file `reports/pii_scan.json` does not exist, and the provided
-    `code/main.py` is truncated (ends abruptly at `ensure_direct`) indicating the
-    implementation is incomplete and cannot generate the expected JSON report. Consequently
-    the verification step cannot be satisfied.
-T043:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `quickstart.md` validation run is provided\u2014there are no\
-    \ logs, reports, or any artifact showing that the quickstart instructions were\
-    \ executed and reproduced end\u2011to\u2011end. Consequently the requirement is\
-    \ not satisfied."

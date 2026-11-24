@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `task-format` (rejected 1x): Tasker produced only 0 task IDs (need >= 5; total chars: 12044). Regenerate the complete tasks.md as canonical '- [ ] T### description' checkbox items, not task tables or fenced examples. Preserve every scientific requirement, path and verification step; do not add empty tasks or discard requirements to satisfy the format.
+- `T002` (rejected 1x): Requested task execution failed; rerun successfully: code/ingestion/verify_data.py exit=1
 
 ## Required change
 

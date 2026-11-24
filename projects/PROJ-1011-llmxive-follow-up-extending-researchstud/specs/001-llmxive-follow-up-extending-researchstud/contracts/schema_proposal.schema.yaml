@@ -33,9 +33,17 @@ properties:
         type: string
         format: date-time
         description: "Generation timestamp"
+      token_count:
+        type: integer
+        description: "Length covariate recorded at generation time"
+      generation_time_seconds:
+        type: number
+        description: "Wall-clock generation time"
     required:
       - model
       - timestamp
+      - token_count
+      - generation_time_seconds
 required:
   - id
   - problem_statement_id

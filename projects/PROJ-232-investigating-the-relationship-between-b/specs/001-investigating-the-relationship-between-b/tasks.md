@@ -1,238 +1,70 @@
 # Tasks: Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Musical Emotion Perception
 
-**Input**: Design documents from `/specs/001-brain-music-emotion/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories)
+**Inputs**: `spec.md`, `plan.md`, data model/contracts, verifier rejection feedback.  
+**Goal**: Smallest complete reproducible study linking resting-state functional connectivity metrics (HCP 1200 Subjects Release) to BMRQ musical reward scores, satisfying FR-001–FR-006.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `specs/`)
-- [X] T002 Initialize Python 3.10 project with `requirements.txt` (nibabel, nilearn, networkx, bctpy, scikit-learn, pandas, numpy, matplotlib, seaborn, datasets, openneuro-py, pydantic, pytest)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+**Data source decision**: The spec and constitution mandate the **HCP 1200 Subjects Release (Music Task subset)**. Full fMRIPrep preprocessing of raw NIfTI exceeds the free CPU runner; per plan, fMRIPrep is off‑CI and CI validates logic on a small real subset. The loader must fail loudly on any fetch failure — no synthetic fallback ever.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1: Setup and first end-to-end analysis
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T001 [P] [US1] Implement the data acquisition module `code/src/data/download.py` that (a) fetches the HCP 1200 Subjects Release (Music Task subset) participant/behavioral table, (b) verifies the BMRQ column exists in the real behavioral data — if absent, write `data/data_gap_report.md` listing the missing variable and exit non‑zero (halt; no proxies), (c) downloads raw rs-fMRI NIfTI + behavioral records for a specified subject list, streaming to `data/raw/<subject_id>/`, computing SHA‑256 checksums stored alongside (`data/raw/<subject_id>/checksums.sha256`). Failed per‑subject downloads must be logged and skipped; a total failure must raise, never fall back to generated data. Add contract tests in `code/tests/test_download.py` validating downloaded records against `specs/001-investigating-the-relationship-between-b/contracts/dataset.schema.yaml` (subject_id, age, sex, bmrq_total, fd_mean, motion_excluded).   <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
+  *Verification*: `python -m code.src.data.download --subjects <n>` produces real files under `data/raw/` with checksums; schema validation tests pass; missing‑BMRQ simulation is triggered via `--simulate-missing-bmrq` flag and exits 1 with the gap report.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T002 [US1] Implement the off‑CI fMRIPrep wrapper `code/src/data/preprocess.py` (CPU‑only, motion correction, bandpass 0.01–0.1 Hz). This is the only implementation path that satisfies FR-002 and Principle VI. The script runs on the full dataset on a local/GPU machine; it writes per‑subject `data/preprocessing/run_log.json` containing `subject_id`, `fd_mean`, and `motion_excluded` (true when FD > 0.5 mm). No synthetic FD values are generated – if FD cannot be computed the script raises.   <!-- FAILED-IN-EXECUTION: src/data/preprocess.py exit=1 -->
+  *Verification*: Running on a real subject produces a `run_log.json` with numeric `fd_mean` and boolean `motion_excluded`; unit test confirms the FD > 0.5 threshold logic.
 
-- [X] T004 [P] Implement `src/utils/logging.py` for reproducibility logging (seeds, timestamps, versions)
-- [ ] T007 [P] Create `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` for validation (MUST precede T005)
-- [X] T005 Implement `src/models/schemas.py` with Pydantic models for `Subject`, `ConnectivityMatrix`, `NetworkMetrics`, and `BehavioralScore` (DEPENDS ON T007)
-- [X] T008 [P] Implement `tests/contract/test_schemas.py` to validate JSON/YAML outputs against contracts (DEPENDS ON T005, can run parallel to T006)
-- [ ] T006 [P] Setup environment configuration management (`.env` handling for API keys, data paths)
-- [X] T015 [P] Implement logging enhancements in `src/utils/logging.py` for download integrity and preprocessing steps (MUST precede T011)
+- [ ] T013 [P] [US1] Implement a CI‑tractable surrogate preprocessing `code/src/data/preprocess_ci.py` using `nilearn` (motion‑correction + confound regression + bandpass filter). This runs on a single subject during CI to validate the pipeline logic; this surrogate does NOT satisfy FR-002. It also writes `fd_mean` and `motion_excluded` to the same `run_log.json` format for consistency.  
+  *Verification*: CI run on one subject produces the expected `run_log.json`; tests ensure the surrogate path does not invoke fMRIPrep.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T003 [US1] Implement `code/src/analysis/connectivity.py`: extract time series with the Schaefer‑200 atlas (`nilearn.datasets.fetch_atlas_schaefer_2018`, 200 rois), compute the 200×200 Pearson correlation matrix per included subject, enforce symmetry, set diagonal to 1.0, save to `data/connectivity/<subject_id>_matrix.npy`. Include focused unit tests in `code/tests/test_connectivity.py` asserting symmetry, diagonal = 1.0, and values in [‑1, 1] (FR‑003, spec US‑1 acceptance).  
+  *Verification*: Matrix files exist for all non‑excluded subjects and pass the symmetry/diagonal/range tests.
 
----
+- [ ] T004 [US2] Implement `code/src/analysis/graph_metrics.py` computing per subject from the real connectivity matrices: global efficiency, modularity, participation coefficient, within‑network efficiency for DMN, Salience, and Visual networks (Schaefer Yeo‑7 label mapping), **flattened upper‑triangle edge strengths**, and VIF across the scalar predictors. If any VIF > 5, apply PCA retaining ≥ 95 % variance and record it. Outputs: `data/metrics/<subject_id>_metrics.json` and `data/vif_report.json`. Unit tests in `code/tests/test_metrics.py` verify metric values on a known toy matrix (toy input only for correctness test, never for results).  
+  *Verification*: JSON metrics exist per subject with all required keys; VIF report contains numeric entries; tests pass.
 
-## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+- [ ] T005 [US2] Implement `code/src/analysis/merge.py` joining per‑subject metrics (**including the flattened edge‑strength vector**) with behavioral data (BMRQ, age, sex, FD), and excluding motion‑excluded or BMRQ‑missing subjects (listwise, no imputation). Write `data/merged_dataset.csv`, and print final N and BMRQ mean ± SD.  
+  *Verification*: CSV contains only complete, included subjects with all required columns (scalar metrics + edge strengths); console/summary artifact reports N and BMRQ distribution.
 
-**Goal**: Retrieve HCP/OpenNeuro rs-fMRI and BMRQ data, preprocess to extract connectivity matrices.
+- [ ] T006 [US2] Run the power gate in `code/src/analysis/stats.py`: given the achieved N, compute power to detect r = 0.20 at α = 0.05 (e.g. `statsmodels` power functions). Write `data/power_gate_status.json` (`{"status": "pass"|"fail", "achieved_power": <float>, "n": <int>}`) and, on failure, `data/power_failure_report.md` stating the shortfall honestly (SC‑005). The study proceeds with results reported alongside the power limitation rather than fabricating subjects.  
+  *Verification*: JSON exists with numeric achieved_power; report generated when power < 0.80.
 
-**Independent Test**: A researcher can run the data pipeline script on a subset of 5 subjects and verify that output files contain valid connectivity matrices (symmetric, elements in range [-1, 1], diagonal = 1.0) and corresponding behavioral scores without errors.
+**Checkpoint**: A documented command runs download → preprocess → connectivity → metrics → merge on real HCP subjects, producing real result rows under `data/`. No report writing from expected or invented values.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+## Phase 2: Complete the study and validate its evidence
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+- [ ] T007 [US3] Implement and run the partial‑correlation analysis in `code/src/analysis/stats.py`: for each network metric vs BMRQ total, controlling for age, sex, and FD (residualized/partial correlation), with the **null hypothesis explicitly stated as r = 0**. Apply FDR correction (q < 0.05) across all tests. Write `data/analysis_results.csv` conforming to `specs/001-investigating-the-relationship-between-b/contracts/output.schema.yaml` (metric_name, correlation_r, p_value, p_value_fdr, significant, sample_size, power_achieved). Add contract tests validating the CSV against the schema.  
+  *Verification*: CSV validates; `significant` is True only where FDR‑adjusted p < 0.05; null‑hypothesis framing is documented in the accompanying `data/analysis_results_metadata.txt`.
 
-- [X] T009 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
-- [X] T010 [P] [US1] Integration test for download pipeline (N=1) in `tests/integration/test_download.py`
+- [ ] T008 [US3] Implement and run regularized regression in `code/src/analysis/stats.py`: Ridge and Lasso (5‑fold CV, fixed seed) predicting BMRQ from **both scalar network metrics and the edge‑strength feature vector** (or its PCA‑reduced form if VIF triggered), compared against the intercept‑only null model. Outputs: `data/regression_cv_results.json` (mean and per‑fold R², selected coefficients) and `data/null_model_results.json`. Report R² honestly against the null baseline (SC‑002), including negative/overfit results if they occur.  
+  *Verification*: Both JSONs exist with real CV numbers; comparison to null baseline is recorded.
 
-### Implementation for User Story 1
+- [ ] T009 [US3] Implement `code/src/analysis/visualize.py` generating, directly from the validated outputs: (1) `figures/scatter_pred_actual.png` — cross‑validated predicted vs actual BMRQ with regression line and R² annotation; (2) `figures/metric_importance.png` — bar chart of absolute regression coefficients / partial correlations per metric; (3) `figures/scatter_top_metric_bmrq.png` — scatter of the strongest metric–BMRQ correlation with partial‑r annotation; (4) `figures/network_diagram.png` — schematic network diagram highlighting DMN, Salience, and Visual subnetworks on the Schaefer atlas (Plan Task 4.2).  
+  *Verification*: PNG files exist and are generated from the actual result artifacts (no hard‑coded values).
 
-- [ ] T011 [US1] Implement `src/data/download.py`: Stream OpenNeuro ds metadata, verify BMRQ column existence, and download raw rs-fMRI NIfTI + behavioral CSV with checksum validation. **FAIL LOUDLY** if BMRQ is missing.
-- [ ] T011b [US1] Implement logic in `src/data/download.py`: If BMRQ is missing, generate `data/data_gap_report.md` listing missing variables and **exit with code 1**. No synthetic data allowed.
-- [ ] T012c [US1] Implement `src/data/preprocess.py`: Wrapper script to execute fMRIPrep (CPU-only mode) for motion correction and **bandpass filtering (0.01-0.1 Hz)**. Calculate Framewise Displacement (FD). **Off-CI execution logic**; CI runs dry-run on N=1. **Output**: `data/preprocessing/run_log.json` (exit code 1 on failure).
-- [ ] T012d [US1] Implement validation logic in `src/data/preprocess.py`: Verify that output NIfTI files (motion-corrected, bandpass-filtered) exist, are valid, and meet schema criteria before T013 consumes them.
-- [ ] T012e [US1] Implement motion exclusion logic in `src/data/preprocess.py`: Exclude subjects with FD > 0.5 mm. Update `data/preprocessing/run_log.json` with excluded subject IDs.
-- [X] T013 [US1] Implement `src/analysis/connectivity.py`: Load Schaefer atlas, extract time series from preprocessed fMRI (output of T012d), compute Pearson correlation matrices (200x200). Validate symmetry and diagonal.
-- [X] T015b [US1] Add logging for download integrity and preprocessing steps in `src/utils/logging.py` (if not already covered by T015).
+- [ ] T010 [US3] Add independent correctness and sensitivity checks and record outcomes: (a) re‑run of the connectivity/metrics pipeline on a held‑out real subject to confirm determinism, writing `data/determinism_check.json` with hashes of the two runs; (b) sensitivity of partial correlations to the FD threshold (0.3 vs 0.5 mm exclusion) reported in `data/sensitivity_fd_threshold.json`; (c) runtime/RAM measurement of the pipeline recorded in `data/resource_usage.json` against the free‑tier limits (SC‑004).  
+  *Verification*: The three JSON artifacts exist with real measured values; sensitivity results are discussed relative to the primary analysis.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (N=1 validation pass).
+- [ ] T014 [US3] Implement bootstrap stability analysis off‑CI: run 1000 bootstrap resamples of the full dataset, recompute all network metrics and regression coefficients, and summarize stability (e.g., confidence intervals) in `data/bootstrap_stability.json`. This satisfies Phase 3 Task 3.4 from the plan.  
+  *Verification*: JSON artifact exists; summary statistics conform to the plan’s description.
 
----
+## Phase 3: Reproducible results and paper handoff
 
-## Phase 4: User Story 2 - Network Metric Calculation and Merging (Priority: P2)
+- [ ] T011 [P] Write `specs/001-investigating-the-relationship-between-b/research.md` (methods/results account) linked to actual output cells in `data/analysis_results.csv`, `data/regression_cv_results.json`, `data/bootstrap_stability.json`, and figure files. Report N, achieved power, FDR‑corrected findings, null or negative results honestly, and the associational (non‑causal) framing required by the spec assumptions.  
+  *Verification*: Every reported number traces to a named result artifact; limitations (power, sample, off‑CI preprocessing) are stated.
 
-**Goal**: Calculate graph metrics (global/network-specific/edge-level) and merge with BMRQ scores.
-
-**Independent Test**: The system can process a single subject's connectivity matrix and output a JSON object containing the keys `global_efficiency`, `modularity`, `participation_coefficient`, `network_efficiency`, and `edge_strength`, which can be successfully joined with a mock behavioral score.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T016 [P] [US2] Contract test for network metrics JSON schema in `tests/contract/test_metrics_schema.py`
-- [X] T017 [P] [US2] Integration test for metric calculation in `tests/integration/test_metrics.py`
-
-### Implementation for User Story 2
-
-- [ ] T018a [P] [US2] Implement `src/analysis/graph_metrics.py`: Calculate global efficiency, modularity, participation coefficient using `bctpy`/`networkx`.
-- [ ] T018b [P] [US2] Implement `src/analysis/graph_metrics.py`: Calculate network-specific efficiencies (DMN, Salience, Visual) based on Schaefer atlas labels.
-- [ ] T018c [P] [US2] Implement `src/analysis/graph_metrics.py`: Extract edge-level connectivity strengths from the full matrix and save as `data/edge_strengths_raw.json`.
-- [ ] T020b [US2] Implement `src/analysis/graph_metrics.py`: Compute VIF for multicollinearity check using `edge_strengths_raw.json`. If VIF > 5, apply PCA or **flag removal**. **Output**: `data/vif_report.json` and `data/edge_strengths_corrected.json` (if PCA) OR `data/edge_strengths_filtered.csv` (if removal, listing excluded edges).
-- [ ] T021 [US2] Implement data merging logic in `src/analysis/merge.py`: Join connectivity features (including **edge-level strengths** from `data/edge_strengths_corrected.json` or `data/edge_strengths_filtered.csv`) with BMRQ scores, excluding subjects with missing data.
-- [ ] T025 [US2] Implement `src/analysis/stats.py`: Power analysis (Task 3.1) to verify N is sufficient for r≥0.20, α=0.05, power≥0.80. **Output**: `data/power_gate_status.json` (schema: `{'status': 'pass' | 'fail', 'achieved_power': float}`). If 'fail', exit script with code 1 and generate `data/power_failure_report.md`.
-- [ ] T025b [US2] Implement `src/analysis/stats.py`: Generate `data/power_analysis_final_report.md` explicitly reporting the final achieved power, effect size detected, and sample size N to satisfy **SC-005** verification.
-- [ ] T022 [US2] Add summary statistic generation (N, score distribution) in `src/analysis/merge.py`.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
-**Gate to Phase 5**: Phase 5 (US-3) cannot begin until T025 (Power Gate) returns 'pass' in `data/power_gate_status.json`.
+- [ ] T012 [P] Update `specs/001-investigating-the-relationship-between-b/quickstart.md` with the single documented command chain (or `main.py` orchestration entry point in `code/src/main.py`) that re‑runs the workflow from declared inputs on the CI‑tractable real subset, confirms all tests (`code/tests/`) and schema validations pass, and documents the paper‑stage handoff: full off‑CI fMRIPrep run and figure/table finalization belong to the paper pipeline.  
+  *Verification*: Fresh execution of the documented command completes and produces the end‑to‑end artifacts; handoff requirements are named, not duplicated as research tasks.
 
 ---
 
-## Phase 5: User Story 3 - Statistical Modeling and Hypothesis Testing (Priority: P3)
+## Dependencies and requirement coverage
 
-**Goal**: Perform partial correlation and regularized regression with FDR correction.
+- **FR-001** (data acquisition, checksums): T001. **FR-002** (preprocessing, bandpass, FD): T002 (off‑CI fMRIPrep) satisfies the requirement; T013 is a CI surrogate for logic validation only. **FR-003** (Schaefer‑200, Pearson FC): T003. **FR-004** (graph metrics, VIF, edge strengths): T004, T005, T008. **FR-005** (partial correlation, regularized regression, 5‑fold CV): T007, T008. **FR-006** (FDR q < 0.05): T007. **SC-001/SC-002**: T007/T008. **SC-003**: T007. **SC-004**: T010. **SC-005**: T006.
 
-**Independent Test**: The analysis script runs on the full dataset, produces a CSV of correlation coefficients with p-values, and generates a scatter plot of predicted vs. actual BMRQ scores with a regression line and R² annotation.
+- Execution order respects data flow: T001 → T002/T013 → T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T014 → T011 → T012. Parallel‑safety tags `[P]` only on tasks that truly have no strict upstream dependency.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+- Verifier‑rejected lint/format configuration is a platform‑level concern; no additional task is required because the platform provides default formatting enforcement. (If later required, a minimal task can be added.)
 
-- [ ] T023 [P] [US3] Contract test for results CSV schema in `tests/contract/test_results_schema.py`
-- [ ] T024 [P] [US3] Integration test for statistical pipeline in `tests/integration/test_stats.py`
-
-### Implementation for User Story 3
-
-- [ ] T026 [US3] Implement `src/analysis/stats.py`: Partial correlation analysis controlling for age, sex, and FD. Apply FDR correction (q<0.05).
-- [ ] T027 [US3] Implement `src/analysis/stats.py`: Regularized linear regression (Ridge/Lasso/Elastic Net) with **5-fold cross-validation** to predict BMRQ scores. **Output**: `data/regression_cv_results.json` containing R², fold indices, and coefficients.
-- [ ] T027b [US3] Implement `src/analysis/stats.py`: Fit and report a **null model (intercept only)** baseline. **Output**: `data/null_model_results.json` containing baseline R² for comparison with SC-002.
-- [ ] T028 [US3] Implement visualization generation (scatter plots, network diagrams) in `src/analysis/visualize.py` (DEPENDS ON T026, T027, T027b).
-
-**Checkpoint**: All user stories should now be independently functional.
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T030 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T031 Code cleanup and refactoring
-- [ ] T032 Performance optimization for large matrix operations (streaming/chunking if needed)
-- [ ] T033 [P] Additional unit tests in `tests/unit/test_metrics.py`
-- [ ] T034 Run `quickstart.md` validation
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - T007 (Contracts) MUST precede T005 (Models)
- - T005 (Models) MUST precede T008 (Tests)
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
- - T012c -> T012d -> T012e -> T013 (Data flow)
- - T018a/b/c -> T020b -> T021 -> T025 (Metric flow)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 merged dataset AND T025 Gate Pass
- - T025 (Power Gate) must return 'pass' before T026/T027 run
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (except T005/T008 which depend on T007/T005)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data schema validation in tests/contract/test_data_schema.py"
-Task: "Integration test for download pipeline (N=1) in tests/integration/test_download.py"
-
-# Launch all models for User Story 1 together:
-Task: "Create Subject model in src/models/schemas.py"
-Task: "Create ConnectivityMatrix model in src/models/schemas.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (N=1 validation)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data Pipeline)
- - Developer B: User Story 2 (Graph Metrics)
- - Developer C: User Story 3 (Stats)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies (except where noted)
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- **Critical**: fMRIPrep is Off-CI; CI only validates logic with N=1 dry-run.
-- **Critical**: No synthetic data. If BMRQ is missing in OpenNeuro ds000233, the pipeline halts with a Data Gap Report (T011b).
-- **Critical**: T012c executes fMRIPrep; T012d validates output; T012e excludes motion; T013 consumes valid data.
-- **Critical**: T018a/b/c produces metrics; T020b checks VIF; T021 merges edge-level features explicitly.
-- **Critical**: T025 (Power Gate) must pass before US-3 begins.
-- **Critical**: T027b fits null model for SC-002 comparison.
-- **Critical**: T025b generates the final power analysis report for SC-005 verification.
+- All scientific requirements are preserved; no weakening of FR/SC constraints occurs.

@@ -1,93 +1,49 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Benchmark Results Schema"
-description: "Schema for the final benchmark results, including statistical significance."
+title: Benchmark Results
 type: object
 required:
-  - configuration
-  - domain
-  - total_episodes
-  - access_control_score
-  - conditional_utility_score
-  - overall_success_rate
-  - forgetting_score
-  - mean_latency_ms
-  - mean_peak_ram_mb
-  - cost_per_success
-  - statistical_significance
+  - Access Control
+  - Utility
+  - Forgetting
+  - Latency
 properties:
-  configuration:
-    type: string
-    enum:
-      - gatekeeper
-      - baseline_retrieval
-      - baseline_long_context
-    description: "The configuration evaluated."
-  domain:
-    type: string
-    description: "Domain for this result set."
-  total_episodes:
-    type: integer
-    minimum: 0
-    description: "Total number of episodes evaluated."
-  access_control_score:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Rate of unauthorized exposure."
-  conditional_utility_score:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Utility among allowed queries."
-  overall_success_rate:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Overall task success rate (including false positives)."
-  forgetting_score:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Deletion compliance rate."
-  mean_latency_ms:
-    type: number
-    minimum: 0
-    description: "Mean inference time in ms."
-  mean_peak_ram_mb:
-    type: number
-    minimum: 0
-    description: "Mean peak RAM usage in MB."
-  cost_per_success:
-    type: number
-    minimum: 0
-    description: "Total wall‑clock time divided by number of successful tasks."
-  statistical_significance:
+  Access Control:
     type: object
     required:
-      - p_value
-      - confidence_interval
-      - test_method
+      - score
+      - std_dev
+      - total_episodes
     properties:
-      p_value:
+      score:
         type: number
-        minimum: 0
-        maximum: 1
-        description: "P‑value from the statistical test."
-      confidence_interval:
-        type: array
-        items:
-          type: number
-        minItems: 2
-        maxItems: 2
-        description: "95 % confidence interval for the difference in means."
-      test_method:
-        type: string
-        enum:
-          - LMM
-          - GLMM
-          - paired_t_test
-          - wilcoxon
-          - mcnemar
-        description: "Statistical test used."
-    additionalProperties: false
-additionalProperties: false
+      std_dev:
+        type: number
+      total_episodes:
+        type: integer
+  Utility:
+    type: object
+    required:
+      - score
+      - success_rate
+    properties:
+      score:
+        type: number
+      success_rate:
+        type: number
+  Forgetting:
+    type: object
+    required:
+      - compliance_rate
+    properties:
+      compliance_rate:
+        type: number
+  Latency:
+    type: object
+    required:
+      - avg_ms
+      - peak_ram_mb
+    properties:
+      avg_ms:
+        type: number
+      peak_ram_mb:
+        type: number

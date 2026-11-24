@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GeneratedOutput"
+type: object
+required:
+  - commit_hash
+  - model_id
+  - generated_text
+  - generation_time_s
+  - status
+properties:
+  commit_hash:
+    type: string
+    pattern: "^[0-9a-f]{40}$"
+    description: "FK to CommitPair.commit_hash."
+  model_id:
+    type: string
+    enum: ["phi3-mini", "gemma2-2b", "llama3.2-3b"]
+    description: "Identifier of the LLM used."
+  generated_text:
+    type: string
+    minLength: 1
+    description: "Full documentation update produced by the LLM."
+  generation_time_s:
+    type: number
+    minimum: 0
+    description: "Wall‑clock seconds spent generating."
+  status:
+    type: string
+    enum: ["success", "generation_failed"]
+    description: "Generation outcome."
+  log:
+    type: string
+    description: "Optional error or retry log."
+additionalProperties: false

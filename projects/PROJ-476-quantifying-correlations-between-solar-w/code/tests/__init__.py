@@ -1,1 +1,1 @@
-# Test package initialization
+"""Test subpackage."""

@@ -1,24 +1,20 @@
 #!/bin/bash
-# Pre-run validation script for llmXive project PROJ-712
-# Implements Constitution Principle II: Verified Accuracy
-# Checks for required citations before pipeline execution
+# Pre-run validation script for llmXive project PROJ-712.
+# Ensures that all required citations are present in CITATIONS.bib
+# before the pipeline runs. Exits non-zero if any citation is missing.
 
 set -e
 
-# Determine project root (assuming script is in scripts/)
+# Resolve the project root relative to this script's directory
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
 echo "=== Pre-run Validation ==="
 echo "Project Root: $PROJECT_ROOT"
 
-# Validate citations using the utils module
-echo "Checking citations..."
+# Invoke the citation validation logic in code/utils.py.
+# The python command exits with 0 if all citations are present,
+# and 1 if any are missing, satisfying the task requirement.
 python -m code.utils --validate-citations
 
-if [ $? -eq 0 ]; then
-    echo "Validation successful. All checks passed."
-else
-    echo "Validation failed. Aborting pipeline execution."
-    exit 1
-fi
+echo "Pre-run validation passed."

@@ -1,14 +1,12 @@
-code
 code/analysis
 code/data_ingestion
 code/scoring
 code/statistics
 code/utils
-data
+code/visualization
 data/derived
 data/raw
 data/results
-tests
 tests/contract
 tests/integration
 tests/unit

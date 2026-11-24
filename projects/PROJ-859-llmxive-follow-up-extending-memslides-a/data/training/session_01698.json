@@ -1,0 +1,72 @@
+{
+  "trace_id": "training_42_01698",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 6,
+  "tool_sequence": [
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "format_text",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 67.1431
+      }
+    },
+    {
+      "step": 1,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 15.2143
+      }
+    },
+    {
+      "step": 2,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 80.6736
+      }
+    },
+    {
+      "step": 3,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 8.7382
+      }
+    },
+    {
+      "step": 4,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 62.9938,
+        "x": 92.4163,
+        "y": 18.8504
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 99.4982,
+        "y": 51.5509,
+        "length": 22.0264
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.867563,
+    "tool_repetition_freq": 0.5,
+    "arg_semantic_variance": 1028.411413
+  },
+  "final_state": {
+    "dominant_tool": "delete_element",
+    "slide_element_count": 3,
+    "layout_hash": "42-1698-delete_element"
+  }
+}

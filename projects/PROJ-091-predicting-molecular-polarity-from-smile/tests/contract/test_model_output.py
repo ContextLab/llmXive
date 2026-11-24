@@ -1,123 +1,35 @@
 """
-Contract tests for the model output schema (ModelOutput).
-Validates that the prediction artifacts adhere to the expected schema:
-- 'smiles': str
-- 'prediction': float
-- 'shap_value': float
+Contract test for the model output metrics artifact.
+Verifies that data/results/model_metrics.json exists and conforms
+to the ModelOutput Pydantic schema.
 """
 import pytest
-import pandas as pd
-from pydantic import BaseModel, field_validator, ValidationError
-from typing import List, Dict, Any
+import json
+from pathlib import Path
+from tests.contract.validators import ModelOutput
 
-# --- Pydantic Model Definition ---
+# Define the path to the expected model metrics artifact
+# Based on tasks.md T104 and plan.md
+MODEL_METRICS_JSON = Path("data/results/model_metrics.json")
 
-class ModelOutput(BaseModel):
+def test_model_metrics_schema():
     """
-    Pydantic model representing a single model prediction output.
-    Enforces:
-    - 'smiles' is a string
-    - 'prediction' is a float
-    - 'shap_value' is a float
+    Validate that the model metrics JSON exists and contains 
+    the required metrics (R2, RMSE, baseline_R2) with valid values.
     """
-    smiles: str
-    prediction: float
-    shap_value: float
+    # 1. Check existence
+    if not MODEL_METRICS_JSON.exists():
+        pytest.fail(f"Required artifact missing: {MODEL_METRICS_JSON}")
 
-    @field_validator('prediction', 'shap_value', mode='before')
-    @classmethod
-    def ensure_float(cls, v):
-        if v is None:
-            raise ValueError('Numeric field cannot be None')
+    # 2. Load JSON data
+    with open(MODEL_METRICS_JSON, "r", encoding="utf-8") as f:
         try:
-            return float(v)
-        except (TypeError, ValueError):
-            raise ValueError(f"Field must be numeric, got {type(v)}")
+            data = json.load(f)
+        except json.JSONDecodeError as e:
+            pytest.fail(f"Failed to decode JSON from {MODEL_METRICS_JSON}: {e}")
 
-# --- Test Functions ---
-
-def test_valid_model_output():
-    """Test that a valid output row passes validation."""
-    data = {
-        'smiles': 'CCO',
-        'prediction': 1.5,
-        'shap_value': 0.25
-    }
-    row = ModelOutput(**data)
-    assert row.smiles == 'CCO'
-    assert row.prediction == 1.5
-    assert row.shap_value == 0.25
-
-def test_missing_required_field():
-    """Test that missing 'smiles' raises ValidationError."""
-    data = {
-        'prediction': 1.5,
-        'shap_value': 0.25
-    }
-    with pytest.raises(ValidationError):
+    # 3. Validate against Pydantic model
+    try:
         ModelOutput(**data)
-
-def test_missing_prediction():
-    """Test that missing 'prediction' raises ValidationError."""
-    data = {
-        'smiles': 'CCO',
-        'shap_value': 0.25
-    }
-    with pytest.raises(ValidationError):
-        ModelOutput(**data)
-
-def test_missing_shap_value():
-    """Test that missing 'shap_value' raises ValidationError."""
-    data = {
-        'smiles': 'CCO',
-        'prediction': 1.5
-    }
-    with pytest.raises(ValidationError):
-        ModelOutput(**data)
-
-def test_invalid_prediction_type():
-    """Test that non-numeric prediction raises ValidationError."""
-    data = {
-        'smiles': 'CCO',
-        'prediction': 'invalid',
-        'shap_value': 0.25
-    }
-    with pytest.raises(ValidationError):
-        ModelOutput(**data)
-
-def test_invalid_shap_type():
-    """Test that non-numeric shap_value raises ValidationError."""
-    data = {
-        'smiles': 'CCO',
-        'prediction': 1.5,
-        'shap_value': 'invalid'
-    }
-    with pytest.raises(ValidationError):
-        ModelOutput(**data)
-
-def test_pandas_dataframe_validation():
-    """
-    Test validation against a pandas DataFrame row.
-    """
-    df = pd.DataFrame([{
-        'smiles': 'CCO',
-        'prediction': 1.5,
-        'shap_value': 0.25
-    }])
-
-    for _, row_dict in df.iterrows():
-        try:
-            ModelOutput(**row_dict.to_dict())
-        except ValidationError as e:
-            pytest.fail(f"Validation failed for valid data: {e}")
-
-    # Validate invalid row
-    df_invalid = pd.DataFrame([{
-        'smiles': 'CCO',
-        'prediction': 'bad',
-        'shap_value': 0.25
-    }])
-
-    for _, row_dict in df_invalid.iterrows():
-        with pytest.raises(ValidationError):
-            ModelOutput(**row_dict.to_dict())
+    except Exception as e:
+        pytest.fail(f"Model metrics failed schema validation: {e}")

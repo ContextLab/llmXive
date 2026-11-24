@@ -1,3 +1,4 @@
+# Project dependencies
 numpy
 scipy
 torch==2.1.0+cpu --index-url https://download.pytorch.org/whl/cpu
@@ -6,6 +7,4 @@ pandas
 pyarrow
 pytest
 matplotlib
-pyyaml
-tomli  # auto-added: imported by run-book but missing from venv
-tomli_w  # auto-added: imported by run-book but missing from venv
+# llmxive_toolkit is provided by the environment

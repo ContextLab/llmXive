@@ -1,2 +1,1 @@
-# Package initialization for data module
-pass
+"""Data acquisition and preprocessing scripts."""

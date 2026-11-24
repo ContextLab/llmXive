@@ -28,7 +28,7 @@ All phases are orchestrated via `code/src/main.py`. Use the `--phase` flag to ru
 |-------|---------|-------------|
 | **0** | `python -m code.main --config config.yaml` | Verify external URLs for dataset and model (Phase 0). |
 | **1** | `python -m code.main --phase data_load` | Streams the **verified CPU‑only benchmark parquet** dataset. |
-| **2** | `python -m code.main --phase model_load` | Loads the **tiny‑vae** model on CPU; if this fails, the GPU escape hatch will be triggered automatically. |
+| **2** | `python -m code.main --phase model_load` | Loads the **tiny-vae** model on CPU; if this fails, the GPU escape hatch will be triggered automatically. |
 | **3** | `python -m code.main --phase preprocess` | Applies the purity filter, computes confounder metadata, and writes `RawImageCrop` records. |
 | **4** | `python -m code.main --phase encode` | Encodes crops into `LatentVector` objects using tiny‑vae. |
 | **5** | `python -m code.main --phase disentangle` | Clustering, DCI computation, triviality check, and permutation test with Bonferroni correction. |
@@ -43,7 +43,7 @@ All phases are orchestrated via `code/src/main.py`. Use the `--phase` flag to ru
 > **Important**: The pipeline now uses **verified** open resources (benchmark parquet dataset and tiny‑vae model). No unverified Omni‑Doc‑1 or Qwen‑Image‑VAE‑2.0 resources are required. If either resource cannot be fetched, the script logs an error and aborts; the optional GPU fallback is only for the *model* loading step.
 
 ## Output Verification
-- `data/results/experiment_output.json` – conforms to `contracts/output.schema.yaml`. [UNRESOLVED-CLAIM: c_406f57ec — status=not_enough_info]
+- `data/results/experiment_output.json` – conforms to `contracts/output.schema.yaml`.
 - `data/results/metrics.json` – per‑metric values (populated only when resources are available).
 - `data/results/plots/` – PCA scatter plot, example edited images (if generated).
 

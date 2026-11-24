@@ -1,76 +1,105 @@
 # Quickstart: MobileForge Logic Distillation
 
-## 1. Prerequisites
-- Python 3.11+
-- Git
-- Access to a Linux environment (GitHub Actions or local Linux VM)
-- Sufficient free disk space is required.
+## Prerequisites
+- Python 3.11+  
+- Git  
+- Linux environment (local VM or GitHub Actions runner)  
+- Internet access (to fetch Python packages and, if available, MobileForge logs)
 
-## 2. Setup
+## Setup
 
-### 2.1 Clone and Install
 ```bash
+# Clone the repository
 git clone <repo-url>
-cd projects/930-llmxive-follow-up-extending-mobileforge/code/
-pip install -r requirements.txt
+cd projects/PROJ-930-llmxive-follow-up-extending-mobileforge
+
+# Install exact dependencies
+pip install -r code/requirements.txt
 ```
 
-### 2.2 Environment Configuration
-Set the following environment variables in `.env` or your shell:
+### Environment Variables
+Create a `.env` file or export manually:
+
 ```bash
-export DATASET_URL="" # Verified source
 export RANDOM_SEED=42
-export EVAL_TASKS_N=500 # Will be overwritten by power_analysis output
+# Provide MobileForge logs when they become available:
+# export MOBILEFORGE_LOGS_URL=""
 ```
 
-## 3. Execution Workflow
+## Execution Workflow
 
-### Step 1: Power Analysis (FR-007)
-Run the power analysis to determine the required sample size.
+### Step 0: Reproducibility Checklist
 ```bash
-python utils/power_analysis.py
-# Output: state/validated_n.json
+bash scripts/check_reproducibility.sh
+# Verifies seeds, artifact hashes, and that a full re‑run yields identical success rates (≤ 1 % variance).
 ```
-*Note: This step includes a pilot run to estimate baseline success rate (p0).*
 
-### Step 2: Data Extraction & Filtering (FR-001)
-Extract and filter the dataset.
+### Step 1: Data Download & Validation (FR‑001)
 ```bash
-python pipeline/extract.py
-# Output: data/processed/train_splits.parquet, data/processed/test_splits.parquet
+# Abort if MOBILEFORGE_LOGS_URL is unset
+python code/pipeline/download_mobileforge.py
+
+# Validate that all hints are purely linguistic
+python code/utils/validate.py
+# On success you will see "Validation passed: zero flagged hints."
 ```
 
-### Step 3: Feasibility Pilot & Training (FR-002, FR-008)
-Run a feasibility pilot (a small sample set) then full training.
+> **Important**: If no MobileForge logs are provided, the pipeline stops here with a clear error. An optional demonstration using the public ExtractionDataset parquet can be run (see Step 2) but does **not** replace the required logs.
+
+### Step 2: Optional Demonstration with Public ExtractionDataset
 ```bash
-python pipeline/train.py --pilot # Validates CPU feasibility
-python pipeline/train.py # Full training
-# Output: models/distilled_t5/
+python code/pipeline/extract.py \
+  --source https://huggingface.co/datasets/OSTShushack/ExtractionDataset/resolve/main/data/test-00000-of-00001.parquet \
+  --output-dir outputs/
 ```
-*Note: This script includes a check to abort if CUDA is detected.*
 
-### Step 4: Evaluation & Statistical Validation (FR-003, FR-005)
-Run evaluation against the baseline and perform McNemar's test.
+### Step 3: Power Analysis (FR‑007)
 ```bash
-python pipeline/evaluate.py
-# Output: state/evaluation_results.json
+python code/utils/power_analysis.py
+# Writes outputs/power_analysis.json
 ```
 
-### Step 5: Sensitivity & Ablation (FR-006, Constitution VII)
-Run sensitivity sweep and ablation study.
+### Step 4: Model Training (FR‑002, SC‑003)
 ```bash
-python pipeline/evaluate.py --mode sensitivity
-python pipeline/evaluate.py --mode ablation
+# Quick sanity check (optional)
+python code/pipeline/train.py --pilot
+
+# Full training (will abort if >6 h or if CUDA is detected)
+python code/pipeline/train.py
+# Model checkpoint saved to code/models/distilled_distilbert/
 ```
 
-## 4. Verification
-Run the test suite to ensure all contracts are met.
+### Step 5: Pilot Evaluation (CI Feasibility Check)
+```bash
+# Runs the full evaluation pipeline on a reduced set of tasks (multiple runs each)
+python code/pipeline/evaluate.py --mode pilot
+# Generates outputs/pilot_evaluation.json
+```
+
+### Step 6: Full Offline Evaluation (FR‑003‑005)
+*Run on a dedicated compute node (outside CI). The same command works locally:*
+```bash
+python code/pipeline/evaluate.py --mode standard
+# Generates outputs/evaluation_results.json (primary McNemar + supplemental t‑test)
+```
+
+### Step 7: Sensitivity Sweep
+*Performed automatically inside `evaluate.py`; results are embedded in `evaluation_results.json`.*
+
+### Step 8: Hint‑Specific Ablation (Constitution VII, SC‑007)
+```bash
+python code/pipeline/evaluate.py --mode ablation
+# Ablation results merged into the same evaluation_results.json; must achieve p < 0.05 (McNemar).
+```
+
+### Step 9: Verification
 ```bash
 pytest tests/
+# Runs unit, integration, and contract tests (including JSON‑Schema validation).
 ```
 
-## 5. Troubleshooting
-- **CUDA Detected**: If training fails with a CUDA error, ensure `CUDA_VISIBLE_DEVICES=""` is set.
-- **Memory Error**: Reduce batch size in `pipeline/train.py`.
-- **Missing Data**: Ensure `DATASET_URL` is accessible and the file is not corrupted.
-- **Power Analysis Fallback**: If pilot data is unavailable, the script defaults to p0=0.5.
+## Troubleshooting
+- **Missing MobileForge logs**: Step 1 aborts with a clear message. Provide a valid `MOBILEFORGE_LOGS_URL` or wait for a spec revision.  
+- **Training exceeds 6 h**: Watchdog will kill the process; reduce `--max-epochs` or the training subset size.  
+- **CUDA detected**: Ensure `CUDA_VISIBLE_DEVICES=""` or run on a pure‑CPU runner.  
+- **Checksum mismatch**: Re‑run the download step; the script will re‑download corrupted files.  

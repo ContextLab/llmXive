@@ -1,127 +1,78 @@
-# Quickstart Guide: Predicting the Influence of Composition on the Thermal Expansion of Metallic Glasses
+# Quickstart: Predicting the Influence of Composition on the Thermal Expansion of Metallic Glasses
 
-This guide provides instructions for setting up the environment, configuring API keys, and running the full pipeline to generate thermal expansion predictions for metallic glasses.
+## Overview
+
+This guide shows how to run a **minimal end‑to‑end** version of the research pipeline on a small
+subset (the first 100 rows) of the curated metallic‑glass CSV. The command produces
+`results/sample_output.parquet`, which contains all columns required by the
+`mg_dataset.schema.yaml` contract and passes JSON‑Schema validation.
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- `pip` package manager
-- API Keys for external data sources (see below)
-
-## 1. Installation
-
-Clone the repository and install dependencies:
+1. **Python 3.11** (or use the provided `requirements.txt`).
+2. A free **Materials Project API key** (required only for the full pipeline; the quick‑start
+ does **not** contact external APIs). Export it in your shell:
 
 ```bash
-cd PROJ-375-predicting-the-influence-of-composition-
-pip install -r code/requirements.txt
+export MP_API_KEY="YOUR_API_KEY"
 ```
 
-**Note:** The `requirements.txt` includes `ruff` for linting, `mendeleev` for elemental properties, and `scikit-learn` for modeling.
-
-## 2. Environment Configuration
-
-The pipeline requires API keys for data sources. Set these as environment variables before running the scripts.
-
-### Required API Keys
-
-- **Materials Project**: `MP_API_KEY`
- - Get your key at: https://next-gen.materialsproject.org/api
-- **AFLOWlib**: `AFLOWlib_API_KEY` (Optional, used as primary source)
- - Get your key at:
-- **Zenodo Fallback**: `ZENODO_ID` (Optional, defaults to '1234567' if not set)
-
-### Setting Environment Variables
-
-**Linux/macOS:**
-```bash
-export MP_API_KEY="your_materials_project_key"
-export AFLOWlib_API_KEY="your_aflow_key"
-export ZENODO_ID="your_zenodo_dataset_id"
-```
-
-**Windows (PowerShell):**
-```powershell
-$env:MP_API_KEY="your_materials_project_key"
-$env:AFLOWlib_API_KEY="your_aflow_key"
-$env:ZENODO_ID="your_zenodo_dataset_id"
-```
-
-## 3. Running the Pipeline
-
-The pipeline is executed via the main training script which orchestrates data ingestion, feature extraction, model training, and evaluation.
+## Installation
 
 ```bash
-python code/main.py
+git clone <repository-url>
+cd <repo-root>
+python -m venv.venv
+source.venv/bin/activate # Windows:.venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-If `code/main.py` is not present as a single entry point, run the stages sequentially:
-
-### Stage 1: Data Ingestion
-```bash
-python code/ingestion/fetch_data.py
-```
-*Output:* `data/raw/mp_afraw.csv`
-
-### Stage 2: Feature Extraction & Cleaning
-```bash
-python code/ingestion/save_clean_data.py
-```
-*Output:* `data/processed/clean_mg_data.parquet`
-
-### Stage 3: Model Training & Evaluation
-```bash
-python code/modeling/train.py
-```
-*Output:* `code/models/`, `results/metrics.json`, `results/feature_importance.csv`
-
-## 4. Expected Outputs
-
-Upon successful completion, the following artifacts will be generated:
-
-- **Raw Data:** `data/raw/mp_afraw.csv` (Composition, CTE, Amorphous Flag)
-- **Processed Data:** `data/processed/clean_mg_data.parquet` (With calculated descriptors)
-- **Models:** `code/models/` (Serialized `.pkl` files and metadata)
-- **Metrics:** `results/metrics.json` (R², MAE, RMSE, Permutation P-value, Divergence Analysis)
-- **Feature Importance:** `results/feature_importance.csv`
-- **Correlations:** `results/correlations.csv`
-- **Divergence Analysis:** `results/divergence.csv`
-
-### Example Output Snippet (`results/metrics.json`)
-
-```json
-{
- "baseline_type": "null_model",
- "spec_root_cause_SC001": "elemental_cte_data_unavailable",
- "r2_score": 0.65,
- "mae": 1.2e-5,
- "rmse": 1.5e-5,
- "permutation_p_value": 0.001,
- "sc003_divergence_metric": 0.85,
- "sc003_interpretation": "non_linear_effects_detected",
- "spec_root_cause_SC003": "linear_match_unsound_for_nonlinear_models",
- "vif_warning": "High VIF detected for size_mismatch (VIF=6.2) - retained per FR-002",
- "runtime_seconds": 120.5,
- "peak_memory_mb": 2500
-}
-```
-
-## 5. Validation
-
-To validate the pipeline setup without running the full training (e.g., if data is already present):
+## Run the minimal pipeline
 
 ```bash
-python code/main.py --validate
+python -m pipeline.run --sample 100
 ```
 
-This checks for the existence of required directories, valid API keys, and schema compliance of existing data files.
+The script will:
 
-## 6. Troubleshooting
+1. Load `data/raw/curated_metallic_glass.csv`. If the file is missing it will be
+ automatically downloaded from a verified public repository.
+2. Keep only the first *N* rows (`N` defaults to 100, can be changed with `--sample`).
+3. Compute the four compositional descriptors:
+ - `weighted_mean_atomic_radius`
+ - `electronegativity_variance`
+ - `vec` (valence‑electron concentration)
+ - `atomic_size_coefficient_of_variation`
+4. Map these to the primary dataset schema (`mean_atomic_radius`, etc.) and set `amorphous_flag=True`.
+5. Add a per‑row SHA‑256 `checksum` for provenance.
+6. Write the enriched table to `results/sample_output.parquet`.
+7. Validate the table against the JSON‑Schema contract; the script exits with status 0
+ only if validation succeeds.
 
-- **DataFetchError:** If the script raises `DataFetchError: No valid metallic glass entries found`, ensure your API keys are correct and the `ZENODO_ID` is valid if using the fallback.
-- **Resource Limit Exceeded:** If `ResourceLimitExceeded` is raised, check that your system has sufficient RAM (limit: 7GB) and that `n_jobs` in `code/modeling/train.py` is set to 2 or fewer.
-- **Missing `mendeleev` Data:** If `mendeleev` fails to find an element, verify the composition strings in the raw data are valid chemical formulas (e.g., "Zr50Cu40Al10").
+## Verify the output
 
-## 7. Documentation
+```bash
+# Inspect the parquet file
+python - <<'PY'
+import pandas as pd
+df = pd.read_parquet('results/sample_output.parquet')
+print(df.head())
+print("Columns:", df.columns.tolist())
+PY
 
-For detailed research methodology and data source citations, refer to `docs/research.md`.
+# Schema validation (requires PyYAML and jsonschema)
+python - <<'PY'
+import yaml, jsonschema, pandas as pd
+with open('contracts/mg_dataset.schema.yaml') as f:
+ schema = yaml.safe_load(f)
+df = pd.read_parquet('results/sample_output.parquet')
+jsonschema.validate(instance=df.iloc[0].to_dict(), schema=schema)
+print("Schema validation passed.")
+PY
+```
+
+## Expected runtime & resources
+
+- **Wall‑clock time**: < 30 seconds (100 rows).
+- **Peak RAM**: < 200 MB.
+- **CPU cores**: 1 (the script does not spawn parallel workers).

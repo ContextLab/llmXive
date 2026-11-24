@@ -1,36 +1,37 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Task Schema
-description: Schema for validating generated task records in tasks.json
-type: object
+title: "TaskSchema"
+description: "Schema for synthetic task definitions in the Digital Colleague experiment."
+type: "object"
 properties:
   task_id:
-    type: string
-    description: Unique identifier for the task
+    type: "string"
+    description: "Unique identifier for the task."
   description:
-    type: string
-    description: Human-readable description of the task
-  ground_truth_path:
-    type: array
-    items:
-      type: string
-    description: Ordered list of skill IDs representing the ground-truth solution path
+    type: "string"
+    description: "Natural language description of the task."
   complexity:
-    type: integer
-    minimum: 1
-    description: Complexity score of the task
-  embedding_vector:
-    type: array
+    type: "integer"
+    minimum: 3
+    maximum: 5
+    description: "Number of steps in the solution path."
+  ground_truth_skills:
+    type: "array"
     items:
-      type: number
-    description: Pre-computed embedding vector for the task
-  edge_case:
-    type: boolean
-    default: false
-    description: Flag indicating if this task is a maximal overlap edge case
+      type: "string"
+    minItems: 3
+    maxItems: 5
+    description: "List of skill IDs required to solve the task."
+  solution_path:
+    type: "array"
+    items:
+      type: "string"
+    minItems: 3
+    maxItems: 5
+    description: "Ordered list of function calls representing the ground truth."
 required:
   - task_id
   - description
-  - ground_truth_path
   - complexity
-  - embedding_vector
+  - ground_truth_skills
+  - solution_path
 additionalProperties: false

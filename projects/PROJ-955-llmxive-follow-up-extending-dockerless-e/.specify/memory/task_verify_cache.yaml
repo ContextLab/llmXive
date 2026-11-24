@@ -1,0 +1,22 @@
+T001:
+  c: false
+  h: 398d9d7710d63d23c6a86097306aee5e9c9b7b15df9ce6c7fd826f0f430d0a1e
+  r: "The dry-run command works (exit 0, prints the sample path) and `data/results/sample_run.csv`\
+    \ exists with 4 rows, but two of the seven required directories \u2014 `interim/`\
+    \ and `features/` \u2014 are absent from the collected artifacts (only `data/`,\
+    \ `models/`, `reports/`, `src/pipeline/`, `src/cli/` were found). Additionally,\
+    \ `quickstart.md` documents several commands rather than the single dry-run command\
+    \ the verification specifies, though the dry-run itself is present and correct."
+  sig: af40c1c59d8940322e927b95863d617bf5ba9b5c4b0bb0a0d74c84bd9a4c55bc
+T014:
+  c: false
+  h: 4d193e24463c6e6a182ad1dcecd4c1728af82f8191082f43bda27274e4e7f85a
+  r: "The `ingest.py` extension code exists and implements the sampling logic (6 GB\
+    \ threshold, stratified 10% per origin/language, seed 42, mode report), but there\
+    \ is no evidence it was ever run: `reports/ingestion_mode.yaml` is missing entirely\
+    \ \u2014 the task requires it to record the ingestion mode regardless of whether\
+    \ full or sampled mode was used \u2014 and `data/patches_sample.csv` is absent\
+    \ (acceptable only if full mode ran, which the missing YAML disproves). The implementer\
+    \ must execute the ingestion (or a documented verification run) so that `reports/ingestion_mode.yaml`\
+    \ and the appropriate CSV are "
+  sig: cbd7f2762f680f4882b71f2ec56924c52e229c1b85faef815b12e621a22a731d

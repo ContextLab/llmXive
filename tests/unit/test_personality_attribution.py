@@ -124,9 +124,12 @@ class TestRunLogEntryShape:
             outcome=p.OUTCOME_COMMITTED,
             project_id="PROJ-001-mechanistic-interpretability-of-ctcf-bin",
             committed_paths=["projects/.../reviews/research/kahneman-simulated__05-14-2026__research.md"],
+            model_used="qwen.qwen3.5-122b",
         )
         assert entry["agent_name"] == "personality"
-        assert entry["model_name"] == "openai.gpt-oss-120b"
+        # Spec 026 slice 7: routing is profile-driven — the entry records
+        # whichever REAL model answered the call, not a static pin.
+        assert entry["model_name"] == "qwen.qwen3.5-122b"
         assert entry["model_kind"] == "personality_simulator"
         assert entry["personality_slug"] == "daniel-kahneman"
         assert entry["display_name"].endswith(" (simulated)")
@@ -143,7 +146,7 @@ class TestDisclaimerFooterContent:
             slug="kahneman", display_name="Daniel Kahneman",
             summary="x", sources=["a-source", "b-source", "c-source"], prompt_body="body",
         )
-        footer = p._make_disclaimer(persona)
+        footer = p._make_disclaimer(persona, "openai.gpt-oss-120b")
         # Persona name (with suffix) AND real-figure name AND model id
         # AND the platform name — all four strings present, per F8.
         assert "Daniel Kahneman (simulated)" in footer

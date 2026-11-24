@@ -1,0 +1,44 @@
+# Snakefile for the statistical evaluation pipeline
+# Implements the rules listed in tasks.md for Phase 0–Phase 7.
+
+import json
+import sys
+from pathlib import Path
+
+# Configurable directories (mirroring config.py)
+RAW_DIR = Path("data/raw")
+PROCESSED_DIR = Path("data/processed")
+EMBEDDINGS_DIR = Path("data/embeddings")
+CLUSTERING_DIR = Path("data/clustering")
+METRICS_DIR = Path("data/metrics")
+RESULTS_DIR = Path("results")
+FIGURES_DIR = Path("figures")
+
+rule all:
+    input:
+        # Final artefacts (placeholder – adjust as pipeline grows)
+        expand("results/validation_report.txt",),
+        expand("data/results/statistical_result.yaml",)
+
+rule verify_data_availability:
+    """
+    Abort if every entry in the manifest is marked Unavailable.
+    """
+    input:
+        manifest = "data/manifest.json"
+    run:
+        with open(input.manifest) as f:
+            manifest = json.load(f)
+        if all(entry.get("status") == "Unavailable" for entry in manifest):
+            sys.exit("All datasets unavailable – aborting.")
+        else:
+            # Create a dummy file to satisfy Snakemake's need for an output
+            Path("results/data_gap_verified.txt").touch()
+
+include: "code/phase1_preprocess.py"
+include: "code/phase2_geometry.py"
+include: "code/phase3_embeddings.py"
+include: "code/phase4_fidelity_fixed.py"
+include: "code/phase5_sensitivity.py"
+include: "code/phase6_mixed_effects.py"
+include: "code/phase7_reporting.py"

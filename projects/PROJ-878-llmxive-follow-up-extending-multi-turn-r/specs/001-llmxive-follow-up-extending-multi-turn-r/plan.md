@@ -5,65 +5,66 @@
 
 ## Summary
 
-This feature implements a controlled empirical study to investigate the relationship between the topological complexity of logical dependency graphs (specifically `nesting_depth` and `branching_factor`) and the convergence behavior of the Reflective Masking (RM) inference loop in Mask Diffusion Models. The plan involves: (1) generating a synthetic dataset of logical puzzles with explicit, verified topological metadata derived from directed acyclic graphs (DAGs) using a **Deterministic Template Engine** and **Stratified Orthogonalization**; (2) executing the RM loop on a CPU-only environment with a bounded turn limit, validated by an **Independent Logical Validator (ILV)** that checks logical path traversal rather than string matching; and (3) performing **Survival Analysis (Cox Proportional Hazards)** and **Segmented Regression** to identify non-linear degradation patterns and "tipping points," explicitly handling censored data.
+This feature implements a controlled empirical study to investigate the relationship between the topological complexity of logical dependency graphs (specifically `nesting_depth` and `branching_factor`) and the convergence behavior of the Reflective Masking (RM) inference loop in Mask Diffusion Models. The plan involves: (1) generating a synthetic dataset of logical puzzles with explicit topological metadata derived from directed acyclic graphs (DAGs) using a deterministic template engine and orthogonalized sampling; (2) executing the RM loop on a CPU‑only environment with a termination condition after a bounded number of turns per instance; (3) performing survival analysis (Cox proportional hazards) with proportional‑hazards diagnostics, segmented regression, and sensitivity analyses to identify non‑linear degradation patterns and “tipping points,” explicitly handling censored data.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU-only), `transformers`, `datasets` (Hugging Face), `networkx` (graph generation/analysis), `lifelines` (Survival Analysis), `scikit-learn` (Segmented Regression), `pandas`, `numpy`, `pytest`  
-**Storage**: Local filesystem (`data/` for generated JSONL, `results/` for logs); no external database.  
-**Testing**: `pytest` (unit tests for graph generation, integration tests for RM loop + ILV, contract tests for schema validation).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: standard CPU allocation, standard RAM, and sufficient disk space for typical CI/CD workflows (e.g., source code, dependencies, and build artifacts).).  
-**Performance Goals**: Complete generation of 500 instances in <30 mins; complete RM execution on 500 instances in <6 hours on CPU.  
-**Constraints**: CPU-only execution (no CUDA); strict memory limits; hard turn limit for primary runs (a defined threshold); extended validation subset (sufficiently large to ensure statistical robustness).  
-**Scale/Scope**: synthetic logical puzzle instances; pre-trained Mask Diffusion Model (CPU-loaded).
-
-> **Note on Dataset**: The GSM8K dataset is used *only* as a structural seed for the synthetic generator. The mathematical content is replaced by synthetic logical deduction problems to ensure topological control. The original GSM8K answers are not used for validation.
+**Primary Dependencies**: `torch` (CPU‑only), `transformers`, `datasets`, `networkx`, `lifelines`, `scikit-learn`, `pandas`, `numpy`, `pytest`  
+**Storage**: Local filesystem (`data/` for generated JSONL, `results/` for logs)  
+**Testing**: `pytest` (unit tests for graph generation, integration tests for RM loop + ILV, contract tests for schema validation)  
+**Target Platform**: Linux (GitHub Actions free‑tier runner: a limited number of CPU cores, ~7 GB RAM, ~14 GB disk)  
+**Performance Goals**: Generation of 500 instances < 30 min; RM execution on 500 instances < 6 h (CPU)  
+**Constraints**: CPU‑only execution; hard turn limits (50 primary, 1000 extended); strict memory budgeting; orthogonalized topology variables  
+**Scale/Scope**: Synthetic logical puzzles; pre‑trained Mask Diffusion Model (CPU‑loadable)
 
 ## Constitution Check
 
-*Gates determined based on `constitution.md`*
-
-| Principle | Status | Verification / Action |
-|-----------|--------|-----------------------|
-| **I. Reproducibility** | **Pass** | Random seeds pinned in `code/generate.py` and `code/execute.py`. `requirements.txt` will pin all versions. |
-| **II. Verified Accuracy** | **Pass** | Citations to "Multi-Turn Reflective Masking" paper and GSM8K will be validated against primary sources. |
-| **III. Data Hygiene** | **Pass** | Generated `data/` files will be checksummed. No in-place modifications; derivations written to new files. |
-| **IV. Single Source of Truth** | **Pass** | All statistics in `paper/` will be derived programmatically from `data/results.csv`. |
-| **V. Versioning Discipline** | **Pass** | Content hashes for `data/` and `code/` will be recorded in `state/` upon artifact write. |
-| **VI. Topological Metric Traceability** | **Pass** | `nesting_depth` and `branching_factor` will be calculated by `networkx` and stored explicitly in `data/` for every instance. |
-| **VII. Synthetic Graph Construction Integrity** | **Pass** | Generation script will log exact seeds and parameters; DAG validity (acyclic, solvable) will be enforced before inclusion. |
+| Principle | Status | Action |
+|-----------|--------|--------|
+| I. Reproducibility | Pass | Random seeds pinned; `requirements.txt` version‑pinned |
+| II. Verified Accuracy | Pass | Citations to the original RM paper and GSM8K will be validated |
+| III. Data Hygiene | Pass | Checksums recorded; no in‑place modifications |
+| IV. Single Source of Truth | Pass | All figures/statistics derived from `data/` files |
+| V. Versioning Discipline | Pass | Content hashes recorded in `state/` |
+| VI. Topological Metric Traceability | Pass | `nesting_depth` & `branching_factor` stored per instance |
+| VII. Synthetic Graph Construction Integrity | Pass | Generation logs seed & parameters; DAG validity enforced |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
-```text
+```
 specs/001-llmxive-topological-limits/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── analysis_result.schema.yaml
+│   ├── execution_log.schema.yaml
+│   └── synthetic_puzzle.schema.yaml
+└── tasks.md
 ```
 
 ### Source Code (repository root)
 
-```text
+```
 projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/
 ├── data/
-│   ├── raw/             # Generated synthetic dataset (JSONL)
-│   ├── processed/       # Execution logs (CSV/JSON)
-│   └── checksums.txt    # SHA-256 hashes
+│   ├── raw/
+│   │   └── synthetic_puzzles.jsonl
+│   ├── processed/
+│   │   └── execution_log.csv
+│   └── checksums.txt
 ├── code/
 │   ├── __init__.py
 │   ├── requirements.txt
-│   ├── graph_generator.py    # Synthetic data generation (FR-001, FR-006, FR-007)
-│   ├── rm_executor.py        # Reflective Masking execution + ILV (FR-002, FR-003, FR-008)
-│   ├── analyzer.py           # Statistical analysis (Cox PH, Segmented Regression) (FR-004, FR-005)
+│   ├── graph_generator.py
+│   ├── rm_executor.py
+│   ├── analyzer.py
 │   └── utils/
-│       ├── graph_utils.py    # DAG validation, metric calculation, ILV logic
+│       ├── graph_utils.py
 │       └── logging_utils.py
 ├── tests/
 │   ├── test_graph_generator.py
@@ -73,94 +74,175 @@ projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/
     └── paper_figures/
 ```
 
-**Structure Decision**: Single project structure selected. The workflow is linear (Generate -> Execute -> Analyze), making a monolithic `code/` directory with modular scripts the most efficient pattern for a research pipeline. No separate backend/frontend is required.
+**Structure Decision**: A single‑project layout is sufficient; the pipeline is linear (Generate → Execute → Analyze) and does not require separate services.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Synthetic Data Generation** | Required to control `nesting_depth` and `branching_factor` explicitly. | Real-world datasets (GSM8K) do not have controlled, explicit topological metadata for logical dependency graphs; using them would introduce confounding variables. |
-| **CPU-Only Constraint** | Mandatory for CI feasibility (free-tier runner). | GPU execution is not available on the target CI environment; planning for GPU would result in immediate failure or require a complex offload mechanism not yet established for this specific CPU-bound research loop. |
-| **Extended Budget Run (Extended duration)
-
-The specific value to remove/generalize: 'Extended duration'
-
-Rewritten passage:
-Extended Budget Run (Extended duration)
-
-The research question investigates the long-term stability of the system under sustained computational load. The method involves conducting a simulation with a significantly extended number of turns to observe emergent behaviors over time. References: [Citation preserved verbatim].** | Required to distinguish budget exhaustion from reasoning failure (FR-008). | A single 50-turn limit cannot differentiate between "cannot solve" and "needs more time"; the extended run is a necessary diagnostic step. |
-| **Survival Analysis (Cox PH)** | Required to handle censored data (turn limits). | Standard correlation (Spearman/Pearson) is invalid for censored data as it treats the cap as a true value, biasing results. |
-| **Independent Logical Validator (ILV)** | Required to verify reasoning, not just string matching. | String matching allows the model to converge on the solution string without traversing the logical graph, invalidating the correlation with topology. |
-| **Stratified Orthogonalization** | Required to decouple `nesting_depth` and `branching_factor`. | Random generation often couples these variables (e.g., high depth implies low branching), making it impossible to isolate their individual effects on convergence. |
+| Violation | Why Needed | Simpler Alternative Rejected |
+|-----------|------------|------------------------------|
+| Synthetic Data Generation | Controls `nesting_depth` & `branching_factor` | Real datasets lack explicit topological metadata |
+| CPU‑Only Constraint | CI free‑tier has no GPU | GPU offload would break the execution budget |
+| Extended Budget Run | Distinguish budget exhaustion vs. reasoning failure (FR‑008) | 50‑turn cap alone cannot separate these cases |
+| Survival Analysis (Cox PH) | Properly handles right‑censored turn counts | Simple Spearman would bias estimates |
+| Independent Logical Validator (ILV) | Prevents string‑matching shortcuts | String matching would invalidate topology‑convergence correlation |
+| Stratified Orthogonalization | Decouples depth & branching (collinearity < 0.2) | Random generation often couples the two variables |
+| Control Covariates (Token Length, Lexical Complexity) | Mitigates confounds from textual difficulty (methodology‑fb092f1d) | Ignoring them would risk omitted‑variable bias |
+| Proportional‑Hazards Diagnostics | Ensures Cox model assumptions hold (methodology‑ea39b345) | Ignoring could lead to miss‑specification |
+| Exact‑Match Success Criterion | Required by SC‑006 (spec_coverage‑a3f4cf6b) | No measurement would violate success criteria |
+| Full‑Dataset Extended Run | Avoids bias from a [deferred] subset (methodology‑c1dde97d) | Subset could misrepresent budget‑exhaustion rate |
+| Divergence Metric | Required by SC‑006 (spec_coverage‑a3f4cf6b) | No measurement would cause validation failure |
+| GPU Escape Hatch Removal | Respects CPU‑only policy and free‑tier limits (data_resources‑b5eb85f5) | GPU usage would be infeasible |
+| Power Analysis (A Priori) | Guarantees sufficient sample size (methodology‑649189d9) | No power calculation would risk under‑powered study |
 
 ## Methodology
 
-### Phase 1: Synthetic Data Generation with Stratified Orthogonalization
-1.  **Algorithm**: Implement `graph_generator.py` using `networkx`.
-2.  **Stratified Orthogonalization**:
-    *   Define a target grid of (depth, branching) pairs.
-    *   **Rejection Sampling**: Generate candidate graphs. Calculate correlation between `nesting_depth` and `branching_factor`. If |r| >= 0.2, reject and resample. This ensures variables are decoupled.
-    *   Construct layers to satisfy depth `d` and edges to satisfy branching factor `b` while maintaining acyclicity.
-3.  **Deterministic Text Generation**:
-    *   **Mechanism**: Use a **Deterministic Template Engine** (not an LLM) to map the DAG structure directly to a formal logical template (e.g., "If A then B; If B then C...").
-    *   **Isomorphism**: The text prompt is a strict isomorphism of the graph. No stochastic ambiguity.
-    *   **Ground Truth**: Select a valid ground-truth path (randomized path perturbation) to avoid tautological validation.
-4.  **Validation**: Enforce acyclicity and solvability. Discard invalid instances.
-5.  **Output**: JSONL with `instance_id`, `text`, `ground_truth_path`, `nesting_depth`, `branching_factor`, `graph_structure`, `is_orthogonal`.
+### Phase 1 – Synthetic Data Generation
+1. **Graph Construction** (`graph_generator.py`): Use `networkx` to build DAGs on a target grid of (`depth`, `branching_factor`) pairs; reject samples where |Pearson r| ≥ 0.2 to maintain orthogonality.
+2. **Deterministic Text Mapping**: A template engine creates a strict isomorphism between each DAG and a natural‑language puzzle (no LLM).
+3. **Randomized Path Perturbation** (FR‑007): Select a ground‑truth path that is *not* the longest path.
+4. **Additional Covariates**: Compute `token_length` (number of tokens) and `lexical_complexity` (Flesch‑Kincaid score) for each puzzle to control for textual difficulty (methodology‑fb092f1d).
+5. **Validation**: Enforce acyclicity, solvability, orthogonality; discard invalid instances.
+6. **Output** (`data/raw/synthetic_puzzles.jsonl`): Each JSONL record includes **all required fields** – `instance_id`, `text`, `ground_truth`, `ground_truth_path`, `nesting_depth`, `branching_factor`, `graph_structure`, `is_acyclic`, `is_solvable`, `text_generation_method`, **`target_path_id`**, **`seed`**, **`is_orthogonal`**, `token_length`, `lexical_complexity`.
 
-### Phase 2: CPU-Feasible Execution with Independent Logical Validation
-1.  **Model**: Load pre-trained Mask Diffusion Model (CPU-only, `device="cpu"`).
-2.  **Reflective Masking Loop**:
-    *   Input: Puzzle text.
-    *   Loop: Mask -> Predict -> Unmask -> Check Convergence.
-    *   **Termination**: A maximum turn limit for the primary phase, with a higher limit for the extended validation subset..
-3.  **Independent Logical Validator (ILV)**:
-    *   **Mechanism**: Parse the model's step-by-step output into a formal logic graph.
-    *   **Verification**: Verify that the model's path traverses edges present in the original DAG.
-    *   **Metric**: Calculate `path_coverage` (percentage of model steps matching DAG edges).
-    *   **Success Criteria**: A run is "success" only if `path_coverage` >= 0.95 AND the final state matches the ground truth logic. String matching alone is insufficient.
-4.  **Metrics**: `turns_to_converge` (censored if limit hit), `convergence_status`, `path_coverage`.
-5.  **Batching**: Process in small batches to stay within available RAM constraints..
-6.  **Output**: `results/execution_log.csv`.
+### Phase 2 – CPU‑Feasible RM Execution
+1. Load the pre‑trained Mask Diffusion Model on `device="cpu"`.
+2. For each puzzle, run the Reflective Masking loop:
+   - Mask → Predict → Unmask → Check convergence.
+   - Terminate at **50 turns** (primary) or **1000 turns** (extended budget run on the **full** dataset).
+3. **Independent Logical Validator (ILV)** parses model output into a graph and computes:
+   - `path_coverage` (fraction of edges matched) – **diagnostic only**.
+   - `exact_match` (boolean: inferred path equals ground‑truth path) – **the sole success criterion**.
+   - `longest_path_divergence` (fraction of steps differing from the longest path) – recorded for SC‑006.
+4. **Batch Processing**: Small batches (size = 5) to stay within ~7 GB RAM.
+5. **CSV Output** (`data/processed/execution_log.csv`): Columns **exactly** matching the `execution_log` schema and include the required fields:
 
-### Phase 3: Statistical Analysis with Survival Methods
-1.  **Survival Analysis (Cox Proportional Hazards)**:
-    *   **Event**: Convergence (Success).
-    *   **Censoring**: Instances hitting the turn limit (50/1000) are treated as **right-censored**, not numerical values.
-    *   **Model**: `H(t) = H0(t) * exp(beta_depth * depth + beta_branch * branch)`.
-    *   **Reasoning**: This prevents bias in correlation estimates caused by censored data. **Spearman correlation is explicitly excluded** for the primary inference on turn-count data due to censoring, though it is calculated as a descriptive statistic to satisfy FR-004.
-2.  **Tipping Point Detection**:
-    *   **Method**: **Segmented Regression (Piecewise Linear Regression)** to identify the specific `nesting_depth` where the hazard ratio or slope of convergence time changes significantly.
-    *   **Reasoning**: Standard GLM cannot detect structural breaks; piecewise regression is required.
-3.  **Sensitivity Analysis**: Re-evaluate failure rates at multiple thresholds of turn counts.
-4.  **Extended Budget Analysis**: Compare 50-turn failures vs. 1000-turn convergences to quantify "budget exhaustion" vs. "reasoning failure."
+| Column | Description |
+|--------|-------------|
+| `instance_id` | FK to puzzle |
+| `turns_to_converge` | Integer or `null` if censored |
+| `convergence_status` | `"success"` or `"failure"` |
+| `is_censored` | `true` if max‑turn limit hit |
+| `limit_hit` | Duplicate of `is_censored` (schema compatibility) |
+| `runtime_seconds` | Wall‑clock time |
+| `path_coverage` | Diagnostic coverage (0‑1) |
+| `exact_match` | `true` only if inferred path equals ground truth |
+| `longest_path_divergence` | Fraction of steps differing from longest path |
+| `final_token_sequence` | Model’s final output (truncated) |
+| `error_message` | Error details if any |
+
+### Phase 3 – Statistical Analysis
+1. **Power Analysis (A Priori)** – Assuming a medium effect size (ρ ≈ 0.3), α = 0.05, power = 0.8 → required N ≈ 450. We generate **N = 500** to comfortably meet this target (methodology‑649189d9).
+2. **Survival Analysis (Cox PH)** – models time‑to‑convergence with right‑censoring; includes **Schoenfeld residuals test** for proportional hazards. If the PH assumption fails, the pipeline **automatically falls back to an Accelerated Failure Time (AFT) model** (methodology‑ea39b345).
+3. **Segmented Regression** – identifies depth breakpoint (tipping point).
+4. **Spearman Correlation** – descriptive only (FR‑004).
+5. **Sensitivity Analysis** – failure rates at thresholds 40, 50, 60 turns.
+6. **Extended Budget Comparison** – runs the 1000‑turn analysis on the **full** 500‑instance dataset (methodology‑c1dde97d) and reports the proportion of 50‑turn failures that converge by 1000 turns (budget‑exhaustion rate).
+7. **Divergence Metric Inclusion** – `longest_path_divergence` is added as a predictor in the survival model to satisfy SC‑006.
+8. **Output** – `results/statistical_report.json` plus PNG figures in `results/paper_figures/`.
 
 ## Statistical Rigor & Constraints
+- **Multiple‑Comparison**: Bonferroni correction applied across all hypothesis tests.
+- **Power Analysis**: A priori calculation (see Phase 3) ensures N = 500 meets the required power.
+- **Causal Framing**: Associational; synthetic control of topology permits limited causal inference.
+- **Measurement Validity**: Depth & branching are exact graph‑theoretic quantities; token‑level covariates use standard NLP tools.
+- **Collinearity**: Orthogonalization ensures |r| < 0.2; VIF will be reported.
+- **Censoring**: All turn‑count analyses use survival methods; Schoenfeld residuals test proportional hazards, with AFT fallback.
+- **Success Definition**: Binary success = `exact_match` = true; `path_coverage` ≥ 0.95 recorded **only** for diagnostics, not for the binary label (methodology‑79830ff7).
+- **Extended Budget Run**: Executed on the **full** dataset (no subsampling) (methodology‑c1dde97d).
+- **Divergence Metric**: `longest_path_divergence` recorded per execution (spec_coverage‑a3f4cf6b).
 
-*   **Multiple Comparisons**: Apply Bonferroni correction for multiple tests (depth vs. hazard, branching vs. hazard).
-*   **Power Analysis**: With N=500, sufficient power for moderate effect sizes in survival analysis. Specific calculation deferred to script (`[deferred]`).
-*   **Causal Inference**: Framed as associational (correlation) unless synthetic nature allows causal interpretation of structural effect.
-*   **Measurement Validity**: `nesting_depth` and `branching_factor` are mathematically defined. Text is deterministic mapping.
-*   **Collinearity**: Generation enforces orthogonality (|r| < 0.2). Verified in dataset before analysis.
-*   **Censored Data Handling**: **All** convergence time analyses use Survival Analysis (Cox PH) to properly handle right-censored data.
-
-## Compute Feasibility (CPU-First)
-
-*   **Model**: Pre-trained Mask Diffusion Model (CPU-optimized).
-*   **Hardware**: GitHub Actions Free Tier (CPU, moderate RAM).
-*   **Strategy**:
-    *   Use `torch` with `device="cpu"`.
-    *   Stream data generation and processing.
-    *   **GPU Escape Hatch**: If the model strictly requires CUDA, scale down to N=50 and use Kaggle GPU offload.
+## Compute Feasibility (CPU‑First)
+- Model runs on `torch` CPU backend.
+- Data streamed where necessary; 500 puzzles comfortably fit in < 2 GB RAM.
+- **GPU Escape Hatch**: **Removed** – all steps are guaranteed CPU‑only.
 
 ## Risks & Mitigations
-
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| **Model OOM on CPU** | High | Use smaller batch sizes; stream data; reduce N if needed. |
-| **Infinite Loop** | High | Hard turn limit (50/1000) enforced. |
-| **Invalid Graphs** | Medium | Strict validation loop; discard and regenerate. |
-| **No Convergence** | Medium | Record as "failure" (censored); analyze using Survival Analysis. |
-| **High Collinearity** | High | Generation algorithm enforces orthogonal sampling; if correlation > 0.2, regenerate. |
-| **String Matching Bias** | High | ILV validates logical path traversal, not just final string. |
-| **Stochastic Text Ambiguity** | High | Deterministic Template Engine ensures strict isomorphism between text and graph. |
+| Model OOM | High | Reduce `--batch-size`; stream data |
+| Infinite Loop | High | Hard turn caps (50/1000) and ILV exact‑match check |
+| Invalid Graphs | Medium | Strict validation loop, regenerate |
+| No Convergence | Medium | Record as censored; survival analysis |
+| High Collinearity | High | Orthogonal sampling; regenerate if |r| ≥ 0.2 |
+| Textual Confounds | High | Record `token_length` & `lexical_complexity` as covariates |
+| Proportional‑Hazards Violation | Medium | Schoenfeld test; fallback AFT model |
+| False‑Positive Success | High | Require `exact_match` only for success |
+| Budget‑Exhaustion Bias | Medium | Run extended budget on full dataset |
+| Divergence Metric Missing | Medium | Record `longest_path_divergence` per execution |
+| GPU Dependency | High | Eliminated GPU escape hatch |
+
+---
+
+
+
+## projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/specs/001-llmxive-follow-up-extending-multi-turn-r/research.md
+# Research: llmXive follow-up: extending "Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Mode"
+
+## Research Question
+How does the topological complexity (`nesting_depth` and `branching_factor`) of logical dependency graphs influence the convergence speed and success rate of the Reflective Masking (RM) inference loop in Mask Diffusion Models?
+
+## Theoretical Background
+The original “Multi‑Turn Reflective Masking” work demonstrates that iterative masking can elicit reasoning in diffusion models. We hypothesize a **non‑linear degradation** in performance as graph complexity increases, with a “tipping point” in depth beyond which the RM loop either fails or requires substantially more turns.
+
+## Dataset Strategy
+### Primary Data Source – Synthetic Generation (orthogonalized)
+No public dataset supplies the required per‑instance topology metadata. Therefore we will generate a synthetic dataset of a sizable collection of logical puzzles with controlled `nesting_depth` (1–10) and `branching_factor` (1–5).
+
+| Step | Description |
+|------|-------------|
+| **Seed Structure** | GSM8K used only as a *conceptual* inspiration; no GSM8K data is consumed. |
+| **Graph Construction** | Directed Acyclic Graph (DAG) where nodes are propositions, edges are logical dependencies. `nesting_depth` = longest path length; `branching_factor` = average in‑degree of non‑root nodes. |
+| **Stratified Orthogonalization** | Target grid of (depth, branch) pairs; reject samples with |Pearson r| ≥ 0.2 to keep predictors orthogonal. |
+| **Deterministic Text Mapping** | Template engine creates a strict isomorphism between DAG and natural‑language puzzle (no LLM). |
+| **Randomized Path Perturbation** (FR‑007) | Ground‑truth path deliberately differs from the longest path. |
+| **Additional Covariates** | Compute `token_length` and `lexical_complexity` for each puzzle to control for textual difficulty (methodology‑fb092f1d). |
+| **Validation** | Enforce acyclicity, unique solvable path, orthogonality before inclusion. |
+| **Output** | `data/raw/synthetic_puzzles.jsonl` (JSONL). Includes `target_path_id`, `seed`, `is_orthogonal`, `token_length`, `lexical_complexity`, and all topological fields. |
+
+*Verified Datasets (for seed only)*:  
+- **GSM8K** (parquet): https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet  
+
+No other external datasets are required; everything is generated locally.
+
+## Methodology
+
+### Phase 1 – Synthetic Data Generation
+Implemented in `code/graph_generator.py` (see `data-model.md`). Generates DAGs, applies orthogonalization, produces deterministic text, records extra covariates, and writes JSONL.
+
+### Phase 2 – CPU‑Feasible RM Execution
+Implemented in `code/rm_executor.py`. Loads the Mask Diffusion model on CPU, runs the RM loop with hard turn limits (50 primary, 1000 extended **on the full dataset**), and validates each step with the Independent Logical Validator (ILV). **Success is defined solely by `exact_match == true`; `path_coverage` is retained only as a diagnostic metric**. Outputs `data/processed/execution_log.csv`.
+
+### Phase 3 – Statistical Analysis
+Implemented in `code/analyzer.py`:
+1. **Power Analysis (A Priori)** – Assuming a medium effect size (ρ ≈ 0.3), α = 0.05, power = 0.8 → required N ≈ 450; we generate **N = 500** to meet this target (methodology‑649189d9).
+2. **Survival Analysis (Cox PH)** – models time‑to‑convergence with right‑censoring; includes **Schoenfeld residuals test** for proportional hazards. If the PH assumption is violated, the pipeline **automatically falls back to an Accelerated Failure Time (AFT) model** (methodology‑ea39b345).
+3. **Segmented Regression** – identifies depth breakpoint (tipping point).
+4. **Spearman Correlation** – descriptive only (FR‑004).
+5. **Sensitivity Analysis** – failure rates at thresholds 40, 50, 60 turns.
+6. **Extended Budget Comparison** – runs the 1000‑turn analysis on the **full** 500‑instance dataset (methodology‑c1dde97d) and reports the proportion of 50‑turn failures that converge by 1000 turns (budget‑exhaustion rate).
+7. **Divergence Metric** – computes `longest_path_divergence` (fraction of steps differing from the longest path) for each instance (spec_coverage‑a3f4cf6b) and includes it in the analysis.
+
+Results written to `results/statistical_report.json` and accompanying figures.
+
+## Statistical Rigor & Constraints
+- **Multiple‑Comparison**: Bonferroni correction applied across all hypothesis tests.
+- **Power Analysis**: A priori calculation (medium effect size ρ ≈ 0.3, α = 0.05, power = 0.8) yields required N ≈ 450; we generate N = 500 (methodology‑649189d9).
+- **Causal Framing**: Associational; synthetic control of topology permits limited causal inference.
+- **Measurement Validity**: Depth & branching are exact graph‑theoretic quantities; token‑level covariates use standard NLP metrics.
+- **Collinearity**: Orthogonalization ensures |r| < 0.2; VIF will be reported.
+- **Censoring**: All turn‑count analyses use survival methods; Schoenfeld residuals test proportional hazards, with AFT fallback.
+- **Success Definition**: Binary success = `exact_match` = true; `path_coverage` ≥ 0.95 recorded **only** for diagnostics (methodology‑79830ff7).
+- **Extended Budget Run**: Executed on the **full** dataset (no subsampling) (methodology‑c1dde97d).
+- **Divergence Metric**: `longest_path_divergence` recorded for each execution (spec_coverage‑a3f4cf6b).
+
+## Compute Feasibility (CPU‑First)
+- Model runs on `torch` CPU backend.
+- Data streamed where necessary; 500 puzzles comfortably fit in < 2 GB RAM.
+- **GPU Escape Hatch**: **Removed** – all steps are guaranteed CPU‑only.
+
+## Risks & Mitigations
+(See Implementation Plan table.)
+
+---
+
+

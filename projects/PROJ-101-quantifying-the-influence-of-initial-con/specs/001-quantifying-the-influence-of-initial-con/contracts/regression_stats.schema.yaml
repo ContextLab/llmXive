@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Regression Stats Schema
-description: Schema for regression analysis results.
+title: "Regression Stats Schema"
+description: "Schema for regression analysis results."
 type: object
 required:
   - model_type
@@ -11,27 +11,27 @@ required:
 properties:
   model_type:
     type: string
-    description: "Type of regression model (e.g., 'power_law', 'linear')"
+    description: "Type of regression model (e.g., 'MixedEffects', 'Tobit')."
   coefficients:
     type: object
-    description: "Fitted model parameters"
+    description: "Fitted coefficients."
     additionalProperties:
       type: number
   r_squared:
     type: number
-    description: "Coefficient of determination"
+    description: "Coefficient of determination."
   p_values:
     type: object
-    description: "P-values for each coefficient"
+    description: "P-values for each coefficient."
     additionalProperties:
       type: number
   scaling_exponent:
     type: number
-    description: "Exponent relating system dimension to bias magnitude"
+    description: "Exponent relating system dimension N to Δλ magnitude."
   confidence_level:
     type: number
-    description: "Confidence level used for tests (e.g., 0.95)"
+    description: "Confidence level used for interval estimation."
   n_trials:
-    type: integer
-    description: "Total number of trials used in regression"
+    type: string
+    description: "Total number of trials (string to allow large formatted values)."
 additionalProperties: false

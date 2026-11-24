@@ -1,77 +1,78 @@
 # Data Model: llmXive Follow-up: Dynamic Socio-Cognitive State Injection
 
 ## 1. Overview
-This document defines the data structures, schemas, and relationships for the `001-dynamic-state-injection` feature. All data artifacts are stored in `data/` and validated against schemas in `contracts/`.
+Defines all persistent artifacts produced or consumed by the pipeline. Each artifact is validated against a JSON‑Schema in `contracts/`.
 
 ## 2. Core Entities
 
 ### 2.1 ConflictTrajectory
-Represents a single dialogue instance with metadata.
-- **Source**: `data/processed/filtered_trajectories.jsonl` (Derived from SoCRATES prompts).
-- **Derivation**: Filtered and oversampled for high-emotion/cultural diversity.
-- **Storage**: `data/processed/filtered_trajectories.jsonl`
+- **Source**: `data/processed/filtered_trajectories.jsonl` (generated, FR‑001).  
+- **Schema**: `contracts/dataset.schema.yaml`.  
 
-**Fields**:
-- `trajectory_id` (string): Unique identifier.
-- `dialogue_history` (list of strings): Turn-by-turn conversation.
-- `emotional_reactivity_score` (float): 0.0 - 1.0 (Generated metadata).
-- `cultural_identity_tags` (list of strings): e.g., ["high-context", "collectivist"].
-- `ideal_resolution` (string): Ground truth summary of the ideal outcome.
+| Field | Type | Description |
+|-------|------|-------------|
+| `trajectory_id` | string (UUID) | Unique identifier. |
+| `dialogue_history` | list[string] | Turn‑by‑turn text. |
+| `emotional_reactivity_score` | number (0‑1) | Generated intensity metric. |
+| `cultural_identity_tags` | list[string] | Cultural tags (e.g., “high‑context”). |
+| `ideal_resolution` | string | Ground‑truth ideal resolution text for the consensus‑gap evaluator. |
 
-### 2.2 SocioCognitiveState
-Inferred state label and confidence.
-- **Source**: Output of `state_classifier.py` (FR-002).
-- **Storage**: Embedded in `experiment_log.schema.yaml` or separate `data/processed/classifier_outputs.jsonl`.
+### 2.2 ClassifierTrainingSet
+- **Source**: `data/processed/classifier_training_set.jsonl` ([deferred] of generated trajectories, used exclusively for LR training).
+- **Schema**: Same as `dataset.schema.yaml` (no additional fields).
 
-**Fields**:
-- `state_label` (string): e.g., "escalating", "cultural-friction", "neutral-monitoring".
-- `confidence` (float): 0.0 - 1.0.
-- `injection_instruction` (string): The dynamic prompt text derived from the state.
+### 2.3 SocioCognitiveState (embedded in logs)
+- **Source**: Output of `state_classifier.py`.  
+- **Fields** (stored inside `experiment_log`): `state_label`, `confidence`, `injection_instruction`.
 
-### 2.3 ExperimentLog
-Record of a single LLM inference run.
-- **Source**: `experiments/runner.py` (FR-003, FR-004).
-- **Storage**: `data/results/experiment_logs/{model_name}/{condition}.jsonl`.
+### 2.4 ExperimentLog
+- **Source**: `src/experiments/runner.py`.  
+- **Schema**: `contracts/experiment_log.schema.yaml`.  
 
-**Fields**:
-- `run_id` (string): UUID.
-- `trajectory_id` (string): FK to ConflictTrajectory.
-- `model_name` (string): e.g., "llama-3-8b".
-- `condition` (string): "static" or "adapter".
-- `injected_state` (string): The state label used (or "none" for static).
-- `llm_output` (string): Generated resolution.
-- `consensus_gap_score` (float): Result of FR-005.
-- `status` (string): "success", "skipped", "timeout".
+| Field | Type | Description |
+|-------|------|-------------|
+| `run_id` | string (UUID) | Unique run identifier. |
+| `trajectory_id` | string | FK → ConflictTrajectory. |
+| `model_name` | string | LLM identifier. |
+| `condition` | enum(`static`, `adapter`) | Experimental condition. |
+| `injected_state` | string | State label injected (or `neutral-monitoring`). |
+| `llm_output` | string | Generated resolution text. |
+| `consensus_gap_score` | number (0‑1) | Gap metric (0 = perfect, 1 = worst). |
+| `status` | enum(`success`, `skipped`, `timeout`) | Execution outcome. |
+| `timestamp` | ISO‑8601 datetime | Run timestamp. |
+| `inference_time_ms` | integer | Milliseconds spent in inference (also in `metrics`). |
 
-### 2.4 StatisticalReport
-Aggregated results.
-- **Source**: `analysis/report_generator.py` (FR-006, FR-007).
-- **Storage**: `data/results/statistical_report.json`.
+### 2.5 StatisticalReport
+- **Source**: `src/analysis/report_generator.py`.  
+- **Schema**: `contracts/report.schema.yaml`.  
 
-**Fields**:
-- `model_name` (string).
-- `condition_comparison` (object):
-  - `n_samples` (int).
-  - `mean_gap_adapter` (float).
-  - `mean_gap_static` (float).
-  - `diff_mean` (float).
-  - `test_type` (string): "t-test" or "wilcoxon".
-  - `normality_p_value` (float): Shapiro-Wilk p-value.
-  - `p_value` (float).
-  - `is_significant` (boolean).
-  - `effect_size` (float): Cohen's d or r.
-- `correction_method` (string): "holm-bonferroni".
-- `corrected_p_value` (float).
+| Field | Type | Description |
+|-------|------|-------------|
+| `llm_id` | string | Model name. |
+| `comparison` | object | Contains `mean_diff`, `p_value`, `is_significant`, `effect_size`, `test_type`, `normality_p_value`. |
+| `correction_applied` | boolean | Whether Holm‑Bonferroni was used across models. |
 
-## 3. Data Flow
-1. **Ingest**: SoCRATES Prompts -> Derived Trajectories (FR-001).
-2. **Train**: Derived Trajectories -> Classifier Model (FR-002).
-3. **Run**: Derived Trajectories + Classifier -> Experiment Logs (FR-003, FR-004).
-4. **Evaluate**: Experiment Logs -> Consensus Gap Scores (FR-005).
-5. **Analyze**: Consensus Gap Scores -> Statistical Report (FR-006, FR-007).
+## 3. Auxiliary Artifacts
+- `data/results/oversampling_report.json` – verifies FR‑001.  
+- `data/results/feature_independence_audit.json` – audits FR‑002 feature separation.  
+- `data/results/evaluator_independence_audit.json` – audits FR‑005 independence.  
+- `data/results/scope_adjustments.json` – records any models excluded due to RAM/GPU constraints (T027).  
+- `data/results/throughput_report.json` – results of T051.  
+- `data/results/threshold_sensitivity_report.json` – results of T050.  
 
-## 4. Integrity Constraints
-- **Uniqueness**: `trajectory_id` must be unique per dataset.
-- **Referential Integrity**: `experiment_log.trajectory_id` must exist in `filtered_trajectories`.
-- **Range**: `consensus_gap_score` must be in [0.0, 1.0].
-- **Checksum**: All raw and derived files must have a recorded SHA-256 hash in `state/...yaml`.
+## 4. Data Flow
+1. **Ingest** SoCRATES prompts → **Generate** trajectories (FR‑001).  
+2. **Split** trajectories into `classifier_training_set.jsonl` (training) and `filtered_trajectories.jsonl` (experiment) (Task T018).  
+3. **Train** classifier on the training split (FR‑002).  
+4. **Run** experiments (FR‑003‑FR‑004) → produce `ExperimentLog`.  
+5. **Evaluate** each output → store `consensus_gap_score` in the same log.  
+6. **Analyze** paired differences → generate `StatisticalReport`.  
+
+## 5. Integrity Constraints
+- `trajectory_id` uniqueness across `data/processed/`.  
+- Referential integrity: every `experiment_log.trajectory_id` must exist in `filtered_trajectories.jsonl`.  
+- `consensus_gap_score` ∈ [0.0, 1.0].  
+- All raw and derived files have SHA‑256 checksums recorded in `state/...yaml`.  
+
+---
+

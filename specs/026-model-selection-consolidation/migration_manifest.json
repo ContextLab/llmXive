@@ -1,0 +1,4439 @@
+{
+  "entries": [
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/backends/dartmouth.py",
+      "kind": "module_constant",
+      "line": 105,
+      "models": [
+        "glm-5",
+        "gpt-oss",
+        "qwen3",
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "_REASONING_MODELS"
+    },
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/backends/local.py",
+      "kind": "model_id_literal",
+      "line": 38,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "list_models"
+    },
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/model_selection/policy.py",
+      "kind": "model_id_literal",
+      "line": 184,
+      "models": [
+        "glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "entries"
+    },
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/model_selection/policy.py",
+      "kind": "model_id_literal",
+      "line": 190,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "entries"
+    },
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/model_selection/policy.py",
+      "kind": "model_id_literal",
+      "line": 196,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "entries"
+    },
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/model_selection/policy.py",
+      "kind": "model_id_literal",
+      "line": 202,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "entries"
+    },
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/model_selection/policy.py",
+      "kind": "model_id_literal",
+      "line": 208,
+      "models": [
+        "claude-haiku-4-5"
+      ],
+      "owning_slice": null,
+      "symbol": "entries"
+    },
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/model_selection/policy.py",
+      "kind": "model_id_literal",
+      "line": 214,
+      "models": [
+        "qwen3-vl"
+      ],
+      "owning_slice": null,
+      "symbol": "entries"
+    },
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/model_selection/policy.py",
+      "kind": "model_id_literal",
+      "line": 220,
+      "models": [
+        "qwen2.5"
+      ],
+      "owning_slice": null,
+      "symbol": "entries"
+    },
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/state/escalations.py",
+      "kind": "model_id_literal",
+      "line": 70,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_recurring_failure_category"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/conftest.py",
+      "kind": "module_constant",
+      "line": 149,
+      "models": [
+        "google.gemma-4-31B-it",
+        "openai.gpt-oss-120b",
+        "qwen.qwen3.5-122b",
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "ids"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/helpers/funded.py",
+      "kind": "module_constant",
+      "line": 111,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "GLM"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/helpers/funded.py",
+      "kind": "module_constant",
+      "line": 112,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "QWEN"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/helpers/funded.py",
+      "kind": "module_constant",
+      "line": 113,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "GEMMA4"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/helpers/funded.py",
+      "kind": "module_constant",
+      "line": 114,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "GPT_OSS"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/helpers/funded.py",
+      "kind": "module_constant",
+      "line": 115,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "CLAUDE"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/helpers/funded.py",
+      "kind": "module_constant",
+      "line": 116,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "LOCAL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_credit_ledger_transport.py",
+      "kind": "model_id_literal",
+      "line": 319,
+      "models": [
+        "Qwen/Qwen2.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_append_event_rejects_unsafe_ids"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_credit_reservations.py",
+      "kind": "model_id_literal",
+      "line": 63,
+      "models": [
+        "anthropic.claude-haiku-4-5"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_free_backend_only.py",
+      "kind": "model_id_literal",
+      "line": 64,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_free_backend_only.py",
+      "kind": "model_id_literal",
+      "line": 121,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 26,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "module_constant",
+      "line": 30,
+      "models": [
+        "gemma-4",
+        "glm-5.3",
+        "gpt-oss",
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "_ALL_FAMILIES"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 145,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 160,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 167,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 186,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 214,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 246,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 292,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "module_constant",
+      "line": 46,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "CLAUDE"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 72,
+      "models": [
+        "claude-haiku-4-5"
+      ],
+      "owning_slice": null,
+      "symbol": "_paid_ref"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 160,
+      "models": [
+        "qwen.qwen3-vl:32b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_id"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 218,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "free"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 218,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "free"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 240,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chat"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 253,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_free_then_paid_reaches_paid_after_free_fails"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "module_constant",
+      "line": 363,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "QWEN"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "module_constant",
+      "line": 364,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "GEMMA4"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "module_constant",
+      "line": 365,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "GPT_OSS"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "module_constant",
+      "line": 366,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "LOCAL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 378,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 379,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 380,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 381,
+      "models": [
+        "qwen2.5"
+      ],
+      "owning_slice": null,
+      "symbol": "models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_paper_review_flow.py",
+      "kind": "model_id_literal",
+      "line": 83,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_paper_stage_freeze.py",
+      "kind": "module_constant",
+      "line": 44,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_FREE_MODEL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_personality_rubric_retry_then_abstain.py",
+      "kind": "model_id_literal",
+      "line": 96,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "return_value"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_personality_rubric_retry_then_abstain.py",
+      "kind": "model_id_literal",
+      "line": 138,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "return_value"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_personality_tick.py",
+      "kind": "model_id_literal",
+      "line": 113,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_used"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_planning_references_only.py",
+      "kind": "module_constant",
+      "line": 41,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_FREE_MODEL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_proj552_planning_no_kickback.py",
+      "kind": "module_constant",
+      "line": 38,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_FREE_MODEL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_proj552_real_plan.py",
+      "kind": "module_constant",
+      "line": 42,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_FREE_MODEL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_research_review_flow.py",
+      "kind": "model_id_literal",
+      "line": 83,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_resume_after_midpipeline_failure.py",
+      "kind": "model_id_literal",
+      "line": 59,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_resume_after_midpipeline_failure.py",
+      "kind": "model_id_literal",
+      "line": 101,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_resume_after_midpipeline_failure.py",
+      "kind": "model_id_literal",
+      "line": 118,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 52,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 98,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_id"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 99,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "model_family"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 205,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_a_resolvable_proposer_route_id_is_carried_on_the_outcome"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 206,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_a_resolvable_proposer_route_id_is_carried_on_the_outcome"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 267,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 299,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_the_durable_author_family_is_added_to_the_panels_baseline"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 312,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 312,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 313,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "test_extra_caller_families_are_preserved_alongside_the_author"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 313,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_extra_caller_families_are_preserved_alongside_the_author"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_self_improvement_proposal_credits.py",
+      "kind": "model_id_literal",
+      "line": 41,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_self_improvement_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 44,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_self_improvement_review_spec.py",
+      "kind": "model_id_literal",
+      "line": 36,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/phase1/test_idempotency.py",
+      "kind": "model_id_literal",
+      "line": 160,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/phase1/test_idempotency.py",
+      "kind": "model_id_literal",
+      "line": 237,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/phase1/test_idempotency.py",
+      "kind": "model_id_literal",
+      "line": 308,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/phase1/test_idempotency.py",
+      "kind": "model_id_literal",
+      "line": 317,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/phase2/test_submission_intake.py",
+      "kind": "model_id_literal",
+      "line": 243,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_resolve_submitter_legacy_body_model_line"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_claim_resolve_real.py",
+      "kind": "model_id_literal",
+      "line": 40,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_get_backend_and_model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_dartmouth_outage_falls_back.py",
+      "kind": "model_id_literal",
+      "line": 35,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "list_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_dartmouth_outage_falls_back.py",
+      "kind": "model_id_literal",
+      "line": 56,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "list_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_fill_e2e_real.py",
+      "kind": "model_id_literal",
+      "line": 55,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_make_backend_and_model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_fill_no_source_blocks_real.py",
+      "kind": "model_id_literal",
+      "line": 63,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_fill_oeis_real.py",
+      "kind": "model_id_literal",
+      "line": 82,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_fill_provenance_real.py",
+      "kind": "model_id_literal",
+      "line": 75,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_fill_wikidata_real.py",
+      "kind": "model_id_literal",
+      "line": 79,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_fill_wikidata_real.py",
+      "kind": "model_id_literal",
+      "line": 126,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_fill_wikidata_real.py",
+      "kind": "model_id_literal",
+      "line": 156,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_fill_wikipedia_real.py",
+      "kind": "model_id_literal",
+      "line": 110,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_grounding_end_to_end.py",
+      "kind": "model_id_literal",
+      "line": 21,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_grounding_end_to_end.py",
+      "kind": "model_id_literal",
+      "line": 35,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_grounding_entailment.py",
+      "kind": "model_id_literal",
+      "line": 19,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_grounding_entailment.py",
+      "kind": "model_id_literal",
+      "line": 26,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_liveness_probe_real.py",
+      "kind": "module_constant",
+      "line": 20,
+      "models": [
+        "google.gemma-4-31B-it",
+        "openai.gpt-oss-120b",
+        "qwen.qwen3.5-122b",
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "FREE_MODELS"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_liveness_probe_real.py",
+      "kind": "model_id_literal",
+      "line": 68,
+      "models": [
+        "openai.gpt-oss-120b-retired-does-not-exist"
+      ],
+      "owning_slice": null,
+      "symbol": "test_an_unlisted_model_is_not_pinged"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_model_selection_snapshot_real.py",
+      "kind": "model_id_literal",
+      "line": 32,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_runtime_snapshot_real_composite"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_model_selection_snapshot_real.py",
+      "kind": "model_id_literal",
+      "line": 33,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "m"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_model_selection_snapshot_real.py",
+      "kind": "model_id_literal",
+      "line": 34,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_runtime_snapshot_real_composite"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_model_selection_snapshot_real.py",
+      "kind": "model_id_literal",
+      "line": 36,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_runtime_snapshot_real_composite"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_model_selection_snapshot_real.py",
+      "kind": "model_id_literal",
+      "line": 38,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_runtime_snapshot_real_composite"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_model_selection_snapshot_real.py",
+      "kind": "model_id_literal",
+      "line": 39,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_runtime_snapshot_real_composite"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_paid_credits_real.py",
+      "kind": "model_id_literal",
+      "line": 55,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_paid_credits_real.py",
+      "kind": "model_id_literal",
+      "line": 78,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_paper_review_convergence_e2e.py",
+      "kind": "model_id_literal",
+      "line": 92,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_triple_real.py",
+      "kind": "module_constant",
+      "line": 45,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_vision_real.py",
+      "kind": "model_id_literal",
+      "line": 35,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_qwen35_actually_understands_images"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_vision_real.py",
+      "kind": "model_id_literal",
+      "line": 46,
+      "models": [
+        "qwen.qwen3-vl:32b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_qwen3_vl_serves_the_canonical_multimodal_representation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_advancement_convergence.py",
+      "kind": "model_id_literal",
+      "line": 45,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_advancement_convergence.py",
+      "kind": "model_id_literal",
+      "line": 161,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_advancement_convergence.py",
+      "kind": "model_id_literal",
+      "line": 245,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_audit_personality_attribution.py",
+      "kind": "model_id_literal",
+      "line": 32,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_conformant_entries_zero_violations"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_audit_personality_attribution.py",
+      "kind": "model_id_literal",
+      "line": 66,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_missing_simulated_suffix_flagged"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_audit_personality_attribution.py",
+      "kind": "model_id_literal",
+      "line": 94,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_tick_level_failure_without_slug_not_flagged"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_authors.py",
+      "kind": "model_id_literal",
+      "line": 200,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_authors.py",
+      "kind": "model_id_literal",
+      "line": 253,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_authors.py",
+      "kind": "model_id_literal",
+      "line": 254,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_authors.py",
+      "kind": "model_id_literal",
+      "line": 260,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_model_author_byline_lists_model_not_agent"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_branch_code.py",
+      "kind": "module_constant",
+      "line": 319,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "_FREE_MODEL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_branch_code.py",
+      "kind": "model_id_literal",
+      "line": 338,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 39,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "_opened"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 53,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_a_sick_model_is_not_probed_with_the_real_request"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 170,
+      "models": [
+        "anthropic.claude-opus-5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_a_paid_model_is_never_pinged"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 180,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_a_free_model_that_answers_is_live"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 195,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_a_free_model_that_errors_is_not_live"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 204,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_an_empty_reply_is_not_live"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 216,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "first"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 217,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "second"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 219,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_each_model_breaker_knows_its_model_and_carries_the_check"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 220,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_each_model_breaker_knows_its_model_and_carries_the_check"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 222,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_each_model_breaker_knows_its_model_and_carries_the_check"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_fallback_delegation.py",
+      "kind": "module_constant",
+      "line": 32,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "QWEN"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_checks_backends.py",
+      "kind": "model_id_literal",
+      "line": 28,
+      "models": [
+        "gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "list_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_checks_backends.py",
+      "kind": "model_id_literal",
+      "line": 28,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "list_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_checks_backends.py",
+      "kind": "model_id_literal",
+      "line": 40,
+      "models": [
+        "gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_transient_blip_clears_on_retry"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_checks_backends.py",
+      "kind": "model_id_literal",
+      "line": 40,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_transient_blip_clears_on_retry"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_claim_extract.py",
+      "kind": "model_id_literal",
+      "line": 302,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_config_consistency.py",
+      "kind": "model_id_literal",
+      "line": 89,
+      "models": [
+        "glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "_POLICY_DISPLAY_NAMES"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_config_consistency.py",
+      "kind": "model_id_literal",
+      "line": 90,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "_POLICY_DISPLAY_NAMES"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_config_consistency.py",
+      "kind": "model_id_literal",
+      "line": 91,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "_POLICY_DISPLAY_NAMES"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_config_consistency.py",
+      "kind": "model_id_literal",
+      "line": 92,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "_POLICY_DISPLAY_NAMES"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_config_consistency.py",
+      "kind": "model_id_literal",
+      "line": 236,
+      "models": [
+        "qwen3-vl"
+      ],
+      "owning_slice": null,
+      "symbol": "test_policy_family_absent_from_snapshot_is_never_resurrected"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_circuit_breaker.py",
+      "kind": "model_id_literal",
+      "line": 206,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_circuit_breaker.py",
+      "kind": "model_id_literal",
+      "line": 212,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_circuit_breaker.py",
+      "kind": "module_constant",
+      "line": 227,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_a"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_circuit_breaker.py",
+      "kind": "module_constant",
+      "line": 228,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_b"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_reasoning_deadline.py",
+      "kind": "model_id_literal",
+      "line": 32,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_deadline_for_reasoning_model_is_360"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_reasoning_deadline.py",
+      "kind": "model_id_literal",
+      "line": 37,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_deadline_for_gpt_oss_is_360"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_reasoning_deadline.py",
+      "kind": "model_id_literal",
+      "line": 42,
+      "models": [
+        "google.gemma-3-27b-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_deadline_for_nonreasoning_model_is_180"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_reasoning_deadline.py",
+      "kind": "model_id_literal",
+      "line": 46,
+      "models": [
+        "meta.llama-3-2-3b-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_deadline_for_unknown_model_is_180"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_reasoning_deadline.py",
+      "kind": "model_id_literal",
+      "line": 59,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_deadline_env_overrides"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_reasoning_deadline.py",
+      "kind": "model_id_literal",
+      "line": 60,
+      "models": [
+        "google.gemma-3-27b-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_deadline_env_overrides"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_sdk_retry_boundary.py",
+      "kind": "model_id_literal",
+      "line": 41,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "client"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_thinking.py",
+      "kind": "model_id_literal",
+      "line": 13,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "mk"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_thinking.py",
+      "kind": "model_id_literal",
+      "line": 20,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "mk"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_thinking.py",
+      "kind": "model_id_literal",
+      "line": 27,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_non_qwen_models_untouched"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_thinking.py",
+      "kind": "model_id_literal",
+      "line": 28,
+      "models": [
+        "google.gemma-3-27b-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_non_qwen_models_untouched"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_thinking.py",
+      "kind": "model_id_literal",
+      "line": 29,
+      "models": [
+        "meta.llama-3-2-3b-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_non_qwen_models_untouched"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_total_deadline.py",
+      "kind": "module_constant",
+      "line": 15,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "PRIMARY"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_total_deadline.py",
+      "kind": "module_constant",
+      "line": 17,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "PEER"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 36,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_drops_rank_one_only"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 40,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_drops_rank_one_only"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 67,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 69,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_composes_with_existing_exclusions"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 71,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_composes_with_existing_exclusions"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 81,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 81,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 81,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 82,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 82,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 116,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_route_chat_exclude_leader_serves_second_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 117,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_route_chat_exclude_leader_serves_second_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 118,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_route_chat_exclude_leader_serves_second_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 138,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 143,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_route_chat_exclude_leader_resolves_from_merged_requirement"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 144,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_route_chat_exclude_leader_resolves_from_merged_requirement"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 145,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_route_chat_exclude_leader_resolves_from_merged_requirement"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 164,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_two_pass_truncation_reveals_next_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 164,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_two_pass_truncation_reveals_next_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 168,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_two_pass_truncation_reveals_next_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 175,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_two_pass_truncation_reveals_next_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 175,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_two_pass_truncation_reveals_next_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_execution_tier_constraints.py",
+      "kind": "model_id_literal",
+      "line": 115,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_third_free_rung_drops_the_top_two_candidates"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_execution_tier_constraints.py",
+      "kind": "model_id_literal",
+      "line": 115,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_third_free_rung_drops_the_top_two_candidates"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_execution_tier_constraints.py",
+      "kind": "model_id_literal",
+      "line": 115,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_third_free_rung_drops_the_top_two_candidates"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_graph_advancement_persistence.py",
+      "kind": "model_id_literal",
+      "line": 114,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_lane_locking.py",
+      "kind": "model_id_literal",
+      "line": 83,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 88,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "replies"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 94,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_healthy_primary_no_fallback"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 102,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "replies"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 103,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "replies"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 105,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "transient_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 112,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_primary_transient_walks_to_peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 113,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_primary_transient_walks_to_peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_local_backend_availability.py",
+      "kind": "module_constant",
+      "line": 21,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "_LOCAL_MODEL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_outage_recovery.py",
+      "kind": "module_constant",
+      "line": 36,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "primary"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_outage_recovery.py",
+      "kind": "module_constant",
+      "line": 37,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_attempt_hooks.py",
+      "kind": "model_id_literal",
+      "line": 22,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "model_family"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_attempt_hooks.py",
+      "kind": "model_id_literal",
+      "line": 22,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_id"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_enforcement.py",
+      "kind": "model_id_literal",
+      "line": 99,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_find_pin_violations_catches_a_planted_literal_pin"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_enforcement.py",
+      "kind": "model_id_literal",
+      "line": 344,
+      "models": [
+        "glm-5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_pin_on_the_current_primary_is_detected"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_enforcement.py",
+      "kind": "model_id_literal",
+      "line": 344,
+      "models": [
+        "glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_pin_on_the_current_primary_is_detected"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_enforcement.py",
+      "kind": "model_id_literal",
+      "line": 344,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_pin_on_the_current_primary_is_detected"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 97,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 101,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_free_success_returns_result"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 108,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 114,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_execution_options_applied_to_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 123,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "be"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 124,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 124,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 126,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_transient_advances_to_next_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 131,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "be"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 132,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 132,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 134,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_breaker_open_advances"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 138,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "be"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 139,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 139,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 141,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_paid_guard_denial_skips_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 146,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "be"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 147,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 147,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 151,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_permanent_refusal_aborts_and_does_not_advance"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 156,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "be"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 156,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "be"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 158,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 158,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 172,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 181,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 197,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "model_id"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 231,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 241,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 249,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 263,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 339,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 359,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain_a"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 360,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "chain_b"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 390,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 412,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 419,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 437,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_funded_select.py",
+      "kind": "model_id_literal",
+      "line": 218,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_funded_select.py",
+      "kind": "model_id_literal",
+      "line": 390,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_hf_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 261,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_family_table_select_never_admits_a_funded_model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 52,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_ignores_comments_and_docstrings"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 80,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_detects_literals_and_default_args"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 84,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_detects_literals_and_default_args"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 88,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_detects_literals_and_default_args"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 114,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "lit"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 158,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_frozenset_table_stays_single_constant"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 158,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_frozenset_table_stays_single_constant"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 180,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_fallback_table_single_entry_no_double_count"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 181,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_fallback_table_single_entry_no_double_count"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 182,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_fallback_table_single_entry_no_double_count"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 202,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_hf_slash_model_but_not_paths"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 289,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_registry_extracts_agent_fields_with_lines"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 294,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_registry_extracts_agent_fields_with_lines"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 299,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 334,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "value"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 363,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 425,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_render_markdown_is_deterministic_with_counts_and_pins"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_leaderboard.py",
+      "kind": "model_id_literal",
+      "line": 53,
+      "models": [
+        "gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_normalise_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_leaderboard.py",
+      "kind": "model_id_literal",
+      "line": 64,
+      "models": [
+        "gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_normalise_repo_uses_the_part_after_the_org"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_leaderboard.py",
+      "kind": "model_id_literal",
+      "line": 64,
+      "models": [
+        "openai/gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_normalise_repo_uses_the_part_after_the_org"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_lkg.py",
+      "kind": "model_id_literal",
+      "line": 17,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_REF"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_lkg.py",
+      "kind": "model_id_literal",
+      "line": 17,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "_REF"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_lkg.py",
+      "kind": "model_id_literal",
+      "line": 18,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_PRICE"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_lkg.py",
+      "kind": "model_id_literal",
+      "line": 19,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "_LOCAL_REF"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_lkg.py",
+      "kind": "model_id_literal",
+      "line": 19,
+      "models": [
+        "qwen2.5"
+      ],
+      "owning_slice": null,
+      "symbol": "_LOCAL_REF"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_lkg.py",
+      "kind": "model_id_literal",
+      "line": 20,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "_LOCAL_PRICE"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "module_constant",
+      "line": 16,
+      "models": [
+        "claude-haiku-4-5",
+        "gemma-4",
+        "glm-5.3",
+        "gpt-oss",
+        "qwen2.5",
+        "qwen3-vl",
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "_EXPECTED_FAMILIES"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 29,
+      "models": [
+        "gemma-3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_expected_families_present_and_gemma3_absent"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 48,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 49,
+      "models": [
+        "qwen3-vl"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 50,
+      "models": [
+        "qwen3-vl"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 51,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 52,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 53,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 54,
+      "models": [
+        "qwen2.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 55,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_profiles.py",
+      "kind": "model_id_literal",
+      "line": 61,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_route.py",
+      "kind": "module_constant",
+      "line": 48,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "QWEN"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_route.py",
+      "kind": "module_constant",
+      "line": 49,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "GEMMA4"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_route.py",
+      "kind": "module_constant",
+      "line": 50,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "GPT_OSS"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_route.py",
+      "kind": "module_constant",
+      "line": 51,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "CLAUDE"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_route.py",
+      "kind": "module_constant",
+      "line": 52,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "LOCAL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_route.py",
+      "kind": "module_constant",
+      "line": 169,
+      "models": [
+        "openai.gpt-5"
+      ],
+      "owning_slice": null,
+      "symbol": "absent"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_router_primitive.py",
+      "kind": "model_id_literal",
+      "line": 70,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_router_primitive.py",
+      "kind": "model_id_literal",
+      "line": 72,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_success_is_a_single_call"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "module_constant",
+      "line": 35,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "QWEN"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "module_constant",
+      "line": 36,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "GEMMA4"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "module_constant",
+      "line": 37,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "GPT_OSS"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "module_constant",
+      "line": 38,
+      "models": [
+        "google.gemma-3-27b-it"
+      ],
+      "owning_slice": null,
+      "symbol": "GEMMA3"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "module_constant",
+      "line": 39,
+      "models": [
+        "qwen.qwen3-vl:32b"
+      ],
+      "owning_slice": null,
+      "symbol": "VL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "module_constant",
+      "line": 40,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "CLAUDE"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "module_constant",
+      "line": 41,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "LOCAL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 374,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 395,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 409,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 409,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 409,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 424,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 471,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 471,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "module_constant",
+      "line": 666,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "GLM"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 676,
+      "models": [
+        "glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_policy_v3_names_glm_as_a_non_vision_reasoning_family"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 687,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "test_policy_v3_names_glm_as_a_non_vision_reasoning_family"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 687,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "test_policy_v3_names_glm_as_a_non_vision_reasoning_family"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 24,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 24,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 25,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 25,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 26,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 26,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 27,
+      "models": [
+        "gemma-3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 27,
+      "models": [
+        "google.gemma-3-27b-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 28,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 28,
+      "models": [
+        "qwen2.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 29,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 29,
+      "models": [
+        "claude-haiku-4-5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "module_constant",
+      "line": 38,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "mid"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 101,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "ref"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 101,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "ref"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 102,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "price"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 120,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_runtime_snapshot_is_deterministic_and_provenanced"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 132,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "ref"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 132,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "ref"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 133,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "price"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 159,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "ref"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 159,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "ref"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 160,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "price"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_multimodal_content.py",
+      "kind": "model_id_literal",
+      "line": 218,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paid_credits.py",
+      "kind": "model_id_literal",
+      "line": 44,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "test_refused_by_default"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paid_credits.py",
+      "kind": "model_id_literal",
+      "line": 64,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "test_allowed_under_cap"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paid_credits.py",
+      "kind": "model_id_literal",
+      "line": 74,
+      "models": [
+        "anthropic.claude-opus-4-8"
+      ],
+      "owning_slice": null,
+      "symbol": "test_refused_at_cap"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paid_credits.py",
+      "kind": "model_id_literal",
+      "line": 84,
+      "models": [
+        "anthropic.claude-opus-4-8"
+      ],
+      "owning_slice": null,
+      "symbol": "test_custom_fraction"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paid_credits.py",
+      "kind": "model_id_literal",
+      "line": 91,
+      "models": [
+        "anthropic.claude-opus-4-8"
+      ],
+      "owning_slice": null,
+      "symbol": "test_zero_max_budget_refused"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paid_credits.py",
+      "kind": "model_id_literal",
+      "line": 116,
+      "models": [
+        "anthropic.claude-opus-4-8"
+      ],
+      "owning_slice": null,
+      "symbol": "test_fetch_failure_refuses"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paid_credits.py",
+      "kind": "model_id_literal",
+      "line": 183,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "test_fits_within_cap"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paper_reviewer_arxiv_intake.py",
+      "kind": "model_id_literal",
+      "line": 206,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paper_reviewer_arxiv_intake.py",
+      "kind": "model_id_literal",
+      "line": 591,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_build_messages_with_mixed_string_and_dict_authors"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paper_task_analysis_receipts.py",
+      "kind": "model_id_literal",
+      "line": 170,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_personality_attribution.py",
+      "kind": "model_id_literal",
+      "line": 127,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_used"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_personality_attribution.py",
+      "kind": "model_id_literal",
+      "line": 132,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_entry_has_all_required_attribution_fields"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_personality_attribution.py",
+      "kind": "model_id_literal",
+      "line": 149,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "footer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_personality_attribution.py",
+      "kind": "model_id_literal",
+      "line": 155,
+      "models": [
+        "gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_disclaimer_template_names_persona_and_model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_personality_turn.py",
+      "kind": "model_id_literal",
+      "line": 189,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_personality_turn.py",
+      "kind": "model_id_literal",
+      "line": 193,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_a_comment_with_an_anchored_quote_is_accepted"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_pipeline_recovery.py",
+      "kind": "module_constant",
+      "line": 92,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "entry"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_preprint_pdf.py",
+      "kind": "model_id_literal",
+      "line": 68,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_preprint_pdf.py",
+      "kind": "model_id_literal",
+      "line": 83,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_preprint_pdf.py",
+      "kind": "model_id_literal",
+      "line": 140,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_preprint_pdf.py",
+      "kind": "model_id_literal",
+      "line": 173,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_preprint_review.py",
+      "kind": "model_id_literal",
+      "line": 103,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_profile_projections.py",
+      "kind": "model_id_literal",
+      "line": 136,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_prompt_eval_provider.py",
+      "kind": "module_constant",
+      "line": 17,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "CONFIGURED_PRIMARY"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_prompt_eval_provider.py",
+      "kind": "model_id_literal",
+      "line": 60,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_peer_response_cannot_pass_selected_leader_eval"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_prompt_eval_provider.py",
+      "kind": "model_id_literal",
+      "line": 63,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_peer_response_cannot_pass_selected_leader_eval"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reasoning_walker_delegation.py",
+      "kind": "module_constant",
+      "line": 35,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "PRIMARY"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_repair_diagnostics.py",
+      "kind": "model_id_literal",
+      "line": 44,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_validated_candidate_uses_different_reviewer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_repair_diagnostics.py",
+      "kind": "model_id_literal",
+      "line": 44,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_validated_candidate_uses_different_reviewer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_rereview_per_specialist_toggle.py",
+      "kind": "model_id_literal",
+      "line": 38,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_rereview_per_specialist_toggle.py",
+      "kind": "model_id_literal",
+      "line": 201,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_review_dispatch_gating.py",
+      "kind": "model_id_literal",
+      "line": 102,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_review_record_action_items.py",
+      "kind": "model_id_literal",
+      "line": 25,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_base_kwargs"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviewed_preprint_attribution.py",
+      "kind": "model_id_literal",
+      "line": 43,
+      "models": [
+        "claude-sonnet-4.7"
+      ],
+      "owning_slice": null,
+      "symbol": "_repo_with_runlog"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviewed_preprint_attribution.py",
+      "kind": "model_id_literal",
+      "line": 59,
+      "models": [
+        "claude-sonnet-4.7"
+      ],
+      "owning_slice": null,
+      "symbol": "test_preprint_credits_reviewer_model_not_implementer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviewed_preprint_attribution.py",
+      "kind": "model_id_literal",
+      "line": 73,
+      "models": [
+        "claude-sonnet-4.7"
+      ],
+      "owning_slice": null,
+      "symbol": "test_non_preprint_still_credits_implementer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviewed_preprint_finalize.py",
+      "kind": "model_id_literal",
+      "line": 95,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_peer_retry.py",
+      "kind": "module_constant",
+      "line": 18,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "GLM"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_peer_retry.py",
+      "kind": "module_constant",
+      "line": 19,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "QWEN"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_peer_retry.py",
+      "kind": "module_constant",
+      "line": 20,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "GPT"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_peer_retry.py",
+      "kind": "module_constant",
+      "line": 21,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "GEMMA"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_self_consistency.py",
+      "kind": "model_id_literal",
+      "line": 469,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "replies"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_self_consistency.py",
+      "kind": "model_id_literal",
+      "line": 469,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "replies"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_self_consistency.py",
+      "kind": "model_id_literal",
+      "line": 470,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "transient_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_self_consistency.py",
+      "kind": "model_id_literal",
+      "line": 491,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "replies"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_router_lane_plumbing.py",
+      "kind": "module_constant",
+      "line": 19,
+      "models": [
+        "gemma-4",
+        "glm-5.3",
+        "gpt-oss",
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "_ALL_FAMILIES"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_router_lane_plumbing.py",
+      "kind": "model_id_literal",
+      "line": 103,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_runlog_attribution.py",
+      "kind": "model_id_literal",
+      "line": 17,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_runlog_attribution.py",
+      "kind": "model_id_literal",
+      "line": 38,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_success_with_both_is_valid"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_runlog_producer.py",
+      "kind": "model_id_literal",
+      "line": 43,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "base"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_selection_identity.py",
+      "kind": "module_constant",
+      "line": 23,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "GLM"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_selection_identity.py",
+      "kind": "module_constant",
+      "line": 24,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "QWEN"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_selection_identity.py",
+      "kind": "module_constant",
+      "line": 25,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "GEMMA4"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_selection_identity.py",
+      "kind": "module_constant",
+      "line": 26,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "GPT_OSS"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_self_improvement_invocation_identity.py",
+      "kind": "model_id_literal",
+      "line": 42,
+      "models": [
+        "gemma-3-27b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_id"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_self_improvement_invocation_identity.py",
+      "kind": "model_id_literal",
+      "line": 127,
+      "models": [
+        "gemma-3-27b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_success_identity_carries_full_selection_provenance"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_self_improvement_invocation_identity.py",
+      "kind": "model_id_literal",
+      "line": 279,
+      "models": [
+        "gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_id"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_self_improvement_invocation_identity.py",
+      "kind": "model_id_literal",
+      "line": 280,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "model_family"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_state_atomic_io.py",
+      "kind": "model_id_literal",
+      "line": 299,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_state_atomic_io.py",
+      "kind": "model_id_literal",
+      "line": 375,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_summarize_budget_from_policy.py",
+      "kind": "model_id_literal",
+      "line": 9,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_budget_comes_from_the_capability_policy"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_summarize_budget_from_policy.py",
+      "kind": "model_id_literal",
+      "line": 10,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "test_budget_comes_from_the_capability_policy"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_summarize_budget_from_policy.py",
+      "kind": "model_id_literal",
+      "line": 12,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_budget_comes_from_the_capability_policy"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_summarize_budget_from_policy.py",
+      "kind": "model_id_literal",
+      "line": 13,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_budget_comes_from_the_capability_policy"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_summarize_budget_from_policy.py",
+      "kind": "module_constant",
+      "line": 31,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct",
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "old_model_budgets"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_task_analysis_receipts.py",
+      "kind": "model_id_literal",
+      "line": 141,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_us5_ac1_primary_preservation.py",
+      "kind": "module_constant",
+      "line": 26,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "LEGACY_DEFAULT"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_web_data_bot_submitter.py",
+      "kind": "model_id_literal",
+      "line": 39,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_models_are_not_bots"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_web_data_bot_submitter.py",
+      "kind": "model_id_literal",
+      "line": 40,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_models_are_not_bots"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_web_data_recent_activity.py",
+      "kind": "model_id_literal",
+      "line": 32,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_entry"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_web_data_recent_activity.py",
+      "kind": "model_id_literal",
+      "line": 82,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_personality_fields_propagated"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_web_data_recent_activity.py",
+      "kind": "model_id_literal",
+      "line": 119,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_duration_computed_from_timestamps"
+    }
+  ],
+  "generated_by": "llmxive.model_selection.inventory.build_manifest",
+  "schema": "llmxive-model-selection-migration/1"
+}

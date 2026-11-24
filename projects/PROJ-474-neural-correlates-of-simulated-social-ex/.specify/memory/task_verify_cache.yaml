@@ -1,3 +1,48 @@
+T000:
+  c: true
+  h: bea047088145d3ec2a1d2a97e9b2361d580ab97b2b4861c3eeb48c72aaef6aaa
+  r: '`code/requirements.txt` exists (223 bytes) and lists exact pinned versions for
+    all ten required packages (openneuro provided as `openneuro-py==0.1.0`, plus numpy,
+    pandas, scipy, nibabel, nilearn, matplotlib, seaborn, tqdm, jsonschema), with
+    a few extra pinned dependencies that don''t conflict with the requirement. The
+    verification clause (fresh-venv pip install) is an environment check, not an artifact,
+    and the file''s content matches the task''s stated deliverable.'
+  sig: 4805e0e2ef3fc27fedaf6e84b7aeef3c3988d88142e967dc5b1f4ab199c0d799
+T001:
+  c: false
+  h: ba2cae33d1e3d82da0d4a745e67a5f49c7d4f072facaf05029cae699c4172ce5
+  r: "Checked `code/data_loader.py`, `data/raw/checksums.json`, `data/processed/dataset_manifest.json`,\
+    \ the unit tests, and the execution log. The loader implements backoff and marker\u2011\
+    checking logic, and the tests pass, but it never streams the subject fMRI files\
+    \ (it only downloads the Harvard\u2011Oxford atlas) and the generated `dataset_manifest.json`\
+    \ does not follow the required `contracts/dataset_schema.schema.yaml` (it lacks\
+    \ the subject/run/condition/time_series fields). Moreover, when the OpenNeuro\
+    \ API call fails (404) the script proceeds in \u201Crecord\u201D mode instead\
+    \ of aborting with error\u202F101897695 as"
+  sig: 6f5a5ce64e98061aa6d7ca23225e944a990df3457c2c0d34a177d9096a438b8f
+T001b:
+  c: false
+  h: e34c9ac9b2a9d3f9b346a92233febf4eb102f9aa9b6ff278075ce6bd8c7d07fc
+  r: "Checked `data/raw/checksums.json` and its generation log \u2013 it contains\
+    \ a single SHA\u2011256 entry that matches the recomputed checksum for `harvard_oxford_cort_maxprob_thr25_2mm.nii.gz`.\
+    \ However, the task requires a checksum entry for **every** downloaded NIfTI file;\
+    \ there is no evidence that other NIfTI files (e.g., the fMRI runs from ds000030)\
+    \ were included or that the JSON covers all of them. Add entries for all downloaded\
+    \ NIfTI files (or provide proof that only this file was downloaded) and verify\
+    \ each checksum."
+  sig: c78b22d042da9ba96dbd0c7bbdb772e0c8a487febe643cc874ee66e399cc4ad9
+T002:
+  c: false
+  h: 906455389935e68d2c9f1c849da31617df0853cdb6a04412b3092c0e99742559
+  r: "The QC module cannot be imported (test collection fails) because `code/qc.py`\
+    \ tries to import `src.exceptions`, but the `src` package only re\u2011exports\
+    \ the `code/src` directory and does not contain an `exceptions` submodule, causing\
+    \ a `ModuleNotFoundError`. Moreover, the generated `data/processed/subjects_metadata.json`\
+    \ is just an empty list (`[]`), which does not satisfy the required schema (missing\
+    \ required fields and contains extra keys like `condition_valid` with lower\u2011\
+    cased condition names). The implementation therefore does not produce the correct\
+    \ output nor pass the provided tests."
+  sig: efc64e8f2acee0093f5c28f97a8f8b99ea65effaf4f2738b5bff973f4cb18352
 T009:
   c: false
   h: fd49331fa793711f9d840bcd2befaef4d3af24dc76c435d634c014653a6fc753

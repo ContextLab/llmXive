@@ -1,0 +1,4 @@
+2026-10-24 16:27:03,822 - src.models.training_pipeline - INFO - Loaded 0 rows from data/processed/alloys_features.csv
+2026-10-24 16:27:03,822 - src.models.training_pipeline - WARNING - Input data is empty. Saving empty metrics.
+2026-10-24 16:27:03,822 - src.models.training_pipeline - INFO - Saved metrics to data/processed/model_metrics.json
+2026-10-24 16:27:03,822 - scripts.run_model_training - INFO - Model Training Pipeline Script completed.

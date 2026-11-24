@@ -1,3 +1,1 @@
-"""
-Test suite for the GNN Anomaly Detection project.
-"""
+"""Test package for the GNN anomaly-detection project."""

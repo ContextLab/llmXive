@@ -18,7 +18,8 @@ from config import (
     DatasetConfig,
     get_data_path,
     get_derived_path,
-    ensure_dirs
+    ensure_dirs,
+    DATA_DIR,
 )
 
 class TestDatasetConfig:
@@ -26,7 +27,6 @@ class TestDatasetConfig:
 
     def test_initial_ids_match_primary(self):
         """Verify that the default config starts with primary dataset IDs."""
-        # Create a fresh instance to avoid state pollution from global
         fresh_config = DatasetConfig()
         assert fresh_config.current_ids == DATASET_IDS_PRIMARY
 
@@ -92,7 +92,6 @@ class TestPathHelpers:
         """Verify that ensure_dirs creates the required directories."""
         # We test this by checking if the function runs without error
         # and that the main data directory exists afterwards.
-        from config import DATA_DIR
         ensure_dirs()
         assert DATA_DIR.exists()
 

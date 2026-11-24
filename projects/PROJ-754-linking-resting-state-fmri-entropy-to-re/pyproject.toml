@@ -64,3 +64,6 @@ force-sort-within-sections = true
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101"] # Allow asserts in tests
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]

@@ -1,0 +1,11 @@
+generated_at: '2026-10-12T13:41:12.772612'
+checksums:
+  data/__init__.py: fc159f0528934d6a40d5a9ea345a8a1dc8d28bf0789f966321d0c6d036f403ae
+  data/.gitkeep: af1642b5e6e8aa672044e96ba346bc645bac27e81a224bcc523c5b1c5db92480
+  data/external/__init__.py: d28b22b33c9ea0b91423ff6a25deceacfa10da2fefa9fab599d9ed0dfb189afe
+  data/external/.gitkeep: 0930ce1714ee818b37299d14ddda4a4abce7810d9d92b8598c883dadf3aee365
+  data/raw/.gitkeep: 8490f525f60fabae2db3f2943ea8c9e6fb88ab05830474bc4506db2c6178e8ea
+  data/figures/.gitkeep: 130ae85ebe3666c1b05beba69540e08d68856150ae10007714a773f3b6b90be0
+  data/processed/.gitkeep: 8490f525f60fabae2db3f2943ea8c9e6fb88ab05830474bc4506db2c6178e8ea
+  data/interim/__init__.py: 60a443b54469a52432cf72e553c568cec67e3fc3c35b4f1d6f62191bee9c5bcb
+  data/interim/.gitkeep: 53de879f0618783413c85869f3f191b23c800861306038572f25db3c1eded6e5

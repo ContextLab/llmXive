@@ -1,138 +1,172 @@
+"""
+graph_builder.py
+Utilities for building molecular graphs, validating SMILES, and handling memory checks.
+"""
+
 import logging
-from typing import List, Tuple, Optional, Dict, Any
-import os
-import logging.handlers
 from pathlib import Path
-import rdkit
+from typing import Optional, Union
+
+import networkx as nx
+import numpy as np
 from rdkit import Chem
-from rdkit.Chem import Descriptors
 
-# Project root for log file location
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_LOGS_DIR = PROJECT_ROOT / "data" / "logs"
+# Global singleton logger for invalid SMILES
+_invalid_smiles_logger: Optional[logging.Logger] = None
 
-class Graph:
-    """Simple wrapper for molecular graph data."""
-    def __init__(self, rdkit_mol):
-        self.mol = rdkit_mol
-        self.nodes = []
-        self.edges = []
-        self._extract_structure()
 
-    def _extract_structure(self):
-        """Extract nodes and edges from RDKit molecule."""
-        self.nodes = list(self.mol.GetAtoms())
-        self.edges = list(self.mol.GetBonds())
-
-def setup_invalid_smiles_logger():
+def setup_invalid_smiles_logger(log_file: Union[str, Path]) -> logging.Logger:
     """
-    Setup a dedicated logger for invalid SMILES to write to data/logs/invalid_smiles.log.
-    Returns the logger instance.
+    Configure a logger that records invalid SMILES strings to the given file.
+    The logger is a singleton; repeated calls return the same logger.
+
+    Parameters
+    ----------
+    log_file : Union[str, Path]
+        Path to the log file where invalid SMILES will be recorded.
+
+    Returns
+    -------
+    logging.Logger
+        Configured logger instance.
     """
-    # Ensure directory exists
-    DATA_LOGS_DIR.mkdir(parents=True, exist_ok=True)
-    
-    logger = logging.getLogger("invalid_smiles")
+    global _invalid_smiles_logger
+    if _invalid_smiles_logger is not None:
+        return _invalid_smiles_logger
+
+    log_path = Path(log_file)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger = logging.getLogger("invalid_smiles_logger")
     logger.setLevel(logging.INFO)
-    
-    # Prevent duplicate handlers if called multiple times
+    # Avoid duplicate handlers if this function is called multiple times
     if not logger.handlers:
-        handler = logging.FileHandler(DATA_LOGS_DIR / "invalid_smiles.log")
-        handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        handler = logging.FileHandler(log_path, mode='a')
+        formatter = logging.Formatter("%(asctime)s - %(message)s")
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-    
+    _invalid_smiles_logger = logger
     return logger
 
-def log_invalid_smiles(logger: logging.Logger, smiles: str, reason: str):
-    """Log an invalid SMILES entry to the specific logger."""
-    if logger:
-        logger.info(f"SMILES: {smiles} | Reason: {reason}")
+
+def log_invalid_smiles(smiles: str, reason: str) -> None:
+    """
+    Log an invalid SMILES string with a reason. If the logger has not been set up,
+    it will be created with the default path ``data/logs/invalid_smiles.log``.
+
+    Parameters
+    ----------
+    smiles : str
+        The SMILES string that could not be processed.
+    reason : str
+        Human‑readable explanation of why the SMILES is invalid.
+    """
+    global _invalid_smiles_logger
+    if _invalid_smiles_logger is None:
+        # Default log location as required by the spec
+        default_path = Path("data") / "logs" / "invalid_smiles.log"
+        setup_invalid_smiles_logger(default_path)
+    _invalid_smiles_logger.info(f"{smiles}\t{reason}")
+
 
 def is_valid_molecule(smiles: str) -> bool:
-    """Check if a SMILES string represents a valid molecule."""
-    if not smiles or not isinstance(smiles, str):
-        return False
-    try:
-        mol = Chem.MolFromSmiles(smiles)
-        return mol is not None
-    except Exception:
-        return False
+    """
+    Validate a SMILES string using RDKit. Returns True if the SMILES can be
+    parsed into a Mol object; otherwise logs the failure and returns False.
 
-def build_molecular_graph(smiles: str) -> Optional[Graph]:
-    """Build a molecular graph from a SMILES string."""
-    if not is_valid_molecule(smiles):
-        return None
+    Parameters
+    ----------
+    smiles : str
+        SMILES representation of a molecule.
+
+    Returns
+    -------
+    bool
+        True if RDKit can create a molecule object, False otherwise.
+    """
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
-        return None
-    return Graph(mol)
-
-def get_molecular_weight(mol: Chem.Mol) -> float:
-    """Calculate molecular weight."""
-    return Descriptors.MolWt(mol)
-
-def build_graphs_from_smiles_list(smiles_list: List[str]) -> List[Tuple[str, Optional[Graph]]]:
-    """Build graphs for a list of SMILES strings."""
-    results = []
-    for smiles in smiles_list:
-        graph = build_molecular_graph(smiles)
-        results.append((smiles, graph))
-    return results
-
-def validate_graph_structure(graph: Graph) -> bool:
-    """Validate the structure of a graph."""
-    if graph is None:
+        log_invalid_smiles(smiles, "RDKit failed to parse SMILES")
         return False
-    # Basic checks: nodes and edges exist
-    return len(graph.nodes) > 0 and len(graph.edges) >= 0
-
-def build_graph(smiles: str) -> Optional[Graph]:
-    """
-    Main entry point for building a graph from SMILES.
-    Returns a Graph object or None if invalid.
-    """
-    return build_molecular_graph(smiles)
-
-def validate_graph(graph: Graph) -> bool:
-    """
-    Validate graph properties (valence, aromaticity, bond order).
-    """
-    if graph is None or graph.mol is None:
-        return False
-    
-    # Check for valence errors
-    if Chem.rdmolops.FindMolChiralCenters(graph.mol, includeUnassigned=True) is not None:
-        # RDKit doesn't strictly fail on valence in MolFromSmiles usually, 
-        # but we can check for explicit valence errors if needed.
-        # For now, if MolFromSmiles succeeded, we assume basic valence is okay.
-        pass
-
-    # Check for aromaticity
-    # RDKit computes aromaticity by default, but we can check ring info
-    if graph.mol.GetRingInfo().NumRings() == 0:
-        pass # Linear molecules are fine
-    
-    # Check bond orders
-    for bond in graph.edges:
-        bond_type = bond.GetBondType()
-        if bond_type not in [Chem.BondType.SINGLE, Chem.BondType.DOUBLE, Chem.BondType.TRIPLE, Chem.BondType.AROMATIC]:
-            return False
-    
+    # Additional sanity checks can be added here (e.g., valence)
     return True
 
-def main():
-    """Example usage for testing."""
-    logger = setup_invalid_smiles_logger()
-    test_smiles = ["CCO", "invalid_smiles", "c1ccccc1"]
-    
-    for s in test_smiles:
-        g = build_graph(s)
-        if g is None:
-            log_invalid_smiles(logger, s, "Failed to parse")
-        else:
-            print(f"{s}: Valid, MW={get_molecular_weight(g.mol):.2f}")
 
-if __name__ == "__main__":
-    main()
+# Memory handling constants
+MEMORY_THRESHOLD_BYTES = 100 * 1024 * 1024  # 100 MiB
+
+
+def check_memory_requirement(num_nodes: int) -> bool:
+    """
+    Check whether the all‑pairs shortest‑path matrix for a graph with
+    ``num_nodes`` nodes fits within the memory threshold.
+
+    Parameters
+    ----------
+    num_nodes : int
+        Number of nodes in the graph.
+
+    Returns
+    -------
+    bool
+        True if the estimated memory (num_nodes² × 8 bytes) is below the threshold.
+
+    Raises
+    ------
+    MemoryError
+        If the estimated memory exceeds ``MEMORY_THRESHOLD_BYTES``.
+    """
+    # Estimate memory for a dense float64 matrix
+    estimated_bytes = num_nodes * num_nodes * 8
+    if estimated_bytes > MEMORY_THRESHOLD_BYTES:
+        raise MemoryError(
+            f"Shortest‑path matrix would require {estimated_bytes / (1024**2):.2f} MiB, "
+            f"exceeding the {MEMORY_THRESHOLD_BYTES / (1024**2):.2f} MiB limit."
+        )
+    return True
+
+
+def compute_shortest_path_matrix(graph: nx.Graph) -> np.ndarray:
+    """
+    Compute the all‑pairs shortest‑path distance matrix for ``graph``.
+    For disconnected node pairs the distance is set to ``np.inf``.
+
+    Parameters
+    ----------
+    graph : nx.Graph
+        Undirected graph representing a molecule.
+
+    Returns
+    -------
+    np.ndarray
+        A ``(n, n)`` array of shortest‑path distances (float64), where ``n``
+        is the number of nodes.
+
+    Raises
+    ------
+    MemoryError
+        If the required matrix would exceed the memory threshold.
+    """
+    n = graph.number_of_nodes()
+    if n == 0:
+        return np.zeros((0, 0), dtype=np.float64)
+
+    # Verify memory constraints before allocation
+    check_memory_requirement(n)
+
+    # Initialise with infinities
+    dist_matrix = np.full((n, n), np.inf, dtype=np.float64)
+    np.fill_diagonal(dist_matrix, 0.0)
+
+    # Map nodes to integer indices
+    nodes = list(graph.nodes())
+    node_to_idx = {node: i for i, node in enumerate(nodes)}
+
+    # Compute shortest paths using Dijkstra (handles weighted edges if any)
+    for source, lengths in nx.all_pairs_dijkstra_path_length(graph):
+        u = node_to_idx[source]
+        for target, d in lengths.items():
+            v = node_to_idx[target]
+            dist_matrix[u, v] = float(d)
+
+    return dist_matrix

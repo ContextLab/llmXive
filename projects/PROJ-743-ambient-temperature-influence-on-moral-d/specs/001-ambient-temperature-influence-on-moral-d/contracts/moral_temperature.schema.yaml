@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Merged Dataset Schema"
-description: "Schema for the merged Moral Machine and ERA5 dataset used in analysis."
+title: "Merged Moral Machine and ERA5 Dataset Schema"
+description: "Schema for the merged Moral Machine responses with ERA5 temperature data used in analysis."
 type: "object"
 properties:
   response_id:
@@ -8,55 +8,79 @@ properties:
     description: "Unique identifier for the moral response."
   participant_id:
     type: "string"
-    description: "Unique identifier for the participant."
+    description: "Anonymous participant identifier."
   country:
     type: "string"
     description: "ISO country code of the participant."
   latitude:
     type: "number"
     description: "Latitude of the response location."
+    minimum: -90
+    maximum: 90
   longitude:
     type: "number"
     description: "Longitude of the response location."
+    minimum: -180
+    maximum: 180
   timestamp:
     type: "string"
     format: "date-time"
     description: "Timestamp of the response (ISO 8601)."
   response_time_ms:
     type: "integer"
-    description: "Response time in milliseconds (filtered: 100ms <= x <= 10000ms)."
-  log_response_time:
+    description: "Average response latency in milliseconds for the scenario (derived from auxiliary experiment)."
+  log_rt:
     type: "number"
-    description: "Natural log of response_time_ms."
-  temperature_celsius:
+    description: "Natural logarithm of response_time_ms."
+  temperature_c:
     type: "number"
-    description: "Ambient temperature in Celsius from ERA5."
-  temperature_squared:
+    description: "Hourly ambient temperature in degrees Celsius from ERA (2014‑2018)."
+    minimum: -50
+    maximum: 50
+  temperature_c_squared:
     type: "number"
-    description: "Square of temperature_celsius for non-linearity testing."
+    description: "Square of temperature_c, used for testing non‑linear temperature effects."
   dilemma_complexity:
     type: "number"
     description: "Static complexity score of the dilemma."
+    minimum: 0
+  difficulty_score:
+    type: "integer"
+    description: "Categorical difficulty (Low=0, Medium=1, High=2)."
+    minimum: 0
+    maximum: 2
   time_of_day:
-    type: "number"
-    description: "Hour of the day (0-23) or encoded time-of-day."
-  choice:
+    type: "integer"
+    description: "Hour of the day (0‑23) extracted from timestamp."
+    minimum: 0
+    maximum: 23
+  age_group:
     type: "string"
-    description: "The choice made (e.g., save_many, save_few)."
+    description: "Age bracket (optional)."
+  gender:
+    type: "string"
+    description: "Gender (optional)."
   distance_km:
     type: "number"
-    description: "Distance in km to the nearest ERA5 grid point."
+    description: "Haversine distance in kilometers to the nearest ERA5 grid point."
+    minimum: 0
+    maximum: 100
   exclusion_flag:
     type: "boolean"
-    description: "True if the record was excluded due to distance or time gap."
+    description: "True if the record was excluded due to distance or other quality issue."
 required:
   - response_id
   - participant_id
-  - temperature_celsius
+  - country
+  - latitude
+  - longitude
+  - timestamp
   - response_time_ms
-  - log_response_time
+  - log_rt
+  - temperature_c
+  - temperature_c_squared
   - dilemma_complexity
+  - difficulty_score
   - time_of_day
-  - choice
   - distance_km
 additionalProperties: false

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Molecular Dataset Schema"
-description: "Schema for raw molecular data downloaded from PubChem"
+description: "Schema for raw molecular data downloaded from PubChem. Only experimental property values are permitted."
 type: object
 properties:
   cid:
@@ -11,17 +11,17 @@ properties:
     description: "Isomeric SMILES string"
   logp:
     type: number
-    description: "XLogP3 or Experimental value"
+    description: "Experimental logP (must be sourced from experimental measurement)"
     minimum: -10
     maximum: 10
   solubility:
     type: number
-    description: "Aqueous solubility (logS)"
+    description: "Experimental aqueous solubility (logS) (must be sourced from experimental measurement)"
     minimum: -10
     maximum: 5
   boiling_point:
     type: number
-    description: "Boiling point (K)"
+    description: "Experimental boiling point (K) (must be sourced from experimental measurement)"
     minimum: 200
     maximum: 1000
   molecular_weight:
@@ -31,22 +31,37 @@ properties:
     maximum: 10000
   property_type:
     type: string
-    enum: ["Experimental", "Computed"]
-    description: "Whether the value is experimental or computed"
+    enum: ["Experimental"]
+    description: "Only experimental values are permitted"
   measurement_uncertainty:
     type: ["number", "null"]
-    description: "Confidence score from PubChem (optional/derived)"
+    description: "Optional confidence score from PubChem"
     minimum: 0
     maximum: 1
   quantity_of_substance:
     type: ["number", "null"]
-    description: "Amount (if available, optional/derived)"
+    description: "Optional amount of substance, if available"
+    minimum: 0
+    maximum: 100000
   source:
     type: string
     const: "PubChem"
   confidence:
     type: string
     enum: ["High", "Medium", "Low"]
+    description: "Derived confidence based on property_type"
+  logp_source:
+    type: string
+    enum: ["Experimental"]
+    description: "Source of logP value; must be \"Experimental\""
+  solubility_source:
+    type: string
+    enum: ["Experimental"]
+    description: "Source of solubility value; must be \"Experimental\""
+  boiling_point_source:
+    type: string
+    enum: ["Experimental"]
+    description: "Source of boiling point value; must be \"Experimental\""
 required:
   - cid
   - smiles
@@ -56,3 +71,6 @@ required:
   - property_type
   - source
   - confidence
+  - logp_source
+  - solubility_source
+  - boiling_point_source

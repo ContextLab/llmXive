@@ -1,0 +1,9 @@
+code
+code/simulation
+code/analysis
+code/utils
+tests/unit
+tests/integration
+data/raw
+data/processed
+data/processed/plots

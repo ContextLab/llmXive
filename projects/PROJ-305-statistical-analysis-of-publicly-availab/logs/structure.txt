@@ -63,6 +63,7 @@
 │   │   ├── gpu_check.py
 │   │   └── setup_linting.py
 │   ├── setup_project.py
+│   ├── setup_project_structure.py
 │   ├── setup_structure.py
 │   ├── specs
 │   │   └── .gitkeep
@@ -85,8 +86,14 @@
 │   └── soc_cluster.schema.yaml
 ├── data
 │   ├── .gitkeep
+│   ├── checksums.txt
+│   ├── meddra_soc_mapping.csv
+│   ├── meddra_to_soc.csv
 │   ├── processed
-│   └── raw
+│   ├── raw
+│   └── results
+│       ├── __init__.py
+│       └── download_summary.txt
 ├── figures
 │   └── .gitkeep
 ├── idea
@@ -94,13 +101,18 @@
 │   └── statistical-analysis-of-publicly-availab.md
 ├── logs
 │   ├── lint.txt
-│   └── structure.txt
+│   ├── structure.txt
+│   └── validate_fail.txt
 ├── output
 │   ├── .gitkeep
-│   ├── figures
-│   └── temporal_profiles
+│   └── figures
+│       └── __init__.py
 ├── pyproject.toml
+├── quickstart.md
 ├── requirements.txt
+├── reviews
+│   └── research
+│       └── alan-turing-simulated__2026-10-18__research.md
 ├── scripts
 │   ├── format.sh
 │   └── lint.sh
@@ -119,27 +131,37 @@
 │   ├── analysis
 │   │   └── disproportionality.py
 │   ├── data
+│   │   ├── clean.py
 │   │   ├── download.py
-│   │   └── validate.py
+│   │   ├── validate.py
+│   │   └── validate_raw.py
 │   ├── main.py
+│   ├── requirements.txt
 │   ├── utils
 │   │   ├── config.py
 │   │   └── plots.py
 │   └── validation
+│       └── __init__.py
 └── tests
     ├── .gitkeep
+    ├── fixtures
+    │   ├── __init__.py
+    │   └── malformed_missing_vax_type.csv
     ├── integration
     │   ├── test_pipeline.py
     │   ├── test_signal_detection.py
     │   └── test_temporal_profiles.py
     └── unit
         ├── test_bh_correction.py
+        ├── test_clean_filter.py
         ├── test_disproportionality.py
         ├── test_download.py
         ├── test_download_meddra.py
         ├── test_signal_schema.py
+        ├── test_structure.py
         ├── test_t022_disproportionality.py
         ├── test_validate.py
-        └── test_validate_e_schema_missing.py
+        ├── test_validate_e_schema_missing.py
+        └── test_validate_raw.py
 
-46 directories, 97 files
+49 directories, 116 files

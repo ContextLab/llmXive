@@ -1,47 +1,60 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Anonymized Reddit Comment Dataset"
-description: "Schema for the processed, anonymized Reddit comments used in the priming study. Note: user_tenure is removed."
+title: "Processed Reddit Comment Dataset (Anonymized & Scored)"
+description: "Schema for the CSV produced after ingestion, anonymization, and scoring. Note: `thread_type` may be null if no title information is available."
 type: object
 properties:
   comment_id:
     type: string
-    description: "Unique identifier for the comment (e.g., t1_xyz)."
+    description: "Unique identifier for the comment (field `id`)."
   user_id:
     type: string
-    description: "SHA-256 hash of the original username."
+    description: "Cryptographic hash (e.g., SHA‑2) of the original Reddit username."
     pattern: "^[a-f0-9]{64}$"
   thread_id:
     type: string
-    description: "Unique identifier for the parent thread."
-  thread_type:
+    description: "Identifier of the parent thread (`link_id`)."
+  subreddit:
     type: string
-    description: "Classification of the thread."
+    description: "Subreddit name."
+    enum:
+      - "AskReddit"
+      - "science"
+      - "relationships"
+  thread_type:
+    type: ["string", "null"]
+    description: "Prime vs Control classification derived from thread title. Null if title unavailable."
     enum:
       - "Prime"
       - "Control"
-  text:
+      - null
+  body:
     type: string
-    description: "The text content of the comment."
+    description: "Comment text."
   vader_compound:
     type: number
-    description: "VADER sentiment compound score."
+    description: "VADER compound sentiment score."
     minimum: -1
     maximum: 1
   prosocial_intent_score:
     type: integer
-    description: "Count of prosocial keywords from a distinct lexicon (excluding prime words)."
+    description: "Count of prosocial lexicon matches (excluding prime words)."
     minimum: 0
   thread_length:
     type: integer
-    description: "Character length of the comment."
+    description: "Character length of the comment body."
+    minimum: 0
+  user_tenure:
+    type: integer
+    description: "Days since account creation, derived from `created_utc` before removal."
     minimum: 0
 required:
   - comment_id
   - user_id
   - thread_id
-  - thread_type
-  - text
+  - subreddit
+  - body
   - vader_compound
   - prosocial_intent_score
   - thread_length
+  - user_tenure
 additionalProperties: false

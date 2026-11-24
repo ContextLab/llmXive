@@ -7,7 +7,7 @@ import logging
 import os
 from pathlib import Path
 
-from utils.logging import get_logger, setup_logging
+from code.utils.logging import get_logger, setup_logging
 
 
 def test_get_logger_returns_logger_with_handler():

@@ -1,13 +1,13 @@
 {
-  "power": ["laser_power", "laser_pwr", "power"],
-  "pulse_duration": ["pulse_duration", "pulse_dur", "duration"],
-  "scanning_speed": ["scanning_speed", "scan_speed", "speed"],
-  "pattern_geometry": ["pattern_geometry", "pattern", "geometry"],
-  "hardness": ["hardness", "hv", "vickers"],
-  "elastic_modulus": ["elastic_modulus", "youngs_modulus", "modulus"],
-  "wear_rate": ["wear_rate", "wear", "wear_volume"],
-  "contact_load": ["contact_load", "load", "force"],
-  "sliding_speed": ["sliding_speed", "slide_speed", "velocity"],
-  "density": ["density", "material_density"],
-  "geometry": ["geometry", "sample_geometry"]
+  "pulse_duration": ["pulse_duration"],
+  "power": ["power"],
+  "scanning_speed": ["scanning_speed"],
+  "pattern_geometry": ["pattern_geometry"],
+  "hardness": ["hardness"],
+  "elastic_modulus": ["elastic_modulus"],
+  "wear_rate": ["wear_rate"],
+  "contact_load": ["contact_load"],
+  "sliding_speed": ["sliding_speed"],
+  "density": ["density"],
+  "geometry": ["geometry"]
 }

@@ -1,0 +1,9 @@
+# Project dependencies
+# Existing dependencies are already available in the environment:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil, llmxive_toolkit
+#
+# Additional dependencies required for real data curation and
+# semantic similarity calculations:
+torch>=2.0
+torchvision>=0.15

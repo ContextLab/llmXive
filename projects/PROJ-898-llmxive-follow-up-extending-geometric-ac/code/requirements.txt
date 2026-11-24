@@ -1,5 +1,7 @@
-# Pinned dependencies for PROJ-898-llmxive-follow-up-extending-geometric-ac
-# Torch CPU wheel is required; the index URL is specified inline.
+# Pinned dependencies for PROJ-898 (CPU-only).
+# torch is installed from the PyTorch CPU wheel index; all other
+# packages come from PyPI. Install with: pip install -r code/requirements.txt
+
 torch==2.0.0+cpu --index-url https://download.pytorch.org/whl/cpu
 pybullet==3.2.6
 cvxpy==1.4.3

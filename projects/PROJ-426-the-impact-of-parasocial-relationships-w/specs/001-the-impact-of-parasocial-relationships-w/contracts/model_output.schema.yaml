@@ -1,6 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: ModelResult
-description: Schema for the output of the linear mixed-effects model and bootstrap resampling.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelResult"
+description: "Schema for the output of the linear mixed‑effects model and bootstrap resampling."
 type: object
 properties:
   model_id:
@@ -13,14 +13,14 @@ properties:
       type: number
   p_values:
     type: object
-    description: "Map of p-values for fixed effects."
+    description: "Map of p‑values for fixed effects."
     additionalProperties:
       type: number
       minimum: 0.0
       maximum: 1.0
   confidence_intervals:
     type: object
-    description: "Map of 95% confidence intervals [lower, upper] for fixed effects."
+    description: "Map of 95 % confidence intervals [lower, upper] for fixed effects."
     additionalProperties:
       type: array
       items:

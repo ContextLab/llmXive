@@ -1,101 +1,66 @@
-# Data Model: llmXive Follow-up: Structural Mismatch Cost in Heterogeneous Retrieval
+# Data Model: Structural Mismatch Cost in Heterogeneous Retrieval
 
 ## Overview
+Defines every persistent artifact produced by the benchmarking pipeline. All files live under `data/` and are validated against the YAML‑Schema contracts in `contracts/` (each contract is a single, valid YAML document).
 
-This document defines the data structures for the benchmarking pipeline. All data is stored in local files under `data/`. The model ensures strict adherence to FR-002 (integer depth persistence) and FR-003 (JSON/CSV logging).
-
-## Entities
+## Core Entities
 
 ### 1. Query Instance (Intermediate SSoT)
-Represents a single synthetic query generated for the benchmark.
-- `query_id`: UUID (unique identifier).
-- `logical_plan`: List of steps (e.g., `[{"op": "lookup", "arg": "X"}, {"op": "join", "arg": "Y"}]`).
-- `source_type`: Enum (`text`, `relational`, `graph`).
-- `complexity_level`: Integer (1, 2, 3, 4+). **Critical**: Must be persisted as an integer.
-- `ground_truth_plan`: JSON string of the optimal path (from `ground_truth_engine.py`).
-- `synthetic_flag`: Boolean (True if generated from synthetic topology fallback).
+| Field | Type | Description |
+|-------|------|-------------|
+| `query_id` | UUID (string) | Unique identifier. |
+| `source_type` | enum(`text`,`relational`,`graph`) | Category of the data source. |
+| `complexity_level` | integer (≥ 1) | Exact plan depth (plan hops). |
+| `logical_plan` | object `{ "steps": [string, …] }` | Ordered list of logical operations. |
+| `reference_plan_id` | string | Identifier of the deterministic greedy plan (`greedy_plan_<8hex>`). |
+| `synthetic_flag` | boolean | `true` if the query topology was synthetically generated. |
 
 ### 2. Execution Metric (Final SSoT)
-Represents the outcome of a single query execution.
-- `query_id`: UUID (foreign key to Query Instance).
-- `latency_ms`: Float (milliseconds). **Strictly real execution time.**
-- `translation_error`: Boolean (True if generated plan != ground truth).
-- `timeout_flag`: Boolean (True if >60s).
-- `success_flag`: Boolean (1 if success, 0 otherwise).
-- `timestamp`: ISO8601 string.
-- `throttling_mode`: String (`cgroups`, `time_only`, `failed`).
-- `synthetic_flag`: Boolean (inherited from Query Instance).
+| Field | Type | Description |
+|-------|------|-------------|
+| `query_id` | UUID (string) | FK to Query Instance. |
+| `latency_ms` | float | Baseline‑corrected wall‑clock latency (ms). |
+| `translation_error` | boolean | **Only** for queries with an optimal ground‑truth (sampled subset): `true` if the router’s plan deviates from the optimal plan. |
+| `reference_deviation` | boolean | `true` if the router’s plan deviates from the greedy reference plan (for non‑sampled queries). |
+| `precision_at_10` | float (0 – 1) | Precision@10 for the query. |
+| `timeout_flag` | boolean | `true` if execution exceeded the 60 s wall‑clock limit. |
+| `success_flag` | boolean | `true` if execution completed without error. |
+| `synthetic_flag` | boolean | Propagated from the originating Query Instance. |
+| `throttling_mode` | enum(`cgroups`,`failed`) | How CPU limits were enforced. |
+| `timestamp` | ISO‑8601 string | When the measurement was taken. |
 
 ### 3. Statistical Result
-Aggregated results from the analysis.
-- `test_type`: String (`ancova`, `tukey`, `sensitivity`).
-- `parameters`: JSON (e.g., `{"cutoff": 3}`).
-- `statistics`: JSON (e.g., `{"F": 12.5, "p": 0.001}`).
-- `interpretation`: String (e.g., "Interaction significant").
+| Field | Type | Description |
+|-------|------|-------------|
+| `test_type` | string (`anova`, `tukey`, `chi2`, `sensitivity`, `slope_ratio`) | Analysis performed. |
+| `parameters` | object | e.g., `{ "cutoff": 3 }`. |
+| `statistics` | object | Test‑specific numbers (F, p, χ², slope values, etc.). |
+| `interpretation` | string | Human‑readable summary of the result. |
 
-## File Formats
+## File Formats & Contracts
 
-### `data/processed/generation_log.json` (Intermediate SSoT)
-**Purpose**: Stores query definitions and ground truth plans before execution.
-**Schema**: Validated by `contracts/generation_log.schema.yaml`.
-**Structure**: Array of Query Instances.
+| File | Format | Contract |
+|------|--------|----------|
+| `data/processed/generation_log.json` | JSON array of **Query Instance** objects | `contracts/query_instance.schema.yaml` |
+| `data/processed/optimal_ground_truth.json` | JSON mapping `query_id → optimal_plan_id` | No separate contract (derived from `query_instance`). |
+| `data/processed/execution_logs.csv` | CSV (header row) | `contracts/execution_log.schema.yaml` |
+| `data/processed/execution_metric.json` | JSON array of **Execution Metric** objects | `contracts/execution_metric.schema.yaml` |
+| `data/processed/baseline_overhead.json` | JSON `{ "bm25": float, "sqlite": float, "rdflib": float }` | No separate contract (simple config). |
+| `data/results/anova_results.json` | JSON (see `research.md` for structure) | No separate contract (consumed by visualisation). |
+| `data/results/sensitivity_analysis.json` | JSON array of **Statistical Result** objects (type `sensitivity`) | `contracts/statistics_result.schema.yaml` |
+| `data/results/statistics_results.json` | JSON (precision@10 summary, slope ratio, etc.) | No separate contract. |
+| `data/results/interaction_plot.png` | PNG image | No contract (binary artifact). |
 
-### `data/processed/execution_logs.csv` (Final SSoT)
-**Purpose**: Single source of truth for all latency and error metrics.
-**Columns**:
-- `query_id` (string)
-- `source_type` (string)
-- `complexity_level` (integer) **FR-002 Compliance**
-- `latency_ms` (float)
-- `translation_error` (integer 0/1)
-- `success_flag` (integer 0/1)
-- `synthetic_flag` (integer 0/1)
-- `throttling_mode` (string)
+## Data Flow Diagram
+1. **Data Loader** → downloads raw datasets → `data/raw/`.  
+2. **Query Generator** → creates `generation_log.json`.  
+3. **Reference Engine** → adds `reference_plan_id` to each query.  
+4. **Optimal Planner** (sampled) → produces `optimal_ground_truth.json`.  
+5. **Baseline Overhead** → writes `baseline_overhead.json`.  
+6. **Benchmark Runner** → reads `generation_log.json`, enforces cgroups, writes `execution_logs.csv` and `execution_metric.json`.  
+7. **Stats Module** → consumes `execution_logs.csv`, outputs statistical JSON files.  
+8. **Visualization** → consumes `execution_logs.csv` → `interaction_plot.png`.  
 
-*Note: `complexity_level` is explicitly typed as integer to satisfy FR-002. This file is written by `benchmark_runner.py` (T021).*
+All transformations are pure functions; no in‑place mutation of source files (Constitution Principle III).  
 
-### `data/results/anova_results.json`
-**Purpose**: Output of the ANCOVA test.
-**Structure**:
-```json
-{
-  "ancova": {
-    "f_statistic": 12.34,
-    "p_value": 0.0001,
-    "interaction_p_value": 0.0045,
-    "significant": true
-  },
-  "tukey": [
-    {"group1": "graph_4", "group2": "text_4", "p_adj": 0.001},
-    ...
-  ]
-}
-```
-*Written by `stats.py` (T018).*
-
-### `data/results/sensitivity_analysis.json`
-**Purpose**: Output of the threshold sweep (FR-007).
-**Structure**:
-```json
-[
-  {"cutoff": 2, "spike_point": 2.5, "slope_change": 15.2},
-  {"cutoff": 3, "spike_point": 3.1, "slope_change": 18.4},
-  {"cutoff": 4, "spike_point": 4.0, "slope_change": 22.1}
-]
-```
-*Written by `stats.py` (T020).*
-
-## Data Flow
-
-1. **Generation**: `query_generator.py` creates Query Instances -> Writes `data/processed/generation_log.json`.
-2. **Ground Truth**: `ground_truth_engine.py` reads generation log -> Writes `ground_truth_plan` to `generation_log.json`.
-3. **Execution**: `benchmark_runner.py` reads `generation_log.json` -> Executes -> Writes `data/processed/execution_logs.csv` (T021).
-4. **Analysis**: `stats.py` reads `execution_logs.csv` -> Computes stats -> Writes `data/results/anova_results.json` and `data/results/sensitivity_analysis.json` (T018, T020).
-
-## Constraints
-
-- No PII is stored.
-- All files are checksummed.
-- `complexity_level` must be an integer; any non-integer input is rejected by the generator.
-- Synthetic fallbacks must be logged with `synthetic_flag=1`.
-- **Primary Analysis**: Only queries with `synthetic_flag=0` are included in the ANCOVA.
+---

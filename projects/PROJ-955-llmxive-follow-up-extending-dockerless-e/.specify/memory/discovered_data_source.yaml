@@ -1,0 +1,16 @@
+status: none
+intent: software patches SWE-Gym Multi-SWE-RL OpenMathLib downloadable python package
+  dataset
+required_fields:
+- patch_id
+- repository
+- issue_id
+- file_path
+- language
+- code_before
+- code_after
+- diff
+- test_log
+cache_key: 42166c95a7370c25803ad1872c150847b7ba6aa17fe64d34df23452ab52e4c3f
+searched_at: '2026-10-16T11:47:30.370055+00:00'
+retry_count: 1

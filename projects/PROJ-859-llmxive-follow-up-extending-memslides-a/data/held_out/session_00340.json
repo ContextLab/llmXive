@@ -1,0 +1,211 @@
+{
+  "trace_id": "held_out_43_00340",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "insert_chart",
+    "insert_chart",
+    "format_text",
+    "insert_text",
+    "format_text",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "insert_chart",
+    "resize_element",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "format_text",
+    "apply_theme",
+    "apply_theme",
+    "delete_element",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 59.1789,
+        "y": 31.5852,
+        "width": 71.9048,
+        "height": 53.0199
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 23.1869,
+        "y": 31.3618,
+        "width": 0.6635,
+        "height": 70.3543
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 89.5815,
+        "x": 4.86,
+        "y": 79.0476
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 6.7255,
+        "y": 69.4556,
+        "length": 75.1208
+      }
+    },
+    {
+      "step": 4,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 41.8137,
+        "x": 72.1136,
+        "y": 94.9265
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 30.4353,
+        "saturation": 66.8294
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 33.6631,
+        "saturation": 21.1794
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 38.7279,
+        "saturation": 24.6308
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 77.0745,
+        "saturation": 50.6702
+      }
+    },
+    {
+      "step": 9,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 76.8824,
+        "saturation": 65.4797
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 44.5469,
+        "y": 43.0196,
+        "width": 56.2876,
+        "height": 38.1031
+      }
+    },
+    {
+      "step": 11,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 31.2597,
+        "height": 30.897
+      }
+    },
+    {
+      "step": 12,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 30.9292,
+        "saturation": 17.9133
+      }
+    },
+    {
+      "step": 13,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 14.6932,
+        "saturation": 17.3363
+      }
+    },
+    {
+      "step": 14,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 20.1143,
+        "saturation": 24.3414
+      }
+    },
+    {
+      "step": 15,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 1.0241,
+        "x": 18.7513,
+        "y": 22.2807
+      }
+    },
+    {
+      "step": 16,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 2.2186,
+        "saturation": 72.386
+      }
+    },
+    {
+      "step": 17,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 27.492,
+        "saturation": 89.8036
+      }
+    },
+    {
+      "step": 18,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 18.7729
+      }
+    },
+    {
+      "step": 19,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 63.4329,
+        "y": 62.9596,
+        "length": 45.8099
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.445541,
+    "tool_repetition_freq": 0.7,
+    "arg_semantic_variance": 663.453814
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 4,
+    "layout_hash": "43-340-apply_theme"
+  },
+  "variance_multiplier": 1.5
+}

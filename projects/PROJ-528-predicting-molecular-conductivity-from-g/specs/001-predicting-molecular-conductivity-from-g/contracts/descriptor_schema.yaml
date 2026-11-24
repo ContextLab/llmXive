@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Descriptor CSV schema
+type: object
+description: Minimal schema for the descriptor CSV file produced by the pipeline.
+required:
+  - smiles
+  - atom_count
+  - aromatic_ring_count
+  - conjugation_path_length
+  - mol_weight
+properties:
+  smiles:
+    type: string
+  atom_count:
+    type: integer
+    minimum: 1
+  aromatic_ring_count:
+    type: integer
+    minimum: 0
+  conjugation_path_length:
+    type: integer
+    minimum: 0
+  mol_weight:
+    type: number
+    minimum: 0.0
+additionalProperties: true

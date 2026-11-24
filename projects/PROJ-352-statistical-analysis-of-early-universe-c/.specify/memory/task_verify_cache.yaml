@@ -1,9 +1,41 @@
+T001a:
+  c: false
+  h: c5959f551771fe599b5e76f39982cd6134142f95c5768bdb6e68148700351a96
+  r: "The evidence shows that `code/`, `data/raw/`, `data/processed/`, and `tests/`\
+    \ directories exist, but the required `output/` directory is missing. The task\u2019\
+    s directory\u2011structure requirement is therefore not fully satisfied."
+  sig: a9f8eea510be5825910a798b370a4ad001f704101f5ca0e16665b3f676169f01
+T001b:
+  c: true
+  h: b0080e1dad1549c66e00a1df6837bd5dae6653d1c31080a020c13ee51ef93e9a
+  r: "Checked the existence and non\u2011empty content of `code/__init__.py` (24\u202F\
+    bytes) and `tests/__init__.py` (28\u202Fbytes) at the resolved project paths,\
+    \ which fulfills the task\u2019s requirement to create these package initializer\
+    \ files."
+  sig: 964543ec21e390378e4f6c0c038487963a27ec066aac5aa61da2e85c3fcd50ba
+T001c:
+  c: true
+  h: 8bc65bac3293834940b0efda5a312eddb0d031f2a9830efb29f43bca5d729e97
+  r: "The `requirements.txt` file was found at `projects/PROJ-352-statistical-analysis-of-early-universe-c/requirements.txt`\
+    \ (86\u202Fbytes) and contains all required packages (`healpy`, `numpy`, `scipy`,\
+    \ `scikit-learn`, `requests`, `astropy`, `matplotlib`, `pytest`). Extra entries\
+    \ (e.g., `black`, `flake8`, `pylint`) do not violate the task, which only demanded\
+    \ the presence of the specified dependencies."
+  sig: ca79b591e8c21b9ef6c3ef4796880e74f9e47515c70c78cf5d8386e4a6b42ba1
+T001d:
+  c: true
+  h: 99905876d7f8efb599bf20a40e5c9fe87c5b10f45acf60480c85a796271a9905
+  r: "The `README.md` file (resolved at `projects/PROJ-352-statistical-analysis-of-early-universe-c/README.md`,\
+    \ 919\u202Fbytes) is present and contains a clear project overview, installation\
+    \ instructions, and usage examples, fulfilling the task\u2019s requirement."
+  sig: 3be8d7b873f8d5aed7b4a0b844e8f0af2603c735d2734d3f39df7e83e227263c
 T002a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `.flake8` configuration file was presented or referenced in the provided\
-    \ evidence, so the required artifact is missing. The implementer must add a non\u2011\
-    empty `.flake8` file with appropriate linting settings to satisfy task T002a."
+  h: f92adf6d06233932ee4525278c26a013d6b5a0b8772a9b715d86065b10c281ff
+  r: No `.flake8` configuration file was found in the project root (or any subdirectory);
+    the evidence only contains project specifications and user stories, with no artifact
+    matching the required linting config. The task therefore lacks the mandatory file.
+  sig: 3d59d29dfed013a8a5bd4bb5060af8b00360c34561a4febdb2602880697c367b
 T002b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -15,6 +47,14 @@ T004a:
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence of the required `data/raw/`, `data/processed/`, or `output/` directories
     is provided; the claim is unsubstantiated and the artifacts are missing.
+T004b:
+  c: true
+  h: da50e394a9f85ca4e20cf2748125f39e7ed516522c586bcd1bcc5a0d4f3c4939
+  r: "The `code/config.py` file (2946\u202Fbytes) defines a `setup_logging()` function\
+    \ that calls `logging.basicConfig` with `level=logging.INFO` and the exact format\
+    \ `'%(asctime)s - %(levelname)s - %(message)s'`, satisfying the task\u2019s specification.\
+    \ The file exists and contains the required configuration code."
+  sig: 30ca5634e53a578314cd1816e56f21d5c9a545eb71c4e85b9bc9daea2bc2dbf9
 T015b:
   c: false
   h: 5f917565c8f0d4b3b293611a49b1f4cc5fb2f08ff1599076204adb47df50fe9e

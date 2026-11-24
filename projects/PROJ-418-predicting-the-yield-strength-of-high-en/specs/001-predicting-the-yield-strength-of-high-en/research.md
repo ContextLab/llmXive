@@ -1,55 +1,52 @@
 # Research: Predicting the Yield Strength of High‑Entropy Alloys
 
 ## Overview
-The goal is to demonstrate that a composition‑only predictor can achieve robust performance (R² ≥ 0.6, |r| ≥ 0.5, p < 0.05) on an **independent** validation set while identifying the most informative compositional descriptors.
+We aim to demonstrate that a composition‑only predictor can achieve robust performance (R² ≥ 0.6, |r| ≥ 0.5, p < 0.05) on an **independent** validation set while identifying the most informative compositional descriptors.
 
-We source **real experimental measurements** from the **Materials Project** (public REST API). The API provides experimentally measured yield‑strength values for single‑phase HEAs, satisfying the data‑availability rule without any fabricated data.
-
-## Dataset Strategy
+### Dataset Strategy
 
 | Role | Source | Loader | Notes |
 |------|--------|--------|-------|
-| Primary training / test data | Materials Project API (query for `HEA` entries with `yield_strength` field) | `requests.get(...).json()` → `pandas.DataFrame` | A substantial set of alloy entries, each comprising multiple elements, with experimentally measured yield strength.. |
-| External validation | Materials Project API – separate query (different `last_modified` date range) | same loader | Provides a truly independent hold‑out with the same measurement protocol but distinct samples. |
-| Elemental property reference | `data/elemental_properties.csv` (derived from Materials Project periodic‑table export, publicly available) | `pandas.read_csv` | Guarantees deterministic descriptor values (Principle VI). |
-| VIF benchmark (optional sanity check) | https://huggingface.co/datasets/shim0114/VIF-Bench/resolve/main/labels/vi_conflicts.jsonl | `datasets.load_dataset(..., streaming=True)` | Used only for code‑path testing; not part of core analysis. |
+| Primary training / test data | **Verified open HEA yield‑strength dataset (Zenodo DOI ``).** | `pandas.read_json` or `datasets.load_dataset` | Contains experimentally measured `yield_strength` for single‑phase alloys. If this dataset is missing, the pipeline aborts with a clear error. |
+| External validation data | **If a second, independently curated Zenodo dataset is available** (e.g., DOI ``). | Same loader as primary | Must be non‑overlapping with the primary set. If unavailable, external validation is omitted and the limitation is recorded in the report. |
+| Elemental property reference | `data/elemental_properties.csv` (public CSV exported from Materials Project periodic‑table data) | `pandas.read_csv` | Guarantees deterministic descriptor values (Principle VI). |
+| VIF sanity‑check (optional) | https://huggingface.co/datasets/shim0114/VIF-Bench/resolve/main/labels/vi_conflicts.jsonl | `datasets.load_dataset(..., streaming=True)` | Used only for internal code‑path testing; not part of the scientific analysis. |
 
-*No other verified datasets exist for HEA yield strength; the Materials Project API is the open, reproducible source we employ.*
+*No other verified dataset URLs matching the HEA domain appear in the provided block; therefore we explicitly note the gap and justify the need for a verified open dataset.*
 
 ## Methodological Rationale
 
 | Decision | Rationale | Compute Mode |
 |----------|-----------|--------------|
-| **Materials Project API** | Provides open, programmatically accessible experimental yield‑strength data; avoids synthetic stand‑ins and meets FR‑001. | CPU (fast HTTP + pandas) |
-| **Random Forest** | Handles non‑linear relationships and multicollinearity after VIF pruning; runs efficiently on CPU with ≤ 7 GB RAM. | CPU |
-| **Permutation importance with Holm‑Bonferroni** | Controls family‑wise error across multiple descriptors; aligns with FR‑006. | CPU |
-| **Bootstrap CI (a sufficient number of resamples)** | Provides uncertainty quantification per Principle VII. | CPU |
-| **Three‑seed stability check** | Ensures robustness of feature ranking (SC‑006). | CPU |
-| **No GPU required** | All algorithms have faithful CPU implementations; no need for off‑load. | CPU‑first (no GPU) |
+| **Verified open dataset requirement** | Ensures compliance with Constitution Principle II and provides experimentally measured yield‑strength values. | CPU (HTTP + pandas) |
+| **Random Forest** | Handles non‑linear relationships, works well after VIF pruning, and runs efficiently on CPU. | CPU |
+| **Permutation importance + Holm‑Bonferroni** | Controls family‑wise error across many descriptors; meets FR‑006. | CPU |
+| **Bootstrap confidence intervals (≥ 1000 resamples)** | Supplies uncertainty quantification per Principle VII. | CPU |
+| **Three‑seed stability check** | Ensures feature‑ranking robustness (SC‑006). | CPU |
+| **No GPU required** | All algorithms have faithful CPU implementations; fits within free‑tier resources. | CPU‑first (no off‑load) |
 
 ## Statistical Rigor Checklist
-
-- **Multiple‑comparison correction**: Holm‑Bonferroni applied to permutation‑importance p‑values.  
-- **Power analysis**: Conducted with `statsmodels` targeting R² ≥ 0.6, α = 0.05, power ≥ 0.80.  
-- **Causal claims**: None; all statements are associational (observational real data).  
-- **Measurement validity**: Yield‑strength values come directly from Materials Project experimental records; provenance logged.  
-- **Collinearity**: VIF computed; descriptors with VIF > 5 removed before modeling.
+- **Multiple‑comparison correction**: Holm‑Bonferroni applied to permutation‑importance *p*‑values.  
+- **Power analysis**: Performed with `statsmodels` targeting R² ≥ 0.6, α = 0.05, power ≥ 0.80. The effect‑size conversion uses *f²* = R²/(1‑R²) to compute required sample size.  
+- **Causal claims**: None; all statements are associational (observational data).  
+- **Measurement validity**: Yield‑strength values are taken directly from the verified Zenodo dataset; provenance logged.  
+- **Collinearity handling**: VIF computed; descriptors with VIF > 5 removed before modeling.  
 
 All statistical decisions are logged in `output/statistical_log.json`.
 
-## Expected Deliverables (to be generated by the pipeline)
+## Expected Deliverables (generated by the pipeline)
 
-- `data/hea_raw.jsonl` (raw API dump)  
-- `data/hea_external.jsonl` (independent external set)  
+- `data/hea_raw.jsonl` (primary raw dataset, supplied by user or verified open source)  
+- `data/hea_external.jsonl` (independent external set, if available)  
 - `data/descriptors.parquet` (computed descriptor matrix)  
 - `output/vif_summary.json`  
 - `output/power_analysis.json`  
-- `output/metrics.json` (R², Pearson r, p‑value, bootstrap CI)  
-- `output/external_metrics.json` (same metrics on external set)  
-- `output/perm_importance.json` (scores, raw p‑values, Holm‑adjusted p‑values)  
+- `output/metrics.json` (R², Pearson *r*, *p*‑value, bootstrap CI)  
+- `output/external_metrics.json` (same metrics on external set, if present)  
+- `output/perm_importance.json` (scores, raw *p*, Holm‑adjusted *p*)  
 - `output/stability_rankings.json` (top‑5 rankings for seeds 111/222/333)  
-- `output/manifest.json` (provenance, content hashes)  
-- `report.md` (single source of truth, includes all sections required by FR‑008)  
+- `output/manifest.json` (run‑level provenance)  
+- `report.md` (single source of truth, contains all required sections)  
 - `output/pipeline_runtime.json` (status, runtime, resource usage)  
 
-All artifacts conform to the JSON/YAML schemas in `contracts/`.
+All artifacts conform to the JSON/YAML schemas in `contracts/` and are validated during the CI run.

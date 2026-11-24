@@ -1,13 +1,11 @@
-import os
 import logging
-from typing import Dict, List, Tuple, Optional, Union, Any
+from typing import Any
+
 import numpy as np
-from scipy import stats
 from scipy.fft import fft, ifft
 
 from code.config import get_config
-from code.data.paths import get_processed_path, ensure_dir
-from code.utils.logging import log_warning, log_error
+from code.utils.logging import log_error
 
 logger = logging.getLogger(__name__)
 
@@ -54,8 +52,8 @@ def phase_shuffle(time_series: np.ndarray, rng: np.random.Generator) -> np.ndarr
 def generate_phase_shuffled_surrogates(
     time_series: np.ndarray,
     n_surrogates: int,
-    seed: Optional[int] = None
-) -> List[np.ndarray]:
+    seed: int | None = None
+) -> list[np.ndarray]:
     """
     Generate multiple phase-shuffled surrogates for a given time series.
 
@@ -124,9 +122,9 @@ def compute_surrogate_variability(
 
 def validate_metric_significance(
     real_metric: float,
-    surrogate_metrics: List[float],
+    surrogate_metrics: list[float],
     alpha: float = 0.05
-) -> Tuple[bool, float]:
+) -> tuple[bool, float]:
     """
     Validate if the real metric is significantly higher than the surrogate metrics.
 
@@ -164,8 +162,8 @@ def run_null_model_validation(
     window_size: int,
     step_size: int,
     n_surrogates: int = 100,
-    seed: Optional[int] = None
-) -> Dict[str, Any]:
+    seed: int | None = None
+) -> dict[str, Any]:
     """
     Run the full null model validation pipeline for a single subject.
 
@@ -227,12 +225,12 @@ def run_null_model_validation(
     return result
 
 def run_null_model_pipeline(
-    subjects_data: Dict[str, np.ndarray],
+    subjects_data: dict[str, np.ndarray],
     window_size: int,
     step_size: int,
     n_surrogates: int = 100,
-    seed: Optional[int] = None
-) -> List[Dict[str, Any]]:
+    seed: int | None = None
+) -> list[dict[str, Any]]:
     """
     Run the null model validation pipeline for multiple subjects.
 

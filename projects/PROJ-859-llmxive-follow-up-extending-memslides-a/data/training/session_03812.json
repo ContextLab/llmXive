@@ -1,0 +1,112 @@
+{
+  "trace_id": "training_42_03812",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "delete_element",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 16.0546,
+        "y": 41.7719,
+        "width": 77.645,
+        "height": 10.0779
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 52.271,
+        "y": 57.178,
+        "width": 54.1118,
+        "height": 8.5342
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 69.5518,
+        "y": 2.6825,
+        "width": 12.9203,
+        "height": 23.4683
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 96.7418,
+        "y": 94.5099,
+        "width": 10.8265,
+        "height": 61.5913
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 24.3829
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 57.5047,
+        "y": 11.1796,
+        "length": 60.9204
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 79.151,
+        "y": 92.8585,
+        "length": 57.3556
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 10.6744,
+        "y": 18.3769,
+        "length": 51.4441
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 48.9095,
+        "y": 67.3173,
+        "length": 13.5984
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.964963,
+    "tool_repetition_freq": 0.666667,
+    "arg_semantic_variance": 834.674961
+  },
+  "final_state": {
+    "dominant_tool": "insert_image",
+    "slide_element_count": 6,
+    "layout_hash": "42-3812-insert_image"
+  }
+}

@@ -75,14 +75,24 @@ def compute_benjamini_hochberg_pvalues(p_values: List[float]) -> List[float]:
     if n == 0:
         return []
 
+    # Sort p-values and keep track of original indices
     indexed_pvals = sorted(enumerate(p_values), key=lambda x: x[1])
     adjusted = [0.0] * n
-    last_idx = indexed_pvals[-1][0]
-    adjusted[last_idx] = min(p_values[last_idx] * n, 1.0)
+    
+    # The largest p-value is adjusted by n/n = 1
+    last_idx, last_pval = indexed_pvals[-1]
+    adjusted[last_idx] = min(last_pval, 1.0)
 
+    # Move backwards from the second largest p-value
     for i in range(n - 2, -1, -1):
         idx, pval = indexed_pvals[i]
-        adjusted[idx] = min(pval * n / (i + 1), adjusted[indexed_pvals[i + 1][0]])
+        # Formula: p_adj(i) = min( p(i) * n / i, p_adj(i+1) )
+        # Note: i is 0-indexed, so the rank is (i + 1)
+        current_adj = pval * n / (i + 1)
+        next_adj = adjusted[indexed_pvals[i + 1][0]]
+        adjusted[idx] = min(current_adj, next_adj)
+        # Cap at 1.0
+        adjusted[idx] = min(adjusted[idx], 1.0)
 
     return adjusted
 

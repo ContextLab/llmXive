@@ -19,7 +19,7 @@ properties:
     description: "Difference in Pauling electronegativity."
   valence_electron_diff:
     type: "integer"
-    description: "Difference in valence electrons."
+    description: "Difference in valence electron count."
 required:
   - host_radius
   - solute_radius

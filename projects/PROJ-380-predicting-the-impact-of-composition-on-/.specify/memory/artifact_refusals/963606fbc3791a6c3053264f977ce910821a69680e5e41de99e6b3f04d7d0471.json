@@ -1,0 +1,7 @@
+{
+  "task_id": "T003",
+  "fingerprint": "6df056d6aca99146f13af7aab18bee208369bc5317a9bf6d94235eefe0f24848",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'tests/unit/test_viz.py': imports nonexistent names from sibling files: `from code.viz.plots import generate_pdp` (available: Any, Dict, List, Optional, Path, argparse, calculate_correlation_matrix, ensure_directories...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

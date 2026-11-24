@@ -1,0 +1,135 @@
+{
+  "trace_id": "held_out_43_01062",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 12,
+  "tool_sequence": [
+    "insert_chart",
+    "apply_theme",
+    "apply_theme",
+    "format_text",
+    "format_text",
+    "format_text",
+    "delete_element",
+    "insert_text",
+    "insert_text",
+    "resize_element",
+    "resize_element",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 28.0504,
+        "y": 88.5189,
+        "width": 28.5578,
+        "height": 29.3744
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 58.3149,
+        "saturation": 32.3917
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 83.3038,
+        "saturation": 31.9153
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 93.2608,
+        "x": 34.5405,
+        "y": 7.9517
+      }
+    },
+    {
+      "step": 4,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 73.8411,
+        "x": 53.0827,
+        "y": 21.0905
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 73.2014,
+        "x": 42.4423,
+        "y": 11.735
+      }
+    },
+    {
+      "step": 6,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 25.6325
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 17.6551,
+        "y": 45.9586,
+        "length": 76.3997
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 33.8212,
+        "y": 93.8565,
+        "length": 91.5356
+      }
+    },
+    {
+      "step": 9,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 50.6167,
+        "height": 21.9097
+      }
+    },
+    {
+      "step": 10,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 98.1901,
+        "height": 79.3708
+      }
+    },
+    {
+      "step": 11,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 88.4039,
+        "saturation": 34.7076
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.704551,
+    "tool_repetition_freq": 0.5,
+    "arg_semantic_variance": 796.083009
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 5,
+    "layout_hash": "43-1062-apply_theme"
+  },
+  "variance_multiplier": 1.5
+}

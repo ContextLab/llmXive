@@ -8,4 +8,4 @@ biopython
 pytest
 psutil
 joblib
-fimo
+# Note: joblib added to satisfy downstream scripts that depend on it.

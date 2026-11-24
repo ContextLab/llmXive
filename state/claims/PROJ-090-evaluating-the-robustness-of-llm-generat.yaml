@@ -3798,3 +3798,54 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-09T23:32:29Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/quickstart.md
+  attempts: 1
+  canonical: sample run completes within 30 seconds and prints 'Sample run completed'
+  claim_id: c_dea8b56f
+  context: The Expected Output section states that the sample run command should finish
+    within 30 seconds and print "Sample run completed".
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The command should finish within 30\u202Fseconds and print: Sample run\
+    \ completed"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-30T18:23:48Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/quickstart.md
+  attempts: 1
+  canonical: pipeline executable via single command for lightweight sample run
+  claim_id: c_ad6e1c11
+  context: The Running the Pipeline section describes that the pipeline can be run
+    with a single command performing a lightweight sample run.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The pipeline can be executed via a single command that performs a lightweight
+    sample run.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-30T18:23:48Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/quickstart.md
+  attempts: 1
+  canonical: full pipeline generates artifacts in data/processed and logs in data/logs
+  claim_id: c_c6361424
+  context: The Full Pipeline Execution section notes that running the full pipeline
+    creates artifacts under data/processed/ and logs under data/logs/.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The full pipeline execution will generate all declared artifacts under
+    data/processed/ and logs under data/logs/.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-30T18:23:49Z'

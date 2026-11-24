@@ -33,7 +33,7 @@ properties:
     description: "Metadata-based proxy for perceived control."
   filter_flag:
     type: "boolean"
-    description: "True if a content filter or edit flag was detected in metadata."
+    description: "True if a content filter or edit flag detected."
   timestamp_regularity:
     type: "number"
     minimum: 0.0

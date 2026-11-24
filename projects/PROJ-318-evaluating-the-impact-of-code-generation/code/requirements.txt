@@ -1,9 +1,11 @@
-transformers==4.35.0
+# Pinned requirements for the project
 torch==2.1.0
+transformers==4.35.0
 bitsandbytes==0.41.0
+datasets==2.14.6
 sentence-transformers==2.2.2
-docstring_parser==0.16
+nltk==3.8.1
 scipy==1.11.0
-requests==2.31.0
-pyyaml==6.0.1
+gitpython==3.1.40
+jsonschema==4.19.0
 pytest==7.4.0

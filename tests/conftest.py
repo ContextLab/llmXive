@@ -124,6 +124,82 @@ def _isolate_run_side_effect_flags() -> object:
             os.environ[k] = v
 
 
+_OFFLINE_SNAPSHOT = None
+
+
+def _offline_snapshot(*_args, **_kwargs):
+    """A fixed, deterministic free Dartmouth runtime snapshot for offline tests
+    (built once): glm-5.3 → qwen3.5-122b → gemma-4-31B-it → gpt-oss-120b, all
+    free + live — the production free text chain under the capability policy."""
+    global _OFFLINE_SNAPSHOT
+    if _OFFLINE_SNAPSHOT is None:
+        from datetime import UTC, datetime
+
+        from llmxive.model_selection.snapshot import _family_of, _vendor_of
+        from llmxive.model_selection.types import (
+            CreditGuardSnapshot,
+            ModelPricing,
+            ModelRef,
+            RuntimeSnapshot,
+            SnapshotProvenance,
+        )
+
+        now = datetime(2026, 7, 17, 12, 0, 0, tzinfo=UTC)
+        ep = "https://chat.dartmouth.edu"
+        ids = [
+            "zai-org.glm-5.3", "qwen.qwen3.5-122b",
+            "google.gemma-4-31B-it", "openai.gpt-oss-120b",
+        ]
+        models = tuple(
+            ModelRef("dartmouth", ep, mid, _family_of(mid, _vendor_of(mid)), _vendor_of(mid))
+            for mid in ids
+        )
+        credit = CreditGuardSnapshot(
+            balance=1000.0, spend=0.0, max_budget=2000.0, paid_opt_in=False,
+            budget_fraction=0.75, effective_cap=1500.0, available_headroom=1500.0,
+            budget_reset_at="2026-07-18T03:45:00-04:00", observed_at=now, source="live",
+        )
+        sources = {
+            comp: SnapshotProvenance("live", now, 0.0)
+            for comp in ("catalog", "local", "credit")
+        }
+        _OFFLINE_SNAPSHOT = RuntimeSnapshot(
+            models=models,
+            pricing={mid: ModelPricing(0.0, 0.0) for mid in ids},
+            health={m.model_id: "ok" for m in models},
+            credit=credit, observed_at=now, sources=sources,
+            digest="OFFLINE-TEST-SNAPSHOT",
+        )
+    return _OFFLINE_SNAPSHOT
+
+
+@pytest.fixture(autouse=True)
+def _offline_model_selection_snapshot(
+    request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch,
+):
+    """Serve model selection a DETERMINISTIC offline snapshot (spec 026 slice 5).
+
+    ``chat_with_fallback`` / ``reasoning_chat`` / ``chat_with_model_fallback`` now
+    delegate to ``model_selection.route.route_chat``, which acquires a NETWORKED
+    ``runtime_snapshot`` before the pure ``select``. Offline that would hit
+    Dartmouth (or fail closed). This stub pins the fixed free Dartmouth chain so an
+    injected-fake reviser/reviewer/claims test — whose fake backend is threaded in
+    as the ``dartmouth`` serving backend — deterministically serves the primary
+    candidate, exactly as the pre-026 same-backend walk did. The bounded snapshot
+    cache is reset around each test so nothing leaks. Real-call suites
+    (LLMXIVE_REAL_TESTS=1 / tests/real_call) use the genuine networked snapshot.
+    """
+    if os.environ.get("LLMXIVE_REAL_TESTS") == "1" or under_real_call(request.node.fspath):
+        yield
+        return
+    import llmxive.model_selection.route as route_mod
+
+    route_mod.reset_snapshot_cache()
+    monkeypatch.setattr(route_mod, "runtime_snapshot", _offline_snapshot)
+    yield
+    route_mod.reset_snapshot_cache()
+
+
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
     if os.environ.get("LLMXIVE_REAL_TESTS") == "1":
         return

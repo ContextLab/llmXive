@@ -10,11 +10,11 @@
     "python code/modeling.py --input data/processed/features.csv --output data/processed/model_results.json -> rc=1\n    ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-272-statistical-analysis-of-publicly-availab/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py\", line 300, in _read\n    parser = TextFileReader(filepath_or_buffer, **kwds)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-272-statistical-analysis-of-publicly-availab/code/.venv/lib/python3.11/site-packages/pandas/io/parsers",
     "python code/main.py -> rc=1\n    mXive/llmXive/projects/PROJ-272-statistical-analysis-of-publicly-availab/code/verify_plan.py']. Error: Command '['/home/runner/work/llmXive/llmXive/projects/PROJ-272-statistical-analysis-of-publicly-availab/code/.venv/bin/python', '/home/runner/work/llmXive/llmXive/projects/PROJ-272-statistical-analysis-of-publicly-availab/code/verify_plan.py']' returned non-zero exit status 1.\n2026-09-30 16:28:04,666 - ERROR - Command failed with code 1. Stopping.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-272-statistical-analysis"
   ],
-  "fix_rounds": 2,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-09-30T16:28:10Z"
+  "updated_at": "2026-10-24T22:23:13Z"
 }

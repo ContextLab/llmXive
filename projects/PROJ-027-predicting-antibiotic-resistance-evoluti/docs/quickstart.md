@@ -1,132 +1,69 @@
-# Quick Start Guide
+# Quickstart: Predicting Antibiotic Resistance Evolution from Genomic Sequences
 
-Get up and running with the antibiotic resistance prediction pipeline in under 15 minutes. [UNRESOLVED-CLAIM: c_16bfd1a0 — status=not_enough_info]
+## Prerequisites
+- Python 3.11+
+- Git
+- Access to GitHub Actions (for CI) or a local Linux environment with sufficient RAM.
 
-## Step 1: Environment Setup (3 minutes)
+## Installation
+1. **Clone the repository**:
+ ```bash
+ git clone <repo-url>
+ cd projects/PROJ-027-predicting-antibiotic-resistance-evoluti
+ ```
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate
+ ```
+3. **Install dependencies**:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
+## Running the Pipeline
+The canonical entry point for the pipeline is `code/main.py`.
+
+### 1. Full End-to-End Execution
+This runs ingestion, contract validation, model training, statistical validation, visualization, and state hashing in sequence.
 ```bash
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r code/requirements.txt
-
-# Verify installation
-python code/verify_env.py
-```
-
-## Step 2: Create Directory Structure (1 minute)
-
-```bash
-python code/setup_directories.py
-```
-
-This creates all necessary directories:
-- `code/01_ingest/`, `code/02_process/`, etc.
-- `data/raw/`, `data/processed/`, `data/models/`
-- `tests/contract/`, `tests/unit/`
-
-## Step 3: Configure the Pipeline (2 minutes)
-
-Create `config.yaml` in the project root:
-
-```yaml
-MAX_ISOLATES: 100 # Start with a small subset for testing
-RANDOM_SEED: 42
-BIO_PROJECT_IDS:
- - PRJNA512231 # Example: E. coli collection
-PATHS:
- RAW_DATA: data/raw
- PROCESSED_DATA: data/processed
- MODELS: data/models
- FIGURES: figures
-```
-
-## Step 4: Run the Full Pipeline
-
-The canonical entry point for the pipeline is now **`code/main.py`**.
-
-```bash
-# Ingest data, run contract validation, train models, validate, and version
 python code/main.py --stage full --n-isolates 1000 --bio_project PRJNA528852 --antibiotic ciprofloxacin
 ```
 
-For quicker testing you can run individual stages:
+### 2. Running Individual Stages
+If you need to rerun a specific part of the pipeline:
 
-```bash
-# Only ingestion
-python code/main.py --stage ingest --n-isolates 10 --bio_project PRJNA528852
+- **Ingestion**:
+ ```bash
+ python code/main.py --stage ingest --n-isolates 1000 --bio_project PRJNA528852
+ ```
+- **Contract Validation**:
+ ```bash
+ python code/main.py --stage contract
+ ```
+- **Model Training**:
+ ```bash
+ python code/main.py --stage train --antibiotic ciprofloxacin
+ ```
+- **Validation**:
+ ```bash
+ python code/main.py --stage validate --antibiotic ciprofloxacin --permutations 1000
+ ```
+- **Visualization**:
+ ```bash
+ python code/main.py --stage viz --antibiotic ciprofloxacin
+ ```
+- **Versioning**:
+ ```bash
+ python code/main.py --stage hash
+ ```
 
-# Only training (requires previous ingestion)
-python code/main.py --stage train --antibiotic ciprofloxacin
-
-# Validation only
-python code/main.py --stage validate --antibiotic ciprofloxacin --permutations 1000
-
-# Generate figures
-python code/main.py --stage viz --antibiotic ciprofloxacin
-```
-
-## Step 5: Verify Outputs (2 minutes)
-
-```bash
-ls -la data/processed/feature_matrix.csv
-ls -la data/models/
-ls -la data/processed/permutation_results.json
-ls -la data/processed/sensitivity_sweep.csv
-ls -la figures/
-```
-
-You should see:
-- `feature_matrix.csv` with genomic features and phenotype columns
-- Model pickle files under `data/models/`
-- `metrics.json`, `permutation_results.json`, `sensitivity_sweep.csv`
-- ROC/PR/feature importance plots in `figures/`
-
-## Step 6: Versioning (Optional)
-
-After a successful run you can manually update the project state:
-
-```bash
-python code/utils/hash_artifacts.py
-```
-
-This computes SHA256 hashes for all artifacts and updates
-`state/projects/PROJ-027-predict-antibiotic-resistance-evoluti.yaml`.
+## Verification
+- **Contract Tests**: Run `pytest tests/contract/` to ensure data schemas match requirements.
+- **Full Suite**: Run `pytest tests/` to verify unit and integration tests.
+- **Artifacts**: Check `data/processed/`, `data/models/`, and `figures/` for output files.
 
 ## Troubleshooting
-
-### NCBI Rate Limiting
-If you encounter rate limits, add delays between requests or reduce `MAX_ISOLATES`.
-
-### Missing Dependencies
-Ensure system tools are installed:
-```bash
-# Ubuntu/Debian
-sudo apt-get install snippy ariba
-
-# macOS
-brew install snippy ariba
-```
-
-### Memory Issues
-Reduce `MAX_ISOLATES` in `config.yaml` or use streaming mode for large datasets.
-
-### Phylogeny Generation Fails
-Ensure `dendropy` and `statsmodels` are installed.
-
-## Next Steps
-
-- Review `docs/README.md` for detailed pipeline documentation
-- Check `tests/contract/` for schema validation requirements
-- Examine `code/utils/config.py` for configuration options
-- Read `specs/001-predicting-antibiotic-resistance-evoluti/` for project specifications
-
-## Support
-
-For issues or questions:
-1. Check the troubleshooting section above
-2. Review error logs in the `logs/` directory
-3. Examine test failures with `pytest -v`
-4. Consult the project specification documents
+- **OOM Error**: Reduce `--n-isolates` to 500.
+- **Contract Failure**: If `stage contract` fails, check `data/processed/feature_matrix.csv` against `contracts/feature_matrix.schema.yaml`.
+- **NCBI Timeouts**: The ingestion stage may take time depending on network stability.

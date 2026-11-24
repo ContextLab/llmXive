@@ -1,23 +1,23 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "CodeSnippet"
-description: "Represents a code artifact (human-written, classified by style)."
+description: "Represents a code artifact (human or LLM generated)."
 type: object
 properties:
   snippet_id:
     type: string
     description: "Unique snippet identifier"
-  source_commit:
+  pr_id:
     type: string
-    description: "Original commit hash"
+    description: "Associated PullRequest identifier"
   generation_source:
     type: string
     enum:
       - "human"
       - "llm"
-    description: "Generation source"
+    description: "Origin of the snippet"
   code_content:
     type: string
-    description: "Code text"
+    description: "Raw code text"
   complexity_metrics:
     type: object
     properties:
@@ -25,20 +25,24 @@ properties:
         type: number
         description: "Cyclomatic complexity"
       lines:
-        type: integer
-        description: "Lines of code"
+        type: number
+        description: "Lines of code (LOC)"
     required:
       - cyclomatic
       - lines
   is_valid_syntax:
     type: boolean
-    description: "True if AST parsing succeeds"
+    description: "True if AST parsing succeeded"
   model_version:
     type: string
-    description: "Model version used for generation"
+    description: "Version of the LLM model"
+  generation_params:
+    type: object
+    description: "Parameters such as temperature, max_tokens, intent_prompt"
+    additionalProperties: true
 required:
   - snippet_id
-  - source_commit
+  - pr_id
   - generation_source
   - code_content
   - complexity_metrics

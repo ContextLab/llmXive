@@ -43,11 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 [P] Create project directory structure: `mkdir -p code/data code/analysis code/utils data/raw data/processed data/simulations data/results tests`
-- [X] T002 [P] Initialize Python 3.11 project: Run `python -m venv venv` and create `pyproject.toml` with `[build-system]` section
-- [X] T003 [P] Configure linting: Create `.flake8` file and add `[tool.black]` section to `pyproject.toml`
+- [ ] T001 [P] Create project directory structure: `mkdir -p code/data code/analysis code/utils data/raw data/processed data/simulations data/results tests`
+- [ ] T002 [P] Initialize Python 3.11 project: Run `python -m venv venv` and create `pyproject.toml` with `[build-system]` section
+- [ ] T003 [P] Configure linting: Create `.flake8` file and add `[tool.black]` section to `pyproject.toml`
 - [X] T004 [P] Create `config.yaml` template with keys: `paths` (raw, processed, results), `seeds` (random, numpy), `constants` (sme_coefficient, l_max)
-- [X] T005 [P] Create `.gitignore` to exclude `venv/`, `data/raw/`, `data/processed/`, `*.pyc`, `__pycache__/`
+- [ ] T005 [P] Create `.gitignore` to exclude `venv/`, `data/raw/`, `data/processed/`, `*.pyc`, `__pycache__/`
 
 ---
 
@@ -57,20 +57,20 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T006 [P] Implement `code/config.py` function `load_config()`: Parse `config.yaml`, validate keys, return dict
-- [X] T007 [P] Implement `code/config.py` function `enforce_seeds()`: Set `random.seed`, `numpy.random.seed` from config
-- [X] T008 [P] Implement `code/utils/logging.py`: Create `setup_logger()` function returning a configured `logging.Logger`
-- [X] T009 [P] {{claim:c_5a05bff5}}
-- [X] T010 [P] Setup `tests/__init__.py` and `pytest.ini` configuration
-- [X] T011 [P] Create `code/__init__.py` to expose public API
-- [X] T012 [P] Create `data/raw/.gitkeep` and `data/processed/.gitkeep` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [X] T013 [P] Create `code/data/simulation.py` skeleton with `inject_sme_coefficient()` function signature (Plan Task 1.2) <!-- ATOMIZE: requested -->
-- [X] T014 [P] Create `code/analysis/anisotropy.py` skeleton with `calculate_biposh()` function signature
-- [X] T015 [P] Create `code/analysis/inference.py` skeleton with `run_mcmc()` function signature
-- [X] T016 [P] Create `code/main.py` skeleton: Entry point that loads config, enforces seeds, and logs start
-- [X] T017 [P] Define Forward Model Algorithm: Write docstring and comments in `code/data/simulation.py` detailing the injection logic: `a_lm_new = a_lm_iso + k * alpha_lm` **BEFORE** convolution with beam functions (Plan Task 1.2)
-- [X] T018 [US2] Implement `inject_sme_coefficient()` in `code/data/simulation.py` to produce 200 FITS files in `data/simulations/` with **Nside=256** (sub-sampled for RAM), injecting specific k values (Plan Task 1.3) <!-- FAILED: unspecified -->
-- [X] T019 [US2] Implement `generate_isotropic_null()` in `code/data/simulation.py` to produce 200 FITS files in `data/simulations/` with **Nside=256** and realistic noise (using config-defined noise models) (Plan Task 1.3)
+- [ ] T006 [P] Implement `code/config.py` function `load_config()`: Parse `config.yaml`, validate keys, return dict
+- [~] T007 [P] Implement `code/config.py` function `enforce_seeds()`: Set `random.seed`, `numpy.random.seed` from config
+- [~] T008 [P] Implement `code/utils/logging.py`: Create `setup_logger()` function returning a configured `logging.Logger`
+- [~] T009 [P] Create `requirements.txt` with pinned versions: `healpy==1.16.2`, `numpy==1.24.0`, `scipy==1.10.0`, `emcee==3.1.3`, `requests==2.31.0`, `astropy==5.2.0`, `pyyaml==6.0.1`
+- [~] T010 [P] Setup `tests/__init__.py` and `pytest.ini` configuration
+- [~] T011 [P] Create `code/__init__.py` to expose public API
+- [ ] T012 [P] Create `data/raw/.gitkeep` and `data/processed/.gitkeep` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [~] T013 [P] Create `code/data/simulation.py` skeleton with `inject_sme_coefficient()` function signature (Plan Task 1.2) <!-- ATOMIZE: requested -->
+- [~] T014 [P] Create `code/analysis/anisotropy.py` skeleton with `calculate_biposh()` function signature
+- [~] T015 [P] Create `code/analysis/inference.py` skeleton with `run_mcmc()` function signature
+- [~] T016 [P] Create `code/main.py` skeleton: Entry point that loads config, enforces seeds, and logs start
+- [~] T017 [P] Define Forward Model Algorithm: Write docstring and comments in `code/data/simulation.py` detailing the injection logic: `a_lm_new = a_lm_iso + k * alpha_lm` **BEFORE** convolution with beam functions (Plan Task 1.2)
+- [~] T018 [US2] Implement `inject_sme_coefficient()` in `code/data/simulation.py` to produce 200 FITS files in `data/simulations/` with **Nside=256** (sub-sampled for RAM), injecting specific k values (Plan Task 1.3) <!-- FAILED: unspecified -->
+- [~] T019 [US2] Implement `generate_isotropic_null()` in `code/data/simulation.py` to produce 200 FITS files in `data/simulations/` with **Nside=256** and realistic noise (using config-defined noise models) (Plan Task 1.3)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,16 +86,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T020 [P] [US1] Unit test `tests/test_data.py::test_download_retry_logic`: Verify exponential backoff and retry count <!-- ATOMIZE: requested -->
-- [X] T021 [P] [US1] Unit test `tests/test_data.py::test_checksum_verification`: Verify `assert file_hash == expected_hash`
-- [X] T022 [P] [US1] Unit test `tests/test_data.py::test_mask_application`: Verify masked pixels are zeroed
-- [X] T023 [P] [US1] Integration test `tests/test_data.py::test_end_to_end_pipeline`: Verify `data/processed/` contains valid FITS files <!-- FAILED: unspecified -->
+- [~] T020 [P] [US1] Unit test `tests/test_data.py::test_download_retry_logic`: Verify exponential backoff and retry count <!-- ATOMIZE: requested -->
+- [~] T021 [P] [US1] Unit test `tests/test_data.py::test_checksum_verification`: Verify `assert file_hash == expected_hash`
+- [~] T022 [P] [US1] Unit test `tests/test_data.py::test_mask_application`: Verify masked pixels are zeroed
+- [~] T023 [P] [US1] Integration test `tests/test_data.py::test_end_to_end_pipeline`: Verify `data/processed/` contains valid FITS files <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [X] T024 [US1] Implement `code/data/downloader.py`: Fetch SMICA, EE, TE maps and masks from ESA Legacy Archive (FITS) with retry logic
-- [X] T025 [US1] Implement checksum verification in `code/data/downloader.py`: Verify file integrity against ESA records, raise error on mismatch
-- [X] T026 [US1] Implement `code/data/processor.py`: Load raw maps, apply confidence masks, and deconvolve beam/pixel window functions
+- [~] T024 [US1] Implement `code/data/downloader.py`: Fetch SMICA, EE, TE maps and masks from ESA Legacy Archive (FITS) with retry logic
+- [~] T025 [US1] Implement checksum verification in `code/data/downloader.py`: Verify file integrity against ESA records, raise error on mismatch
+- [~] T026 [US1] Implement `code/data/processor.py`: Load raw maps, apply confidence masks, and deconvolve beam/pixel window functions
 - [ ] T027 [US1] Implement validation in `code/data/processor.py`: Check for NaNs and correct Nside=2048 resolution in output
 - [ ] T028 [US1] Implement error handling in `code/data/downloader.py`: Raise `ERROR_DATA_UNAVAILABLE` on persistent failure
 - [ ] T029 [US1] Update `code/main.py`: Add trigger for data acquisition pipeline (calls `downloader.py` and `processor.py`)

@@ -1,0 +1,56 @@
+- **FR-005a**: System MUST perform a two‑sided binomial test of the overall inconsistency proportion against a baseline proportion of **0.05** (justified by John et al., prior reporting error meta‑analysis) at significance level **α = 0.05**. The test must report a p‑value, a 95 % Wilson confidence interval for the observed proportion, and the raw inconsistency rate. (See US‑2)
+- **FR-005b**: System MUST conduct a sensitivity analysis of the baseline proportion by repeating the binomial test for baseline values in the range **0.02 – 0.10** (step 0.01) and must report the maximum variation in the estimated prevalence. (See US‑2)
+- **FR-007**: System MUST log any parsing failures or missing fields with **clear error messages** that (a) include an error code of the form `ERR‑###`, (b) name the affected field, and (c) provide a concise description ≤ 200 characters. (See US‑1)
+- **FR-009**: System MUST be compatible with the **Ubuntu‑latest** GitHub Actions runner, use only Python 3.11+ and pip‑installable packages, limit memory consumption to **≤ 2 GB**, CPU usage to **≤ 2 vCPUs**, avoid GPU usage and disallowed system calls, and complete within **6 hours**. (See US‑1, US‑3, US‑4)
+- **FR-012**: System MUST handle summaries lacking a baseline conversion rate by using the **average of the two variant rates** to reconstruct the absolute effect size. *Limitation*: This is a heuristic approximation; when baseline is missing, effect size reconstruction has reduced statistical rigor and should be flagged in audit notes. (See US‑1)
+- **FR-024**: System MUST export the audit results as (a) a JSON file `audit_report.json` containing a record per summary and (b) a CSV file `summary_report.csv` summarising total counts, inconsistency rate, and 95 % Wilson confidence interval. The JSON records must include the fields: `url`, `reported_p`, `reported_effect_size`, `reported_sample_size_a`, `reported_sample_size_b`, `reconstructed_p`, `reconstructed_effect_size`, `diff_abs_p`, `diff_abs_effect`, `flag_inconsistent`, `notes`. (See US‑3)
+- **FR-025**: System MUST perform an a priori power analysis for the binomial prevalence test and ensure that the number of audited summaries **N ≥ 300** (or the calculated minimum) to achieve statistical power **≥ 0.80** at **α = 0.05** for detecting an inconsistency proportion of at least **0.10** (double the baseline of 0.05 from FR‑005a). This guarantees sufficient sensitivity to answer the research question. *Justification*: Power analysis is essential to avoid inconclusive prevalence estimates; N ≥ 300 is required by the power calculation parameters. (See US‑2)
+- **FR-026**: System MUST validate each statistical test implementation (two‑proportion z‑test/Fisher's exact test, Welch's t‑test, binomial test) via Monte Carlo simulation with **10 000** replicates and ensure that the absolute difference between the library result and the Monte Carlo estimate is **≤ 0.005**. (See US‑1)
+- **FR-028**: System MUST provide a Quickstart guide (README) with step‑by‑step instructions, including command‑line examples and expected runtime, and must enable a new user to execute the audit on a sample corpus of **30 URLs** within **30 minutes** on the default GitHub Actions runner. This documentation is essential for reproducibility. (See US‑1) *Justification*: Reproducibility is a core scientific requirement.
+- **FR-031b**: System MUST evaluate the extraction accuracy component on a **manually annotated real‑world validation set** of at least **100** summaries (stratified across five major domains: tech, e‑commerce, finance, healthcare, SaaS), computing precision, recall, and F1 score for field‑level extraction, and must achieve **precision ≥ 85 %** and **recall ≥ 75 %** (F1 ≥ 0.80). Ground truth MUST be established by human annotation verifying that extracted fields match the reported numbers in the source summaries (i.e., whether the extraction correctly captured the sample sizes, effect sizes, and p‑values as written). This validates the extraction module's ability to accurately capture reported statistics, NOT the inconsistency detection logic (which is validated on synthetic data per FR‑031). *Justification*: Real‑world validation with human verification of extraction accuracy is essential to confirm that the extraction component performs adequately on actual public A/B test summaries. Targets measure extraction accuracy for field‑level capture, not inconsistency detection against known ground truth. (See US‑1)
+
+### Key Entities
+
+- **A/B Summary**: Represents a single publicly posted experiment; key attributes include `url`, `variant_a_n`, `variant_b_n`, `effect_size`, `reported_p`, `confidence_interval`, `timestamp`, `outcome_type` (binary / continuous).
+- **Audit Record**: Result of the consistency check for one summary; attributes include `reconstructed_p`, `diff_abs`, `flag_inconsistent`, `category`, `notes`.
+
+## Scope Justification
+
+The original idea called for auditing public A/B test summaries and reporting the prevalence of inconsistencies. The retained functional requirements (FR‑001, FR‑002, FR‑003, FR‑004, FR‑004b, FR‑005a, FR‑005b, FR‑007, FR‑009, FR‑012, FR‑024, FR‑025, FR‑026, FR‑028, FR‑031b) are **essential** to fulfil that goal:
+
+1. **Data acquisition and extraction** (FR‑001, FR‑002) are needed to obtain the raw numbers from the public summaries.
+2. **Reconstruction of statistical tests** (FR‑003) provides the ground‑truth p‑values against which reported values can be compared.
+3. **Inconsistency detection** (FR‑004) implements the core audit logic, now aligned with Constitution Section VI's absolute 0.05 threshold for p‑value discrepancy.
+4. **Sample‑size discrepancy detection** (FR‑004b) ensures that mismatched sample size reporting is also flagged, as required by the original methodology.
+5. **Prevalence estimation** (FR‑005a) yields the quantitative answer to “how prevalent are inconsistencies?” using a literature‑backed baseline of 0.05 (John et al.), and **FR‑005b** ensures robustness to that assumption.
+6. **Sample‑size increase** (FR‑025) guarantees that the audit corpus is large enough to detect a meaningful inconsistency rate with adequate power (power ≥ 0.80), preventing inconclusive results; N ≥ 300 is required by the power calculation parameters.
+7. **Monte Carlo validation** (FR‑026) ensures the correctness of statistical implementations, a prerequisite for trustworthy inference.
+8. **Logging** (FR‑007) ensures transparency about parsing problems.
+9. **CI compatibility** (FR‑009) guarantees that the audit can be run automatically on a regular schedule.
+10. **Baseline handling** (FR‑012) allows reconstruction when a baseline rate is omitted, preserving audit coverage (with acknowledged heuristic limitation).
+11. **Result export** (FR‑024) provides the required deliverable—a concise, machine‑readable report of the prevalence estimate.
+12. **Quickstart documentation** (FR‑028) lowers the barrier for reproducibility and external validation.
+13. **Real‑world extraction validation** (FR‑031b) addresses scientific soundness concerns by requiring human verification of extraction accuracy on ≥100 real summaries to validate that the extraction module correctly captures reported numbers.
+
+All listed requirements are therefore justified as essential rather than gold‑plating. The corpus size increase (N ≥ 300) and synthetic‑validation‑free approach focus on the core research question without unnecessary expansion.
+
+## Methodological Limitations
+
+**Critical**: This audit methodology tests **internal consistency** (whether reported statistics are arithmetically consistent with each other) but **cannot validate external accuracy** (whether reported statistics match the actual underlying data). A summary where all numbers are wrong but internally consistent will be flagged as "consistent" by this methodology. This limitation is inherent to the approach of auditing publicly available summaries without access to raw data.
+
+**FR‑012 Baseline Handling**: When baseline conversion rate is missing, the system uses the average of variant rates as a heuristic. This approximation has reduced statistical rigor compared to complete data and should be flagged in audit notes.
+
+**FR‑031b Real‑World Extraction Validation**: Precision/recall on manually annotated summaries provides evidence of extraction capability but cannot guarantee performance on all future summaries outside the validation set distribution. Ground truth is based on human verification of **extraction accuracy** (whether extracted fields match the reported numbers in the source), not inconsistency detection against known ground truth. Human annotators can only verify that extraction correctly captured reported numbers; they cannot independently verify whether the statistical reconstruction is correct.
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+- **SC-001**: Extraction accuracy ≥ 95 % on a manually annotated validation set of at least **100** summaries, stratified across five major domains: **tech**, **e‑commerce**, **finance**, **healthcare**, **SaaS** (measured as proportion of correctly captured fields). (See US‑1)
+- **SC-003**: For each statistical test, the absolute difference between the SciPy result and the Monte‑Carlo estimate (10 000 replicates) must be **≤ 0.005**. (See US‑1)
+- **SC-005**: All logged parsing errors must be ≤ 5 % of total summaries processed. (See US‑1)
+- **SC-008**: CI execution must complete within **6 hours**, using resources typical of the default GitHub Actions runner (≈ 2 vCPUs, ≤ 2 GB RAM); resource usage is logged and must meet these limits. (See US‑1, US‑3, US‑4)
+- **SC-013**: CI pipeline must exit with status 0 and produce a `manifest.json` in ≥ 99 % of runs over a sample of **20 consecutive CI executions** on the default GitHub Actions runner. (See US‑4)
+- **SC-014**: The binomial test defined in **FR‑005a** must report a p‑value rounded to three decimal places, a Wilson confidence interval whose total width ≤ 0.10, and flag significance when p ≤ 0.05. (See US‑2)
+- **SC-015**: Sensitivity analysis (FR‑005b) must show that the estimated prevalence varies by less than **0.02** across baseline proportions 0.02–0.10. (See US‑2)
+- **SC-024**: The exported CSV `summary_report.csv` must contain columns `total_summaries`, `inconsistent_count`, `inconsistent_rate`, `wilson_ci_lower`, `wilson_ci_upper`; the values must exactly match those computed in the JSON `audit_report.json`. (See US‑2, US‑3)

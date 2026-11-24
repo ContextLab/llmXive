@@ -1,18 +1,19 @@
 status: none
-intent: download linked BFI-2 personality and Last.fm listening history dataset python
-  package dataset
+intent: download BFI-2 personality and Last.fm listening history linked dataset LFM-1b
+  Million Song Dataset python package dataset
 required_fields:
-- participant_id
+- user_id
 - bfi2_openness
 - bfi2_conscientiousness
 - bfi2_extraversion
 - bfi2_agreeableness
 - bfi2_neuroticism
-- lastfm_user_id
-- listening_history
-- standardized_genre
 - age
 - gender
-cache_key: 00d054723338083f5574b5d5c63b765c1d914f3c07843d98af2bdce5b818bff4
-searched_at: '2026-10-07T02:00:11.834114+00:00'
+- lastfm_username
+- track_id
+- listening_timestamp
+- raw_genre_tag
+cache_key: f9bc2917c1e6162d6bf329795ba2e1ccff38d2a6897186687dc267027f55d9d1
+searched_at: '2026-10-29T11:14:54.508422+00:00'
 retry_count: 1

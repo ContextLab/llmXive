@@ -1,0 +1,213 @@
+{
+  "trace_id": "held_out_43_02446",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "resize_element",
+    "apply_theme",
+    "insert_text",
+    "format_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "format_text",
+    "format_text",
+    "update_layout",
+    "update_layout",
+    "insert_chart",
+    "apply_theme",
+    "apply_theme",
+    "insert_chart",
+    "resize_element",
+    "resize_element",
+    "format_text",
+    "delete_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 67.9117,
+        "height": 36.7128
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 9.2575,
+        "saturation": 27.234
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 52.6994,
+        "y": 11.3145,
+        "length": 32.37
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 3.2396,
+        "x": 1.6399,
+        "y": 38.3064
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 13.6635,
+        "y": 58.4887,
+        "length": 85.5613
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 90.9427,
+        "y": 1.85,
+        "length": 52.3431
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 85.6514,
+        "y": 59.2496,
+        "length": 93.022
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 75.1349,
+        "y": 79.1424,
+        "length": 59.7786
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 89.4797,
+        "x": 40.4279,
+        "y": 54.1676
+      }
+    },
+    {
+      "step": 9,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 21.9713,
+        "x": 96.0494,
+        "y": 97.7951
+      }
+    },
+    {
+      "step": 10,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 33.8962,
+        "padding": 90.5566
+      }
+    },
+    {
+      "step": 11,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 30.2142,
+        "padding": 70.4272
+      }
+    },
+    {
+      "step": 12,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 22.7437,
+        "y": 98.8755,
+        "width": 64.802,
+        "height": 63.4271
+      }
+    },
+    {
+      "step": 13,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 10.7685,
+        "saturation": 77.5724
+      }
+    },
+    {
+      "step": 14,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 52.8589,
+        "saturation": 47.235
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 89.963,
+        "y": 20.8417,
+        "width": 55.0021,
+        "height": 12.543
+      }
+    },
+    {
+      "step": 16,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 8.9721,
+        "height": 8.4828
+      }
+    },
+    {
+      "step": 17,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 32.5153,
+        "height": 44.7184
+      }
+    },
+    {
+      "step": 18,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 28.9913,
+        "x": 95.6659,
+        "y": 65.7982
+      }
+    },
+    {
+      "step": 19,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 83.0383
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.847901,
+    "tool_repetition_freq": 0.65,
+    "arg_semantic_variance": 912.600352
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 7,
+    "layout_hash": "43-2446-insert_text"
+  },
+  "variance_multiplier": 1.5
+}

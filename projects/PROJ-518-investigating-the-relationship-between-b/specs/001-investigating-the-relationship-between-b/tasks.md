@@ -1,203 +1,145 @@
 # Tasks: Investigating the Relationship Between Brain Network Dynamics and Creative Problem Solving
 
 **Input**: Design documents from `/specs/518-brain-dynamics-creativity/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are MANDATORY where defined by spec acceptance criteria.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
+**Tests**: Tests are MANDATORY where defined by spec acceptance criteria.
 
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- **[Story]**: Which user story this task belongs to (US1–US4)
+- Paths are relative to the project directory (`projects/PROJ-518-investigating-the-relationship-between-b/`). Source lives in `code/`, tests in `code/tests/`, results in `data/interim/` and `docs/outputs/`.
 
-## Path Conventions
+## Completed work (preserved — verified by prior review receipts)
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [X] T002 Pinned dependencies in `requirements.txt` (nilearn, networkx, scikit-learn, numpy, pandas, matplotlib, scipy, brainconn, statsmodels).
+- [X] T005 `code/config.py` with `WINDOW_SIZES = [20,30,40]`, `STEP = 5`, `FWE_METHOD`, and `validate_fwe_config()`.
+- [~] T006 `code/utils/logging.py` `log_exclusion(reason, subject_id)` writing CSV rows to `data_exclusion_log.txt` with standardized reason codes (`MISSING_SCAN`, `MISSING_SCORE`, `HIGH_MOTION`).
 
-## Phase 1: Setup (Shared Infrastructure)
+**Note (T007 correction, retained)**: The earlier `code/utils/versioning.py` task that wrote artifact hashes into `state/projects/...yaml` has been removed; hashing now only updates `data/checksums.json`. No task may write to `state/` — platform state is owned by the platform.
 
-- [X] T001 Create project structure per implementation plan (`mkdir -p projects/PROJ-518-investigating-the-relationship-between-b/code projects/PROJ-518-investigating-the-relationship-between-b/tests projects/PROJ-518-investigating-the-relationship-between-b/data/raw projects/PROJ-518-investigating-the-relationship-between-b/data/processed projects/PROJ-518-investigating-the-relationship-between-b/data/interim projects/PROJ-518-investigating-the-relationship-between-b/docs/outputs projects/PROJ-518-investigating-the-relationship-between-b/results`).
-- [X] T002 Initialize Python 3.10 project with pinned `requirements.txt` containing `nilearn==0.10.0`, `networkx==3.2.1`, `scikit-learn==1.4.2`, `numpy==1.26.4`, `pandas==2.2.2`, `matplotlib==3.8.4`, `scipy==1.12.0`, `brainconn==0.1.0`, `statsmodels==0.14.2`.
-- [X] T003 [P] Configure linting (flake8/black) by creating `.flake8` and `pyproject.toml` with appropriate sections.
+## Phase 1: Setup and first end-to‑to‑end analysis on real data
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [~] T101 US4 **Implement CAQ availability validation with a single, shared error class.**
+  *Description*: In `code/data/loader.py`, implement `validate_caq_availability(behavioral_json)` that parses the HCP behavioral metadata for the CAQ field. Define the error class ONCE in `code/errors.py` (`DataMissingCreativityError`) and import it in both `loader.py` and `code/main.py::run_validation()`. When CAQ is missing or null for all participants, raise `DataMissingCreativityError("DATA_MISSING_CREATIVITY")` and have `run_validation()` catch it, log the missing field name, and call `sys.exit(1)`. When CAQ is present, proceed without error.
+  *Deliverables*: `code/errors.py`, updated `code/data/loader.py`, updated `code/main.py`.
+  *Verification*: `pytest code/tests/contract/test_loader.py` — tests import `DataMissingCreativityError` from `code.errors` and assert both the pass‑through case (valid JSON with CAQ) and the halt case (missing CAQ → exit code 1, error code `DATA_MISSING_CREATIVITY` logged). Satisfies FR‑011 / US‑4.
 
-- [X] T004 Setup data directory structure (`mkdir -p data/raw data/processed data/interim docs/outputs results`).
-- [X] T005 [P] Implement `code/config.py` with a `Config` dataclass containing `WINDOW_SIZES = [20,30,40]`, `STEP = 5`, `ATLAS_PATH`, `DATA_PATH`, `FWE_METHOD = 'max-t'` (or 'bonferroni'), and load from `.env` if present.
-- [X] T005.1 [P] Implement `code/config.py` function `validate_fwe_config()` that checks if `FWE_METHOD` is 'max-t' and ensures `distribution_of_max_stats` will be available from T027, or if 'bonferroni' is selected, ensures no max-T dependency exists. Raises `ValueError` if mismatch. **Dependency**: T005. **Verification**: Unit test `tests/unit/test_config.py::test_fwe_config_validation`.
-- [X] T006 [P] Setup `code/utils/logging.py` with function `log_exclusion(reason: str, subject_id: str)` that appends CSV rows to `data_exclusion_log.txt`.
-- [X] T007 Create `code/utils/versioning.py` with `hash_file(path: str) -> str` and `update_state_file()` that writes SHA‑256 hashes to `state/projects/PROJ-518...yaml`.
-- [X] T008 Configure error handling: define `class DataMissingCreativityError(Exception)` in `code/errors.py`.
-- [X] T009 Setup environment configuration management (`code/config.py` as above).
+- [ ] T102 US1 **Fetch real HCP resting‑state fMRI and behavioral data from OpenNeuro.** <!-- FAILED-IN-EXECUTION: code/data/run_fetch.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/run_fetch.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/run_fetch.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/run_fetch.py exit=1 -->
+  *Description*: Implement `fetch_hcp_data(subject_id)` in `code/data/loader.py` that downloads each subject's resting‑state fMRI (CIFTI) and behavioral JSON from the canonical HCP S1200 OpenNeuro mirror (`https://openneuro.org/datasets/ds003189`). Write raw files to `data/raw/hcp_{subject_id}/`. The loader MUST fail loudly: if the real fetch fails, raise — NO synthetic fallback. Record SHA‑256 checksums of all raw files in `data/checksums.json`. Additionally, generate a manifest file `data/raw/manifest.json` listing all downloaded subject IDs. Define the sampled subject list via a constant `SAMPLE_SUBJECT_IDS` in `code/config.py` (e.g., first 1000 IDs from the manifest or a fixed‑seed random sample). 
+  *Deliverables*: populated `data/raw/hcp_{subject_id}/`, `data/checksums.json`, `data/raw/manifest.json`, and `code/config.py` constant.
+  *Verification*: `pytest code/tests/unit/test_loader_fetch.py` asserting downloaded files exist, are non‑empty, match recorded checksums, and that a fetch failure raises an exception. Satisfies FR‑009 provenance and Constitution VI.
 
-## Phase 2.5: Critical Pre‑Conditions (User Story 4 – Priority: P1) 🚨 BLOCKER
+- [~] T103 US1 **Implement subject filtering with standardized exclusion logging.**
+  *Description*: Implement `filter_subjects(manifest, behavioral)` in `code/data/loader.py` that (a) skips subjects whose resting‑state scan is unavailable (`MISSING_SCAN`), (b) excludes subjects with missing behavioral/creativity scores (`MISSING_SCORE`), and (c) flags and omits subjects with mean framewise displacement > 0.5 mm in > 20 % of volumes (`HIGH_MOTION`). All decisions are written via `log_exclusion` to `data/interim/data_exclusion_log.txt`. Output the included‑subject table to `data/interim/included_subjects.csv` with columns `subject_id, age, sex, education, creativity_score, rest_fmri_path`. Relies on the manifest produced by T102.
+  *Verification*: `pytest code/tests/unit/test_filter_subjects.py` with fixtures covering all three edge cases, asserting correct exclusion codes and that the run does not abort on a missing scan. Satisfies FR‑009 and all three spec edge cases.
 
-- [X] T033 Implement `validate_caq_availability(manifest_path: str, behavioral_path: str) -> bool` in `code/data/loader.py` that checks for the CAQ field and raises `DataMissingCreativityError` with the missing field name if absent.
-- [X] T036 [P] [US4] Implement `code/main.py` function `run_validation()` that calls `validate_caq_availability`. **Dependency**: T033, T008.
-- [X] T036.1 [US4] Implement error handling in `code/main.py`: wrap `run_validation()` in a `try-except` block catching `DataMissingCreativityError`. **Logic**: In the `except` block: log the specific error code `DATA_MISSING_CREATIVITY` to the console and log file, then call `sys.exit(1)`. **Dependency**: T036, T008.
-- [X] T036.2 [US4] Implement success path in `code/main.py`: if no exception, proceed to the next stage (data fetching). **Dependency**: T036, T036.1.
-- [X] T036.3 [US4] Explicitly define the entry point function `main()` in `code/main.py` that orchestrates the flow: call `run_validation()`, and on success, call `fetch_hcp_data()`. **Dependency: T036.2**.
+- [ ] T104 US1 **Repair and run fMRI preprocessing.** <!-- FAILED-IN-EXECUTION: code/data/run_preprocess.py exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/data/run_preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/run_preprocess.py exit=1 -->
+  *Description*: Fix the failing `code/data/run_preprocess.py` (previous exit=1). `preprocess_fmri` in `code/data/preprocess.py` performs motion correction, spatial normalization, and band‑pass filtering 0.01–0.1 Hz, writing output to `data/processed/fmri_clean/{subject_id}.nii.gz` (canonical path per data‑model; rename any legacy `data/processed/{subject_id}_preprocessed.nii.gz` outputs and update downstream references). Process subjects one at a time with memory‑mapped arrays to stay under 7 GB RAM.
+  *Deliverables*: `data/processed/fmri_clean/{subject_id}.nii.gz` for every included subject.
+  *Verification*: `python code/data/run_preprocess.py` exits 0; `pytest code/tests/unit/test_preprocess.py` asserting each output file exists, is loadable via `nilearn`, and has the expected affine/shape. Satisfies FR‑001.
 
-### Tests for US4 (Mandatory)
-- [X] T034 [P] [US4] Contract test `tests/contract/test_loader.py::test_validate_caq_availability_raises_on_missing` asserting `DataMissingCreativityError` is raised when CAQ is missing in the manifest.
-- [X] T035 [P] [US4] Contract test `tests/contract/test_loader.py::test_validate_caq_availability_passes_on_present` asserting function returns True when CAQ is present.
+- [ ] T105 US1 **Compute sliding‑window connectivity, static strength, and flexibility with consensus clustering.**
+  *Description*: In `code/analysis/connectivity.py`, compute sliding‑window functional connectivity (window 30 s default, step 5 s) and per‑participant `static_connectivity_strength` (mean |r| of the full‑window static matrix, FR‑012). In `code/analysis/dynamics.py`, apply Louvain community detection **with consensus clustering** (using the `brainconn` library) per window, build the module‑allegiance matrix, compute whole‑brain flexibility (proportion of community changes per ROI, averaged), and implement the phase‑randomized null model producing `null_flexibility_mean` and `excess_flexibility = observed − null`. Write one row per subject to `data/interim/flexibility_metrics.csv` with all fields required by `contracts/flexibility_metric.schema.yaml`.
+  *Verification*: `pytest code/tests/unit/test_flexibility_schema.py` validating each row against the schema; unit tests `test_calculate_flexibility_averages` (hand‑computable toy connectivity matrices) and seed‑reproducibility of the null model. Satisfies FR‑002, FR‑003, FR‑004, FR‑012.
 
-- [X] T018 [US1] Implement `code/data/loader.py` function `validate_and_filter_subjects(subjects: List[Participant]) -> List[Participant]` that skips subjects with missing scans (log warning) and missing behavioral scores (exclude + log). **Output**: Returns filtered list. **Log Format**: Appends CSV rows to `data_exclusion_log.txt` with columns `subject_id, reason, timestamp`. Reason must be `MISSING_SCAN` or `MISSING_SCORE`. **Dependency**: T006.
-- [X] T019 [US1] Implement `code/data/loader.py` function `filter_by_motion(subjects: List[Participant], fd_thresh: float = 0.5, vol_thresh: float = 0.2) -> List[Participant]` that excludes participants exceeding motion criteria. **Output**: Returns filtered list. **Log Format**: Calls `log_exclusion` with reason `HIGH_MOTION` for each excluded subject. **Dependency**: T006.
-- [X] T020b [US1] Implement standardized logging invocation: Ensure `log_exclusion` is called with standardized reason codes (`MISSING_SCAN`, `MISSING_SCORE`, `HIGH_MOTION`) for every exclusion decision in T018 and T019. **Dependency**: T018, T019. **Pre-requisite**: Must be implemented after filtering tasks to ensure the logging mechanism is used correctly. **Verification**: Unit test `tests/unit/test_logging.py::test_standardized_reason_codes` must assert that the log file contains these exact reason codes for excluded subjects.
+- [ ] T106 US1 **Fit the OLS regression using network_flexibility as predictor and produce the primary result.**
+  *Description*: In `code/analysis/statistics.py`, fit `creativity_score ~ network_flexibility + age + sex + education + static_connectivity_strength` (FR‑005, predictor now matches the spec). Compute the Pearson r and two‑tailed p‑value between `network_flexibility` and creativity, ΔR² (full − static‑only baseline) formatted to ≥ 4 decimal places, and 95 % CIs for the flexibility coefficient. Write `data/interim/results.csv` **exactly matching** `contracts/regression_result.schema.yaml` (columns: `model_id, coefficient_flexibility, p_value_flexibility, r_squared, delta_r_squared, permutation_p_value, ci_lower, ci_upper, window_length, n_samples`). The `coefficient_flexibility` field stores the beta for `network_flexibility`. 
+  *Verification*: `pytest code/tests/unit/test_fit_regression_coefficients.py` (synthetic design matrix with known solution) and `pytest code/tests/integration/test_regression_summary.py` validating the CSV against the YAML contract and checking 4‑decimal ΔR² precision. Satisfies FR‑005, SC‑001, SC‑003.
 
-## Phase 3: User Story 1 – Compute Network Flexibility and Test Association (Priority: P1) 🎯 MVP
+- [ ] T107 US3 **Run the permutation test and fill the empirical p‑value.**
+  *Description*: Implement the vectorized permutation test in `code/analysis/statistics.py`: 10 000 shuffles of the creativity‑score vector (seed 42) preserving the `network_flexibility` vector, returning the two‑tailed empirical p‑value. Apply the family‑wise error correction (max‑T or Bonferroni) **to the ROI‑wise correlations computed by T118**. Write `data/interim/permutation_results.csv` (single row: `empirical_p_value`) and back‑fill `permutation_p_value` into `data/interim/results.csv`.
+  *Verification*: `pytest code/tests/unit/test_permutation.py::test_empirical_p_value_present` and `test_permutation_seed_reproducibility` (two runs with seed 42 give identical p‑values). Satisfies FR‑006, FR‑007.
 
-### Tests (MANDATORY)
+- [ ] T108 US3 **Run the window‑length sensitivity sweep.**
+  *Description*: Re‑run connectivity + flexibility + correlation for window lengths {20, 30, 40} s (step 5 s), reusing the per‑window recomputation in `code/analysis/connectivity.py`. This task **must run after T107** because it requires the permutation p‑values to be populated. Write `data/interim/sensitivity_summary.csv` with columns `window_length, correlation_coefficient, p_value, permutation_p_value, n_samples` — one row per window length, all values non‑null.
+  *Verification*: `pytest code/tests/unit/test_analysis.py::test_sensitivity_csv_schema` asserting three rows (20/30/40) with non‑null numeric values, validated against `contracts/sensitivity_summary.schema.yaml`. Satisfies FR‑010, SC‑002, SC‑005.
 
-- [X] T011 [P] [US1] Integration test `tests/integration/test_pipeline_flow.py::test_end_to_end_correlation` runs the full pipeline on a mock subset and asserts numeric `r` and `p` values.
+- [ ] T109 US2 **Generate all diagnostic visualisations.**
+  *Description*: In `code/viz/plots.py`: (a) `plot_flexibility_vs_creativity` — scatter with regression line and 95 % confidence band, saved as `docs/outputs/flexibility_vs_creativity.png`; (b) `plot_residuals` — residuals‑vs‑fitted plot saved as `docs/outputs/model_residuals.png`; (c) QQ‑plot saved as `docs/outputs/model_qq.png`. All PNGs must be ≤ 5 MB (compress and raise `RuntimeError` on failure).
+  *Verification*: `pytest code/tests/unit/test_plots.py` asserting all three files exist, are non‑empty PNGs, and are ≤ 5 MB, executed after the T106 model fit. Satisfies FR‑008, SC‑004.
 
-### Implementation
+- [ ] T110 **Run the full pipeline end‑to‑end and verify reproducibility.**
+  *Description*: Execute `python code/main.py` from validation through visualisation in one run. Then, in a fresh virtualenv with `requirements.txt` installed, re‑run the documented quickstart workflow and record the log to `docs/outputs/quickstart_run_log.txt`. Compute SHA‑256 checksums of **all raw data files** (as listed in `data/raw/manifest.json`) and of **derived CSV artifacts** (`data/interim/*.csv`) and assert they match entries in `data/checksums.json` using the script `code/utils/verify_checksums.py`. Also run a memory/profile run on a 10‑subject subset, write `docs/outputs/profiling_report.txt` containing measured memory usage (< 7 GB) and per‑subject mean runtime; extrapolate full‑run runtime by `mean_runtime_per_subject × target_N` and assert the projection is < 6 h. 
+  *Verification*: `pytest code/tests/integration/` passes; checksum assertion script exits 0; profiling report present with measured values and documented projection method. Satisfies the plan's performance goals and Constitution I/III.
 
-- [X] T012 [US1] Implement `code/data/loader.py` function `fetch_hcp_data(subject_id: str)` that downloads raw fMRI and behavioral JSON from OpenNeuro (dataset ID: the HCP S1200 Release). **Assumes T036.2 has validated CAQ availability; do not re-validate.** **Logic**: Assumes T036.2 has validated CAQ availability. **Output**: Saves files to `data/raw/hcp_{subject_id}/`. **Verification**: Assert that the downloaded files exist and are non-empty. **Note**: This task is NOT parallel-safe ([P] removed) as it depends on T036.2 completion.
-- [X] T013 [P] [US1] Implement `code/data/preprocess.py` function `preprocess_fmri(input_path: str, output_path: str)` performing motion correction, spatial normalization, and **band‑pass filtering within a low-frequency range** using Nilearn. **Output Convention**: The `output_path` MUST be constructed as `data/processed/{subject_id}_preprocessed.nii.gz` to ensure deterministic file naming for downstream tasks.
-- [X] T014 [US1] Implement `code/analysis/connectivity.py` function `compute_sliding_window_connectivity(fmri_data: np.ndarray, window_size: int, step: int, output_path: str)` reading `WINDOW_SIZES` and `STEP` from `config.py`. **Logic**: Accepts `window_size` as a parameter to support dynamic window lengths for sensitivity analysis. **Output**: Saves the connectivity matrix to `output_path`. **Note**: This function computes connectivity for a SINGLE window size. The `output_path` parameter MUST be used to prevent file overwrites when called multiple times with different window sizes.
-- [X] T014.0 [US1] Implement `code/analysis/connectivity.py` function `extract_demographics(participants: List[Participant]) -> dict` that extracts `age`, `sex`, `education` lists from the filtered participant list. **Output**: Dict with keys `age`, `sex`, `education`. **Dependency**: T018, T019.
-- [X] T014.1 [US1] Implement `code/analysis/connectivity.py` function `compute_static_connectivity_strength(fmri_data: np.ndarray) -> float` that calculates the mean of absolute pairwise correlations **from the full‑window static matrix** per participant. **Output**: Returns a float. **Dependency**: None. **Verification**: Unit test `tests/unit/test_connectivity.py::test_static_strength_returns_float` must assert the return type is float and value is within [-1, 1]. **Logic**: Must check for preprocessed file existence before parallel execution to prevent race conditions. **Pre-condition**: Verify input file exists; if not, skip or raise.
-- [X] T014.4 [US1] Implement `code/analysis/connectivity.py` function `collect_static_strengths(static_strength_results: List[float]) -> List[float]` that aggregates the individual float results from T014.1 (run in parallel per subject) into a single list. **Input**: List of floats from T014.1. **Output**: A single aggregated list of floats. **Dependency**: T014.1. **Verification**: Unit test `tests/unit/test_connectivity.py::test_collect_static_strengths` must assert the output is a list of floats.
-- [X] T014.5 [US1] Implement `code/analysis/connectivity.py` function `validate_per_participant_aggregation(covariates: dict, flexibility: List[float], subject_ids: List[str]) -> bool` that explicitly validates that the `static_connectivity_strength` in `covariates` matches the per-participant calculation and aligns with `flexibility` and `subject_ids`. **Input**: `covariates` dict from T014.2, `flexibility` from T016. **Output**: Returns True if valid. **Dependency**: T014.4, T016, T014.3. **Verification**: Unit test `tests/unit/test_connectivity.py::test_per_participant_validation` must assert correct handling of misaligned data.
-- [X] T014.6 [US1] Implement `code/analysis/connectivity.py` function `validate_static_strength_aggregation(static_strengths: List[float], subject_ids: List[str]) -> bool` that verifies the length of `static_strengths` matches `subject_ids` and that all values are valid floats. **Output**: Returns True if valid. **Dependency**: T014.4. **Verification**: Unit test `tests/unit/test_connectivity.py::test_static_strength_aggregation` must assert correct handling of mismatched lists.
-- [X] T014.3 [US1] Implement `code/analysis/connectivity.py` function `validate_alignment(static_strengths: List[float], flexibility: List[float], creativity: List[float], subject_ids: List[str]) -> bool` that checks if all lists have the same length and corresponding `subject_ids` match. Raises `ValueError` if mismatch. **Input**: Lists from T014.4, T016, T018/T019. **Output**: Returns True if aligned. **Dependency**: T014.4, T016, T018, T019. **Verification**: Unit test `tests/unit/test_connectivity.py::test_validate_alignment` must assert correct handling of mismatched lists.
-- [X] T014.2 [US1] Implement `code/analysis/connectivity.py` function `construct_covariates_dict(static_strengths: List[float], demographics: dict) -> dict` that aggregates per-participant metrics into the `covariates` dictionary required by T051. **Input**: List of floats from T014.4 (aggregated static strengths) and `demographics` dict from T014.0. **Output**: Dict with keys `static_connectivity_strength`, `age`, `sex`, `education`. **Mandatory**: The function MUST verify that the `static_connectivity_strength` key is present and non-null in the resulting dict. **Dependency**: T014.4, T014.0. **Verification**: Unit test `tests/unit/test_connectivity.py::test_covariates_dict_structure` must assert the dict contains all required keys.
-- [X] T015 [US1] Implement `code/analysis/dynamics.py` function `detect_communities(connectivity_matrix: np.ndarray, gamma: float = 1.0) -> List[int]` using Louvain with **γ = 1.0**.
-- [X] T016 [US1] Implement `code/analysis/dynamics.py` function `calculate_flexibility(community_labels: List[List[int]]) -> float` that counts ROI community changes **and averages across ROIs** to produce the whole‑brain metric.
-- [X] T043 [US1] Implement `code/analysis/statistics.py` function `format_delta_r2(delta_r2: float) -> str` returning a string with **four decimal places** (e.g., "0.1234"). **Dependency**: Must be implemented before T017.1.
-- [X] T051 [US1] Implement `code/analysis/statistics.py` function `fit_regression(flexibility: np.ndarray, creativity: np.ndarray, covariates: dict) -> RegressionResult` using `statsmodels` OLS to fit the full model `creativity ~ network_flexibility + age + sex + education + static_connectivity_strength`. **Data Model Update**: The `RegressionResult` dataclass MUST include fields `delta_r2_raw` (float), `delta_r2_formatted` (string, 4 decimals), `pearson_r` (float), and `global_empirical_p_value` (float). **Data Flow Implementation**:
- 1. Iterate over the list of participants.
- 2. For each participant, load preprocessed fMRI data from `data/processed/{subject_id}_preprocessed.nii.gz` (output of T013).
- 3. Call `compute_static_connectivity_strength` (T014.1) on the loaded data.
- 4. Aggregate the resulting floats into a list `static_strengths` using `collect_static_strengths` (T014.4).
- 5. Call `construct_covariates_dict` (T014.2) with `static_strengths` and `demographics` from T014.0 to generate the `covariates` dict.
- 6. **Validation**: Call `validate_alignment` (T014.3), `validate_per_participant_aggregation` (T014.5), and `validate_static_strength_aggregation` (T014.6) to verify that `static_connectivity_strength` is correctly aligned with `flexibility` and `creativity` vectors. Raise `ValueError` if mismatch.
- 7. Pass this `covariates` dict to the OLS model.
- 8. **Formatting**: Calculate `delta_r2 = full_model_r2 - baseline_model_r2`. **MUST** call `format_delta_r2` (T043) to generate `delta_r2_formatted` string.
- **Input**: `covariates` dict MUST be constructed via the logic above and validated. **Output**: Returns `RegressionResult` containing coefficients, R², adjusted R², `pearson_r`, `delta_r2_raw`, `delta_r2_formatted`, and `global_empirical_p_value`. **Dependency**: T014.1, T014.2, T014.3, T014.4, T014.5, T014.6, T014.0, T043.
-- [X] T051b [US1] Implement `code/analysis/statistics.py` function `fit_baseline_regression(creativity: np.ndarray, static_strengths: List[float], covariates: dict) -> RegressionResult` that fits the baseline model `creativity ~ static_connectivity_strength + age + sex + education`. **Logic**:
- 1. Construct a new covariates dict excluding `network_flexibility`.
- 2. Fit the OLS model using `statsmodels`.
- 3. **Formatting**: Calculate `delta_r2` (if applicable) or store R². **MUST** call `format_delta_r2` (T043) if delta is computed, otherwise store formatted R².
- 4. Return `RegressionResult` containing coefficients, R², and adjusted R² for the baseline model. **Data Model Update**: The `RegressionResult` dataclass MUST include fields `delta_r2_raw` (float) and `delta_r2_formatted` (string, 4 decimals).
- **Output**: Returns `RegressionResult` for the baseline model. **Dependency**: T014.1, T014.2, T014.3, T014.4, T014.5, T014.6, T014.0, T043.
-- [X] T017 [US1] Within `fit_regression` output (or as a post-processing step), compute and **report Pearson correlation coefficient** between flexibility and creativity. **Deliverable**: Append a row to `data/interim/regression_summary.csv` with columns `subject_id`, `flexibility`, `creativity`, `pearson_r`, `global_empirical_p_value`. **Logic**: If the file does not exist, **initialize it with headers** before appending. **Context**: This metric must be reported as part of the full model output to satisfy FR-005. The `global_empirical_p_value` MUST be derived from the permutation test (T027), not a parametric calculation. **Note**: The `empirical_p_value` column contains the **global model p-value** (from T027) repeated for all subjects, as the permutation test is a global statistic, not a per-subject metric. **Dependency**: T051, T027.
-- [X] T017.1 [US1] Implement baseline model `creativity ~ static_connectivity_strength + covariates`, compute ΔR², and **format ΔR² to 4 decimal places** by explicitly calling `format_delta_r2` from T043. **Logic**:
- 1. Call `fit_regression` (T051) to get full model R².
- 2. Call `fit_baseline_regression` (T051b) to get baseline model R².
- 3. Calculate `delta_r2 = full_model_r2 - baseline_model_r2`.
- 4. Format using `format_delta_r2`.
- **Deliverable**: Store `delta_r2_str` in `RegressionResult` and write to `data/interim/regression_summary.csv`. **Verification**: Unit test `tests/unit/test_statistics.py::test_formatDelta_r2_precision` must assert the string has exactly 4 decimal places. **Dependency**: T051, T051b, T043.
-- [X] T017.2 [US1] Implement `update_regression_result_formatting(result: RegressionResult) -> RegressionResult` that ensures `delta_r2_raw` is stored as a float and `delta_r2_formatted` is stored as a 4-decimal string within the `RegressionResult` object. **Dependency**: T043, T051, T051b. **Verification**: Unit test `tests/unit/test_statistics.py::test_regression_result_formatting` must assert the fields are correctly populated.
+- [ ] T111 [P] **Code quality and dependency checks.**
+  *Description*: Run `black` on all `code/` files; ensure `flake8 code/` exits 0; run a dependency security audit on `requirements.txt` and record results in `docs/outputs/dependency_audit.txt`.
+  *Verification*: `flake8 code/` exit code 0; audit report file exists and is non‑empty.
+  *Dependency*: **depends_on: T107, T108, T109** (run after all new code is final).
 
-## Phase 4: User Story 2 – Generate Diagnostic Visualisations (Priority: P2)
+## Phase 2: Results handoff
 
-### Tests
+- [ ] T112 **Document artifacts and write the results handoff for the paper stage.**
+  *Description*: Update `README.md` with a table of every generated artifact (path, columns, units, FR/SC satisfied). Populate `specs/518-brain-dynamics-creativity/research.md` with a concise methods/results account programmatically linked to the actual CSV and PNG artifacts — report the real measured r, p‑values, ΔR², and sensitivity table, describing negative findings and limitations honestly (including the construct‑validity caveat that CAQ measures creative achievement, not divergent thinking, and the post‑hoc power analysis). Document the paper‑stage handoff: paper layout, PDF compilation, and publication requirements live in the subsequent paper pipeline and are not duplicated here.
+  *Verification*: Every artifact path referenced in `research.md` exists on disk; no hand‑typed statistics (all values traceable to `data/interim/*.csv`). 
 
-- [X] T021 [P] [US2] Contract test `tests/contract/test_plots.py::test_plot_functions_exist`.
+- [ ] T113 **Update the data‑model to reflect canonical artifact locations and checksum scope.**
+  *Description*: Edit `specs/518-brain-dynamics-creativity/data-model.md` so the file table lists `data/processed/fmri_clean/{id}.nii.gz` and `data/interim/results.csv` as canonical outputs, and clarify that `data/checksums.json` now records checksums for both raw files and derived CSV artifacts. Remove the obsolete statement about `code/utils/versioning.py` updating `state/projects/...yaml`. 
+  *Verification*: File‑table paths match the outputs present in `data/` after T110; checksum scope description aligns with T122.
 
-### Implementation
+## New supplemental tasks (addressing uncovered concerns)
 
-- [X] T022 [P] [US2] Implement `code/viz/plots.py` function `plot_flexibility_vs_creativity(flexibility, creativity, output_path='docs/outputs/flexibility_vs_creativity.png')` that creates a scatter plot with regression line and a confidence band, saves as **`flexibility_vs_creativity.png`**. **Robustness**: Skip NaN data points and log a warning.
-- [X] T023 [US2] Implement `code/viz/plots.py` function `plot_residuals(model: RegressionResult, residuals_path='docs/outputs/model_residuals.png', qq_path='docs/outputs/model_qq.png')` that generates residuals‑vs‑fitted and QQ plots. **Logic**:
- 1. Extract residuals and fitted values from `model`.
- 2. Filter out any NaN or Inf values before plotting.
- 3. Generate residuals-vs-fitted plot and save as `model_residuals.png`.
- 4. Generate QQ-plot and save as `model_qq.png`.
- 5. **Verification**: Assert both files exist and are non-empty.
- **Dependency**: T051.
-- [X] T057 [US2] [P] Implement `compress_image(path: str, max_mb: float = 5.0)` in `code/viz/plots.py`. **Logic**:
- 1. Log initial file size.
- 2. If file size <= 5MB, skip compression and log success (do NOT raise error).
- 3. If file size > 5MB, attempt compression in this order: (a) reduce PNG quality, (b) resize if necessary, (c) convert to JPEG if acceptable.
- 4. Verify final size <= 5MB.
- 5. **Failure Handling**: If compression fails to reduce size below 5MB after all strategies, **raise a `RuntimeError`** with a clear message indicating the file size violation. **Do NOT** skip compression or keep the original file if it exceeds the limit.
- 6. **Verification**: Log final file size.
- **Dependency**: T022, T023 (must run after images are generated).
-- [X] T058 [US2] Add error handling in plot functions to skip NaN data points, log warnings, and continue (robustness for missing data). **Verification**: Unit test `tests/unit/test_plots.py::test_nan_handling` must assert that plots are generated without error when input contains NaN.
+- [ ] T114 **Update data‑model versioning constraint.**
+  *Description*: Edit `specs/518-brain-dynamics-creativity/data-model.md` to remove the stale clause that `code/utils/versioning.py` updates `state/projects/...yaml`. Replace it with a note that artifact hashes are recorded only in `data/checksums.json`. 
+  *Verification*: The data‑model no longer mentions writes to `state/`; consistency check against tasks passes.
 
-## Phase 5: User Story 3 – Perform Permutation‑Based Significance Testing & Sensitivity Sweep (Priority: P3)
+- [ ] T115 **Implement consensus clustering in dynamics step.**
+  *Description*: In `code/analysis/dynamics.py`, integrate `brainconn` consensus clustering to obtain stable community assignments across sliding windows before computing flexibility. Ensure the algorithm uses the default resolution γ = 1.0 and is deterministic given a fixed random seed. 
+  *Verification*: `pytest code/tests/unit/test_consensus_clustering.py` validates that consensus clusters are reproducible and that flexibility values differ from plain Louvain as expected.
 
-### Tests
+- [ ] T116 **Generate manifest.json listing all downloaded subjects.**
+  *Description*: Extend T102 (or as a separate lightweight step) to write `data/raw/manifest.json` containing an array of subject IDs and basic metadata (paths to fMRI files, behavioral JSON). This file serves as the authoritative source for downstream tasks. 
+  *Verification*: `pytest code/tests/unit/test_manifest_generation.py` checks the JSON structure and that it lists exactly the subjects fetched by T102.
 
-- [X] T026 [P] [US3] Contract test `tests/contract/test_permutation.py::test_permutation_counts`.
+- [ ] T117 **Define sampled subject list.**
+  *Description*: In `code/config.py`, add a constant `SAMPLE_SUBJECT_IDS` that is populated at runtime by reading `data/raw/manifest.json` and selecting either the first 1000 IDs or a fixed‑seed random sample of size 1000. Document the sampling rule in the config file. 
+  *Verification*: `pytest code/tests/unit/test_sampling_rule.py` confirms that the list length is 1000 and that the selection is reproducible across runs.
 
-### Implementation
+- [ ] T118 **Compute ROI‑wise correlations and apply FWE correction.**
+  *Description*: Add a new module `code/analysis/roi_correlation.py` that, for each ROI, computes the Pearson correlation between `network_flexibility` (or ROI‑specific flexibility if desired) and `creativity_score`. Collect all ROI‑wise p‑values and apply the family‑wise error method specified in `code/config.py` (max‑T or Bonferroni). Write `data/interim/roi_correlations.csv` with columns `roi, r, p_value, fwe_corrected_p`. T107 will consume this file to perform the final FWE step. 
+  *Verification*: `pytest code/tests/unit/test_roi_correlation_fwe.py` validates that the output file exists, contains one row per ROI, and that corrected p‑values are ≤ 1 and appropriately adjusted.
 
-- [X] T027 [P] [US3] Implement `run_permutation_test(flexibility, creativity, n_permutations=10000, seed: int = 42) -> dict` in `code/analysis/statistics.py`.
- **Implementation Details**:
- 1. Initialize `numpy.random.Generator` with the provided `seed` for reproducibility.
- 2. Use vectorized operations: generate a matrix of shape `(n_permutations, len(creativity))` of random indices using `rng.choice`.
- 3. Shuffle creativity scores using these indices.
- 4. Compute correlation for each shuffled set against the fixed flexibility vector.
- 5. **Return Value**: Return a dict containing `{'empirical_p_value': float, 'distribution_of_max_stats': list, 'shuffle_correlations': list}`. The `empirical_p_value` is the primary output for FR-006; `distribution_of_max_stats` is required for FR-007 max-T correction; `shuffle_correlations` is the list of all correlation values required for T030.
- **Output**: Returns a dict containing `empirical_p_value`, `distribution_of_max_stats`, and `shuffle_correlations`. **Dependency**: None (independent).
-- [X] T046 [US3] Implement `run_sensitivity_analysis(flexibility, creativity, window_lengths=[20,30,40]) -> dict` in `code/analysis/statistics.py`.
- **Implementation Details**:
- 1. **Efficiency Constraint**: Re-run connectivity computation for each window length to ensure valid flexibility metrics.
- 2. For each `window_length` in the sweep set:
- a. **Re-run** `compute_sliding_window_connectivity` (T014) with the specific `window_length` on preprocessed fMRI data. **CRITICAL**: Construct a unique `output_path` for each window length (e.g., `data/interim/connectivity_{window_length}.npy`) to prevent overwriting previous results.
- b. Run Louvain community detection (T015) and flexibility calculation (T016) on the newly computed connectivity matrices.
- c. Compute correlation and **empirical p-value** (via permutation test T027) for the new flexibility vector against creativity.
- 3. Aggregate results.
- **Output**: `{'p_values': [float,...], 'correlations': [float,...], 'window_lengths': [int,...]}`. **Note**: `p_values` MUST be the *empirical* p-values from T027. **Dependency**: T014, T015, T016, T027. **Note**: This task is NOT parallel-safe ([P] removed) as it depends on T014 completion and requires sequential re-computation.
-- [X] T046.1 [US3] Implement `construct_sensitivity_df(data: dict) -> pd.DataFrame` that transforms the dictionary output of T046 into a pandas DataFrame with columns `window_length`, `correlation`, `empirical_p_value`. **Dependency**: T046. **Verification**: Unit test `tests/unit/test_analysis.py::test_sensitivity_df_columns` must assert the DataFrame has these exact columns, specifically `empirical_p_value`.
-- [X] T045.1 [US3] Implement `merge_permutation_data(p_values: List[float], distribution_of_max_stats: List[float]) -> dict` in `code/analysis/statistics.py`. **Logic**: Create a dictionary containing both `p_values` and `distribution_of_max_stats` to be passed to T045. **Input**: `p_values` from T046.1, `distribution_of_max_stats` from T027. **Output**: Dict ready for FWE correction. **Dependency**: T046.1, T027.
-- [X] T045.3 [US3] Implement `compute_roi_wise_correlations(flexibility: np.ndarray, creativity: np.ndarray, roi_data: List[np.ndarray]) -> List[float]` in `code/analysis/statistics.py`. **Logic**: Compute Pearson correlation between flexibility and creativity for each ROI individually using the **real dataset** (HCP-MMP atlas parcellation). **Output**: List of floats representing ROI-wise correlations (or p-values). **Dependency**: None (uses real data). **Verification**: Unit test `tests/unit/test_analysis.py::test_roi_wise_correlations` must assert the output is a list of floats derived from real data.
-- [X] T045.2 [US3] Implement `aggregate_hypothesis_results(window_p_values: List[float], roi_p_values: List[float]) -> dict` in `code/analysis/statistics.py`. **Logic**: Aggregate p-values from multiple hypothesis tests (e.g., sensitivity sweep from T046.1 and ROI-wise tests from T045.3) into a unified list of p-values and test statistics. **Input**: P-values from T046.1 and `roi_p_values` from T045.3. **Output**: Dict containing `all_p_values` and `all_test_stats`. **Dependency**: T046.1, T045.3.
-- [X] T045 [US3] Implement `apply_fwe_correction(merged_data: dict, method: str = None) -> List[float]` in `code/analysis/statistics.py`.
- **Logic**:
- 1. If `method` is None, read `config.FWE_METHOD` (default 'max-t').
- 2. If `method='max-t'`, use `merged_data['distribution_of_max_stats']` to compute max-T corrected p-values.
- 3. If `method='bonferroni'`, calculate `p_adjusted = min(p * k, 1.0)` where k is the number of tests.
- **Input**: `merged_data` from T045.1 and T045.2. **Output**: List of adjusted p-values. **Dependency**: T045.1, T045.2.
-- [X] T030 [US3] Save permutation results to `data/interim/permutation_results.csv` and sensitivity summary to `data/interim/sensitivity_summary.csv`. **Schema**:
- - `permutation_results.csv`: columns `shuffle_id`, `correlation`. **Logic**: Read the `shuffle_correlations` list from the output artifact of T027. Iterate through the list and write each row (index as `shuffle_id`).
- - `sensitivity_summary.csv`: columns `window_length`, `correlation`, `empirical_p_value`. **Mandatory**: The `empirical_p_value` column must contain the permutation-derived p-value from T027.
- **Dependency**: T027 (completion), T046.1. **Verification**: Unit test `tests/unit/test_analysis.py::test_sensitivity_csv_schema` must assert the `empirical_p_value` column is present and non-null.
-- [X] T031 [US3] Verify the sensitivity DataFrame includes `correlation` and `empirical_p_value` for each window length (SC‑005). **Verification**: Unit test `tests/unit/test_analysis.py::test_sensitivity_df_columns` must assert the DataFrame has these columns. **Dependency**: T030.
-- [X] T060 [US3] Profile and optimise `run_permutation_test` (vectorised NumPy) to complete **≤ 6 hours** on 2 CPU cores and < 7 GB RAM. **Deliverable**: Generate `docs/outputs/profiling_report.txt` containing memory peak and runtime. **Logic**: Generate a **small real subset** of a representative number of subjects (e.g., 10) using `itertools.islice` on the filtered participant list. **Benchmarking**: Use a **real preprocessed NIfTI file** from `data/processed/` (or a small sample thereof) to mock heavy fMRI preprocessing steps for the benchmark test. **Verification**: Unit test `tests/benchmark/test_runtime.py` must assert runtime < 6h using a subset of 10 subjects. **Dependency**: T027.
-- [X] T060.1 [US3] Implement scaling projection and CI timeout mitigation. **Logic**: Based on the 10-subject benchmark from T060 (using real preprocessing times), extrapolate runtime for ~1000 participants. If projection exceeds 6 hours, implement a mitigation strategy (e.g., chunked processing, parallel execution on multiple runners, or reduced permutation count with justification). **Deliverable**: Update `docs/outputs/profiling_report.txt` with projection and mitigation plan. **Verification**: Unit test `tests/benchmark/test_scaling.py` must assert projection logic is sound. **Dependency**: T060.
+- [ ] T119 **Implement checksum verification script.**
+  *Description*: Create `code/utils/verify_checksums.py` that reads `data/checksums.json` and asserts that every listed file (both raw and derived CSVs) exists and matches its stored SHA‑256 hash. Exit with code 0 on success, non‑zero on mismatch. 
+  *Verification*: `pytest code/tests/integration/test_verify_checksums.py` runs the script on a known‑good repository and expects exit 0; a manipulated file triggers a failure.
 
-## Phase N: Polish & Cross‑Cutting Concerns
+- [ ] T120 **Write provenance file for raw data source.**
+  *Description*: After T102 completes, generate `data/raw/provenance.yaml` documenting: (a) the exact OpenNeuro dataset URL, (b) download date, (c) software versions used for fetching (e.g., `requests` version), (d) the HCP‑MMP atlas version employed downstream. This satisfies Constitution VI. 
+  *Verification*: `pytest code/tests/unit/test_provenance.yaml` checks the file exists and contains required fields.
 
-- [ ] T037 [P] Documentation updates in `README.md` and `docs/outputs/` describing each generated artifact and their filenames. **Verification**: Assert `README.md` exists and contains artifact descriptions.
-- [ ] T038 Code cleanup and refactoring using `black` and `flake8`. **Verification**: Run `flake8 code/` and assert zero errors.
-- [X] T039 Performance optimisation across all stories (profiling, memory usage < 7 GB). **Verification**: Assert `docs/outputs/profiling_report.txt` indicates memory < 7GB.
-- [ ] T040 [P] Additional unit tests for `calculate_flexibility`, `fit_regression`, and `run_permutation_test`. **Verification**: Assert all new tests pass.
-- [X] T041 Security hardening: run `safety check` on `requirements.txt` and update vulnerable packages. **Verification**: Assert `safety check` returns no critical vulnerabilities.
-- [ ] T042 [P] Run `quickstart.md` commands in a fresh virtualenv and verify successful completion. **Verification**: Assert all commands in `quickstart.md` execute without error.
+- [ ] T121 **Perform post‑hoc power analysis and document justification.**
+  *Description*: Using the final sample size (`n_samples` from `data/interim/results.csv`), compute the achieved statistical power to detect a correlation of r = 0.15 at α = 0.05 (e.g., via `statsmodels.stats.power.CorrelationPower`). Write the result to `docs/outputs/power_analysis.txt` and reference it in `research.md`. This addresses the spec’s power assumption. 
+  *Verification*: `pytest code/tests/unit/test_power_analysis.py` confirms the file is created and contains a numeric power estimate ≥ 0.80 (or flags if not).
 
-## Dependencies & Execution Order
+- [ ] T122 **Clarify checksum registry scope in data‑model.**
+  *Description*: Edit `specs/518-brain-dynamics-creativity/data-model.md` to state explicitly that `data/checksums.json` records SHA‑256 hashes for **both** raw data files and derived CSV artifacts (`data/interim/*.csv`). This resolves the mismatch with T110. 
+  *Verification*: The updated data‑model description matches the behavior of the checksum verification script (T119) and the end‑to‑end reproducibility check (T110).
 
-- **Setup (Phase 1)** → **Foundational (Phase 2)** → **Critical Pre‑Conditions (Phase 2.5)** → **User Stories (Phase 3‑5)** → **Polish (Phase N)**
-- Tasks T018/T019 now explicitly depend on T006 (logging setup) and are listed under Phase 2.5 for correct ordering.
-- T020b (logging usage) depends on T018/T019 to ensure logging is invoked correctly.
-- T012 runs **after** T036.2 (validation execution) succeeds (ordering clarified).
-- T014.1 must be completed before T014.4.
-- T014.4 must be completed before T014.2.
-- T014.2 must be completed before T051 and T051b.
-- T014.3 must be completed before T051 and T051b.
-- T014.5 must be completed before T051 and T051b.
-- T014.6 must be completed before T051 and T051b.
-- T014.0 must be completed before T014.2.
-- T051b must be completed before T017.1.
-- T017 and T017.1 must be completed after T051 and T051b.
-- T043 must be completed before T017.1.
-- T046 must be completed before T046.1.
-- T046.1 must be completed before T030.
-- T045.1 must be completed before T045.
-- T045.3 must be completed before T045.2.
-- T045.2 must be completed before T045.
-- T045 depends on T045.1 and T045.2 (which merges T027, T046, and T045.3 outputs).
-- T057 must run after T022/T023.
-- T060.1 must run after T060.
-- All [P] tasks can run in parallel within their phase.
+## Dependencies and requirement coverage
+
+| Requirement | Task(s) | Demonstrating command |
+| :--- | :--- | :--- |
+| FR-011 / US‑4 (CAQ validation, `DATA_MISSING_CREATIVITY`) | T101 | `pytest code/tests/contract/test_loader.py` |
+| FR-009 (exclusion logging; real‑data fetch provenance) | T102, T103, T120 | `pytest code/tests/unit/test_filter_subjects.py`; `data/checksums.json` |
+| FR-001 (preprocessing) | T104 | `python code/data/run_preprocess.py` |
+| FR-002, FR-003, FR-004, FR-012 (connectivity, Louvain, flexibility, static strength) | T105, T115 | `pytest code/tests/unit/test_flexibility_schema.py` |
+| FR-005 / US‑1, SC-001, SC-003 (OLS, ΔR², Pearson r) | T106 | `pytest code/tests/integration/test_regression_summary.py` |
+| FR-006, FR-007 / US‑3 (permutation, FWE) | T107, T118 | `pytest code/tests/unit/test_permutation.py` |
+| FR-010 / US‑3, SC-002, SC-005 (sensitivity sweep) | T108 | `pytest code/tests/unit/test_analysis.py::test_sensitivity_csv_schema` |
+| FR-008 / US‑2, SC-004 (plots) | T109 | `pytest code/tests/unit/test_plots.py` |
+| Reproducibility, performance, constitution I/III | T110 | `pytest code/tests/integration/`; checksum script; profiling report |
+| Paper handoff, Principle IV | T112, T113 | artifact‑path audit of `research.md` |
+| Versioning & state consistency | T114, T122 | data‑model no longer mentions state writes |
+| Consensus clustering implementation | T115 | `pytest code/tests/unit/test_consensus_clustering.py` |
+| ROI‑wise correlation & FWE | T118 | `pytest code/tests/unit/test_roi_correlation_fwe.py` |
+| Checksum verification script | T119 | `pytest code/tests/integration/test_verify_checksums.py` |
+| Power analysis justification | T121 | `pytest code/tests/unit/test_power_analysis.py` |
+
+**Execution order** (respecting data flow):  
+T101 → T102 → T116 → T117 → T103 → T104 → T105 → T115 → T106 → T107 → T118 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T122 → T119 → T120 → T121.  
+
+All tasks respect the required dependencies and produce verifiable artifacts.  
+
+# End of tasks.md

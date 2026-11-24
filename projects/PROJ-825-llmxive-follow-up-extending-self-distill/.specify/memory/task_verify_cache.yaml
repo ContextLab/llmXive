@@ -1,8 +1,9 @@
-T011:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script or log showing that Qwen2.5-1.7B (8\u2011bit) and the specified sentence\u2011\
-    transformers model were loaded in a dry\u2011run, nor any recorded peak RSS memory\
-    \ value. Consequently the required verification and the \u201CFAIL if >7\u202F\
-    GB\u201D condition are not demonstrated. The artifact (dry\u2011run script and\
-    \ its memory measurement output) is missing."
+T001:
+  c: true
+  h: ff98c462993f93e35fb5b44a176e54a6a996caf5294a54f1b541286b0b9e21f4
+  r: 'All required directories exist and are non-empty: `code/agents/`, `code/environments/`,
+    `code/metrics/`, `code/utils/`, `code/tests/`, `code/models/` (with `__init__.py`
+    package markers), `code/config.py` (5.8KB of real configuration code), and `data/`
+    with `data/processed/` (containing run artifacts). The task only asked for the
+    project root structure, which is fully present.'
+  sig: bcad7ff49e4f85600de80a773f7436911b1f5905606b5b43e23ece9db3f48f1d

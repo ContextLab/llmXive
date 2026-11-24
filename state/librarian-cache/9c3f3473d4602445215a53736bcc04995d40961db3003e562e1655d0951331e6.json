@@ -1,0 +1,261 @@
+{
+  "fetched_at": "2026-10-29T01:38:57Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Influence of Social Media “Doomscrolling” on Anticipatory Anxiety",
+      "target_n": 5
+    },
+    "duration_seconds": 14.977,
+    "ended_at": "2026-10-29T01:38:57Z",
+    "expansion": null,
+    "extracted_queries": [
+      "Influence Social Media Doomscrolling Anticipatory psychology",
+      "Media Doomscrolling Anticipatory Anxiety psychology"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2403.05561"
+      ]
+    },
+    "per_query_hit_count": {
+      "Influence Social Media Doomscrolling Anticipatory psychology": 0,
+      "Media Doomscrolling Anticipatory Anxiety psychology": 4,
+      "The Influence of Social Media “Doomscrolling” on Anticipatory Anxiety psychology": 5
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-10-29T01:38:42Z",
+    "term_input": {
+      "normalized": "the influence of social media “doomscrolling” on anticipatory anxiety psychology",
+      "raw": "The Influence of Social Media “Doomscrolling” on Anticipatory Anxiety psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Stress and depression are prevalent nowadays across people of all ages due to the quick paces of life. People use social media to express their feelings. Thus, social media constitute a valuable form of information for the early detection of stress and depression. Although many research works have been introduced targeting the early recognition of stress and depression, there are still limitations. There have been proposed multi-task learning settings, which use depression and emotion (or figurative language) as the primary and auxiliary tasks respectively. However, although stress is inextricably linked with depression, researchers face these two tasks as two separate tasks. To address these limitations, we present the first study, which exploits two different datasets collected under different conditions, and introduce two multitask learning frameworks, which use depression and stress as the main and auxiliary tasks respectively. Specifically, we use a depression dataset and a stressful dataset including stressful posts from ten subreddits of five domains. In terms of the first approach, each post passes through a shared BERT layer, which is updated by both tasks. Next, two separate BERT encoder layers are exploited, which are updated by each task separately. Regarding the second approach, it consists of shared and task-specific layers weighted by attention fusion networks. We conduct a series of experiments and compare our approaches with existing research initiatives, single-task learning, and transfer learning. Experiments show multiple advantages of our approaches over state-of-the-art ones.",
+          "claimed_authors": [
+            "Loukas Ilias",
+            "Dimitris Askounis"
+          ],
+          "claimed_title": "Multitask learning for recognizing stress and depression in social media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.18907"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Influence of Social Media “Doomscrolling” on Anticipatory Anxiety psychology', candidate_title='Multitask learning for recognizing stress and depression in social media')",
+        "failed_at": "2026-10-29T01:38:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Politicization is a social phenomenon studied by political science characterized by the extent to which ideas and facts are given a political tone. A range of topics, such as climate change, religion and vaccines has been subject to increasing politicization in the media and social media platforms. In this work, we propose a computational method for assessing politicization in online conversations based on topic shifts, i.e., the degree to which people switch topics in online conversations. The intuition is that topic shifts from a non-political topic to politics are a direct measure of politicization -- making something political, and that the more people switch conversations to politics, the more they perceive politics as playing a vital role in their daily lives. A fundamental challenge that must be addressed when one studies politicization in social media is that, a priori, any topic may be politicized. Hence, any keyword-based method or even machine learning approaches that rely on topic labels to classify topics are expensive to run and potentially ineffective. Instead, we learn from a seed of political keywords and use Positive-Unlabeled (PU) Learning to detect political comments in reaction to non-political news articles posted on Twitter, YouTube, and TikTok during the 2022 Brazilian presidential elections. Our findings indicate that all platforms show evidence of politicization as discussion around topics adjacent to politics such as economy, crime and drugs tend to shift to politics. Even the least politicized topics had the rate in which their topics shift to politics increased in the lead up to the elections and after other political events in Brazil -- an evidence of politicization.",
+          "claimed_authors": [
+            "Marcelo Sartori Locatelli",
+            "Pedro Calais",
+            "Matheus Prado Miranda",
+            "João Pedro Junho",
+            "Tomas Lacerda Muniz",
+            "Wagner Meira",
+            "Virgilio Almeida"
+          ],
+          "claimed_title": "Topic Shifts as a Proxy for Assessing Politicization in Social Media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.11326"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Influence of Social Media “Doomscrolling” on Anticipatory Anxiety psychology', candidate_title='Topic Shifts as a Proxy for Assessing Politicization in Social Media')",
+        "failed_at": "2026-10-29T01:38:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Musicologists and sociologists have long been interested in patterns of music consumption and their relation to socioeconomic status. In particular, the Omnivore Thesis examines the relationship between these variables and the diversity of music a person consumes. Using data from social media users of Last.fm and Twitter, we design and evaluate a measure that reasonably captures diversity of musical tastes. We use that measure to explore associations between musical diversity and variables that capture socioeconomic status, demographics, and personal traits such as openness and degree of interest in music (into-ness). Our musical diversity measure can provide a useful means for studies of musical preferences and consumption. Also, our study of the Omnivore Thesis provides insights that extend previous survey and interview-based studies.",
+          "claimed_authors": [
+            "Minsu Park",
+            "Ingmar Weber",
+            "Mor Naaman",
+            "Sarah Vieweg"
+          ],
+          "claimed_title": "Understanding Musical Diversity via Online Social Media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.02522"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Influence of Social Media “Doomscrolling” on Anticipatory Anxiety psychology', candidate_title='Understanding Musical Diversity via Online Social Media')",
+        "failed_at": "2026-10-29T01:38:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper describes Centre for Development of Advanced Computing's (CDACM) submission to the shared task-'Tool Contest on POS tagging for Code-Mixed Indian Social Media (Facebook, Twitter, and Whatsapp) Text', collocated with ICON-2016. The shared task was to predict Part of Speech (POS) tag at word level for a given text. The code-mixed text is generated mostly on social media by multilingual users. The presence of the multilingual words, transliterations, and spelling variations make such content linguistically complex. In this paper, we propose an approach to POS tag code-mixed social media text using Recurrent Neural Network Language Model (RNN-LM) architecture. We submitted the results for Hindi-English (hi-en), Bengali-English (bn-en), and Telugu-English (te-en) code-mixed data.",
+          "claimed_authors": [
+            "Raj Nath Patel",
+            "Prakash B. Pimpale",
+            "M Sasikumar"
+          ],
+          "claimed_title": "Recurrent Neural Network based Part-of-Speech Tagger for Code-Mixed Social Media Text",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1611.04989"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Influence of Social Media “Doomscrolling” on Anticipatory Anxiety psychology', candidate_title='Recurrent Neural Network based Part-of-Speech Tagger for Code-Mixed Social Media Text')",
+        "failed_at": "2026-10-29T01:38:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Psychological and social systems provide us with a natural domain for the study of anticipations because these systems are based on and operate in terms of intentionality. Psychological systems can be expected to contain a model of themselves and their environments social systems can be strongly anticipatory and therefore co-construct their environments, for example, in techno-economic (co-)evolutions. Using Duboi's hyper-incursive and incursive formulations of the logistic equation, these two types of systems and their couplings can be simulated. In addition to their structural coupling, psychological and social systems are also coupled by providing meaning reflexively to each other's meaning-processing. Luhmann's distinctions among (1) interactions between intentions at the micro-level, (2) organization at the meso-level, and (3) self-organization of the fluxes of meaningful communication at the global level can be modeled and simulated using three hyper-incursive equations. The global level of self-organizing interactions among fluxes of communication is retained at the meso-level of organization. In a knowledge-based economy, these two levels of anticipatory structuration can be expected to propel each other at the supra-individual level.",
+          "claimed_authors": [
+            "Loet Leydesdorff"
+          ],
+          "claimed_title": "The Communication of Meaning in Anticipatory Systems: A Simulation Study of the Dynamics of Intentionality in Social Interactions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0911.1448"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Influence of Social Media “Doomscrolling” on Anticipatory Anxiety psychology', candidate_title='The Communication of Meaning in Anticipatory Systems: A Simulation Study of the Dynamics of Intentionality in Social Interactions')",
+        "failed_at": "2026-10-29T01:38:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a novel architecture for data analytics targeting an anticipatory learning process in the context of the Internet of Mobile Things. The architecture is geo-distributed and composed by edge, fog, and cloud resources that operate collectively to support such an anticipatory learning process. We designed the architecture to manage large volumes of data streams coming from the IoMT devices, analyze in successive phases climbing up in the hierarchy of resources from edge, fog and cloud. We discuss the characteristics of the analytical tasks at each layer. We notice that the amount of data being transported in the network decreases going from the edge, to the fog and finally to the cloud, while the complexity of the computation increases. Such design allows to support different kind of analytical needs, from real-time to historical according to the type of resource being utilized. We have implemented the proposed architecture as a proof-of-concept using the transit data feeds from the area of Greater Moncton, Canada.",
+          "claimed_authors": [
+            "Hung Cao",
+            "Monica Wachowicz",
+            "Chiara Renso",
+            "Emanuele Carlini"
+          ],
+          "claimed_title": "An edge-fog-cloud platform for anticipatory learning process designed for Internet of Mobile Things",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.09745"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Influence of Social Media “Doomscrolling” on Anticipatory Anxiety psychology', candidate_title='An edge-fog-cloud platform for anticipatory learning process designed for Internet of Mobile Things')",
+        "failed_at": "2026-10-29T01:38:54Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Leonardo Nizzoli",
+            "Serena Tardelli",
+            "Marco Avvenuti",
+            "Stefano Cresci",
+            "Maurizio Tesconi"
+          ],
+          "title": "Coordinated Behavior on Social Media in 2019 UK General Election",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2008.08370",
+        "summary": "Coordinated online behaviors are an essential part of information and influence operations, as they allow a more effective disinformation's spread. Most studies on coordinated behaviors involved manual investigations, and the few existing computational approaches make bold assumptions or oversimplify the problem to make it tractable. Here, we propose a new network-based framework for uncovering and studying coordinated behaviors on social media. Our research extends existing systems and goes beyond limiting binary classifications of coordinated and uncoordinated behaviors. It allows to expose different coordination patterns and to estimate the degree of coordination that characterizes diverse communities. We apply our framework to a dataset collected during the 2019 UK General Election, detecting and characterizing coordinated communities that participated in the electoral debate. Our work conveys both theoretical and practical implications and provides more nuanced and fine-grained results for studying online information manipulation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2008.08370",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-29T01:38:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Claire S. Lee",
+            "Noelle Lim",
+            "Michael Guerzhoy"
+          ],
+          "title": "Detecting a Proxy for Potential Comorbid ADHD in People Reporting Anxiety Symptoms from Social Media Data",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.05561",
+        "summary": "We present a novel task that can elucidate the connection between anxiety and ADHD; use Transformers to make progress toward solving a task that is not solvable by keyword-based classifiers; and discuss a method for visualization of our classifier illuminating the connection between anxiety and ADHD presentations.\n  Up to approximately 50% of adults with ADHD may also have an anxiety disorder and approximately 30\\% of adults with anxiety may also have ADHD. Patients presenting with anxiety may be treated for anxiety without ADHD ever being considered, possibly affecting treatment. We show how data that bears on ADHD that is comorbid with anxiety can be obtained from social media data, and show that Transformers can be used to detect a proxy for possible comorbid ADHD in people with anxiety symptoms.\n  We collected data from anxiety and ADHD online forums (subreddits). We identified posters who first started posting in the Anxiety subreddit and later started posting in the ADHD subreddit as well. We use this subset of the posters as a proxy for people who presented with anxiety symptoms and then became aware that they might have ADHD. We fine-tune a Transformer architecture-based classifier to classify people who started posting in the Anxiety subreddit and then started posting in the ADHD subreddit vs. people who posted in the Anxiety subreddit without later posting in the ADHD subreddit. We show that a Transformer architecture is capable of achieving reasonable results (76% correct for RoBERTa vs. under 60% correct for the best keyword-based model, both with 50% base rate).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.05561",
+          "http_status": 200,
+          "pdf_sample_score": 0.3223,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-29T01:38:54Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Emma Franchino",
+            "Luciana Ciringione",
+            "Luisa Canal",
+            "Ottavia Marina Epifania",
+            "Luigi Lombardi",
+            "Gianluca Lattanzi",
+            "Massimo Stella"
+          ],
+          "title": "A network psychometric analysis of maths anxiety factors in Italian psychology students",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.01568",
+        "summary": "Dealing with mathematics can induce significant anxiety, strongly affecting psychology students' academic performance and career prospects. This phenomenon is known as maths anxiety and several scales can measure it. Most scales were created in English and abbreviated versions were translated and validated among Italian populations (e.g. Abbreviated Maths Anxiety Scale). This study translated the 3-factor MAS-UK scale in Italian to produce a new tool, MAS-IT, validated specifically in a sample of Italian undergraduates enrolled in psychology or related BSc programmes. A sample of 324 Italian undergraduates completed the MAS-IT. The data were analysed using confirmatory Factor Analysis (CFA), testing the original MAS-UK 3-factor model. CFA results revealed that the original MAS-UK 3-factor model did not fit the Italian data. A subsequent Exploratory Graph Analysis (EGA) identified 4 distinct components/factors of maths anxiety detected by MAS-IT. The items relative to \"Passive Observation maths anxiety\" factor remained stable across the analyses, whereas \"Evaluation maths anxiety\" and \"Everyday/Social maths anxiety\" items showed a reduced or poor item stability. Quantitative findings indicated potential cultural or contextual differences in the expression of maths anxiety in today's psychology undergraduates, underlining the need for more appropriate tools to be used among psychology students.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.01568",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-29T01:38:54Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the influence of social media “doomscrolling” on anticipatory anxiety psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -17,7 +17,7 @@ properties:
           - "heat"
           - "cold"
           - "control"
-        description: "The experimental condition label."
+        description: "Experimental condition label."
       species:
         type: string
         description: "Plant species (e.g., Arabidopsis thaliana)."
@@ -46,7 +46,7 @@ properties:
         type: array
         items:
           type: string
- description: "List of gene identifiers present in the matrix ([deferred] intersection across included datasets)."
+        description: "List of gene identifiers present in the matrix (intersection across included datasets)."
       top_k_genes:
         type: array
         items:

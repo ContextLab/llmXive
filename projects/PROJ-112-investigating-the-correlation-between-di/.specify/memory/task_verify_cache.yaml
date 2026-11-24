@@ -5,19 +5,6 @@ T003a:
     block (target version, line length, selected/ignored rules, isort settings, etc.),
     satisfying the requirement to provide a Ruff config either in `pyproject.toml`
     or a `.ruff.toml` file. No further files are needed.
-T004a:
-  c: true
-  h: 71fcb03c8d65b9b78c2a45d7f448e538f366c8b6e712c3015ec019e394af75e5
-  r: "The repository contains a non\u2011empty `pyproject.toml` (1745\u202Fbytes)\
-    \ that includes a `[tool.pytest.ini_options]` section with realistic pytest settings,\
-    \ satisfying the requirement to provide a pytest configuration file (either `pytest.ini`\
-    \ or `pyproject.toml`). No further files are needed."
-T009b:
-  c: false
-  h: 56ac508b1aa496a06b9ac23c9a211cafc18143a26f550bb0bc0d257fa666a778
-  r: The required file `data/processed/results/covariate_exclusion_log.txt` is missing,
-    so the existence check fails and no content can be validated. The task therefore
-    is not satisfied.
 T011:
   c: false
   h: a75d5600bbdb7c75f73907b24764be564f02a7b8cf81c8e920d979aba669b653
@@ -31,31 +18,3 @@ T015:
     (e.g., unified dataset, analysis tables, or reports) are present. The implementer
     provided only the task description without any actual output artifacts, so the
     requirement is not satisfied.
-T020b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No pseudocount documentation artifact was supplied; there is no file, text, or
-    other output present that describes the pseudocount methodology, its rationale,
-    or usage. Consequently the required deliverable is missing.
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., a CSV/TSV report containing the association results with\
-    \ raw p\u2011values and Benjamini\u2011Hochberg adjusted q\u2011values) was provided;\
-    \ the claim contains only the task description and no actual output file or code.\
-    \ The required FDR correction report is missing."
-T027:
-  c: false
-  h: cf4bd9d74420efc22f64481e141c5fcf75079b394bbab6aaf30181a0fdaad2bc
-  r: "The required artifact `tests/integration/test_validation.py` does not exist\
-    \ in the repository, so no integration test for cross\u2011cohort validation is\
-    \ present. The task cannot be considered completed until this file is added with\
-    \ appropriate test code."
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or result artifacts (e.g., the unified CSV, CLR\u2011transformed\
-    \ matrix, association table, or cross\u2011cohort replication rate report) were\
-    \ provided; therefore the required calculation of the cross\u2011cohort replication\
-    \ rate cannot be verified. The implementer must supply the actual analysis scripts\
-    \ and the generated output demonstrating the replication rate."

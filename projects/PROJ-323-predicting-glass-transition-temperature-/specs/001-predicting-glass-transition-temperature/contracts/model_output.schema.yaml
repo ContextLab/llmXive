@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EBM Model Output Schema"
+type: object
+properties:
+  model_path:
+    type: string
+    description: "Filesystem path to the serialized EBM (pickle)."
+  hyperparameters:
+    type: object
+    properties:
+      lambda:
+        type: number
+        description: "Regularization strength used in the final model."
+      interaction_depth:
+        type: integer
+        description: "Maximum order of interactions (1 = main effects only, 2 = pairwise)."
+    required:
+      - lambda
+      - interaction_depth
+    additionalProperties: false
+  performance_metrics:
+    type: object
+    properties:
+      cv_mean_r2:
+        type: number
+        description: "Mean R² across cross‑validation folds."
+      cv_std_r2:
+        type: number
+        description: "Standard deviation of R² across folds."
+      cv_mean_rmse:
+        type: number
+        description: "Mean RMSE across cross‑validation."
+    required:
+      - cv_mean_r2
+      - cv_std_r2
+      - cv_mean_rmse
+    additionalProperties: false
+  feature_importances:
+    type: array
+    description: "List of dictionaries, each with 'feature' and 'importance' keys."
+    items:
+      type: object
+      properties:
+        feature:
+          type: string
+        importance:
+          type: number
+      required:
+        - feature
+        - importance
+      additionalProperties: false
+required:
+  - model_path
+  - hyperparameters
+  - performance_metrics
+  - feature_importances
+additionalProperties: false

@@ -9,7 +9,7 @@
 
 ### User Story 1 - Identify Progression‑Associated Taxa (Priority: P1)
 
-A biomedical researcher runs the analysis pipeline on the PPMI longitudinal cohort to discover gut microbial taxa whose abundances correlate with the rate of UPDRS motor score change over a longitudinal follow‑up period.
+A biomedical researcher runs the analysis pipeline on the PPMI longitudinal cohort to discover gut microbial taxa whose abundances correlate with the rate of **clinical severity score** (e.g., MDS‑UPDRS total) change over a longitudinal follow‑up period.
 
 **Why this priority**: This story delivers the core scientific value—producing the hypothesis‑generating biomarkers that the project set out to find. It directly addresses the research question regarding specific taxa and progression rates.
 
@@ -24,7 +24,7 @@ A biomedical researcher runs the analysis pipeline on the PPMI longitudinal coho
 
 ### User Story 2 - Model Covariate‑Adjusted Effects (Priority: P2)
 
-The researcher requires a Linear Mixed‑Effects Model that adjusts taxon‑specific slopes for age, sex, and levodopa equivalent dose, providing effect size estimates that account for key confounders. The model explicitly tests the interaction between Time and Taxon abundance to determine if taxon levels predict the rate of progression.
+The researcher requires a Linear Mixed‑Effects Model that adjusts taxon‑specific slopes for age, sex, and levodopa equivalent dose, providing effect size estimates that account for key confounders. The model explicitly tests the interaction between Time and Taxon abundance to determine if taxon levels predict the rate of progression of the **clinical severity score**.
 
 **Why this priority**: This story operationalizes the requirement for confounder control, ensuring that identified associations are not driven by demographic or medication variables. It refines the P1 findings into statistically robust estimates using a scientifically sound longitudinal model.
 
@@ -101,18 +101,18 @@ The researcher exports a concise report summarizing the top correlated taxa, eff
 - **FR-001**: System MUST ingest pre‑processed 16S rRNA ASV tables and associated clinical metadata from the PPMI database in CSV/TSV format. (See US‑1)
 - **FR-002**: System MUST filter samples to retain only PD patients with **≥ 2** distinct timepoints (referencing `PatientRecord` and `Visit` entities) and record the number of excluded subjects. (See US‑1)
 - **FR-003**: System MUST apply centered log‑ratio (CLR) transformation to all retained taxa abundances before any statistical testing to handle compositional data bias. (See US‑1)
-- **FR-004**: System MUST compute, for each taxon, the per‑patient linear slope of CLR‑transformed abundance over time, and the per‑patient linear slope of UPDRS Part III score change over time, then calculate a Spearman rank correlation across patients between these two slopes. (See US‑1)
-- **FR-005**: System MUST fit a Linear Mixed‑Effects Model (random intercept per patient) with the fixed effects formula `UPDRS ~ Time * Taxon + Age + Sex + Levodopa_Dose`, outputting the interaction coefficient, standard error, and p‑value for each taxon. (See US‑2)
+- **FR-004**: System MUST compute, for each taxon, the per‑patient linear slope of CLR‑transformed abundance over time, and the per‑patient linear slope of the **longitudinal MDS‑UPDRS total score** over time, then calculate a Spearman rank correlation across patients between these two slopes. The MDS‑UPDRS total is available in the verified PPMI dataset (see `research.md`). If no longitudinal clinical severity measure is present, the pipeline will skip the correlation step and log a warning. (See US‑1)
+- **FR-005**: System MUST fit a Linear Mixed‑Effects Model (random intercept per patient) with the fixed effects formula `MDS_UPDRS_Total ~ Time * Taxon + Age + Sex + Levodopa_Dose`, outputting the interaction coefficient, standard error, and p‑value for each taxon. (See US‑2)
 - **FR-006**: System MUST perform Benjamini‑Hochberg false discovery rate correction across all taxa and annotate each taxon with the adjusted p‑value. (See US‑2)
-- **FR-007**: System MUST execute a permutation test with **1,000 iterations**, shuffling patient identifiers while preserving within‑patient time structure, and must complete this step within a **4‑hour** wall‑time budget on a standard 2‑core, 7 GB RAM compute node. (Justification: [deferred] iterations is the minimum standard for stable empirical p-value estimation (SE ≈ 0.01) in high-dimensional data; the 4-hour limit is derived from the 6-hour total pipeline budget minus data loading and reporting overhead). (See US‑3)
-- **FR-008**: System MUST generate three deliverables: `taxa_correlations.csv`, `mixed_effects_summary.csv`, `permutation_pvalues.csv`, and a PDF summary report `PD_microbiome_progression_report.pdf` (mandatory). (See US‑5)
+- **FR-007**: System MUST execute a permutation test with **1,000 iterations**, shuffling patient identifiers while preserving the within‑patient time ordering of the longitudinal MDS‑UPDRS total scores, and must complete this step within a **4‑hour** wall‑time budget on a standard 2‑core, 7 GB RAM compute node. (Justification: [deferred] iterations provide a standard error ≈ 0.01 for empirical p‑values; the 4‑hour limit follows from the 6‑hour total pipeline budget.) (See US‑3)
+- **FR-008**: System MUST generate **four** deliverables: `taxa_correlations.csv`, `mixed_effects_summary.csv`, `permutation_pvalues.csv`, and a PDF summary report `PD_microbiome_progression_report.pdf`. (See US‑5)
 - **FR-009**: System MUST frame all reported associations as **associational** rather than causal, explicitly stating that no randomization was performed in the observational PPMI cohort. (See US‑2)
 - **FR-010**: System MUST subsample the analysis to the **top 100 most abundant taxa** if the full feature set exceeds **7 GB** of RAM usage during the modeling phase. (See US‑4)
 
 ### Key Entities *(include if feature involves data)*
 
 - **PatientRecord**: Represents an individual study participant; key attributes include `patient_id`, `age`, `sex`, `levodopa_eq_dose`, and a list of `Visit` objects.
-- **Visit**: Captures a single timepoint; attributes include `visit_date`, `UPDRS_partIII`, and a vector of CLR‑transformed taxa abundances.
+- **Visit**: Captures a single timepoint; attributes include `visit_date`, `clinical_score` (e.g., MDS‑UPDRS total), and a vector of CLR‑transformed taxa abundances.
 - **TaxonResult**: Stores analysis outcomes per taxon; attributes include `taxon_name`, `spearman_rho`, `raw_p`, `bh_adj_p`, `mixed_effect_coef`, `permutation_p`.
 
 ## Success Criteria *(mandatory)*
@@ -124,6 +124,7 @@ The researcher exports a concise report summarizing the top correlated taxa, eff
 - **SC-003**: Total wall‑time for the complete pipeline (including permutation testing) does not exceed **6 hours** on a 2‑core, 7 GB RAM node. (See FR‑007, US‑4)
 - **SC-004**: The generated PDF report contains a ranked table of the top **3** taxa with confidence intervals (values computed via 1,000 bootstrap resamples at runtime) for mixed‑effects coefficients. (See FR‑008, US‑5)
 - **SC-005**: All reported correlations are explicitly labeled as "associational" in the final report, with no causal language used regarding the microbiome's effect on disease progression. (See FR‑009, US‑2)
+- **SC-006**: The system outputs `taxa_correlations.csv` containing Spearman ρ, raw p‑values, and BH‑adjusted p‑values for each taxon, and the file is generated as part of the pipeline. (See FR‑004, US‑1)
 
 ## Assumptions
 
@@ -132,7 +133,7 @@ The researcher exports a concise report summarizing the top correlated taxa, eff
 - A Python 3.11 environment with `pandas`, `scikit‑bio`, `statsmodels`, and `matplotlib` is available; no additional proprietary software is required.
 - The compute environment provides at least 2 CPU cores and 7 GB RAM; network latency is negligible for local file I/O.
 - The study cohort contains a minimum of **30** PD patients meeting the longitudinal inclusion criteria, providing sufficient statistical power for correlation analysis.
-- The PPMI dataset contains the necessary variables (age, sex, levodopa equivalent dose, UPDRS Part III scores at multiple timepoints) to perform the requested analysis.
+- **Longitudinal MDS‑UPDRS total scores are available** for the selected patients in the verified PPMI dataset (see `research.md`), enabling slope computation for the clinical outcome.
 - The analysis focuses on **associational** relationships only, as the observational nature of the PPMI cohort precludes causal inference without randomization.
 - The top 100 most abundant taxa represent a sufficient subset of the microbiome to detect significant correlations with disease progression, given the memory constraints of the GitHub Actions runner.
 - The CLR transformation is appropriate for the compositional nature of 16S rRNA data and does not introduce significant bias in the presence of zero counts (handled via imputation or filtering).

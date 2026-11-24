@@ -1,177 +1,164 @@
 """
-Data Validation Module.
-Verifies presence of NIfTI and behavioral logs (private_belief, social_feedback, choice).
+Data Validation Module for OpenNeuro ds003694.
+Verifies the presence of required NIfTI and behavioral files for each participant
+and writes a dataset manifest JSON file.
 """
-import os
+import json
+import logging
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple
 
-from utils.io import IOLoadError, ensure_dir, file_exists, load_json, load_csv
 from utils.config import get_config
 from utils.logger import get_logger
+from utils.io import ensure_dir, save_json, file_exists, load_csv
 
 logger = get_logger(__name__)
 
+# Required behavioral columns (as defined in the spec)
 REQUIRED_BEHAVIORAL_COLUMNS = {"private_belief", "social_feedback", "choice"}
 
-def validate_dataset_structure(dataset_root: str) -> Tuple[bool, List[str]]:
+
+def validate_dataset_structure(dataset_root: Path) -> Tuple[bool, List[str]]:
     """
-    Validates the overall structure of the OpenNeuro dataset.
-    
-    Args:
-        dataset_root: Path to the root of the dataset.
-        
+    Validate that the dataset root follows the BIDS-like structure expected for ds003694.
+
     Returns:
-        Tuple of (is_valid, list_of_errors).
+        (is_valid, errors)
     """
-    errors = []
-    root_path = Path(dataset_root)
-    
-    # Check for dataset_description.json
-    desc_file = root_path / "dataset_description.json"
-    if not file_exists(str(desc_file)):
-        errors.append(f"Missing dataset_description.json at {desc_file}")
-    
-    # Check for BIDS root structure
-    if not file_exists(str(root_path / "sub-01")):
-        # We don't fail immediately if no sub-01, but log warning if we expect data
-        logger.warning("No sub-01 directory found. Dataset may be empty or not yet downloaded.")
-    
+    errors: List[str] = []
+    if not dataset_root.is_dir():
+        errors.append(f"Dataset root directory does not exist: {dataset_root}")
+        return False, errors
+
+    # ds003694 should contain a dataset_description.json at the top level
+    if not (dataset_root / "dataset_description.json").is_file():
+        errors.append("Missing dataset_description.json at dataset root.")
+
+    # At least one participant directory should exist
+    participant_dirs = [p for p in dataset_root.iterdir() if p.is_dir() and p.name.startswith("sub-")]
+    if not participant_dirs:
+        errors.append("No participant directories (sub-*) found under dataset root.")
+
     return len(errors) == 0, errors
 
-def validate_participant_data(dataset_root: str, participant_id: str, session_id: str) -> Tuple[bool, List[str]]:
+
+def validate_participant_session(dataset_root: Path, participant: str, session: str) -> Tuple[bool, List[str], Dict]:
     """
-    Validates data availability for a specific participant and session.
-    Specifically checks for NIfTI and behavioral logs with required columns.
-    
-    Args:
-        dataset_root: Path to the dataset root.
-        participant_id: Participant ID (e.g., 'sub-01').
-        session_id: Session ID (e.g., 'ses-01').
-        
+    Validate a single participant/session pair.
+
     Returns:
-        Tuple of (is_valid, list_of_errors).
+        (is_valid, errors, info_dict)
     """
-    errors = []
-    base_path = Path(dataset_root) / participant_id / session_id
-    
-    # 1. Check for functional NIfTI
-    func_file = base_path / "func" / f"{participant_id}_{session_id}_task-social_bold.nii.gz"
-    if not file_exists(str(func_file)):
-        errors.append(f"Missing functional image: {func_file}")
-    
-    # 2. Check for behavioral logs and validate columns
-    # Look for TSV files which are standard for behavioral data in BIDS
-    beh_dir = base_path / "beh"
-    beh_files = []
-    if beh_dir.exists():
-        beh_files = list(beh_dir.glob(f"{participant_id}_{session_id}_task-social_beh.tsv"))
-    
-    # Fallback to common names if specific pattern not found
-    if not beh_files:
-        fallback_names = [
-            base_path / "beh" / f"{participant_id}_{session_id}_task-social_beh.tsv",
-            base_path / "beh" / "behavioral.tsv",
-            base_path / "behavioral.tsv",
-            base_path / "beh" / f"{participant_id}_{session_id}_task-social_beh.json", # Check json just in case
-            base_path / "behavioral.json"
-        ]
-        for p in fallback_names:
-            if file_exists(str(p)):
-                beh_files.append(p)
-                break
-    
-    if not beh_files:
-        errors.append(f"Missing behavioral log file for {participant_id}/{session_id}")
+    errors: List[str] = []
+    info: Dict = {"participant": participant, "session": session}
+
+    base = dataset_root / participant
+    if session:
+        base = base / session
+
+    # Functional NIfTI file
+    func_path = base / "func" / f"{participant}_{session}_task-social_bold.nii.gz"
+    if not file_exists(func_path):
+        errors.append(f"Missing functional image: {func_path}")
     else:
-        # Validate the content of the found behavioral file
-        beh_file = beh_files[0]
-        try:
-            # Attempt to load as CSV/TSV to check columns
-            # load_csv handles TSV automatically if extension is .tsv or if delimiter detection is on
-            # Assuming load_csv in utils.io handles TSVs
-            df = load_csv(str(beh_file))
-            
-            if df is None or df.empty:
-                errors.append(f"Behavioral file {beh_file} is empty or could not be loaded.")
-            else:
-                # Check for required columns
-                df_columns = set(df.columns)
-                missing_cols = REQUIRED_BEHAVIORAL_COLUMNS - df_columns
-                if missing_cols:
-                    errors.append(
-                        f"Behavioral file {beh_file} missing required columns: {sorted(missing_cols)}. "
-                        f"Found columns: {sorted(df_columns)}"
-                    )
-                else:
-                    logger.debug(f"Behavioral file {beh_file} validated successfully with required columns.")
-                    
-        except Exception as e:
-            errors.append(f"Failed to parse behavioral file {beh_file}: {str(e)}")
-    
-    # 3. Check for motion parameters (if available as separate file)
-    # Often named *_bold.nii.gz or *_events.tsv, but strictly for motion:
-    motion_file = base_path / "func" / f"{participant_id}_{session_id}_task-social_desc-motions.tsv"
-    # If not found, we might not fail hard unless motion is strictly required for this step.
-    # The task description implies verifying presence of logs, not necessarily motion files yet,
-    # but T018 handles motion QC. We just log a warning if missing.
-    if not file_exists(str(motion_file)):
-        # Not a hard error for this specific task, but noted
-        logger.debug(f"Motion parameters file not found at {motion_file}, skipping validation.")
-    
-    return len(errors) == 0, errors
+        info["func"] = str(func_path)
 
-def main():
+    # Behavioral TSV (BIDS convention)
+    beh_path = base / "beh" / f"{participant}_{session}_task-social_beh.tsv"
+    if not file_exists(beh_path):
+        # Try a fallback location that some datasets use
+        beh_path = base / f"{participant}_{session}_task-social_beh.tsv"
+        if not file_exists(beh_path):
+            errors.append(f"Missing behavioral log file for {participant}/{session}")
+            beh_path = None
+    if beh_path:
+        info["beh"] = str(beh_path)
+        # Validate required columns
+        try:
+            df = load_csv(beh_path)
+            missing = REQUIRED_BEHAVIORAL_COLUMNS - set(df[0].keys())
+            if missing:
+                errors.append(
+                    f"Behavioral file {beh_path} missing columns: {sorted(missing)}"
+                )
+        except Exception as e:
+            errors.append(f"Failed to read behavioral file {beh_path}: {e}")
+
+    return len(errors) == 0, errors, info
+
+
+def build_manifest(dataset_root: Path) -> Dict:
     """
-    Main entry point for data validation.
-    Iterates through participants in the raw data directory and validates them.
+    Walk through the dataset and build a manifest dictionary.
+    Raises FileNotFoundError if any required file is missing.
     """
-    config = get_config()
-    dataset_root = config.get("paths", {}).get("raw_data", "data/raw")
-    
-    is_valid, errors = validate_dataset_structure(dataset_root)
-    if not is_valid:
-        logger.error("Dataset structure validation failed:")
-        for err in errors:
-            logger.error(f"  - {err}")
-        # Don't exit early, try to validate participants if structure is partially there
-    
-    # Attempt to find participants
-    root_path = Path(dataset_root)
-    participants = [d.name for d in root_path.iterdir() if d.is_dir() and d.name.startswith("sub-")]
-    
-    if not participants:
-        logger.warning("No participants found in raw data directory.")
-        return
-    
-    logger.info(f"Found {len(participants)} participants to validate.")
-    
-    total_valid = 0
-    total_invalid = 0
-    
+    valid, struct_errors = validate_dataset_structure(dataset_root)
+    if not valid:
+        raise FileNotFoundError("Dataset structure validation failed: " + "; ".join(struct_errors))
+
+    manifest = {"participants": []}
+    participants = [p.name for p in dataset_root.iterdir() if p.is_dir() and p.name.startswith("sub-")]
+
     for pid in participants:
-        # Assume single session for now, or find sessions
-        ses_path = root_path / pid
-        sessions = [d.name for d in ses_path.iterdir() if d.is_dir() and d.name.startswith("ses-")]
-        
-        if not sessions:
-            # Maybe no session folder, check directly in sub
-            sessions = [""] # Treat root of sub as session
-        
-        for sid in sessions:
-            valid, p_errors = validate_participant_data(dataset_root, pid, sid)
-            if valid:
-                total_valid += 1
-                logger.info(f"Participant {pid} (Session {sid if sid else 'N/A'}): VALID")
-            else:
-                total_invalid += 1
-                logger.error(f"Participant {pid} (Session {sid if sid else 'N/A'}): INVALID")
-                for err in p_errors:
-                    logger.error(f"  - {err}")
-    
-    logger.info(f"Validation complete. Valid: {total_valid}, Invalid: {total_invalid}")
-    if total_invalid > 0:
-        logger.warning("Some participants failed validation. Check logs for details.")
+        participant_entry = {"id": pid, "sessions": []}
+        participant_dir = dataset_root / pid
+        # Sessions may be present or not; handle both cases
+        session_dirs = [
+            d.name for d in participant_dir.iterdir()
+            if d.is_dir() and d.name.startswith("ses-")
+        ]
+        if not session_dirs:
+            # Treat as a single session with empty string
+            session_dirs = [""]
+
+        for sid in session_dirs:
+            valid_sess, sess_errors, info = validate_participant_session(dataset_root, pid, sid)
+            if not valid_sess:
+                raise FileNotFoundError(
+                    f"Validation errors for participant {pid}, session '{sid or 'N/A'}': "
+                    + "; ".join(sess_errors)
+                )
+            # Clean up empty session string for manifest readability
+            session_id = sid if sid else "default"
+            participant_entry["sessions"].append(
+                {
+                    "id": session_id,
+                    "func": info.get("func"),
+                    "beh": info.get("beh"),
+                }
+            )
+        manifest["participants"].append(participant_entry)
+
+    return manifest
+
+
+def write_manifest(manifest: Dict, output_path: Path) -> None:
+    """
+    Write the manifest JSON to the given location, ensuring parent directories exist.
+    """
+    ensure_dir(output_path.parent)
+    save_json(manifest, output_path, indent=2)
+    logger.info(f"Dataset manifest written to {output_path}")
+
+
+def main() -> None:
+    """
+    Main entry point.
+    Loads configuration, validates the dataset, builds a manifest, and writes it to
+    state/dataset_manifest.json.
+    """
+    cfg = get_config()
+    dataset_root = cfg.data_root / "raw"
+    logger.info(f"Starting validation of dataset at {dataset_root}")
+
+    manifest = build_manifest(dataset_root)
+
+    # Write manifest
+    manifest_path = cfg.project_root / "state" / "dataset_manifest.json"
+    write_manifest(manifest, manifest_path)
+
+    logger.info("Data validation completed successfully.")
+
 
 if __name__ == "__main__":
     main()

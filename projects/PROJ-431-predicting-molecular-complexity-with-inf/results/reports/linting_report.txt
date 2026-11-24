@@ -1,0 +1,429 @@
+Linting & Formatting Report (T003)
+========================================
+
+flake8 (config: code/.flake8): 421 violation(s)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:4:1: F401 'typing.Tuple' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:10:1: F401 'scipy.stats.zscore' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:19:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:22:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:25:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:34:16: F821 undefined name 'rdMolDescriptors'
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:38:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:41:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:44:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:57:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:58:22: W291 trailing whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:59:21: W291 trailing whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:64:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:69:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:76:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:81:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:92:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:97:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:101:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:104:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:108:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:119:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:127:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:133:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:141:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:146:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:151:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:158:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:161:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:170:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:173:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:178:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:183:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:186:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:193:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:200:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:205:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:211:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:217:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:224:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:230:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:259:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:285:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:289:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:297:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:304:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:312:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:319:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:324:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:330:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:333:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:336:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:337:101: E501 line too long (104 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:341:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:343:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:348:1: E305 expected 2 blank lines after class or function definition, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/baseline.py:349:11: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/cli.py:5:1: F401 'typing.Optional' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/cli.py:7:1: F401 'pandas as pd' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/cli.py:9:1: F401 'entropy.compute_atom_entropy' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/cli.py:9:1: F401 'entropy.compute_bond_entropy' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/cli.py:10:1: F401 'utils.validate_smiles_column' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/cli.py:213:21: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/create_structure.py:8:1: F401 'pathlib.Path' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/create_structure.py:24:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/create_structure.py:47:1: E305 expected 2 blank lines after class or function definition, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/create_structure.py:48:29: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/entropy.py:28:1: F401 'typing.Dict' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/entropy.py:28:1: F401 'typing.Any' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/entropy.py:32:1: F401 'rdkit.Chem.rdMolDescriptors' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/entropy.py:43:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/entropy.py:99:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/entropy.py:149:101: E501 line too long (113 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/entropy.py:171:42: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/generate_plots.py:14:1: F401 'os' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/generate_plots.py:28:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/generate_plots.py:31:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/generate_plots.py:36:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/generate_plots.py:39:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/generate_plots.py:42:101: E501 line too long (104 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/generate_plots.py:44:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/generate_plots.py:47:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/generate_plots.py:60:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/generate_plots.py:63:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/generate_plots.py:71:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/generate_plots.py:79:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/generate_plots.py:84:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/generate_plots.py:89:1: E305 expected 2 blank lines after class or function definition, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/generate_plots.py:90:11: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/model.py:15:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/model.py:51:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/model.py:64:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/model.py:89:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/model.py:151:101: E501 line too long (109 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/model.py:176:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/model.py:216:101: E501 line too long (108 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/model.py:223:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:14:1: F401 'typing.Optional' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:15:1: F401 'numpy as np' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:16:1: F401 'pandas as pd' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:17:1: F401 'sklearn.linear_model.Ridge' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:18:1: F401 'sklearn.metrics.mean_squared_error' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:18:1: F401 'sklearn.metrics.r2_score' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:19:1: F401 'scipy.stats' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:22:1: F401 'model.train_ridge_model' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:23:1: F401 'baseline.run_baseline_analysis' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:31:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:34:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:47:101: E501 line too long (121 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:48:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:54:97: W291 trailing whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:55:25: E131 continuation line unaligned for hanging indent
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:68:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:76:65: W291 trailing whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:81:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:88:63: W291 trailing whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:93:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:104:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:109:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:115:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:124:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:128:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:132:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:138:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:144:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:153:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:160:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:164:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:169:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:174:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:175:101: E501 line too long (112 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:176:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:180:58: W291 trailing whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:181:5: E129 visually indented line with same indent as next logical line
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:186:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:188:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:192:101: E501 line too long (105 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:194:90: W291 trailing whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:198:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:202:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:213:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:214:11: F541 f-string is missing placeholders
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:218:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:223:101: E501 line too long (130 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:224:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:230:101: E501 line too long (106 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:231:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/report_generator.py:233:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_directories.py:2:101: E501 line too long (102 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_directories.py:3:101: E501 line too long (109 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_directories.py:5:1: F401 'os' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_directories.py:9:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_directories.py:13:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_directories.py:24:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_directories.py:27:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_directories.py:29:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_directories.py:39:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_directories.py:43:1: E305 expected 2 blank lines after class or function definition, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_linting.py:16:1: F401 'shutil' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_linting.py:19:1: F401 'pathlib.Path' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_linting.py:87:19: E127 continuation line over-indented for visual indent
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_linting.py:89:35: E741 ambiguous variable name 'l'
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_linting.py:106:29: E741 ambiguous variable name 'l'
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_linting.py:108:19: E127 continuation line over-indented for visual indent
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_linting.py:110:35: E741 ambiguous variable name 'l'
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/setup_linting.py:128:21: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:8:1: F401 'os' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:11:1: F401 'typing.Dict' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:11:1: F401 'typing.Any' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:11:1: F401 'typing.Callable' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:15:1: F401 'rdkit.Chem.rdMolDescriptors' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:25:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:29:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:35:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:39:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:49:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:56:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:63:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:66:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:82:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:86:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:92:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:99:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:106:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:109:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:113:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:116:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:122:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:124:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:133:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:139:20: W291 trailing whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:146:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:151:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:157:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:160:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:170:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:174:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:177:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:184:27: E128 continuation line under-indented for visual indent
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:185:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:192:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:195:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:207:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:220:30: W291 trailing whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:221:31: W291 trailing whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:226:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:229:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:234:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:237:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:243:101: E501 line too long (104 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:245:101: E501 line too long (106 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:246:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:248:20: W291 trailing whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:249:21: W291 trailing whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:250:15: W291 trailing whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:253:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:262:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:263:101: E501 line too long (119 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/utils.py:264:18: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:3:1: F401 'typing.Optional' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:3:1: F401 'typing.Tuple' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:3:1: F401 'typing.Any' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:8:1: E402 module level import not at top of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:9:1: E402 module level import not at top of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:10:1: E402 module level import not at top of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:14:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:17:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:21:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:29:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:40:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:42:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:52:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:63:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:69:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:82:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:85:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:88:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:91:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:97:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:109:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:111:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:117:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:122:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:125:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:133:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:139:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:147:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:150:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:152:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:157:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:162:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:168:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:173:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:184:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:186:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:189:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:195:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:199:101: E501 line too long (108 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:200:101: E501 line too long (110 > 100 characters)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:201:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:203:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:206:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:210:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:219:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:224:1: E305 expected 2 blank lines after class or function definition, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/code/viz.py:225:11: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_baseline.py:15:1: F401 'os' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_baseline.py:185:32: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:4:1: F401 'pytest' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:14:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:24:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:27:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:38:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:43:34: E261 at least two spaces before inline comment
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:45:35: E261 at least two spaces before inline comment
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:49:60: E261 at least two spaces before inline comment
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:62:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:69:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:76:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:79:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:82:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:85:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:88:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:92:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:96:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:103:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:110:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:115:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:119:31: W291 trailing whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:124:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:127:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:136:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:150:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:157:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:164:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:167:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:170:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:173:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_cli.py:178:71: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_model.py:131:9: F841 local variable 'result' is assigned to but never used
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_model.py:157:58: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:21:1: E402 module level import not at top of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:22:1: F401 'utils.load_and_verify_dataset' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:22:1: E402 module level import not at top of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:31:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:44:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:54:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:57:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:65:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:69:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:73:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:77:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:82:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:85:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:88:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:93:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:97:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_performance.py:101:10: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:16:1: F401 'pathlib.Path' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:18:1: F401 'numpy as np' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:34:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:45:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:56:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:60:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:63:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:71:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:84:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:88:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:96:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:115:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:120:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:135:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:142:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:144:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:146:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:157:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:159:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:166:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:172:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:176:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:180:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:184:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:187:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:200:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:213:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:218:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:225:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:228:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:232:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_report_generation.py:235:64: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:6:1: F401 'pathlib.Path' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:10:1: E402 module level import not at top of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:12:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:24:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:32:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:37:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:41:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:43:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:50:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:53:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:61:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:66:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:74:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:81:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:88:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:94:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:96:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:104:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/integration/test_viz.py:107:79: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_linting_config.py:7:1: F401 'sys' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_linting_config.py:12:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_linting_config.py:17:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_linting_config.py:22:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_linting_config.py:26:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_linting_config.py:29:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_linting_config.py:33:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_linting_config.py:52:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_linting_config.py:63:13: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_setup_directories.py:14:1: E402 module level import not at top of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_setup_directories.py:16:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_setup_directories.py:22:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_setup_directories.py:27:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_setup_directories.py:31:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_setup_directories.py:34:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_setup_directories.py:45:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_setup_directories.py:51:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_setup_directories.py:55:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_setup_directories.py:60:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_setup_directories.py:64:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_setup_directories.py:67:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_setup_directories.py:71:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/test_setup_directories.py:74:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_entropy.py:4:1: F401 'pytest' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_entropy.py:9:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_entropy.py:20:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_entropy.py:38:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_entropy.py:56:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_entropy.py:58:34: E261 at least two spaces before inline comment
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_entropy.py:67:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_entropy.py:90:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_entropy.py:107:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_entropy.py:123:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_entropy.py:138:25: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_linting.py:5:1: F401 'os' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_linting.py:8:1: F401 'pytest' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_linting.py:14:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_linting.py:94:64: W292 no newline at end of file
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_sensitivity.py:1:1: F401 'pytest' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_sensitivity.py:7:1: F401 'pathlib.Path' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_sensitivity.py:12:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_sensitivity.py:14:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_sensitivity.py:33:9: F841 local variable 'result' is assigned to but never used
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_sensitivity.py:78:45: E261 at least two spaces before inline comment
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_sensitivity.py:80:1: E302 expected 2 blank lines, found 1
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_sensitivity.py:82:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_sensitivity.py:95:9: F841 local variable 'result' is assigned to but never used
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_sensitivity.py:105:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_sensitivity.py:108:1: W293 blank line contains whitespace
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_viz.py:14:1: F401 'unittest.mock.patch' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_viz.py:14:1: F401 'unittest.mock.MagicMock' imported but unused
+  /home/runner/work/llmXive/llmXive/projects/PROJ-431-predicting-molecular-complexity-with-inf/tests/unit/test_viz.py:256:36: W292 no newline at end of file
+
+black --check (config: code/pyproject.toml): 0 file(s) would be reformatted
+
+Tools configured: flake8 (code/.flake8, max-line-length=100, black-compatible ignores E203/W503) and black (code/pyproject.toml, line-length=100, target py310).

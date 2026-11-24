@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Alloy Prediction Response"
+type: object
+properties:
+  saturation_magnetization:
+    type: number
+    description: "Predicted saturation magnetization in µ_B per atom"
+  curie_temperature:
+    type:
+      - number
+      - "null"
+    description: "Predicted Curie temperature in Kelvin (null until data available)"
+  confidence_interval:
+    type: object
+    properties:
+      saturation_magnetization:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+        description: "[lower, upper] 95 % CI for saturation magnetization"
+    required:
+      - saturation_magnetization
+    additionalProperties: false
+required:
+  - saturation_magnetization
+  - curie_temperature
+  - confidence_interval
+additionalProperties: false

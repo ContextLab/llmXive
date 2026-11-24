@@ -1,59 +1,12 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Virtual Environments
-venv/
-ENV/
-env/
-.venv/
-
-# IDEs
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# Logs
-*.log
-data/logs/
-
-# Data (except configs, results, logs which are tracked)
-data/
+# Exclude all generated data files, but keep configuration, results, and logs
+data/*
 !data/configs/
-!data/configs/**
 !data/results/
-!data/results/**
 !data/logs/
-!data/logs/**
 
-# OS
-.DS_Store
-Thumbs.db
+# Python cache and compiled files
+__pycache__/
+*.pyc
 
-# Project specific
-state/*.yaml
-!state/template.yaml
-*.pt
-*.pth
-data/models/
+# Log files
+*.log

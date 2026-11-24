@@ -3,7 +3,7 @@
 ## 1. Raw Dataset Schema (`dataset.schema.yaml`)
 ```yaml
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Raw BFI‑2 and Last.fm Linked Dataset"
+title: "Raw BFI‑2 Dataset"
 type: object
 required:
   - user_id
@@ -16,14 +16,14 @@ required:
   - age
   - gender
   - country
-  - listening_history
+# `listening_history` is optional because a verified linked dataset may be unavailable.
 properties:
   user_id:
     type: string
     description: "Hashed participant identifier."
   lastfm_username:
     type: string
-    description: "Username on Last.fm used for linking."
+    description: "Username on Last.fm used for linking (present in raw BFI file)."
   openness_score:
     type: number
     minimum: 0
@@ -58,12 +58,13 @@ properties:
     additionalProperties:
       type: number
       minimum: 0
+    # This field may be absent if the linked dataset cannot be obtained.
 ```
 
 ## 2. Processed Dataset Schema (`processed_dataset.schema.yaml`)
 ```yaml
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Processed Dataset for Analysis"
+title: "Processed Dataset Schema"
 type: object
 required:
   - user_id
@@ -76,8 +77,7 @@ required:
   - gender_onehot
   - country_onehot
   - total_minutes
-  - genre_proportions
-  - genre_ilr
+# The following fields are required only when listening data is present.
 properties:
   user_id:
     type: string
@@ -106,62 +106,32 @@ properties:
   total_minutes:
     type: number
     minimum: 0
+    description: "Placeholder (NaN) if listening data unavailable; otherwise sum of minutes."
   genre_proportions:
     type: object
-    description: "Proportion of total listening minutes per standardized genre (Rock, Pop, …, Other)."
+    description: "Proportion of total listening minutes per standardized genre (if available)."
     additionalProperties:
       type: number
       minimum: 0
       maximum: 1
   genre_ilr:
     type: object
-    description: "ILR‑transformed compositional vector derived from `genre_proportions`."
+    description: "ILR‑transformed compositional vector derived from `genre_proportions` (if available)."
     additionalProperties:
       type: number
 ```
 
-## 3. Analysis Output Schema (`analysis_output.schema.yaml`)
+## 3. Correlation Results Schema (`correlation_results.schema.yaml`)
 ```yaml
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Combined Analysis Output Schema"
-type: object
-required:
-  - correlation_results
-  - regression_results
-  - diagnostics
-properties:
-  correlation_results:
-    $ref: "./correlation_results.schema.yaml"
-  regression_results:
-    $ref: "./regression_results.schema.yaml"
-  diagnostics:
-    type: array
-    items:
-      type: object
-      required:
-        - model_trait
-        - issue
-        - action
-      properties:
-        model_trait:
-          type: string
-        issue:
-          type: string
-        action:
-          type: string
-```
-
-## 4. Correlation Results Schema (`correlation_results.schema.yaml`)
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Spearman Correlation Results Schema"
+title: "Pearson Correlation Results Schema"
 type: array
 items:
   type: object
   required:
     - trait
     - genre
-    - spearman_rho
+    - pearson_r
     - p_value
     - adjusted_p_value
     - is_significant
@@ -190,7 +160,7 @@ items:
         - "Country"
         - "Metal"
         - "Other"
-    spearman_rho:
+    pearson_r:
       type: number
       minimum: -1
       maximum: 1
@@ -212,7 +182,7 @@ items:
       type: number
 ```
 
-## 5. Regression Results Schema (`regression_results.schema.yaml`)
+## 4. Regression Results Schema (`regression_results.schema.yaml`)
 ```yaml
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ILR‑Based Multiple Regression Results"
@@ -255,7 +225,7 @@ items:
       type: boolean
 ```
 
-## 6. Report Schema (`report.schema.yaml`)
+## 5. Final Report Schema (`report.schema.yaml`)
 ```yaml
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Final Results Report"
@@ -267,7 +237,6 @@ required:
 properties:
   summary_statistics:
     type: object
-    description: "Counts of total tests, significant after correction, and power analysis outcome."
     required:
       - total_tests
       - significant_tests
@@ -291,10 +260,10 @@ properties:
       $ref: "./correlation_results.schema.yaml#/items"
   limitations:
     type: string
-    description: "Narrative description of data or methodological constraints."
+    description: "Narrative description of data or methodological constraints (e.g., missing real listening data)."
 ```
 
-## 7. Results Schema (`results.schema.yaml`)
+## 6. Coefficient Deltas Schema (`results.schema.yaml`)
 ```yaml
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Coefficient Deltas Schema"
@@ -317,7 +286,7 @@ properties:
     description: "Standardized genre name."
   beta_baseline:
     type: number
-    description: "Beta coefficient from baseline model (Trait only)."
+    description: "Beta coefficient from baseline (trait‑only) model."
   beta_full:
     type: number
     description: "Beta coefficient from full model (Trait + Covariates)."
@@ -332,3 +301,5 @@ properties:
     type: string
     description: "Flag indicating whether delta exceeds 10 % change threshold (e.g., \"valid\"; \"exceeds_threshold\")."
 ```
+
+---  

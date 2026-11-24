@@ -1,17 +1,9 @@
 status: none
-intent: OpenNeuro ICPSR UK Biobank HuggingFace Wisconsin Card Sorting Test aging nostalgia
-  python package dataset
-required_fields:
-- participant_id
-- age
-- gender
-- education_years
-- wcst_categories_completed
-- wcst_perseverative_errors
-- wcst_correct_responses
-- nostalgia_condition
-- mmse_score
-- test_date
-cache_key: b6ae87c04c2c4830877bf7df0651549d7465403d976e9840388485af7bc43f05
-searched_at: '2026-10-12T00:18:20.699463+00:00'
-retry_count: 1
+intent: "Dataset Source URL(s) Variables Needed Verification Status Notes Real WCST\
+  \ dataset (collected in\u2011lab) N/A \u2013 data will be gathered by the research\
+  \ team using the protocol in , , , , , optional , , \u2705 Collected as per protocol\
+  \ The dataset will include a deterministic column (nostalgia vs. control) and "
+required_fields: []
+cache_key: f9e7dd55c40d4147a12e6d3a61fa583cda188289347bfbe1519aa3dac2d4f3e5
+searched_at: '2026-11-21T13:29:31.659896+00:00'
+retry_count: 2

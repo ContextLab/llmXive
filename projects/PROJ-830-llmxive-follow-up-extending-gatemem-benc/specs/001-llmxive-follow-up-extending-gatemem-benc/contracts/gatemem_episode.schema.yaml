@@ -1,54 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "GateMem Episode Schema"
-description: "Schema for a single episode from the GateMem dataset. Includes derived 'intent' field for analysis."
-type: object
-required:
-  - episode_id
-  - domain
-  - user_role
-  - query
-  - memory_state
-  - leak_target
-  - ground_truth_success
+description: "Schema for the raw and processed GateMem dataset episodes."
+type: "object"
 properties:
   episode_id:
-    type: string
+    type: "string"
     description: "Unique identifier for the episode."
   domain:
-    type: string
-    enum:
-      - medical
-      - office
-      - education
-      - household
-    description: "Context domain of the episode."
-  user_role:
-    type: string
-    description: "Role of the user (e.g., doctor, patient, admin)."
-  intent:
-    type: string
-    description: "Classified intent of the user query (derived via DistilBERT)."
+    type: "string"
+    enum: ["medical", "office", "education", "household"]
+    description: "Domain of the episode."
   query:
-    type: string
-    description: "The user's query text."
+    type: "string"
+    description: "User query text."
   memory_state:
-    type: string
-    description: "Current state of the agent's memory."
+    type: "string"
+    description: "Retrieved or full memory context provided to the LLM."
   leak_target:
-    type: boolean
-    description: "Ground truth label: True if the query should be allowed (not a leak), False if it should be blocked."
+    type: "boolean"
+    description: "Ground‑truth: True = allowed, False = should be blocked."
+  role:
+    type: "string"
+    description: "User role in the context."
   deletion_request:
-    type: boolean
-    description: "Indicates if the query contains a deletion request."
+    type: "boolean"
+    description: "Indicates if this episode contains a deletion request."
   deletion_log:
-    type: array
+    type: "array"
     items:
-      type: string
-    description: "History of deletion requests."
-  ground_truth_success:
-    type: boolean
-    description: "Human‑annotated task success label."
+      type: "string"
+    description: "History of deletion actions (if applicable)."
+  ground_truth_answer:
+    type: "string"
+    description: "Human‑annotated correct answer for utility calculation."
+  ground_truth_leak:
+    type: "boolean"
+    description: "Ground truth label indicating if a leak occurred in this episode."
   ground_truth_deletion:
-    type: boolean
-    description: "Ground truth indicating successful deletion compliance."
-additionalProperties: false
+    type: "boolean"
+    description: "Ground truth indicating successful deletion."
+required:
+  - "episode_id"
+  - "domain"
+  - "query"
+  - "leak_target"
+  - "role"
+  - "ground_truth_leak"
+  - "ground_truth_deletion"
+additionalProperties: true

@@ -1,29 +1,32 @@
-"""Replication Result Entity Definition.
-
-Defines the `ReplicationResult` dataclass used to store the outcome of a
-single replication trial in the statistical power analysis pipeline.
 """
+ReplicationResult model.
+
+Captures the outcome of a single bootstrap iteration used in the split‑half
+validation step. The model is deliberately simple – it stores the numeric
+results required by the downstream aggregation utilities and contract tests.
+"""
+
+from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Optional
 
-
 @dataclass
 class ReplicationResult:
-    """Entity representing the outcome of a single replication test.
-
-    Attributes:
-        effect_size_est (float): The estimated effect size (e.g., Cohen's d)
-            from the training or full dataset analysis.
-        p_value (float): The p-value associated with the statistical test.
-        replication_success (bool): True if the replication was successful
-            (direction match AND magnitude within ±20% of training estimate),
-            False otherwise.
-        smoothing_kernel_used (float): The smoothing kernel size (in mm)
-            applied during preprocessing for this result.
     """
+    Result of a single replication (split‑half) iteration.
 
+    Attributes
+    ----------
+    effect_size_est: Estimated Cohen's d from the training half.
+    p_value: Two‑sided p‑value computed on the test half.
+    replication_success: Binary flag (1 = replicated, 0 = not replicated).
+    smoothing_kernel_used: Kernel size (e.g. "4mm").
+    """
     effect_size_est: float
     p_value: float
-    replication_success: bool
-    smoothing_kernel_used: float
+    replication_success: int
+    smoothing_kernel_used: str
+    # Optional fields that may be useful for diagnostics
+    iteration_id: Optional[int] = None
+    sample_size: Optional[int] = None

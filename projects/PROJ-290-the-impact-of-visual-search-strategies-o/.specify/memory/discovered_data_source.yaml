@@ -1,0 +1,9 @@
+status: none
+intent: '### User Story 1 - Data Acquisition and Verification (Priority: P1) The research
+  pipeline MUST successfully download and validate eye-tracking datasets containing
+  emotional face stimuli with gaze coordinates and response times from HuggingFace
+  Datasets or equivalent repositories. **Why this priority'
+required_fields: []
+cache_key: b93f4229fa2e802691f5829cdcfba80bb4c5f65cafa7fcf1121433785e8f47cf
+searched_at: '2026-11-18T21:33:50.297354+00:00'
+retry_count: 1

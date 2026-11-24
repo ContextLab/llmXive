@@ -6,31 +6,29 @@ T001:
     project folder.
   sig: 2c626668a5ad81cec73977ba94258d25b4d44238bde0d953b1f0a72130ea59f9
 T002:
-  c: true
-  h: f93516be05182e252ea4a6cff295df35fe4507c1b88e42b1e5f42d78ff75ac41
-  r: The collector shows that both `projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/raw/`
-    and `.../data/processed/` directories exist, and the execution log from `code/.tasks/T002.code_ensure_data_dirs.py.log`
-    confirms the script successfully created them. No further content is required
-    for this task.
-  sig: f05819288d67476635ce3d8a16881ebd9e38f2d0041900b39dc6a0e730832702
+  c: false
+  h: 39fd1c8b1ef2b938d865c3e50ce9d52726074051663ca291423a3cf84de9c3b3
+  r: "Checked the project\u2019s `data/raw/` directory (exists with files) and the\
+    \ `data/processed/` directory (marked MISSING). The required processed data directory\
+    \ has not been created."
+  sig: fcc9cb2153b258eaacc138a2e2edd254232f8eec17b465ab9c963ba898a93b74
 T003:
   c: true
-  h: c1b5ff2e747d8dda8faef550ac2a7388b845f38bd3861411061b0436c6d980ce
-  r: The collector confirms that all required directories (`results/models/`, `results/figures/`,
-    `results/diagnostics/`, `code/`, and `tests/`) exist under the project root and
-    contain files (e.g., `.gitkeep` in the results subfolders and numerous source/test
-    files in `code/` and `tests/`). This satisfies the task of creating the specified
-    results and code directories.
-  sig: 12b622c30a6a953f907aee2362b0df172011f9970528999ecaf18e47a48c2035
+  h: a78fe9dacd63fba803380d90defa40ad3d88d0daf74b8fa1def98a140a17a374
+  r: "The collector confirms that `projects/PROJ-530-neural-correlates-of-error-monitoring-du/results/models/`,\
+    \ `results/figures/`, `results/diagnostics/`, `code/`, and `tests/` directories\
+    \ all exist (each contains a `.gitkeep` or multiple source files). No further\
+    \ content is required for the directory\u2011creation task."
+  sig: 87d1ba76161e107cd3190aa7ccb5b72b56fc1833f45bbede56c8c68f7e557ba8
 T004:
   c: false
-  h: 60c0e3c2e7bf33dc1a01db8369bbeed4cac6b1ddad664fded8dbafbcfed4e12c
-  r: "The evidence provides only the project root path but no concrete files (e.g.,\
-    \ `pyproject.toml`, `requirements.txt`, `environment.yml`, or similar) that declare\
-    \ a Python\u202F3.11 project and list the required dependencies. Without such\
-    \ a manifest, we cannot verify that the specified packages are included, so the\
-    \ task is not satisfied."
-  sig: 083ad60158b2f36a3135d890dc8a7fbad7852e6eac55baf629cf913c3c975581
+  h: fc0f2d2b18d43a26c3bb8735af3f221dcb248cdd40b43531f5540822d281e4af
+  r: The only artifact examined is the pytest run log (`code/.tasks/T004.tests_test_project_setup.py.log`),
+    which shows the test suite exiting with an error (ImportError due to a bad relative
+    import) and no evidence of a dependency manifest (e.g., `pyproject.toml`, `requirements.txt`,
+    or `environment.yml`) listing the required packages. Consequently the Python 3.11
+    project is not properly initialized with the specified dependencies.
+  sig: 38bb51f3569fc01aff34a5bab081ab5bcad550a99700427bf3c89310ebc1a2b0
 T005:
   c: false
   h: 227be96b377fd2ead568db14a506110a271717a5e75812312a609d7569e15483
@@ -49,6 +47,31 @@ T006:
     \ utilities). Both required artifacts exist and contain functional code, satisfying\
     \ the task."
   sig: 04c026cd126a87f6f5181879e42c48b7585151db82ba466f8320007321ee3eab
+T007:
+  c: false
+  h: 250cb9b2f82cde1190c0aa1f31f0b6ed114cd2fe9d86c013a2c264a967f48013
+  r: "Checked `code/utils.py`: it sets seeds for Python\u2019s `random` and NumPy,\
+    \ but does **not** actually set a seed for PyTorch (only a commented note). The\
+    \ task required pinning the global seed for torch when it is used, which is missing."
+  sig: 8825215922c924a71372f60aae8054c0b0aaea288587169f0d5d5a660655abbf
+T009:
+  c: false
+  h: a7490479d8c6d8b2e475bb9a0f4d3cfd8d950eef12062e2628ec2fc72d0be726
+  r: "The only artifact is a static `data/preprocessing.yaml` file (1071\u202Fbytes)\
+    \ that contains no log entries (`entries: []`) and there is no accompanying code\
+    \ or execution evidence showing that logging has been configured to write to this\
+    \ YAML and to the console. Without a logging setup script or runtime logs, the\
+    \ requirement to \u201Csetup logging infrastructure to `data/preprocessing.yaml`\
+    \ and console\u201D is not satisfied."
+  sig: efe47de4735200d6c0955c00ce946c3bfe6a24210971f8c5919b61a6097f8dbc
+T010:
+  c: true
+  h: 26ea5fca12b410124597bfedfc34f2f0d10ca963c3d2a4819b5ed613b1ca686e
+  r: Checked `code/download.py` which implements Zenodo download with caching, checksum
+    logging, and a fallback that logs a warning and creates `data/raw/synthetic_navigation_data.csv`.
+    The synthetic CSV matches the expected schema and the script logs steps and artifacts
+    as required.
+  sig: 2ce70dd3340af78c84abff48d03fab4f0b1b4a703ce8cb2434135aee1d0fc3ef
 T012:
   c: false
   h: 445d2d266366dbcfe10c27c27beb55ef840d2ffeec5ddcf75ea31e3a616e736d

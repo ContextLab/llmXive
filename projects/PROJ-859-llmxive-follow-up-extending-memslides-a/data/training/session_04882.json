@@ -1,0 +1,108 @@
+{
+  "trace_id": "training_42_04882",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 10,
+  "tool_sequence": [
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "insert_text",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "update_layout",
+    "update_layout",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 23.5508,
+        "padding": 56.5085
+      }
+    },
+    {
+      "step": 1,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 70.9989,
+        "padding": 62.5212
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 10.4479,
+        "padding": 12.629
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 92.3651,
+        "y": 7.8266,
+        "length": 53.7741
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 85.5494
+      }
+    },
+    {
+      "step": 5,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 26.6684
+      }
+    },
+    {
+      "step": 6,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 4.2043
+      }
+    },
+    {
+      "step": 7,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 9.5006,
+        "padding": 99.3552
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 9.339,
+        "padding": 85.7001
+      }
+    },
+    {
+      "step": 9,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 78.097,
+        "height": 88.0323
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.168282,
+    "tool_repetition_freq": 0.6,
+    "arg_semantic_variance": 1166.90334
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 12,
+    "layout_hash": "42-4882-update_layout"
+  }
+}

@@ -1,4 +1,4 @@
-torch
+torch (cpu-only)
 transformers
 scikit-learn
 pandas

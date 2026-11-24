@@ -1,8 +1,4 @@
 T001a-gitignore:
-  reason: The repository does not contain a `.gitignore` file in the listed artifacts,
-    so the required file cannot be verified to exist or to include the specified ignore
-    patterns. Adding a proper `.gitignore` with the listed entries is needed to satisfy
-    the task.
   task: 385e033461e9dd7e0d7c9e9061ae34288419149be1d8081dc5dc5d81615d8581
 T001a-init:
   task: 31af9d3170f43c518a45bfa0e7d3e001cbcce213c38301545e25660bbe528ca3
@@ -13,11 +9,6 @@ T001b:
 T001c:
   task: e8473fa6ce3c6d39aa2b3448b0fb2bedc23dc77390a0beeaeb62c3bfef8937a3
 T002:
-  reason: "The only artifact present is a `requirements.txt`; there is no data\u2011\
-    generation script, no generated dataset, and no evidence (e.g., files, logs, checksums)\
-    \ showing \u2265\u202F100 distinct novel topologies or deformable\u2011material\
-    \ simulations. Consequently the core requirement of producing a synthetic topology\u2011\
-    shift test set is unmet."
   task: 1ccce4cf67ae5ad39382b2d83dc672fe0ebddb391cdf13da4bec6211bdf9375c
 T003:
   task: a0b7609a368facf643500b01a361364af3d2acd0de86497bc6f555bb87d38462
@@ -54,6 +45,10 @@ T007b:
     typed object.
   task: fabecc22187227fcb08d9933db64815c4f1edc3535afe127d082000604e004ff
 T008:
+  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/ci.yml`
+    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 19328162c7b275f58c9a6ebb3d9b172f5a0cc7ceb3e9e8d5755c6430e5b5a889
 "T008\u2011drift\u2011calib":
   task: 483bc3b26077067ecb6b04ba5e3f3f4e1f6f66cdda74ef8ccdf655cd58f8d8b2

@@ -1,0 +1,5 @@
+# Project‑wide dependencies (existing ones are already provided by the runner)
+# Added for T001 – the download script uses only the standard library and
+# ``requests`` which is already available in the base environment.
+# No new third‑party packages are required.  
+# If additional packages become necessary, list them here, one per line.

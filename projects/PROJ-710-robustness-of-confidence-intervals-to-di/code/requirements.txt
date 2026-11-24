@@ -1,20 +1,15 @@
-# Core Data Science & Statistics
 numpy==1.26.4
 pandas==2.2.2
-scipy==1.13.1
+scipy==1.13.0
 statsmodels==0.14.2
 scikit-learn==1.5.0
-
-# Differential Privacy & Utilities
-# Note: If specific DP libraries are needed later, they can be added here.
-# For now, we rely on manual implementation using numpy/scipy as per task T006.
-
-# Development & Testing
-pytest==8.2.2
-ruff==0.4.8
-black==24.4.2
-data  # auto-added: imported by run-book but missing from venv
-matplotlib  # auto-added: imported by run-book but missing from venv
-seaborn  # auto-added: imported by run-book but missing from venv
-torch  # auto-added: imported by run-book but missing from venv
-pmlb  # auto-added: verified real data source (discovery)
+ucimlrepo==0.0.6
+# The following packages are provided by the platform and need not be pinned:
+# - matplotlib
+# - seaborn
+# - pytest
+# - PyYAML
+# - requests
+# - jsonschema
+# - psutil
+# - llmxive_toolkit (built‑in)

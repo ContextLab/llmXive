@@ -11,9 +11,23 @@ instead of re-calling the model — making outages cheap to recover from.
 CORRECTNESS IS PARAMOUNT. A wrong cache HIT is a wrong scientific review.
 The cache key (:func:`compose_key`) hashes EVERY input that determines the
 review output — the exact composed user message, the system prompt, the
-lens, the stage, and the model. If ANY of these differ it is a guaranteed
-MISS (a fresh model call). A HIT returns an exact round-trip of the stored
-``list[Concern]`` (pydantic ``model_dump`` / ``model_validate``).
+lens, the stage, the named capability PROFILE the review resolves under, the
+SELECTION_POLICY_VERSION (spec 026 slice 7: reviewers never pin a raw model
+id, so there is no model id to hash — see ``llm_reviewer.LLMReviewer``), and
+the caller's effective ``RequirementOverrides`` (spec 026 slice 6 escalation
+constraints, e.g. ``exclude_leader`` — see the "escalation" note below). If
+ANY of these differ it is a guaranteed MISS (a fresh model call). A HIT
+returns an exact round-trip of the stored ``list[Concern]`` (pydantic
+``model_dump`` / ``model_validate``).
+
+Escalation note: when the panel hits its kickback cap, ``bump_model_tier``
+advances the execution tier and re-dispatches with a DIFFERENT
+``RequirementOverrides`` (e.g. tier 1's ``exclude_leader=True``, the "free
+second opinion" rung whose entire purpose is to get a different model's
+view). Binding ``overrides`` into the key is what makes that re-dispatch a
+guaranteed MISS instead of silently re-serving the prior tier's cached
+review — without it, escalation would advance the ladder while the panel
+kept re-reading the SAME model's opinion.
 
 This mirrors the on-disk approach of ``llmxive.grounding.cache``: one JSON
 file per key-hash under ``state/convergence-cache/``, an atomic write, a
@@ -38,6 +52,8 @@ import os
 import tempfile
 import time
 from pathlib import Path
+
+from llmxive.model_selection.types import RequirementOverrides, canonical_overrides
 
 from .types import Concern
 
@@ -91,13 +107,40 @@ def convergence_cache_dir(repo_root: Path) -> Path:
 # --- key composition ------------------------------------------------------
 
 
+def _canonical_overrides(overrides: RequirementOverrides | None) -> str:
+    """Canonicalize the EFFECTIVE ``RequirementOverrides`` into a stable string.
+
+    ``overrides=None`` (no override object at all) and an all-default
+    ``RequirementOverrides()`` are semantically IDENTICAL to ``route_chat``
+    (both mean "no escalation constraints" — see ``model_selection.route``);
+    normalizing ``None`` to a fresh default instance up front makes them
+    canonicalize to the SAME string, so a no-override run never spuriously
+    MISSES a no-override cache entry.
+
+    Delegates to :func:`llmxive.model_selection.types.canonical_overrides` — the
+    single canonical form, shared with ``selection_identity`` (Constitution I).
+    There, fields are read via :func:`dataclasses.fields` rather than a hand-written
+    tuple of attribute names, so a future field added to
+    ``RequirementOverrides`` is picked up HERE automatically instead of being
+    silently dropped from the cache key — a hand-written list would keep
+    compiling and hashing happily while a new escalation constraint quietly
+    stopped busting the cache. ``frozenset`` fields (``exclude_models``) are
+    sorted first since set iteration order is not stable/meaningful.
+    """
+    return canonical_overrides(overrides)
+
+
 def compose_key(
     *,
     user: str,
     system: str,
     lens: str,
     stage: str,
-    model: str | None,
+    profile: str,
+    selection_policy_version: int,
+    overrides: RequirementOverrides | None = None,
+    temperature: float,
+    max_tokens: int | None,
 ) -> str:
     """Hash ALL review-determining inputs into a stable 64-char sha256.
 
@@ -106,13 +149,40 @@ def compose_key(
     a different set's concatenation (i.e. no boundary ambiguity — e.g.
     ``user='ab', system='c'`` cannot collide with ``user='a', system='bc'``).
 
-    ``model`` distinguishes ``None`` (no model pinned) from ``""`` (an
-    empty model string) via a one-char presence flag, since those are
-    different inputs to the backend router.
+    ``profile`` + ``selection_policy_version`` replace the old raw model-id
+    pin (spec 026 slice 7): a reviewer never names a model, so there is
+    nothing to distinguish ``None`` from ``""`` for anymore — ``profile`` is
+    always a non-empty named profile string and ``selection_policy_version``
+    is always a real int. Reusing a cached review across a materially
+    different selection DECISION is prevented by binding the version that
+    changes whenever the capability→model policy table changes (see
+    ``llmxive.model_selection.policy.SELECTION_POLICY_VERSION``); it does
+    NOT bind the live runtime-snapshot digest (see the caller-side rationale
+    in ``llm_reviewer.LLMReviewer.identify``).
+
+    ``overrides`` (spec 026 slice 6 escalation constraints, canonicalized by
+    :func:`_canonical_overrides`) is bound for the SAME reason: it is exactly
+    as deliberate/reviewed a change to what the reviewer may resolve to as
+    ``profile`` or ``selection_policy_version`` are — the panel's own
+    kickback-cap escalation (``bump_model_tier``) mutates it mid-run
+    specifically to force a DIFFERENT model's opinion (e.g.
+    ``exclude_leader=True``), so it must independently move the key or that
+    escalation would silently no-op against a stale cache entry.
     """
-    model_flag = "0" if model is None else "1"
-    model_val = "" if model is None else model
-    fields = (user, system, lens, stage, model_flag, model_val)
+    fields = (
+        user, system, lens, stage, profile, str(selection_policy_version),
+        _canonical_overrides(overrides),
+        # Sampling settings are review-DETERMINING: temperature changes what the
+        # model produces from identical inputs, and max_tokens changes where a
+        # long review gets truncated. LLMReviewer exposes both as constructor
+        # parameters, so two otherwise-identical reviewers can legitimately
+        # differ here — without binding them, the one configured at temperature
+        # 0.7 would serve the deterministic reviewer's cached concerns. They are
+        # invariant across the standard production panel today; this keeps the
+        # docstring's "ALL review-determining inputs" claim true regardless.
+        repr(float(temperature)),
+        "none" if max_tokens is None else str(int(max_tokens)),
+    )
     canonical = _SENTINEL.join(f"{len(f)}:{f}" for f in fields)
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 

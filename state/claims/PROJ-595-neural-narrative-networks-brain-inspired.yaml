@@ -4879,7 +4879,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-29T01:04:48Z'
 - artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
   attempts: 1
@@ -4917,7 +4917,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-29T01:06:08Z'
 - artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
   attempts: 1
@@ -5141,7 +5141,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-29T01:11:54Z'
 - artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
   attempts: 1
@@ -5160,7 +5160,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-29T01:12:01Z'
 - artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
   attempts: 1
@@ -5328,7 +5328,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-29T01:16:51Z'
 - artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
   attempts: 2
@@ -7075,7 +7075,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-18T01:08:36Z'
 - artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
   attempts: 1
@@ -7947,7 +7947,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-26T03:55:01Z'
 - artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
   attempts: 1
@@ -8852,3 +8852,36 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-30T18:39:00Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/plan.md
+  attempts: 1
+  canonical: OpenNeuro ds001495 is a naturalistic fMRI study where subjects listen
+    to stories
+  claim_id: c_24e3c5e7
+  context: 'Primary fMRI Dataset: OpenNeuro ds001495 - A naturalistic fMRI study where
+    subjects listen to stories'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: OpenNeuro ds001495 is a naturalistic fMRI study where subjects listen
+    to stories
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-16T15:33:58Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/plan.md
+  attempts: 1
+  canonical: ROCStories is available via HuggingFace datasets
+  claim_id: c_fac8d9f6
+  context: 'Text Corpus: ROCStories (5-Word Stories) - Available via HuggingFace datasets'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ROCStories (5-Word Stories) is available via HuggingFace datasets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-16T15:34:38Z'

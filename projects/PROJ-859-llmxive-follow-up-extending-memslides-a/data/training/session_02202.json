@@ -1,0 +1,210 @@
+{
+  "trace_id": "training_42_02202",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 19,
+  "tool_sequence": [
+    "format_text",
+    "format_text",
+    "format_text",
+    "insert_chart",
+    "apply_theme",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "delete_element",
+    "resize_element",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "format_text",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 22.5506,
+        "x": 14.0482,
+        "y": 26.0088
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 63.0553,
+        "x": 6.1663,
+        "y": 29.1826
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 85.9667,
+        "x": 25.9238,
+        "y": 83.5203
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 19.3507,
+        "y": 64.9756,
+        "width": 65.4318,
+        "height": 63.8399,
+        "data_points": 27.8875
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 44.9614,
+        "saturation": 66.6836
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 81.3664,
+        "y": 76.8634,
+        "width": 89.2853,
+        "height": 22.5527,
+        "data_points": 66.2305
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 87.9673,
+        "y": 55.186,
+        "width": 72.8833,
+        "height": 21.4372,
+        "data_points": 2.8392
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 32.3118,
+        "y": 75.8629,
+        "width": 25.3254,
+        "height": 44.8034,
+        "data_points": 62.5756
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 33.087,
+        "y": 3.9009,
+        "length": 66.5702
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 93.6385,
+        "y": 66.0271,
+        "length": 97.3717
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 98.8142,
+        "y": 11.0178,
+        "length": 88.436
+      }
+    },
+    {
+      "step": 11,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 17.3116
+      }
+    },
+    {
+      "step": 12,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 68.4527,
+        "height": 20.6482
+      }
+    },
+    {
+      "step": 13,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 86.4244,
+        "saturation": 24.9851
+      }
+    },
+    {
+      "step": 14,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 31.281,
+        "saturation": 26.4324
+      }
+    },
+    {
+      "step": 15,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 3.387,
+        "saturation": 93.9083
+      }
+    },
+    {
+      "step": 16,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 90.7421,
+        "saturation": 95.143
+      }
+    },
+    {
+      "step": 17,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 89.0614,
+        "x": 34.9885,
+        "y": 85.9098
+      }
+    },
+    {
+      "step": 18,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 48.6355,
+        "y": 93.0348,
+        "length": 88.4887
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.645348,
+    "tool_repetition_freq": 0.684211,
+    "arg_semantic_variance": 919.480732
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 18,
+    "layout_hash": "42-2202-apply_theme"
+  }
+}

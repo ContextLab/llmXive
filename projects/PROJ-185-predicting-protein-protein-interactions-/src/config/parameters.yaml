@@ -1,4 +1,0 @@
-# Pipeline parameter defaults for PROJ-185
-threshold: 0.85
-seed: 42
-norm_method: "TPM"

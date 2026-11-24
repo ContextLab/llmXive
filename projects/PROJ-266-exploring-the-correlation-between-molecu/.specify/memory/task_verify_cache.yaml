@@ -1,3 +1,21 @@
+T002:
+  c: false
+  h: 02ee41ef5af50feb0cfcf60faaa28ae0fdb3436874bf166c5601832c7c3e0e53
+  r: The repository contains a `pyproject.toml` with the required Black configuration,
+    but there is no `.flake8` file present and no evidence (e.g., command output or
+    CI logs) that `flake8 --config .flake8 .` and `black --check .` both succeed.
+    Add a `.flake8` file with appropriate defaults and provide proof that both linting
+    and formatting checks pass.
+  sig: b880a76e2d2d0310c0992f2ad646e7a87acc8fe83e0f897968ee2a9b98a3b94e
+T004:
+  c: false
+  h: b46f36c041811503269df19902f309c1b66725aa799a62a540d148c399beec06
+  r: "All required schema files (`dataset.schema.yaml`, `descriptor.schema.yaml`,\
+    \ `analysis_output.schema.yaml`, `correlation.schema.yaml`, `flexibility.schema.yaml`,\
+    \ `output.schema.yaml`) are missing from `specs/001\u2011exploring\u2011the\u2011\
+    correlation\u2011between\u2011molecu/contracts/`, causing the `pytest` validation\
+    \ test to fail. The task\u2019s core deliverables are absent."
+  sig: 2919d6066b1c16fae1f61de30a2d8def4c3e669ccc25d03c57578b2b7b63022f
 T006:
   c: false
   h: 9914aae3ece5fb48343f57249c7f1395fe8fe5d86fea31a1482bcaab2398bc8b
@@ -6,13 +24,6 @@ T006:
     \ section to `research.md`, and the shown code contains a typo (`DEFAULT_DEVIA`)\
     \ that would raise a `NameError` if a YAML parse error occurs. Consequently the\
     \ script does not fully meet the task\u2019s functional requirement."
-T008d:
-  c: true
-  h: d974da252bf6da54549fe47a2bff38b765fc42114be092df21dff90595ff0687
-  r: 'The `state/projects/` directory exists (evidenced by the file path) and the
-    required file `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`
-    is present with the exact content `artifact_hashes: {}` as specified. No missing
-    or placeholder artifacts remain.'
 T013:
   c: false
   h: 0f8b2bd00a943aeddb56260569d969538af7601c9f12a11b0520655413d0c2fa
@@ -38,14 +49,6 @@ T015:
     results to `data/processed/correlation_diagnostic.csv` nor is the function invoked.
     Consequently, the expected CSV file is missing from the repository. The task requires
     both the computation and the saved output, which are not fully implemented.
-T015b:
-  c: false
-  h: 574aa0d35d689f8fec38fdbcf252125ca31b0235bef4555d55bc3b31dce3762c
-  r: "The `calculate_controlled_partial_correlations` function is only partially shown\
-    \ and does not contain a full implementation or any code that writes results to\
-    \ `data/processed/correlation_controlled.csv`. Moreover, the required output file\
-    \ `data/processed/correlation_controlled.csv` is missing from the repository.\
-    \ The task\u2019s core requirement is therefore not satisfied."
 T016:
   c: false
   h: b4371263f668ed119ce1e3c05b4f98bf06fd7a22405295bf9cba0d949973a711
@@ -53,23 +56,9 @@ T016:
     \ correction logic nor code that writes a CSV with corrected q\u2011values, and\
     \ the required output file `data/processed/correlation_diagnostic.csv` is absent.\
     \ The task\u2019s core requirement is therefore unmet."
-T019a:
-  c: false
-  h: 4c65c89e9ce9f5e30a2dd42cc64c5e9e00e97017501445769c0caa01dace4636
-  r: "The required `data/processed/enriched_data.csv` file is absent, and `analysis.py`\
-    \ does not contain a multivariate linear regression model or code that writes\
-    \ coefficients/metrics to `data/processed/model_results.json`. Consequently the\
-    \ task\u2019s core requirements are not met."
 T025:
   c: false
   h: a3042d1cf2056fa36e1c3ed3b7464fc109eaf5f0dcc7f6aaf3d27529a4597053
   r: The required artifact `data/processed/enriched_data.csv` does not exist, so the
     implementer could not read the `mw` column nor append a `complexity_metric` column
     as specified. The task therefore remains unfinished.
-T029:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact containing the AIC/BIC comparison between the power\u2011law (scaling\
-    \ law) model and the linear model is present; the implementer provided only the\
-    \ task description without any code, results, or figures demonstrating the required\
-    \ model performance validation."

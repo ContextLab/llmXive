@@ -2,6 +2,7 @@ import os
 import sys
 from pathlib import Path
 
+
 def setup_directories(project_root: Path) -> None:
     """
     Create the root project directories and all required subdirectories
@@ -36,6 +37,7 @@ def setup_directories(project_root: Path) -> None:
         full_path.mkdir(parents=True, exist_ok=True)
         print(f"Created directory: {full_path}")
 
+
 def main() -> None:
     """
     Entry point for the setup_directories script.
@@ -52,6 +54,7 @@ def main() -> None:
     print(f"Setting up directories for project: {project_root}")
     setup_directories(project_root)
     print("Directory setup complete.")
+
 
 if __name__ == "__main__":
     main()

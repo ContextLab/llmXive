@@ -4,81 +4,65 @@ description: "Schema for the unified dataset containing IR and NMR spectroscopic
 type: object
 required:
   - metadata
-  - records
-
-metadata:
-  type: object
-  properties:
-    version:
-      type: string
-      description: "Schema version"
-    generated_at:
-      type: string
-      format: date-time
-      description: "Timestamp of generation"
-    source:
-      type: string
-      description: "Primary data source (e.g., 'NIST', 'PubChem', 'Merged')"
-    provenance:
-      type: string
-      description: "Origin of the data provenance"
-      enum:
-        - "kinetic_studies"
-        - "validated_intermediate"
-      # CRITICAL: The 'provenance' field must be strictly one of these two values.
-      # Any data row with a missing, ambiguous, or different value must be excluded
-      # during ingestion (T011/T012).
-
-records:
-  type: array
-  items:
+  - data
+properties:
+  metadata:
     type: object
+    description: "Metadata describing the dataset generation."
     required:
-      - spectrum_id
-      - mechanism_label
-      - ir_spectrum
-      - nmr_spectrum
-      - provenance
-      - data_source
+      - version
+      - source
+      - provenance_filter_applied
+      - created_at
+      - checksum
     properties:
-      spectrum_id:
+      version:
         type: string
-        description: "Unique identifier for the spectrum"
-      mechanism_label:
+        description: "Schema version or dataset version."
+      source:
         type: string
-        description: "Reaction mechanism classification"
-        enum:
-          - "SN1"
-          - "SN2"
-          - "E1"
-      ir_spectrum:
-        type: array
-        items:
-          type: number
-        description: "Binned IR spectrum intensity values (cm-1)"
-      nmr_spectrum:
-        type: array
-        items:
-          type: number
-        description: "Binned NMR spectrum intensity values (ppm)"
-      provenance:
+        description: "Primary data source (e.g., 'NIST', 'PubChem', 'Merged')."
+      provenance_filter_applied:
+        type: boolean
+        description: "Indicates whether provenance filtering was applied."
+      created_at:
         type: string
-        description: "Source verification status"
-        enum:
-          - "kinetic_studies"
-          - "validated_intermediate"
-        # Enforcement: Rows with provenance not in this list are excluded.
-      data_source:
+        format: date-time
+        description: "Timestamp of dataset creation."
+      checksum:
         type: string
-        description: "Original database source"
-        enum:
-          - "NIST"
-          - "PubChem"
-      metadata:
-        type: object
-        description: "Additional optional metadata"
-        properties:
-          temperature:
+        description: "SHA-256 checksum of the dataset file."
+  data:
+    type: array
+    description: "Array of data records."
+    items:
+      type: object
+      required:
+        - record_id
+        - spectrum
+        - label
+        - provenance
+      properties:
+        record_id:
+          type: string
+          description: "Unique identifier for the record."
+        spectrum:
+          type: array
+          description: "Binned spectral fingerprint (512 bins)."
+          items:
             type: number
-          solvent:
-            type: string
+          minItems: 512
+          maxItems: 512
+        label:
+          type: string
+          description: "Reaction mechanism classification."
+          enum:
+            - SN1
+            - SN2
+            - E1
+        provenance:
+          type: string
+          description: "Origin of the data provenance."
+          enum:
+            - kinetic_studies
+            - validated_intermediates

@@ -1,16 +1,11 @@
 status: none
-intent: Coupled Lorenz oscillator synthetic dataset with configurable Gaussian noise
-  python package Lorenz synthetic dataset ChaosData
+intent: download synthetic coupled Lorenz oscillator trajectories python package dataset
 required_fields:
 - time
-- oscillator_id
-- x
-- y
-- z
+- x_i
+- y_i
+- z_i
 - noise_std
-- time_step
-- coupling_strength
-- integration_method
-cache_key: f8717f134d1cfa5fbcf7c1ea57cf67c526ddde6125324c517eb65d9c91a6b4c6
-searched_at: '2026-09-19T01:47:32.674518+00:00'
+cache_key: 1633bc550c116bcde95566c1dd986eb86fdb5f974e94c9f411c9d7e812c93b69
+searched_at: '2026-10-29T12:24:32.086070+00:00'
 retry_count: 1

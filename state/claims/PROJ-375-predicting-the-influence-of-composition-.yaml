@@ -93,7 +93,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-03T07:31:31Z'
 - artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
   attempts: 1
@@ -286,3 +286,838 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T07:38:53Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline consists of three core scripts
+  claim_id: c_8009d371
+  context: Overview section describing the pipeline's three core scripts.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The pipeline consists of three core scripts: Data ingestion \u2013 fetches\
+    \ raw metallic\u2011glass data from the Materials Project and AFLOWlib; Model\
+    \ training \u2013 prepares features, splits the data, and trains Linear Regression\
+    \ and Random Forest models; Model evaluation \u2013 evaluates the trained models,\
+    \ runs permutation significance testing, and produces diagnostic artefacts."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:22:56Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: evaluate script runs at least 1000 iteration permutation test
+  claim_id: c_3a113d45
+  context: "Model evaluation \u2013 evaluates the test split, writes results/model_performance.json,\
+    \ runs the \u2265\u202F1000\u2011iteration permutation test, and produces divergence\
+    \ diagnostics."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The evaluate script runs a \u2265\u202F1000\u2011iteration permutation\
+    \ test."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:22:56Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline relies on two external data sources Materials Project and AFLOWlib
+  claim_id: c_9923adb2
+  context: 'The pipeline relies on two external, publicly accessible data sources:
+    Materials Project and AFLOWlib.'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: 'The pipeline relies on two external, publicly accessible data sources:
+    Materials Project and AFLOWlib.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T13:27:56Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: Materials Project provides composition, thermal expansion coefficient,
+    and material_type metadata
+  claim_id: c_34a37095
+  context: "Materials Project provides composition, thermal\u2011expansion coefficient,\
+    \ and metadata such as material_type."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "Materials Project provides composition, thermal\u2011expansion coefficient,\
+    \ and metadata such as material_type."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T13:28:08Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: AFLOWlib returns JSON records with composition strings and thermal expansion
+    coefficient values
+  claim_id: c_b121992b
+  context: AFLOWlib returns JSON records with composition strings and CTE values.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: AFLOWlib returns JSON records with composition strings and CTE values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T13:28:16Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline saves raw JSON responses under data/raw and records SHA-256
+    checksums in data/checksums.txt
+  claim_id: c_6176bb60
+  context: "The pipeline saves raw JSON responses under data/raw/ and records SHA\u2011\
+    256 checksums in data/checksums.txt."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The pipeline saves raw JSON responses under data/raw/ and records SHA\u2011\
+    256 checksums in data/checksums.txt."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:28:16Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline produces artefacts including mp_data.json, aflow_data.json,
+    clean_mg_data.parquet, train.parquet, test.parquet, linear_regression.pkl, random_forest.pkl,
+    model_performance.json, and pipeline.log
+  claim_id: c_762bd9f9
+  context: After running the pipeline, you should see artefacts such as data/raw/mp_data.json,
+    data/raw/aflow_data.json, data/processed/clean_mg_data.parquet, data/processed/train.parquet,
+    data/processed/test.parquet, models/linear_regression.pkl, models/random_forest.pkl,
+    results/model_performance.json, and logs/pipeline.log.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: After running the pipeline, you should see artefacts such as data/raw/mp_data.json,
+    data/raw/aflow_data.json, data/processed/clean_mg_data.parquet, data/processed/train.parquet,
+    data/processed/test.parquet, models/linear_regression.pkl, models/random_forest.pkl,
+    results/model_performance.json, and logs/pipeline.log.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:28:16Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: all scripts initialise logging with setup_logging and write to logs/pipeline.log
+  claim_id: c_aa298ed3
+  context: All scripts initialise logging with setup_logging() from code/utils/io.py
+    and the logger writes to logs/pipeline.log.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All scripts initialise logging with setup_logging() from code/utils/io.py
+    and the logger writes to logs/pipeline.log.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:28:16Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline aborts on any failure to fetch real data without synthetic fallback
+  claim_id: c_df4ed6f8
+  context: "Any failure to fetch real data aborts the pipeline \u2013 no synthetic\
+    \ fallback is performed."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Any failure to fetch real data aborts the pipeline \u2013 no synthetic\
+    \ fallback is performed."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:28:16Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: total wall-clock time approximately 1 to 2 hours
+  claim_id: c_436068e5
+  context: The document states the expected total runtime of the pipeline.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Total wall\u2011clock time: ~1\u20132 hours (including API download and\
+    \ model training)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T16:09:45Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: peak RAM usage approximately 4 GB
+  claim_id: c_59d7ae11
+  context: The resource usage section lists the maximum memory consumption observed.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Peak RAM: ~4 GB (well under the 7 GB limit)'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T16:09:45Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline uses 2 CPU cores
+  claim_id: c_b9e88c82
+  context: The document specifies the number of CPU cores allocated during execution.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'CPU cores used: 2 (enforced by `n_jobs=2`)'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T16:09:45Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: AFLOWlib API does not require an API key
+  claim_id: c_634f0e41
+  context: The data source description notes that the AFLOWlib endpoint is publicly
+    accessible without authentication.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: document to keep abreast of any future API changes. Note that no API
+        key is presently required for access . Users
+      source_id: '1804.10847'
+      url: https://arxiv.org/abs/1804.10847
+      value: no API key
+    filled: true
+  kind: entity_fact
+  raw_text: AFLOWlib API does not require an API key for the public REST endpoint
+    used in this project
+  resolved_value: no API key
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-19T16:10:15Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: Materials Project API key is required to query thermal expansion data
+  claim_id: c_5458cdbf
+  context: The setup instructions explain that an API key must be provided to access
+    Materials Project data.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "The Materials Project (MP) API key is required to query the MP REST endpoint\
+    \ for thermal\u2011expansion data"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T16:11:09Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: computes VIF over four descriptors
+  claim_id: c_d8f4214b
+  context: During model training the pipeline calculates VIF for the descriptor set.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Computes Variance Inflation Factors (VIF) over the four descriptors
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T16:11:09Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline total wall-clock time approximately 1 to 2 hours
+  claim_id: c_32e874fc
+  context: "The document lists the expected runtime and resource usage for the end\u2011\
+    to\u2011end pipeline."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Total wall\u2011clock time: ~1\u20132\u202Fhours (including API download\
+    \ and model training)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T18:09:13Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: peak RAM usage is approximately 4 GB
+  claim_id: c_5937eff9
+  context: The document provides expected memory consumption for the pipeline execution.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Peak RAM: ~4\u202FGB (well under the 7\u202FGB limit)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T18:09:13Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline uses 2 CPU cores
+  claim_id: c_0a0e3550
+  context: The document specifies the number of CPU cores allocated during model training.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "CPU cores used: 2 (enforced by n_jobs=2 in scikit\u2011learn)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T18:09:14Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline does not require a GPU
+  claim_id: c_9169ed16
+  context: The resource requirements section states that no GPU is needed for execution.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'GPU required: No'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T18:09:14Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: Materials Project API is publicly accessible and needs a free API key
+  claim_id: c_547ff701
+  context: The pipeline description of external data sources notes the access method
+    for Materials Project.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P856: https://materialsproject.org'
+      source_id: Q105085929
+      url: https://www.wikidata.org/wiki/Q105085929
+      value: https://materialsproject.org
+    filled: true
+  kind: entity_fact
+  raw_text: Materials Project data source is publicly accessible; requires free API
+    key registration at https://next-gen.materialsproject.org/api
+  resolved_value: https://materialsproject.org
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-19T18:09:27Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: AFLOWlib API does not require authentication
+  claim_id: c_99728ab9
+  context: The description of the AFLOWlib data source indicates that no API key is
+    needed.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: AFLOWlib endpoint used does not require authentication
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T18:09:43Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/phase0_overview.md
+  attempts: 1
+  canonical: enriched table written to data/processed/clean_alloy_data.parquet
+  claim_id: c_28fef220
+  context: The enriched table is written to data/processed/clean_alloy_data.parquet.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The enriched table is written to data/processed/clean_alloy_data.parquet.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:32:11Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/phase0_overview.md
+  attempts: 1
+  canonical: logs written to logs/ingestion.log via project logger
+  claim_id: c_f5c5ffd5
+  context: All progress, warnings, and errors are logged to logs/ingestion.log via
+    the project logger (get_logger(__name__)).
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All progress, warnings, and errors are logged to logs/ingestion.log via
+    the project logger (get_logger(__name__)).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:32:11Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/phase0_overview.md
+  attempts: 1
+  canonical: markdown file and headings verified in CI pipeline
+  claim_id: c_45fa6136
+  context: 'CI checks: Presence of this markdown file and its headings are verified
+    as part of the CI pipeline.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Presence of this markdown file and its headings are verified as part of
+    the CI pipeline.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:32:11Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: "results/sample_output.parquet contains all required columns and passes\
+    \ JSON\u2011Schema validation"
+  claim_id: c_cca549d5
+  context: "The script will: ... Write the enriched table to results/sample_output.parquet.\
+    \ Validate the table against the JSON\u2011Schema contract; the script exits with\
+    \ status\u202F0 only if validation succeeds."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The command produces results/sample_output.parquet, which contains all\
+    \ columns required by the mg_dataset.schema.yaml contract and passes JSON\u2011\
+    Schema validation."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:33:50Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: script exits with status 0 only when validation succeeds
+  claim_id: c_3c8a834e
+  context: "Validate the table against the JSON\u2011Schema contract; the script exits\
+    \ with status\u202F0 only if validation succeeds."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The script exits with status\u202F0 only if validation succeeds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:33:50Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: "wall\u2011clock time less than 30 seconds for 100 rows"
+  claim_id: c_3979eaba
+  context: "Expected runtime & resources: Wall\u2011clock time: <\u202F30\u202Fseconds\
+    \ (100 rows). Peak RAM: <\u202F200\u202FMB. CPU cores: 1."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Wall\u2011clock time: <\u202F30\u202Fseconds (100 rows)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:33:50Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: peak RAM less than 200 MB
+  claim_id: c_8b66b48d
+  context: "Expected runtime & resources: Wall\u2011clock time: <\u202F30\u202Fseconds\
+    \ (100 rows). Peak RAM: <\u202F200\u202FMB. CPU cores: 1."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Peak RAM: <\u202F200\u202FMB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:33:50Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: uses 1 CPU core and does not spawn parallel workers
+  claim_id: c_7fbc308e
+  context: "Expected runtime & resources: Wall\u2011clock time: <\u202F30\u202Fseconds\
+    \ (100 rows). Peak RAM: <\u202F200\u202FMB. CPU cores: 1 (the script does not\
+    \ spawn parallel workers)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'CPU cores: 1 (the script does not spawn parallel workers).'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:33:50Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: wall-clock time less than 30 seconds for 100 rows
+  claim_id: c_eff25d1a
+  context: "Expected runtime & resources bullet list includes wall\u2011clock time\
+    \ claim."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Wall\u2011clock time: <\u202F30\u202Fseconds (100 rows)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:35:20Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: peak RAM less than 200 MB
+  claim_id: c_78f0a0bc
+  context: Expected runtime & resources bullet list includes peak RAM claim.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Peak RAM: <\u202F200\u202FMB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:35:20Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: uses 1 CPU core
+  claim_id: c_e5b84a5f
+  context: Expected runtime & resources bullet list includes CPU cores claim.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'CPU cores: 1 (the script does not spawn parallel workers).'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:35:20Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: script does not use parallel workers
+  claim_id: c_d1e42ced
+  context: Expected runtime & resources bullet list mentions no parallel workers.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the script does not spawn parallel workers.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:35:20Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: script exits with status 0 only if validation succeeds
+  claim_id: c_11accabf
+  context: Description of script behavior after validation step.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "the script exits with status\u202F0 only if validation succeeds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:35:20Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: wall clock time less than 30 seconds for 100 rows
+  claim_id: c_74501c8b
+  context: "Expected runtime & resources section lists performance expectations for\
+    \ the quick\u2011start pipeline."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Wall\u2011clock time: <\u202F30\u202Fseconds (100 rows)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T17:21:01Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: peak RAM less than 200 MB
+  claim_id: c_8813dbee
+  context: Expected runtime & resources section lists memory usage for processing
+    100 rows.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Peak RAM: <\u202F200\u202FMB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T17:21:01Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: uses 1 CPU core and does not spawn parallel workers
+  claim_id: c_71df62b6
+  context: Expected runtime & resources section describes CPU usage of the pipeline.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'CPU cores: 1 (the script does not spawn parallel workers).'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T17:21:01Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: script writes enriched table to results/sample_output.parquet
+  claim_id: c_76d432a7
+  context: Run the minimal pipeline section outlines the steps performed by the script.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The script writes the enriched table to results/sample_output.parquet.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T17:21:01Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: output passes JSON schema validation
+  claim_id: c_30ec2af8
+  context: Verification step demonstrates schema validation of the generated parquet
+    file.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The output passes JSON\u2011Schema validation."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T17:21:01Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: output parquet contains all required columns per mg_dataset.schema.yaml
+  claim_id: c_40b982c1
+  context: Run the minimal pipeline section states that the generated file meets the
+    schema contract.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: results/sample_output.parquet contains all columns required by the mg_dataset.schema.yaml
+    contract.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T17:21:01Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: sample_output.parquet passes JSON-Schema validation against mg_dataset.schema.yaml
+  claim_id: c_be9b6fbc
+  context: The command produces results/sample_output.parquet, which contains all
+    columns required by the mg_dataset.schema.yaml contract and passes JSON-Schema
+    validation.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The command produces results/sample_output.parquet, which contains all
+    columns required by the mg_dataset.schema.yaml contract and passes JSON-Schema
+    validation.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T02:21:03Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: wall-clock time for 100 rows is less than 30 seconds
+  claim_id: c_a81799ae
+  context: 'Expected runtime & resources - Wall-clock time: < 30 seconds (100 rows).'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Wall-clock time: < 30 seconds (100 rows).'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T02:21:04Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: peak RAM usage is less than 200 MB
+  claim_id: c_62fc24ef
+  context: 'Expected runtime & resources - Peak RAM: < 200 MB.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Peak RAM: < 200 MB.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T02:21:04Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: Wall-clock time for 100 rows is less than 30 seconds
+  claim_id: c_bd8dd67c
+  context: 'Expected runtime & resources for the minimal pipeline. Wall-clock time:
+    < 30 seconds (100 rows).'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Wall-clock time: < 30 seconds (100 rows).'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T09:10:15Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: Peak RAM usage is less than 200 MB
+  claim_id: c_620d3bfc
+  context: 'Expected runtime & resources for the minimal pipeline. Peak RAM: < 200
+    MB.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Peak RAM: < 200 MB.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T09:10:15Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: produces parquet file with all required columns and passes JSON schema
+    validation
+  claim_id: c_085757af
+  context: "The script will: ... Write the enriched table to `results/sample_output.parquet`.\
+    \ ... Validate the table against the JSON\u2011Schema contract; the script exits\
+    \ with status\u202F0 only if validation succeeds."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The command produces `results/sample_output.parquet`, which contains\
+    \ all columns required by the `mg_dataset.schema.yaml` contract and passes JSON\u2011\
+    Schema validation."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T00:23:37Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: wall-clock time less than 30 seconds for 100 rows
+  claim_id: c_d0f6fa3f
+  context: Expected runtime & resources
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Wall\u2011clock time: <\u202F30\u202Fseconds (100 rows)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T00:23:37Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: peak RAM usage less than 200 MB
+  claim_id: c_a775d3a7
+  context: Expected runtime & resources
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Peak RAM: <\u202F200\u202FMB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T00:23:37Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: uses 1 CPU core and does not spawn parallel workers
+  claim_id: c_6003e8fe
+  context: Expected runtime & resources
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'CPU cores: 1 (the script does not spawn parallel workers).'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T00:23:37Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: script exits with status 0 only on successful validation
+  claim_id: c_ed9ac28c
+  context: "Validate the table against the JSON\u2011Schema contract; the script exits\
+    \ with status\u202F0 only if validation succeeds."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "the script exits with status\u202F0 only if validation succeeds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T00:23:37Z'

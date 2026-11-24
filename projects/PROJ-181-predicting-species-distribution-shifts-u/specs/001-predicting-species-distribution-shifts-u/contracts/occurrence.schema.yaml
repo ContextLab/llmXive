@@ -40,7 +40,7 @@ properties:
     description: "Timestamp of data download."
   dataset_name:
     type: "string"
-    description: "Original dataset name from GBIF (Constitution Principle VI)."
+    description: "Original dataset name from GBIF (Constitution VI)."
 required:
   - gbif_key
   - scientific_name

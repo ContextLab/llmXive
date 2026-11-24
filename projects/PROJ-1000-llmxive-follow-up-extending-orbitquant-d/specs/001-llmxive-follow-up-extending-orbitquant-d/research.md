@@ -1,93 +1,72 @@
 # Research: llmXive follow-up: extending "OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion T"
 
 ## Executive Summary
-
-This research validates the hypothesis that **prompt semantic entropy** (derived from MS-COCO image captions) correlates with **activation variance** in Diffusion Transformers (DiT) **during the generative process**. If confirmed, a dynamic router using pre-optimized rotation matrices (derived from clustering prompts by entropy and analyzing their corresponding **generated** activation histograms) will reduce quantization error (W2A4) for high-entropy prompts without exceeding a minimal runtime overhead.
+We test whether **semantic entropy** of MS‑COCO captions predicts **activation variance** in a Diffusion Transformer (DiT) during generation, and whether that variance predicts quantization error (MSE). A **paired t-test** (via nearest-neighbor matching on covariates) on variance differences between high‑entropy and low‑entropy groups (≥ 800 prompts) **or** a significant Spearman correlation validates the hypothesis and justifies a **dynamic rotation router** that selects one of several pre‑computed rotation matrices based on entropy. The study proceeds through four phases (correlation, matrix generation, router implementation, evaluation) and reports quantitative gains in FID, CLIP, and MSE while keeping inference overhead ≤ 2 %.
 
 ## Dataset Strategy
 
-| Dataset | Source URL | Usage | Verification Status |
-|:--- |:--- |:--- |:--- |
-| **MS-COCO 2017** | ` | Source for **image data** (ground truth) and **prompt text (captions)**. Captions serve as the **sole conditioning input** for the DiT generation. | Verified: Direct parquet link. |
-| **MS-COCO (Alt)** | ` | Fallback source if primary link fails or rate-limited. | Verified: Direct parquet link. |
+| Dataset | Source | Role |
+|---------|--------|------|
+| **MS‑COCO 2017 (images + captions)** | `coco2017` – https://huggingface.co/datasets/coco2017 | Provides image files for activation‑variance measurement, FID/CLIP evaluation, and captions as prompts. |
 
-**Note**: No access-gated datasets (e.g., ADNI, HCP) are used. All data is programmatically downloadable via Hugging Face `datasets` library. The **FLUX Prompts** dataset is **not used**; the study relies on the native captions of the MS-COCO validation set to ensure a 1:1 pairing between prompt and ground-truth image.
+All datasets are publicly downloadable via `datasets.load_dataset`. No gated data are used.
 
 ## Methodological Rigor & Statistical Plan
 
-### 1. Data Point Definition & Pairing Strategy (Corrected)
-To validate the hypothesis that prompt complexity drives activation variance, every data point $(x, y)$ is a paired observation derived from a **text-to-image generation** process:
-- **$x$ (Prompt Entropy)**: Semantic entropy of the MS-COCO image caption.
-- **$y$ (Activation Variance)**: Variance of intermediate activation tensors from the DiT **during the generation of a latent sequence** conditioned **only** on the caption.
-- **Pairing Mechanism**:
- 1. Load MS-COCO parquet: `(image_id, caption, ground_truth_image)`.
- 2. Use `caption` as the **prompt** for the DiT.
- 3. Run DiT **generation** (text-to-image) using the `caption`.
- 4. Measure **Activation Variance** from the intermediate latents of this **generative trajectory**.
- 5. Store the pair `(caption_entropy, activation_variance)` linked by `image_id`.
- 6. Use `ground_truth_image` **only** for the final FID/CLIP evaluation against the generated image.
-- **Rationale**: This ensures the activation variance is a direct function of the prompt's semantic complexity, not an unrelated property of the ground-truth image.
+### 1. Data Point Construction (≥ 800 prompts)
+For each sampled caption (`prompt_id` = COCO `image_id`):
+1. **Semantic Entropy** (FR‑001):  
+   - Generate *S* = 5 paraphrases using `google/t5-v1_1-small` (temperature 0.7).  
+   - Embed original + paraphrases with `sentence-transformers/all-MiniLM-L6-v2`.  
+   - Cluster embeddings into *K* = 3 groups via K‑Means, compute Shannon entropy of the cluster distribution → `semantic_entropy`.  
+   - **Validity Check**: also compute (a) Flesch‑Kincaid readability and (b) perplexity using `google/bert-base-uncased`. Require a statistically significant correlation (p < 0.05) with entropy to pass validation. |
+2. **Covariates**: `prompt_length`, `lexical_richness`, `image_entropy` (pixel‑level Shannon entropy), `syntactic_complexity`. |
+3. **Activation Variance & MSE** (FR‑002, FR‑009):  
+   - Run **Stable Diffusion 2.1** (CPU‑feasible DiT variant) conditioned on the caption (**offloaded to GPU escape hatch**).  
+   - Hook into selected intermediate layers (`self_attn`, `mlp`) and record variance of activation tensors across diffusion timesteps.  
+   - Quantize the same activations with the W2A4 scheme and compute Mean Squared Error (MSE) against the float32 reference. |
+The tuple `(semantic_entropy, activation_variance, mse, prompt_length, lexical_richness, image_entropy, syntactic_complexity)` is saved in `data/processed/pairs.csv`.
 
-### 2. Semantic Entropy Proxy (Corrected)
-- **Problem**: `facebook/bart-large-cnn` is a summarization model and cannot generate diverse paraphrases required for semantic entropy estimation.
-- **Solution**: Use a **generative** proxy model to produce $S$ semantic variations of the prompt.
-- **Proxy Tool**: `sentence-transformers/all-MiniLM-L6-v2` (for clustering) + a small generative model (e.g., `google/t5-v1_1-small` or `mistralai/Mistral-7B-Instruct-v0.2` via `text-generation` with low temperature) to generate $S=5$ paraphrases.
-- **Procedure**:
- 1. Input: Caption $C$.
- 2. Generate $S$ paraphrases $\{P_1,..., P_S\}$ using the generative proxy.
- 3. Embed all $S+1$ texts (including $C$) using `sentence-transformers`.
- 4. Cluster the embeddings using `sklearn.cluster.KMeans` with $K$ (e.g., 3-5) to capture semantic clusters.
- 5. Compute **Semantic Entropy** as the entropy of the cluster distribution: $H = -\sum p_k \log p_k$.
-- **Rationale**: This measures the diversity of semantic meanings the model associates with the prompt, which is the correct definition of semantic entropy for this hypothesis.
+### 2. Power Assurance & Decision Rule (SC‑001)
+A priori G*Power analysis shows that **≥800** prompts give **≥80 %** power to detect an effect size *d* ≥ 0.2 at α = 0.05. If computed power falls below 80 % the pipeline automatically expands to **[deferred]** prompts before proceeding.
 
-### 3. Correlation Analysis (FR-001, FR-002, SC-001)
-- **Hypothesis**: $H_0: \rho = 0$ (No correlation between prompt entropy and activation variance). $H_1: \rho \neq 0$.
-- **Method**:
- 1. Sample $N=200$ diverse images from the MS-COCO 2017 validation set.
- 2. Split data: **[deferred] Train (160)** for clustering/router derivation, **[deferred] Test (40)** for final validation (to avoid circularity).
- 3. Compute **Semantic Entropy** for each caption using the generative proxy (Step 2).
- 4. Run **Float32 Generative Pass** on a DiT (Stable Diffusion 2.1 on CPU; FLUX.1-dev/Wan 2.1 on GPU escape hatch) **conditioned ONLY on the caption**.
- 5. Extract **Activation Variance** from intermediate layers (e.g., attention output, MLP output) of the **generated trajectory**.
- 6. Compute **Pearson Correlation Coefficient ($r$)** and **p-value** between the set of entropy scores and the set of variance scores.
-- **Rigor Check**:
- - **Multiple Comparisons**: If testing multiple layers, apply Bonferroni correction to the p-value threshold.
- - **Collinearity**: If multiple layers are analyzed, report Variance Inflation Factor (VIF) to ensure predictors are not definitionally identical.
- - **Causal Framing**: Claims are strictly associational. No causal inference is made.
+**Decision Rule**: Proceed to router construction if (a) the paired t-test yields *p* < 0.05 **or** (b) the observed effect size (Cohen’s d or rank‑biserial) ≥ 0.2, satisfying the power‑assured threshold.
 
-### 4. Dynamic Router Construction (FR-003, FR-004) - Non-Circular
-- **Training Phase ([deferred] Data)**:
- 1. **Cluster by Predictor**: Cluster the 160 training prompts into $K=16$ bins based **solely on their Semantic Entropy ($x$)** using K-Means on the entropy values. This defines the router's decision boundaries.
- 2. **Derive Matrices**: For each entropy bin, collect the activation histograms of the **generated trajectories** corresponding to that bin. Compute the cluster centroid of these histograms and derive the orthogonal rotation matrix $M_i$ for each bin $i$.
- 3. **Lookup Table**: Build a table mapping Entropy Range $[min_i, max_i]$ to Matrix $M_i$.
-- **Inference Phase (Test Data)**:
- - Map new prompt entropy (from the [deferred] test set) to the nearest bin index (clamping to [0, 15]).
- - Apply selected rotation matrix before W2A4 quantization.
-- **Validation**: Evaluate the router's performance on the **held-out [deferred] test set** to ensure the mapping is predictive and not memorized.
+### 3. Correlation & Paired T-Test (FR‑010, SC‑001, VI)
 
-### 5. Evaluation & Overhead (FR-006, FR-007, FR-008, SC-002, SC-003, SC-004)
-- **Metrics**: FID, CLIP Score, MSE (quantization error).
-- **Statistical Test**: Paired t-test (Dynamic vs. Static) on metric distributions. Threshold: $p < 0.05$.
-- **Overhead**: Measure wall-clock time. Target: $\le 2\%$ increase.
-- **Sensitivity Analysis (SC-005)**: Sweep entropy cut-offs by $\pm 5\%$ and report FID variance.
+- **Paired t-test**: Split the 800 prompts into **high‑entropy** (top X %) and **low‑entropy** (bottom X %) groups. Match each high‑entropy prompt to a low‑entropy prompt on `prompt_length` and `lexical_richness` (nearest‑neighbor on the covariate vector). Compute variance difference for each pair and run a two‑tailed paired t‑test (or Wilcoxon signed‑rank if Shapiro‑Wilk rejects normality). Apply Bonferroni correction across the *L* measured layers (α_adj = 0.05 / L).
+- **Spearman Correlation**: Compute Spearman ρ between entropy and activation variance, controlling for the four covariates via partial correlation. Apply Bonferroni across layers.  
+- **Variance‑MSE Correlation**: Compute Spearman ρ between activation variance and MSE to validate the variance‑sensitivity hypothesis.  
+- **Collinearity Diagnostics**: Calculate VIF for the set of layer variances; report any VIF > 5.  
+All results are logged to `data/processed/logs/correlation_log.json`.
+
+### 4. Dynamic Router Construction (FR‑003‑FR‑005, VI)
+
+- **Training split**: 600 prompts (subset of the 800).  
+- **Clustering**: K‑Means on `semantic_entropy` → an appropriate set of entropy bins.; record boundaries in `data/processed/clustering_report.json`.  
+- **Matrix Derivation**: For each bin, aggregate activation histograms, compute the principal‑component rotation that aligns the centroid → orthogonal matrix `M_i`. Save as `.npy` and accompanying JSON metadata (`rotation_matrix_schema`). Validate the JSON against the schema immediately after generation.  
+- **Lookup Table**: The `clustering_report.json` serves as the lookup table, mapping entropy ranges to matrix indices.
+
+### 5. Evaluation (FR‑006‑FR‑009, SC‑002‑SC‑005)
+
+- **Test split**: 200 **unseen** prompts (distinct from the 800‑prompt pool).  
+- Generate images with **static baseline** and **dynamic router** (**offloaded to GPU escape hatch**).  
+- Compute **FID** (`fid-score` CPU fork), **CLIP** (`clip-score` CPU fork), **MSE**, and **inference_time_ms** (wall‑clock).  
+- **Statistical Tests**: For each metric, assess normality (Shapiro‑Wilk). If normal, run a paired t‑test; otherwise, use Wilcoxon signed‑rank. Apply Bonferroni across the four metrics (α_adj = 0.05 / 4).  
+- **Sensitivity Sweep**: Shift each entropy boundary by ±5 % of the total entropy range, recompute FID across multiple random seeds, report σ of FID scores.  
+
+### 6. Reporting
+All figures (scatter plots, entropy histograms, boxplots) are saved under `figures/`. Tables are derived from `data/processed/results.csv`. Each figure/table traces back to a single row in that CSV (Single Source of Truth).
 
 ## Compute Feasibility & Hardware Strategy
+- **CPU‑first**: Entropy proxy, validation, clustering, correlation, and metric computation run on the GitHub Actions runner; data streamed to keep RAM < 6 GB.  
+- **GPU Escape Hatch**: All DiT forward passes, including variance measurement (Phase 0) and image generation (Phase 3), use `flux_wan_loader.py` with `device="cuda"` and `load_in_8bit=True` on Kaggle; the same script runs unchanged on the CI runner, which will off‑load to Kaggle if CUDA is unavailable.
 
-### CPU-First Approach
-- **Routing & Analysis**: All entropy calculation, clustering, correlation, and metric computation (FID/CLIP via CPU-optimized libraries) will run on the GitHub Actions CPU runner (multi-core, multi-GB RAM).
-- **Data Streaming**: MS-COCO parquet files will be streamed (`datasets.load_dataset(..., streaming=True)`) to avoid loading the full dataset into RAM. Statistics will be accumulated online.
+## Edge‑Case Handling (as implemented)
+| Situation | Policy |
+|-----------|--------|
+| Entropy out‑of‑range | Clamp to nearest bin (0 or 15). |
+| Activation variance outlier (z‑score > 3) | Log to `figures/outlier_log.png`; router defaults to median matrix (index 8). |
+| Entropy proxy failure (timeout/error) | Log to `data/processed/logs/proxy_failures.json`; router falls back to static baseline (median matrix). |
 
-### GPU Escape Hatch (Kaggle)
-- **Trigger**: If the selected DiT (FLUX.1-dev or Wan 2.1) fails to load or run on CPU due to memory constraints, the execution stage will automatically offload to a Kaggle GPU.
-- **Scaled Down**:
- - Model: 8-bit quantized loading (`load_in_8bit`) if available, or full precision but limited to a small subset (e.g., a representative sample) for the correlation study.
- - Steps: Minimal diffusion steps (e.g., a small number) if full generation is required for FID, or use a proxy metric if full generation is too slow.
- - **Rationale**: A faithful CPU approximation of a large-scale parameter DiT generation pass is impossible. The GPU escape hatch allows the *real* computation on a scaled dataset, avoiding fabrication.
-
-## Edge Case Handling
-- **Entropy Out-of-Range**: Clamp to nearest boundary (Index 0 or 15).
-- **Activation Outliers**: Log and default to median rotation matrix.
-- **Proxy Failure**: Fallback to static OrbitQuant (median index).
-
-## Data Hygiene & Versioning
-- **Artifact Tracking**: All raw and processed data files are checksummed (SHA-256) and recorded in `state/artifact_hashes.json`.
-- **Clustering Report**: A `data/processed/clustering_report.json` file will be generated containing the exact layers, subsets, and boundaries used for the 16 matrices. This file is a mandatory gate for Phase 2.
+All logs are stored under `data/processed/logs/`.

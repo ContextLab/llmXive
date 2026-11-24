@@ -1,65 +1,100 @@
 """
-Structured logger for the llmXive pipeline.
-Produces JSON lines for machine-readability and tracks pipeline statistics.
+Utility module for pipeline logging.
+
+Provides functions to set up a JSON‑lines logger that writes to
+``logs/pipeline.jsonl`` and a helper to retrieve named loggers.
 """
-import logging
+
 import json
-import sys
+import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict
 
-class JsonFormatter(logging.Formatter):
-    """Custom formatter to output logs as JSON lines."""
-    def format(self, record):
-        log_record = {
-            "timestamp": self.formatTime(record, self.datefmt),
-            "level": record.levelname,
-            "name": record.name,
-            "message": record.getMessage(),
-        }
-        if record.exc_info:
-            log_record["exception"] = self.formatException(record.exc_info)
-        return json.dumps(log_record)
+# Global handler reference to avoid duplicate handlers on repeated calls
+_pipeline_handler: logging.Handler | None = None
 
-# Global statistics counters
-_stats = {"processed": 0, "skipped": 0}
-
-def setup_pipeline_logging():
+def _json_log_record(record: logging.LogRecord) -> Dict[str, Any]:
     """
-    Configures the root logger to output JSON lines to both a file 
-    and the console.
+    Convert a LogRecord into a JSON‑serialisable dict.
     """
-    log_dir = Path("logs")
-    log_dir.mkdir(parents=True, exist_ok=True)
-    log_file = log_dir / "pipeline.log"
+    # Basic fields
+    log_entry: Dict[str, Any] = {
+        "timestamp": record.created,
+        "level": record.levelname,
+        "name": record.name,
+        "message": record.getMessage(),
+    }
+    # Include any extra fields passed via the ``extra`` argument
+    extra = {
+        key: value
+        for key, value in record.__dict__.items()
+        if key not in logging.LogRecord.__dict__ and key not in ("args", "msg", "levelname", "levelno", "pathname", "filename", "module", "exc_info", "exc_text", "stack_info", "lineno", "funcName", "created", "msecs", "relativeCreated", "thread", "threadName", "processName", "process")
+    }
+    if extra:
+        log_entry["extra"] = extra
+    return log_entry
 
-    # Create root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.INFO)
+class _JsonLineHandler(logging.FileHandler):
+    """
+    Logging handler that writes each record as a single line of JSON.
+    """
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            json_line = json.dumps(_json_log_record(record), ensure_ascii=False)
+            stream = self.stream
+            stream.write(json_line + "\n")
+            self.flush()
+        except Exception:
+            self.handleError(record)
 
-    # Clear existing handlers
-    if root_logger.hasHandlers():
-        root_logger.handlers.clear()
+def setup_pipeline_logging() -> None:
+    """
+    Configure the root logger to write JSON‑lines to ``logs/pipeline.jsonl``.
+    This function is idempotent – calling it multiple times will not add
+    duplicate handlers.
+    """
+    global _pipeline_handler
 
-    # JSON File Handler
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setFormatter(JsonFormatter())
-    root_logger.addHandler(file_handler)
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
 
-    # Console Handler (Human readable)
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(name)s: %(message)s')
-    console_handler.setFormatter(console_formatter)
-    root_logger.addHandler(console_handler)
+    if _pipeline_handler is not None:
+        # Handler already attached
+        return
 
-def increment_pr_processed(n: int = 1):
-    """Increment the global count of processed pull requests."""
-    _stats["processed"] += n
+    # Ensure the logs directory exists
+    logs_path = Path("logs")
+    logs_path.mkdir(parents=True, exist_ok=True)
 
-def increment_pr_skipped(n: int = 1):
-    """Increment the global count of skipped pull requests."""
-    _stats["skipped"] += n
+    # Create and attach the JSON‑lines handler
+    handler = _JsonLineHandler(logs_path / "pipeline.jsonl", encoding="utf-8")
+    formatter = logging.Formatter("%(message)s")  # Message is already JSON
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    _pipeline_handler = handler
 
 def get_logger(name: str) -> logging.Logger:
-    """Return a logger instance for the given name."""
+    """
+    Retrieve (or create) a named logger. The logger inherits the JSON‑lines
+    configuration set up by :func:`setup_pipeline_logging`.
+    """
     return logging.getLogger(name)
+
+# Simple counters for PR processing statistics – used by the CLI
+_processed_counter = 0
+_skipped_counter = 0
+
+def increment_pr_processed() -> None:
+    """Increment the counter of successfully processed PRs."""
+    global _processed_counter
+    _processed_counter += 1
+
+def increment_pr_skipped() -> None:
+    """Increment the counter of PRs that were skipped (e.g., due to timeout)."""
+    global _skipped_counter
+    _skipped_counter += 1
+
+def get_pr_counters() -> Dict[str, int]:
+    """Return the current processing counters (useful for reporting)."""
+    return {"processed": _processed_counter, "skipped": _skipped_counter}

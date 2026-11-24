@@ -1,16 +1,18 @@
 status: none
-intent: download Human Connectome Project 1200 subjects dataset via nilearn python
-  package dataset
+intent: Human Connectome Project 1200 Subjects Release download Python package dataset
 required_fields:
 - subject_id
-- modality
+- session_id
+- run_id
 - task_name
-- run_number
+- acquisition_type (resting-state or task)
 - nifti_file_path
-- TR
+- TR (repetition time)
 - voxel_dimensions
-- scanner_model
-- acquisition_date
-cache_key: 5a08f2797854898416457a7f2154f1d07a118553452e23db4ddda09af3b899eb
-searched_at: '2026-08-29T04:55:27.157652+00:00'
+- brain_mask_path
+- metadata_json
+- power_264_atlas_node_id
+- power_264_node_coordinates
+cache_key: 3b8d88622e7281b371bcbdae673fee955796498d7d825fb1b5f15208260ecbae
+searched_at: '2026-10-12T14:21:13.951385+00:00'
 retry_count: 1

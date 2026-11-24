@@ -1,387 +1,309 @@
 """
-Sieve module for computing Euler's totient function and residue distributions.
-Implements linear sieve with arbitrary-precision integers and memory guarding.
+Sieve module for Euler's totient function and residue aggregation.
+
+Provides the core linear sieve implementation, residue counting, and
+deterministic JSON persistence required by the pipeline.  The module
+uses :class:`memory_guard.MemoryGuard` to enforce the memory limit
+during the sieve and raises :class:`exceptions.MemoryLimitExceeded`
+when the limit is breached.  It also detects logical inconsistencies
+in the totient computation and halts execution, logging the offending
+index ``n`` before raising :class:`exceptions.TotientError`.
 """
-import os
+
+from __future__ import annotations
+
 import json
-import random
-import time
 import logging
-import psutil
-from typing import List, Dict, Tuple, Optional, Any
-from dataclasses import dataclass, asdict
+import random
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-# Import exceptions
-from exceptions import FatalSieveError, ResearchIncompleteError, BenchmarkFailure
+from memory_guard import MemoryGuard
+from exceptions import InvalidPrimeError, MemoryLimitExceeded, TotientError
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('logs/sieve.log', mode='a')
-    ]
-)
-logger = logging.getLogger(__name__)
+# ----------------------------------------------------------------------
+# Legacy helper – retained for compatibility with older code paths.
+# ----------------------------------------------------------------------
+def pin_random_seed(seed: int) -> None:
+    """
+    Pin the global ``random`` seed (legacy helper).
 
-# --- Data Classes ---
+    Parameters
+    ----------
+    seed : int
+        Seed value for the standard library ``random`` module.
+    """
+    random.seed(seed)
 
+# ----------------------------------------------------------------------
+# Simple error logger used throughout the module.
+# ----------------------------------------------------------------------
+def log_error(message: str, n: Optional[int] = None) -> None:
+    """
+    Log an error message. If ``n`` is supplied, include it in the log.
+
+    Parameters
+    ----------
+    message : str
+        Human‑readable description of the error.
+    n : int, optional
+        Iteration index or identifier where the error occurred.
+    """
+    logger = logging.getLogger(__name__)
+    if n is not None:
+        logger.error("%s (at n=%s)", message, n)
+    else:
+        logger.error(message)
+
+# ----------------------------------------------------------------------
+# Data model for a residue dataset.
+# ----------------------------------------------------------------------
 @dataclass
 class ResidueDataset:
-    """Data container for residue counts."""
-    prime_modulus: int
-    total_count: int
+    """
+    Simple container for the residues of φ(n) modulo a prime.
+
+    Attributes
+    ----------
+    prime : int
+        The modulus used.
+    N : int
+        Number of integers processed (range 1…N).
+    frequency_map : Dict[int, int]
+        Mapping ``residue → count``.
+    """
+    prime: int
+    N: int
     frequency_map: Dict[int, int]
 
-@dataclass
-class StatisticalResult:
-    """Data container for statistical test results."""
-    test_type: str
-    p_value: float
-    method: str
-    degrees_of_freedom: int
-    error_term_residual: float
-    chi_squared_statistic: float
-    chi_squared_p_value: float
-    block_bootstrap_p_value: float
-    pass_fail_flag: bool
-    bonferroni_pass_fail_flag: bool
-    elapsed_time: float
+    def to_json(self) -> str:
+        """Serialise the dataset to a JSON string with deterministic ordering."""
+        data = {
+            "prime": self.prime,
+            "N": self.N,
+            "frequency_map": {str(k): v for k, v in sorted(self.frequency_map.items())},
+        }
+        return json.dumps(data, sort_keys=True, separators=(",", ":"))
 
-# --- Seed Management ---
-
-def pin_random_seed(seed: int) -> None:
-    """Pin random seeds for reproducibility."""
-    random.seed(seed)
-    try:
-        import numpy as np
-        np.random.seed(seed)
-    except ImportError:
-        pass
-
-def is_seed_pinned() -> bool:
-    """Check if a seed has been pinned (basic check)."""
-    # In a real scenario, we'd check a global flag or state
-    return True
-
-def get_current_seed() -> int:
-    """Get the current random seed."""
-    return random.getstate()[1][1]
-
-# --- Logging Utilities ---
-
-def log_error(n: int, error_message: str) -> None:
-    """Log a specific error at integer n."""
-    logger.error(f"Sieve failure at n={n}: {error_message}")
-
-# --- Memory Guard ---
-
-class MemoryGuard:
-    """Monitors memory usage and enforces limits."""
-    def __init__(self, limit_mb: int, check_interval: int = 10000):
-        self.limit_mb = limit_mb
-        self.limit_bytes = limit_mb * 1024 * 1024
-        self.check_interval = check_interval
-        self.last_check_index = 0
-
-    def check(self, current_index: int) -> None:
-        """Check memory usage. Raises if limit exceeded."""
-        if current_index - self.last_check_index >= self.check_interval:
-            mem = psutil.virtual_memory()
-            usage_percent = mem.percent
-            usage_bytes = mem.used
-
-            if usage_percent >= 90:
-                logger.warning(f"Memory usage critical: {usage_percent:.1f}% ({usage_bytes / (1024*1024):.1f} MB)")
-            
-            if usage_bytes >= self.limit_bytes:
-                raise MemoryError(f"Memory limit exceeded: {usage_bytes / (1024*1024):.1f} MB >= {self.limit_mb} MB")
-            
-            self.last_check_index = current_index
-
-# --- Core Sieve Logic ---
-
-def compute_phi_linear_sieve(N: int, config: Dict[str, Any]) -> List[int]:
+# ----------------------------------------------------------------------
+# Linear sieve for Euler's totient function.
+# ----------------------------------------------------------------------
+def compute_phi_linear_sieve(
+    N: int, memory_guard: Optional[MemoryGuard] = None
+) -> List[int]:
     """
-    Compute Euler's totient function phi(n) for all n in [1, N] using a linear sieve.
-    Uses Python's native int (arbitrary precision).
-    Includes timing instrumentation and logging per 10,000 iterations.
-    
-    Args:
-        N: Upper bound (inclusive)
-        config: Configuration dictionary containing 'seed' and 'memory_limit_mb'
-    
-    Returns:
-        List of phi values where index i corresponds to phi(i) (0-th index unused)
+    Compute φ values for all ``1 ≤ n ≤ N`` using the classic O(N) linear sieve.
+
+    The implementation detects logical errors (e.g. a totient value of
+    zero for ``n > 1``) and halts execution, logging the offending ``n``
+    before raising :class:`exceptions.TotientError`.
+
+    Parameters
+    ----------
+    N : int
+        Upper bound of the range (inclusive). Must be ≥ 1.
+    memory_guard : MemoryGuard, optional
+        Guard that is polled every 10 000 iterations.  If the guard
+        signals that memory usage exceeds the configured limit, a
+        :class:`MemoryLimitExceeded` exception is raised.
+
+    Returns
+    -------
+    List[int]
+        List ``phi`` where ``phi[i]`` equals ``φ(i)`` for ``0 ≤ i ≤ N``.
+        ``phi[0]`` is set to ``0`` for convenience.
+
+    Raises
+    ------
+    ValueError
+        If ``N`` is less than 1.
+    MemoryLimitExceeded
+        Propagated from the ``MemoryGuard`` when the memory threshold is crossed.
+    TotientError
+        If a logical inconsistency is detected in the totient values.
     """
-    pin_random_seed(config.get('seed', 42))
-    memory_limit = config.get('memory_limit_mb', 7000)
-    guard = MemoryGuard(memory_limit, check_interval=10000)
-    
-    phi = [0] * (N + 1)
+    if N < 1:
+        raise ValueError("N must be a positive integer")
+
+    phi: List[int] = [0] * (N + 1)
     phi[1] = 1
-    primes = []
-    is_prime = [True] * (N + 1)
-    
-    # Timing instrumentation
-    start_total = time.time()
-    last_log_time = start_total
-    last_log_index = 0
-    iteration_count = 0
-    
-    logger.info(f"Starting linear sieve for N={N}")
-    
-    try:
-        for i in range(2, N + 1):
-            # Memory check
-            guard.check(i)
-            
-            if is_prime[i]:
-                primes.append(i)
-                phi[i] = i - 1
-            
-            for p in primes:
-                if i * p > N:
-                    break
-                is_prime[i * p] = False
-                if i % p == 0:
-                    phi[i * p] = phi[i] * p
-                    break
-                else:
-                    phi[i * p] = phi[i] * (p - 1)
-            
-            # Timing and logging instrumentation
-            iteration_count += 1
-            if iteration_count % 10000 == 0:
-                current_time = time.time()
-                elapsed_since_log = current_time - last_log_time
-                elapsed_total = current_time - start_total
-                
-                # Calculate rate
-                rate = 10000 / elapsed_since_log if elapsed_since_log > 0 else 0
-                eta_remaining = (N - i) / rate if rate > 0 else 0
-                
-                logger.info(f"Sieve Progress: {i:,} / {N:,} | "
-                            f"Last 10k took: {elapsed_since_log:.2f}s | "
-                            f"Rate: {rate:,.0f} iters/s | "
-                            f"ETA: {eta_remaining:.1f}s | "
-                            f"Total Time: {elapsed_total:.2f}s")
-                
-                last_log_time = current_time
-                last_log_index = i
+    primes: List[int] = []
 
-    except MemoryError as e:
-        logger.error(f"Memory guard triggered: {e}")
-        raise
-    except Exception as e:
-        log_error(i, str(e))
-        raise FatalSieveError(i, f"Unexpected error in sieve: {str(e)}")
-    
-    total_elapsed = time.time() - start_total
-    logger.info(f"Sieve completed. Total time: {total_elapsed:.2f}s")
-    
+    for i in range(2, N + 1):
+        if phi[i] == 0:
+            # i is prime
+            phi[i] = i - 1
+            primes.append(i)
+
+            # Sanity check: a prime's totient must be i-1 (>0)
+            if phi[i] <= 0:
+                log_error("Totient computation error: phi is non‑positive for prime", i)
+                raise TotientError(f"Totient error at n={i}")
+
+        for p in primes:
+            if i * p > N:
+                break
+            if i % p == 0:
+                phi[i * p] = phi[i] * p
+                # Consistency check for the composite case where p divides i
+                if phi[i * p] <= 0:
+                    log_error("Totient computation error: non‑positive phi for composite", i * p)
+                    raise TotientError(f"Totient error at n={i * p}")
+                break
+            else:
+                phi[i * p] = phi[i] * (p - 1)
+                if phi[i * p] <= 0:
+                    log_error("Totient computation error: non‑positive phi for composite", i * p)
+                    raise TotientError(f"Totient error at n={i * p}")
+
+        # Poll the memory guard at the configured interval.
+        if memory_guard is not None:
+            memory_guard.check(iteration=i)
+
+    # Final sanity check: ensure no phi entry (except phi[0]) is zero.
+    for n in range(2, N + 1):
+        if phi[n] == 0:
+            log_error("Totient computation error: phi remains zero", n)
+            raise TotientError(f"Totient error at n={n}")
+
     return phi
 
-def compute_residues(phi_values: List[int], prime: int) -> Dict[int, int]:
+# ----------------------------------------------------------------------
+# Residue aggregation.
+# ----------------------------------------------------------------------
+_SUPPORTED_PRIMES = {3, 5, 7, 11}
+
+def compute_residues(phi_vals: List[int], prime: int) -> Dict[int, int]:
     """
-    Compute residue counts for phi(n) mod prime.
-    
-    Args:
-        phi_values: List of phi values from compute_phi_linear_sieve
-        prime: The prime modulus
-    
-    Returns:
-        Dictionary mapping residue -> count
+    Aggregate residues of ``phi_vals`` modulo ``prime``.
+
+    Parameters
+    ----------
+    phi_vals : List[int]
+        List of totient values as returned by ``compute_phi_linear_sieve``.
+    prime : int
+        Modulus (must be one of the supported small primes).
+
+    Returns
+    -------
+    Dict[int, int]
+        Mapping ``residue → count`` for all residues ``0 … prime‑1``.
+        The sum of all counts equals ``len(phi_vals) - 1`` (entry 0 is
+        the unused placeholder for n=0).
+
+    Raises
+    ------
+    InvalidPrimeError
+        If ``prime`` is not one of the supported primes {3, 5, 7, 11}.
     """
-    counts = {r: 0 for r in range(prime)}
-    for val in phi_values[1:]:  # Skip index 0
-        residue = val % prime
+    if prime not in _SUPPORTED_PRIMES:
+        raise InvalidPrimeError(
+            f"Unsupported prime {prime}. Supported primes are {sorted(_SUPPORTED_PRIMES)}"
+        )
+
+    counts: Dict[int, int] = {r: 0 for r in range(prime)}
+    # phi_vals[0] is a placeholder; start from index 1.
+    for n in range(1, len(phi_vals)):
+        residue = phi_vals[n] % prime
         counts[residue] += 1
     return counts
 
-# --- Data I/O ---
+# ----------------------------------------------------------------------
+# Deterministic JSON persistence.
+# ----------------------------------------------------------------------
+def save_residue_dataset(
+    residue_counts: Dict[int, int],
+    prime: int,
+    N: int,
+    filepath: str,
+) -> None:
+    """
+    Persist a ``ResidueDataset`` as JSON.
 
-def save_residue_dataset(dataset: ResidueDataset, filepath: str) -> None:
-    """Save residue dataset to JSON."""
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    with open(filepath, 'w') as f:
-        json.dump(asdict(dataset), f, indent=2)
-    logger.info(f"Saved residue dataset to {filepath}")
+    The output uses ``sort_keys=True`` and writes integer keys as strings
+    to guarantee deterministic byte‑wise output across runs.
 
+    Parameters
+    ----------
+    residue_counts : Dict[int, int]
+        Frequency map produced by ``compute_residues``.
+    prime : int
+        Modulus used for the computation.
+    N : int
+        Number of integers processed.
+    filepath : str
+        Destination file path (parent directories are created if needed).
+    """
+    dataset = ResidueDataset(prime=prime, N=N, frequency_map=residue_counts)
+    path = Path(filepath)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    # Use the deterministic ``to_json`` method.
+    with path.open("w", encoding="utf-8") as f:
+        f.write(dataset.to_json())
+
+# ----------------------------------------------------------------------
+# Loading a residue dataset.
+# ----------------------------------------------------------------------
 def load_residue_dataset(filepath: str) -> ResidueDataset:
-    """Load residue dataset from JSON."""
-    with open(filepath, 'r') as f:
-        data = json.load(f)
-    return ResidueDataset(**data)
-
-def save_statistical_result(result: StatisticalResult, filepath: str) -> None:
-    """Save statistical result to JSON."""
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    with open(filepath, 'w') as f:
-        json.dump(asdict(result), f, indent=2)
-    logger.info(f"Saved statistical result to {filepath}")
-
-def load_statistical_result(filepath: str) -> StatisticalResult:
-    """Load statistical result from JSON."""
-    with open(filepath, 'r') as f:
-        data = json.load(f)
-    return StatisticalResult(**data)
-
-# --- Analysis Helpers (Placeholder implementations for completeness based on API surface) ---
-
-def load_residue_sequence_from_json(filepath: str) -> List[int]:
-    """Load residue sequence from JSON file."""
-    data = load_residue_dataset(filepath)
-    # Reconstruct sequence? Or just return counts? 
-    # Based on API, likely returns counts or a reconstructed list if needed.
-    # For now, return frequency map values as a list if sequence not stored.
-    # Assuming we might need the sequence for bootstrap, but dataset only stores counts.
-    # If full sequence is needed, it should be stored differently.
-    # Let's assume this function returns the counts for now or a dummy sequence if not stored.
-    # Actually, looking at T017, we need the sequence. 
-    # If the dataset only stores counts, we can't reconstruct the sequence without the original phi.
-    # We will assume the input to stats is the counts, and if sequence is needed, it's passed separately.
-    # However, the API says "load_residue_sequence_from_json".
-    # Let's implement it to return a list of residues if we had the data, 
-    # but since we only have counts, we'll raise a note or return counts if that's the intent.
-    # Given the constraints, we'll return the frequency map values as a list of counts.
-    return list(data.frequency_map.values())
-
-def load_sequence_from_file(filepath: str) -> List[int]:
-    """Load sequence from file."""
-    # Implementation depends on file format, assuming JSON list
-    with open(filepath, 'r') as f:
-        return json.load(f)
-
-def get_residue_sequence_from_json(filepath: str) -> List[int]:
-    """Get residue sequence from JSON."""
-    return load_residue_sequence_from_json(filepath)
-
-def get_observed_counts_from_json(filepath: str) -> Dict[int, int]:
-    """Get observed counts from JSON."""
-    data = load_residue_dataset(filepath)
-    return data.frequency_map
-
-def calculate_theoretical_bounds(prime: int, N: int, config: Dict[str, Any]) -> Dict[str, float]:
-    """Calculate theoretical error bounds."""
-    # Placeholder for actual formula from T027a
-    # Returns a dict with bounds
-    return {"lower": 0.0, "upper": 0.0}
-
-def calculate_deviation_D(observed_counts: Dict[int, int], prime: int, N: int) -> float:
-    """Calculate deviation metric D."""
-    expected = N / prime
-    max_dev = 0
-    for count in observed_counts.values():
-        dev = abs(count - expected)
-        if dev > max_dev:
-            max_dev = dev
-    return max_dev
-
-def check_bin_counts_and_fallback(residue_counts: Dict[int, int], prime: int) -> Tuple[bool, str]:
-    """Check bin counts and determine fallback method."""
-    N = sum(residue_counts.values())
-    expected = N / prime
-    if expected < 5:
-        return True, "exact_test"
-    return False, "chi_squared"
-
-def calculate_chi_squared_statistic_D(observed_counts: Dict[int, int], prime: int) -> float:
-    """Calculate Chi-squared statistic."""
-    N = sum(observed_counts.values())
-    expected = N / prime
-    chi_sq = 0
-    for count in observed_counts.values():
-        chi_sq += (count - expected) ** 2 / expected
-    return chi_sq
-
-def run_chi_squared_goodness_of_fit(observed_counts: Dict[int, int], prime: int) -> float:
-    """Run Chi-squared goodness of fit test."""
-    chi_sq = calculate_chi_squared_statistic_D(observed_counts, prime)
-    # Approximate p-value calculation
-    # In real code, use scipy.stats.chi2.sf
-    return 0.0 # Placeholder
-
-def block_bootstrap_residues(residue_sequence: List[int], block_size: int, num_samples: int) -> List[float]:
-    """Perform block bootstrap on residue sequence."""
-    # Placeholder
-    return [0.0] * num_samples
-
-def run_block_bootstrap_deviation_test(observed_counts: Dict[int, int], prime: int, N: int, config: Dict[str, Any]) -> float:
-    """Run block bootstrap deviation test."""
-    # Placeholder
-    return 0.0
-
-def calculate_error_term_residual(D_obs: float, E_bound: float) -> float:
-    """Calculate error term residual."""
-    if E_bound == 0:
-        return float('inf')
-    return D_obs / E_bound
-
-def run_full_statistical_analysis(observed_counts: Dict[int, int], prime: int, N: int, config: Dict[str, Any]) -> StatisticalResult:
-    """Run full statistical analysis."""
-    # Placeholder implementation
-    return StatisticalResult(
-        test_type="full",
-        p_value=0.0,
-        method="block_bootstrap",
-        degrees_of_freedom=prime-1,
-        error_term_residual=0.0,
-        chi_squared_statistic=0.0,
-        chi_squared_p_value=0.0,
-        block_bootstrap_p_value=0.0,
-        pass_fail_flag=True,
-        bonferroni_pass_fail_flag=True,
-        elapsed_time=0.0
-    )
-
-def run_sieve_analysis(N: int, primes: List[int], config: Dict[str, Any]) -> None:
     """
-    Main entry point to run sieve analysis for given primes.
-    Computes phi, residues, and saves results.
+    Load a ``ResidueDataset`` from a JSON file.
+
+    Parameters
+    ----------
+    filepath : str
+        Path to the JSON file.
+
+    Returns
+    -------
+    ResidueDataset
     """
-    logger.info(f"Running sieve analysis for N={N}, primes={primes}")
-    
-    phi_values = compute_phi_linear_sieve(N, config)
-    
+    with open(filepath, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # Keys in the JSON are stored as strings; convert back to ints.
+    freq_map = {int(k): int(v) for k, v in data["frequency_map"].items()}
+    return ResidueDataset(prime=int(data["prime"]), N=int(data["N"]), frequency_map=freq_map)
+
+# ----------------------------------------------------------------------
+# End‑to‑end sieve analysis for a collection of primes.
+# ----------------------------------------------------------------------
+def run_sieve_analysis(
+    N: int,
+    primes: List[int],
+    output_dir: str,
+    memory_guard: Optional[MemoryGuard] = None,
+) -> Dict[int, Dict[str, Any]]:
+    """
+    Run the sieve for a list of primes, saving each result.
+
+    Parameters
+    ----------
+    N : int
+        Upper bound of the range (inclusive).
+    primes : List[int]
+        List of prime moduli to process.
+    output_dir : str
+        Directory in which to write the JSON residue files.
+    memory_guard : MemoryGuard, optional
+        Guard used during the totient computation.
+
+    Returns
+    -------
+    Dict[int, Dict[str, Any]]
+        Mapping ``prime → {status: 'success'|'failed', 'path': <filepath>}``.
+    """
+    results: Dict[int, Dict[str, Any]] = {}
+    # Compute φ once – reuse for all primes.
+    phi_vals = compute_phi_linear_sieve(N, memory_guard=memory_guard)
+
     for prime in primes:
-        logger.info(f"Computing residues for prime {prime}")
-        counts = compute_residues(phi_values, prime)
-        
-        dataset = ResidueDataset(
-            prime_modulus=prime,
-            total_count=N,
-            frequency_map=counts
-        )
-        
-        output_path = f"data/raw/residues_{prime}_{N}.json"
-        save_residue_dataset(dataset, output_path)
-        
-        # Run statistical analysis
-        stats_result = run_full_statistical_analysis(counts, prime, N, config)
-        stats_path = f"data/processed/stats_{prime}_{N}.json"
-        save_statistical_result(stats_result, stats_path)
-        
-        logger.info(f"Completed analysis for prime {prime}")
-
-# --- CLI Entry Point for Testing ---
-if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description="Run Sieve Analysis")
-    parser.add_argument('--N', type=int, default=1000000, help="Upper bound N")
-    parser.add_argument('--primes', type=int, nargs='+', default=[3, 5, 7, 11], help="Primes to analyze")
-    parser.add_argument('--seed', type=int, default=42, help="Random seed")
-    parser.add_argument('--memory_limit_mb', type=int, default=7000, help="Memory limit in MB")
-    
-    args = parser.parse_args()
-    
-    config = {
-        'N': args.N,
-        'primes': args.primes,
-        'seed': args.seed,
-        'memory_limit_mb': args.memory_limit_mb,
-        'memory_check_interval': 10000
-    }
-    
-    run_sieve_analysis(args.N, args.primes, config)
+        try:
+            residues = compute_residues(phi_vals, prime)
+            out_path = Path(output_dir) / f"residues_{prime}_{N}.json"
+            save_residue_dataset(residues, prime, N, str(out_path))
+            results[prime] = {"status": "success", "path": str(out_path)}
+        except Exception as exc:
+            # Record failure but continue with other primes.
+            results[prime] = {"status": "failed", "error": str(exc)}
+    return results

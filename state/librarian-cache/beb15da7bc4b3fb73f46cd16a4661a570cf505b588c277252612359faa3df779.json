@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-07T12:45:08Z",
+  "fetched_at": "2026-10-21T19:11:25Z",
   "field": "psychology",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,96 @@
       "idea_body_excerpt": "Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis",
       "target_n": 5
     },
-    "duration_seconds": 37.193,
-    "ended_at": "2026-07-07T12:45:08Z",
+    "duration_seconds": 147.663,
+    "ended_at": "2026-10-21T19:11:25Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "Virtual reality therapy for anxiety disorders"
+          "virtual reality exposure therapy effectiveness"
         ],
         [
           2,
-          "Immersive exposure therapy meta-analysis"
+          "VR-based exposure treatment anxiety disorders"
         ],
         [
           3,
-          "Computer-generated exposure therapy for anxiety"
+          "immersive virtual reality anxiety intervention"
         ],
         [
           4,
-          "Virtual reality treatment efficacy anxiety"
+          "virtual environments systematic review anxiety treatment"
         ],
         [
           5,
-          "Exposure therapy using virtual environments"
+          "VRET phobia treatment outcomes"
         ],
         [
           6,
-          "VR-based cognitive behavioral therapy for anxiety"
+          "computer-generated exposure therapy"
         ],
         [
           7,
-          "Systematic review of virtual reality exposure"
+          "virtual reality therapy meta-analysis"
         ],
         [
           8,
-          "Immersive simulation therapy for phobias and anxiety"
+          "simulated exposure therapy fear reduction"
         ],
         [
           9,
-          "Virtual reality in the treatment of PTSD and anxiety"
+          "virtual reality cognitive behavioral therapy"
         ],
         [
           10,
-          "Efficacy of virtual reality exposure versus in vivo exposure"
+          "immersive technology psychological treatment"
         ],
         [
           11,
-          "Virtual reality exposure therapy randomized controlled trials"
+          "VR exposure therapy PTSD social anxiety specific phobia"
         ],
         [
           12,
-          "Digital exposure therapy for generalized anxiety disorder"
+          "presence and anxiety reduction virtual reality"
         ],
         [
           13,
-          "Virtual reality interventions for social anxiety disorder"
+          "technology-assisted psychotherapy outcomes"
         ],
         [
           14,
-          "Metaverse therapy for anxiety and phobias"
+          "in virtuo exposure therapy"
         ],
         [
           15,
-          "3D virtual environment exposure therapy outcomes"
+          "augmented reality exposure therapy anxiety"
         ],
         [
           16,
-          "Virtual reality desensitization therapy review"
+          "digital mental health interventions anxiety"
         ],
         [
           17,
-          "Comparative effectiveness of VR and traditional exposure therapy"
+          "virtual reality rehabilitation psychiatric treatment"
         ],
         [
           18,
-          "Virtual reality exposure therapy for panic disorder"
-        ],
-        [
-          19,
-          "Immersive technology applications in anxiety treatment"
-        ],
-        [
-          20,
-          "Virtual reality exposure therapy for specific phobias"
+          "anxiety disorder treatment technology randomized controlled trials"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology": 0,
-        "Virtual reality therapy for anxiety disorders": 5
+        "virtual reality exposure therapy effectiveness": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "immersive simulation anxiety treatment efficacy",
-      "agoraphobia PTSD social anxiety phobia VRET",
-      "presence immersion anxiety reduction mechanism",
-      "clinical outcomes symptom severity reduction meta-analysis",
-      "exposure extinction extinction learning fear extinction"
+      "virtual reality exposure therapy anxiety meta-analysis",
+      "VRE phobia randomized controlled trial",
+      "immersive therapy cyberspace agoraphobia acrophobia",
+      "effect size anxiety reduction VRET",
+      "exposure therapy fear extinction virtual environments"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,21 +112,21 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2501.17375"
+        "2210.06697"
       ]
     },
     "per_query_hit_count": {
+      "VRE phobia randomized controlled trial": 3,
       "Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology": 3,
-      "agoraphobia PTSD social anxiety phobia VRET": 3,
-      "clinical outcomes symptom severity reduction meta-analysis": 3,
-      "exposure extinction extinction learning fear extinction": 3,
-      "immersive simulation anxiety treatment efficacy": 3,
-      "presence immersion anxiety reduction mechanism": 3
+      "effect size anxiety reduction VRET": 3,
+      "exposure therapy fear extinction virtual environments": 3,
+      "immersive therapy cyberspace agoraphobia acrophobia": 3,
+      "virtual reality exposure therapy anxiety meta-analysis": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 4,
+      "rejected_count": 5,
       "rejections": [
         {
           "primary_pointer": "2307.09558",
@@ -142,24 +134,29 @@
           "title": "Fitted avatars: automatic skeleton adjustment for self-avatars in virtual reality"
         },
         {
+          "primary_pointer": "2609.38589",
+          "rationale": "This paper concerns cognitive load and sensory design in VR navigation, not virtual reality exposure therapy (VRET) for anxiety — it shares only the \"virtual reality\" keyword while addressing a distinct construct (cognitive load/accessibility, not therapeutic exposure for anxiety). It is off-domain with respect to the clinical psychology mechanism in the question.",
+          "title": "C-LISTEN: Cognitive Load Impacts of Sensory-Triggered Environmental Navigation in Virtual Reality"
+        },
+        {
           "primary_pointer": "2002.05305",
           "rationale": "The paper studies augmented‑reality visual‑analytics interfaces and collaborative data exploration, which bears no relation to virtual‑reality exposure therapy, anxiety treatment, or the psychological outcomes central to the user's meta‑analysis. It is off‑domain and lacks any relevant mechanism, variable, or population.",
           "title": "Interactive Multi-User 3D Visual Analytics in Augmented Reality"
         },
         {
-          "primary_pointer": "2512.06656",
-          "rationale": "The paper analyzes online discourse and linguistic patterns regarding VR and anxiety rather than measuring the clinical efficacy or therapeutic outcomes of Virtual Reality Exposure Therapy, which is the specific mechanism and dependent variable required for the user's meta-analysis. It fails to meet criteria (a) or (b) as it does not provide empirical evidence on the treatment's effect on anxiety, and it is not a foundational methodology paper (d) for conducting a clinical meta-analysis.",
-          "title": "The Online Discourse of Virtual Reality and Anxiety"
-        },
-        {
           "primary_pointer": "1907.06796",
           "rationale": "The paper focuses on motion tracking technology for augmented reality and does not examine virtual reality exposure therapy, anxiety outcomes, or any psychological variables relevant to a meta‑analysis in psychology. It is unrelated to the user's domain and constructs.",
           "title": "Instant Motion Tracking and Its Applications to Augmented Reality"
+        },
+        {
+          "primary_pointer": "2509.20106",
+          "rationale": "This paper concerns VR fidelity and realism perception of digital twins, not Virtual Reality Exposure Therapy for anxiety — it shares only the \"exposure\" and \"VR\" keywords while studying a distinct construct (perception of replica quality, not therapeutic exposure for anxiety treatment). It is off-domain from the clinical psychology question.",
+          "title": "Investigating the Effect of Prior Exposure and Fidelity on Quality and Realism Perception of VR Digital Twins"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-07T12:44:31Z",
+    "started_at": "2026-10-21T19:08:57Z",
     "term_input": {
       "normalized": "virtual reality exposure therapy for anxiety: a meta-analysis psychology",
       "raw": "Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology"
@@ -3009,7 +3006,7 @@
           "primary_pointer": "1411.4413"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Observation of the rare $B^0_s\\\\toμ^+μ^-$ decay from the combined analysis of CMS and LHCb data')",
-        "failed_at": "2026-07-07T12:44:59Z",
+        "failed_at": "2026-10-21T19:09:53Z",
         "reason": "query_irrelevant"
       },
       {
@@ -5636,7 +5633,7 @@
           "primary_pointer": "0901.0512"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Expected Performance of the ATLAS Experiment - Detector, Trigger and Physics')",
-        "failed_at": "2026-07-07T12:44:59Z",
+        "failed_at": "2026-10-21T19:09:53Z",
         "reason": "query_irrelevant"
       },
       {
@@ -7869,152 +7866,160 @@
           "primary_pointer": "2601.07595"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Deep Search for Joint Sources of Gravitational Waves and High-Energy Neutrinos with IceCube During the Third Observing Run of LIGO and Virgo')",
-        "failed_at": "2026-07-07T12:44:59Z",
+        "failed_at": "2026-10-21T19:09:53Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This chapter examines how data analytics can be leveraged to enhance immersive teacher simulations, situating this inquiry within the broader learning sciences discourse on embodied cognition, data-informed feedback, and teacher professional learning. It explores both conceptual foundations and empirical cases to illustrate how analytics serve as mediational tools that connect immersive experiences with reflective teaching practice. The chapter unfolds in multiple sections: (1) The Innovation Journey: An Overview of Immersive Teacher Simulations outlines the evolution from traditional simulations to XR-based environments, highlighting the need for professional decision-making under realistic constraints. (2) Innovation in Existing Research and Practice situates teacher analytics within the trajectory from descriptive observation to multimodal and predictive modeling. (3) Study Approach and Design details how multimodal data-discourse, behavior, and gaze-from the TeacherGen@i simulation were collected and organized to reveal cognitive distribution of pedagogical discourse and interaction patterns. (4) Findings present the cognitive distribution of preservice teachers' pedagogical discourse and the sequential interaction patterns that emerge in exchange, illustrating how multimodal analytics make pedagogical reasoning processes visible within immersive simulations. (5) Understanding Innovative Practices in Teacher Education examines teaching analytics to enhance immersive teacher simulation based on the findings of the study. (6) Key Takeaways of the Innovation Journey identifies research challenges and design implications for scalable, analytics-enhanced teacher education. Together, these sections position immersive teacher simulations as a pivotal testbed for aligning learning analytics, professional learning, and next-generation immersive learning environment design.",
+          "claimed_abstract": "In the era of the metaverse, self-avatars are gaining popularity, as they can enhance presence and provide embodiment when a user is immersed in Virtual Reality. They are also very important in collaborative Virtual Reality to improve communication through gestures. Whether we are using a complex motion capture solution or a few trackers with inverse kinematics (IK), it is essential to have a good match in size between the avatar and the user, as otherwise mismatches in self-avatar posture could be noticeable for the user. To achieve such a correct match in dimensions, a manual process is often required, with the need for a second person to take measurements of body limbs and introduce them into the system. This process can be time-consuming, and prone to errors. In this paper, we propose an automatic measuring method that simply requires the user to do a small set of exercises while wearing a Head-Mounted Display (HMD), two hand controllers, and three trackers. Our work provides an affordable and quick method to automatically extract user measurements and adjust the virtual humanoid skeleton to the exact dimensions. Our results show that our method can reduce the misalignment produced by the IK system when compared to other solutions that simply apply a uniform scaling to an avatar based on the height of the HMD, and make assumptions about the locations of joints with respect to the trackers.",
           "claimed_authors": [
-            "Sumin Hong",
-            "Jewoong Moon",
-            "Taeyeon Eom",
-            "Juno Hwang",
-            "Jibeom Seo"
+            "Jose Luis Ponton",
+            "Víctor Ceballos",
+            "Lesly Acosta",
+            "Alejandro Ríos",
+            "Eva Monclús",
+            "Nuria Pelechano"
           ],
-          "claimed_title": "Leveraging learning analytics to enhance immersive teacher simulations: Challenges and opportunities",
+          "claimed_title": "Fitted avatars: automatic skeleton adjustment for self-avatars in virtual reality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.09558"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Fitted avatars: automatic skeleton adjustment for self-avatars in virtual reality')",
+        "failed_at": "2026-10-21T19:09:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nowadays, Virtual Reality (VR) systems are more helpful for making decisions, training, and rehabilitation. Multimodal settings in these systems impose a significant balance and cognitive difficulties. Additionally, decreased performance, higher cognitive load, user overwhelm, and limited accessibility of VR technology can be caused by excessive auditory, visual, and sensory stimulation. In our pilot study, we examine the strategic design of directional auditory cues to improve cognitive load and enhance user experience in virtual environments. This research also enhances fundamental knowledge that auditory feedback reduces cognitive load in VR, with statistical analysis confirming this improvement (p = .0011). This study investigates how postural balance and pupil diameter correlate with cognitive load while the users navigate. Moreover, this study provides realistic overview design guidelines for accessibility, which will make VR experiences safer and more useful for everyone, including people with cognitive impairments.",
+          "claimed_authors": [
+            "Md. Monowar Hossain",
+            "M. Rasel Mahmud"
+          ],
+          "claimed_title": "C-LISTEN: Cognitive Load Impacts of Sensory-Triggered Environmental Navigation in Virtual Reality",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2601.08954"
+          "primary_pointer": "2609.38589"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Leveraging learning analytics to enhance immersive teacher simulations: Challenges and opportunities')",
-        "failed_at": "2026-07-07T12:44:59Z",
+        "details": "query-relevance 0.286 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='C-LISTEN: Cognitive Load Impacts of Sensory-Triggered Environmental Navigation in Virtual Reality')",
+        "failed_at": "2026-10-21T19:09:53Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "As immersive analytics continues to grow as a discipline, so too should its underlying methodological support. Taxonomies play an important role for information visualization and human computer interaction. They provide an organization of the techniques used in a particular domain that better enable researchers to describe their work, discover existing methods, and identify gaps in the literature. Existing taxonomies in related fields do not capture or describe the unique paradigms employed in immersive analytics. We conceptualize a taxonomy that organizes immersive analytics according to two dimensions: spatial and visual presentation. Each intersection of this taxonomy represents a unique design paradigm which, when thoroughly explored, can aid in the design and research of new immersive analytic applications.",
+          "claimed_abstract": "This publication reports on a research project in which we set out to explore the advantages and disadvantages augmented reality (AR) technology has for visual data analytics. We developed a prototype of an AR data analytics application, which provides users with an interactive 3D interface, hand gesture-based controls and multi-user support for a shared experience, enabling multiple people to collaboratively visualize, analyze and manipulate data with high dimensional features in 3D space. Our software prototype, called DataCube, runs on the Microsoft HoloLens - one of the first true stand-alone AR headsets, through which users can see computer-generated images overlaid onto real-world objects in the user's physical environment. Using hand gestures, the users can select menu options, control the 3D data visualization with various filtering and visualization functions, and freely arrange the various menus and virtual displays in their environment. The shared multi-user experience allows all participating users to see and interact with the virtual environment, changes one user makes will become visible to the other users instantly. As users engage together they are not restricted from observing the physical world simultaneously and therefore they can also see non-verbal cues such as gesturing or facial reactions of other users in the physical environment. The main objective of this research project was to find out if AR interfaces and collaborative analysis can provide an effective solution for data analysis tasks, and our experience with our prototype system confirms this.",
           "claimed_authors": [
-            "David Saffo",
-            "Sara Di Bartolomeo",
-            "Caglar Yildirim",
-            "Cody Dunne"
+            "Wanze Xie",
+            "Yining Liang",
+            "Janet Johnson",
+            "Andrea Mower",
+            "Samuel Burns",
+            "Colleen Chelini",
+            "Paul D Alessandro",
+            "Nadir Weibel",
+            "Jürgen P. Schulze"
           ],
-          "claimed_title": "Two Dimensions for Organizing Immersive Analytics: Toward a Taxonomy for Facet and Position",
+          "claimed_title": "Interactive Multi-User 3D Visual Analytics in Augmented Reality",
           "claimed_venue": "arXiv",
           "claimed_year": 2020,
-          "primary_pointer": "2005.06013"
+          "primary_pointer": "2002.05305"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Two Dimensions for Organizing Immersive Analytics: Toward a Taxonomy for Facet and Position')",
-        "failed_at": "2026-07-07T12:44:59Z",
+        "details": "query-relevance 0.286 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Interactive Multi-User 3D Visual Analytics in Augmented Reality')",
+        "failed_at": "2026-10-21T19:09:53Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This work reflects upon what Immersion can mean from the perspective of an Artificial Intelligence (AI). Applying the lens of immersive learning theory, it seeks to understand whether this new perspective supports ways for AI participation in cognitive ecologies. By treating AI as a participant rather than a tool, it explores what other participants (humans and other AIs) need to consider in environments where AI can meaningfully engage and contribute to the cognitive ecology, and what the implications are for designing such learning environments. Drawing from the three conceptual dimensions of immersion - System, Narrative, and Agency - this work reinterprets AIs in immersive learning contexts. It outlines practical implications for designing learning environments where AIs are surrounded by external digital services, can interpret a narrative of origins, changes, and structural developments in data, and dynamically respond, making operational and tactical decisions that shape human-AI collaboration. Finally, this work suggests how these insights might influence the future of AI training, proposing that immersive learning theory can inform the development of AIs capable of evolving beyond static models. This paper paves the way for understanding AI as an immersive learner and participant in evolving human-AI cognitive ecosystems.",
+          "claimed_abstract": "The economics of prompt compression depend not only on reducing input tokens but on how compression changes output length, which is typically priced several times higher. We evaluate this in a pre-registered six-arm randomized controlled trial of prompt compression on production multi-agent task-orchestration, analyzing 358 successful Claude Sonnet 4.5 runs (59-61 per arm) drawn from a randomized corpus of 1,199 real orchestration instructions. We compare an uncompressed control with three uniform retention rates (r=0.8, 0.5, 0.2) and two structure-aware strategies (entropy-adaptive and recency-weighted), measuring total inference cost (input+output) and embedding-based response similarity. Moderate compression (r=0.5) reduced mean total cost by 27.9%, while aggressive compression (r=0.2) increased mean cost by 1.8% despite substantial input reduction, consistent with small mean output expansion (1.03x vs. control) and heavy-tailed uncertainty. Recency-weighted compression achieved 23.5% savings and, together with moderate compression, occupied the empirical cost-similarity Pareto frontier, whereas aggressive compression was dominated on both cost and similarity. These results show that \"compress more\" is not a reliable production heuristic and that output tokens must be treated as a first-class outcome when designing compression policies.",
           "claimed_authors": [
-            "Leonel Morgado"
+            "Warren Johnson",
+            "Charles Lee"
           ],
-          "claimed_title": "Immersion for AI: Immersive Learning with Artificial Intelligence",
+          "claimed_title": "Prompt Compression in Production Task Orchestration: A Pre-Registered Randomized Trial",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.23525"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Prompt Compression in Production Task Orchestration: A Pre-Registered Randomized Trial')",
+        "failed_at": "2026-10-21T19:09:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Rust is a general-purpose programming language that is both type- and memory-safe. Rust does not use a garbage collector, but rather achieves these properties through a sophisticated, but complex, type system. Doing so makes Rust very efficient, but makes Rust relatively hard to learn and use. We designed Bronze, an optional, library-based garbage collector for Rust. To see whether Bronze could make Rust more usable, we conducted a randomized controlled trial with volunteers from a 633-person class, collecting data from 428 students in total. We found that for a task that required managing complex aliasing, Bronze users were more likely to complete the task in the time available, and those who did so required only about a third as much time (4 hours vs. 12 hours). We found no significant difference in total time, even though Bronze users re-did the task without Bronze afterward. Surveys indicated that ownership, borrowing, and lifetimes were primary causes of the challenges that users faced when using Rust.",
+          "claimed_authors": [
+            "Michael Coblenz",
+            "Michelle Mazurek",
+            "Michael Hicks"
+          ],
+          "claimed_title": "Garbage Collection Makes Rust Easier to Use: A Randomized Controlled Trial of the Bronze Garbage Collector",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.01098"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Garbage Collection Makes Rust Easier to Use: A Randomized Controlled Trial of the Bronze Garbage Collector')",
+        "failed_at": "2026-10-21T19:09:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Interprofessional education has long relied on case studies and the use of standardized patients to support teamwork, communication, and related collaborative competencies among healthcare professionals. However, traditional approaches are often limited by cost, scalability, and inability to mimic the dynamic complexity of real-world clinical scenarios. To address these challenges, we designed and developed AIMS (AI-enhanced Immersive Multidisciplinary Simulations), a virtual simulation that integrates a large language model (Gemini-2.5-Flash), a Unity-based virtual environment engine, and a character creation pipeline to support synchronized, multimodal interactions between the user and the virtual patient. AIMS was designed to enhance collaborative clinical reasoning and health promotion competencies among students from pharmacy, medicine, nursing, and social work. A formal usability testing session was conducted in which participants assumed professional roles on a healthcare team and engaged in a mix of scripted and unscripted conversations. Participants explored the patient's symptoms, social context, and care needs. Usability issues were identified (e.g., audio routing, response latency) and used to guide subsequent refinements. Findings suggest that AIMS supports realistic, profession-specific, and contextually appropriate conversations. We discuss technical innovations of AIMS and conclude with future directions.",
+          "claimed_authors": [
+            "Ruijie Wang",
+            "Jie Lu",
+            "Bo Pei",
+            "Evonne Jones",
+            "Jamey Brinson",
+            "Timothy Brown"
+          ],
+          "claimed_title": "Designing and Evaluating an AI-enhanced Immersive Multidisciplinary Simulation (AIMS) for Interprofessional Education",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2502.03504"
+          "primary_pointer": "2510.08891"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Immersion for AI: Immersive Learning with Artificial Intelligence')",
-        "failed_at": "2026-07-07T12:44:59Z",
+        "details": "query-relevance 0.143 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Designing and Evaluating an AI-enhanced Immersive Multidisciplinary Simulation (AIMS) for Interprofessional Education')",
+        "failed_at": "2026-10-21T19:09:54Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "All online sharing systems gather data that reflects users' collective behaviour and their shared activities. This data can be used to extract different kinds of relationships, which can be grouped into layers, and which are basic components of the multidimensional social network proposed in the paper. The layers are created on the basis of two types of relations between humans, i.e. direct and object-based ones which respectively correspond to either social or semantic links between individuals. For better understanding of the complexity of the social network structure, layers and their profiles were identified and studied on two, spanned in time, snapshots of the Flickr population. Additionally, for each layer, a separate strength measure was proposed. The experiments on the Flickr photo sharing system revealed that the relationships between users result either from semantic links between objects they operate on or from social connections of these users. Moreover, the density of the social network increases in time. The second part of the study is devoted to building a social recommender system that supports the creation of new relations between users in a multimedia sharing system. Its main goal is to generate personalized suggestions that are continuously adapted to users' needs depending on the personal weights assigned to each layer in the multidimensional social network. The conducted experiments confirmed the usefulness of the proposed model.",
+          "claimed_abstract": "The very humble origins of the Cyberspace, and all the related developments that smoothly conspired and converged towards this concept, making its emergence possible, as the personal computer, TEX and LATEX, the Fax, the internet, the cellphone, and the World Wide Web, are discussed, always from a personal perspective. A separate, comprehensive explanation of the reasons for the appearance and subsequent evolution of each of these different phenomena, with explicit assessments and a future prospective of the main subject, is presented.",
           "claimed_authors": [
-            "Przemyslaw Kazienko",
-            "Katarzyna Musial",
-            "Tomasz Kajdanowicz"
+            "Emilio Elizalde"
           ],
-          "claimed_title": "Multidimensional Social Network in the Social Recommender System",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1303.0093"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Multidimensional Social Network in the Social Recommender System')",
-        "failed_at": "2026-07-07T12:44:59Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Bots have been playing a crucial role in online platform ecosystems, as efficient and automatic tools to generate content and diffuse information to the social media human population. In this chapter, we will discuss the role of social bots in content spreading dynamics in social media. In particular, we will first investigate some differences between diffusion dynamics of content generated by bots, as opposed to humans, in the context of political communication, then study the characteristics of bots behind the diffusion dynamics of social media spam campaigns.",
-          "claimed_authors": [
-            "Emilio Ferrara"
-          ],
-          "claimed_title": "Measuring social spam and the effect of bots on information diffusion in social media",
+          "claimed_title": "On how the Cyberspace arose to fulfill theoretical physicists' needs and eventually changed the World: Personal recallings and a practitioner's perspective",
           "claimed_venue": "arXiv",
           "claimed_year": 2017,
-          "primary_pointer": "1708.08134"
+          "primary_pointer": "1701.04765"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Measuring social spam and the effect of bots on information diffusion in social media')",
-        "failed_at": "2026-07-07T12:44:59Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title=\"On how the Cyberspace arose to fulfill theoretical physicists' needs and eventually changed the World: Personal recallings and a practitioner's perspective\")",
+        "failed_at": "2026-10-21T19:09:54Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In 2016, a network of social media accounts animated by Russian operatives attempted to divert political discourse within the American public around the presidential elections. This was a coordinated effort, part of a Russian-led complex information operation. Utilizing the anonymity and outreach of social media platforms Russian operatives created an online astroturf that is in direct contact with regular Americans, promoting Russian agenda and goals. The elusiveness of this type of adversarial approach rendered security agencies helpless, stressing the unique challenges this type of intervention presents. Building on existing scholarship on the functions within influence networks on social media, we suggest a new approach to map those types of operations. We argue that pretending to be legitimate social actors obliges the network to adhere to social expectations, leaving a social footprint. To test the robustness of this social footprint we train artificial intelligence to identify it and create a predictive model. We use Twitter data identified as part of the Russian influence network for training the artificial intelligence and to test the prediction. Our model attains 88% prediction accuracy for the test set. Testing our prediction on two additional models results in 90.7% and 90.5% accuracy, validating our model. The predictive and validation results suggest that building a machine learning model around social functions within the Russian influence network can be used to map its actors and functions.",
+          "claimed_abstract": "With the in-depth integration of mobile Internet and widespread adoption of social platforms, user-generated content in the Chinese cyberspace has witnessed explosive growth. Among this content, the proliferation of toxic comments poses severe challenges to individual mental health, community atmosphere and social trust. Owing to the strong context dependence, cultural specificity and rapid evolution of Chinese cyber language, toxic expressions are often conveyed through complex forms such as homophones and metaphors, imposing notable limitations on traditional detection methods. To address this issue, this review focuses on the core topic of natural language processing based toxic comment detection in the Chinese cyberspace, systematically collating and critically analyzing the research progress and key challenges in this field. This review first defines the connotation and characteristics of Chinese toxic comments, and analyzes the platform ecology and transmission mechanisms they rely on. It then comprehensively reviews the construction methods and limitations of existing public datasets, and proposes a novel fine-grained and scalable framework for toxic comment definition and classification, along with corresponding data annotation and quality assessment strategies. We systematically summarize the evolutionary path of detection models from traditional methods to deep learning, with special emphasis on the importance of interpretability in model design. Finally, we thoroughly discuss the open challenges faced by current research and provide forward-looking suggestions for future research directions.",
           "claimed_authors": [
-            "Ori Swed",
-            "Sachith Dassanayaka",
-            "Dimitri Volchenkov"
+            "Ruixing Ren",
+            "Junhui Zhao",
+            "Xiaoke Sun",
+            "Qiuping Li"
           ],
-          "claimed_title": "Keeping it Authentic: The Social Footprint of the Trolls Network",
+          "claimed_title": "NLP-Based Review for Toxic Comment Detection Tailored to the Chinese Cyberspace",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2409.07720"
+          "claimed_year": 2026,
+          "primary_pointer": "2601.14721"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Keeping it Authentic: The Social Footprint of the Trolls Network')",
-        "failed_at": "2026-07-07T12:44:59Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The optimal dimensional synthesis for planar mechanisms using differential evolution (DE) is demonstrated. Four examples are included: in the first case, the synthesis of a mechanism for hybrid-tasks, considering path generation, function generation, and motion generation, is carried out. The second and third cases pertain to path generation, with and without prescribed timing. Finally, the synthesis of an Ackerman mechanism is reported. Order defect problem is solved by manipulating individuals instead of penalizing or discretizing the search space for the parameters. A technique that consists in applying a transformation in order to satisfy the Grashof and crank conditions to generate an initial elitist population is introduced. As a result, the evolutionary algorithm increases its efficiency.",
-          "claimed_authors": [
-            "F. Penunuri",
-            "R. Peon-Escalante",
-            "C. Villanueva",
-            "D. Pech-Oy"
-          ],
-          "claimed_title": "Synthesis of Mechanism for single- and hybrid-tasks using Differential Evolution",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1102.2017"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Synthesis of Mechanism for single- and hybrid-tasks using Differential Evolution')",
-        "failed_at": "2026-07-07T12:44:59Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The problem of path generation for the spherical 4R mechanism is solved using the Differential Evolution algorithm (DE). Formulas for the spherical geodesics are employed in order to obtain the parametric equation for the generated trajectory. Direct optimization of the objective function gives the solution to the path generation task without prescribed timing. Therefore, there is no need to separate this task into two stages to make the optimization. Moreover, the order defect problem can be solved without difficulty by means of manipulations of the individuals in the DE algorithm. Two examples of optimum synthesis showing the simplicity and effectiveness of this approach are included.",
-          "claimed_authors": [
-            "F. Penunuri",
-            "R. Peon-Escalante",
-            "C. Villanueva",
-            "Carlos A. Cruz-Villar"
-          ],
-          "claimed_title": "Synthesis of Spherical 4R Mechanism for Path Generation using Differential Evolution",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1112.2954"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Synthesis of Spherical 4R Mechanism for Path Generation using Differential Evolution')",
-        "failed_at": "2026-07-07T12:44:59Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='NLP-Based Review for Toxic Comment Detection Tailored to the Chinese Cyberspace')",
+        "failed_at": "2026-10-21T19:09:54Z",
         "reason": "query_irrelevant"
       },
       {
@@ -8034,147 +8039,46 @@
           "primary_pointer": "1911.08954"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Basic Ideas and Tools for Projection-Based Model Reduction of Parametric Partial Differential Equations')",
-        "failed_at": "2026-07-07T12:44:59Z",
+        "failed_at": "2026-10-21T19:09:54Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Prior work has shown that analyzing the use of first-person singular pronouns can provide insight into individuals' mental status, especially depression symptom severity. These findings were generated by counting frequencies of first-person singular pronouns in text data. However, counting doesn't capture how these pronouns are used. Recent advances in neural language modeling have leveraged methods generating contextual embeddings. In this study, we sought to utilize the embeddings of first-person pronouns obtained from contextualized language representation models to capture ways these pronouns are used, to analyze mental status. De-identified text messages sent during online psychotherapy with weekly assessment of depression severity were used for evaluation. Results indicate the advantage of contextualized first-person pronoun embeddings over standard classification token embeddings and frequency-based pronoun analysis results in predicting depression symptom severity. This suggests contextual representations of first-person pronouns can enhance the predictive utility of language used by people with depression symptoms.",
+          "claimed_abstract": "Motivation: P values derived from the null hypothesis significance testing framework are strongly affected by sample size, and are known to be irreproducible in underpowered studies, yet no suitable replacement has been proposed. Results: Here we present implementations of non-parametric standardized median effect size estimates, dNEF, for high-throughput sequencing datasets. Case studies are shown for transcriptome and tag-sequencing datasets. The dNEF measure is shown to be more reproducible and robust than P values and requires sample sizes as small as 3 to reproducibly identify differentially abundant features. Availability: Source code and binaries freely available at: https://bioconductor.org/packages/ALDEx2.html , omicplotR, and https://github.com/ggloor/CoDaSeq .",
           "claimed_authors": [
-            "Xinyang Ren",
-            "Hannah A Burkhardt",
-            "Patricia A Areán",
-            "Thomas D Hull",
-            "Trevor Cohen"
+            "Andrew D. Fernandes",
+            "Michael T. H. Q. Vu",
+            "Lisa-Monique Edward",
+            "Jean M. Macklaim",
+            "Gregory B. Gloor"
           ],
-          "claimed_title": "Deep Representations of First-person Pronouns for Prediction of Depression Symptom Severity",
+          "claimed_title": "A reproducible effect size is more useful than an irreproducible hypothesis test to analyze high throughput sequencing datasets",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2310.03232"
+          "claimed_year": 2018,
+          "primary_pointer": "1809.02623"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Deep Representations of First-person Pronouns for Prediction of Depression Symptom Severity')",
-        "failed_at": "2026-07-07T12:44:59Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='A reproducible effect size is more useful than an irreproducible hypothesis test to analyze high throughput sequencing datasets')",
+        "failed_at": "2026-10-21T19:09:54Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The CDOI outcome measure - a patient-reported outcome (PRO) instrument utilizing direct client feedback - was implemented in a large, real-world behavioral healthcare setting in order to evaluate previous findings from smaller controlled studies. PROs provide an alternative window into treatment effectiveness based on client perception and facilitate detection of problems/symptoms for which there is no discernible measure (e.g. pain). The principal focus of the study was to evaluate the utility of the CDOI for predictive modeling of outcomes in a live clinical setting. Implementation factors were also addressed within the framework of the Theory of Planned Behavior by linking adoption rates to implementation practices and clinician perceptions. The results showed that the CDOI does contain significant capacity to predict outcome delta over time based on baseline and early change scores in a large, real-world clinical setting, as suggested in previous research. The implementation analysis revealed a number of critical factors affecting successful implementation and adoption of the CDOI outcome measure, though there was a notable disconnect between clinician intentions and actual behavior. Most importantly, the predictive capacity of the CDOI underscores the utility of direct client feedback measures such as PROs and their potential use as the basis for next generation clinical decision support tools and personalized treatment approaches.",
+          "claimed_abstract": "WhatsApp is the most popular messaging app in the world. Due to its popularity, WhatsApp has become a powerful and cheap tool for political campaigning being widely used during the 2019 Indian general election, where it was used to connect to the voters on a large scale. Along with the campaigning, there have been reports that WhatsApp has also become a breeding ground for harmful speech against various protected groups and religious minorities. Many such messages attempt to instil fear among the population about a specific (minority) community. According to research on inter-group conflict, such `fear speech' messages could have a lasting impact and might lead to real offline violence. In this paper, we perform the first large scale study on fear speech across thousands of public WhatsApp groups discussing politics in India. We curate a new dataset and try to characterize fear speech from this dataset. We observe that users writing fear speech messages use various events and symbols to create the illusion of fear among the reader about a target community. We build models to classify fear speech and observe that current state-of-the-art NLP models do not perform well at this task. Fear speech messages tend to spread faster and could potentially go undetected by classifiers built to detect traditional toxic speech due to their low toxic nature. Finally, using a novel methodology to target users with Facebook ads, we conduct a survey among the users of these WhatsApp groups to understand the types of users who consume and share fear speech. We believe that this work opens up new research questions that are very different from tackling hate speech which the research community has been traditionally involved in.",
           "claimed_authors": [
-            "Casey Bennett",
-            "Thomas Doub",
-            "April Bragg",
-            "Jason Luellen",
-            "Christina Van Regenmorter",
-            "Jennifer Lockman",
-            "Randall Reiserer"
+            "Punyajoy Saha",
+            "Binny Mathew",
+            "Kiran Garimella",
+            "Animesh Mukherjee"
           ],
-          "claimed_title": "Data Mining Session-Based Patient Reported Outcomes (PROs) in a Mental Health Setting: Toward Data-Driven Clinical Decision Support and Personalized Treatment",
+          "claimed_title": "\"Short is the Road that Leads from Fear to Hate\": Fear Speech in Indian WhatsApp Groups",
           "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1112.1670"
+          "claimed_year": 2021,
+          "primary_pointer": "2102.03870"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Data Mining Session-Based Patient Reported Outcomes (PROs) in a Mental Health Setting: Toward Data-Driven Clinical Decision Support and Personalized Treatment')",
-        "failed_at": "2026-07-07T12:44:59Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Specialised pre-trained language models are becoming more frequent in NLP since they can potentially outperform models trained on generic texts. BioBERT and BioClinicalBERT are two examples of such models that have shown promise in medical NLP tasks. Many of these models are overparametrised and resource-intensive, but thanks to techniques like Knowledge Distillation (KD), it is possible to create smaller versions that perform almost as well as their larger counterparts. In this work, we specifically focus on development of compact language models for processing clinical texts (i.e. progress notes, discharge summaries etc). We developed a number of efficient lightweight clinical transformers using knowledge distillation and continual learning, with the number of parameters ranging from 15 million to 65 million. These models performed comparably to larger models such as BioBERT and ClinicalBioBERT and significantly outperformed other compact models trained on general or biomedical data. Our extensive evaluation was done across several standard datasets and covered a wide range of clinical text-mining tasks, including Natural Language Inference, Relation Extraction, Named Entity Recognition, and Sequence Classification. To our knowledge, this is the first comprehensive study specifically focused on creating efficient and compact transformers for clinical NLP tasks. The models and code used in this study can be found on our Huggingface profile at https://huggingface.co/nlpie and Github page at https://github.com/nlpie-research/Lightweight-Clinical-Transformers, respectively, promoting reproducibility of our results.",
-          "claimed_authors": [
-            "Omid Rohanian",
-            "Mohammadmahdi Nouriborji",
-            "Hannah Jauncey",
-            "Samaneh Kouchaki",
-            "ISARIC Clinical Characterisation Group",
-            "Lei Clifton",
-            "Laura Merson",
-            "David A. Clifton"
-          ],
-          "claimed_title": "Lightweight Transformers for Clinical Natural Language Processing",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2302.04725"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Lightweight Transformers for Clinical Natural Language Processing')",
-        "failed_at": "2026-07-07T12:44:59Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The scarcity of high-fidelity extinction measurements remains a bottleneck in deriving accurate stellar properties from Gaia parallaxes. In this work, we aim to derive precision extinction estimates for APOGEE DR19 stars, establishing a new benchmark for Galactic stellar population studies. We first determine reddening by comparing observed colorsr, etrieved from photometric surveys or standardized synthetic magnitudes from Gaia BP/RP spectra, to intrinsic colors predicted via an XGBoost model. The model is trained on minimally reddened stars to infer intrinsic colors and their associated uncertainties, using APOGEE stellar parameters (Teff, logg, [Fe/H], and [alpha/Fe]). The derived reddening values are then converted into extinctions using an anchor ratio of A_BP / A_RP = 1.694 +/- 0.004, derived from red-clump-like stars. Here, we provide extinction measurements in 39 filters across 10 photometric systems and introduce a new empirical extinction curve optimized for broadband passbands. Our extinction estimates (Av) outperform existing results (Bayestar19, StarHorse, SEDEX), achieving a typical precision of 0.03 mag in Av. Notably, we identify systematic deviations of up to 30% between monochromatic and passband-integrated extinction ratios at wavelengths greater than 700 nm. This result highlights the necessity of adopting passband-specific coefficients when correcting extinction to derive stellar parameters. The derived extinction and reddening data are available to the community for download through Zenodo.",
-          "claimed_authors": [
-            "Jie Yu",
-            "Luca Casagrande",
-            "John A. Taylor",
-            "Ioana Ciucă",
-            "Giacomo Cordoni",
-            "Ronald Drimmel",
-            "Shourya Khanna",
-            "Hiep Nguyen",
-            "Tomasz Różański",
-            "Dennis Stello",
-            "Haibo Yuan",
-            "Zhen Yuan"
-          ],
-          "claimed_title": "High-fidelity stellar extinction with Gaia and APOGEE -- I. The method and a new extinction curve",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2601.10595"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='High-fidelity stellar extinction with Gaia and APOGEE -- I. The method and a new extinction curve')",
-        "failed_at": "2026-07-07T12:44:59Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "DENIS observations in the J (1.2 micron) and K_S (2.15 micron) bands together with isochrones calculated for the RGB and AGB phase are used to draw an extinction map of the inner Galactic Bulge. The uncertainty in this method is mainly limited by the optical depth of the Bulge itself. A comparison with fields of known extinction shows a very good agreement. We present an extinction map for the inner Galactic Bulge (approx. 20 sq. deg.)",
-          "claimed_authors": [
-            "M. Schultheis",
-            "S. Ganesh",
-            "G. Simon",
-            "A. Omont",
-            "C. Alard",
-            "J. Borsenberger",
-            "E. Copet",
-            "N. Epchtein",
-            "P. Fouque",
-            "H. Habing"
-          ],
-          "claimed_title": "Interstellar extinction towards the inner Galactic Bulge",
-          "claimed_venue": "arXiv",
-          "claimed_year": 1999,
-          "primary_pointer": "astro-ph/9908349"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Interstellar extinction towards the inner Galactic Bulge')",
-        "failed_at": "2026-07-07T12:44:59Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We present values for angular diameter, flux and extinction for 70 Galactic planetary nebulae observed using narrow band filters. Angular diameters are derived using constant emissivity shell and photoionization line emission models. The mean of the results from these two models are presented as our best estimate. Contour plots of 36 fully resolved objects are included and the low intensity contours often reveal an elliptical structure that is not always apparent from FWHM measurements. Flux densities are determined, and for both H-alpha and O[III] there is little evidence of any systematic differences between observed and catalogued values. Observed H-alpha extinction values are determined using observed H-alpha and catalogued radio fluxes. H-alpha extinction values are also derived from catalogued H-alpha and H-beta flux values by means of an Rv dependent extinction law. Rv is then calculated in terms of observed extinction values and catalogued H-alpha and H-beta flux values. Comparing observed and catalogue extinction values for a subset of Bulge objects, observed values tend to be lower than catalogue values calculated with Rv = 3.1. For the same subset we calculate <Rv> = 2.0, confirming that toward the Bulge interstellar extinction is steeper than Rv = 3.1. For the inner Galaxy a relation with the higher supernova rate is suggested, and that the low-density warm ionized medium is the site of the anomalous extinction. Lowvalues of extinction are also derived using dust models with a turnover radius of 0.08 microns.",
-          "claimed_authors": [
-            "P. M. E. Ruffle",
-            "A. A. Zijlstra",
-            "J. R. Walsh",
-            "M. D. Gray",
-            "K. Gesicki",
-            "D. Minniti",
-            "F. Comeron",
-            " ."
-          ],
-          "claimed_title": "Angular diameters, fluxes and extinction of compact planetary nebulae: further evidence for steeper extinction towards the Bulge",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2004,
-          "primary_pointer": "astro-ph/0407173"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='Angular diameters, fluxes and extinction of compact planetary nebulae: further evidence for steeper extinction towards the Bulge')",
-        "failed_at": "2026-07-07T12:44:59Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology', candidate_title='\"Short is the Road that Leads from Fear to Hate\": Fear Speech in Indian WhatsApp Groups')",
+        "failed_at": "2026-10-21T19:09:55Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -8182,29 +8086,115 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Winona Graham",
-            "Russell Drinkwater",
-            "Joshua Kelson",
-            "Muhammad Ashad Kabir"
+            "Sha Li",
+            "Peichen Yang",
+            "Rongyang Li",
+            "Fadi Farha",
+            "Jianguo Ding",
+            "Per Backlund",
+            "Huansheng Ning"
           ],
-          "title": "Self-Guided Virtual Reality Therapy for Anxiety: A Systematic Review",
+          "title": "A Review on Serious Games for Phobia",
           "venue": "arXiv",
-          "year": 2025
+          "year": 2022
         },
-        "primary_pointer": "2501.17375",
-        "summary": "Virtual reality (VR) technology can be used to treat anxiety symptoms and disorders. However, most VR interventions for anxiety have been therapist guided rather than self-guided. This systematic review aimed to examine the effectiveness and user experience (i.e., usability, acceptability, safety, and attrition rates) of self-guided VR therapy interventions in people with any anxiety condition as well as provide future research directions. Peer-reviewed journal articles reporting on self-guided VR interventions for anxiety were sought from the Cochrane Library, IEEE Explore Digital Library, PsycINFO, PubMED, Scopus, and Web of Science databases. Study data from the eligible articles were extracted, tabulated, and addressed with a narrative synthesis. A total of 21 articles met the inclusion criteria. The findings revealed that self-guided VR interventions for anxiety can provide an effective treatment of social anxiety disorder, public speaking anxiety, and specific phobias. User experiences outcomes of safety, usability, and acceptability were generally positive and the average attrition rate was low. However, there was a lack of standardised assessments to measure user experiences. Self-guided VR for anxiety can provide an engaging approach for effectively and safely treating common anxiety conditions. Nevertheless, more experimental studies are required to examine their use in underrepresented anxiety populations, their long-term treatment effects beyond 12 months, and compare their effectiveness against other self-help interventions for anxiety (e.g., internet interventions and bibliotherapy).",
+        "primary_pointer": "2201.05738",
+        "summary": "Phobia is a widespread mental illness, and severe phobias can seriously impact patients daily lives. One-session Exposure Treatment (OST) has been used to treat phobias in the early days,but it has many disadvantages. As a new way to treat a phobia, virtual reality exposure therapy(VRET) based on serious games is introduced. There have been much researches in the field of serious games for phobia therapy (SGPT), so this paper presents a detailed review of SGPT from three perspectives. First, SGPT in different stages has different forms with the update and iteration of technology. Therefore, we reviewed the development history of SGPT from the perspective of equipment. Secondly, there is no unified classification framework for a large number of SGPT. So we classified and combed SGPT according to different types of phobias. Finally, most articles on SGPT have studied the therapeutic effects of serious games from a medical perspective, and few have studied serious games from a technical perspective. Therefore, we conducted in-depth research on SGPT from a technical perspective in order to provide technical guidance for the development of SGPT. Accordingly, the challenges facing the existing technology has been explored and listed.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2501.17375",
+          "final_url": "https://arxiv.org/abs/2201.05738",
           "http_status": 200,
-          "pdf_sample_score": 0.2875,
-          "query_relevance_score": 1.0,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-07T12:45:04Z"
+          "verified_at": "2026-10-21T19:09:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Junyi Shen",
+            "Itaru Kitahara",
+            "Shinichi Koyama",
+            "Qiaoge Li"
+          ],
+          "title": "Size Does Matter: An Experimental Study of Anxiety in Virtual Reality",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2210.06697",
+        "summary": "The emotional response of users induced by VR scenarios has become a topic of interest, however, whether changing the size of objects in VR scenes induces different levels of anxiety remains a question to be studied. In this study, we conducted an experiment to initially reveal how the size of a large object in a VR environment affects changes in participants' (N = 38) anxiety level and heart rate. To holistically quantify the size of large objects in the VR visual field, we used the omnidirectional field of view occupancy (OFVO) criterion for the first time to represent the dimension of the object in the participant's entire field of view. The results showed that the participants' heartbeat and anxiety while viewing the large objects were positively and significantly correlated to OFVO. These study reveals that the increase of object size in VR environments is accompanied by a higher degree of user's anxiety.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2210.06697",
+          "http_status": 200,
+          "pdf_sample_score": 0.1822,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-21T19:09:54Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Larry F Hodges",
+            "Barbara O Rothbaum",
+            "Benjamin Watson",
+            "G Drew Kessler",
+            "Dan Opdyke"
+          ],
+          "title": "A virtual airplane for fear of flying therapy",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.15875",
+        "summary": "Fear of flying is a serious problem that affects millions of individuals. Exposure therapy for fear of flying is an effective therapy technique. However, exposure therapy is also expensive, logistically difficult to arrange, and presents significant problems of patient confidentiality and potential embarrassment. We have developed a virtual airplane for use in fear of flying therapy. Using the virtual airplane for exposure therapy is a potential solution to many of the current problems of fear of flying exposure therapy. We describe the design of the virtual airplane and present a case report on its use for fear of flying exposure therapy.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.15875",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-21T19:09:54Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shreya K. Rajagopal",
+            "Thad A. Polk"
+          ],
+          "title": "ConFER: A Neurally Constrained Computational Model of Context-Dependent Fear Extinction Recall and Relapse",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2411.08140",
+        "summary": "Exposure therapy, a standard treatment for anxiety disorders, relies on fear extinction. However, extinction recall is often limited to the spatial and temporal context in which extinction is learned, leading to fear relapse in new settings or after delays. Animal studies offer insights into fear extinction in humans. Computational models that integrate these findings into a neurally grounded framework, while generating testable hypotheses for humans, can bridge this gap. Current models either focus on neuron-level activity, limiting their scope, or abstract away entirely from neural mechanisms. They also often overlook the distinct contributions of cue and context in fear extinction and recall. To address these gaps, we present ConFER, a neurally constrained model of fear extinction, recall, and relapse. ConFER integrates findings from the neural fear circuit, modeling distinct pathways for cue and context processing. These pathways independently activate positive and/or negative memory engrams in the basolateral amygdala, competing to determine the fear response. ConFER simulates fear renewal and spontaneous recovery across context combinations, while generating novel, testable predictions. Notably, it predicts counterconditioning may better prevent relapse than extinction in new contexts or after delays. By mechanistically modeling fear relapse, ConFER offers insights to improve exposure therapy outcomes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2411.08140",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-21T19:09:55Z"
         }
       }
     ]

@@ -1,6 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Network Graph Schema
-description: Schema for the constructed directed graph and its node/edge attributes.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Network Graph Schema"
+description: "Schema for the constructed directed graph and its node/edge attributes."
 type: object
 properties:
   graph_id:

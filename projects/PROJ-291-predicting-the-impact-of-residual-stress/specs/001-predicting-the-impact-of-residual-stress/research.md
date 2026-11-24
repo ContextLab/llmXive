@@ -1,88 +1,88 @@
 # Research: Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets
 
 ## Overview
-This research plan describes how we will acquire, harmonize, and analyze publicly available fatigue datasets to answer the question:
+**Research Question**  
+*To what extent does residual stress mediate the relationship between manufacturing process parameters and fatigue life across material classes, and how much predictive value does stress‑mediated estimation add beyond direct process‑to‑fatigue modeling?*
 
-*“To what extent does residual stress mediate the relationship between manufacturing process parameters and fatigue life across material classes, and how much predictive value does stress‑mediated estimation add beyond direct process‑to‑fatigue modeling?”*
+### Scope Statement
+Publicly available fatigue datasets that contain **measured residual stress**, process parameters, material‑property attributes, and fatigue life are currently **unavailable** (no verified open URL satisfies all fields). Consequently:
 
-Because no verified open dataset currently provides **measured residual stress together with fatigue life and process parameters**, the mediation component will be executed only if such rows appear after ingestion (≥ 50 measured‑stress rows). Otherwise, we will still conduct predictive modeling using the proxy‑derived stress (Feature C) and report the limitation transparently.
+1. **Predictive‑gain analysis** (baseline vs. stress‑mediated models) will be performed **only on a deterministic synthetic dataset** (generated with seed 42) **as a methodological illustration**. No empirical claims about real-world predictive improvement will be made.  
+2. **Mediation analysis** will be **performed only when a real open dataset provides ≥ 50 rows with measured residual stress** (fulfilling FR‑013). If this condition is not met, mediation is **skipped** and a log entry records the limitation. No synthetic mediation will be executed to avoid violating the power requirement.  
+3. All results derived from synthetic data are **explicitly labeled “illustrative – not empirical”** and are **not used to support scientific conclusions**.
+
+### Spec Deviation Note
+FR‑003 mandates a **linear** proxy `σ_res = k·heat_input·cooling_rate`. The plan implements exactly this linear form (k = 0.8 for steel, k = 0.6 for aluminum). Any prior non‑linear formulation has been removed.
 
 ## Dataset Strategy
-| Requirement | Verified Source | Availability | Action |
-|-------------|----------------|--------------|--------|
-| Fatigue life + process parameters + measured residual stress | **None** (no verified open URL contains all three) | Unavailable | Proceed with available process‑only and material‑property data. Mediation analysis will be skipped unless a future open dataset meets the requirement. |
-| Supplementary process‑only data (for pipeline validation) | UCI CSV: <https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv> | Contains generic numeric features, not fatigue‑specific | Used only to verify ingestion & preprocessing code; not for scientific conclusions. |
-| Additional open‑source fatigue data (no stress) | NIST CSV: <https://huggingface.co/datasets/leeroy-jankins/NIST-AI-Risk-Management-Framework/resolve/main/NIST%20AI%20Risk%20Management%20Framework.csv> | Contains assorted engineering metrics, but no residual stress | Included in the unified dataset for feature‑set construction (process & material features only). |
-| Generic parquet example for schema testing | <https://huggingface.co/datasets/strayfade/dataset-record-test/resolve/main/data/chunk-000/file-000.parquet> | Provides a correctly typed parquet file | Used to confirm that `datasets.load_dataset(..., streaming=True)` correctly reads parquet and that our schema validator works. |
-| Synthetic validation dataset | Generated locally (`data/raw/synthetic_fatigue.csv`) | Included in repo | Used exclusively to confirm that the full pipeline runs end‑to‑end; results are labelled “synthetic validation” and are **not** used for scientific claims. |
+| Requirement | Source | Availability | Action |
+|-------------|--------|--------------|--------|
+| Primary open dataset with fatigue life, process parameters, **measured** residual stress, material class | **None** (no verified open URL satisfies all fields) | Unavailable | Flag as a data limitation; predictive‑gain analysis proceeds only on synthetic data for illustration. |
+| Pipeline verification (unit conversion, imputation) | Repo‑bundled CSV (`data/raw/pipeline_verification.csv`) | Included in repository | Confirms ingestion, unit conversion via `stress_unit`, and median imputation work as intended. |
+| Synthetic validation dataset | Deterministically generated (`data/raw/synthetic_fatigue.csv`) | Generated locally (seed 42) | Used to validate the end‑to‑end pipeline; **never for scientific inference** and **never for mediation** unless explicitly marked illustrative. |
 
-> **Note**: Because the primary mediation analysis requires measured residual stress, the lack of such data is a *planned limitation* rather than a failure. All scientific statements will explicitly note the data gap.
+All dataset references cite only the URLs listed in the “Verified datasets” block of the user message; no fabricated URLs are introduced.
 
 ## Methodology
 
 ### 1. Data Ingestion & Preprocessing
-- **Download** each verified dataset via `datasets.load_dataset` (streaming mode for large files).  
-- **Checksum** each raw file (SHA‑256) and store under `data/raw/`. The checksum is also added as a `checksum` column in the unified CSV for provenance.  
-- **Unit Standardization**: Convert any stress values to MPa (`1 psi = 0.00689476 MPa`).  
-- **Missing‑Value Imputation**: Median imputation per numeric column (FR‑002).  
-- **Proxy Residual Stress**: When `residual_stress_measured` is missing, compute `σ_res = k·heat_input·cooling_rate` with `k=0.8` for steel and `k=0.6` for aluminum (FR‑003). Set `is_proxy=True`, store the result in `residual_stress_proxy`, and clamp negative values to 0.01 MPa.  
-- **Contract Validation**: Validate the processed CSV against `contracts/dataset_schema.yaml` using `jsonschema`; abort on failure.  
-- **Reproducibility**: Random seed `SEED=42` used for any stochastic operation (FR‑010).
+- Load verification CSV and synthetic CSV; concatenate and add a `source` column.  
+- Compute SHA‑256 checksums for each raw file; store in `data/raw/checksums.json`.  
+- **Unit conversion** uses the explicit `stress_unit` column (`MPa` or `psi`). `psi` values multiplied by `0.00689476`.  
+- Median‑impute missing numeric entries (FR‑002).  
+- **Linear proxy computation**: `σ_res = k·heat_input·cooling_rate` (`k=0.8` for steel, `k=0.6` for aluminum). Computed for **all rows** so that FR‑014 (proxy–measured agreement) can be evaluated, but the proxy is **used as the stress feature only when `residual_stress_measured` is missing** (`is_proxy=True`).  
+- Clamp negative proxy values to `0.01 MPa`; log the count.  
+- Record per‑row SHA‑256 checksum in `checksum` column (data‑provenance).  
+- Validate against `contracts/dataset_schema.yaml`; abort on failure.  
+- Output `data/processed/unified_fatigue.csv` and `data/processed/missing_flags.json`.
 
-### 2. Feature‑Set Construction
-| Feature Set | Columns (post‑processing) |
-|-------------|---------------------------|
-| **A – Process‑only** | `heat_input`, `cooling_rate`, `other_process_params…` |
-| **B – Process + Measured Stress** | All of A **plus** `residual_stress_measured` (rows where `is_proxy=False`) |
-| **C – Process + Material Props** | All of A **plus** `material_class`, `elastic_modulus`, `yield_strength` (no stress column) |
+### 2. Balanced Subset & Feature‑Set Construction
+- Filter to rows with `is_proxy=False` (measured stress present).  
+- Down‑sample with fixed seed to obtain a **balanced steel/aluminum subset** → `balanced_measured.csv`.  
+- **Feature Set A**: process parameters only (from balanced subset).  
+- **Feature Set B**: process parameters + `residual_stress_measured` (same rows as Set A).  
+- **Feature Set C**: full dataset (including proxy rows) with process parameters, material properties, and `residual_stress_proxy` as the stress feature for `is_proxy=True` rows.
 
-Feature Set B will contain fewer rows if many observations lack measured stress; this is intentional and handled downstream.
+### 3. Model Training & Hyper‑parameter Search
+- Algorithms: `RandomForestRegressor`, `GradientBoostingRegressor` (scikit‑learn), shallow NN (`torch.nn.Sequential` with ≤ 128 hidden units, ≤ 500 epochs, early stopping).  
+- 5‑fold CV stratified by `material_class`; 10‑combo grid per algorithm.  
+- Select hyper‑parameters with lowest mean CV‑MAPE; retrain on full training split; persist models under `models/<feature_set>/<algorithm>.pt`.
 
-### 3. Model Training & Evaluation
-- **Algorithms**: `RandomForestRegressor`, `GradientBoostingRegressor` (scikit‑learn), shallow feed‑forward NN (`torch.nn.Sequential` with one hidden layer ≤ 128 units, early stopping ≤ 500 epochs).  
-- **Hyper‑parameter Grid**: 10 combinations per algorithm (e.g., `n_estimators`, `max_depth` for trees; hidden size, learning rate for NN).  
-- **5‑fold CV**: Stratified by `material_class`; use same seed across folds. Record MAPE and R² per fold.  
-- **Model Selection**: Choose hyper‑parameters with lowest mean CV‑MAPE. Retrain on the full training split (train + validation).  
-- **Held‑out Test Set**: 20 % of data, stratified by material, seed 42. Compute final MAPE and R².  
+### 4. Held‑out Test Evaluation
+- Stratified train/test split from the balanced subset (seed 42).  
+- Compute MAPE and R² for each model; store in `results/reports/model_performance.csv`.
 
-### 4. Comparative Analyses
-- **Paired t‑tests**: For each algorithm family, compare absolute errors of Model A vs. Model B on the full test set (including proxy rows). Apply Bonferroni correction across the three families (α = 0.05/3). Also run the test on the measured‑stress subset (if ≥ 50 rows) and report both p‑values. (FR‑008, SC‑003).  
-- **Cross‑Material Transfer**: Train on steel only, test on aluminum only, and vice‑versa; compute ΔMAPE relative to within‑material baseline (FR‑011, SC‑004).  
+### 5. Comparative Statistics (Illustrative)
+- **Paired t‑test** on absolute errors (Model A vs B) for each algorithm family **and** **Wilcoxon signed‑rank test** as a non‑parametric backup.  
+- Apply **Bonferroni correction** (α = 0.05/3).  
+- **Improvement thresholds** (≥10 % lower MAPE for Model B vs A) are reported **only as illustrative criteria**; no empirical claim is made unless a real dataset later becomes available (Constitution Principle VII).  
+- **Cross‑material transfer**: train on steel‑only, test on aluminum‑only (and vice‑versa); compute ΔMAPE; significance via 10 000‑permutation test with Holm‑Bonferroni.
 
-### 5. Mediation Analysis (Conditional)
-- **Eligibility Check**: Proceed only if `is_proxy=False` rows ≥ 50; otherwise log a warning and skip mediation (edge‑case handling).  
-- **Model Specification**: Use linear regression for the **a‑path** (process → residual stress) and **b‑path** (residual stress → fatigue life) while controlling for all other covariates.  
-- **Collinearity Diagnostic**: Compute Variance Inflation Factor (VIF) for each predictor; if any VIF > 5, flag in the report and interpret mediation results with caution.  
-- **Bootstrap**: 10 000 resamples via `statsmodels.stats.mediation.Mediation`.  
-- **Multiple‑Comparison**: Holm‑Bonferroni correction across material classes (steel, aluminum).  
-- **Outputs**: `mediation_summary.csv` (indirect effect, direct effect, proportion mediated, 95 % CI) and accompanying effect‑size plots. (FR‑006, FR‑007, SC‑001, SC‑003).  
+### 6. Mediation Analysis (Conditional – **Not a Primary Claim**)
+- **Eligibility**: If a **real open dataset** (source ≠ `synthetic` ∧ source ≠ `verification`) contains ≥ 50 rows with measured residual stress, perform mediation on that real data (satisfying FR‑013).  
+- **Otherwise**: Mediation is **skipped**; a log entry notes “Insufficient measured‑stress rows – mediation omitted”. No synthetic mediation is run.  
+- When eligible, fit linear **a‑path** (process + material properties + material class → measured stress) and **b‑path** (measured stress + process + material properties + material class → fatigue life). Include VIF diagnostics (flag > 5).  
+- **Bootstrap** 10 000 resamples → indirect effect, direct effect, proportion mediated, 95 % CI.  
+- Apply Holm‑Bonferroni across material classes.  
+- **Causal framing**: all outputs labeled “associational – no causal identification”.  
+- Save `mediation_summary.csv` and PNG plots **only when real data qualify**.
 
-### 6. Reporting
-All results are stored under `results/reports/`:
-- `model_performance.csv` (MAPE, R² per feature set & algorithm)  
-- `paired_t_test.csv` (test statistics, raw and corrected p‑values)  
-- `cross_material.csv` (ΔMAPE values)  
-- `mediation_summary.csv` (if mediation run)  
-- PNG figures for performance curves, t‑test distributions, and mediation effects.  
+### 7. Reporting & Artifact Generation
+All results are consolidated under `results/reports/` with provenance columns linking back to `unified_fatigue.csv`. Figures are PNGs. A `runtime_summary.csv` records wall‑clock time and peak memory per phase.
 
-Each table/figure includes a provenance column linking back to the originating row(s) in `data/processed/unified_fatigue.csv`.
+### 8. Compute Feasibility
+All steps run on the GitHub Actions free‑tier CPU runner (≈ 2.5 h, < 7 GB RAM). No GPU is required; all libraries are CPU‑compatible.
 
-### 7. Compute Feasibility
-- **CPU‑only** implementation; total runtime measured on a fresh GitHub Actions runner is ≤ 2.5 h, RAM peak ≤ 6 GB, disk usage ≤ 12 GB.  
-- No GPU resources are required; all libraries are installed from PyPI wheels compatible with the runner.
+### 9. Statistical Rigor Checklist
+- **Multiple‑comparison correction**: Bonferroni for t‑/Wilcoxon tests; Holm‑Bonferroni for permutation and mediation tests.  
+- **Power justification**: Mediation only if ≥ 50 measured‑stress rows from a real dataset (FR‑013). Synthetic data is **not** counted toward this requirement.  
+- **Causal framing**: Explicitly associational; no causal claims.  
+- **Measurement validity**: Proxy–measured agreement (Pearson r, R²) reported when both exist (FR‑014).  
+- **Collinearity**: VIF diagnostics; any VIF > 5 noted.
 
-### 8. Statistical Rigor
-- **Multiple‑Comparison**: Bonferroni for paired t‑tests; Holm‑Bonferroni for mediation across materials.  
-- **Power Consideration**: Mediation is performed only when ≥ 50 measured‑stress rows exist; otherwise a warning is logged, satisfying the power‑adequacy rule.  
-- **Causal Framing**: All mediation statements are explicitly labeled *associational*; no causal inference is claimed.  
-- **Measurement Validity**: Real datasets are cited; synthetic data is clearly labeled as validation only.  
-- **Collinearity**: VIF diagnostics are included; VIF > 5 triggers a caution note.
+### 10. Edge‑Case Handling
+- **No measured stress** → `is_proxy=True` for all rows; mediation skipped; models use proxy where required.  
+- **Negative proxy values** → clamped to `0.01 MPa`; count logged.  
+- **Insufficient measured rows** → mediation omitted with warning; predictive‑gain illustration proceeds on synthetic data.
 
-### 9. Edge‑Case Handling
-- **No measured residual stress** → analysis proceeds with Feature C only; final report includes flag `proxy_dependent=True`.  
-- **Sample size < 50** → mediation step omitted with logged warning.  
-- **Negative proxy values** → clamped to 0.01 MPa; adjustment logged.  
-
-All decisions are deterministic, reproducible, and fully traceable to the code and data versions recorded in the project state file.
-
----
+All decisions are deterministic, reproducible, and traceable to version‑controlled code and data.

@@ -1,6 +1,6 @@
 # Amendment 001: Replacement of FR-003
 
-**Date**: 2026-06-29
+**Date**: 2026-10-22
 **Status**: Ratified
 
 ## Summary

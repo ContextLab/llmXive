@@ -1,53 +1,41 @@
+"""
+Configuration module – provides a deterministic random seed and a few
+pipeline parameters.
+"""
 import os
 import random
-from typing import Dict, Any, Optional
+from typing import Any
 
 import numpy as np
 
-# Default configuration values
-DEFAULT_CONFIG = {
-    "seed": 42,
-    "window_length": 60,  # seconds (Mandated by FR-003 for Schaefer 200 stability)
-    "step_size": 1,       # seconds
-    "fd_threshold": 0.2,  # mm (Motion exclusion threshold)
-    "min_scans": 120,     # minimum number of time points
-    "batch_size": 50,     # subjects per batch for memory management
-    "n_surrogates": 1000, # number of phase-shuffled surrogates for null model
-    "n_permutations": 10000, # permutations for significance testing
+# Constants required by the task specification
+SEED = 42
+WINDOW_SEC = 60          # seconds, per spec
+STEP_SEC = 1
+FD_THRESHOLD = 0.2
+BATCH_SIZE = 20
+
+# Internal configuration dictionary (used by other modules)
+_CONFIG: dict[str, Any] = {
+    "seed": SEED,
+    "tr": float(os.getenv("TR", "0.72")),  # HCP repetition time in seconds
+    "window_seconds": WINDOW_SEC,
+    "step_seconds": STEP_SEC,
+    "FD_threshold": FD_THRESHOLD,
+    "batch_size": BATCH_SIZE,
+    "snr_threshold": 1.0,
 }
 
-_config: Dict[str, Any] = {}
-
-def set_seed(seed: int = 42) -> None:
+def set_seed(seed: int = SEED) -> None:
     """
-    Set random seeds for reproducibility.
+    Seed the global random number generators for reproducibility.
     """
     random.seed(seed)
     np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-    global _config
-    _config['seed'] = seed
+    os.environ["PYTHONHASHSEED"] = str(seed)
 
-def get_config() -> Dict[str, Any]:
+def get_config() -> dict[str, Any]:
     """
-    Get the current configuration dictionary.
-    Initializes with defaults if not yet set.
-    Supports override via environment variables.
+    Return a copy of the current configuration dictionary.
     """
-    global _config
-    if not _config:
-        _config = DEFAULT_CONFIG.copy()
-        # Allow override from environment variables if needed
-        if 'WINDOW_LENGTH' in os.environ:
-            _config['window_length'] = int(os.environ['WINDOW_LENGTH'])
-        if 'STEP_SIZE' in os.environ:
-            _config['step_size'] = int(os.environ['STEP_SIZE'])
-        if 'FD_THRESHOLD' in os.environ:
-            _config['fd_threshold'] = float(os.environ['FD_THRESHOLD'])
-        if 'BATCH_SIZE' in os.environ:
-            _config['batch_size'] = int(os.environ['BATCH_SIZE'])
-        if 'N_SURROGATES' in os.environ:
-            _config['n_surrogates'] = int(os.environ['N_SURROGATES'])
-        if 'N_PERMUTATIONS' in os.environ:
-            _config['n_permutations'] = int(os.environ['N_PERMUTATIONS'])
-    return _config
+    return dict(_CONFIG)

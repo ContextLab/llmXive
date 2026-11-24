@@ -1,10 +1,4 @@
 T001:
-  reason: The task requires creating a directory hierarchy (`src/data`, `src/models`,
-    `src/analysis`, `src/config`, `src/utils`, `tests/contract`, `tests/integration`,
-    `tests/unit`), but the evidence collector reports no artifact paths were resolved
-    and provides no listing or confirmation that any of these directories exist in
-    `projects/PROJ-536-predicting-molecular-reactivity-using-gr`. With no on-disk
-    evidence of the directory structure, the claim cannot be verified as done.
   task: 3b45025f48eac5a6f2182be1b2fdd06b530b43170d3675984d2f2fe042325644
 T002:
   task: 9972ba7b91ac17ef925e3033a43cd3b121505ca4988358b7ff9df9b0e040dec1
@@ -17,12 +11,23 @@ T003c:
 T004:
   task: c799ff685abdcca1b95bd1a31afd2d723e4b6cf5d43f1647143b63138ab17ab0
 T005:
+  reason: The file `src/utils/logging.py` is present and implements generic logging
+    utilities, but it does not contain any logic, functions, or documentation specifically
+    for tracking skipped invalid SMILES as the task requires. A concrete mechanism
+    (e.g., a logger or helper that records when a SMILES string is invalid) is missing.
   task: 52f32fb05b8137f22181326279691e7b026470cb659efad47b3ad7a4e702c9db
 T006:
   task: 7ebea88837f0ffbee6217759bec0da5df8a1102383266fdbe2bf420e367a9a60
 T007:
+  reason: The required files `specs/001-predicting-molecular-reactivity-using-gr/contracts/reaction_record.schema.yaml`
+    and `specs/001-predicting-molecular-reactivity-using-gr/contracts/molecular_graph.schema.yaml`
+    are reported as MISSING, so the schemas were not created.
   task: 0556c31cff4b6c8217a7e441cb5e5d1bf143c457720cd10c40fe2e96f11bf5af
 T008:
+  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/ci.yml`
+    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 16f7dcab628df6a95b0b95bd245555af4985027a77a9e73b406f3189a9413ffa
 T009:
   task: db4a02e3ff54ef6257a77d2c914ab5c65c48c259dfc92cd7ebe8b7312502d9da

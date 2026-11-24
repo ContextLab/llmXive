@@ -1,11 +1,11 @@
 # Quick Start Guide
 
-This guide walks you through setting up the environment and running the full analysis pipeline for **PROJ‑524**.
+This guide walks you through setting up the environment and running the analysis pipeline for **PROJ‑524** (re‑scoped to use a real, in‑lab collected dataset).
 
 ## Prerequisites
 - Python 3.11 or later
 - `git`
-- Internet access (to download optional open datasets or stimulus placeholders)
+- No internet access is required after the initial repository clone (all data are collected locally).
 
 ## Installation
 
@@ -16,17 +16,10 @@ cd <project-directory>
 
 # 2. Create a virtual environment (optional but recommended)
 python -m venv venv
-source venv/bin/activate   # on Windows: venv\Scripts\activate
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-# 3. Install dependencies
+# 3. Install pinned dependencies
 pip install -r requirements.txt
-```
-
-## Directory Setup
-The first run will create necessary folders under `data/`:
-
-```bash
-python -c "import pathlib, os; [pathlib.Path(p).mkdir(parents=True, exist_ok=True) for p in ['data/raw','data/processed','data/stimuli','data/results']]"
 ```
 
 ## Running the Full Pipeline (recommended)
@@ -35,34 +28,35 @@ python -c "import pathlib, os; [pathlib.Path(p).mkdir(parents=True, exist_ok=Tru
 python code/main.py
 ```
 
-`main.py` orchestrates the following steps:
+`main.py` orchestrates the following steps in order:
 
-1. **Data ingestion** – attempts to download an open WCST dataset; if unavailable, generates synthetic data.  
-2. **Checksum verification** – ensures stimulus files are intact.  
-3. **Cleaning** – applies age filter (FR‑001) and optional MMSE exclusion (FR‑006).  
-4. **Statistical analysis** – Welch’s t‑test, Bonferroni correction, Cohen’s d, MDES (FR‑002‑FR‑004).  
-5. **Sensitivity analysis** – threshold sweep and MMSE‑exclusion sensitivity (FR‑005).  
-6. **Runtime monitoring** – logs a warning if total runtime > 6 h (FR‑007).  
-7. **Reporting** – writes JSON reports and logs under `data/results/`.  
+1. **Data Collection** – Researchers run the in‑lab protocol (see `code/collection.py`) to obtain `data/raw/wcst_dataset.csv` with all required columns.  
+2. **Stimulus ID Assignment** – `code/stimulus.py` verifies audio file checksums, creates a deterministic `stimulus_id` for each participant, and updates `manifest.json`.  
+3. **Checksum Verification** – Confirms stimulus placeholder files match `manifest.json`.  
+4. **Cleaning** – Applies age filter (FR‑001) and MMSE exclusion (FR‑006); writes `data/processed/cleaned_dataset.csv`, `data/processed/wcst_metrics.csv`, and `exclusion_log.json`.  
+5. **Statistical Analysis** – Welch’s t‑test, Bonferroni correction, **Cohen's d** with 95 % CI, MDES → `statistical_report.json`.  
+6. **Sensitivity Analyses** – α‑sweep (0.01, 0.04, 0.05, 0.06) and MMSE‑exclusion sensitivity → `sensitivity_report.json`.  
+7. **Runtime Monitoring** – Logs a warning if total runtime > 6 h (FR‑007).  
+8. **Contract Validation** – Tests that both JSON files conform to the schemas in `contracts/`.  
 
 ### Output Files
-- `data/results/statistical_report.json` – primary test results.  
+- `data/results/statistical_report.json` – primary test results (includes `"validity_status": "verified"`).  
 - `data/results/sensitivity_report.json` – threshold and MMSE‑exclusion checks.  
 - `data/results/exclusion_log.json` – counts of rows removed for each rule.  
 
-## Step‑by‑Step Execution (for debugging)
+## Step‑by‑Step Debugging
 
 | Step | Command | Description |
 |------|---------|-------------|
-| Ingestion / Simulation | `python code/ingestion.py` | Downloads or creates `data/raw/raw_dataset.csv`. |
-| Checksum Verification | `python code/utils.py verify_stimuli` | Confirms stimulus file integrity. |
-| Cleaning | `python code/cleaning.py` | Produces `data/processed/cleaned_dataset.csv`. |
-| Analysis | `python code/analysis.py` | Generates `statistical_report.json`. |
-| Sensitivity | `python code/sensitivity.py` | Generates `sensitivity_report.json`. |
-| Full Report | `python code/main.py` | Runs all above in order. |
+| Collect data | `python code/collection.py` | Runs the in‑lab data‑collection protocol (manual step; generates `wcst_dataset.csv`). |
+| Verify stimuli | `python code/stimulus.py assign_ids` | Checks SHA‑256 checksums and creates `stimulus_id` mapping. |
+| Clean data | `python code/cleaning.py` | Applies FR‑001 and FR‑006; writes cleaned data and exclusion log. |
+| Run analysis | `python code/analysis.py` | Generates `statistical_report.json`. |
+| Run sensitivity | `python code/sensitivity.py` | Generates `sensitivity_report.json`. |
+| Full run | `python code/main.py` | Executes all steps sequentially. |
 
 ## Testing
-Run the test suite to ensure contracts and functional behavior are satisfied:
+Run the full test suite to ensure contracts and functional behavior are satisfied:
 
 ```bash
 pytest -v
@@ -70,9 +64,9 @@ pytest -v
 
 All tests should pass on the CI runner; failures indicate a violation of a functional requirement or contract.
 
-## Troubleshooting
-- **Missing dataset**: The pipeline will automatically fall back to synthetic data; check `data/raw/metadata.json` for `"simulation_mode": true`.  
-- **Runtime warning**: If you see `WARNING: Runtime exceeded 6 hours`, the pipeline continued but you may need to profile steps for efficiency.  
-- **Checksum mismatch**: Re‑run `python code/utils.py verify_stimuli` after ensuring stimulus files are unchanged.
+## Important Note
+The dataset must be **collected in‑lab** as described; the pipeline does not generate synthetic data. Results will reflect the actual effect of nostalgia on cognitive flexibility in the recruited aging adult sample.
 
 ---
+
+

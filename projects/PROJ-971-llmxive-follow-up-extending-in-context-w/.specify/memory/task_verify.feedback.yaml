@@ -1,0 +1,75 @@
+T001:
+  task: a1fa9ec922d0502fb6673e4009c127577659ade8d4e42d58e2c72bcdd595fb8a
+T002:
+  reason: "The script `src/pipeline/generate_clips.py` is present and appears to generate\
+    \ 50 clips, but the required dataset files `data/raw/clip_*.npz` are missing\u2014\
+    no matching `.npz` files exist in `data/raw`, so the verification condition (50\
+    \ files each containing `states`, `actions`, `observations`) is not met. The task\
+    \ needs the actual clip files to be generated and stored."
+  task: c84a75669ba6506c448380019bedbdf7d5764eaf70eb6edb0d914f03eeb39050
+T003:
+  reason: "The extractor script, CSV output, schema, and pytest validation are present\
+    \ and pass, but the required sanity\u2011check asserting that a high\u2011variance\
+    \ clip\u2019s variance is >\u202F2\u202F\xD7\u202Fa low\u2011variance clip\u2019\
+    s variance is not provided in any test or script. Adding this check (e.g., in\
+    \ a dedicated test or within the pipeline) is needed to satisfy the task fully."
+  task: 122ef7f38385dd08bda424450099818fde99ea24eda817f279025496d3030a7a
+T004:
+  reason: "The run produced the required CSV files and printed a 50\u2011row table\
+    \ (evidence in the `.tasks` logs), but the required `logs/run_end_to_end.log`\
+    \ file is not present, nor is there any evidence that its contents (the printed\
+    \ table) were checksum\u2011verified against `descriptors_subset.csv`. Additionally,\
+    \ no schema\u2011validation evidence for `data/processed/descriptors.csv` is provided.\
+    \ These missing artifacts prevent the task from being considered fully completed."
+  task: f6e5cf012bee162daaecc2d1c3f4c698a4cf91c2d395ec0af2751fd1f777e1fc
+T005:
+  task: b84fd29d315d45663f84721074228bae6dfb77ba99325f78b4f92cef958afe44
+T006:
+  task: cfce4e71a441ee5378691c44ab44ce8d498ce1d0313603b04b5e958d53a51106
+T007:
+  reason: "The required artifacts `data/processed/task_complexity.csv` and `reports/complexity_summary.txt`\
+    \ are missing, and the provided script does not read `task_metadata.yaml` nor\
+    \ write to the specified locations (it writes `data/complexity.csv` and `data/correlation.txt`).\
+    \ Consequently the task\u2011complexity metric is not produced as specified and\
+    \ cannot be validated against the schema."
+  task: 19f9c0b81090147b3d47411b9612715566acfe8cd4b1ee0b66b0533d31a05c8d
+T008:
+  task: 652135d6d66de8e60a88d8a456903f8ce63f14fc8dcee1899354ca708fd5eae6
+T009:
+  task: 81c3a7cb5885d81f11f1d47bc8e832962927bf67a4cc5a86eac5c4400b74653b
+T010:
+  task: 37cc0dd3931e5b325b9f623af779bb7f8da5ecb360bad2af3d01cfe9854fd7c8
+T011:
+  task: dc7fdf5611ca0309cbe69166052bd5812023280e02d4bf03edee4d1d0d103fe1
+T012:
+  task: 18f366550ee6f3c38faa6ed6d45081bd731f6ee95622198345d7cbc608cfcc0f
+T013:
+  task: 32aa421ef394c97e393a19816aa214f81c7404e1ca49466e36402770de78e083
+T014:
+  task: f7885182beac0fe25ebbb619966fddb340335a7963578d640a79b4cb038b5d2c
+T015:
+  task: d6df3528cc373fa4decfd7b03b3b8f6dbe2db378a434ba749b05f65732277514
+T016:
+  task: e60a6ac0300f8a4e09ff1f66543ae56fad9d623829f7a135ef846d5f4370d48e
+T017:
+  task: 8923aab3ea6c9095765ae1d29ca45f6065680fa07580d60a1884f3ca683487b8
+T018:
+  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/verify_checksum.py
+    exit=1'
+  task: 76087991286610024b4c34e51ce7a5e6ec9a448e3205d2db0bf7bb75de5fe0fb
+T020:
+  reason: The repository contains the generation script (`src/pipeline/generate_clips.py`)
+    and a log showing it was run to produce 200 clips, but the required output files
+    (`data/raw/clip_*.npz`) are absent, and the test suite cannot import `src.pipeline.generate_training_clips`.
+    Consequently the 200 clip files do not exist in the project and there is no evidence
+    they load correctly. The task must create and commit the 200 `.npz` files (or
+    ensure they are generated on demand) and make the generation module importable.
+  task: fe2d857af8fb91dd3b52dbfa69ce201839e2da4c8a1a1b77847c46ffbb40410f
+T021:
+  reason: 'Requested task execution failed; rerun successfully: scripts/run_minimal.sh
+    exit=1'
+  task: ab12cd51437853e066e26d86a272f818c380414d53f207db92a77a33e6ab8567
+T022:
+  task: e410a8721b20068690d16c3385a6921f876216012d668273da7f5e446cfc653d
+T023:
+  task: f4c4a7da1cba401e139528c898bb5c430aeb763f8c17b58307d2fda3ac58cf37

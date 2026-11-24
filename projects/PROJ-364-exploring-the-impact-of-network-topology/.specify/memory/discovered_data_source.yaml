@@ -1,15 +1,13 @@
 status: none
-intent: 2D material defect coordinates thermal conductivity dataset Materials Cloud
-  Zenodo python package dataset
+intent: defect coordinate dataset graphene MoS2 Materials Cloud Zenodo python package
+  dataset
 required_fields:
+- x
+- y
 - sample_id
 - material
-- x_coordinate
-- y_coordinate
-- thermal_conductivity
-- temperature
-- measurement_method
-- lattice_constant
-cache_key: 877750a3d862e86048cd58d64a2e4060ea9291d717fc2d9253914b7132033e95
-searched_at: '2026-10-10T21:11:04.836628+00:00'
+- unit
+- z (optional)
+cache_key: b49fba4bd9a0d2851a6aaf316cb91ffe965ba1a008ec487a72e09a4b443acb8b
+searched_at: '2026-10-25T13:30:24.616789+00:00'
 retry_count: 1

@@ -1,0 +1,96 @@
+T001a:
+  task: 7882a444b64410d9153ab0a905671820c8b488e5c2f3740b933348e4b7c28672
+T001b:
+  task: 66550c314953eea86f7b0b0aefda30621024599f032de45eceee91b60355e4be
+T001c:
+  task: 7dfc4a9b99cb53edfad09459518203a39052cb01658202eebef663d8fe04448c
+T004a:
+  reason: "The file `code/src/data_loader.py` exists, but it contains fully\u2011\
+    implemented functions (e.g., `load_molmomotion_streaming`, `subsample_instances`,\
+    \ etc.) rather than the required skeleton of empty functions with only imports\
+    \ for test mocking. The task explicitly asked for a skeleton with empty bodies,\
+    \ which this implementation does not provide."
+  task: 59b08cec78ed1cb94f1f42a71799e348c10c917acccd5bfb9d9e28a2ad5dd500
+T004b:
+  task: 8f6e0aed7977fd70b0086aa82d8efcc4abe6646433cd88ba9b376b433621369b
+T005a:
+  reason: The required `specs/001-llmxive-motion-scaling/contracts/dataset.schema.yaml`
+    file is reported as missing, so the schema defining the five fields is not present.
+    Without this file the task is not satisfied.
+  task: 81fda8c3e66fef55ca04ef063a68ca2e00e45b51c6cf8e67524ed2fd71e47edc
+T005b:
+  task: 403324925b4d07cace655b26c0911b1bf55208bafd32ab6b917baa1473ac4350
+T006:
+  task: 36bec49a18faea3cf400cbfa67aa44b198ec4e3a71a5e2bd76211c789a17cbe7
+T007:
+  task: 4e860fac6f7e96ddfdd089dab7f234012ea358dde75e368c2d328be61610b61f
+T008:
+  task: 9ba2895a23f781912a4a690c064d2ee06334932c4775fa7e27afc2fe8602cb70
+T009:
+  task: 118c4dd8d1ab1245cafa22110bc7b7ef293fe0ab8968e0ccda26fc15042f0a0a
+T010:
+  task: d6561639d83768eb499d08fe1ed133b3f07bb0a153b4f93df3a939c7bd59f8d3
+T011:
+  reason: 'Requested task execution failed; rerun successfully: code/src/run_subsample.py
+    exit=1'
+  task: 569b429c8141bbb03844c6c1a4fb8a46ed75264dccc61fea80135673138d57cc
+T011b:
+  task: c92c5efabbe6bde4f5f4d4dcb4a427be05d60ebe26e8cf64057bf2e014ccbb59
+T012:
+  task: 46ef011ac7f63ade0cb57a821ef2bb3e9020d985354159b69ba89fdef7b95fa0
+T013:
+  task: 0f64d0c70ca18d10eef1422e88256e5c4ebca6786a10871afa90989e285e5b24
+T014:
+  task: 398c02da6616767878b0fd63e2f555a3303b08d8b9948986e28c2d80c485fe33
+T015:
+  task: 5a3ccaa43a97a39ca142a9aa44f8336b3545e000a276ca5b0e14afd55e4473c8
+T016:
+  task: e50e72a2632128ad289f4ba27b2717efbb6353d37e46a0117b7ba06360bbcbef
+T017:
+  task: 3fe6e64b2696435678779994f9564fd007ffa6e6abb9d821ae31cc9086f684c8
+T018:
+  task: e55c87fddb305a3f333281b5de493c73ce240dccab73b9a63918a932d9e2fc1d
+T019:
+  task: cf001f8fa1236e96767abdd76849a570bafdb9535ceecfc27d0055e7c2c8762b
+T020:
+  task: 08da87f6abf97202b8844840679c0ffc3305142a989adb7f7d8d095be2f158a9
+T021:
+  task: f70329fdef38e77a862c306c752591b9e4ddf19faebf9f0b89a91e511fb1656e
+T022:
+  task: 14f4934e483ac060522269baa110007c06f64c02e0a0c309d853e3b9d911c356
+T023:
+  task: ec6bae41ac339e2c404677c05040da420e3cb688d06b8c04edb9e82366cc826b
+T024:
+  task: 31fad131f76977048fe6012995bb00870d9e61c0c295151c949aec5e9fdef2ea
+T025:
+  task: e3276af70d20fdaae10c2af9f48b5469eff39d160109b39edbb7d8e7b7a0b031
+T026:
+  task: 49eee324876592c987ee8bb0e339cfa9fcf4f4811199d76a24cfbf4078909b06
+T027:
+  task: e495344e5aaf38501261f5e3e65d0f85f17ca60855b1563cae37ddecb9a999e8
+T028:
+  task: ea04137f7730326b655c2e81e052643c2032c8e78c086befb085f96b9f9472dc
+T029:
+  task: 0750d0ab9abacffa5ff52cf7895f28920e189ba98abfd4b6719a0b5201e7d079
+T029a:
+  task: 7864914ed910736cb15912beda55883ffe2cabb32057bbb48ba9bbc1b69a05ac
+T030:
+  task: 0b2c9c5f82be896cfafa15f22e1aba77ae01c68fbee94a1e96704d9996b6c15d
+T031:
+  task: 0586c98cf757f88559f825004f30a1e1c26f21a4c4f27ed4da22f67f3418d7a3
+T031a:
+  task: 8dcef868003300dce36751d5c061486ea5bfd9557f245e3b41cf22c946b72a3e
+T031b:
+  task: 0371c98fac315c6d93d68fc62d33231ede69dbc67819d9a7788d80ac9d5ad842
+T032a:
+  task: 5e1623d24dcf0523b7631b1a2c2ca1b9a805d29c5f5db9156e2e9679c3c44d24
+T033a:
+  task: 2aea87abc50fd55f81887d664a70351821c620a20b3833ea58e86b1d6d4f0641
+T033b:
+  task: d5cc98b1fdcdb105a44c7a87eb9d38ee1b6273914eedf24d51171477d844414c
+T034:
+  task: 4a2954e7dbb0c181286637a2175e6cd7823a7600fa846a3c0a892860248e6321
+T035:
+  task: 22a111e56dbaa98e86ad4583a35cec6b81ad3e22e78de812e76fe4ccfc494171
+T036:
+  task: 463922041d67cee29d986f211c3e0be09ee9a3a223593ff5d87ff8ecc465dd89

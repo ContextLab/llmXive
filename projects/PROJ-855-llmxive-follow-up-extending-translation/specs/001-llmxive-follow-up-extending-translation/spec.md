@@ -17,8 +17,8 @@ A researcher needs to generate a dataset of bi-manual manipulation episodes usin
 
 **Acceptance Scenarios**:
 
-1. **Given** a configuration for ≥ 5,000 episodes with simplified rigid bodies, **When** the generation script executes on a CPU, **Then** the output dataset contains ≥ 5,000 valid rows with translation vectors and a binary stability label, and execution completes within the total 6-hour pipeline budget.
-2. **Given** an episode where the simulated object tips beyond the defined threshold (≥ 15°) or slips (≥ 0.02m), **When** the labeling logic runs using `config.yaml` parameters, **Then** the corresponding record is marked as "failure" (0) regardless of the translation trajectory shape.
+1. **Given** a configuration for ≥ 5,000 episodes with simplified rigid bodies, **When** the generation script executes on a CPU, **Then** the output dataset contains ≥ 5,000 valid rows with translation vectors and a binary stability label, and execution completes within the total allocated pipeline budget.
+2. **Given** an episode where the simulated object tips beyond the defined threshold (≥ 15°) or slips (≥ 0.02 m), **When** the labeling logic runs using `config.yaml` parameters, **Then** the corresponding record is marked as "failure" (0) regardless of the translation trajectory shape.
 3. **Given** the requirement to discard specific data types, **When** the dataset is inspected, **Then** no columns containing rotation quaternions, joint torques, or force sensor readings exist in the file.
 4. **Given** a physics simulation crash (e.g., numerical instability) mid-episode, **When** the generation loop encounters an exception, **Then** the script logs the failure, discards the incomplete episode, and generates a replacement to ensure the final dataset size meets the ≥ 5,000 target.
 
@@ -26,7 +26,7 @@ A researcher needs to generate a dataset of bi-manual manipulation episodes usin
 
 ### User Story 2 - Lightweight Sequence Model Training (Priority: P2)
 
-A researcher needs to train a lightweight sequence model (constrained to <10M parameters, referencing PyramidTNT-Ti architecture) on the generated dataset to predict stability labels using only translation trajectories, ensuring the entire training process runs within 6 hours on a 2-core CPU with 7GB RAM, and persists the model and a parameter count summary.
+A researcher needs to train a lightweight sequence model (constrained to <10M parameters, referencing PyramidTNT‑Ti architecture) on the generated dataset to predict stability labels using only translation trajectories, ensuring the entire training process runs within 6 hours on a 2-core CPU with 7GB RAM, and persists the model and a parameter count summary.
 
 **Why this priority**: This implements the core hypothesis testing mechanism. It must be feasible on free-tier hardware to be actionable, and the parameter count must be verifiable to ensure it meets the "edge robot" constraint.
 
@@ -53,7 +53,7 @@ A researcher needs to statistically validate that the translation-only model's p
 
 1. **Given** the translation-only model's predictions and the baselines' predictions for the test set, **When** the statistical test runs, **Then** McNemar's test yields p-values for both comparisons (Translation vs. Geometry, Translation vs. Random) and the system reports whether the models are statistically equivalent or if the translation model is significantly better.
 2. **Given** a test set containing object geometries not seen during training, **When** both models predict stability, **Then** the system reports the measured accuracy of all models, the AUC-ROC, and the accuracy difference relative to the Class Prior baseline.
-3. **Given** the requirement for methodological rigor, **When** the results are reported, **Then** the report explicitly states the accuracy differences and p-values without claiming causal inference beyond the associational nature of the observational data, and explicitly confirms that all metrics are derived from real measurements on the generated data (no hard-coded values).
+3. **Given** the requirement for methodological rigor, **When** the results are reported, **Then** the report explicitly states the accuracy differences and p-values without claiming causal inference beyond the associational nature of the observational data, and explicitly confirms that all metrics are derived from real measurements on the generated data (no hard‑coded values).
 
 ---
 
@@ -62,33 +62,35 @@ A researcher needs to statistically validate that the translation-only model's p
 - **What happens when** the physics simulation encounters a numerical instability (e.g., object tunneling) causing a crash mid-episode?
   - *Handling*: The generation script must catch the exception, discard the incomplete episode, log the failure, and generate a replacement to ensure the final dataset size is ≥ 5,000 valid episodes.
 - **How does the system handle** a scenario where the translation trajectory is identical for both a success and a failure outcome (ambiguous signal)?
-  - *Handling*: The model will learn the probability distribution; the evaluation must report the confusion matrix to show if the model is forced to guess. If the accuracy on this ambiguous subset is < 50% (random chance), it is flagged as a measurable limitation of the "translation-only" modality.
+  - *Handling*: The evaluation script must (a) identify episodes whose translation sequences are identical within a tolerance of 1e‑5 but have opposite binary labels, (b) report a full confusion matrix for the translation‑only model, and (c) flag the ambiguous‑subset accuracy; if the accuracy on this subset is < 50 % the report marks it as a measurable limitation.
 - **What happens if** the 6-hour time limit is exceeded during training?
   - *Handling*: The CI job must fail gracefully with a timeout error, and the `Assumptions` section must note that the current hyperparameters (learning rate, batch size) may need reduction to fit the compute box.
 - **What happens if** the baseline models fail to converge?
-  - *Handling*: The evaluation script must detect a baseline accuracy near random chance (e.g., < 55%) and flag the comparison as potentially invalid due to an underpowered baseline, rather than fabricating a result.
+  - *Handling*: The evaluation script must detect a baseline accuracy < 55 % and flag the comparison as potentially invalid due to an under‑powered baseline, rather than fabricating a result.
 
 ## Requirements
 
 ### Functional Requirements
 
 - **FR-001**: System MUST generate a synthetic dataset of bi-manual manipulation episodes using PyBullet, recording only relative wrist translation vectors and initial object bounding box coordinates, while explicitly discarding rotation and force data. (See US-1)
-- **FR-002**: System MUST label each generated episode with a binary stability outcome (1=success, 0=failure) based on physics-derived metrics: tipping angle ≥ 15° or slippage distance ≥ 0.02m, with these thresholds loaded from `config.yaml`. (See US-1)
-- **FR-003**: System MUST implement a lightweight Transformer encoder with a parameter count strictly constrained to <10,000,000 parameters (referencing PyramidTNT-Ti, arXiv:2201.00978). (See US-2)
-- **FR-004**: System MUST train the model using binary cross-entropy loss on a CPU-only environment without utilizing CUDA, bitsandbytes, or GPU-specific acceleration libraries. (See US-2)
-- **FR-005**: System MUST evaluate the trained model on a held-out test set of novel object geometries (geometry-disjoint split) and compute accuracy, ensuring the process completes within 6 hours on a 2-core CPU runner with 7GB RAM. (See US-2, US-3)
-- **FR-006**: System MUST train a "Geometry-Only Baseline" (a lightweight MLP using only initial object bounds) and persist it as `data/processed/geometry_baseline.pt` for comparison. (See US-3)
-- **FR-007**: System MUST train a "Random-Translation Baseline" (a model trained on shuffled/noise translation sequences of the same length) and persist it as `data/processed/random_baseline.pt` to test the null hypothesis. (See US-3)
-- **FR-008**: System MUST perform McNemar's test to compare the translation-only model against BOTH the Geometry-Only Baseline and the Random-Translation Baseline, outputting p-values and accuracy metrics derived from real model predictions. (See US-3)
-- **FR-009**: System MUST perform a sensitivity analysis on the labeling thresholds by injecting Gaussian noise (σ=0.5°) into the computed tipping angle value before applying the threshold, sweeping the noise level to simulate sensor uncertainty and reporting the variance in model accuracy to ensure ground truth robustness (justification: essential to validate labeling logic against physics engine numerical precision and simulated sensor noise). (See US-3)
+- **FR-002**: System MUST label each generated episode with a binary stability outcome (1=success, 0=failure) based on physics‑derived metrics: tipping angle ≥ 15° or slippage distance ≥ 0.02 m, with these thresholds loaded from `config.yaml`. (See US-1)  
+  *Justification*: 0.02 m is chosen to exceed PyBullet’s numerical noise floor and provide a robust failure signal (see Assumptions).
+- **FR-003**: System MUST implement a lightweight Transformer encoder with a parameter count strictly constrained to <10,000,000 parameters (referencing PyramidTNT‑Ti, arXiv:2201.00978). (See US-2)
+- **FR-004**: System MUST train the model using binary cross‑entropy loss on a CPU‑only environment without utilizing CUDA, bitsandbytes, or GPU‑specific acceleration libraries. (See US-2)
+- **FR-005**: System MUST evaluate the trained model on a held‑out test set of novel object geometries (geometry‑disjoint split) and compute accuracy, ensuring the process completes within 6 hours on a 2‑core CPU runner with 7GB RAM. (See US-2, US-3)
+- **FR-006**: System MUST train a "Geometry‑Only Baseline" (a lightweight MLP using only initial object bounds) and persist it as `data/processed/geometry_baseline.pt` for comparison. (See US-3)
+- **FR-007**: System MUST train a "Random‑Translation Baseline" (a model trained on shuffled/noise translation sequences of the same length) and persist it as `data/processed/random_baseline.pt` to test the null hypothesis. (See US-3)
+- **FR-008**: System MUST perform McNemar's test to compare the translation‑only model against BOTH the Geometry‑Only Baseline and the Random‑Translation Baseline, outputting p‑values and accuracy metrics derived from real model predictions. (See US-3)
+- **FR-009**: System MUST perform a sensitivity analysis on the *input* translation trajectories by injecting Gaussian noise with σ ∈ {0.0°, 0.25°, 0.5°, 0.75°, 1.0°} (degrees) into each vector, re‑evaluating the trained model for each noise level, and reporting the variance of model accuracy across the sweep. (See US-3)
 - **FR-010**: System MUST train a "Class Prior Baseline" (predicting the majority class frequency) and report its accuracy to ensure the translation model's improvement is not trivial. (See US-3)
 - **FR-011**: System MUST report results associatively, explicitly avoiding causal claims about translation causing stability, acknowledging the observational nature of the data. (See US-3)
 - **FR-012**: System MUST generate and persist a `model_summary.txt` artifact containing the exact parameter count of the trained model before saving. (See US-2)
+- **FR-013**: System MUST generate translation trajectories **independently** of labeling logic; labeling is performed as a post‑processing step using saved physics metrics, guaranteeing no circular dependence between predictor and outcome. (See US-1)
 
 ### Key Entities
 
 - **ManipulationEpisode**: A single data record containing a sequence of translation vectors, initial object bounds, and a binary stability label.
-- **StabilityMetric**: A derived value (tipping angle, slippage distance) used to determine the ground-truth label.
+- **StabilityMetric**: A derived value (tipping angle, slippage distance) used to determine the ground‑truth label.
 - **SequenceModel**: The lightweight Transformer architecture trained to map translation sequences to stability probabilities.
 - **GeometryBaseline**: A lightweight classifier trained on object bounds only.
 - **RandomBaseline**: A classifier trained on shuffled/noise translation sequences.
@@ -98,22 +100,29 @@ A researcher needs to statistically validate that the translation-only model's p
 
 ### Measurable Outcomes
 
-- **SC-001**: Dataset validity is measured against the requirement of ≥ 5,000 valid episodes with no rotation/force columns and a geometry-disjoint split, verified by schema inspection and checksum validation of `data/processed/train.parquet` and `data/processed/test.parquet`. (See FR-001, FR-002)
-- **SC-002**: Compute feasibility is measured against the constraint of ≤6 hours execution time and ≤7GB RAM usage on a standard 2-core CPU runner, verified by CI logs. (See FR-004, FR-005)
-- **SC-003**: Predictive performance is measured by calculating and reporting the accuracy difference between the translation-only model and the Geometry-Only Baseline, the Random-Translation Baseline, and the Class Prior Baseline, along with the AUC-ROC metric. (See FR-008, FR-010)
-- **SC-004**: Statistical significance is measured against the threshold of p < 0.05 via McNemar's test for BOTH comparisons (Translation vs. Geometry AND Translation vs. Random); both must pass to support the hypothesis. (See FR-008)
+- **SC-001**: Dataset validity is measured against the requirement of ≥ 5,000 valid episodes with no rotation/force columns and a geometry‑disjoint split, verified by schema inspection and checksum validation of `data/processed/train.parquet` and `data/processed/test.parquet`. (See FR-001, FR-002)
+- **SC-002**: Compute feasibility is measured against the constraint of ≤6 hours execution time and ≤7 GB RAM usage on a standard 2‑core CPU runner, verified by CI logs. (See FR-004, FR-005)
+- **SC-003**: Predictive performance is measured by calculating and reporting the accuracy difference between the translation‑only model and the Geometry‑Only Baseline, the Random‑Translation Baseline, and the Class Prior Baseline, along with the AUC‑ROC metric. (See FR-008, FR-010)
+- **SC-004**: Statistical significance is measured against the threshold of p < 0.05 via McNemar's test for BOTH comparisons (Translation vs. Geometry AND Translation vs. Random); both must pass to support the hypothesis. (See FR-008)
 - **SC-005**: Model complexity is measured against the constraint of <10,000,000 parameters, verified by `model_summary.txt`. (See FR-003)
-- **SC-006**: Result authenticity is measured by verifying that all reported metrics (accuracy, p-value) are derived from the `trained_model.pt`, `geometry_baseline.pt`, and `random_baseline.pt` artifacts, verified by static analysis of the evaluation code for constant return statements and log inspection for artifact file paths. (See FR-008, FR-011)
+- **SC-006**: Result authenticity is measured by re‑executing the evaluation script and confirming that all reported metrics (accuracy, AUC‑ROC, p‑values) are reproduced from the persisted artifacts (`trained_model.pt`, `geometry_baseline.pt`, `random_baseline.pt`, `class_prior_baseline`). (See FR-008, FR-011)
+- **SC-007**: Sensitivity analysis quality is measured by reporting the variance (standard deviation) of model accuracy across the defined noise‑sweep σ ∈ {0.0°, 0.25°, 0.5°, 0.75°, 1.0°}; a variance > 0.02 indicates notable robustness concerns. (See FR-009)
+- **SC-008**: Ambiguous‑signal reporting is measured by (a) providing a full confusion matrix for the translation‑only model, (b) identifying the ambiguous subset (identical trajectories with opposite labels), and (c) flagging the subset if its accuracy < 50 %. (See Edge Cases “identical trajectory for success and failure”.)
+- **SC-009**: Baseline‑convergence monitoring is measured by detecting any baseline accuracy < 55 %; such baselines are flagged as under‑powered and the comparison is marked as potentially invalid. (See Edge Cases “baseline models fail to converge”.)
+- **SC-010**: Independence verification is measured by confirming that trajectory generation scripts do not read or depend on label thresholds; a code audit ensures labeling is performed post‑generation using saved metrics. (See FR-013)
+- **SC-011**: Effect‑size requirement is measured by requiring a minimum accuracy improvement of ≥ 2 % of the translation‑only model over each baseline in addition to p < 0.05. (See scientific soundness concern on effect size.)
 
 ## Assumptions
 
-- **Assumption about data source**: The PyBullet physics engine is assumed to be sufficient for generating realistic rigid-body dynamics where translation trajectories implicitly contain signals related to tipping and slippage, even without explicit force sensors.
-- **Assumption about compute constraints**: The 6-hour time limit and 7GB RAM limit on the GitHub Actions free-tier are sufficient for training a <10M parameter Transformer on ≥ 5,000 episodes; if not, the batch size or sequence length will be reduced to fit.
+- **Assumption about data source**: The PyBullet physics engine is assumed to be sufficient for generating realistic rigid‑body dynamics where translation trajectories implicitly contain signals related to tipping and slippage, even without explicit force sensors.
+- **Assumption about compute constraints**: The 6‑hour time limit and 7 GB RAM limit on the GitHub Actions free‑tier are sufficient for training a <10M‑parameter Transformer on ≥ 5,000 episodes; if not, the batch size or sequence length will be reduced to fit.
 - **Assumption about methodological framing**: Since the data is generated from a simulation (no random assignment of physical laws), all findings regarding the relationship between translation and stability will be framed as associational, not causal.
-- **Assumption about threshold justification**: The tipping angle and slippage distance thresholds are fixed constants based on standard rigid-body stability criteria. The sensitivity analysis (FR-009) simulates sensor noise by injecting Gaussian noise (σ=0.5°) into the computed angle to test robustness.
-- **Assumption about multiplicity**: As only one primary hypothesis (translation sufficiency) is being tested against two baselines, the requirement is that both McNemar comparisons must yield p < 0.05.
-- **Assumption about measurement validity**: The "success" and "failure" labels derived from simulation physics metrics are assumed to be valid proxies for real-world stability, acknowledging that sim-to-real transfer may introduce a domain gap not addressed in this specific scope.
-- **Assumption about baseline definition**: The baselines for statistical comparison are defined as (1) a Geometry-Only classifier, (2) a Random-Translation classifier, and (3) a Class Prior predictor, to ensure valid statistical comparison via McNemar's test.
-- **Assumption about data integrity**: All performance metrics reported in the final evaluation must be derived from real measurements on generated data; fabricated, simulated, or hard-coded results are strictly prohibited.
-- **Assumption about architecture**: The <10M parameter constraint is based on the PyramidTNT-Ti architecture (arXiv:2201.00978) as a community standard for efficient deployment on edge devices.
-- **Assumption about sample size**: The target of ≥ 5,000 episodes is a minimum sample size calculated to provide sufficient statistical power for the hypothesis test, not an arbitrary scope constraint.
+- **Assumption about threshold justification**: The tipping angle (≥ 15°) and slippage distance (≥ 0.02 m) thresholds are fixed constants based on standard rigid‑body stability criteria and PyBullet’s numerical precision; the sensitivity analysis (FR‑009) simulates sensor noise to test robustness.
+- **Assumption about multiplicity**: As only one primary hypothesis (translation sufficiency) is being tested against two baselines, the requirement is that both McNemar comparisons must yield p < 0.05 **and** an accuracy gain ≥ 2 % (SC‑011).
+- **Assumption about measurement validity**: The "success" and "failure" labels derived from simulation physics metrics are assumed to be valid proxies for real‑world stability, acknowledging that sim‑to‑real transfer may introduce a domain gap not addressed in this specific scope.
+- **Assumption about baseline definition**: The baselines for statistical comparison are defined as (1) a Geometry‑Only classifier, (2) a Random‑Translation classifier, and (3) a Class Prior predictor, to ensure valid statistical comparison via McNemar's test.
+- **Assumption about data integrity**: All performance metrics reported in the final evaluation must be derived from real measurements on generated data; fabricated, simulated, or hard‑coded results are strictly prohibited.
+- **Assumption about architecture**: The <10M parameter constraint is based on the PyramidTNT‑Ti architecture (arXiv:2201.00978) as a community standard for efficient deployment on edge devices.
+- **Assumption about sample size**: The target of ≥ 5,000 episodes is a minimum sample size calculated to provide sufficient statistical power for the hypothesis test, not an arbitrary scope constraint.
+- **Assumption about failure‑mode classification**: Detailed classification of failure modes (tipping vs. slippage) is out of scope for v1; the study focuses on a single binary stability outcome. (See scope‑fbeafe40)
+- **Assumption about trajectory‑label independence**: Trajectory generation is performed without access to labeling thresholds; labeling is applied as a post‑processing step to guarantee independence (see FR‑013).

@@ -2,6 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T1235** — No `power_analysis.txt` file or its contents were presented, and there is no evidence that a power calculation meeting the specified parameters (d = 0.5, α = 0.05, power ≥ 0.8, 1:1 allocation) was performed. The required artifact is missing.
-- **T1219** — The repository lacks the required `contracts/cleaned_metrics.schema.yaml` file, so schema validation cannot be performed. Moreover, the provided excerpt of `code/reporting.py` does not include any implementation that consumes cleaning‑function metadata and writes `cleaned_metrics.json` with exactly the four specified numeric fields. Both the schema dependency and the core functionality are missing.
-- **T1220** — No code, diff, or audit output was provided showing that bootstrap calls were changed to use `config.BOOTSTRAP_ITERATIONS` and that any fallback logic was removed. Without these artifacts, we cannot confirm the required configuration update was made. The implementer must supply the modified source files (or a diff) and evidence (e.g., a static analysis report) that no fallback remains.
+- **T001** — The test suite passes, but the original utility scripts (`code/run_lint.py`, `code/run_quickstart_validation.py`) remain as stub files instead of being removed after migration, and there is no evidence that `.gitignore` was updated to exclude `t*.py` and temporary files. Both the required file deletions and the `.gitignore` change are missing.
+- **T002** — declared artifact(s) missing/empty/invalid: tests/unit/test_power_analysis.py
+- **T003** — The `sample_size_justification.md` file exists but contains 172 words, exceeding the 150‑word limit, causing the unit test `test_word_count_within_limit` to fail. Reduce the justification to ≤150 words.
+- **T005** — Requested task execution failed; rerun successfully: code/data_loader.py exit=1

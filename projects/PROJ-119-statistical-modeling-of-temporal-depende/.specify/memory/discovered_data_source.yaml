@@ -1,0 +1,10 @@
+status: none
+intent: "### User Story 1 \u2013 Quantify regime\u2011dependent dependence (US-1)\
+  \ (Priority: P1) A researcher wants a reproducible analysis that identifies low\u2011\
+  volatility and high\u2011volatility regimes in BTC\u2011ETH returns and reports\
+  \ the serial\u2011correlation coefficients and cross\u2011asset correlation matrices\
+  \ for each regime."
+required_fields: []
+cache_key: 853f474c8b61df5a7ead1747c2cd2a278ad7b467017dd5cf1dba6a6bfd3a27e2
+searched_at: '2026-11-21T19:29:17.986932+00:00'
+retry_count: 2

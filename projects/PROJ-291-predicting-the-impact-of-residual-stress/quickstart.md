@@ -1,49 +1,47 @@
 # Quickstart: Predicting Residual‑Stress Impact on Fatigue Life
 
-> All commands assume you are in the repository root with Python 3.11 available.
+> Assumes a recent Python 3.11 interpreter and internet access from the repository root.
 
 ## 1. Set up the environment
-
 ```bash
 # Create a clean virtual environment
 python -m venv.venv
-# Activate the virtual environment
 source.venv/bin/activate
-# Install the exact pinned dependencies
+
+# Install pinned dependencies
 pip install -r requirements.txt
 ```
 
-## 2. Verify the environment
-
-Run the environment check to ensure all dependencies are correctly installed and importable:
-
+## 2. Verify the runner environment (CI sanity check)
 ```bash
-bash scripts/env_check.sh
+# Checks that all required scientific packages can be imported and that
+# the bundled raw data files have the correct checksums.
+python -m code.src.env_check
 ```
 
-The command exits with status 0 only when all required modules import without error. The log is written to `results/env_check.log`.
-
-## 3. Run the full pipeline (single command)
-
+## 3. Run the full analysis pipeline (end‑to‑end)
 ```bash
-bash scripts/run_pipeline.sh
+# One‑command end‑to‑end execution:
+python -m code.src.run_e2e
 ```
 
-This orchestrates every stage – data ingestion, preprocessing, feature‑set construction, model training, statistical evaluation, mediation analysis, and report generation. Stages that belong to tasks not yet implemented are reported as *skipped*.
+The pipeline will:
+1. Ingest the bundled raw CSVs, compute checksums, standardise units, and write `data/processed/unified_fatigue.csv`.
+2. Compute the proxy‑measured agreement and write `data/results/proxy_agreement.csv`.
+3. Record phase runtimes in `data/results/runtime_summary.csv` and write a summary JSON `data/results/e2e_summary.json`.
 
 ## 4. Inspect results
-
 - Unified dataset: `data/processed/unified_fatigue.csv`
-- Model metrics: `results/performance.csv`
-- Paired t‑test: `results/paired_t_test.csv`
-- Cross‑material transfer: `results/cross_material.csv`
-- Mediation summary: `results/mediation_summary.csv`
-- Figures: `results/figures/`
+- Proxy‑agreement metrics: `data/results/proxy_agreement.csv`
+- Runtime summary: `data/results/runtime_summary.csv`
+- End‑to‑end summary: `data/results/e2e_summary.json`
 
-## 5. Run tests
-
+## 5. Run automated tests
 ```bash
 pytest -q
 ```
 
-All steps are designed to complete within the GitHub Actions free‑tier limits (≤ 6 h runtime, < 7 GB RAM).
+All steps are designed to complete within the GitHub Actions free‑tier limits
+(≤ 6 h runtime, < 7 GB RAM). The synthetic data is **not** used for external
+scientific conclusions and is **never used for mediation**; it only validates
+that the pipeline runs without error.

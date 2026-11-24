@@ -16,7 +16,6 @@ from llmxive.backends.base import ChatResponse
 from llmxive.speckit import scorecard
 from llmxive.speckit.implement_cmd import ImplementerAgent
 from llmxive.speckit.slash_command import SlashCommandContext
-from llmxive.types import BackendName
 
 REPO = Path(__file__).resolve().parents[2]
 LIB = "def total(values):\n    return sum(values)\n"
@@ -54,8 +53,7 @@ def setup(tmp_path: Path):
     ctx = SlashCommandContext(
         project_id=project.name, project_dir=project, run_id="t", task_id="t", inputs=[], expected_outputs=[],
         prompt_template_path=tmp_path / "agents/prompts/implementer_research.md",
-        default_backend=BackendName.DARTMOUTH, fallback_backends=[], default_model="m",
-        prompt_version="t", agent_name="implementer")
+        profile="deep_code", prompt_version="t", agent_name="implementer")
     return ctx, project
 
 
@@ -79,9 +77,15 @@ def _line(project: Path) -> str:
 def test_the_best_of_several_replies_is_applied(setup, monkeypatch) -> None:
     ctx, project = setup
     _attempted_before(project)
-    more = iter([OWN_RUN_FAILS, GOOD])
-    monkeypatch.setattr(router, "chat_with_fallback", lambda *a, **k: next(more))
+    more, asked = iter([OWN_RUN_FAILS, GOOD]), []
+
+    def reply(*a, **k):
+        asked.append(k)
+        return next(more)
+    monkeypatch.setattr(router, "chat_with_fallback", reply)
     _run(ctx, BREAKS_A_TEST)
+    # Every further reply is asked of the same selection as the first one.
+    assert [(k["profile"], k["overrides"]) for k in asked] == [(ctx.profile, ctx.requirement_overrides)] * 2
     # The third reply broke nothing and its own run passed: it is the state that stands.
     assert (project / "data/note.txt").read_text(encoding="utf-8") == "from the good reply\n"
     assert (project / "code/lib.py").read_text(encoding="utf-8") == LIB

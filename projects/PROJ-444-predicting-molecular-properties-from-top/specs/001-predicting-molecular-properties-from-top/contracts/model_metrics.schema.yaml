@@ -1,66 +1,20 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Metrics Schema
-description: Schema for model performance metrics
+$schema: "http://json-schema.org/draft-07/schema#"
 type: object
-properties:
-  traditional:
-    type: object
-    properties:
-      r2_per_fold:
-        type: array
-        items:
-          type: number
-      rmse_per_fold:
-        type: array
-        items:
-          type: number
-      r2_mean:
-        type: number
-      rmse_mean:
-        type: number
-  topological:
-    type: object
-    properties:
-      r2_per_fold:
-        type: array
-        items:
-          type: number
-      rmse_per_fold:
-        type: array
-        items:
-          type: number
-      r2_mean:
-        type: number
-      rmse_mean:
-        type: number
-  combined:
-    type: object
-    properties:
-      r2_per_fold:
-        type: array
-        items:
-          type: number
-      rmse_per_fold:
-        type: array
-        items:
-          type: number
-      r2_mean:
-        type: number
-      rmse_mean:
-        type: number
-  feature_importance:
-    type: object
-    properties:
-      traditional:
-        type: array
-        items:
-          type: number
-      topological:
-        type: array
-        items:
-          type: number
 required:
   - traditional
   - topological
   - combined
   - feature_importance
+  - metadata
+properties:
+  traditional:
+    type: object
+  topological:
+    type: object
+  combined:
+    type: object
+  feature_importance:
+    type: object
+  metadata:
+    type: object
+additionalProperties: false

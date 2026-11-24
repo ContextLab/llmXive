@@ -1,1 +1,2 @@
-"""Statistical modeling and inference modules."""
+# Package initializer for statistical modeling.
+pass

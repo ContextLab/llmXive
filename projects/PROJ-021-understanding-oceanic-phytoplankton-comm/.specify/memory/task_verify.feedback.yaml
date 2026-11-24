@@ -1,26 +1,24 @@
 T001:
   task: c673b5c30b04dd6f0adb2c2b9c4da8d8ec89e811ae1306cdca9556df3c166caf
 T002:
-  reason: "The only artifact found is `code/requirements.txt`, which correctly lists\
-    \ all required packages (and a few extras), but there is no evidence that the\
-    \ project is explicitly set up for Python\u202F3.11 (e.g., no `pyproject.toml`,\
-    \ `setup.cfg`, or other version\u2011specifying file) nor any other initialization\
-    \ files (e.g., `__init__.py`, starter script). Adding a manifest that declares\
-    \ `requires\u2011python = \">=3.11\"` (or equivalent) would satisfy the task."
+  reason: "The only provided artifact is `code/requirements.txt`, which lists the\
+    \ required packages (and even extra ones) but there is no evidence of a Python\u202F\
+    3.11 project configuration (e.g., a `pyproject.toml`, `setup.cfg`, or similar\
+    \ file specifying `requires-python = \">=3.11\"`). Without an explicit Python\u2011\
+    version declaration, the claim of initializing a Python\u202F3.11 project is not\
+    \ substantiated."
   task: 636322f4740168bdd57d2ec4a80542e4de8c9fb3141b232ed662dec462836738
 T003:
+  reason: "The evidence only shows the project root path; no linting or formatting\
+    \ configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml`\
+    \ or a `ruff` section, or a `.pre-commit-config.yaml` invoking ruff/black) are\
+    \ present or referenced. Without these artifacts, the requirement to configure\
+    \ ruff and black is not satisfied. Adding the appropriate config files and confirming\
+    \ they are non\u2011empty will be needed."
   task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
 T004:
   task: aaf06fa98e41d482faad72e090e17876dab47f7473e22160945f96d19180326a
 T005:
-  reason: "The `code/utils/data_loaders.py` file exists but contains only placeholder/stub\
-    \ implementations that do not satisfy the task requirements. Specifically:\n\n\
-    1. **`stream_netcdf_by_chunk()`**: Contains only a comment saying \"Implementation\
-    \ would use xarray's open_dataset with chunks\" and yields an empty `xr.Dataset()`.\
-    \ This is a non-functional stub, not a working streaming implementation.\n\n2.\
-    \ **`sample_to_ram_limit()`**: Marked as a placeholder with no actual sampling\
-    \ logic\u2014it simply returns the dataset unchanged. The task requires \"sampling\
-    \ to fit available RAM,\" which is not implemented.\n\n3. **`"
   task: 77927c126bfbc524a72bb9684cc72bbd184a6a4ba6607431a49060b4171d77f3
 T006:
   reason: 'The task requires creating two specific schema definition files in `specs/001-phytoplankton-vlm-analysis/contracts/`:
@@ -46,10 +44,8 @@ T011a:
     exit=1'
   task: a50dd982655589703ed986bd7ad9032510e8daba42f8d6331d005bc7bc26ffda
 T011a_verify:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-021-understanding-oceanic-phytoplankton-comm.yaml`
-    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
+  reason: 'Requested task execution failed; rerun successfully: tests/test_versioning_verify.py
+    exit=1'
   task: e93213dbd7fb255f31936444aee2987aa5f19633cf1ee26ab50890b8a425ee9b
 T011b:
   task: cddcfe76e7bbcab53c221cda905de3ebd9ed9634d1d1e7b22b1690c397d0382d

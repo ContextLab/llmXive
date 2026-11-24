@@ -1,67 +1,34 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Analysis Output Schema
-description: >
-  Schema for the output of the molecular flexibility analysis pipeline.
-  Includes computed variance metrics, outlier flags, and correlation results.
-  Note: bond/angle variances are excluded from the final model.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output – Multivariate Model Performance"
 type: object
+additionalProperties: false
 required:
-  - smiles
-  - dihedral_variance
-  - is_outlier
-  - logPapp
-  - confounders
+  - model_performance
 properties:
-  smiles:
-    type: string
-    description: Canonical SMILES string of the molecule.
-  dihedral_variance:
-    type: number
-    description: Variance of dihedral angles across the conformer ensemble (rad²).
-    minimum: 0.0
-  bond_variance:
-    type: number
-    description: Variance of bond lengths (diagnostic only, not used in model).
-    minimum: 0.0
-  angle_variance:
-    type: number
-    description: Variance of bond angles (diagnostic only, not used in model).
-    minimum: 0.0
-  is_outlier:
-    type: boolean
-    description: Flag indicating if the molecule is an outlier based on IQR method.
-  logPapp:
-    type: number
-    description: Apparent permeability coefficient (log Papp) from the processed dataset.
-  confounders:
+  model_performance:
     type: object
-    description: Dictionary of physicochemical confounders.
+    additionalProperties: false
     required:
-      - logP
-      - mw
-      - psa
-      - size_normalized_flexibility
+      - mean_r2
+      - std_r2
+      - rmse
+      - mae
+      - coefficients
     properties:
-      logP:
+      mean_r2:
         type: number
-        description: Partition coefficient (XLogP).
-      mw:
+        description: "Mean R² across cross‑validation folds."
+      std_r2:
         type: number
-        description: Molecular weight (g/mol).
-      psa:
+        description: "Standard deviation of R² across folds."
+      rmse:
         type: number
-        description: Polar Surface Area (Å²).
-      size_normalized_flexibility:
+        description: "Root‑Mean‑Square Error."
+      mae:
         type: number
-        description: Dihedral variance per rotatable bond.
-  correlation_results:
-    type: ["object", "null"]
-    description: Optional dictionary containing correlation statistics (pearson, spearman, p-values).
-    properties:
-      pearson_dihedral:
-        type: number
-      spearman_dihedral:
-        type: number
-      p_value_dihedral:
-        type: number
-additionalProperties: true
+        description: "Mean Absolute Error."
+      coefficients:
+        type: object
+        description: "Regression coefficients keyed by predictor name."
+        additionalProperties:
+          type: number

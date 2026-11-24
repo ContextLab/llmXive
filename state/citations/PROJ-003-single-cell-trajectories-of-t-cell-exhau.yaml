@@ -1,1 +1,22 @@
-[]
+- artifact_hash: a408fc48b39a29c29317aefd919585cd9d04946543e55b34c6288abad0d9355f
+  artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Checking your browser - reCAPTCHA
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=
+  verification_status: pending
+  verified_against_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=
+  verified_at: '2026-10-18T09:30:29.750673Z'
+- artifact_hash: 1857044e1fafc028cbec86628ae431d0fdcde433eba1f2e663426a3eb8efbf9f
+  artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Checking your browser - reCAPTCHA
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=
+  verification_status: pending
+  verified_against_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=
+  verified_at: '2026-10-18T09:30:44.751694Z'

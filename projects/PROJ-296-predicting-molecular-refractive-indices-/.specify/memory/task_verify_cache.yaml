@@ -1,0 +1,10 @@
+T002:
+  c: false
+  h: 14b3880bd7579118d3e654bf98b1ed7a43489b2e33c8aa82cc40932fc969f563
+  r: "Checked `code/data/preprocess.py` (implements all required steps) and `data/processed/filtered.csv`\
+    \ (contains rows that conform to `contracts/dataset.schema.yaml`). However, the\
+    \ required log file `logs/preprocess_summary.log` is not present in the provided\
+    \ artifacts, so the task\u2019s verification requirement is not satisfied. Adding\
+    \ this summary log (with total, filtered, and excluded row counts) is needed to\
+    \ complete the task."
+  sig: 396da29e43bef1c9bac1b097d628d71da170faafb49e56fff185f583738d4701

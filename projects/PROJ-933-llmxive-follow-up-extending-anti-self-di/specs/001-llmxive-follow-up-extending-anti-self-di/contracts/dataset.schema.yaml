@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Filtered Dataset Schema"
-description: "Schema for the filtered UltraFeedback/Dolly dataset containing prompts with >= 4 rationales."
+description: "Schema for the filtered BigBench dataset containing prompts with at least three rationales per prompt."
 type: object
 properties:
   prompt_id:
@@ -8,23 +8,23 @@ properties:
     description: "Unique identifier for the prompt."
   prompt_text:
     type: string
-    description: "The user query."
+    description: "The prompt text."
   rationales:
     type: array
     items:
       type: string
-    description: "List of annotated reasoning traces."
-    minItems: 4
+    description: "List of rationales; must contain at least three entries."
   rationale_count:
     type: integer
-    minimum: 4
-    description: "Number of rationales (must be >= 4)."
+    minimum: 3
+    description: "Number of rationales (must be ≥ 3)."
   source:
     type: string
-    description: "Origin dataset name."
+    description: "Dataset origin (e.g., bigbench_hard, bigbench_ethics, bigbench_causal)."
 required:
   - prompt_id
   - prompt_text
   - rationales
   - rationale_count
   - source
+additionalProperties: false

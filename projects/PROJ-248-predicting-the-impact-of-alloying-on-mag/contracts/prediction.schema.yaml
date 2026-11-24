@@ -1,0 +1,29 @@
+type: object
+properties:
+  saturation_magnetization:
+    type: number
+  curie_temperature:
+    type: number
+  confidence_interval:
+    type: object
+    properties:
+      saturation_magnetization:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+      curie_temperature:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+    required:
+      - saturation_magnetization
+      - curie_temperature
+required:
+  - saturation_magnetization
+  - curie_temperature
+  - confidence_interval
+additionalProperties: false

@@ -1,17 +1,15 @@
 """
 Random seed pinning for reproducibility.
 
-This module ensures deterministic behavior across numpy, random, and torch
-by setting a global seed value (default 42). It provides utilities to set
-the seed and verify determinism through repeated execution.
+This module provides a small, well‑tested API used throughout the project
+and by the unit‑tests in ``tests/unit/test_seeding.py``.
 """
 
-import random
 import os
+import random
 import hashlib
-from typing import Optional, Callable, Any
+from typing import Callable, Any, Optional
 
-# Try importing torch and numpy; if not available, skip seeding for them
 try:
     import numpy as np
     HAS_NUMPY = True
@@ -20,107 +18,81 @@ except ImportError:
 
 try:
     import torch
-    HAS_TORCH = True
+    TORCH_AVAILABLE = True
 except ImportError:
-    HAS_TORCH = False
+    TORCH_AVAILABLE = False
 
-DEFAULT_SEED = 42
+DEFAULT_SEED: int = 42
 
+def set_all_seeds(seed: Optional[int] = DEFAULT_SEED) -> None:
+    """Set the global random seed for reproducibility across supported libraries."""
+    if seed is None:
+        seed = DEFAULT_SEED
 
-def set_seed(seed: int = DEFAULT_SEED) -> None:
-    """
-    Set random seeds for reproducibility across numpy, random, and torch.
-
-    Args:
-        seed: Integer seed value. Defaults to 42.
-    """
-    # Seed the random module
     random.seed(seed)
 
-    # Seed numpy if available
     if HAS_NUMPY:
         np.random.seed(seed)
 
-    # Seed torch if available
-    if HAS_TORCH:
+    if TORCH_AVAILABLE:
         torch.manual_seed(seed)
-        # For GPU reproducibility (if available)
         if torch.cuda.is_available():
-            torch.cuda.manual_seed(seed)
             torch.cuda.manual_seed_all(seed)
-            # Set deterministic algorithms where possible
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
 
-    # Set PYTHONHASHSEED for hash determinism (affects dict/set ordering in older Python)
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
 
+def get_seed() -> int:
+    """Return the current default seed value."""
+    return DEFAULT_SEED
 
 def verify_determinism(
     func: Callable[[], Any],
     seed: int = DEFAULT_SEED,
-    iterations: int = 2
+    iterations: int = 2,
 ) -> bool:
     """
-    Verify that a function produces deterministic output when seeded.
-
-    Runs the function multiple times after resetting the seed each time
-    and compares the results (via hash) to ensure they are identical.
-
-    Args:
-        func: A callable that takes no arguments and returns data.
-        seed: The seed value to use.
-        iterations: Number of times to run the function.
-
-    Returns:
-        True if all runs produce identical output, False otherwise.
+    Verify that a zero‑argument callable produces identical output across
+    repeated executions with the same random seed.
     """
-    results = []
+    if iterations < 2:
+        raise ValueError("verify_determinism requires at least two iterations")
+
+    hashes = []
     for _ in range(iterations):
-        set_seed(seed)
+        set_all_seeds(seed)
         result = func()
-        # Convert result to bytes for hashing if possible
-        # This is a simplified check; for complex objects, a custom serializer might be needed
-        if HAS_NUMPY and hasattr(result, 'tobytes'):
-            results.append(hashlib.sha256(result.tobytes()).hexdigest())
-        elif isinstance(result, (list, tuple)):
-            # Hash string representation for simple collections
-            results.append(hashlib.sha256(str(result).encode()).hexdigest())
+
+        if HAS_NUMPY and hasattr(result, "tobytes"):
+            data_bytes = result.tobytes()
+        elif isinstance(result, (list, tuple, dict, set)):
+            data_bytes = repr(result).encode()
         else:
-            results.append(hashlib.sha256(str(result).encode()).hexdigest())
+            data_bytes = str(result).encode()
 
-    # Check if all hashes are identical
-    return len(set(results)) == 1
+        hashes.append(hashlib.sha256(data_bytes).hexdigest())
 
+    if len(set(hashes)) != 1:
+        raise RuntimeError("Function output is not deterministic")
+    return True
 
 def main() -> None:
-    """
-    Demonstrate seed pinning and verification.
-
-    This function sets the seed, runs a dummy operation, and verifies
-    that the operation is deterministic.
-    """
+    """Simple demonstration of the seeding utilities."""
     print(f"Setting seed to {DEFAULT_SEED}...")
-    set_seed(DEFAULT_SEED)
+    set_all_seeds(DEFAULT_SEED)
 
-    # Example deterministic operation
-    def dummy_operation():
+    def dummy():
         if HAS_NUMPY:
             return np.random.rand(5)
-        else:
-            return [random.random() for _ in range(5)]
+        return [random.random() for _ in range(5)]
 
     print("Running dummy operation...")
-    result = dummy_operation()
-    print(f"Result: {result}")
+    print(dummy())
 
-    print("\nVerifying determinism...")
-    is_deterministic = verify_determinism(dummy_operation, DEFAULT_SEED)
-    if is_deterministic:
-        print("SUCCESS: Output is deterministic.")
-    else:
-        print("FAILURE: Output is NOT deterministic.")
-
+    print("Verifying determinism...")
+    deterministic = verify_determinism(dummy, DEFAULT_SEED)
+    print("Deterministic:", deterministic)
 
 if __name__ == "__main__":
     main()

@@ -54,9 +54,11 @@ definitions:
     properties:
       participant_id:
         type: string
+        description: "Foreign key reference to Participant.participant_id"
       timestamp:
         type: string
         format: date-time
+        description: "ISO 8601 timestamp of the measurement"
       db_level:
         type: number
         description: "Sound pressure level in decibels"
@@ -80,12 +82,14 @@ definitions:
     properties:
       participant_id:
         type: string
+        description: "Foreign key reference to Participant.participant_id"
       task_id:
         type: string
         description: "Identifier for the specific cognitive task"
       timestamp:
         type: string
         format: date-time
+        description: "ISO 8601 timestamp of task completion"
       reaction_time_ms:
         type: number
         description: "Reaction time in milliseconds"
@@ -100,6 +104,8 @@ definitions:
         enum: ["switching", "n_back", "stroop"]
         description: "Type of cognitive task performed"
 
+# Input entities (raw data)
+type: object
 oneOf:
   - $ref: "#/definitions/Participant"
   - $ref: "#/definitions/NoiseLog"

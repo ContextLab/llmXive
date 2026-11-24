@@ -58,7 +58,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create `code/config.py` for paths, `random_state=42` seed, and constants
-- [X] T005 [P] Implement `code/utils.py` with helper functions for geo-matching and encoding
+- [ ] T005 [P] Implement `code/utils.py` with helper functions for geo-matching and encoding
 - [ ] T006 [P] Setup `tests/` directory structure with `__init__.py` and `pytest` configuration
 - [ ] T007b Create `merged_dataset.schema.yaml` contract file defining required fields and types for contract validation
 - [ ] T008 Configure environment variable management for data paths
@@ -78,16 +78,16 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T009 [P] [US1] Unit test for severity encoding logic in `tests/test_ingest.py`
-- [X] T010 [P] [US1] Integration test for FARS/NOAA merge logic in `tests/test_ingest.py` (mock URLs or small sample)
-- [X] T011 [P] [US1] Contract test verifying `match_method` field population in `tests/test_ingest.py`
+- [ ] T010 [P] [US1] Integration test for FARS/NOAA merge logic in `tests/test_ingest.py` (mock URLs or small sample)
+- [~] T011 [P] [US1] Contract test verifying `match_method` field population in `tests/test_ingest.py`
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement FARS download and pre-filtering in `code/ingest.py` (use deterministic NHTSA 2022 URL, verify checksums)
-- [X] T012b [US1] Implement chunking logic for datasets >7GB in `code/ingest.py` (process in chunks, write intermediate results to disk to prevent OOM)
-- [X] T013 [US1] Implement NOAA ISD download and pre-filtering in `code/ingest.py` (use HuggingFace `noaa/isd-hourly` fallback, filter by proximity)
-- [X] T014 [US1] Implement spatial-temporal merge logic: MUST implement linear interpolation for time gaps between weather stations; fallback to nearest-hour ONLY if interpolation fails; verify output contains `match_method=interpolated` for time-delta > 0 in `code/ingest.py`
-- [X] T015 [US1] Implement severity encoding (=Property, Injury, Fatality) and exclusion logic in `code/ingest.py`
+- [~] T012 [US1] Implement FARS download and pre-filtering in `code/ingest.py` (use deterministic NHTSA 2022 URL, verify checksums)
+- [~] T012b [US1] Implement chunking logic for datasets >7GB in `code/ingest.py` (process in chunks, write intermediate results to disk to prevent OOM)
+- [~] T013 [US1] Implement NOAA ISD download and pre-filtering in `code/ingest.py` (use HuggingFace `noaa/isd-hourly` fallback, filter by proximity)
+- [~] T014 [US1] Implement spatial-temporal merge logic: MUST implement linear interpolation for time gaps between weather stations; fallback to nearest-hour ONLY if interpolation fails; verify output contains `match_method=interpolated` for time-delta > 0 in `code/ingest.py`
+- [~] T015 [US1] Implement severity encoding (=Property, Injury, Fatality) and exclusion logic in `code/ingest.py`
 - [ ] T016 [US1] Implement contract validation step to ensure output matches `merged_dataset.schema.yaml` in `code/ingest.py`
 - [ ] T017 [US1] Add logging for merge coverage rate (target ≥85%) and exclusion counts in `code/ingest.py`
 - [ ] T017b [US1] Implement calculation and verification of SC-001 coverage metric (valid weather records / total FARS records) and verify ≥85% target; MUST log exclusion counts for records failing proximity check in `code/ingest.py`
@@ -134,7 +134,7 @@
 ### Implementation for User Story 3
 
 - [ ] T027 [US3] Implement VIF calculation for all predictors in `code/diagnostics.py`
-- [ ] T028 [US3] Implement sensitivity analysis for FR-005/SC-003: Sweep precipitation thresholds across a range of low values. on the *continuous* variable; calculate the *maximum percentage change* in odds ratios across the sweep; verify {{claim:c_70b14a7d}}; produce 'stability metric table' in `code/diagnostics.py`
+- [ ] T028 [US3] Implement sensitivity analysis for FR-005/SC-003: Sweep precipitation thresholds across a range of low values. on the *continuous* variable; calculate the *maximum percentage change* in odds ratios across the sweep; verify variation < 15%; produce 'stability metric table' in `code/diagnostics.py`
 - [ ] T029 [US3] Generate coefficient plot image using `matplotlib`/`seaborn` in `code/diagnostics.py`
 - [ ] T030 [US3] Implement logic to flag VIF > 5.0 as a limitation in `code/diagnostics.py`
 - [ ] T031 [US3] Generate final associational summary report in `code/diagnostics.py`; MUST include a verification step (e.g., regex scan for causal keywords like 'cause', 'effect', 'determine') to ensure *all* statistics are framed as associational per FR-006
@@ -150,7 +150,7 @@
 - [ ] T032 [P] Documentation updates in `docs/` and `README.md`
 - [ ] T033 Code cleanup and refactoring for general optimization, preserving chunking logic in `code/ingest.py` implemented in T012b
 - [ ] T034a [P] Implement chunking logic in `code/ingest.py` to ensure memory usage < 6GB peak (if not already covered by T012b)
-- [ ] T034b [P] Profile full pipeline execution and {{claim:c_7a6ad4b8}} (Wikipedia: Dhurandhar, https://en.wikipedia.org/wiki/Dhurandhar); record duration in `data/reports/runtime.log`
+- [ ] T034b [P] Profile full pipeline execution and verify total runtime ≤ 6 hours (Wikipedia: Dhurandhar, https://en.wikipedia.org/wiki/Dhurandhar); record duration in `data/reports/runtime.log`
 - [ ] T035 [P] Additional unit tests for edge cases (missing severity, interpolation) in `tests/`
 - [ ] T036 Run `quickstart.md` validation and verify all artifacts checksummed
 

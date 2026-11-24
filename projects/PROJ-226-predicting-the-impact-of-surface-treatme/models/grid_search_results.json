@@ -1,0 +1,255 @@
+[
+  {
+    "model_type": "RandomForest",
+    "model_path": "models/randomforest_000.pkl",
+    "hyperparameters": {
+      "n_estimators": 50,
+      "max_depth": null,
+      "min_samples_split": 2
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.060000000000000275,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "model_type": "RandomForest",
+    "model_path": "models/randomforest_001.pkl",
+    "hyperparameters": {
+      "n_estimators": 50,
+      "max_depth": null,
+      "min_samples_split": 5
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.10799999999999987,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "model_type": "RandomForest",
+    "model_path": "models/randomforest_002.pkl",
+    "hyperparameters": {
+      "n_estimators": 50,
+      "max_depth": 10,
+      "min_samples_split": 2
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.060000000000000275,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "model_type": "RandomForest",
+    "model_path": "models/randomforest_003.pkl",
+    "hyperparameters": {
+      "n_estimators": 50,
+      "max_depth": 10,
+      "min_samples_split": 5
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.10799999999999987,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "model_type": "RandomForest",
+    "model_path": "models/randomforest_004.pkl",
+    "hyperparameters": {
+      "n_estimators": 100,
+      "max_depth": null,
+      "min_samples_split": 2
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.05999999999999983,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "model_type": "RandomForest",
+    "model_path": "models/randomforest_005.pkl",
+    "hyperparameters": {
+      "n_estimators": 100,
+      "max_depth": null,
+      "min_samples_split": 5
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.1160000000000021,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "model_type": "RandomForest",
+    "model_path": "models/randomforest_006.pkl",
+    "hyperparameters": {
+      "n_estimators": 100,
+      "max_depth": 10,
+      "min_samples_split": 2
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.05999999999999983,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "model_type": "RandomForest",
+    "model_path": "models/randomforest_007.pkl",
+    "hyperparameters": {
+      "n_estimators": 100,
+      "max_depth": 10,
+      "min_samples_split": 5
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.1160000000000021,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "model_type": "GradientBoosting",
+    "model_path": "models/gradientboosting_008.pkl",
+    "hyperparameters": {
+      "n_estimators": 50,
+      "learning_rate": 0.1,
+      "max_depth": 3
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.2571801994823344,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "model_type": "GradientBoosting",
+    "model_path": "models/gradientboosting_009.pkl",
+    "hyperparameters": {
+      "n_estimators": 50,
+      "learning_rate": 0.1,
+      "max_depth": 5
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.2571801994823344,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "model_type": "GradientBoosting",
+    "model_path": "models/gradientboosting_010.pkl",
+    "hyperparameters": {
+      "n_estimators": 50,
+      "learning_rate": 0.05,
+      "max_depth": 3
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.22041376546143576,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "model_type": "GradientBoosting",
+    "model_path": "models/gradientboosting_011.pkl",
+    "hyperparameters": {
+      "n_estimators": 50,
+      "learning_rate": 0.05,
+      "max_depth": 5
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.22041376546143576,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "model_type": "GradientBoosting",
+    "model_path": "models/gradientboosting_012.pkl",
+    "hyperparameters": {
+      "n_estimators": 100,
+      "learning_rate": 0.1,
+      "max_depth": 3
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.2586020352845233,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "model_type": "GradientBoosting",
+    "model_path": "models/gradientboosting_013.pkl",
+    "hyperparameters": {
+      "n_estimators": 100,
+      "learning_rate": 0.1,
+      "max_depth": 5
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.2586020352845233,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "model_type": "GradientBoosting",
+    "model_path": "models/gradientboosting_014.pkl",
+    "hyperparameters": {
+      "n_estimators": 100,
+      "learning_rate": 0.05,
+      "max_depth": 3
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.24178781606504707,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "model_type": "GradientBoosting",
+    "model_path": "models/gradientboosting_015.pkl",
+    "hyperparameters": {
+      "n_estimators": 100,
+      "learning_rate": 0.05,
+      "max_depth": 5
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.24178781606504707,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "model_type": "LinearRegression",
+    "model_path": "models/linearregression_016.pkl",
+    "hyperparameters": {
+      "fit_intercept": true
+    },
+    "validation_r2": 0.0,
+    "validation_rmse": 0.009052496232856866,
+    "validation_r2_ci_95": [
+      NaN,
+      NaN
+    ]
+  }
+]

@@ -1,42 +1,60 @@
-"""
-Unit tests for code/config.py
-"""
-import pytest
+"""Unit tests for code/config.py (T001a)."""
+import importlib
+import sys
 from pathlib import Path
-import random
 
-# Import the module directly since conftest adds it to path
-from config import set_seed, ensure_dirs, get_config
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-def test_set_seed_determinism():
-    """Verify that set_seed produces deterministic random states."""
-    set_seed(42)
-    val1 = random.random()
-    
-    set_seed(42)
-    val2 = random.random()
-    
-    assert val1 == val2, "Random seed did not produce deterministic results"
 
-def test_ensure_dirs_creates_structure(tmp_path):
-    """Verify that ensure_dirs creates the required directory structure."""
-    # Override base path for testing
-    test_base = tmp_path / "test_project"
-    ensure_dirs(test_base)
-    
-    # Check expected directories exist
-    assert (test_base / "code").exists()
-    assert (test_base / "data").exists()
-    assert (test_base / "tests").exists()
-    assert (test_base / "data" / "raw").exists()
-    assert (test_base / "data" / "processed").exists()
-    assert (test_base / "data" / "results").exists()
-    assert (test_base / "figures").exists()
+def _import_config():
+    import code.config as cfg
+    return cfg
 
-def test_get_config_returns_dict():
-    """Verify get_config returns a dictionary with expected keys."""
-    config = get_config()
-    assert isinstance(config, dict)
-    assert "seed" in config
-    assert "data_dir" in config
-    assert "code_dir" in config
+
+def test_seed_constant():
+    cfg = _import_config()
+    assert cfg.SEED == 12345
+
+
+def test_primary_model_id():
+    cfg = _import_config()
+    assert cfg.PRIMARY_MODEL_ID in ("Mistral-7B", "Llama-3-8B")
+
+
+def test_path_helpers_exist():
+    cfg = _import_config()
+    for name in ("data_path", "figures_path", "results_path", "docs_path"):
+        assert callable(getattr(cfg, name))
+
+
+def test_data_path_creates_directory(tmp_path, monkeypatch):
+    cfg = _import_config()
+    p = cfg.data_path("unit_test_dir", "x.parquet")
+    assert p.parent.exists()
+    assert str(p).startswith(str(PROJECT_ROOT / "data"))
+
+
+def test_requirements_pinned():
+    req = (PROJECT_ROOT / "code" / "requirements.txt").read_text()
+    required = [
+        "datasets", "transformers", "tree-sitter", "tree-sitter-python",
+        "tree-sitter-java", "scikit-learn", "statsmodels", "pandas",
+        "numpy", "scipy", "matplotlib", "seaborn", "kenlm", "ruptures",
+        "pwlf", "jsonschema", "pytest", "pytest-cov", "psutil",
+    ]
+    lines = [
+        ln.strip() for ln in req.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    ]
+    for pkg in required:
+        pinned = [ln for ln in lines if ln.split("==")[0].strip().lower() == pkg]
+        assert pinned, f"{pkg} not pinned in requirements.txt"
+        assert "==" in pinned[0], f"{pkg} is not pinned to an exact version"
+
+
+def test_config_importable_as_module():
+    # Mirrors the task verification: `python -c "import code.config"`
+    cfg = importlib.import_module("code.config")
+    assert cfg is not None

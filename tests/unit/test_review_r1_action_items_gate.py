@@ -51,7 +51,6 @@ def _reviewer(backend) -> LLMReviewer:
         stage="clarified",
         backend=backend,
         repo_root=_REPO_ROOT,
-        model="openai.gpt-oss-120b",
     )
 
 

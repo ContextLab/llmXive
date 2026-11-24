@@ -1,36 +1,26 @@
+"""Create the raw‑data directory for the project.
+
+This script ensures that ``data/raw`` exists. It is used as the
+first step of the data‑acquisition phase and satisfies task T001.
 """
-Module to create the data/raw directory for source CSVs.
-This is the implementation for Task T000a.
-"""
+
 from pathlib import Path
 from utils.config import get_project_root
 
 def get_raw_dir() -> Path:
-    """
-    Returns the path to the data/raw directory.
-    """
-    root = get_project_root()
-    return root / "data" / "raw"
+    """Return the absolute path to the ``data/raw`` directory."""
+    return get_project_root() / "data" / "raw"
 
 def ensure_raw_dir() -> Path:
-    """
-    Ensures the data/raw directory exists. Creates it if it does not.
-    Returns the path to the directory.
-    """
+    """Create ``data/raw`` if it does not exist and return the path."""
     raw_dir = get_raw_dir()
     raw_dir.mkdir(parents=True, exist_ok=True)
     return raw_dir
 
 def main() -> None:
-    """
-    Main entry point to create the raw directory.
-    """
-    try:
-        path = ensure_raw_dir()
-        print(f"Successfully ensured directory exists: {path}")
-    except Exception as e:
-        print(f"Failed to create raw directory: {e}")
-        raise
+    """Entry point: create the directory and report success."""
+    created_path = ensure_raw_dir()
+    print(f"Raw data directory ensured at: {created_path}")
 
 if __name__ == "__main__":
     main()

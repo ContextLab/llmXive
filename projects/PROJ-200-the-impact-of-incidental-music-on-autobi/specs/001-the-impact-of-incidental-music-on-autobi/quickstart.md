@@ -1,75 +1,68 @@
 # Quickstart: The Impact of Incidental Music on Autobiographical Memory Retrieval
 
 ## Prerequisites
-
-- Python 3.11+
-- `pip` or `conda`
+- Python 3.11 or newer  
+- `git`  
 
 ## Installation
-
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-200-the-impact-of-incidental-music-on-autobi
-   ```
-
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Running the Pipeline
-
-### 1. Download Data
-Fetch the MSD track metadata (streamed) and generate simulated AMT data.
 ```bash
-python code/main.py --step download
-```
-*Output*: `data/raw/msd_tracks.jsonl`, `data/simulated_amt_data.parquet` (generated).
+# 1️⃣ Clone the repository
+git clone <repo-url>
+cd projects/PROJ-200-the-impact-of-incidental-music-on-autobi
 
-### 2. Ingest & Aggregate
-Parse data, match cues, calculate exposure ratios, and filter.
-```bash
-python code/main.py --step ingest
-```
-*Output*: `data/processed/ingested_cohort.parquet`, `data/processed/user_track_pairs.parquet`.
+# 2️⃣ Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-### 3. Run Analysis
-Fit the LMM, run sensitivity analysis, and perform permutation tests.
-```bash
-python code/main.py --step analyze
-```
-*Output*: `data/final/regression_summary.csv`, `data/final/sensitivity_analysis.csv`, `data/final/permutation_results.csv`, `data/final/plots/`.
-
-### 4. Update State
-Verify checksums and update `state.yaml`.
-```bash
-python code/main.py --step verify
+# 3️⃣ Install pinned dependencies
+pip install -r requirements.txt
 ```
 
-## Full Run (Single Command)
-To run the entire pipeline from scratch:
+## Preparing Input Data
+1. **Million Song Dataset (MSD)** – will be streamed automatically; no manual step required.  
+2. **Autobiographical Memory Test (AMT)** – not in the verified list, so you must provide it yourself: place a file named `amt.parquet` in `data/raw/` that conforms to `contracts/user_track_pair.schema.yaml`. If you do not have such a file, the pipeline will abort with a clear instruction.
+
+## Running the Full Pipeline
 ```bash
+# One‑command end‑to‑end execution
 python code/main.py --full-run
 ```
+The command executes all verified steps in order, writes real files, and updates `state.yaml`.
+
+## Individual Step Commands (for debugging)
+
+| Step | Command |
+|------|---------|
+| Download MSD (stream) | `python code/main.py --step download` |
+| Validate AMT file | `python code/main.py --step validate-amt` |
+| Ingest & merge | `python code/main.py --step ingest` |
+| Match (all thresholds) | `python code/main.py --step match` |
+| Aggregate (all thresholds) | `python code/main.py --step aggregate` |
+| Fit models (all thresholds) | `python code/main.py --step model` |
+| Sensitivity summary | `python code/main.py --step sensitivity` |
+| Permutation test (default threshold = 3) | `python code/main.py --step permutation` |
+| Power analysis | `python code/main.py --step power` |
+| Verify & update state | `python code/main.py --step verify` |
 
 ## Expected Outputs
-
-- `data/processed/user_track_pairs.parquet`: The core analysis dataset.
-- `data/final/regression_summary.csv`: Primary results (coefficient for `logit_ratio`).
-- `data/final/plots/residuals.png`: Diagnostic plot.
-- `state.yaml`: Updated with artifact hashes.
+- `data/raw/msd_*.jsonl` (streamed MSD shards) – **Note:** MSD lacks per‑user timestamps; a placeholder exposure metric will be used unless you supply an external listening‑history dataset.  
+- `data/raw/amt.parquet` (user‑provided AMT file)  
+- `data/processed/ingested_cohort.parquet`  
+- `data/processed/matched_thr{n}.parquet` (five files)  
+- `data/processed/user_track_pairs_thr{n}.parquet` (five files)  
+- `data/final/regression_summary_thr{n}.csv` (five files)  
+- `data/final/sensitivity_analysis.csv`  
+- `data/final/permutation_results.csv`  
+- `data/final/power_report.txt` (contains required N and post‑hoc power)  
+- `data/final/plots/` (diagnostic PDFs/PNGs)  
+- Updated `state.yaml` with SHA‑256 hashes.
 
 ## Troubleshooting
+- **Missing AMT file**: The pipeline will stop with an explicit error; place a conforming `amt.parquet` in `data/raw/`.  
+- **Low Match Rate**: If any threshold yields `< 0.80` match rate, a warning is logged but execution proceeds (SC‑004).  
+- **Memory Errors**: Streaming is active automatically in `download.py`.  
+- **Permutation Too Slow**: Use `--perm-iterations <N>` to reduce iterations; the reduced iteration count will be noted in `power_report.txt`.  
+- **Checksum Mismatch**: Run `python code/main.py --step verify` to recompute and compare hashes; mismatches indicate corrupted artifacts.  
 
-- **Missing Birth Years**: If >50% of birth years are missing, the pipeline will log a warning and use the "Global Exposure" fallback for sensitivity analysis only.
-- **Low Match Rate**: If match rate < 80%, a warning is logged, but the pipeline proceeds.
-- **Memory Error**: Ensure `streaming=True` is used in `datasets` (handled automatically by `download.py`).
-- **Ratio Instability**: Users with `total_listens < 3` are excluded from the primary analysis.
-- **Missing Output Files**: If `data/processed/*.parquet` files are missing, ensure the `ingest` step completed successfully. The pipeline validates their existence before analysis.
+---
+

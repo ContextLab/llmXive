@@ -5,10 +5,3 @@ T003:
     `explanations/.gitkeep`, `state/.gitkeep`, and `tests/.gitkeep` actually exist.
     The required evidence (e.g., output of `ls explanations/` showing the .gitkeep
     file) is missing.
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No logging configuration files, code snippets, or documentation were provided\
-    \ to demonstrate that edge cases (invalid patches, timeouts, missing rationales)\
-    \ are being recorded. The required artifact\u2014an implemented logging infrastructure\u2014\
-    is missing."

@@ -1,0 +1,212 @@
+{
+  "trace_id": "held_out_43_02010",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "insert_text",
+    "insert_text",
+    "format_text",
+    "insert_image",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "insert_text",
+    "insert_text",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "insert_image",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 90.6007,
+        "y": 56.9477,
+        "length": 91.8756
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 39.8057,
+        "y": 20.8128,
+        "length": 44.7327
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 85.2882,
+        "x": 68.0659,
+        "y": 30.1987
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 96.7459,
+        "y": 94.8483,
+        "width": 77.7785,
+        "height": 20.868
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 42.0629
+      }
+    },
+    {
+      "step": 5,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 23.4791
+      }
+    },
+    {
+      "step": 6,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 72.5222
+      }
+    },
+    {
+      "step": 7,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 8.9737
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 97.6086,
+        "y": 2.7035,
+        "length": 2.6111
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 3.2248,
+        "y": 88.8613,
+        "length": 51.1539
+      }
+    },
+    {
+      "step": 10,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 70.2537,
+        "padding": 29.5187
+      }
+    },
+    {
+      "step": 11,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 81.1915,
+        "padding": 11.1994
+      }
+    },
+    {
+      "step": 12,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 77.6842,
+        "padding": 2.3225
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 61.15,
+        "y": 49.1398,
+        "width": 94.2627,
+        "height": 74.5561
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 68.3753,
+        "y": 36.6783,
+        "length": 85.7921
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 60.5761,
+        "y": 81.4757,
+        "length": 47.2709
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 0.042,
+        "y": 39.2392,
+        "length": 90.9899
+      }
+    },
+    {
+      "step": 17,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 48.5712,
+        "y": 57.3828,
+        "length": 77.3146
+      }
+    },
+    {
+      "step": 18,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 35.1325,
+        "y": 64.5046,
+        "length": 24.1602
+      }
+    },
+    {
+      "step": 19,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 75.9042,
+        "y": 30.8075,
+        "length": 72.2265
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.333074,
+    "tool_repetition_freq": 0.75,
+    "arg_semantic_variance": 871.125058
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 3,
+    "layout_hash": "43-2010-insert_text"
+  },
+  "variance_multiplier": 1.5
+}

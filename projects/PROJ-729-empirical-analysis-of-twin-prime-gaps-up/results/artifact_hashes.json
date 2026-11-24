@@ -1,0 +1,25 @@
+{
+  "artifacts": {
+    "data/raw/twin_primes.csv": {
+      "sha256": "42354489c43770950d7017643efe2b8c8726487d28a2d12f142a14d1309b56df",
+      "size_bytes": 125688882
+    },
+    "data/results/expected_count.json": {
+      "sha256": "b25407df6bc9a392269f4465e4fc43f8adaf166bf7e0caa1ca0bc211a3524582",
+      "size_bytes": 41
+    },
+    "data/results/performance_gen.json": {
+      "sha256": "95296bd3e8728a1b9fa5e470382c93975a788c82693db90c37fb84dce1101941",
+      "size_bytes": 363
+    },
+    "results/artifact_hashes.json": {
+      "sha256": "fd1d93d2ec5b4b2ef7e4dd61f6278d207ed2ce7d0d911e5a52a4cbb644d03a00",
+      "size_bytes": 852
+    },
+    "results/performance_gen.json": {
+      "sha256": "95296bd3e8728a1b9fa5e470382c93975a788c82693db90c37fb84dce1101941",
+      "size_bytes": 363
+    }
+  },
+  "generated_at": "2026-10-23T09:34:25.546724+00:00"
+}

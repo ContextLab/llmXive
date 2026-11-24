@@ -16,7 +16,9 @@ try:
     from dotenv import load_dotenv
 except ImportError:
     # Fallback if python-dotenv is not installed (though it should be in requirements)
-    print("Warning: python-dotenv not found. Environment variables from .env will not be loaded.")
+    print(
+        "Warning: python-dotenv not found. Environment variables from .env will not be loaded."
+    )
     load_dotenv = None
 
 # Ensure project root is in path for imports if running as script
@@ -24,6 +26,7 @@ if __name__ == "__main__":
     project_root = Path(__file__).resolve().parent.parent
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
+
 
 def configure_environment():
     """
@@ -54,6 +57,7 @@ def configure_environment():
     }
     return config
 
+
 def set_simulation_seed(seed: int):
     """
     Sets the random seed for reproducibility in simulations.
@@ -63,13 +67,14 @@ def set_simulation_seed(seed: int):
     # For now, we stick to the standard library as per current API surface
     return seed
 
+
 def main():
     """
     Main execution flow.
     """
     # 1. Configure Environment
     config = configure_environment()
-    
+
     # 2. Set Simulation Seed
     seed = set_simulation_seed(config["simulation_seed"])
     logger = get_logger(__name__)
@@ -88,9 +93,12 @@ def main():
     # TODO: Orchestrate the pipeline steps (US1 -> US2 -> US3)
     # This is a placeholder for the actual pipeline execution logic
     # which will be implemented in subsequent tasks (T012, T026a, etc.)
-    logger.info("Pipeline orchestration placeholder. Awaiting implementation of user stories.")
+    logger.info(
+        "Pipeline orchestration placeholder. Awaiting implementation of user stories."
+    )
 
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

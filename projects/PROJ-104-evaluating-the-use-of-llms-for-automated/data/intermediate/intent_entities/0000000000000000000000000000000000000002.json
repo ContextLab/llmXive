@@ -1,0 +1,10 @@
+{
+  "sample_id": "0000000000000000000000000000000000000002",
+  "type": "intent",
+  "entities": [
+    {
+      "entity": "Dummy documentation diff",
+      "verified": false
+    }
+  ]
+}

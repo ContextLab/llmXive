@@ -6,16 +6,10 @@ T001:
     the task from being fully satisfied.
   task: 720d3805ca513332a6c960ad218bda01a5dc09d0469f8ba7b1e795d542568291
 T002:
-  reason: "The `requirements.txt` file is present and lists the required packages,\
-    \ but none of them are version\u2011pinned (e.g., `rpy2==...`). The task explicitly\
-    \ demanded a *pinned* requirements file, so the artifact does not meet the specification.\
-    \ Adding exact version specifiers for each listed dependency is needed."
   task: 7d95c5b31fabec5eaf9de3d4f9ed07b24731bc14ac22d2875499ae1085fa5e29
 T003a-fix:
-  reason: The `pyproject.toml` file with `[tool.ruff]` and `[tool.black]` sections
-    is present, but there is no provided evidence that `ruff check .` and `black --check
-    .` were actually run and passed. Execution logs or command output confirming successful
-    linting/formatting are required.
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/run_lint_check.py
+    exit=1'
   task: 189e0238c347b36f30755d422e5662b3ae434ef4c50a83aaad23e061d99defd1
 T003b-install-deps:
   reason: "No artifact (e.g., a shell script, log file, or captured command output)\
@@ -37,10 +31,29 @@ T007-fix:
   reason: 'declared artifact(s) missing/empty/invalid: src/utils/setup_dirs.py'
   task: 6dd5f5eb0c06fab86bf106a6667d09321be1777e377bf2590cf554456fe03df6
 T008:
+  reason: "The `tests/unit/test_download.py` file exists, but it imports a non\u2011\
+    existent function `validate_fastq_download` (no such function is defined in either\
+    \ `src/data/download.py` or `code/src/data/download.py`) and uses a `ManifestEntry`\
+    \ schema that does not match the actual `ManifestEntry` model in `src/utils/schemas.py`.\
+    \ Consequently the unit test cannot run or validate FASTQ downloads as required.\
+    \ The missing/incorrect implementation must be added and the test adjusted to\
+    \ the real schema."
   task: 00ae00c583e2df1b3644832c71b792ec5c779a35df82bd56856ddf0ae4d4c543
 T009:
+  reason: "The `tests/unit/test_batch_correction.py` file exists and contains many\
+    \ relevant test cases, but it is not a runnable unit test because it references\
+    \ `os.path.exists` without importing the `os` module, causing a `NameError` during\
+    \ execution. This missing import prevents the test suite from actually verifying\
+    \ the batch\u2011correction metric calculations. Adding the missing `import os`\
+    \ (and ensuring the test runs without errors) is required to satisfy the task."
   task: 1278fd091307be5d20c062c1cd2b285cfae3e5239ce90d6d6d881d037a531650
 T010:
+  reason: "The `tests/integration/test_preprocess.py` file is present, but it never\
+    \ generates synthetic FASTQ files nor invokes the full `run_preprocessing_pipeline`\
+    \ function; it manually creates a counts matrix and computes TPM, so the test\
+    \ does not actually exercise the complete preprocessing pipeline as required.\
+    \ The integration test therefore fails to satisfy the \u201Cfull preprocessing\
+    \ pipeline\u201D requirement (step\u202F1) and is incomplete."
   task: 353d4828f561d3653ce09d63294e96ee80694f2bdbfdee395580c6cd4eefcf65
 T011:
   task: b09d1bbb3ddcc372668e8b3a9ec7844225398e35215d06dfc60284232c3a12e6

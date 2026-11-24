@@ -1,0 +1,50 @@
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-locateanythi/quickstart.md
+  attempts: 1
+  canonical: The sanity experiment produces data/results/sanity_global.parquet and
+    data/predictions/sample_global.json
+  claim_id: c_0a99d549
+  context: "Run the sanity experiment (global attention, 5\u2011image sample) and\
+    \ the command will: ... Produce the two files."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Produce `data/results/sanity_global.parquet` and `data/predictions/sample_global.json`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T02:13:29Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-locateanythi/quickstart.md
+  attempts: 1
+  canonical: The sanity run passes validation against contracts/inference_results.schema.yaml
+  claim_id: c_02e5750a
+  context: All result files must satisfy contracts/inference_results.schema.yaml.
+    The sanity run should pass this validation.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The sanity run should pass this validation.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T02:13:29Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-locateanythi/quickstart.md
+  attempts: 1
+  canonical: sanity_global.parquet contains one row per sampled image
+  claim_id: c_fb62fffa
+  context: 'Inspect results: the parquet file contains one row per sampled image with
+    specific columns.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "`data/results/sanity_global.parquet` \u2013 contains one row per sampled\
+    \ image with columns `image_id`, `prediction`, `mean_iou`, `latency_ms`."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T02:13:29Z'

@@ -29,11 +29,11 @@ properties:
     type: "string"
     description: "The type of graph used for this metric (for ablation)."
 required:
-  - metric_id
-  - task_id
-  - phase
-  - cpu_usage_pct
-  - memory_mb
-  - wall_clock_seconds
-  - graph_type
+  - "metric_id"
+  - "task_id"
+  - "phase"
+  - "cpu_usage_pct"
+  - "memory_mb"
+  - "wall_clock_seconds"
+  - "graph_type"
 additionalProperties: false

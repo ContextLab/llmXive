@@ -1,46 +1,46 @@
-$schema: https://json-schema.org/draft/2020-12/schema
-title: Metrics Schema for Statistical Tests
-description: Schema for Diebold-Mariano test results and sensitivity analysis
-type: object
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Metrics Schema for Statistical Tests"
+description: "Schema for Diebold‑Mariano test results and sensitivity analysis"
+type: "object"
 properties:
   diebold_mariano_results:
-    type: array
+    type: "array"
     items:
-      type: object
+      type: "object"
       properties:
         comparison:
-          type: string
+          type: "string"
           enum:
-            - baseline_vs_isotonic
-            - isotonic_vs_bayesian
-          description: Comparison pair
+            - "baseline_vs_isotonic"
+            - "isotonic_vs_bayesian"
+          description: "Comparison pair"
         lead_time:
-          type: integer
-          description: Lead time for this test
+          type: "integer"
+          description: "Lead time for this test"
         variable:
-          type: string
-          description: Variable name
+          type: "string"
+          description: "Variable name"
         test_method:
-          type: string
+          type: "string"
           enum:
-            - DM-HAC
-            - Block Bootstrap
-          description: Selected test method
+            - "DM-HAC"
+            - "Block Bootstrap"
+          description: "Selected test method"
         p_value:
-          type: number
+          type: "number"
           minimum: 0.0
           maximum: 1.0
-          description: P-value from test
+          description: "P-value from test"
         alternative:
-          type: string
+          type: "string"
           enum:
-            - Method A > Method B
-          description: One-sided alternative hypothesis
+            - "Method A > Method B"
+          description: "One-sided alternative hypothesis"
         normality_test_p:
-          type: number
+          type: "number"
           minimum: 0.0
           maximum: 1.0
-          description: Shapiro-Wilk p-value for normality check
+          description: "Shapiro‑Wilk p-value for normality check"
       required:
         - comparison
         - lead_time
@@ -50,48 +50,48 @@ properties:
         - alternative
         - normality_test_p
   sensitivity_analysis:
-    type: array
+    type: "array"
     items:
-      type: object
+      type: "object"
       properties:
         split_ratio:
-          type: string
+          type: "string"
           enum:
-            - 70/30
-            - 60/40
-            - 80/20
-          description: Validation split ratio
+            - "70/30"
+            - "60/40"
+            - "80/20"
+          description: "Validation split ratio"
         metric_name:
-          type: string
+          type: "string"
           enum:
-            - Brier
-            - CRPS
-          description: Name of metric
+            - "Brier"
+            - "CRPS"
+          description: "Name of metric"
         lead_time:
-          type: integer
-          description: Lead time for this metric
+          type: "integer"
+          description: "Lead time for this metric"
         variable:
-          type: string
-          description: Variable name
+          type: "string"
+          description: "Variable name"
         method:
-          type: string
+          type: "string"
           enum:
-            - isotonic
-            - bayesian
-          description: Method used
+            - "isotonic"
+            - "bayesian"
+          description: "Method used"
         value:
-          type: number
-          description: Computed metric value
+          type: "number"
+          description: "Computed metric value"
         confidence_interval:
-          type: array
+          type: "array"
           items:
-            type: number
+            type: "number"
           minItems: 2
           maxItems: 2
-          description: 95% CI (lower, upper)
+          description: "95% CI (lower, upper)"
         relative_difference:
-          type: number
-          description: Relative difference from 70/30 baseline
+          type: "number"
+          description: "Relative difference from 70/30 baseline"
       required:
         - split_ratio
         - metric_name
@@ -102,40 +102,40 @@ properties:
         - confidence_interval
         - relative_difference
   prior_sensitivity_log:
-    type: array
+    type: "array"
     items:
-      type: object
+      type: "object"
       properties:
         prior_type:
-          type: string
+          type: "string"
           enum:
-            - physics_informed
-            - flat
-            - weak
-            - medium
-            - strong
-          description: Type of prior used
+            - "physics_informed"
+            - "flat"
+            - "weak"
+            - "medium"
+            - "strong"
+          description: "Type of prior used"
         prior_parameters:
-          type: object
-          description: Parameters of the prior (mean, std, variance)
+          type: "object"
+          description: "Parameters of the prior (mean, std, variance)"
         metric_name:
-          type: string
+          type: "string"
           enum:
-            - Brier
-            - CRPS
-          description: Name of metric
+            - "Brier"
+            - "CRPS"
+          description: "Name of metric"
         lead_time:
-          type: integer
-          description: Lead time for this metric
+          type: "integer"
+          description: "Lead time for this metric"
         variable:
-          type: string
-          description: Variable name
+          type: "string"
+          description: "Variable name"
         value:
-          type: number
-          description: Computed metric value
+          type: "number"
+          description: "Computed metric value"
         difference_from_flat:
-          type: number
-          description: Difference from flat prior Brier score (for physics_informed)
+          type: "number"
+          description: "Difference from flat prior Brier score (for physics_informed)"
       required:
         - prior_type
         - metric_name

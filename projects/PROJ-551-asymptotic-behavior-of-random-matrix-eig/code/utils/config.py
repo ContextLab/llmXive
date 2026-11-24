@@ -1,128 +1,108 @@
 """
-Configuration management for seeds, tolerances, and paths.
+Utility configuration module for the asymptotic random matrix project.
 
-This module centralizes project-wide configuration parameters to ensure
-reproducibility and ease of modification.
+This module provides a minimal set of helpers required by various analysis
+scripts.  All functions are deliberately lightweight and have no external
+dependencies beyond the Python standard library and the packages that are
+already available in the execution environment (numpy, etc.).
 """
 
 import os
-import json
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Dict, Any, Optional
 
-# Project root is two levels up from this file (code/utils/config.py -> project root)
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-_CONFIG_PATH = _PROJECT_ROOT / "code" / "config.json"
+# ----------------------------------------------------------------------
+# Default configuration constants
+# ----------------------------------------------------------------------
+# Tolerance used by the outlier detection rule (FR-004):
+# an eigenvalue is considered an outlier if it exceeds the theoretical
+# semicircle edge (2.0) by more than this amount.
+DEFAULT_OUTLIER_TOLERANCE: float = 0.05
 
-# Default values
-_DEFAULTS = {
-    "SEED": 42,
-    "OUTLIER_TOLERANCE": 1e-10,
-    "MAX_ITER": 1000,
-    "DATA_PATH_RAW": "data/raw",
-    "DATA_PATH_PROCESSED": "data/processed",
-    "DATA_PATH_FIGURES": "data/figures",
-    "DATA_PATH_LOGS": "data/logs",
-    "STATE_PATH": "state",
-}
+# Deterministic default base seed (SC-003: full reproducibility via
+# fixed seeds — never draw a seed from system entropy).
+DEFAULT_BASE_SEED: int = 42
 
-_config_cache: Dict[str, Any] = {}
-
-
-def _load_config() -> Dict[str, Any]:
-    """Load configuration from file or return defaults."""
-    if _config_cache:
-        return _config_cache
-
-    config = _DEFAULTS.copy()
-
-    if _CONFIG_PATH.exists():
-        try:
-            with open(_CONFIG_PATH, 'r') as f:
-                file_config = json.load(f)
-                config.update(file_config)
-        except (json.JSONDecodeError, IOError) as e:
-            print(f"Warning: Could not load config file at {_CONFIG_PATH}: {e}. Using defaults.")
-    else:
-        # Create default config file if it doesn't exist
-        _CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(_CONFIG_PATH, 'w') as f:
-            json.dump(config, f, indent=2)
-
-    _config_cache.update(config)
-    return config
-
-
-def get_config(key: str, default: Any = None) -> Any:
-    """
-    Get a configuration value by key.
-
-    Args:
-        key: The configuration key.
-        default: Default value if key is not found.
-
-    Returns:
-        The configuration value or default.
-    """
-    config = _load_config()
-    return config.get(key, default)
-
-
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def get_outlier_tolerance() -> float:
     """
-    Get the outlier tolerance from configuration.
+    Return the outlier tolerance used throughout the pipeline.
 
-    Returns:
-        The tolerance value (default 1e-10).
+    The value can be overridden by the environment variable
+    ``OUTLIER_TOLERANCE``; otherwise the default ``0.05`` is returned.
     """
-    return float(get_config("OUTLIER_TOLERANCE", _DEFAULTS["OUTLIER_TOLERANCE"]))
+    env_val = os.getenv("OUTLIER_TOLERANCE")
+    if env_val is not None:
+        try:
+            return float(env_val)
+        except ValueError:
+            # Fallback to default if the environment variable is malformed.
+            pass
+    return DEFAULT_OUTLIER_TOLERANCE
 
+def ensure_directories(base_path: Optional[Path] = None) -> None:
+    """
+    Create the standard project data directories if they do not already exist.
+
+    Parameters
+    ----------
+    base_path : pathlib.Path, optional
+        The root of the project. If ``None`` the current working directory
+        is used.
+    """
+    root = Path(base_path) if base_path is not None else Path.cwd()
+    for sub in [
+        root / "data" / "raw",
+        root / "data" / "processed",
+        root / "data" / "logs",
+        root / "data" / "figures",
+    ]:
+        sub.mkdir(parents=True, exist_ok=True)
+
+def get_project_paths(base_path: Optional[Path] = None) -> Dict[str, Path]:
+    """
+    Return a dictionary with the most common project-relative paths.
+
+    The keys match the ones used by the existing analysis scripts:
+
+    - ``processed``   -> ``data/processed``
+    - ``figures``     -> ``data/figures``
+    - ``raw``         -> ``data/raw``
+    - ``data_logs``   -> ``data/logs``
+
+    Parameters
+    ----------
+    base_path : pathlib.Path, optional
+        Base directory of the project. If omitted, ``Path.cwd()`` is used.
+
+    Returns
+    -------
+    dict
+        Mapping from logical name to absolute ``Path`` objects.
+    """
+    root = Path(base_path) if base_path is not None else Path.cwd()
+    return {
+        "processed": root / "data" / "processed",
+        "figures": root / "data" / "figures",
+        "raw": root / "data" / "raw",
+        "data_logs": root / "data" / "logs",
+    }
 
 def get_seed() -> int:
-    """Get the random seed."""
-    return int(get_config("SEED", _DEFAULTS["SEED"]))
-
-
-def get_project_paths() -> Dict[str, Path]:
     """
-    Get standardized paths for project directories.
+    Return the base seed for Monte-Carlo runs.
 
-    Returns:
-        Dictionary mapping directory names to Path objects.
+    The seed is read from the environment variable ``BASE_SEED`` if set
+    and well-formed; otherwise the fixed deterministic default
+    ``DEFAULT_BASE_SEED`` (42) is returned.  The seed is never drawn from
+    system entropy so that every run is fully reproducible (SC-003).
     """
-    config = _load_config()
-    paths = {}
-    for key, default_path in _DEFAULTS.items():
-        if key.startswith("DATA_PATH") or key == "STATE_PATH":
-            # Handle relative paths from project root
-            rel_path = config.get(key, default_path)
-            paths[key] = _PROJECT_ROOT / rel_path
-    return paths
-
-
-def ensure_directories() -> None:
-    """Ensure all required data directories exist."""
-    paths = get_project_paths()
-    for path in paths.values():
-        path.mkdir(parents=True, exist_ok=True)
-
-
-def load_config_file(path: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Load a specific configuration file (optional override).
-
-    Args:
-        path: Path to a JSON config file. If None, uses the default project config.
-
-    Returns:
-        Configuration dictionary.
-    """
-    if path:
-        cfg_path = Path(path)
-    else:
-        cfg_path = _CONFIG_PATH
-
-    if cfg_path.exists():
-        with open(cfg_path, 'r') as f:
-            return json.load(f)
-    return {}
+    env_seed = os.getenv("BASE_SEED")
+    if env_seed is not None:
+        try:
+            return int(env_seed)
+        except ValueError:
+            pass
+    return DEFAULT_BASE_SEED

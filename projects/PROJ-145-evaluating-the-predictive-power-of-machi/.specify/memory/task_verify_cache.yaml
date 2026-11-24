@@ -1,12 +1,41 @@
+T001:
+  c: true
+  h: 60948e2bd0ac4595c643512c3f93424f6c91cddaa2a85e15afac99fec85c6ccc
+  r: All seven required directories (`code/`, `data/raw/`, `data/processed/`, `models/`,
+    `tests/unit/`, `tests/integration/`, `specs/`) exist and are non-empty, with `__init__.py`
+    files present in `code/`, `tests/unit/`, and `tests/integration/`. The execution
+    log shows `code/setup_project.py` ran successfully (exit 0) and printed the expected
+    directory tree, and the test directories contain real test files (e.g., `test_directory_structure.py`,
+    `test_package_boilerplate.py`) consistent with pytest collection working.
+  sig: 2fb09b671a16d5c9b5b899add1ab03603a8e23a5ac2bd6c4d1f500f9f01bdb6a
+T002:
+  c: true
+  h: b408ff64bdd6531236a89fe3851a3bebebe5029df5cd736f1acfe1b493ea1750
+  r: "`code/config.py` exists (3752 bytes) and contains `RANDOM_SEED = 42`, comprehensive\
+    \ path constants (PROJECT_ROOT, DATA_RAW, etc.), and the placeholder `EXPECTED_AFLOW_CHECKSUM`\
+    \ (SHA-256 of empty string, documented as placeholder for T027), exactly as the\
+    \ task requires. The recorded pytest failure is an environment issue unrelated\
+    \ to this artifact: pytest's pdb import pulled in the project's `code/__init__.py`,\
+    \ which failed on a pyarrow/NumPy version mismatch from a different task's `download_hmao.py`\
+    \ \u2014 not a defect in `config.py` itself, whose contents fully satisfy the\
+    \ T002 requirements."
+  sig: b84e742bad14860928797c909a9bc9491090a6dfdefe108dae5851a4d38b8469
+T003:
+  c: true
+  h: 719ae8d06cdf3927f88a39e9a37ef0858311e06c2df530f95415518a73f2e5d9
+  r: Both `code/__init__.py` (530 bytes, real docstring and version) and `tests/__init__.py`
+    (74 bytes) exist and are non-empty, and the recorded pytest run shows `test_import_code_package`
+    and `test_import_tests_package` both passing (exit 0), confirming `import code`
+    succeeds.
+  sig: 3e18136de6a4de692e48e488f8eb14171c1ff107f714ba15a5d758212c167f0c
 T004:
-  c: false
-  h: 7b2b3d8f61da46ea678bc5a52d2b6c68fafd4a5ad8f1312c14549d424faeb3df
-  r: The provided `code/config.py` contains a `setup_logging` function that starts
-    to create a rotating file handler, but the file is truncated (`file_` line ends
-    abruptly) and does not show the complete logger configuration (adding the handler,
-    setting level/formatter, etc.). Consequently the logging infrastructure is not
-    fully implemented, even though the log file itself is absent (which is acceptable).
-    The artifact must contain the complete, functional logging setup.
+  c: true
+  h: 2c3f457abcd1db5b69f57f56c3fe9fe11bbed1bce6e9fa7da959d821e2a1b7c6
+  r: '`code/config.py` contains a real `setup_logging()` with a RotatingFileHandler
+    (10 MB, 5 backups) writing to `code/logs/app.log`, and the log file exists with
+    timestamped entries matching the recorded execution of `code/init_logging.py`
+    (exit 0). Unit tests for log creation, timestamped entries, and idempotency passed.'
+  sig: 7f92609f7e02c62a67d1034b23f3cefbba7d3e1a79826841cc57823a924887f9
 T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -21,13 +50,6 @@ T016:
     checksum is validated against `config.EXPECTED_AFLOW_CHECKSUM` or that exponential
     backoff with up to 3 retries is implemented. The required implementation and evidence
     are missing.
-T017b:
-  c: false
-  h: 7fc44f4ee66e3d32d1f472696cfc0fde982e63c3e7fc81203de328191d9868e7
-  r: "The required `data/raw/hmao_raw.parquet` file is missing, so no checksum could\
-    \ be computed or compared, and the `code/config.py` entry appears to be a placeholder\
-    \ value rather than a verified checksum. Consequently the task\u2019s core requirement\
-    \ is not satisfied."
 T021:
   c: false
   h: d387ffe6f933ec15317d1c788d82df3fefeb9bb6977b711b361153ceeeba77a5

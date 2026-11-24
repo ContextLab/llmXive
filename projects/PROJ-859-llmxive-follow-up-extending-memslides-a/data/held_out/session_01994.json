@@ -1,0 +1,105 @@
+{
+  "trace_id": "held_out_43_01994",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "delete_element",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 66.7176
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 98.8287,
+        "x": 31.4286,
+        "y": 82.9796
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 75.4413,
+        "x": 26.4121,
+        "y": 0.6493
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 61.8015,
+        "x": 87.2464,
+        "y": 98.9842
+      }
+    },
+    {
+      "step": 4,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 34.7079,
+        "x": 49.2624,
+        "y": 1.1023
+      }
+    },
+    {
+      "step": 5,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 98.4176,
+        "height": 54.0066
+      }
+    },
+    {
+      "step": 6,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 81.6381,
+        "height": 13.224
+      }
+    },
+    {
+      "step": 7,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 7.9463,
+        "height": 84.9578
+      }
+    },
+    {
+      "step": 8,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 70.8189,
+        "height": 52.8928
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.964963,
+    "tool_repetition_freq": 0.666667,
+    "arg_semantic_variance": 1030.227986
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 6,
+    "layout_hash": "43-1994-format_text"
+  },
+  "variance_multiplier": 1.5
+}

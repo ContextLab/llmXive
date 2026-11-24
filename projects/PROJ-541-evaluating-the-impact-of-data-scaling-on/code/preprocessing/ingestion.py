@@ -5,6 +5,7 @@ Reads dataset configuration from `data/config/datasets.yaml`.
 Streams data from Hugging Face datasets, samples if necessary,
 and writes `results/real_world_ingestion_log.csv`.
 """
+
 from __future__ import annotations
 
 import csv
@@ -54,7 +55,7 @@ class RealWorldDataset:
         features: List[str],
         verification_status: str,
         last_verified: str,
-        source_url: Optional[str] = None
+        source_url: Optional[str] = None,
     ):
         self.dataset_id = dataset_id
         self.name = name
@@ -81,7 +82,7 @@ class RealWorldDataset:
             "status": self.status,
             "row_count": self.row_count,
             "checksum": self.checksum,
-            "error_message": self.error_message
+            "error_message": self.error_message,
         }
 
 
@@ -97,9 +98,7 @@ def load_dataset_config(config_path: Path = CONFIG_PATH) -> List[Dict[str, Any]]
 
 
 def download_dataset(
-    dataset_id: str,
-    streaming: bool = True,
-    max_rows: int = MAX_ROWS
+    dataset_id: str, streaming: bool = True, max_rows: int = MAX_ROWS
 ) -> Tuple[pd.DataFrame, int]:
     """
     Download and stream a dataset from Hugging Face.
@@ -147,19 +146,19 @@ def clean_dataset(df: pd.DataFrame) -> pd.DataFrame:
     Simple imputation for numeric columns, drop non-numeric for now.
     """
     # Drop rows with all NaN
-    df = df.dropna(how='all')
+    df = df.dropna(how="all")
 
     # Convert to numeric where possible, coerce errors to NaN
     for col in df.columns:
-        if df[col].dtype == 'object':
+        if df[col].dtype == "object":
             # Try to convert to numeric, keep as object if fails
             try:
-                df[col] = pd.to_numeric(df[col], errors='coerce')
+                df[col] = pd.to_numeric(df[col], errors="coerce")
             except Exception:
                 pass
 
     # Drop columns that are entirely NaN after conversion
-    df = df.dropna(axis=1, how='all')
+    df = df.dropna(axis=1, how="all")
 
     # Drop rows where target is NaN if target column exists
     # (Assume first column is target if not specified, or just clean generally)
@@ -171,22 +170,17 @@ def compute_checksum(df: pd.DataFrame) -> str:
     # Convert to string representation (sorted columns for determinism)
     sorted_cols = sorted(df.columns)
     data_str = df[sorted_cols].to_csv(index=False)
-    return hashlib.sha256(data_str.encode('utf-8')).hexdigest()[:16]
+    return hashlib.sha256(data_str.encode("utf-8")).hexdigest()[:16]
 
 
-def update_manifest(
-    dataset: RealWorldDataset,
-    df: pd.DataFrame
-) -> None:
+def update_manifest(dataset: RealWorldDataset, df: pd.DataFrame) -> None:
     """Update dataset metadata with row count and checksum."""
     dataset.row_count = len(df)
     dataset.checksum = compute_checksum(df)
     dataset.status = "success"
 
 
-def process_real_world_dataset(
-    dataset_config: Dict[str, Any]
-) -> RealWorldDataset:
+def process_real_world_dataset(dataset_config: Dict[str, Any]) -> RealWorldDataset:
     """
     Process a single dataset: download, clean, compute stats.
     """
@@ -203,7 +197,7 @@ def process_real_world_dataset(
         target_column=dataset_config.get("target_column"),
         features=dataset_config.get("features", []),
         verification_status=dataset_config.get("verification_status", "unknown"),
-        last_verified=dataset_config.get("last_verified", "")
+        last_verified=dataset_config.get("last_verified", ""),
     )
 
     try:
@@ -222,7 +216,9 @@ def process_real_world_dataset(
         output_file = RAW_DATA_DIR / f"{safe_name}.parquet"
         df_clean.to_parquet(output_file, index=False)
 
-        logger.info(f"Processed {ds.dataset_id}: {ds.row_count} rows, checksum: {ds.checksum}")
+        logger.info(
+            f"Processed {ds.dataset_id}: {ds.row_count} rows, checksum: {ds.checksum}"
+        )
         return ds
 
     except Exception as e:
@@ -233,8 +229,7 @@ def process_real_world_dataset(
 
 
 def run_ingestion_pipeline(
-    config_path: Path = CONFIG_PATH,
-    output_path: Path = OUTPUT_LOG_PATH
+    config_path: Path = CONFIG_PATH, output_path: Path = OUTPUT_LOG_PATH
 ) -> List[RealWorldDataset]:
     """
     Main pipeline: load config, process all datasets, write log.
@@ -255,25 +250,28 @@ def run_ingestion_pipeline(
     # Write log
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=[
-            "dataset_id", "source_url", "status", "row_count", "checksum"
-        ])
+        writer = csv.DictWriter(
+            f,
+            fieldnames=["dataset_id", "source_url", "status", "row_count", "checksum"],
+        )
         writer.writeheader()
         for ds in results:
-            writer.writerow({
-                "dataset_id": ds.dataset_id,
-                "source_url": ds.source_url,
-                "status": ds.status,
-                "row_count": ds.row_count,
-                "checksum": ds.checksum
-            })
+            writer.writerow(
+                {
+                    "dataset_id": ds.dataset_id,
+                    "source_url": ds.source_url,
+                    "status": ds.status,
+                    "row_count": ds.row_count,
+                    "checksum": ds.checksum,
+                }
+            )
 
     logger.info(f"Ingestion log written to {output_path}")
     return results
 
 
 def validate_dataset_availability(
-    config_path: Path = CONFIG_PATH
+    config_path: Path = CONFIG_PATH,
 ) -> Tuple[List[str], List[str]]:
     """
     T027a: Validate which datasets are accessible.

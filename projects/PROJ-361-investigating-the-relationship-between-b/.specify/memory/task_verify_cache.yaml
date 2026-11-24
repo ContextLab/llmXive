@@ -1,10 +1,54 @@
+T001b:
+  c: true
+  h: b93b1f8f20eae7537177e799acf8a3b6712a7ba2e7e0b7fec94d1774442ee046
+  r: The evidence shows that all six required directories (`code/preprocessing/`,
+    `code/topology/`, `code/behavioral/`, `code/analysis/`, `code/utils/`, `code/models/`)
+    exist in the project root and each contains files (beyond the optional empty `__init__.py`).
+  sig: 9f342b08cac4835e324f1d49ed4d32bc28078fa9d3ad565cc334171dcaf779be
+T001c:
+  c: true
+  h: b9462397d3a1f45c73b738ae5f957fd1f7bda79245430bd666437ffb00b40b5d
+  r: The evidence shows that the `tests/unit/` directory (with 11 files) and the `tests/integration/`
+    directory (with an `__init__.py` file) both exist under the project root as required.
+    This satisfies the task of creating the specified test structure.
+  sig: 441932586e428201c63d5dc27c0ba0bb2b491323b8343024e8118ee8f7cd6b73
+T002:
+  c: false
+  h: 81427551306e0bab2fd3ce33560e2490771949bc2cdf29f2ade775a22d3fdef3
+  r: "Checked the `requirements.txt` file (305\u202Fbytes) present at `projects/PROJ-361-investigating-the-relationship-between-b/requirements.txt`.\
+    \ It lists package names but does **not** pin them to specific versions (e.g.,\
+    \ `numpy==1.23.0`), nor is there any other artifact (e.g., `pyproject.toml` or\
+    \ `setup.cfg`) indicating a Python\u202F3.11 project configuration. The task required\
+    \ a Python\u202F3.11 project initialized with **pinned** dependencies, which is\
+    \ not satisfied."
+  sig: 58634e9ed5f4f1306b8f6d439d141656105b5f1c9a700781def64de1c6d2b853
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting, formatting, or type\u2011checking configuration files (e.g., .flake8,\
-    \ pyproject.toml/black settings, mypy.ini) are present, nor any evidence that\
-    \ flake8, black, and mypy have been set up for the project. The required artifacts\
-    \ are missing."
+  h: 035db0fd3b1fee9d954797e511e2cf9e81664924d99859a2ded81a1091fd3034
+  r: "No linting, formatting, or type\u2011checking configuration files (e.g., `.flake8`,\
+    \ `pyproject.toml`/`setup.cfg` for Black, `mypy.ini` or equivalent) were found\
+    \ in the project root or any subdirectory, and no evidence of these tools being\
+    \ set up or run is present. The task therefore lacks the required artifacts."
+  sig: c802a929431c661e7d865110d2e6da1cf8223fc6fe1a9781a3eafed8d25b5c28
+T005:
+  c: true
+  h: b1da571146c5f063abfa781ec57457244cf4def0f0626da75f9fab340a25b846
+  r: "Checked the `code/utils/config.py` file (3410\u202Fbytes) which defines project\u2011\
+    root and data sub\u2011directory paths, provides helper functions to retrieve\
+    \ those paths, sets environment\u2011variable defaults, includes a `get_config_value`\
+    \ lookup, and creates missing directories via `ensure_directories()`. The implementation\
+    \ fully covers environment variable handling and path management as required."
+  sig: d8c5e330f8cbc9ecde61b972a56100d981e8e1ca82acd6df9e008361a0ccb53e
+T006:
+  c: true
+  h: b8d950bf50d15616fb9ab27c82f6917161083f086dc1dfabda67bbd50a38bae8
+  r: "Checked the `code/utils/update_state.py` file (15128\u202Fbytes) which implements\
+    \ hash calculation, artifact registration, status updates, integrity verification,\
+    \ and pipeline state handling using YAML files via `load_yaml_state`/`save_yaml_state`.\
+    \ It contains full, functional code with no SQLite references, satisfying the\
+    \ task\u2019s requirement for a YAML\u2011based versioning and hash\u2011tracking\
+    \ utility."
+  sig: 0eb946f04d4342b4ad5f0eb786101eac0818d2730e072b996c512449a58374ff
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

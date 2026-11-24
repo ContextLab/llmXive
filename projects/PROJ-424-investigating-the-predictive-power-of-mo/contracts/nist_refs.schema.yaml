@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NIST Diffusion References Schema"
+description: "Schema for data/raw/nist_refs.json containing experimental self‑diffusion coefficients."
+type: "array"
+items:
+  type: "object"
+  properties:
+    solvent:
+      type: "string"
+      description: "Name of the solvent."
+    temperature_K:
+      type: "number"
+      description: "Temperature at which the diffusion coefficient was measured (Kelvin)."
+    D_exp_m2_s:
+      type: "number"
+      description: "Experimental self‑diffusion coefficient (m²/s)."
+    source:
+      type: "string"
+      description: "Citation or source of the experimental value."
+  required:
+    - solvent
+    - temperature_K
+    - D_exp_m2_s
+    - source
+  additionalProperties: false

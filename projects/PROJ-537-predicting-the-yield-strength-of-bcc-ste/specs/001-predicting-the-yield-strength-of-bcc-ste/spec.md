@@ -19,7 +19,7 @@ As a materials researcher, I need to successfully merge experimental yield stren
 
 1. **Given** a list of BCC iron alloy compositions from MatNavi, **When** the system queries the Materials Project API for matching elastic constants, **Then** the output CSV contains at least 20 rows with both `yield_strength_MPa` and `shear_modulus_GPa` populated. If rows < 20, the system halts with `ERR_INSUFFICIENT_DATA`.
 2. **Given** a composition with no matching DFT data in the Materials Project, **When** the system attempts to merge, **Then** that specific row is excluded from the final dataset with a logged warning, ensuring no null values propagate to the model. If the total count of valid rows falls below 20, the system halts.
-3. **Given** a composition with multiple polymorphs in the database, **When** the system filters for BCC stability, **Then** only the entry with the BCC crystal structure (space group 229 or equivalent) is retained.
+3. **Given** a composition with multiple polymorphs in the database, **When** the system filters for BCC stability, **Then** only the entry with the BCC crystal structure (space group characteristic of the body‑centered cubic lattice or equivalent) is retained.
 4. **Given** the merged dataset, **When** the row count is evaluated, **Then** if count < 20, the system halts with `ERR_INSUFFICIENT_DATA`.
 
 ---

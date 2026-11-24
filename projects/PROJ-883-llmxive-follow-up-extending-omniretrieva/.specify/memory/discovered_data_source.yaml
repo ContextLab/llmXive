@@ -1,12 +1,9 @@
 status: none
-intent: download MS MARCO dataset DBpedia dataset Spider benchmark python package
-  dataset
-required_fields:
-- query_id
-- query_text
-- plan_depth
-- source_type
-- latency_ms
-cache_key: d703309e145fd50c1d67d379f3b82b6cd11eca59481924654419ed39dc6c0a13
-searched_at: '2026-10-08T22:24:07.385314+00:00'
-retry_count: 1
+intent: '### User Story 1 - Quantify Latency Penalties of High-Complexity Queries
+  on CPU (Priority: P1) (User Story ID: US-1) **Description**: As a system architect
+  evaluating edge deployment, I need to measure the end-to-end latency difference
+  between low-complexity (single-hop) and high-complexity (multi-h'
+required_fields: []
+cache_key: 7e4ca9b1ffe6a82f244d52e5290842aa9820f3fa3e5bc367507568350aef4e87
+searched_at: '2026-11-22T03:32:32.728124+00:00'
+retry_count: 2

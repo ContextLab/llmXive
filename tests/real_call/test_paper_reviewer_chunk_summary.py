@@ -79,11 +79,9 @@ def test_summarize_chunk_preserves_required_macros() -> None:
 
     summary = _summarize_chunk(
         _SAMPLE_CHUNK,
-        default_backend="dartmouth",
-        fallback_backends=[],
-        # Matches the paper_reviewer agent's default_model in
-        # agents/registry.yaml — keeps the test self-consistent.
-        model="qwen.qwen3.5-122b",
+        # Spec 026 slice 7: routes purely by named capability profile — the
+        # registry no longer carries a raw model id.
+        profile="deep_review",
     )
 
     # The summary must not be empty.

@@ -1,30 +1,55 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Feature Schema
-description: Schema for the extracted linguistic features.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Schema"
+description: "Schema for the extracted linguistic features."
 type: object
 properties:
   participant_id:
     type: string
   label:
     type: string
-  ttr:
-    type: number
-  mtld:
-    type: number
-  noun_verb_ratio:
-    type: number
-  mean_clause_length:
-    type: number
-  t_unit_count:
-    type: integer
   sentence_embedding_cosine_similarity:
     type: number
+  z_coherence:
+    type: number
+  ttr:
+    type:
+      - "number"
+      - "null"
+  mtld:
+    type:
+      - "number"
+      - "null"
+  noun_verb_ratio:
+    type:
+      - "number"
+      - "null"
+  mean_clause_length:
+    type:
+      - "number"
+      - "null"
+  t_unit_count:
+    type:
+      - "integer"
+      - "null"
+  age:
+    type:
+      - "integer"
+      - "null"
+  education:
+    type:
+      - "integer"
+      - "null"
+  sentence_count:
+    type:
+      - "integer"
+      - "null"
 required:
   - participant_id
   - label
+  - sentence_embedding_cosine_similarity
+  - z_coherence
   - ttr
   - mtld
   - noun_verb_ratio
   - mean_clause_length
   - t_unit_count
-  - sentence_embedding_cosine_similarity

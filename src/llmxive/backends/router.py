@@ -1,33 +1,52 @@
 """Backend router (T020) — falls back through a chain on transient errors.
 
-The agent registry declares a default backend and an ordered list of
-fallback backends per agent. The router is configured per-call from
-those declarations.
+The agent registry declares a named capability ``profile`` per agent (spec 026
+US5); the router resolves that profile to a concrete, backend-diverse model
+chain per call via ``model_selection`` — there is no separate per-agent
+backend declaration to configure.
 """
 
 from __future__ import annotations
 
+import enum
 import hashlib
 import os
 from collections.abc import Iterable
 from functools import lru_cache
+from typing import TYPE_CHECKING
 
 from llmxive.backends.base import (
-    BackendError,
+    BackendCredentialError,
     BackendUnavailable,
     BaseBackend,
     ChatMessage,
     ChatResponse,
     ModelDownError,
+    PaidGuardDenied,
     PermanentBackendError,
     TransientBackendError,
+    UnsupportedFeatureError,
 )
 from llmxive.backends.dartmouth import DartmouthBackend
+from llmxive.backends.huggingface import HuggingFaceBackend
 from llmxive.backends.local import LocalBackend
+
+if TYPE_CHECKING:
+    # Type-checking only: a module-top runtime import here would cycle, since
+    # importing the ``llmxive.model_selection`` PACKAGE (required to reach the
+    # ``types`` submodule) runs its ``__init__``, which imports ``execute.py``,
+    # which imports THIS module (``llmxive.backends.router``) for
+    # ``make_backend``/``chat_one_candidate``/``disposition_of``. ``route_chat``
+    # itself is likewise imported function-locally below for the same reason.
+    # ``from __future__ import annotations`` (above) makes the annotations that
+    # reference ``RequirementOverrides`` lazy strings, so this is safe.
+    from llmxive.model_selection.attempt_hooks import ReservationAuthority, RouteAudit
+    from llmxive.model_selection.types import IndependenceBaseline, RequirementOverrides
 
 _REGISTRY: dict[str, type[BaseBackend]] = {
     "dartmouth": DartmouthBackend,
     "local": LocalBackend,
+    "huggingface": HuggingFaceBackend,
 }
 
 
@@ -45,6 +64,19 @@ def make_backend(name: str) -> BaseBackend:
             _cloud_models_url() + "\0" + os.environ.get("DARTMOUTH_CHAT_API_KEY", "")
         ).encode()).hexdigest()
         return _dartmouth_backend(context)
+    if cls is HuggingFaceBackend:
+        from llmxive.backends.huggingface import BILL_TO_ENV, ROUTER_BASE_URL
+        from llmxive.credentials import HF_TOKEN_NAME
+
+        # As for Dartmouth: the per-model circuit breaker lives on the instance,
+        # so a fresh instance per call would forget an outage and send (and
+        # reserve budget for) every call again. Isolated by endpoint and the
+        # environment credentials; no raw credential is retained.
+        context = hashlib.sha256((
+            ROUTER_BASE_URL + "\0" + os.environ.get(HF_TOKEN_NAME, "")
+            + "\0" + os.environ.get(BILL_TO_ENV, "")
+        ).encode()).hexdigest()
+        return _huggingface_backend(context)
     return cls()
 
 
@@ -53,64 +85,10 @@ def _dartmouth_backend(context: str) -> DartmouthBackend:
     return DartmouthBackend()
 
 
-# Per-backend model-fallback chain. When the primary model on a
-# backend hits transient errors after retries, try these models in
-# order before falling through to the next backend. This keeps
-# pipeline runs alive when one Dartmouth-hosted model has a vLLM
-# outage but other models on the same backend are healthy.
-MODEL_FALLBACKS: dict[str, list[str]] = {
-    "zai-org.glm-5.3": [
-        "openai.gpt-oss-120b",
-        "google.gemma-4-31B-it",
-        "anthropic.claude-haiku-4-5-20251001",
-    ],
-    # Retain compatibility for callers explicitly requesting the older model. The
-    # Dartmouth free models flap on a multi-day cycle, so when the primary's vLLM
-    # flaps the router walks the SAME-backend peers in order before falling through
-    # to the next backend, keeping runs alive. Free peers first, then the guarded
-    # paid model last:
-    #   1. gemma-3-27b — free, FAST, non-reasoning (degrades a qwen flap to a
-    #      sub-second model instead of a 360s deadline wait).
-    #   2. gpt-oss-120b — free, capable reasoning (often up; flaps).
-    #   3. claude-haiku-4.5 — a CAPABLE *paid* last resort (~29 credits ≈ $0.029).
-    #      GUARDED: dartmouth.chat() raises PermanentBackendError unless
-    #      LLMXIVE_PAID_OPT_IN is set AND the daily credit budget has headroom;
-    #      the router treats that peer-permanent as "skip to next peer", so with
-    #      opt-in OFF this entry is a silent no-op.
-    "qwen.qwen3.5-122b": [
-        "google.gemma-4-31B-it",
-        "openai.gpt-oss-120b",
-        "anthropic.claude-haiku-4-5-20251001",
-    ],
-    # gpt-oss as primary (a few modules still pin it) degrades the same way.
-    "openai.gpt-oss-120b": [
-        "zai-org.glm-5.3",
-        "google.gemma-4-31B-it",
-        "anthropic.claude-haiku-4-5-20251001",
-    ],
-    # gemma as primary (fast default for cheap calls) → reasoning peers → paid.
-    "google.gemma-4-31B-it": [
-        "zai-org.glm-5.3",
-        "openai.gpt-oss-120b",
-        "anthropic.claude-haiku-4-5-20251001",
-    ],
-}
+@lru_cache(maxsize=8)
+def _huggingface_backend(context: str) -> HuggingFaceBackend:
+    return HuggingFaceBackend()
 
-#: The maintainer-default model — what a caller that does NOT pin one should use.
-#:
-#: A REAL backend requires a model (``DartmouthBackend.chat`` takes ``model`` as a
-#: REQUIRED keyword-only arg), so ``model=None`` is viable ONLY for the injected
-#: fake backends whose narrower signatures ``_chat_degrading`` degrades toward.
-#: Against Dartmouth a ``model=None`` call dies with ``TypeError: chat() missing 1
-#: required keyword-only argument: 'model'``. Public entry points that build live,
-#: real-backend units must therefore default to THIS rather than to ``None``.
-DEFAULT_MODEL: str = "zai-org.glm-5.3"
-
-#: Sanctioned PAID models permitted in MODEL_FALLBACKS as guarded fallbacks
-#: (Constitution IV stays satisfied: each is gated by the paid opt-in + daily
-#: credit-budget guard in ``backends/credits.py``, so it costs $0 and is off by
-#: default). Distinct from KNOWN_FREE_MODELS, which are unconditionally free.
-PAID_FALLBACK_MODELS: frozenset[str] = frozenset({"anthropic.claude-haiku-4-5-20251001"})
 
 # ---------------------------------------------------------------------------
 # Reasoning-safe token budgets — the SINGLE source of truth (was duplicated as
@@ -135,6 +113,7 @@ def _chat_one_model(
     model: str | None,
     max_tokens: int | None,
     temperature: float | None,
+    deadline_s: float | None = None,
 ) -> ChatResponse:
     """``backend.chat`` for ONE model, degrading for fakes/legacy signatures.
 
@@ -147,9 +126,11 @@ def _chat_one_model(
     peer-model fallback chain AND the injected-fake reviewer/reviser tests.
 
     ``model=None`` is honored (omitted from the call) so callers that don't pin
-    a model still work. This NEVER catches backend errors — Transient/Permanent
-    propagate to the chain walker; only ``TypeError`` (signature mismatch) is
-    handled here.
+    a model still work. ``deadline_s`` (spec 026 execute's ``ExecutionOptions``)
+    is passed to real backends that accept it and degraded away first for fakes /
+    backends without a deadline param. This NEVER catches backend errors —
+    Transient/Permanent propagate to the chain walker; only ``TypeError``
+    (signature mismatch) is handled here.
     """
     base: dict[str, object] = {}
     if model is not None:
@@ -160,9 +141,15 @@ def _chat_one_model(
         full["max_tokens"] = max_tokens
     if temperature is not None:
         full["temperature"] = temperature
+    if deadline_s is not None:
+        full["deadline_s"] = deadline_s
     attempts.append(full)
-    # Degrade temperature first (keep the load-bearing reasoning budget longest),
-    # then max_tokens, then a bare model-only / no-kwarg call.
+    # Degrade deadline_s FIRST (newest/most-optional kwarg; fakes + backends without
+    # a deadline param don't accept it), keeping max_tokens/temperature; then drop
+    # temperature (keep the load-bearing reasoning budget longest), then max_tokens,
+    # then a bare model-only / no-kwarg call.
+    if deadline_s is not None:
+        attempts.append({k: v for k, v in full.items() if k != "deadline_s"})
     if temperature is not None and ("max_tokens" in full):
         attempts.append({**base, "max_tokens": max_tokens})
     attempts.append(dict(base))
@@ -179,6 +166,222 @@ def _chat_one_model(
     raise last_type_error
 
 
+class CandidateDisposition(enum.Enum):
+    """How a :class:`ModelChain` walker (spec 026 ``execute``) must treat a
+    candidate's TERMINAL failure — the three outcomes the plan enumerates.
+
+    - ``SKIP``: an EXPECTED non-use of this candidate (the paid guard declined it)
+      — say nothing failed; try the next candidate.
+    - ``RETRY_ADVANCE``: the candidate was tried and failed transiently (generic
+      transient exhausted its retries, the model is down, or its breaker is open)
+      — advance to the next candidate; a fully-transient exhaustion is an OUTAGE.
+    - ``ABORT``: a hard permanent failure (auth, bad request, config) that walking
+      more candidates cannot heal — stop the chain immediately.
+    """
+
+    SKIP = "skip"
+    RETRY_ADVANCE = "retry_advance"
+    ABORT = "abort"
+
+
+def disposition_of(exc: BaseException) -> CandidateDisposition:
+    """Classify a backend failure into a :class:`CandidateDisposition`. The typed
+    ``PaidGuardDenied`` split is what lets a paid-guard denial SKIP (not ABORT):
+    it is checked BEFORE its ``PermanentBackendError`` base. ``BackendUnavailable``
+    (breaker open, Hugging Face 402, or a router 404 naming no usable provider for
+    this request) and every transient class advance; any other permanent aborts.
+    """
+    if isinstance(exc, PaidGuardDenied):
+        return CandidateDisposition.SKIP
+    if isinstance(exc, BackendCredentialError):
+        return CandidateDisposition.SKIP  # no usable credential for this backend: try a peer
+    if isinstance(exc, UnsupportedFeatureError):
+        return CandidateDisposition.SKIP  # candidate can't serve this feature → advance
+    if isinstance(exc, BackendUnavailable):
+        return CandidateDisposition.RETRY_ADVANCE  # breaker open → try next candidate
+    if isinstance(exc, TransientBackendError):  # incl. ModelDown/Deadline/EmptyReply
+        return CandidateDisposition.RETRY_ADVANCE
+    if isinstance(exc, PermanentBackendError):  # hard refusal / config
+        return CandidateDisposition.ABORT
+    return CandidateDisposition.ABORT  # unknown backend error → conservative abort
+
+
+def chat_one_candidate(
+    backend: BaseBackend,
+    messages: Iterable[ChatMessage],
+    *,
+    model: str | None,
+    max_tokens: int | None = None,
+    temperature: float | None = None,
+    deadline_s: float | None = None,
+    retries: int = 3,
+) -> ChatResponse:
+    """Run EXACTLY ONE model with the router's per-model safeguards but NO
+    fallback chain — the seam spec-026 ``execute`` walks a :class:`ModelChain`
+    over (each candidate is one call to this).
+
+    Safeguards preserved: the per-model circuit breaker + per-request deadline +
+    302-fast-fail live inside ``backend.chat`` and still apply; this adds the
+    bounded same-model RETRY of GENERIC transient flaps (``retries`` attempts,
+    2s-per-attempt backoff). It fails fast — no retry — on the conditions where
+    retrying the SAME model is futile: ``BackendUnavailable`` (breaker open),
+    ``ModelDownError`` (deadline hang / 302 outage), a ``reasoning budget
+    exhausted`` transient (it will re-exhaust), and any ``PermanentBackendError``
+    (incl. the ``PaidGuardDenied`` skip). On terminal failure it RAISES the
+    classified exception; the caller maps it with :func:`disposition_of` and
+    decides skip / advance / abort. ``model=None`` makes a single
+    signature-degrading call (the injected-fake test shape).
+
+    RETRY-COST COMPOSITION (spec 026 #4 — slice-3 acceptance criterion): this makes
+    up to ``retries`` provider ATTEMPTS for one candidate, but a credit reservation
+    holds ONE call's ``worst_case_credits``. A paid transient could therefore cost
+    up to ``retries x worst_case``. ``execute`` OWNS ``retries`` (it passes it), so
+    for a PAID candidate it MUST reserve the full retry envelope
+    (``worst_case_credits x retries``) up front — or pass ``retries=1`` and rely on
+    advancing to the next candidate. Free candidates are unaffected.
+    """
+    import time as _time
+
+    msg_list = list(messages)
+    if model is None:
+        return _chat_one_model(
+            backend, msg_list, model=None, max_tokens=max_tokens,
+            temperature=temperature, deadline_s=deadline_s,
+        )
+    last_transient: TransientBackendError | None = None
+    for attempt in range(max(1, retries)):
+        if attempt:
+            _time.sleep(2.0 * attempt)
+        try:
+            return _chat_one_model(
+                backend, msg_list, model=model, max_tokens=max_tokens,
+                temperature=temperature, deadline_s=deadline_s,
+            )
+        except ModelDownError:
+            raise  # model down/deadline/302 — retrying the same model is futile
+        except TransientBackendError as exc:
+            last_transient = exc
+            if "reasoning budget exhausted" in str(exc):
+                raise  # will re-exhaust the budget — advance instead of burning retries
+            continue  # generic transient flap — retry the SAME model
+        except PermanentBackendError:
+            raise  # PaidGuardDenied (skip) / BackendUnavailable (breaker) / hard refusal
+    assert last_transient is not None
+    raise last_transient
+
+
+def _walker_route(
+    backend: BaseBackend,
+    messages: Iterable[ChatMessage],
+    *,
+    model: str | None,
+    max_tokens: int,
+    temperature: float | None,
+    overrides: RequirementOverrides | None = None,
+    profile: str = "standard_generation",
+    independence_against: IndependenceBaseline | None = None,
+    route_audit: RouteAudit | None = None,
+    reservation_authority: ReservationAuthority | None = None,
+    route_id: str | None = None,
+    reraise_model_unavailable: bool = False,
+    excluded_models: frozenset[str] = frozenset(),
+) -> ChatResponse:
+    """Shared body for the retired instance-taking walkers (spec 026 slice 5):
+    delegate to ``route_chat`` (select() → execute()), adapting the caller's
+    injected ``backend`` into a ``backend_factory`` so it serves its OWN
+    candidates (a real backend the caller built, or a test's injected fake) while
+    other backends resolve via :func:`make_backend`.
+
+    A backend whose ``name`` is unset is treated as ``dartmouth`` (the default
+    serving backend), so an injected-fake reviser/reviewer test still serves the
+    offline snapshot's Dartmouth chain without swapping the object it holds.
+
+    ``overrides`` (spec 026 slice 6) forwards escalation constraints straight to
+    ``route_chat``, which composes them on top of the profile's base requirement;
+    ``None`` (the default) leaves every existing caller's behavior unchanged.
+    ``profile`` (spec 026 slice 7 / US5) is the named capability-requirement
+    profile a caller resolves from its ``AgentRegistryEntry.profile``; it
+    defaults to ``"standard_generation"`` — the slice-5 provisional constant —
+    so unmigrated callers keep their existing behavior.
+
+    Outage-classification contract preserved: ``ModelUnavailable`` (ineligible /
+    cold start) and ``ChainExhausted`` (transient/outage exhaustion) re-raise as
+    ``BackendUnavailable`` (clean run-loop abort with state preserved, never a
+    human escalation); a request-level permanent refusal propagates unchanged.
+
+    ``independence_against``/``route_audit``/``reservation_authority``/``route_id``
+    (spec 025) are forwarded straight to ``route_chat``, which already accepts all
+    four; every one defaults to ``None``, so an unmigrated caller's behavior is
+    byte-for-byte unchanged. ``reraise_model_unavailable`` is the ONE deviation
+    from the classification contract above, and only for the caller that asks:
+    FR-002's proposal reroute needs the RAW ``ModelUnavailable`` to decide whether
+    to try its relaxed second leg, which a ``BackendUnavailable`` has already
+    erased. ``ChainExhausted`` is never affected — see the handler.
+
+    ``excluded_models`` omits request-local rejected producers (e.g. the model
+    that just returned a malformed revision) without changing the profile, the
+    capability policy or any circuit breaker. It is NOT a second selection
+    path: the ids are unioned into ``RequirementOverrides.exclude_models``, so
+    ``select()`` simply ranks the remaining eligible candidates.
+    """
+    from llmxive.model_selection.execute import ChainExhausted
+    from llmxive.model_selection.route import route_chat
+    from llmxive.model_selection.types import ModelUnavailable
+
+    if excluded_models:
+        from dataclasses import replace
+
+        from llmxive.model_selection.types import RequirementOverrides as _Overrides
+
+        overrides = (
+            _Overrides(exclude_models=frozenset(excluded_models))
+            if overrides is None
+            else replace(
+                overrides,
+                exclude_models=overrides.exclude_models | frozenset(excluded_models),
+            )
+        )
+
+    injected_name = getattr(backend, "name", None) or "dartmouth"
+
+    def factory(name: str) -> BaseBackend:
+        return backend if name == injected_name else make_backend(name)
+
+    try:
+        return route_chat(
+            messages,
+            profile=profile,
+            caller_model=model,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            backend_factory=factory,
+            overrides=overrides,
+            independence_against=independence_against,
+            route_audit=route_audit,
+            reservation_authority=reservation_authority,
+            route_id=route_id,
+        )
+    except ModelUnavailable as exc:
+        # Spec 025 FR-002: the proposal reroute needs the RAW ModelUnavailable to decide
+        # whether to try its relaxed second leg. Converting first would erase the very
+        # distinction the reroute turns on. Every other caller keeps the contract above.
+        if reraise_model_unavailable:
+            raise
+        raise BackendUnavailable(
+            f"model selection/execution produced no usable candidate "
+            f"(outage or ineligible): {exc}"
+        ) from exc
+    except ChainExhausted as exc:
+        # ALWAYS converted, even for a caller that asked for the raw ModelUnavailable: the
+        # chain RAN and every candidate failed, which is an outage, not an eligibility
+        # problem a relaxed profile could solve. Rerouting on it would burn the fallback
+        # leg on the same broken backends.
+        raise BackendUnavailable(
+            f"model selection/execution produced no usable candidate "
+            f"(outage or ineligible): {exc}"
+        ) from exc
+
+
 def chat_with_model_fallback(
     backend: BaseBackend,
     messages: Iterable[ChatMessage],
@@ -186,127 +389,50 @@ def chat_with_model_fallback(
     model: str | None,
     max_tokens: int | None = None,
     temperature: float | None = None,
+    overrides: RequirementOverrides | None = None,
+    profile: str = "standard_generation",
+    independence_against: IndependenceBaseline | None = None,
+    route_audit: RouteAudit | None = None,
+    reservation_authority: ReservationAuthority | None = None,
+    route_id: str | None = None,
+    reraise_model_unavailable: bool = False,
     excluded_models: frozenset[str] = frozenset(),
 ) -> ChatResponse:
-    """Peer-model fallback on a SINGLE, already-constructed backend instance.
+    """Convergence-panel / reviser reasoning call on a GIVEN backend (spec 026
+    slice 5): a thin wrapper over :func:`_walker_route` → ``route_chat`` (select()
+    → execute()). The peer-model walk is no longer hand-coded here — ``execute``
+    walks the SELECTED ``ModelChain`` (each candidate dispatched through its own
+    ``ModelRef.backend``, breaker + deadline + bounded retry preserved via the
+    ``chat_one_candidate`` primitive), and the injected ``backend`` serves its own
+    candidates. The reasoning-safe :data:`REASONING_MAX_TOKENS` is the default
+    when the caller doesn't pin one. ``overrides`` (spec 026 slice 6) forwards
+    escalation constraints to ``route_chat``; ``None`` (default) is a no-op.
+    ``profile`` (spec 026 slice 7) selects the capability class; default
+    ``"standard_generation"`` preserves prior behavior for unmigrated callers.
+
+    The five spec-025 params are lane plumbing, forwarded verbatim to
+    :func:`_walker_route`: ``independence_against`` (FR-002's required-family
+    constraint), the mandatory ``route_audit`` sink and ``reservation_authority``
+    (FR-033a/FR-033), the durable ``route_id`` that makes a replayed call
+    recognizable, and ``reraise_model_unavailable`` for the reroute. All default to
+    a no-op, so the research/paper pipeline is untouched.
 
     ``excluded_models`` omits request-local rejected producers without changing
-    the configured chain or the backend circuit breaker.
-
-    Tries ``model`` (3 retries) then each peer in ``MODEL_FALLBACKS[model]`` (1
-    attempt each) on the GIVEN backend — the same SAME-BACKEND peer-model walk
-    :func:`chat_with_fallback` performs per backend, but operating on an
-    injected backend instance instead of constructing one by name. This is what
-    the convergence panel + reviser use so a transient outage on the primary
-    model (e.g. a qwen3.5-122b vLLM hang) walks to gpt-oss-120b / gemma without
-    swapping the backend object the caller already holds.
-
-    The same reasoning-safe ``max_tokens`` is passed to EVERY model in the
-    chain (the peers are also reasoning models and need the budget). A
-    ``reasoning budget exhausted`` transient skips the remaining same-model
-    retries (the model will exhaust it again) and falls straight to the peer.
-
-    A ``BackendUnavailable`` (the model's circuit breaker is OPEN / the model is
-    down) on ANY model in the chain — INCLUDING the primary — records it and
-    walks to the next peer (the model is down; try the next). It does NOT abort:
-    that is the fix for the per-model breaker composing with fallback. A
-    NON-Unavailable ``PermanentBackendError`` on the primary (paid-model guard, a
-    hard refusal) still aborts immediately (no peer walk). When the whole chain
-    is exhausted, if ANY failure was ``BackendUnavailable`` OR transient-class
-    (``ModelDownError`` / ``TransientBackendError``) we raise
-    ``BackendUnavailable`` (a true full-endpoint outage → the run loop's existing
-    clean-abort path fires with state preserved — NEVER a human escalation);
-    only an all-permanent exhaustion raises the aggregate ``BackendError``. On a
-    ``model=None`` call there is no chain to walk — it is a single
-    signature-degrading ``chat`` (the contract the injected-fake backends rely on;
-    callers talking to a REAL backend must pin a model — see
-    :data:`DEFAULT_MODEL`).
+    the profile or any circuit breaker (see :func:`_walker_route`).
     """
-    # Exclusions are local to this request (e.g. a malformed revision retry);
-    # they never trip a transport breaker or change the configured defaults.
-    import time as _time
-
-    msg_list = list(messages)
-    if model is None:
-        return _chat_one_model(
-            backend, msg_list, model=None,
-            max_tokens=max_tokens, temperature=temperature,
-        )
-    models_to_try = [model] + [m for m in MODEL_FALLBACKS.get(model, []) if m != model]
-    models_to_try = [m for m in models_to_try if m not in excluded_models]
-    errors: list[str] = []
-    saw_unavailable = False
-    saw_transient = False
-    for m in models_to_try:
-        attempts = 3 if m == model else 1
-        for attempt in range(attempts):
-            if attempt:
-                _time.sleep(2.0 * attempt)
-            try:
-                return _chat_one_model(
-                    backend, msg_list, model=m,
-                    max_tokens=max_tokens, temperature=temperature,
-                )
-            except BackendUnavailable as exc:
-                # The MODEL is down (breaker OPEN). Retrying the same model is
-                # pointless (it will fast-fail), so skip the remaining same-model
-                # attempts and walk to the next peer — do NOT abort, even on the
-                # primary. A genuinely all-down chain still aborts below (via
-                # BackendUnavailable), preserving the breaker's anti-thrash role.
-                saw_unavailable = True
-                errors.append(f"{m}(unavailable): {exc}")
-                break
-            except ModelDownError as exc:
-                # THIS model is down (hung past its full deadline, or a 302→outage
-                # maintenance redirect) — not flickering. Retrying the SAME model
-                # burns another full deadline / will just re-redirect; skip the
-                # remaining same-model attempts and fall straight to the next peer.
-                saw_transient = True
-                errors.append(f"{m}(model-down attempt {attempt + 1}): {exc}")
-                break
-            except TransientBackendError as exc:
-                saw_transient = True
-                errors.append(f"{m}(transient attempt {attempt + 1}): {exc}")
-                if "reasoning budget exhausted" in str(exc):
-                    break
-                if attempt == attempts - 1:
-                    break
-                continue
-            except PermanentBackendError as exc:
-                # A genuine permanent rejection (paid-model guard / hard refusal)
-                # — NOT a model-down signal. On the primary this won't heal by
-                # walking peers, so abort. On a peer, end this model's attempts.
-                errors.append(f"{m}(permanent): {exc}")
-                if m == model:
-                    raise
-                break
-    detail = (
-        "every model in chain "
-        + repr(models_to_try)
-        + " failed on backend "
-        + repr(getattr(backend, "name", type(backend).__name__))
-        + "; errors: "
-        + " | ".join(errors)
+    return _walker_route(
+        backend, messages, model=model,
+        max_tokens=REASONING_MAX_TOKENS if max_tokens is None else max_tokens,
+        temperature=temperature,
+        overrides=overrides,
+        profile=profile,
+        independence_against=independence_against,
+        route_audit=route_audit,
+        reservation_authority=reservation_authority,
+        route_id=route_id,
+        reraise_model_unavailable=reraise_model_unavailable,
+        excluded_models=excluded_models,
     )
-    # If a model-down (breaker-open) signal appeared anywhere in an all-failed
-    # chain, surface it as BackendUnavailable so the run loop aborts CLEANLY on a
-    # true full-endpoint outage (rather than as a recoverable BackendError).
-    if saw_unavailable:
-        raise BackendUnavailable(detail)
-    # An all-failed chain whose failures were TRANSIENT-class (deadline hangs,
-    # 302→outage.dartmouth.edu redirects, 5xx flaps on EVERY model) is a
-    # full-endpoint outage that will heal on its own — the run must abort
-    # cleanly with state preserved, exactly like the breaker-open case. Before
-    # this clause, such an exhaustion raised plain BackendError, which the
-    # stage-panel's generic engine-failure handler escalated to
-    # human_input_needed — observed live on PROJ-552 (dispatch 27306941191,
-    # 2026-06-10: qwen deadline-hang + gpt-oss/gemma both 302→outage). A
-    # transient infrastructure outage is NOT human-actionable (bug-#8 family).
-    if saw_transient:
-        raise BackendUnavailable(detail)
-    # All-permanent exhaustion (every peer hard-rejected) — genuinely
-    # engine/config-actionable, keep the recoverable aggregate error.
-    raise BackendError(detail)
 
 
 def reasoning_chat(
@@ -316,31 +442,30 @@ def reasoning_chat(
     model: str | None = None,
     max_tokens: int | None = None,
     temperature: float | None = None,
+    overrides: RequirementOverrides | None = None,
+    profile: str = "standard_generation",
     excluded_models: frozenset[str] = frozenset(),
 ) -> ChatResponse:
-    """THE single entry point for a reasoning/analysis LLM call on a GIVEN backend.
-
-    Every claim/fill/grounding/triage/review reasoning call routes through here
-    instead of re-implementing the policy (this replaces the former per-module
-    ``_chat_reasoning_safe`` copies). It delegates to
-    :func:`chat_with_model_fallback`, so it automatically gets the full stack —
-    peer-model fallback (qwen→gpt-oss→gemma), retry+jitter+backoff, the per-model
-    circuit breaker, the per-request deadline, the deadline/302 fast-fail, and
-    stub-backend signature degradation — with the reasoning-safe
-    :data:`REASONING_MAX_TOKENS` default applied when the caller doesn't override
-    it (a generation-style caller passes :data:`GENERATION_MAX_TOKENS`).
-
-    ``model=None`` makes a single no-fallback call (the offline / injected-fake
-    test shape); production callers pass a concrete model and thus get the peer
-    walk. Use this — never call ``backend.chat`` directly (the centralization
-    guard test enforces that).
+    """THE single entry point for a reasoning/analysis LLM call (spec 026 slice 5):
+    a thin wrapper over :func:`_walker_route` → ``route_chat``. Every
+    claim/fill/grounding/triage/review reasoning call routes through here; the
+    reasoning-safe :data:`REASONING_MAX_TOKENS` default applies unless the caller
+    overrides it (a generation-style caller passes :data:`GENERATION_MAX_TOKENS`).
+    Use this — never call ``backend.chat`` directly (the centralization guard test
+    enforces that). ``overrides`` (spec 026 slice 6) forwards escalation
+    constraints to ``route_chat``; ``None`` (default) is a no-op. ``profile``
+    (spec 026 slice 7) selects the capability class for callers that resolve one
+    from an ``AgentRegistryEntry``; default ``"standard_generation"`` preserves
+    prior behavior for the many non-registry reasoning callers (claim/fill/
+    grounding/triage) that have no profile of their own. ``excluded_models``
+    omits request-local rejected producers (see :func:`_walker_route`).
     """
-    return chat_with_model_fallback(
-        backend,
-        messages,
-        model=model,
+    return _walker_route(
+        backend, messages, model=model,
         max_tokens=REASONING_MAX_TOKENS if max_tokens is None else max_tokens,
         temperature=temperature,
+        overrides=overrides,
+        profile=profile,
         excluded_models=excluded_models,
     )
 
@@ -348,100 +473,69 @@ def reasoning_chat(
 def chat_with_fallback(
     messages: Iterable[ChatMessage],
     *,
-    default_backend: str,
-    fallback_backends: list[str],
-    model: str,
     max_tokens: int | None = None,
     temperature: float | None = None,
+    overrides: RequirementOverrides | None = None,
+    profile: str = "standard_generation",
 ) -> ChatResponse:
-    """Try default backend; on TransientBackendError, walk the fallback chain.
+    """Registry-agent routing chokepoint (spec 026 slice 5): resolve the chain
+    through model SELECTION and delegate to ``execute`` — no hand-walk of the
+    legacy per-model fallback table, no backend-name loop.
 
-    If `max_tokens` is None we default to 131072 (128K) — Spec Kit agents
-    (Tasker, Specifier, Planner, paper-writers) frequently exceed the
-    per-model silent default (often 1024) and produce truncated output
-    otherwise. qwen3.5-122b's real context is 256K (verified 2026-05-29
-    via the Dartmouth model registry), so 128K leaves ample input room.
+    Delegates to :func:`llmxive.model_selection.route.route_chat`, which acquires
+    the real LKG-inclusive runtime snapshot and runs the pure ``select`` for
+    ``profile`` (spec 026 slice 7: the caller's real ``AgentRegistryEntry.profile``;
+    default ``"standard_generation"`` preserves the slice-5 provisional constant
+    for unmigrated callers), then hands the WHOLE ``ModelChain`` to ``execute`` —
+    which dispatches EACH candidate through its own ``ModelRef.backend`` and does
+    the paid reservation/settlement. Backend fallback is first-class in the
+    selected chain (the local candidate carries ``backend=="local"``), so there
+    is no separate per-backend walk to configure and no caller-side model pin —
+    every call site expresses its INTENT via ``profile``, never a raw model id
+    (spec 026 slice 7; the obsolete ``default_backend`` / ``fallback_backends`` /
+    ``model`` bridge parameters were removed once every caller migrated). If
+    `max_tokens` is None it defaults to the GENERATION budget (131072) — Spec Kit
+    agents emit large artifacts. ``overrides`` (spec 026 slice 6) forwards
+    escalation constraints straight to ``route_chat``; ``None`` (default) is a
+    no-op, leaving every existing caller's behavior unchanged.
 
-    Per backend, retries the requested `model` 3x. On persistent
-    transient errors, tries each model in MODEL_FALLBACKS[model] (1
-    attempt each) on the SAME backend before falling through to the
-    next backend. This handles single-model vLLM outages on Dartmouth
-    where other models on the same backend are still healthy.
+    Outage-classification contract (preserved): a fully-INELIGIBLE selection
+    (cold start / all-stale → ``ModelUnavailable``) or a fully-EXHAUSTED chain
+    (transient/outage/paid-skip → ``ChainExhausted``) is NOT engine-actionable —
+    it surfaces as ``BackendUnavailable`` so the run loop clean-aborts with state
+    preserved (never a human escalation). A request-level PERMANENT refusal is
+    re-raised by ``execute`` and propagates unchanged (matching the old
+    primary-permanent abort).
     """
+    from llmxive.model_selection.execute import ChainExhausted
+    from llmxive.model_selection.route import route_chat
+    from llmxive.model_selection.types import ModelUnavailable
+
     if max_tokens is None:
-        # 128K default — tokens cost time but not money on Dartmouth's
-        # community plan, so we use the largest sensible budget. Per
-        # the API model registry (verified 2026-05-29):
-        #   qwen.qwen3.5-122b     max_input_tokens=256000  (was assumed 32K)
-        #   openai.gpt-oss-120b   max_input_tokens=128000
-        #   google.gemma-4-31B-it 128K context
-        # ``max_output_tokens`` is unset on the vLLM-hosted models, so
-        # there is no hard server-side cap; output is bounded by
-        # ``max_input_tokens - input_tokens``. 128K is the highest cap
-        # that fits every model in MODEL_FALLBACKS without per-model
-        # branching. This is the GENERATION budget (spec/plan/tasks/paper
-        # agents emit huge outputs) — the single source of truth.
         max_tokens = GENERATION_MAX_TOKENS
-    chain = [default_backend, *fallback_backends]
-    errors: list[str] = []
-    saw_outage = False
-    msg_list = list(messages)
-    for name in chain:
-        try:
-            backend = make_backend(name)
-        except PermanentBackendError as exc:
-            errors.append(f"{name}(init): {exc}")
-            continue
-        # Try the primary model with retries, then fall back through peer
-        # models on the SAME backend — :func:`chat_with_model_fallback` owns
-        # that walk (and the reviewer/reviser share it). A permanent failure on
-        # the primary model surfaces as PermanentBackendError; a fully-exhausted
-        # transient chain surfaces as BackendUnavailable. Either way we move on
-        # to the next backend in ``chain`` (matching the prior per-backend
-        # semantics).
-        try:
-            return chat_with_model_fallback(
-                backend,
-                msg_list,
-                model=model,
-                max_tokens=max_tokens,
-                temperature=temperature,
-            )
-        except BackendUnavailable as exc:
-            # The backend's WHOLE model chain is in outage (breaker open /
-            # transient exhaustion). Remember it: if every other backend
-            # also fails, the aggregate is an OUTAGE, not an engine error.
-            saw_outage = True
-            errors.append(f"{name}(outage): {exc}")
-            continue
-        except (PermanentBackendError, BackendError) as exc:
-            errors.append(f"{name}: {exc}")
-            continue
-    detail = (
-        "every backend in chain "
-        + repr(chain)
-        + " failed; errors: "
-        + " | ".join(errors)
-    )
-    # Spec 023 defect #11 (same family as the PR-#302 model-level fix, one
-    # layer up): a Dartmouth-wide outage correctly surfaced as
-    # BackendUnavailable from the model walk — and was then SWALLOWED here
-    # (it subclasses BackendError), with the exhaustion re-raised as plain
-    # BackendError once the local fallback failed too. The stage panel's
-    # generic handler treated that as an engine failure. Observed live on
-    # PROJ-552's plan panel (2026-06-11). An exhaustion that includes ANY
-    # backend-level outage signal aborts cleanly so the project retries on
-    # a later tick with state preserved.
-    if saw_outage:
-        raise BackendUnavailable(detail)
-    raise BackendError(detail)
+    try:
+        return route_chat(
+            messages,
+            profile=profile,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            overrides=overrides,
+        )
+    except (ModelUnavailable, ChainExhausted) as exc:
+        raise BackendUnavailable(
+            f"model selection/execution produced no usable candidate "
+            f"(outage or ineligible): {exc}"
+        ) from exc
 
 
 __all__ = [
     "GENERATION_MAX_TOKENS",
     "REASONING_MAX_TOKENS",
+    "CandidateDisposition",
+    "chat_one_candidate",
     "chat_with_fallback",
     "chat_with_model_fallback",
+    "disposition_of",
     "make_backend",
     "reasoning_chat",
 ]

@@ -39,6 +39,7 @@ module enforces the *runtime* budget side of that contract.
 from __future__ import annotations
 
 import logging
+import math
 import os
 import time
 from collections.abc import Callable
@@ -182,13 +183,31 @@ def paid_call_allowed(
     model: str,
     *,
     fetch: Callable[[], CreditBalance] | None = None,
+    estimated_cost_credits: float | None = None,
+    outstanding_reservation_credits: float = 0.0,
 ) -> tuple[bool, str]:
     """Decide whether a paid-model call to ``model`` may proceed right now.
 
     Returns ``(allowed, reason)``. FAIL-CLOSED: any doubt (opt-in off,
     balance unreachable, budget cap reached, nonsensical budget) refuses.
-    Free models never reach this function — the backend consults it only
-    after :func:`llmxive.backends.dartmouth.is_free_model` says False.
+    Free (and unverifiable) models never reach this function — the backend
+    consults it only when
+    :func:`llmxive.backends.dartmouth.model_pricing_verdict` says
+    ``PricingVerdict.PAID`` (a VERIFIED cost fact, distinct from
+    ``UNVERIFIABLE``, which the backend refuses earlier with a transient
+    ``PricingUnverifiable`` and never reaches here).
+
+    **Reservation-aware mode (spec 026 FR-011, the twice-checked paid gate).**
+    When ``estimated_cost_credits`` is given, the guard OWNS the full headroom
+    comparison ``spend + outstanding_reservation_credits + estimated_cost_credits
+    ≤ effective_cap`` — NOT merely "spend below cap" — reusing the ONE canonical
+    predicate :func:`llmxive.model_selection.reservations.admits` (Constitution I,
+    never re-implemented here). ``outstanding_reservation_credits`` is the caller's
+    :func:`reservations.outstanding_headroom_consumption` (the ``open``+``settling``
+    holds bridging Dartmouth's settlement lag). In this mode the balance is read
+    **fresh, cache-bypassing** (the legacy ~30s cache is used ONLY for the plain
+    "spend below cap" mode) so a concurrent burst cannot slip past a stale spend.
+    A failed fetch → refuse (a non-live credit observation fails closed, C6).
     """
     if not paid_opt_in_enabled():
         return (
@@ -196,8 +215,21 @@ def paid_call_allowed(
             f"paid model {model!r} refused: {PAID_OPT_IN_ENV} is not set "
             "(Constitution IV: paid credits are opt-in only)",
         )
+    reserving = estimated_cost_credits is not None
+    if reserving and (
+        estimated_cost_credits < 0 or outstanding_reservation_credits < 0
+    ):
+        return (
+            False,
+            f"paid model {model!r} refused: estimated_cost_credits="
+            f"{estimated_cost_credits!r} / outstanding_reservation_credits="
+            f"{outstanding_reservation_credits!r} must be non-negative",
+        )
     try:
-        balance = _cached_balance(fetch or fetch_credit_balance)
+        # Reservation-aware mode reads FRESH (cache-bypassing) spend; the plain
+        # mode keeps the brief cache to avoid hammering the endpoint on bursts.
+        source = fetch or fetch_credit_balance
+        balance = source() if reserving else _cached_balance(source)
     except Exception as exc:
         return (
             False,
@@ -211,6 +243,30 @@ def paid_call_allowed(
             f"{balance.max_budget!r} (no paid budget on this account)",
         )
     cap = budget_fraction() * balance.max_budget
+    if reserving:
+        from llmxive.model_selection.reservations import admits
+
+        if not admits(
+            effective_cap=cap,
+            fresh_spend=balance.spend,
+            counting=outstanding_reservation_credits,
+            worst_case=estimated_cost_credits,
+        ):
+            return (
+                False,
+                f"paid model {model!r} refused: fresh spend {balance.spend:.2f} + "
+                f"outstanding reservations {outstanding_reservation_credits:.2f} + this "
+                f"call {estimated_cost_credits:.2f} exceeds cap {cap:.2f} "
+                f"(= {budget_fraction():.0%} of max_budget {balance.max_budget:.2f}; "
+                f"resets at {balance.budget_reset_at})",
+            )
+        return (
+            True,
+            f"paid model {model!r} allowed: fresh spend {balance.spend:.2f} + "
+            f"outstanding {outstanding_reservation_credits:.2f} + call "
+            f"{estimated_cost_credits:.2f} ≤ cap {cap:.2f} "
+            f"(resets at {balance.budget_reset_at})",
+        )
     if balance.spend >= cap:
         return (
             False,
@@ -226,6 +282,44 @@ def paid_call_allowed(
     )
 
 
+def fresh_paid_headroom_available(
+    *, fetch: Callable[[], CreditBalance] | None = None
+) -> tuple[bool, str]:
+    """Coarse escalation gate (spec 026 slice 6): is paid globally enabled AND is
+    there daily headroom RIGHT NOW? Reads a FRESH, cache-bypassing balance (a
+    concurrent burst must not slip past a stale spend), applies the canonical
+    budget_fraction, and FAILS CLOSED on any doubt. This is the ONLY paid-headroom
+    arithmetic outside select()'s per-call ceiling and execute()'s authoritative
+    reservation (Constitution I) — the escalation ladder delegates here rather than
+    re-deriving the cap. Returns (allowed, reason)."""
+    if not paid_opt_in_enabled():
+        return (
+            False,
+            f"paid escalation refused: paid opt-in ({PAID_OPT_IN_ENV}) is not set",
+        )
+    try:
+        balance = (fetch or fetch_credit_balance)()  # cache-bypassing (fresh)
+    except Exception as exc:
+        return (False, f"paid escalation refused: balance unavailable "
+                       f"({type(exc).__name__}: {exc}) — failing closed")
+    frac = budget_fraction()
+    if not all(math.isfinite(v) for v in (balance.spend, balance.max_budget, frac)):
+        return (False, "paid escalation refused: non-finite spend/max_budget/fraction "
+                       "— failing closed")
+    if balance.max_budget <= 0:
+        return (False, f"paid escalation refused: max_budget={balance.max_budget} "
+                       "(no paid budget on this account)")
+    cap = frac * balance.max_budget
+    headroom = cap - balance.spend
+    if not (math.isfinite(cap) and math.isfinite(headroom)):
+        return (False, "paid escalation refused: non-finite cap/headroom — failing closed")
+    if headroom <= 0:
+        return (False, f"paid escalation refused: no headroom "
+                       f"(cap {cap:.2f} <= spend {balance.spend:.2f})")
+    return (True, f"paid escalation allowed: headroom {headroom:.2f} "
+                  f"(cap {cap:.2f}, spend {balance.spend:.2f})")
+
+
 __all__ = [
     "BALANCE_TTL_ENV",
     "BUDGET_FRACTION_ENV",
@@ -235,6 +329,7 @@ __all__ = [
     "CreditBalance",
     "budget_fraction",
     "fetch_credit_balance",
+    "fresh_paid_headroom_available",
     "paid_call_allowed",
     "paid_opt_in_enabled",
     "reset_balance_cache",

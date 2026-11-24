@@ -1,0 +1,14 @@
+status: none
+intent: download TIDE code evaluation dataset parquet format Python package dataset
+required_fields:
+- code
+- ast_depth
+- import_count
+- cyclomatic_complexity
+- dependency_depth
+- semantic_scope
+- syntactic_complexity
+- label
+cache_key: 35f0d57037754afbcc7cf887395eaa3ce63f958d38233d729fa5cfb5e86b950c
+searched_at: '2026-10-24T10:16:24.499598+00:00'
+retry_count: 1

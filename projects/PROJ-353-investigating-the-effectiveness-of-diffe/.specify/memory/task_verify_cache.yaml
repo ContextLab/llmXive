@@ -1,48 +1,23 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directories or verification script are provided in the evidence; the required
-    project structure (code/, tests/, data/, data/raw/, data/processed/, data/analysis/,
-    artifacts/, contracts/) and a script that checks their existence are missing.
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `data-model.md` file or its contents were presented; thus there is no evidence\
-    \ of markdown tables for `SyntheticGraph`, `TrainingRun`, and `AnalysisResult`\
-    \ nor JSON Schema Draft\u202F7 examples. The required artifact is missing."
+  h: e46a825a1c831e46b6c45fd563428a5bfa2bb98352de74dc076268302746dcde
+  r: "The required `artifacts/` directory is not present in the project layout (it\
+    \ is absent from the listed root directories), so the directory structure does\
+    \ not fully meet the task\u2019s specification. All other required paths and the\
+    \ verification script exist, but the missing `artifacts/` folder prevents the\
+    \ task from being complete."
+  sig: 8b5de60025ef09c5b4a9dd3316faffd58f19094d23901e68b014add4d08f716c
+T002:
+  c: true
+  h: 646925da374b84931e8ab48d4bd89f2ead8cd4a6fa2906393dfc453fa009d207
+  r: "Checked `requirements.txt` (297\u202Fbytes) which lists exact pinned versions\
+    \ for `networkx`, `torch`, `scikit-learn`, `lifelines`, `pandas`, `numpy`, and\
+    \ `pytest` as required (and includes additional packages, which does not violate\
+    \ the task)."
+  sig: 7070fcaccc519f0f2f545bd0dd571741c0ec6170559f6f238763236e7c23fc26
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No `spec.md` file or its contents were provided, so we cannot verify that all\
     \ occurrences of \u201C50\u201D were replaced with \u201C110\u201D in FR\u2011\
     001 and US\u20111 Acceptance Scenario\u202F1. The required artifact is missing."
-T033:
-  c: false
-  h: 087b2a32d7a46bc8899c8da8809431ecfb537a3655f547e1f64ce6ca8203444c
-  r: "The provided `code/analyze.py` is truncated (ends mid\u2011line) and does not\
-    \ contain logic to write the aggregated scalar fields to `data/processed/convergence_logs.csv`.\
-    \ Moreover, the required CSV file is missing from the repository. Consequently\
-    \ the aggregation task is not fully implemented."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, module, or script implementing the Tobit regression (using statsmodels\
-    \ or a custom fallback) is present in the provided evidence. The required artifact\u2014\
-    a functional Tobit implementation handling censored data with the specified formula\u2014\
-    is missing, so the task is not satisfied."
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or notebook implementing the Cox Proportional Hazards model
-    with `lifelines.CoxPHFitter` is present, nor is there evidence that the `convergence_status`
-    column was renamed to `event` and used in a `fit()` call. The required artifact
-    (the Cox analysis implementation) is missing.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `data/analysis_results.json` (or any other artifact\
-    \ containing the extracted Tobit and Cox interaction\u2011term p\u2011values)\
-    \ was provided. The task demands the specific p\u2011values to be extracted and\
-    \ saved, which is not demonstrated. The implementer must produce the JSON file\
-    \ with `tobit_interaction_p_value` and `cox_interaction_p_value` (and the `is_significant`\
-    \ flag)."

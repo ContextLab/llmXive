@@ -1,120 +1,156 @@
-import pytest
 import json
 import os
+import random
+import logging
+import pathlib
+import subprocess
 import sys
+from typing import List, Dict, Any
+
+import pytest
 import networkx as nx
-from typing import Dict, List, Any
+import numpy as np
 
-# Add parent directory to path if running from tests/
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from code.graph_generator import generate_set
 
-from code.graph_generator import (
-    LogicalPuzzleGenerator, 
-    generate_single_puzzle, 
-    generate_batch,
-    _traverse_and_build_text,
-    _get_deterministic_seed
-)
-from code.utils.graph_utils import is_dag, nesting_depth, longest_path, branching_factor
+logger = logging.getLogger(__name__)
 
-class TestDeterministicTemplateEngine:
-    """Tests for the Deterministic Template Engine (T014)"""
+# --- Schema Definition ---
+# Based on T003 requirements and the actual implementation in code/graph_generator.py
+REQUIRED_SCHEMA_KEYS = {
+    "instance_id": str,
+    "text": str,
+    "ground_truth": str,
+    "ground_truth_path": list,
+    "nesting_depth": int,
+    "branching_factor": float,
+    "graph_structure": dict,
+    "is_acyclic": bool,
+    "is_solvable": bool,
+    "text_generation_method": str,
+    "is_orthogonal": bool,
+    "seed": int,
+}
 
-    def test_text_generation_determinism(self):
-        """Verify that the same graph and seed produce the same text."""
-        seed = 12345
-        instance_id = 99
-        target_depth = 3
-        target_branching = 2.0
-
-        # Generate twice
-        puzzle1 = generate_single_puzzle(target_depth, target_branching, instance_id, seed=seed)
-        puzzle2 = generate_single_puzzle(target_depth, target_branching, instance_id, seed=seed)
-
-        assert puzzle1['text'] == puzzle2['text'], "Text generation is not deterministic with same seed and ID"
-        assert puzzle1['instance_id'] == puzzle2['instance_id']
-        assert puzzle1['nesting_depth'] == puzzle2['nesting_depth']
-
-    def test_text_structure_validity(self):
-        """Verify that generated text contains expected logical keywords."""
-        puzzle = generate_single_puzzle(target_depth=4, target_branching=3, instance_id=10)
-        
-        text = puzzle['text']
-        # Basic sanity checks
-        assert len(text) > 50, "Generated text is too short"
-        assert "true" in text.lower() or "if" in text.lower() or "then" in text.lower(), \
-            "Text does not contain logical connectors"
-
-    def test_ground_truth_path_consistency(self):
-        """Verify that the ground truth path is a valid path in the generated graph."""
-        puzzle = generate_single_puzzle(target_depth=5, target_branching=2, instance_id=20)
-        
-        # Reconstruct graph from dict to verify
-        graph_dict = puzzle['graph_structure']
-        G = nx.DiGraph()
-        for node in graph_dict['nodes']:
-            G.add_node(node['id'])
-        for edge in graph_dict['edges']:
-            G.add_edge(edge['source'], edge['target'])
-        
-        path = puzzle['ground_truth_path']
-        
-        # Verify path is valid in graph
-        for i in range(len(path) - 1):
-            assert G.has_edge(path[i], path[i+1]), \
-                f"Edge ({path[i]}, {path[i+1]}) not found in graph for path {path}"
-
-    def test_output_schema_compliance(self):
-        """Verify the output matches the LogicalPuzzle schema."""
-        puzzle = generate_single_puzzle(target_depth=3, target_branching=2, instance_id=5)
-        
-        required_keys = [
-            'instance_id', 'text', 'ground_truth_path', 
-            'nesting_depth', 'branching_factor', 'graph_structure', 'metadata'
-        ]
-        
-        for key in required_keys:
-            assert key in puzzle, f"Missing required key: {key}"
-        
-        # Type checks
-        assert isinstance(puzzle['instance_id'], int)
-        assert isinstance(puzzle['text'], str)
-        assert isinstance(puzzle['ground_truth_path'], list)
-        assert isinstance(puzzle['nesting_depth'], int)
-        assert isinstance(puzzle['branching_factor'], (int, float))
-        assert isinstance(puzzle['graph_structure'], dict)
-
-    def test_batch_generation(self):
-        """Test batch generation produces multiple valid puzzles."""
-        batch = generate_batch(
-            target_depths=[3, 4], 
-            target_branchings=[2.0, 3.0], 
-            count=10, 
-            seed=42
+def validate_puzzle_schema(puzzle: Dict[str, Any]):
+    """Validates that a puzzle instance conforms to the SyntheticPuzzle schema."""
+    for key, expected_type in REQUIRED_SCHEMA_KEYS.items():
+        assert key in puzzle, f"Missing required key: {key}"
+        assert isinstance(puzzle[key], expected_type), (
+            f"Key {key} has type {type(puzzle[key])}, expected {expected_type}"
         )
-        
-        assert len(batch) > 0, "Batch generation returned empty list"
-        
-        # Verify all items are valid
-        for i, puzzle in enumerate(batch):
-            assert 'instance_id' in puzzle
-            assert 'text' in puzzle
-            assert len(puzzle['text']) > 0
+    
+    # Deep check for graph_structure
+    gs = puzzle["graph_structure"]
+    assert "nodes" in gs and "edges" in gs, "graph_structure must contain 'nodes' and 'edges'"
+    assert isinstance(gs["nodes"], list), "graph_structure['nodes'] must be a list"
+    assert isinstance(gs["edges"], list), "graph_structure['edges'] must be a list"
 
-    def test_depth_branching_control(self):
-        """Verify that generated puzzles roughly respect target depth and branching."""
-        # Note: Due to the stochastic nature of graph generation (even with seeds),
-        # we check that the generated metrics are in a reasonable range relative to targets.
-        target_d = 4
-        target_b = 3.0
-        
-        puzzle = generate_single_puzzle(target_d, target_b, instance_id=100, seed=123)
-        
-        # Allow some variance, but it shouldn't be wildly different
-        # The generator logic attempts to match these, but exact matching is hard.
-        # We just verify the metrics are positive and non-trivial.
-        assert puzzle['nesting_depth'] >= 1
-        assert puzzle['branching_factor'] >= 1.0
+def calculate_pearson_correlation(x: List[float], y: List[float]) -> float:
+    """Helper to calculate Pearson correlation coefficient."""
+    if len(x) < 2:
+        return 0.0
+    return float(np.corrcoef(x, y)[0, 1])
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_generate_set_basic():
+    """Generate a small set and verify basic properties and schema."""
+    batch = generate_set(
+        count=10,
+        depth_range=(3, 6),
+        branch_range=(1.0, 5.0),
+        seed=123,
+    )
+    assert len(batch) == 10
+    for puzzle in batch:
+        validate_puzzle_schema(puzzle)
+
+def test_random_seed_reproducibility():
+    """Verify that the same seed produces identical sets."""
+    params = {
+        "count": 5,
+        "depth_range": (3, 5),
+        "branch_range": (1.0, 3.0),
+        "seed": 42,
+    }
+    batch1 = generate_set(**params)
+    batch2 = generate_set(**params)
+    assert batch1 == batch2
+
+def test_generated_dataset_integration():
+    """
+    Integration test: validate schema and orthogonalization on the actual 
+    generated files (data/raw/synthetic_puzzles.jsonl and data/raw/aux_puzzles.jsonl).
+    This test is designed to run after T003.
+    """
+    primary_path = pathlib.Path("data/raw/synthetic_puzzles.jsonl")
+    aux_path = pathlib.Path("data/raw/aux_puzzles.jsonl")
+
+    if not primary_path.exists():
+        pytest.skip("Primary dataset not found. This test requires T003 to be completed.")
+
+    # Load datasets
+    all_puzzles = []
+    for path in [primary_path, aux_path]:
+        if path.exists():
+            with path.open("r", encoding="utf-8") as f:
+                for line in f:
+                    if line.strip():
+                        all_puzzles.append(json.loads(line))
+
+    assert len(all_puzzles) > 0, "No puzzles found in generated dataset files."
+
+    # 1. Validate Schema Conformance
+    for puzzle in all_puzzles:
+        validate_puzzle_schema(puzzle)
+
+    # 2. Validate Stratified-Orthogonalization (|r| < 0.2)
+    depths = [float(p["nesting_depth"]) for p in all_puzzles]
+    branches = [float(p["branching_factor"]) for p in all_puzzles]
+    
+    correlation = calculate_pearson_correlation(depths, branches)
+    logger.info(f"Integrated Dataset Correlation: {correlation:.4f}")
+    
+    assert abs(correlation) < 0.2, (
+        f"Dataset orthogonalization failed: |r| = {abs(correlation):.4f}, expected < 0.2"
+    )
+
+def test_nx_set_seed_compatibility():
+    """Calling nx.set_seed should not raise an exception."""
+    try:
+        nx.set_seed(12345)
+    except Exception as e:
+        pytest.fail(f"nx.set_seed raised an exception: {e}")
+
+def test_cli_generation_integration(tmp_path):
+    """Run the generator via CLI and validate the produced JSONL."""
+    output_file = tmp_path / "puzzles.jsonl"
+    cmd = [
+        sys.executable,
+        str(pathlib.Path("code/graph_generator.py")),
+        "--count", "10",
+        "--depth-min", "1",
+        "--depth-max", "3",
+        "--branch-min", "1",
+        "--branch-max", "2",
+        "--output", str(output_file),
+        "--seed", "123"
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    assert result.returncode == 0, f"CLI failed with exit {result.returncode}: {result.stderr}"
+
+    # Load and validate the generated puzzles
+    puzzles = []
+    with open(output_file, "r", encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                puzzles.append(json.loads(line))
+
+    assert len(puzzles) == 10, "Expected 10 puzzles from CLI generation"
+    for puzzle in puzzles:
+        validate_puzzle_schema(puzzle)
+
+    # Verify Pearson correlation is below 0.2
+    depths = [float(p["nesting_depth"]) for p in puzzles]
+    branches = [float(p["branching_factor"]) for p in puzzles]
+    corr = float(np.corrcoef(depths, branches)[0, 1])
+    assert abs(corr) < 0.2, f"Correlation too high: {corr}"

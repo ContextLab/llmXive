@@ -1,0 +1,16 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Results"
+type: object
+required:
+  - model_id
+  - lambda
+   
+  - 
+
+   
+- 
+
+
+
+
+Now that **...**

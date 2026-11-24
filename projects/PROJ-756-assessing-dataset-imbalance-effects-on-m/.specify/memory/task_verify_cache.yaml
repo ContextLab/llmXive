@@ -1,3 +1,32 @@
+T001b:
+  c: true
+  h: 37c69f8a5109bf959521f0abbcbe3783c2f5577bce0bd0a2f5615e9067d4adbd
+  r: '`code/main.py` exists with all four required flags (`--full-pipeline`, `--include-mp`,
+    `--fallback-mode`, `--streaming`) implemented via argparse, and execution logs
+    show `python -m code.main --help` printing usage (exit 0) and `tests/unit/test_main_cli.py::test_cli_parsing`
+    passing (3 passed, exit 0). The test file genuinely exercises flag parsing and
+    fallback-override semantics, matching the task''s verification criteria.'
+  sig: efd2fc10a42eb7f4ae481bef9ceddfc212d716d0a37bf81899cefc9f7b65fa47
+T002:
+  c: true
+  h: 9e42ab1982fc448dcd95d45285c143629871b857b8e0f90fbc740cdfd822c5f1
+  r: The file `code/requirements.txt` exists (457 bytes) and contains all nine required
+    pins exactly as specified (pandas==2.2.*, scikit-learn==1.5.*, shap==0.45.*, magpie==0.2.*,
+    datasets==2.19.*, numpy==1.26.*, scipy==1.13.*, pyyaml==6.0.*, cvxpy==1.5.*),
+    plus additional supporting pins which don't conflict with the requirement. The
+    verification criterion (fresh venv install) cannot be re-executed here, but the
+    artifact content fully matches the task's stated deliverable.
+  sig: af13a8cae77d0936c6ae5c5f2eda1ea53f9541c7312e8e039018552b565b9249
+T003:
+  c: true
+  h: b74b4b4e225ae4f2bb84c93e4f195b4e770d41efa5ed51fbbfb27298637befe9
+  r: The `pyproject.toml` exists with substantive `[tool.ruff]` (including lint, isort,
+    per-file-ignores) and `[tool.black]` sections, and the recorded execution of `tests/unit/test_pyproject_config.py`
+    (exit 0, 7 passed) confirms the config parses and the sections are present. The
+    verification criterion (`ruff check .` and `black --check .` exit 0) is not directly
+    evidenced by a recorded run of those commands, but the config content fully matches
+    the task's requirement of adding the sections.
+  sig: e6a15f41e73c5518eb79ab308c801115e91272428a54b6c015ab25d3aaa82f96
 T007:
   c: false
   h: e0a554a2d1a19301a1d06d98450a7acead427b6ec2e1d4b0a1ed2a78e39f6033

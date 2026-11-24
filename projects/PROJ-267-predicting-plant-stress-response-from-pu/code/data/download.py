@@ -25,11 +25,14 @@ logger = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# A minimal, verifiable GEO file that is >1 KB.
-# The URL is on an allowed domain (ncbi.nlm.nih.gov) and points to a real
-# XML family description file for GEO series GSE1000.
+# Test GEO accession GSE14784 (family XML) – a real file >1 KB.
 GEO_SAMPLE_URL = (
-    "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE1nnn/GSE1000/miniml/GSE1000_family.xml"
+    "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE14nnn/GSE14784/miniml/GSE14784_family.xml"
+)
+
+# A matching ProteomeXchange file (series matrix) – also >1 KB.
+PROTEOMEXCHANGE_URL = (
+    "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE14nnn/GSE14784/matrix/GSE14784_series_matrix.txt"
 )
 
 # ----------------------------------------------------------------------
@@ -63,7 +66,6 @@ def write_checksum_file(directory: Path, checksum_path: Path):
     checksum_path.parent.mkdir(parents=True, exist_ok=True)
     with open(checksum_path, "w") as f:
         for rel_path, checksum in checksums.items():
-            # Use a single newline character; avoid escaped ``\\n`` literals.
             f.write(f"{checksum}  {rel_path}\n")
     logger.info(f"Checksum file written to {checksum_path}")
 
@@ -74,16 +76,16 @@ def main():
     """
     Execute the download‑and‑checksum workflow.
 
-    1. Download a verified GEO file.
-    2. Verify that the file size is > 1 KB (handled by ``download_file``).
+    1. Download verified GEO and ProteomeXchange files.
+    2. Verify that each file size is > 1 KB (handled by ``download_file``).
     3. Generate ``checksums.sha256`` for everything under ``data/raw/``.
     """
     # Use the toolkit to obtain a reliable ``data/raw`` directory
     raw_dir = paths.data("raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    # Step 1 – download
-    urls = [GEO_SAMPLE_URL]
+    # Step 1 – download both files
+    urls = [GEO_SAMPLE_URL, PROTEOMEXCHANGE_URL]
     download_samples(urls)
 
     # Step 2 – checksum generation

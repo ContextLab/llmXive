@@ -1,9 +1,12 @@
-# Unresolved panel concerns (address in this revision)
+# Re-plan: task(s) could not be made to pass verification — adjust the approach
 
-The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
 
-**Why it was kicked back**: 1 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'science'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
+## Repeatedly-unverifiable tasks
 
-## Unresolved concerns
+- `T010` (rejected 1x): Requested task execution failed; rerun successfully: code/src/features/integrate_features.py exit=1
 
-- FABRICATED-RESULT signal — projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md: self-declared fabricated metric — “…by User." (Do NOT fallback to hardcoded values).  - **Mandatory**: Implemen…”. Research results must be REAL measurements, never simulated / placeholder / hardcoded / drawn from random.*. The reviser must replace this with a genuine computation before the stage advances.
+## Required change
+
+Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
+

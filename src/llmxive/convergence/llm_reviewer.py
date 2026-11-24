@@ -35,15 +35,23 @@ import logging
 import re
 import uuid
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import yaml
 
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import chat_with_model_fallback
+from llmxive.model_selection.policy import SELECTION_POLICY_VERSION
 
 from . import review_cache
 from .types import Concern, Verdict, coerce_severity
+
+if TYPE_CHECKING:
+    # Type-checking only (avoid a runtime import cycle through the
+    # ``model_selection`` package ``__init__`` → ``execute`` → ``router``).
+    # ``from __future__ import annotations`` keeps the annotation a lazy string.
+    from llmxive.model_selection.types import IndependenceBaseline, RequirementOverrides
+    from llmxive.self_improvement.route_context import LaneRouteContext
 
 logger = logging.getLogger(__name__)
 
@@ -111,6 +119,10 @@ _STAGE_PREFIX: dict[str, str] = {
     "paper_clarified": "paper_spec",
     "paper_planned": "paper_plan",
     "paper_tasked": "paper_tasks",
+    # Spec 025 slice 1B: the self-improvement lane's proposal review. Its per-lens
+    # prompts live at agents/prompts/panels/panel_si_proposal_<lens>.md. Without this
+    # entry `_prompt_path_for` raises and a lane reviewer cannot be constructed at all.
+    "self_improvement_proposal": "si_proposal",
 }
 
 # Some stages reuse PRE-EXISTING per-lens prompt files that live at the
@@ -138,6 +150,72 @@ _EXTERNAL_FILENAME_OVERRIDES: dict[tuple[str, str], str] = {
     ("paper_review", "code_quality"): "paper_reviewer_code_quality_paper.md",
     ("paper_review", "data_quality"): "paper_reviewer_data_quality_paper.md",
 }
+
+
+def _validate_lane_configuration(
+    *, profile: str, route_context: Any, independence_against: Any, fallback_profile: str | None
+) -> None:
+    """Reject any lane configuration whose EXECUTION would not match what gets RECORDED.
+
+    ``record_reroute`` writes one hard-coded provenance — ``independent_review`` →
+    ``deep_review``, relaxing family independence and snapshot freshness — and the event
+    validator can only check what was written, never what actually ran. So a reviewer built
+    with, say, ``profile="deep_review", fallback_profile="vision"`` would execute that pair
+    and durably assert the sanctioned one. Nothing downstream could detect it. The only
+    defense is refusing the configuration at construction.
+
+    Three configurations are valid:
+
+    - **proposal**: ``independent_review`` + a non-empty family baseline + the
+      ``deep_review`` fallback;
+    - **patch**: ``independent_review`` + a non-empty family baseline + NO fallback (fail
+      closed — the pre-merge gate never degrades);
+    - **non-lane**: no lane-only arguments at all.
+
+    The baseline must name at least one family because ``independent_review`` requires a
+    family DIFFERENCE: with an empty baseline there is nothing to differ from, so the
+    profile's constraint is satisfied by any model and FR-002's independence guarantee is
+    silently void.
+
+    A later stage that reroutes differently must extend ``record_reroute`` AND the event
+    validator AND this check together — never just one of them.
+    """
+    from llmxive.self_improvement.events import (
+        REROUTE_FALLBACK_PROFILE,
+        REROUTE_PRIMARY_PROFILE,
+    )
+
+    if route_context is None:
+        # Silently ignoring these is how a lane reviewer gets built as a non-lane one: the
+        # independence constraint would simply never be applied.
+        offenders = [name for name, value in
+                     (("independence_against", independence_against),
+                      ("fallback_profile", fallback_profile)) if value is not None]
+        if offenders:
+            raise ValueError(
+                f"{', '.join(offenders)} requires a route_context — without one the lane "
+                "path never runs and these arguments are silently ignored"
+            )
+        return
+
+    if profile != REROUTE_PRIMARY_PROFILE:
+        raise ValueError(
+            f"a lane reviewer must use profile={REROUTE_PRIMARY_PROFILE!r}, got {profile!r} — "
+            f"the reroute record hard-codes that primary, so any other profile would execute "
+            f"one pair and durably record another"
+        )
+    if fallback_profile is not None and fallback_profile != REROUTE_FALLBACK_PROFILE:
+        raise ValueError(
+            f"the only sanctioned fallback is {REROUTE_FALLBACK_PROFILE!r}, got "
+            f"{fallback_profile!r} — record_reroute would assert a degradation that never "
+            f"happened"
+        )
+    if independence_against is None or not getattr(independence_against, "families", None):
+        raise ValueError(
+            "a lane reviewer needs an independence baseline naming at least one producer "
+            "family: independent_review requires a family DIFFERENCE, and an empty baseline "
+            "is satisfied by any model — FR-002's independence would be void"
+        )
 
 
 def _prompt_path_for(*, stage: str, lens: str, repo_root: Path) -> Path:
@@ -822,7 +900,12 @@ class LLMReviewer:
         stage: str,
         backend: Any,
         repo_root: Path,
-        model: str | None = None,
+        # Named capability-requirement profile (spec 026 slice 7 / FR-012,
+        # FR-013): every review lens is a JUDGMENT call over an artifact, not
+        # a generation task, so the profile is "deep_review" — never a raw
+        # model id pin. Resolved fresh per call via
+        # ``route_chat(profile=...)``; the caller never names a model.
+        profile: str = "deep_review",
         # Reasoning-safe but BOUNDED: a measured full-spec review used ~9.7K
         # completion tokens; 32_768 is ~3x headroom. 128K invites the reasoning
         # model to keep thinking past the wall-clock deadline (→ hang/thrash).
@@ -836,13 +919,35 @@ class LLMReviewer:
         # plainly says "See US-5". The research/paper reviewers already pin
         # temperature=0; the convergence panels must too.
         temperature: float = 0.0,
+        # Spec 026 slice 6: escalation constraints carried ALONGSIDE ``profile``
+        # and forwarded to ``chat_with_model_fallback`` → ``route_chat``.
+        # Immutable (frozen), so it is safe to share read-only across the panel
+        # ThreadPoolExecutor. ``None`` = no override.
+        overrides: RequirementOverrides | None = None,
+        # Spec 025 slice 1B: the lane's mandatory routing context (audit sink + Attempt
+        # credit authority + durable route admission). ``None`` = a NON-lane reviewer
+        # (research / paper panels), whose call path stays byte-for-byte unchanged.
+        route_context: LaneRouteContext | None = None,
+        # FR-002: the producer baseline this lens must differ from, and the profile to
+        # degrade to when no independent family is selectable. ``fallback_profile=None``
+        # means FAIL CLOSED — the binding the pre-merge patch review will use.
+        independence_against: IndependenceBaseline | None = None,
+        fallback_profile: str | None = None,
     ) -> None:
         self.name = lens
         self._lens = lens
         self._stage = stage
         self._backend = backend
         self._repo_root = Path(repo_root)
-        self._model = model
+        self._profile = profile
+        self._overrides = overrides
+        self._route_context = route_context
+        self._independence_against = independence_against
+        self._fallback_profile = fallback_profile
+        _validate_lane_configuration(
+            profile=profile, route_context=route_context,
+            independence_against=independence_against, fallback_profile=fallback_profile,
+        )
         self._temperature = temperature
         # Spec 015: qwen3.5-122b is a *reasoning* model — its hidden
         # chain-of-thought tokens count against the response budget. The
@@ -881,16 +986,58 @@ class LLMReviewer:
         )
         # Resumable cache (spec: make qwen-outage recovery cheap). The key
         # hashes EVERY review-determining input (composed user message +
-        # system prompt + lens + stage + model); a HIT is byte-for-byte
-        # equivalent to a fresh call's INPUTS, so reusing it cannot change
-        # the review. On MISS we call the model and STORE before returning.
-        # All cache ops are best-effort — never crash / change a review.
+        # system prompt + lens + stage + profile + selection_policy_version);
+        # a HIT is byte-for-byte equivalent to a fresh call's INPUTS, so
+        # reusing it cannot change the review. On MISS we call the model and
+        # STORE before returning. All cache ops are best-effort — never
+        # crash / change a review.
+        #
+        # Spec 026 slice 7 (F2 fix): the key no longer pins a raw model id
+        # (there is none to pin — the reviewer never names one). Instead it
+        # binds the PROFILE (which capability class this review resolves
+        # under), the SELECTION_POLICY_VERSION (bumped whenever the
+        # capability→model mapping changes — see
+        # ``llmxive.model_selection.policy``), and ``self._overrides`` (the
+        # spec 026 slice 6 escalation constraints — see the fix note below):
+        # a cached review from before ANY of those changed is a guaranteed
+        # MISS, so it can never be silently reused across a materially
+        # different selection decision. This deliberately does NOT bind the
+        # live runtime-snapshot digest (the catalog/pricing/credit state
+        # ``select()`` actually resolves against): computing that digest
+        # here would require acquiring a fresh snapshot (a network fetch of
+        # the model catalog + credit balance) purely to build a cache key,
+        # BEFORE the reviewer's own call acquires its own snapshot for the
+        # real routing decision — doubling the network cost of every
+        # ``identify()`` call and racing the key's snapshot against the
+        # call's actual snapshot (the two could legitimately differ).
+        # profile + selection_policy_version + overrides is the practical,
+        # network-free proxy: together they pin every DELIBERATE, reviewed
+        # change to what the reviewer is allowed to resolve to; the live
+        # snapshot only picks WHICH already-eligible model serves a given
+        # call, which is exactly the kind of automatic fallback substitution
+        # a resumable review cache is meant to survive.
+        #
+        # Escalation-cache fix (review finding, blocker): ``overrides`` was
+        # PREVIOUSLY omitted from the key on the theory that it was not a
+        # "deliberate, reviewed" change in the same sense as profile/policy
+        # version. That reasoning was WRONG: ``bump_model_tier`` mutating
+        # ``self._overrides`` (e.g. tier 1's ``exclude_leader=True`` — the
+        # "free second opinion" rung) is EXACTLY such a deliberate change —
+        # its whole purpose is to force a different model's opinion. Without
+        # binding it, a tier-0 cache entry silently satisfied every later
+        # tier's ``identify()`` call, so escalation never reached
+        # ``route_chat`` and the ladder exhausted while re-serving the
+        # original model's review.
         cache_key = review_cache.compose_key(
             user=user,
             system=self._system_prompt,
             lens=self._lens,
             stage=self._stage,
-            model=self._model,
+            profile=self._profile,
+            selection_policy_version=SELECTION_POLICY_VERSION,
+            overrides=self._overrides,
+            temperature=self._temperature,
+            max_tokens=self._max_tokens,
         )
         cached = review_cache.load(self._repo_root, cache_key)
         if cached is not None:
@@ -900,7 +1047,9 @@ class LLMReviewer:
             ChatMessage(role="user", content=user),
         ]
         default_artifact = self._pick_default_artifact(artifacts)
-        response_text, verdict, concerns = self._call_and_parse(messages, default_artifact)
+        response_text, verdict, concerns = self._call_and_parse(
+            messages, default_artifact, kind="identify"
+        )
         # R1 ACTION-ITEMS GATE (the single shared review protocol): a reviewer that
         # requests revision but enumerates ZERO concerns is self-contradictory —
         # it says "change this" with nothing to act on. Such a review is REJECTED
@@ -921,7 +1070,9 @@ class LLMReviewer:
                     "Output ONLY the review document."
                 )),
             ]
-            response_text, verdict, concerns = self._call_and_parse(resubmit, default_artifact)
+            response_text, verdict, concerns = self._call_and_parse(
+                resubmit, default_artifact, kind="identify_resubmit"
+            )
             if not concerns and (verdict or "").strip().lower() in self._NONACCEPT_VERDICTS:
                 raise RuntimeError(f"LLMReviewer[{self._lens}]: revision requested without actionable concerns after retry")
         review_cache.store(self._repo_root, cache_key, concerns)
@@ -948,7 +1099,9 @@ class LLMReviewer:
             ChatMessage(role="user", content=user),
         ]
         default_artifact = self._pick_default_artifact(artifacts)
-        _, verdict, new_concerns = self._call_and_parse(messages, default_artifact)
+        _, verdict, new_concerns = self._call_and_parse(
+            messages, default_artifact, kind="rereview"
+        )
         if not new_concerns and (verdict or "").strip().lower() in self._NONACCEPT_VERDICTS:
             raise RuntimeError(f"LLMReviewer[{self._lens}]: re-review requests revision without actionable concerns")
         # Build verdicts: for each PRIOR concern, fail if it appears in
@@ -1070,10 +1223,18 @@ class LLMReviewer:
                 return key
         return "(unknown)"
 
-    def _call_and_parse(self, messages: list[ChatMessage], default_artifact: str):
-        """One corrective retry for malformed reviews; never turn parse failure into acceptance."""
+    def _call_and_parse(
+        self, messages: list[ChatMessage], default_artifact: str, *, kind: str = "identify"
+    ):
+        """One corrective retry for malformed reviews; never turn parse failure into acceptance.
+
+        ``kind`` is forwarded to :meth:`_call_backend` (the lane's durable operation
+        id). The corrective retry reuses the SAME ``kind``: its messages differ from
+        the first attempt's (the malformed reply + the correction are appended), so
+        :meth:`_operation_id` — which digests the messages — still yields a distinct
+        claim for it."""
         for attempt in range(2):
-            text = self._call_backend(messages)
+            text = self._call_backend(messages, kind=kind)
             try:
                 verdict, concerns = _parse_response(
                     text, lens=self._lens, stage=self._stage,
@@ -1093,22 +1254,102 @@ class LLMReviewer:
                             ))]
         raise AssertionError("unreachable")
 
-    def _call_backend(self, messages: list[ChatMessage]) -> str:
-        # Route through the SAME-BACKEND peer-model fallback chain
-        # (:func:`chat_with_model_fallback`): a transient outage/hang on the
-        # primary model (e.g. a qwen3.5-122b vLLM stall) walks to gpt-oss-120b /
-        # gemma on the same injected backend instead of retrying the dead model
-        # and stalling the whole panel. The reasoning-safe ``max_tokens`` is
-        # carried to every peer (they're also reasoning models). The helper owns
-        # the kwarg-degradation for backends/test fakes whose ``chat`` signature
-        # omits ``max_tokens``/``temperature``.
+    def _call_backend(self, messages: list[ChatMessage], *, kind: str = "identify") -> str:
+        """``kind`` names WHICH logical review call this is. It is unused on the legacy
+        path — so every existing caller is unaffected — and forms part of the lane's
+        durable operation id: the reviewer makes THREE distinct logical calls (identify,
+        the action-items resubmit, rereview) and they must not collapse into one claim."""
+        if self._route_context is not None:
+            return self._route_review(messages, kind=kind)
+        # Route through model SELECTION (:func:`chat_with_model_fallback` →
+        # ``route_chat``): a transient outage/hang on the selected primary
+        # (e.g. a qwen3.5-122b vLLM stall) walks the selected chain to a peer
+        # instead of retrying the dead model and stalling the whole panel. The
+        # reasoning-safe ``max_tokens`` is carried to every peer (they're also
+        # reasoning models). ``model=None`` (spec 026 slice 7): the reviewer
+        # NEVER pins a raw model id — every call expresses its intent purely
+        # via ``profile``, so ``caller_model`` arrives at ``route_chat`` as
+        # None (no fake "caller preference" promoting a legacy default).
         response = chat_with_model_fallback(
             self._backend,
             messages,
-            model=self._model,
+            model=None,
             max_tokens=self._max_tokens,
             temperature=self._temperature,
+            overrides=self._overrides,
+            profile=self._profile,
         )
+        return getattr(response, "text", "") or ""
+
+    def _operation_id(self, kind: str, messages: list[ChatMessage]) -> str:
+        """The DETERMINISTIC identity of one logical review call.
+
+        Digesting the messages makes it DISTINCT per call (each round's rereview prompt
+        differs) and STABLE across a restart (identical inputs → identical id → the call
+        ledger replays the same claim and the same route_id instead of re-charging the
+        ceiling). The context's ``next_operation_id`` then disambiguates a legitimate
+        in-process repeat — without it, a round that produced no artifact change could hand
+        this lens a rereview prompt identical to the previous round's, and that second call
+        would be refused at the dispatch gate as a replay.
+
+        The digest comes from ``model_selection.route.messages_digest``, the canonical
+        projection already used for ``prompt_digest``. A local ``json.dumps(...,
+        default=str)`` works for today's text-only lane prompts but would silently fall back
+        to object repr for multimodal content — making a route identity depend on a
+        dataclass's string form, or embedding raw bytes in it."""
+        from llmxive.model_selection.route import messages_digest
+
+        return self._route_context.next_operation_id(
+            f"{self._lens}:{kind}:{messages_digest(messages)[:16]}"
+        )
+
+    def _route_review(self, messages: list[ChatMessage], *, kind: str) -> str:
+        """The lane path (spec 025 FR-002).
+
+        Every call carries the mandatory audit sink and Attempt credit authority, and a
+        proposal lens performs the TWO-ATTEMPT reroute: ``independent_review`` (required
+        family) first, then, on a raw ``ModelUnavailable``, ``deep_review`` with an EXPLICIT
+        ``ReviewRerouted`` record. No new profile is introduced — both are delivered 026
+        profiles."""
+        from llmxive.model_selection.types import ModelUnavailable
+
+        ctx = self._route_context
+        assert ctx is not None  # guarded by _call_backend
+        operation_id = self._operation_id(kind, messages)
+        primary_route_id = ctx.claim_route(operation_id=operation_id, leg="primary")
+        try:
+            response = chat_with_model_fallback(
+                self._backend, messages, model=None, max_tokens=self._max_tokens,
+                temperature=self._temperature, overrides=self._overrides,
+                profile=self._profile,
+                independence_against=self._independence_against,
+                route_audit=ctx.route_audit, reservation_authority=ctx.reservation_authority,
+                route_id=primary_route_id,
+                # Only a lens WITH a fallback needs the raw exception; a fail-closed lens
+                # keeps the standard BackendUnavailable conversion.
+                reraise_model_unavailable=self._fallback_profile is not None,
+            )
+        except ModelUnavailable as exc:
+            if self._fallback_profile is None:
+                raise
+            fallback_route_id = ctx.claim_route(operation_id=operation_id, leg="fallback")
+            # RECORD FIRST. record_reroute raises RouteAuditError if the degradation cannot
+            # be made durable, and that is deliberately NOT caught: a fallback that ran with
+            # no durable record would be a review claiming an independence it never had.
+            ctx.record_reroute(
+                operation_id=operation_id, lens=self._lens,
+                primary_route_id=primary_route_id, fallback_route_id=fallback_route_id,
+                exception_type=type(exc).__name__, message=str(exc),
+            )
+            response = chat_with_model_fallback(
+                self._backend, messages, model=None, max_tokens=self._max_tokens,
+                temperature=self._temperature, overrides=self._overrides,
+                profile=self._fallback_profile,  # no independence constraint on the fallback
+                route_audit=ctx.route_audit, reservation_authority=ctx.reservation_authority,
+                route_id=fallback_route_id,
+                # A fallback that ALSO finds nothing is a genuine outage, not a second
+                # degrade → let it convert to BackendUnavailable (engine clean-abort).
+            )
         return getattr(response, "text", "") or ""
 
 
@@ -1121,15 +1362,20 @@ def build_panel(
     lenses: list[str],
     backend: Any,
     repo_root: Path,
-    model: str | None = None,
+    overrides: RequirementOverrides | None = None,
 ) -> list[LLMReviewer]:
     """Build a full LLMReviewer panel for one stage. Drivers (T068
     calibration, T073 traversal) call this to wire the registry's
-    placeholder reviewers with live implementations."""
+    placeholder reviewers with live implementations.
+
+    ``overrides`` (spec 026 slice 6) is passed to EVERY reviewer so the whole
+    panel carries the same immutable escalation constraints. No model id
+    channel (spec 026 slice 7) — every reviewer resolves its model via its
+    own ``"deep_review"`` profile (:class:`LLMReviewer`'s default)."""
     return [
         LLMReviewer(
             lens=lens, stage=stage, backend=backend,
-            repo_root=repo_root, model=model,
+            repo_root=repo_root, overrides=overrides,
         )
         for lens in lenses
     ]

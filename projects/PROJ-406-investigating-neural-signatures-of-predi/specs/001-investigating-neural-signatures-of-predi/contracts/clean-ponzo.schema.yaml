@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Clean Ponzo Dataset Schema"
+description: "Validated test dataset after removal of rows with missing critical fields."
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Participant identifier."
+  trial_id:
+    type: string
+    description: "Unique trial identifier."
+  arrow_angle:
+    type: number
+    description: "Angle of the Ponzo arrows (degrees)."
+  depth_cue:
+    type: number
+    description: "Numeric encoding of the depth cue magnitude."
+  perceived_length:
+    type: number
+    description: "Participant’s perceived length response."
+required:
+  - subject_id
+  - trial_id
+  - arrow_angle
+  - depth_cue
+  - perceived_length
+additionalProperties: false

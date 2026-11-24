@@ -1,23 +1,19 @@
-T000b:
+T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` file was presented, and no evidence of its contents (dataset\
-    \ URLs, \u201CReal\u2011First\u201D paragraph, or the sample size from T000a)\
-    \ was provided. The required artifact is missing, so the task is not satisfied."
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`data/raw/`, `data/processed/`, `code/`,
-    `tests/`, `results/`, `logs/`) being created or of any assertions checking their
-    existence is provided. The implementer did not supply a script, command output,
-    or filesystem snapshot confirming the directory structure.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that empty `__init__.py` files actually exist
-    in the `code/` and `tests/` directories; without file listings or contents we
-    cannot verify the required artifacts are present. The implementer must add and
-    show the two empty `__init__.py` files.
+  h: 92fbc8a495687bf025b3992671267047625f2e88c00fc81cc5c3d38ecfd03e49
+  r: The evidence shows that `data/raw/`, `data/processed/`, and `logs/` directories
+    are missing (they are reported as MISSING), so the required project layout is
+    not fully created.
+  sig: 4d6c3a56405122c83d6219fea1fcb66feda0341502b4c2d6d73e6bdf34fc93f9
+T003:
+  c: true
+  h: fd1af32cca1889039b2b6dbca07bf9d1857180d4b1b7e735ea6f862d0b85d996
+  r: "The `code/seed.py` file exists, sets deterministic seeds for `random`, `numpy`,\
+    \ and optionally `torch`, and writes its SHA\u2011256 hash to `code/seed_hash.txt`,\
+    \ which contains the matching hash. The accompanying pytest log shows all seed\u2011\
+    related tests (hash match, fixed constant, deterministic import, and first\u2011\
+    line import) passed."
+  sig: f6bcf850e418ce0785fc8a6c966f82e16bd387a05c8e825d193fe7bca18c36d0
 T008:
   c: false
   h: af53fd992ccd8583b2bbd5496ed5f793c3dcaf57059b417111cfc77ac461caf6
@@ -26,32 +22,3 @@ T008:
     \ is missing) and the required `contracts/dataset.schema.yaml` is also absent,\
     \ so the column\u2011name compliance cannot be verified. The task\u2019s core\
     \ output (the saved CSV matching the schema) is not present."
-T017:
-  c: false
-  h: 0a35ad2b764485e5a2608e59fd51ed747deddd75c24eaac0c43ed078bd07f36d
-  r: "The required artifact `data/processed/merged_data.csv` does not exist, so schema\
-    \ verification and checksum logging cannot be performed. The implementer must\
-    \ provide the CSV file (non\u2011empty with the correct columns) and the corresponding\
-    \ verification/log output."
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No README.md file or excerpt was presented, and there is no evidence that execution
-    instructions or an explanation of the synthetic data were added. The required
-    documentation artifact is missing, so the task is not satisfied.
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code files, diff, or documentation showing that the `code/` directory has\
-    \ been cleaned up or refactored were provided. Without any tangible artifacts\
-    \ (e.g., updated scripts, commit logs, or before\u2011after comparisons), we cannot\
-    \ confirm that the required code cleanup task was performed. The implementer must\
-    \ supply the revised codebase (or a clear summary of changes) to satisfy the task."
-T034:
-  c: false
-  h: 398f289e7d1e7112633a9d4c9156c2a186fb28dc451bb930f4c697402c92abf8
-  r: "The repository lacks the required `data/processed/coefficient_deltas.csv` file,\
-    \ and the provided `code/analysis.py` (truncated) shows no implementation that\
-    \ computes regression\u2011coefficient deltas, logs them, applies a >10\u202F\
-    % change threshold, or writes a `validity_status` column. The task\u2019s core\
-    \ functionality is therefore missing."

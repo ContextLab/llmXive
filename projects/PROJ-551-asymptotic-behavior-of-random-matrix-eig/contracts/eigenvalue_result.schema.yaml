@@ -1,0 +1,24 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: EigenvalueResult
+description: "Schema for a single eigenvalue measurement."
+type: object
+required:
+  - run_id
+  - eigenvalue_index
+  - value
+  - is_outlier
+  - theoretical_bbp
+  - deviation
+properties:
+  run_id:
+    type: string
+  eigenvalue_index:
+    type: integer
+  value:
+    type: number
+  is_outlier:
+    type: boolean
+  theoretical_bbp:
+    type: number
+  deviation:
+    type: number

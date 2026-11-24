@@ -1,264 +1,186 @@
-# Tasks: llmXive follow-up: extending "Translation as a Bridging Action"
+# Tasks: llmXive follow‑up – extending “Translation as a Bridging Action”
 
-**Input**: Design documents from `/specs/001-gene-regulation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, `research.md`, `data‑model.md`, all JSON‑schema contracts, and any existing artifacts.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+The list below consolidates the required work into 19 substantive research tasks, grouped by research phase.  Each task follows the canonical checklist format, names the exact artifact it produces, and specifies an observable verification step.  All previously verified (checked) work is retained; unchecked tasks are those that still need implementation or correction.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+---  
 
-## Format: `[ID] [P?] [Story] Description`
+## Phase 1 – Project scaffolding & configuration  
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [~] T001 Create `code/config.yaml` containing the deterministic random seed, labeling thresholds (`tipping_angle: 15.0`, `slippage_distance: 0.02`), and sensitivity‑analysis noise levels (σ in **degrees**).  
+  - **Artifact**: `code/config.yaml`  
+  - **Verification**: `tests/unit/test_config_load.py` parses the file and asserts the required keys exist with correct types.  
 
-## Path Conventions
+- [ ] T002 Implement `code/generate_data.py` to run a deterministic PyBullet simulation loop that records **only** `translation_sequence` and `initial_bounds` for each episode (no rotation, torque, or force columns).   <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=-1 (TIMEOUT) -->
+  - **Artifact**: `code/generate_data.py`  
+  - **Verification**: `pytest tests/unit/test_generate_data.py` checks that the script runs without importing `torch.cuda` and writes a Parquet file at `data/raw/synthetic_episodes.parquet`.  
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T003 Add robust error handling to `generate_data.py`: on any simulation exception, log the failure, discard the incomplete episode, and generate a replacement until the total number of **valid** episodes reaches **≥ 5 000**.  
+  - **Artifact**: Updated `code/generate_data.py` (exception‑handling block).  
+  - **Verification**: `tests/integration/test_generation_count.py` asserts the final row count ≥ 5 000.  
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
+---  
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 2 – Post‑generation labeling & split (addresses FR‑013 & rejected tasks T014, T016‑T016c, T018)  
 
-**Purpose**: Project initialization and basic structure
+- [ ] T004 Implement `code/relabel_and_split.py` that **loads** `data/raw/synthetic_episodes.parquet`, **reads** thresholds from `config.yaml`, computes `stability_label` using `tipping_angle` and `slippage_distance`, **drops** all forbidden columns, and writes the processed dataset to `data/processed/full_processed.parquet`.  
+  - **Artifact**: `code/relabel_and_split.py`  
+  - **Verification**: `tests/unit/test_labeling_logic.py` validates that the label matches the threshold logic and that forbidden columns are absent.  
 
-- [X] T001 Create project structure per implementation plan (`projects/PROJ-855-llmxive-follow-up-extending-translation/`) **including the `contracts/` directory**
-- [X] T001b Generate `contracts/dataset.schema.yaml` and `contracts/model_output.schema.yaml` based on `data-model.md` definitions to ensure contract tests have valid schemas to validate against
-- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
-- [X] T003 [P] Configure linting (ruff) and formatting tools
+- [ ] T005 Perform a **geometry‑disjoint** split of `full_processed.parquet` into `data/processed/train.parquet` (80 %) and `data/processed/test.parquet` (20 %) ensuring no overlapping `geometry_id`s.  
+  - **Artifact**: `data/processed/train.parquet`, `data/processed/test.parquet`  
+  - **Verification**: `tests/contract/test_split_integrity.py` checks that the intersection of `geometry_id`s is empty and that both files conform to `dataset.schema.yaml`.  
 
----
+- [ ] T006 Update `data/checksums.json` with SHA‑256 hashes for `synthetic_episodes.parquet`, `full_processed.parquet`, `train.parquet`, and `test.parquet`.  
+  - **Artifact**: `data/checksums.json`  
+  - **Verification**: `tests/unit/test_checksums.py` recomputes hashes and asserts they match the recorded values.  
 
-## Phase 2: Foundational (Blocking Prerequisites)
+---  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+## Phase 3 – Main model implementation & training (addresses T024, T025)  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T007 Implement `code/models/transformer.py` – a 4‑layer PyramidTNT‑Ti‑style encoder whose total parameter count is **strictly < 10 000 000**.  
+  - **Artifact**: `code/models/transformer.py`  
+  - **Verification**: `tests/unit/test_parameter_count.py` loads the model and asserts `parameter_count < 10_000_000`.  
 
-- [X] T004 [P] Implement `code/utils/data_utils.py` for schema validation and checksum verification
-- [X] T005a [P] Implement `code/utils/physics_metrics.py` for tipping angle and slippage distance calculations, **including loading configurable thresholds from `config.yaml`**
-- [X] T005b Create `code/config.yaml` with **actual numeric thresholds (tipping: 15°, slippage: a defined small displacement)** and structure for sensitivity analysis parameters (sweep range ±5%, step [deferred])
-- [X] T006 Create `data/` directory structure (`raw/`, `processed/`) and initialize `data/checksums.json`
-- [X] T007 [P] Implement `tests/unit/test_labeling.py` to validate physics metric logic
-- [X] T008 [P] Implement `tests/contract/test_schemas.py` to validate output against `specs/001-gene-regulation/contracts/`
+- [ ] T008 Implement `code/train_model.py` to load `train.parquet`, train the Transformer with binary cross‑entropy loss on CPU‑only, enforce a wall‑clock limit of 6 h and peak RAM ≤ 7 GB (using `psutil`), and save the weights to `data/processed/trained_model.pt`.  
+  - **Artifact**: `data/processed/trained_model.pt`  
+  - **Verification**: `tests/integration/test_training.py` runs the script and checks that the file exists and that the log contains `RAM‑PEAK‑GB` ≤ 7 and `TRAINING‑TIME‑SEC` ≤ 21600.  
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T009 After training, write `data/processed/model_summary.txt` containing the exact parameter count and a brief architecture description.  
+  - **Artifact**: `data/processed/model_summary.txt`  
+  - **Verification**: `tests/unit/test_model_summary.py` parses the file and confirms the count matches the value from `transformer.py` and is < 10 M.  
 
----
+---  
 
-## Phase 3: User Story 1 - Synthetic Data Generation & Labeling (Priority: P1) 🎯 MVP
+## Phase 4 – Baseline & control models (addresses rejected baseline task)  
 
-**Goal**: Generate ≥5,000 bi-manual manipulation episodes using PyBullet on CPU, labeling them with stability outcomes based on physics metrics, ensuring strict exclusion of rotation/force data.
+- [ ] T010 Implement `code/train_baseline.py` – a lightweight MLP that consumes only `initial_bounds` to predict `stability_label`; train on `train.parquet` and save to `data/processed/geometry_baseline.pt`.  
+  - **Artifact**: `data/processed/geometry_baseline.pt`  
+  - **Verification**: `tests/integration/test_geometry_baseline.py` runs the script and checks the file exists.  
 
-**Independent Test**: The system can be tested by running `code/generate_data.py` and verifying that the output CSV/Parquet files contain exactly the required columns (translation vectors, initial object bounds) and a binary label column, with no rotation or force data present.
+- [ ] T011 Implement `code/train_shuffled_control.py` – shuffle each episode’s `translation_sequence` (seed = 42) to destroy temporal structure, train a Transformer of identical architecture as the main model, and save to `data/processed/random_baseline.pt`.  
+  - **Artifact**: `data/processed/random_baseline.pt`  
+  - **Verification**: `tests/integration/test_random_baseline.py` runs the script and validates existence.  
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T012 Implement `code/train_class_prior.py` – compute the majority class in the training set, create a dummy model that always predicts that class, and save to `data/processed/class_prior_baseline.pt`.  
+  - **Artifact**: `data/processed/class_prior_baseline.pt`  
+  - **Verification**: `tests/unit/test_class_prior.py` loads the file and checks that all predictions equal the majority label.  
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+---  
 
-- [X] T009 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py`
-- [X] T010 [P] [US1] Unit test for stability labeling logic (tipping/slippage thresholds) in `tests/unit/test_labeling_logic.py`
+## Phase 5 – Evaluation & statistical validation (covers FR‑008, FR‑011, SC‑003, SC‑004, SC‑008, SC‑010)  
 
-### Implementation for User Story 1
+- [ ] T013 Implement `code/evaluate.py` to load the three trained models (`trained_model.pt`, `geometry_baseline.pt`, `random_baseline.pt`) **and** the class‑prior baseline (`class_prior_baseline.pt`), generate predictions on `test.parquet`, compute **accuracy**, **AUC‑ROC**, and a **confusion matrix** for each, and write the three JSON prediction files (`model_output_main.json`, `model_output_geometry.json`, `model_output_random.json`) conforming to `model_output.schema.yaml`.  
+  - **Artifacts**: `data/processed/model_output_main.json`, `data/processed/model_output_geometry.json`, `data/processed/model_output_random.json`  
+  - **Verification**: `tests/contract/test_model_output.py` validates each JSON against the schema.  
 
-- [X] T011 [US1] Implement `code/generate_data.py` with PyBullet simulation, noise injection, and episode generation loop
-- [X] T011b [US1] **Generate Geometry ID**: Implement logic in `code/generate_data.py` to generate and record a unique `geometry_id` string for each episode to enable geometry-disjoint splitting later
-- [X] T012 [US1] Implement logic in `code/generate_data.py` to record ONLY relative wrist translation vectors and initial object bounding box coordinates
-- [X] T012b [US1] **Implement Labeling**: Implement labeling logic in `code/generate_data.py` to assign binary stability (1/0) based on **thresholds loaded from `code/config.yaml`** (tipping ≥ 15°, slippage ≥ 0.02m). **Prerequisite: T005b**.
-- [X] T013 [US1] Implement logic in `code/generate_data.py` to discard rotation quaternions, joint torques, and force sensor readings explicitly
-- [X] T014 [US1] Implement error handling in `code/generate_data.py` to catch numerical instabilities, discard incomplete episodes, and generate replacements to ensure ≥ 5,000 valid rows
-- [X] T013a [US1] **Save Raw Dataset**: Save generated dataset to `data/raw/synthetic_episodes.parquet`. **Verify**: Run `stat data/raw/synthetic_episodes.parquet` to ensure file size > 0; update `data/checksums.json` with the file hash.
-- [X] T013b [US1] **Validate Raw Data**: Add validation step in `code/generate_data.py` to verify no forbidden columns exist **in the just-saved raw file** (enforcing FR-001). **Run immediately after T013a**.
-- [X] T013c [US1] **Derive & Split Model-Ready Data**: Implement logic in `code/generate_data.py` to read `data/raw/synthetic_episodes.parquet`, **split by `geometry_id`** into train and test sets (80/20 ratio) ensuring **no geometry_id overlap**, and save as `data/processed/train.parquet` and `data/processed/test.parquet`. **Verify**: Assert `set(train.geometry_id) & set(test.geometry_id) == empty` AND assert test set has ≥ 1,000 rows AND assert `len(train)/len(test) == 4.0`. **Verify**: Assert checksum of raw file matches pre-split hash.
-- [X] T018a [US1] **Re-labeling for Sensitivity**: Implement a function in `code/generate_data.py` that accepts custom thresholds (sweep ±5% in 1% steps from `code/config.yaml`), re-computes labels on the **raw** `synthetic_episodes.parquet`, and **outputs new processed splits** `data/processed/sweep_{threshold}.parquet` for each threshold. **Must run on RAW data before T013c split logic is applied to new sweeps. Re-run T013c split logic on re-labeled data.**
+- [ ] T014 Within `evaluate.py`, perform **McNemar’s test** for (a) main vs. geometry baseline and (b) main vs. random baseline; record both p‑values in `data/processed/metrics_report.json`.  
+  - **Artifact**: `data/processed/metrics_report.json` (partial, updated)  
+  - **Verification**: `tests/unit/test_mcnemar_geometry.py` and `tests/unit/test_mcnemar_random.py` check that p‑values are computed and stored.  
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T015 Enforce the **accuracy‑improvement rule**: main model must exceed each baseline by **≥ 0.02**. If not, `evaluate.py` aborts with a clear error message and a non‑zero exit code.  
+  - **Verification**: `tests/unit/test_accuracy_improvement.py` runs the script on a deliberately low‑performing model and expects failure.  
 
----
+- [ ] T016 Detect the **ambiguous‑trajectory subset** (identical `translation_sequence` within tolerance 1e‑5 but opposite `stability_label`). Compute a separate confusion matrix for this subset; if its accuracy < 0.5, add `"ambiguous_subset_flag": true` to `metrics_report.json`.  
+  - **Verification**: `tests/unit/test_ambiguous_subset.py` creates a synthetic ambiguous set and checks the flag.  
 
-## Phase 4: User Story 2 - Lightweight Sequence Model Training (Priority: P2)
+- [ ] T017 If any baseline accuracy is **< 55 %**, set `"baseline_convergence_flag": true` in `metrics_report.json`.  
+  - **Verification**: `tests/unit/test_baseline_convergence.py` validates flag insertion.  
 
-**Goal**: Train a lightweight Transformer encoder (<10M parameters) using only translation trajectories, ensuring execution within 6 hours on a 2-core CPU with 7GB RAM.
+---  
 
-**Independent Test**: The system can be tested by initiating the training job on a standard GitHub Actions runner (CPU, 7GB RAM) and verifying that the job completes without OOM errors, GPU allocation failures, or exceeding the 6-hour time limit.
+## Phase 6 – Sensitivity analysis (addresses reviewer comment on unit mismatch)  
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+- **Note**: FR‑009 originally specified σ in degrees; the reviewer highlighted a unit inconsistency.  The following task implements the corrected, **degree‑based** noise injection.  
 
-- [X] T019 [P] [US2] Unit test for model architecture parameter count in `tests/unit/test_model_params.py`
-- [X] T020 [P] [US2] Integration test for CPU-only training loop in `tests/integration/test_cpu_training.py`
+- [ ] T018 Implement `code/sensitivity.py` that iterates over σ ∈ {0.0°, 0.25°, 0.5°, 0.75°, 1.0°}. For each σ, convert the angle to radians, treat it as a small rotation about a random axis, apply the rotation to each translation vector (preserving magnitude), re‑evaluate the **trained main model** on the unchanged `test.parquet` (no retraining), record the per‑σ accuracy, compute the **standard deviation** across the five accuracies, and write `data/sweep/variance_report.json`.  
+  - **Artifact**: `data/sweep/variance_report.json`  
+  - **Verification**: `tests/unit/test_sensitivity_variance.py` checks that the file contains five entries and that the computed variance matches a manual calculation.  
 
-### Implementation for User Story 2
-
-- [X] T021 [US2] Implement `code/models/transformer.py` with a 4-layer Transformer encoder constrained to <10M parameters
-- [X] T022 [US2] Implement `code/train_model.py` to load data from `data/processed/train.parquet` and configure CPU-only training (no CUDA, no bitsandbytes)
-- [X] T023 [US2] Implement training loop in `code/train_model.py` using binary cross-entropy loss, default floating-point precision, **integrated timeout handling**, and **instrument `psutil` to log peak RAM usage to stdout with prefix `[RAM-PEAK-MB]: <value>`** to satisfy SC-002 verification.
-- [X] T024c [US2] **Save Trained Model**: Save trained model weights to `data/processed/trained_model.pt`. **Verify**: Ensure file exists and is non-empty; log total parameter count to stdout with prefix `[PARAM-COUNT]: <value>`.
-- [X] T024b [US2] **Verify Parameter Count**: Add assertion in `code/train_model.py` to **fail immediately** if `param_count >= 10,000,000` before saving. **Verify**: Ensure script raises `RuntimeError` if limit exceeded. **Run before T024c**.
-- [X] T025b [US2] **Train Geometry-Only Baseline**: Implement `code/train_baseline.py` using **Logistic Regression** (scikit-learn) with input features **only** `initial_object_bounds`. Save to `data/processed/baseline_model.pt`. **Verify**: Assert `input_features == ["initial_object_bounds"]` and file exists. **Prerequisite: T013c**.
-- [X] T025c [US2] **Train Shuffled-Translation Control**: Implement `code/train_shuffled_control.py` that loads `data/processed/train.parquet`, **randomly shuffles translation trajectory sequences per episode** (seed=42) to break temporal correlation, and trains a model on this data; save to `data/processed/shuffled_control_model.pt`. **Verify**: Assert autocorrelation of shuffled data < 0.01 and file exists. **Prerequisite: T013c**.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently, and all baseline models are ready for evaluation.
-
----
-
-## Phase 5: User Story 3 - Statistical Validation & Baseline Comparison (Priority: P3)
-
-**Goal**: Statistically validate the translation-only model against a geometry-only baseline and a shuffled-translation control using McNemar's test, ensuring Ensure ≥ 5% accuracy improvement on novel geometries and reporting results associatively.
-
-**Independent Test**: The system can be tested by running the evaluation script on the held-out test set and verifying the output includes the McNemar's test p-value, the accuracy of all models, and the calculated accuracy difference.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T026 [P] [US3] Unit test for McNemar's test implementation in `tests/unit/test_mcnemar.py`
-- [X] T027 [P] [US3] Contract test for `metrics_report.json` schema in `tests/contract/test_metrics_report.py`
-
-### Implementation for User Story 3
-
-- [X] T028 [US3] Implement `code/evaluate.py` to load the trained Transformer model (`trained_model.pt`), the geometry-only baseline (`baseline_model.pt`), and the shuffled-translation control (`shuffled_control_model.pt`)
-- [X] T029 [US3] **Implement Prediction Logic**: Implement prediction logic in `code/evaluate.py` for all three models on the held-out test set (`data/processed/test.parquet`). **Output**: Save predictions to `data/processed/predictions_main.csv`, `predictions_baseline.csv`, `predictions_control.csv`. **Verify**: Ensure row counts match test set size.
-- [X] T030 [US3] **Implement McNemar's Test (Model vs Baseline)**: Implement McNemar's test in `code/evaluate.py` using `statsmodels.stats.contingency.mcnemar` (alpha=0.05) to compare paired predictions (Model vs Geometry Baseline). **Output**: Log p-value to stdout and `data/metrics_report.json`. **Prerequisite: T025b**.
-- [X] T031 [US3] **Implement McNemar's Test (Model vs Control)**: Implement McNemar's test in `code/evaluate.py` to compare paired predictions (Model vs Shuffled Control) and calculate p-value. **Output**: Log p-value to `data/metrics_report.json`.
-- [X] T032 [US3] **Calculate Accuracy Improvement**: Implement accuracy calculation in `code/evaluate.py` to verify `acc_main - acc_baseline >= 0.05`. **Verify**: Raise error if improvement < 5%. **Prerequisite: T025b, T025c**.
-- [X] T033a [US3] **Sensitivity Analysis Load**: Implement logic in `code/evaluate.py` to **load the `sweep_*.parquet` files generated by T018a**.
-- [X] T033b [US3] **Sensitivity Analysis Re-eval**: Re-run the geometry-disjoint split logic (T013c) for each sweep file, train models (or use cached), and generate predictions.
-- [X] T033c [US3] **Sensitivity Analysis Aggregate**: **Aggregate results** from T033b, **calculate the standard deviation of accuracy scores** across sweeps, and **append variance stats to `data/metrics_report.json`**. **Run after T033b, before T034a**.
-- [X] T034a [US3] **Generate Metrics Report**: Generate `data/metrics_report.json` containing keys: `accuracy` (dict), `p_value` (dict), `confusion_matrix` (dict), `variance` (dict), and `associational_framing` (string). **Verify**: Validate JSON schema against `contracts/model_output.schema.yaml`. **Prerequisite: T033c**.
-- [X] T035a [US3] **Validate Test Set Geometry**: Implement validation in `code/evaluate.py` to ensure test set geometries were not seen during training (verify `geometry_id` intersection is empty). **Verify**: Raise error if intersection is not empty.
-- [X] T036a [US3] **Report Ambiguous Signals**: Add reporting logic to flag ambiguous signals (identical translation for success/failure) and report confusion matrix for this subset. **Output**: Append `ambiguous_confusion_matrix` to `data/metrics_report.json`.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [X] T037 [P] Documentation updates in `docs/` and `README.md`
-- [X] T038 Code cleanup and refactoring across `code/`
-- [X] T039 Performance optimization to ensure total pipeline < 6 hours
-- [X] T040 [P] Additional unit tests for edge cases (tunneling, ambiguous signals) in `tests/unit/`
-- [X] T041a **Run Quickstart Validation**: Execute `code/quickstart.sh` (or equivalent) to ensure full pipeline reproducibility. **Verify**: Ensure exit code 0 and all artifacts generated.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for dataset schema in tests/contract/test_dataset_schema.py"
-Task: "Unit test for stability labeling logic in tests/unit/test_labeling_logic.py"
-
-# Launch implementation tasks for User Story 1 together:
-Task: "Implement code/generate_data.py with PyBullet simulation"
-Task: "Implement logic to discard rotation/force data"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data Generation)
- - Developer B: User Story 2 (Model Training + Baselines) - *Can start once US1 data is processed (T013c)*
- - Developer C: User Story 3 (Evaluation) - *Can start once US2 models (Main, Baseline, Control) are trained*
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All tasks MUST run on CPU-only, multi-core, sufficient RAM environment. No GPU/CUDA imports allowed.
-- **CRITICAL**: Dataset must be real (generated via simulation), not fabricated or hardcoded.
-- **CRITICAL**: Data flow order must be respected: Data Gen (US1) → Process (T013c) → Train (US2) → Eval (US3).
-- **CRITICAL**: Thresholds must be configurable via `code/config.yaml` (T005b) to support sensitivity analysis (T033).
-- **CRITICAL**: Geometry-only baseline (T025b) and Shuffled-Translation Control (T025c) are mandatory implementation tasks, not optional.
-- **CRITICAL**: T013a (Save) MUST run before T013b (Validate) to ensure the file exists.
-- **CRITICAL**: T025b and T025c are now in Phase 4 to ensure baselines are ready before Phase 5 evaluation.
-- **CRITICAL**: T018a (Re-labeling) must run on RAW data before T013c (Split) to ensure consistent labeling for sensitivity analysis.
-- **CRITICAL**: T024b (Verify Params) must fail the build if > 10M params and run BEFORE T024c (Save).
+- [ ] T019 Append the computed `sensitivity_variance` value to `metrics_report.json` and ensure the schema (`metrics_report.schema.yaml`) validates it.  
+  - **Verification**: `tests/contract/test_metrics_report.py` passes after the update.  
+
+---  
+
+## Phase 7 – Independence audit (addresses FR‑013 & reviewer concern)  
+
+- [ ] T020 Add a static‑analysis test `tests/unit/test_independence.py` that parses **all** data‑generation related scripts (`generate_data.py` and any script that writes raw episodes) and asserts they **do not import** `config.yaml` or any labeling thresholds. Labeling logic (`relabel_and_split.py`) is allowed to read thresholds.  
+  - **Verification**: test fails if prohibited imports are detected in any generation script.  
+
+---  
+
+## Phase 8 – End‑to‑end pipeline & reproducibility  
+
+- [ ] T021 Create `code/quickstart.sh` that executes the full pipeline in the exact order:  
+  1. `python code/generate_data.py`  
+  2. `python code/relabel_and_split.py`  
+  3. `python code/train_model.py`  
+  4. `python code/train_baseline.py`  
+  5. `python code/train_shuffled_control.py`  
+  6. `python code/train_class_prior.py`  
+  7. `python code/evaluate.py`  
+  8. `python code/sensitivity.py`  
+  The script must exit with code 0, print `PIPELINE‑SUCCESS`, and write total wall‑clock time to `pipeline_runtime.txt`.  
+  - **Artifact**: `code/quickstart.sh`, `pipeline_runtime.txt`  
+  - **Verification**: CI runs the script and asserts exit code 0, presence of the success message, and that `pipeline_runtime.txt` contains a numeric value ≤ 21600.  
+
+- [ ] T022 Add a reproducibility check: after a full run, re‑execute `code/evaluate.py` and assert that the newly generated `metrics_report.json` is **byte‑identical** to the previously saved one; if so, insert `"reproducibility_flag": true` into the report.  
+  - **Verification**: `tests/integration/test_reproducibility.py` performs the double‑run and checks the flag.  
+
+---  
+
+## Phase 9 – Compute‑resource reporting  
+
+- [ ] T025 Collect compute‑resource metrics: parse the training and evaluation logs generated by T008 and T013 to extract total wall‑clock time (`runtime_seconds`) and peak RAM usage (`peak_ram_gb`), then write/merge these fields into `data/processed/metrics_report.json`.  
+  - **Artifact**: Updated `data/processed/metrics_report.json` containing `runtime_seconds` and `peak_ram_gb`.  
+  - **Verification**: `tests/unit/test_compute_metrics.json` validates that the two fields exist, are numeric, and fall within the SC‑002 limits.  
+
+---  
+
+## Phase 10 – Documentation & final integrity checks  
+
+- [ ] T023 Update `README.md` and `docs/report.md` with a dedicated **Associative Framing** section that explicitly states all results are presented associatively (per FR‑011). Include links to `metrics_report.json` and `report_summary.md`.  
+  - **Verification**: CI greps for the phrase “Associative Framing” in both files.  
+
+- [ ] T024 Run the full CI suite (`pytest -q`) to ensure **all** contract, unit, and integration tests pass, that `data/checksums.json` matches the actual artifact hashes, and that the `reproducibility_flag` is set.  
+  - **Verification**: CI job succeeds; any failure aborts the pipeline.  
+
+---  
+
+### Dependency & execution order (summary)
+
+| Task | Depends on |
+|------|------------|
+| T001 | – |
+| T002 | T001 |
+| T003 | T002 |
+| T004 | T003, T001 |
+| T005 | T004 |
+| T006 | T005 |
+| T007 | – |
+| T008 | T007, T005 |
+| T009 | T008 |
+| T010 | T005 |
+| T011 | T005 |
+| T012 | T005 |
+| T013 | T008, T010, T011, T012 |
+| T014 | T013 |
+| T015 | T013 |
+| T016 | T013 |
+| T017 | T013 |
+| T018 | T008, T005 |
+| T019 | T018 |
+| T020 | T002 |
+| T021 | T004‑T019 (all prior steps must succeed) |
+| T022 | T021 |
+| T025 | T008, T013 |
+| T023 | – |
+| T024 | All previous tasks (full suite) |
+
+Running `code/quickstart.sh` will automatically respect this order.
+
+---  
+
+**All tasks must be completed and all verification steps must pass before the verifier can accept the project as `research_complete`.**  

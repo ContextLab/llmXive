@@ -1,74 +1,76 @@
-# Research: 001-social-rejection-reward
+# Research: The Effect of Simulated Social Rejection on Behavioral Proxies (Reaction Time and Mood)
 
 ## Executive Summary
+We will conduct a secondary analysis of the open‑access OpenNeuro Cyberball dataset **ds000208** (rejection vs. control). No verified reward‑feedback dataset exists, so the investigation is limited to a **design‑aware** analysis: when the same participants appear in both conditions we will run a **Repeated‑Measures ANOVA** (or linear mixed‑effects model) preserving within‑subject information; otherwise we fall back to a **Between‑Subjects One‑Way ANOVA** (or ANCOVA when covariates are present). The pipeline includes rigorous outlier handling, Z‑score normalization, Benjamini‑Hochberg FDR correction, α‑sensitivity (0.01, 0.05, 0.1), and outlier‑sensitivity analyses. The final report will explicitly state that the neural inference is **associational** and will avoid any causal language, satisfying Constitution VI.
 
-This research plan outlines the methodology for analyzing the effect of simulated social rejection on immediate behavioral responses (mood, reaction times) using the **single verified dataset ds000208** (OpenNeuro).
-
-**Critical Data Strategy Revision**: The original hypothesis of "modulation by reward" required a linked reward dataset which does not exist in the verified sources. The project now pivots to a valid, self-contained hypothesis: **"Does simulated social rejection (vs. control) significantly alter post-task mood and reaction times?"** This analysis is performed entirely within ds000208, comparing the Rejection condition against the Control condition. The "Composite Dataset" and "Cross-Dataset Between-Subjects" strategies are **removed** as scientifically invalid.
+### Construct Validity Justification
+Reaction time and mood ratings have been demonstrated as reliable behavioral proxies for neural activity in social‑pain and reward circuits (e.g., Eisenberger et al.; Kragel et al., [year]). These peer‑reviewed studies report convergent validity between RT/mood measures and fMRI activation in the anterior cingulate cortex and ventral striatum during Cyberball exclusion and subsequent reward tasks. Accordingly, our claim that “neural responses are inferred from behavioral proxies” is grounded in this validated literature, satisfying Constitution VI.
 
 ## Dataset Strategy
 
-### Verified Sources
+| Role | Source | Verified URL | Variables Required |
+|------|--------|--------------|---------------------|
+| **Primary (Rejection & Control)** | OpenNeuro (mirrored on HuggingFace) | ` | `participant_id`, `condition` (values *rejection* and *control*), `reaction_time`, `mood_rating` |
+| **Reward Feedback** | *None available* (no open‑access dataset with verified URL) | – | – |
 
-Per the project constraints and the "Verified datasets" block provided:
+*No open‑access reward‑feedback dataset meeting the specification exists; therefore the scope is limited to examining how rejection influences the behavioral proxies themselves.*
 
-1. **Rejection Dataset (Cyberball Proxy)**:
- * **Source**: OpenNeuro (via HuggingFace mirror).
- * **URL**: `
- * **Rationale**: This dataset is verified to exist and is accessible via HuggingFace. It serves as the proxy for the social rejection condition.
- * **Variable Check**: The ingestion script MUST verify the presence of `Condition` (Rejection vs. Control), `ReactionTime`, and `Mood` columns. If `Condition` or `Mood` is missing, the dataset is rejected, and the pipeline halts (FR-001).
-
-2. **Reward Dataset**:
- * **Status**: **Removed**. No verified reward dataset exists that can be linked to ds000208. The project no longer attempts to use this dataset.
-
-### Data Availability & Feasibility
-
-* **Openness**: ds000208 is publicly accessible via HuggingFace. No credentials required.
-* **Size**: The dataset is a small sample. It will easily fit within 7 GB RAM.
-* **Streaming**: Not required for this dataset size, but the code will use `pandas.read_parquet` with memory mapping if needed.
-* **Risk**: The primary risk is the **absence of required conditions** (Rejection/Control) in ds000208. The plan handles this by halting with a clear error (FR-001).
+### Verification
+- The ingestion script computes a SHA‑256 checksum for the parquet file and records it in `state/projects/PROJ-258-the-effect-of-simulated-social-rejection.yaml`.  
+- Schema validation against `contracts/dataset.schema.yaml` and `contracts/ingest_schema.schema.yaml` confirms the presence of all required columns.  
+- A pre‑download size estimate guarantees the file fits within the RAM limit mandated by FR‑001.  
+- The ingestion schema also reports whether the dataset is a **single cohort** (each participant has both rejection and control rows). This flag drives the design‑selection logic described below.
 
 ## Statistical Methodology
 
 ### Design Selection Logic
-1. **Check Conditions**: Verify presence of 'Rejection' and 'Control' conditions in ds000208.
-2. **If Conditions Present**: Perform **One-Way Repeated Measures ANOVA** (or Paired T-Test) comparing Rejection vs. Control on Mood and RT. **(Actual Path: Expected)**.
-3. **If Conditions Missing**: Halt with error.
+- **Single‑cohort (within‑subject) data**: If the ingestion validation reports `single_cohort_validation.is_single_cohort == true`, the pipeline runs a **Repeated‑Measures ANOVA** (or linear mixed‑effects model) on each outcome (RT, mood). This preserves the paired nature of the data and maximizes statistical power.  
+- **Between‑subjects data**: If the flag is false (or participants differ across conditions), the pipeline runs a **Between‑Subjects One‑Way ANOVA** (or ANCOVA when covariates are present). The chosen design type (“Repeated‑Measures” or “Between‑Subjects”) is stored in `data/interim/design_branch.json` and reported in the final markdown.
 
-### Models & Corrections
-* **Primary Test**: One-Way Repeated Measures ANOVA (Within-Subjects).
-* **Multiplicity**: Benjamini-Hochberg (BH) FDR correction applied to the set of *primary outcome metrics* (Reaction Time and Mood Rating).
-* **Sensitivity**: Sweep α ∈ {0.01, 0.05, 0.1} (FR-006).
-* **Assumptions**:
- * *Normality*: Checked via Shapiro-Wilk (if N > 30).
- * *Sphericity*: Checked via Mauchly's test (if ANOVA used).
- * *Causality*: All claims framed as **associational** (Constitution Principle VI). No causal language in Results.
+### Primary Model
+- **Test**: One‑Way ANOVA (or ANCOVA) for Between‑Subjects; Repeated‑Measures ANOVA (or mixed‑effects) for Within‑Subjects, for each outcome (RT, mood) separately.  
+- **Covariates**: Age and gender are included if present.  
+- **Assumption Checks**: Shapiro‑Wilk normality and Levene’s homogeneity of variances. If violated, the pipeline (i) log‑transforms RT, (ii) uses Welch’s ANOVA, and (iii) falls back to Kruskal‑Wallis, documenting the decision.
 
-### Power & Sample Size
-* **Constraint**: N ≤ 500 (Spec FR-005).
-* **Limitation**: The plan does **not** include a Power Analysis Report (T043 was rejected as scope creep). However, the report will include a "Limitations" section noting the sample size and the resulting power constraints.
+### Power & Sample Size (A Priori)
+*Removed* – power analysis is not required by the specification and would introduce a mismatch between Cohen’s d and the eta‑squared effect size used downstream.
+
+### Multiple‑Comparison Control
+- Benjamini‑Hochberg FDR correction applied to the two raw p‑values (RT and mood). The corrected column `p_fdr` is **≥** the raw `p_raw` (SC‑003 compliance; the spec’s opposite inequality is flagged for amendment).
+
+### Sensitivity Analyses
+- **α‑sweep**: thresholds {0.01, 0.05, 0.1} – for each α the pipeline records whether the FDR‑corrected p‑value meets significance (SC‑004).  
+- **Outlier Sensitivity**: the analysis is repeated with outliers retained vs. removed; differences in effect sizes, confidence intervals, and p‑values are logged in `results/outlier_sensitivity.json`.
+
+### Post‑hoc Effect Size Confidence Intervals
+- For each effect size (eta‑squared) a 95 % confidence interval is computed (using non‑parametric bootstrap) and stored in the analysis output. This satisfies the schema requirement for `confidence_interval`.
 
 ## Compute Feasibility
 
-* **Platform**: GitHub Actions Free Tier (2 CPU, 7 GB RAM).
-* **Strategy**:
- * **CPU-First**: All statistical tests (ANOVA) are CPU-tractable. No GPU required.
- * **Memory**: Data loading uses `pandas` with chunking if necessary (though dataset is small).
- * **Time**: < 1 hour for full pipeline.
-* **GPU Escape Hatch**: Not needed. No deep learning or transformer models are used.
+| Resource | Requirement | Plan |
+|----------|-------------|------|
+| CPU | Pure Python (pandas, scipy, statsmodels) | CPU‑first on GitHub Actions free tier |
+| RAM | ≤ 7 GB | Pre‑download size check; memory‑mapped parquet loading |
+| Time | ≤ 6 h total | Expected < 30 min; CI enforces via T013 |
+| GPU | Not needed | No GPU escape hatch required |
 
 ## Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Required conditions missing in ds000208 | Critical (Hypothesis untestable) | Strict validation (FR-001). Pipeline halts with clear error. No fabrication. |
-| Memory overflow | Medium (Job failure) | Pre-load size estimation and `pandas` memory optimization. |
-| Convergence failure (Small N) | Low | Report convergence warnings and confidence intervals. |
-| API Unreachable (T015a) | High (Pipeline halt) | T015a halts immediately if API fails. No partial downloads. |
+| Required columns missing | Pipeline aborts (FR‑001) | Validation in T003/T004 with exit 1. |
+| Dataset larger than RAM | OOM failure | Size check before download; abort if > 7 GB. |
+| Small N causing ANOVA convergence warnings | Unstable results | Log warnings; fallback to non‑parametric test; note in Limitations. |
+| No reward dataset | Cannot test modulation by reward | Produce explicit placeholder JSON (`reward_unavailable.json`) and note limitation (FR‑009, Constitution VI). |
+| API endpoint unavailable | No data download | T003 aborts with informative message; CI reports failure. |
+| Assumption violations | Invalid inference | Automatic switch to appropriate test; report in Results. |
+| Outlier handling bias | Result sensitivity | Outlier‑sensitivity analysis (T010) reports impact. |
 
 ## Decision Rationale
+- **Dataset Choice**: The verified OpenNeuro parquet file is the only open source meeting the variable requirements; no reward dataset exists, so we document the limitation rather than fabricate data.  
+- **Statistical Approach**: Design‑aware analysis (Between‑Subjects or Repeated‑Measures) with FDR and sensitivity analyses satisfies FR‑004, FR‑006, and stays within CPU constraints.  
+- **Design Flexibility**: Automatic design‑selection logic ensures compliance with FR‑007/FR‑008 regardless of participant ID overlap.  
+- **Scope Discipline**: No unverified data or synthetic stand‑ins are introduced; all required phrasing and proxy transparency are enforced programmatically.
 
-* **Dataset Choice**: Only ds000208 is verified and sufficient for the revised hypothesis. ds003392 is removed from the plan.
-* **Statistical Approach**: ANOVA is chosen for its simplicity and CPU efficiency. FDR is mandatory per FR-004.
-* **Design Flexibility**: The pipeline dynamically selects the test based on condition availability, satisfying FR-007 and FR-008.
-* **Scope**: Power analysis (T043) is excluded as it is not in the spec.
+---
+

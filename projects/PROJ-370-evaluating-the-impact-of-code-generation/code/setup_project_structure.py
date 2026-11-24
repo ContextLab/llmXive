@@ -1,58 +1,81 @@
+"""
+Setup the required directory layout for the project.
+This script implements Task T001 by ensuring all necessary
+source, test, data, and specification directories exist.
+"""
+
 import sys
+import logging
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
-def _project_root() -> Path:
-    """
-    Return the absolute path to the repository root.
-    This script is located at <root>/code/setup_project_structure.py.
-    """
-    return Path(__file__).resolve().parent.parent
+# Configure logging to stdout
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
-def _required_directories(root: Path) -> List[Path]:
-    """
-    Define the required directory layout for the research pipeline as per T001.
-    """
-    return [
-        root / "src",
-        root / "src/utils",
-        root / "data/raw",
-        root / "data/derived",
-        root / "data/annotations",
-        root / "results",
-        root / "tests",
-        root / "specs",
-        root / "contracts",
-        root / "logs",
-    ]
+# The canonical list of directories required by T001
+_REQUIRED_DIRS = [
+    "code/src/config",
+    "code/src/extraction",
+    "code/src/detection",
+    "code/src/inference",
+    "code/src/analysis",
+    "code/src/reporting",
+    "code/src/pipeline",
+    "code/src/cli",
+    "code/tests/unit",
+    "code/tests/integration",
+    "code/tests/contract",
+    "code/data/raw",
+    "code/data/annotations",
+    "code/data/derived",
+    "code/data/results",
+    "code/logs",
+    "specs/001-evaluating-the-impact-of-code-generation/contracts",
+]
 
-def create_directories() -> List[Path]:
+def create_directories(extra_paths: Optional[List[Path]] = None) -> List[Path]:
     """
-    Create all required directories if they do not already exist.
+    Ensure that all required directories (and any extra_paths) exist.
+    Returns a list of absolute paths to the created/verified directories.
     """
-    root = _project_root()
-    dirs = _required_directories(root)
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-    return dirs
+    created = []
+    
+    # Combine required paths with any optional extras
+    all_paths = [_REQUIRED_DIRS] # This is a list of strings
+    # Correction: _REQUIRED_DIRS is already the list.
+    
+    for path_str in _REQUIRED_DIRS:
+        p = Path(path_str).resolve()
+        p.mkdir(parents=True, exist_ok=True)
+        created.append(p)
+    
+    if extra_paths:
+        for p in extra_paths:
+            abs_p = p.resolve()
+            abs_p.mkdir(parents=True, exist_ok=True)
+            created.append(abs_p)
+            
+    return created
 
 def main() -> int:
     """
-    Entry point for creating and verifying the directory layout.
-    Asserts that each directory exists after creation.
+    CLI entry point: create the required layout and exit with status 0 on success.
     """
     try:
-        dirs = create_directories()
-        print("Verifying directory layout...")
-        for d in dirs:
-            if not d.is_dir():
-                print(f"Verification Failed: {d} is not a directory.")
+        logger.info("Initializing project directory structure...")
+        created_paths = create_directories()
+        
+        # Verification check
+        for p in created_paths:
+            if not p.is_dir():
+                logger.error(f"Failed to verify directory: {p}")
                 return 1
-            print(f"Verified: {d}")
-        print("Project structure verified successfully.")
+        
+        logger.info(f"Successfully verified {len(created_paths)} directories.")
         return 0
     except Exception as e:
-        print(f"Unexpected error during directory setup: {e}")
+        logger.exception(f"Unexpected error during directory setup: {e}")
         return 1
 
 if __name__ == "__main__":

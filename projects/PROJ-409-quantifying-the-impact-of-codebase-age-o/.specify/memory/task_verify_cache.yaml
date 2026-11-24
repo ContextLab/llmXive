@@ -1,3 +1,64 @@
+T001:
+  c: true
+  h: a281567a298f1234dc25c6957ca81e48032c9b5903f31934799ed60d7298bfa6
+  r: All 12 requested directories (`code/`, `code/extraction/`, `code/inference/`,
+    `code/analysis/`, `code/utils/`, `data/raw/`, `data/extracted/`, `data/aggregated/`,
+    `data/results/`, `data/models/`, `tests/unit/`, `tests/integration/`) exist per
+    the collector evidence; the task only required creating this structure, and empty
+    data/integration directories are expected at this stage. The presence of additional
+    files (scripts, tests) does not violate the requirement.
+  sig: 7381f83607589ff94f04c3791c41819c418dbb091eb10126325201e9e3117a2a
+T002:
+  c: true
+  h: 3c026f890e887291834ccbfb08884d6756bd257486787506c013b63ad105fa6e
+  r: "The `requirements.txt` exists at the project root (113 bytes) and contains every\
+    \ dependency the task listed: huggingface_hub, transformers, torch, bitsandbytes,\
+    \ gitpython, pandas, scipy, ast, tokenizers, and networkx (plus pytest/ruff/black).\
+    \ One caveat for later tasks: `ast` is a Python standard-library module, so `pip\
+    \ install -r requirements.txt` may install a stale third-party `ast` package or\
+    \ warn \u2014 but the task explicitly required it to be listed, and it is."
+  sig: 52292e25473b62243dd8dc82d98c62e5a27cdfa2df82fcef713b03d4cfa06adf
+T003:
+  c: false
+  h: 42ae21a1c2493a1c5253ba5794c50c90437de13b40483728cea665a5d9b17941
+  r: "The evidence collector lists no artifacts for this task \u2014 there is no `pyproject.toml`,\
+    \ `ruff.toml`, `.ruff.toml`, `setup.cfg`, or any configuration file containing\
+    \ ruff/black settings anywhere in the project, and no execution evidence (e.g.,\
+    \ a lint/format run log) was supplied. The implementer's claim of configuring\
+    \ ruff and black is entirely unsupported; the next implementer should add an actual\
+    \ configuration file (e.g., `[tool.ruff]` and `[tool.black]` sections in `pyproject.toml`)\
+    \ and demonstrate it runs."
+  sig: ab0a49811bab98a4281e92e46ccec17e2b3842b93270e7088ef4ea83f414cb63
+T004:
+  c: true
+  h: 632a041218e075fce842f25e3528c8c011f19d0a0db7ead734d5aac6d2b9d13c
+  r: 'The file `code/utils/config.py` exists (3203 bytes) and contains real, substantive
+    configuration: constants for paths, random seeds (42) with a `set_all_seeds()`
+    function, timeout limits (git clone, extraction, per-snippet inference, global
+    inference), model/extraction/inference/statistical settings, and directory creation.
+    The task title''s "-hour" is ambiguous, and the implementer''s documented interpretation
+    (1-hour phase limits) is a reasonable, non-stub resolution consistent with the
+    spec''s 6-hour budget.'
+  sig: cd9c7b559d012f1a52b7ce31ecbf41802f182e7c6b549b914577892c31036252
+T005:
+  c: true
+  h: 6e714c2f1dfe575bedde5cac023103ad7d1cf1d57c10506dc0308636e7e0e623
+  r: "The file `code/utils/logging.py` exists (4,623 bytes) and contains a full, functional\
+    \ unified logging implementation: `get_logger`, `setup_logging` with console and\
+    \ file handlers, timestamped formatting, level configuration, and convenience\
+    \ functions \u2014 no stubs, TODOs, or placeholders. It matches the task's requirement\
+    \ for unified logging across the pipeline."
+  sig: 530137ecd65c1574e28f3311d95f9a2a1e973334ba75f9255d26b85937937ef7
+T006:
+  c: true
+  h: 9594b6fee0d3161e1eff0d7a7b1948d84e0e7c70973914da2c85bfcb0457acec
+  r: 'The file `code/utils/hasher.py` exists (6285 bytes) and implements real SHA-256
+    hashing functionality: `compute_file_hash` (chunked file hashing), `compute_string_hash`,
+    `hash_artifact` (writes `.hash` sidecar files), `verify_artifact_hash`, and `hash_directory`.
+    Its dependency `code/utils/logging.py` also exists and provides the imported `get_logger`.
+    No stubs, TODOs, or placeholders; content matches the task''s requirement to generate
+    SHA-256 hashes for artifacts.'
+  sig: 44853577ada8919c4bbc31ae36ece8724ca79fcdd56b36e3342fb6d37265436e
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

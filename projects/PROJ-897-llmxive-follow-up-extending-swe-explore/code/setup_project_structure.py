@@ -1,39 +1,51 @@
-import os
+"""
+Setup Project Structure Script
+--------------------------------
+This script creates the required directory layout for the project as
+specified in task T001a. It also ensures that the contracts directory
+under the specification folder exists.
+
+The script is idempotent – running it multiple times will not raise
+errors and will leave the directory tree in the correct state.
+"""
+
 import sys
 from pathlib import Path
-from typing import List
 
-def create_directories() -> None:
-    """Create the required project directory structure."""
-    root = Path(__file__).parent.parent
-    
-    # Define all required directories based on task T001a
-    directories = [
-        root / "code",
-        root / "data" / "raw",
-        root / "data" / "curated",
-        root / "data" / "results",
-        root / "tests" / "unit",
-        root / "tests" / "integration",
-        root / "tests" / "contract",
-        root / "specs" / "001-llmxive-follow-up-extending-swe-explore" / "contracts",
+# Import the toolkit path helpers
+from llmxive_toolkit import paths, get_logger
+
+# Initialise logger (optional but useful for debugging)
+log = get_logger(__name__)
+
+def create_directories():
+    """Create all required directories."""
+    # Core project directories
+    dirs = [
+        paths.code(),                     # code/
+        paths.data("raw"),                # data/raw/
+        paths.data("curated"),            # data/curated/
+        paths.data("results"),            # data/results/
+        paths.tests("unit"),              # tests/unit/
+        paths.tests("integration"),       # tests/integration/
+        paths.tests("contract"),          # tests/contract/
     ]
-    
-    created_count = 0
-    for dir_path in directories:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {dir_path}")
-    
-    print(f"Total directories created: {created_count}")
 
-def main() -> None:
-    """Entry point for the script."""
-    create_directories()
-    print("Project structure creation complete.")
+    # Specification contracts directory
+    specs_contracts_dir = Path(__file__).resolve().parents[2] / "specs" / "001-llmxive-follow-up-extending-swe-explore" / "contracts"
+    dirs.append(specs_contracts_dir)
+
+    for d in dirs:
+        if not d.exists():
+            log.info(f"Creating directory: {d}")
+            d.mkdir(parents=True, exist_ok=True)
+        else:
+            log.debug(f"Directory already exists: {d}")
 
 if __name__ == "__main__":
-    main()
+    try:
+        create_directories()
+        print("Project structure created and verified.")
+    except Exception as e:
+        log.error(f"Failed to create project structure: {e}")
+        sys.exit(1)

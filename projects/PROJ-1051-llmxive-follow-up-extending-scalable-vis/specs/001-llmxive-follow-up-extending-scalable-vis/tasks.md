@@ -1,127 +1,190 @@
-# tasks.md
+# Tasks: Do distilled structural‑latent features add predictive value beyond dense text features for the corpus overlap/CPU‑score label?
 
-**Project:** llmXive follow‑up: extending “Scalable Visual Pretraining for Language Intelligence”  
-**Branch:** `001-llmxive-layout-distillation`  
-**Generated:** 2026‑10‑10  
+**Inputs**: `spec.md` (with amendments), `plan.md` (re‑plan v4), `data‑model.md`, contract schemas, and any existing artifacts.  
+All tasks write only to project‑owned paths under `data/`, `artifacts/`, `src/`, or `figures/`.  
+Tasks are ordered to respect data flow; each task lists the primary script/file it creates or modifies and the artefacts it must produce.
+
+---
+
+## Phase 1 – Setup and first end‑to‑end analysis  
+
+| Goal | Run an executable analysis on a small real input early, producing a real result file that can be inspected. |
+|------|-----------------------------------------------------------------------------------------------|
+
+- [ ] T001 [P] [US1] **Download and validate the verified textual dataset**  
+  *Script*: `src/data/download_text.py` (defines `TEXT_DATASET_URL`)  
+  *Outputs*: `data/raw/overlap.parquet`, `data/raw/provenance_text.json` (contains `dataset_url`, `sha256`, `n_rows`, `label_semantics`, `seeds`)  
+  *Verification*:  
+  ‑ The parquet file exists and its SHA‑256 matches the entry in `provenance_text.json`.  
+  ‑ `provenance_text.json` includes all required fields and reports `n_rows ≥ 10 000`.  
+  ‑ Unit test `src/tests/test_download_text.py` asserts successful load via `pyarrow`, confirms the row count, and checks that a missing/invalid URL exits with error code 1 and the message `VERIFIED DATASET URL MISSING/UNREACHABLE`.
+
+- [ ] T002 [P] [US1] **Preprocess raw parquet into schema‑valid `DocumentPair` records**  
+  *Script*: `src/data/preprocess.py` – validates each row against `contracts/documentpair.schema.yaml`, drops rows missing required fields, and writes `data/processed/document_pairs.parquet`.  
+  *Outputs*: `data/processed/document_pairs.parquet`, `data/processed/preprocess_stats.json` (records `n_valid_rows`, `n_dropped`).  
+  *Verification*:  
+  ‑ All rows in the output parquet validate against the schema.  
+  ‑ If `n_valid_rows < 1000` the script aborts with FR‑007 error `Insufficient valid rows (found X, required ≥1000)`.  
+  ‑ Unit test `src/tests/test_preprocess.py` covers both success and below‑minimum failure paths.
+
+- [ ] T003 [P] [US1] **Generate deterministic structural‑latent features**  
+  *Script*: `src/features/structure.py` – extracts a fixed‑dimensional deterministic feature vector (e.g., line‑length statistics, token‑position histograms) from the `text` field; records extractor version.  
+  *Outputs*: `data/processed/document_pairs_with_latent.parquet` (adds `structural_latent` column), `data/processed/structural_latent_provenance.json` (records `extractor_name`, `extractor_version`, `latent_dim`).  
+  *Verification*:  
+  ‑ Every row has a `structural_latent` array of length `D` (as recorded).  
+  ‑ Determinism test confirms that re‑running the script on the same input yields identical latents.  
+  ‑ Unit test `src/tests/test_structural_latent.py` checks shape, dtype, and reproducibility.
+
+- [ ] T004 [P] [US1] **Create deterministic train/val/test splits**  
+  *Script*: `src/utils/split_generator.py` – shuffles with a fixed seed (`42`) and writes splits respecting a 0.8/0.1/0.1 ratio.  
+  *Outputs*: `data/splits/splits.yaml` (lists `train`, `val`, `test` document IDs).  
+  *Verification*:  
+  ‑ The file exists and the three sets contain the expected number of IDs (±1).  
+  ‑ Unit test `src/tests/test_split_generator.py` validates the ratios and reproducibility.
+
+- [ ] T005 [P] [US2] **Thin end‑to‑end smoke run**  
+  *Script*: `src/cli/run_pipeline.py --smoke` – loads a tiny subset (first 200 rows) of the training split, runs the full pipeline (feature extraction, a single‑epoch distillation, baseline training, downstream evaluation) to ensure all components interoperate.  
+  *Outputs*: `data/results/smoke_results.json`, updated `quickstart.md` with the command  
+
+    ```bash
+    python src/cli/run_pipeline.py --smoke
+    ```  
+
+  *Verification*:  
+  ‑ `smoke_results.json` contains numeric metrics for both the text‑only and text ⊕ structural‑latent arms (no placeholders).  
+  ‑ Executing the command from `quickstart.md` exits 0 and reproduces the same `smoke_results.json` (checked by a checksum test).
+
+---
+
+## Phase 2 – Complete the study and validate its evidence  
+
+| Goal | Run the full specified parameter/data domain, preserve every population, baseline and scientific constraint from the specification. |
+|------|------------------------------------------------------------------------------------------------------------------------------------------|
+
+- [ ] T006 [P] [US2] **Train the DistilledModel (text → structural latent) across all required seeds**  
+  *Script*: `src/models/distilled.py`, invoked via  
+
+    ```bash
+    src/cli/run_pipeline.py --stage distill --seeds 42,43,44,45,46,47,48,49,50,51
+    ```  
+
+  *Outputs*: checkpoints under `artifacts/models/distilled_<seed>/`, per‑seed eval files `artifacts/eval/distill_{seed}.json`, aggregated summary `artifacts/eval/distill_summary.json` (fields `mse_val_mean`, `mse_random_init_mean`, `p_value`, `test_name`, `alpha: 0.025`, `is_sanity_check_only: true`, `val_train_loss_ratio`).  
+  *Verification*:  
+  ‑ Each `distill_{seed}.json` records `val_mse`, `train_mse`, `peak_ram_gb`, `runtime_s`.  
+  ‑ The summary shows `p_value < 0.025` **and** `mse_val_mean < mse_random_init_mean`; otherwise the script exits with `distillation sanity check failed`.  
+  ‑ Peak RAM ≤ 7 GB and total runtime ≤ 21 600 s (recorded in `resources.json`).
+
+- [ ] T007 [P] [US3] **Train per‑seed text‑only downstream baseline (matching the 10 seeds)**  
+  *Script*: `src/models/baseline.py`, invoked via  
+
+    ```bash
+    src/cli/run_pipeline.py --stage baseline --seeds 42,43,44,45,46,47,48,49,50,51
+    ```  
+
+  *Outputs*: checkpoints under `artifacts/models/baseline_<seed>/`, evaluation files `artifacts/eval/baseline_{seed}.json` (fields `val_metric`, `test_metric`, `peak_ram_gb`).  
+  *Verification*:  
+  ‑ Exactly ten baseline checkpoints exist, one per seed.  
+  ‑ No OOM errors; each `peak_ram_gb` ≤ 7 GB.  
+  ‑ Unit test `src/tests/test_baseline.py` confirms that re‑training with the same seed reproduces identical metrics.
+
+- [ ] T008 [P] [US3] **Leakage pre‑check and downstream evaluation of augmented vs. baseline**  
+  *Script*: `src/eval/downstream.py`, invoked via  
+
+    ```bash
+    src/cli/run_pipeline.py --stage downstream --seeds 42,43,44,45,46,47,48,49,50,51
+    ```  
+
+  *Outputs*: per‑seed downstream files `artifacts/eval/downstream_{seed}.json` (fields `metric_baseline`, `metric_augmented`, `delta`), consolidated `artifacts/eval/results.json` containing `label_semantics`, `leakage_check`, and the augmented predictions (structural latents concatenated with text embeddings).  
+  *Verification*:  
+  ‑ Leakage gate computes Spearman correlation between the label and a simple surface‑text‑similarity feature; if `|rho| ≥ 0.8` the `interpretable` flag is set `false`.  
+  ‑ Each seed’s JSON records both baseline and augmented metrics (including negative deltas when they occur).  
+  ‑ All required fields appear in `results.json` and validate against `contracts/results.schema.yaml`.
+
+- [ ] T009 [P] [US3] **Statistical analysis with Bonferroni correction and associational framing**  
+  *Script*: `src/eval/stats.py` (run via `src/cli/run_pipeline.py --stage stats`)  
+  *Outputs*: updated `artifacts/eval/results.json` with a populated `downstream` block (fields `metric_name`, `baseline_mean`, `augmented_mean`, `delta`, `p_value`, `test_name`, `alpha: 0.025`, `interpretable`) and top‑level `framing: "associational"`.  
+  *Verification*:  
+  ‑ `results.json` validates against `contracts/results.schema.yaml`.  
+  ‑ The paired test (t‑test or Wilcoxon, chosen after Shapiro‑Wilk) respects the Bonferroni‑corrected α = 0.025.  
+  ‑ A sanity‑check note (`distillation_sanity_check.is_sanity_check_only: true`) is present.
+
+- [ ] T010 [P] [US3] **Incremental‑value ablation and independence descriptive analysis**  
+  *Script*: `src/eval/ablation.py` (run via `src/cli/run_pipeline.py --stage ablation --seeds 42,43,44,45,46,47,48,49,50,51`)  
+  *Outputs*: additions to `artifacts/eval/results.json` – `ablation_incremental_value` block (`latent_only_mean`, `p_value_vs_baseline`, `independence_claim_supportable: false`) and `independence_descriptive` block (`mutual_information_bits`, `pearson_r`).  
+  *Verification*:  
+  ‑ The latent‑only arm is trained and evaluated per seed; its mean metric appears as `latent_only_mean`.  
+  ‑ Mutual information (via `sklearn.metrics.mutual_info_score`) and Pearson‑r between predicted structural latents and text embeddings are computed and stored.  
+  ‑ The `independence_claim_supportable` flag is `false` (as required by the amended spec).
+
+- [ ] T011 [P] [US3] **Resource tracking and full‑pipeline reproducibility check**  
+  *Script*: `src/cli/run_pipeline.py --full` (or the same driver used for the final run) records peak RAM via `psutil` and wall‑clock time for every stage into `artifacts/eval/resources.json`; it also writes `artifacts/eval/repro_check.md` documenting a second deterministic run (same seeds, same data) and confirming that `results.json` matches the first run within a tolerance of 1e‑6.  
+  *Verification*:  
+  ‑ `resources` block in `results.json` shows `peak_ram_gb ≤ 7` and `runtime_seconds ≤ 21 600`.  
+  ‑ `repro_check.md` contains the observed second‑run values and the statement “deterministic re‑run verified”.  
+  ‑ Unit test `src/tests/test_resources.py` asserts that the recorded RAM and time are within the limits.
+
+- [ ] T012 [P] [US3] **Generate summary tables and figures from validated outputs**  
+  *Script*: `src/eval/report.py` (run via `src/cli/run_pipeline.py --stage report`)  
+  *Outputs*:  
+    ‑ `figures/per_seed_downstream.png` (baseline vs. augmented metric per seed)  
+    ‑ `figures/distillation_sanity.png` (MSE curves for student vs. random‑head)  
+    ‑ `data/results/summary_table.md` (markdown table enumerating SC‑001 – SC‑007 outcomes, the sanity‑check downgrade note, and the scope‑limitation statement).  
+  *Verification*:  
+  ‑ Every numeric entry in the table/figures traces back to a field in `results.json`.  
+  ‑ The scope‑limitation paragraph explicitly mentions the infeasibility of visual‑encoder latents and the use of deterministic structural features.  
+  ‑ Unit test `src/tests/test_report.py` checks that the files exist and that the table contains all required SC columns.
+
+- [ ] T013 [P] [US3] **Write methods/results account and paper‑stage handoff**  
+  *Artifact*: `artifacts/report/final_report.md` (methods, results, limitations, and explicit “paper‑stage handoff” section).  
+  *Updates*: `quickstart.md` is revised to include the single command that reproduces the full workflow:  
+
+    ```bash
+    python src/cli/run_pipeline.py --full
+    ```  
+
+  *Verification*:  
+  ‑ Every referenced artifact (e.g., `results.json`, figures, tables) exists.  
+  ‑ No numeric value appears without a provenance link to `results.json` or a figure.  
+  ‑ Running the command from `quickstart.md` on a clean checkout reproduces all tests and artifacts described in the report (checked by an integration test `src/tests/test_full_pipeline.py`).
+
+---
+
+## Phase 3 – Reproducible results and paper handoff  
+
+| Goal | Provide a concise, verifiable methods/results narrative and a deterministic handoff for the paper pipeline. |
+|------|-----------------------------------------------------------------------------------------------|
+
+- [ ] T014 [P] **Re‑run the documented full workflow from scratch to confirm end‑to‑end reproducibility**  
+  *Command*: `python src/cli/run_pipeline.py --full` (as documented in `quickstart.md`).  
+  *Verification*:  
+  ‑ The run finishes without error, reproduces `artifacts/eval/results.json` identical to the previously committed version (hash match), and all verification tests pass.  
+  ‑ The run logs (`artifacts/eval/run_log.txt`) contain timestamps and resource usage confirming compliance with SC‑004 and SC‑005.
+
+- [ ] T015 [P] **Archive immutable artifacts for verification**  
+  *Script*: `src/utils/archive_artifacts.py` – copies `results.json`, all checkpoint directories, figures, and tables into `artifacts/archive/<timestamp>/` and records a SHA‑256 manifest `artifacts/archive/manifest.json`.  
+  *Verification*:  
+  ‑ The manifest lists every archived file with its checksum.  
+  ‑ A CI test `src/tests/test_archive.py` verifies that the manifest matches the actual files and that no file exceeds the size limits of the free‑tier runner.
 
 ---  
 
-## Phase 1 – Data acquisition & latent generation  
+### Execution order (dependency graph)
 
-- [ ] **T001** [US1] **Download primary and fallback corpora** – implement `src/data/download.py` to fetch the DocBank subset and, if needed, the `pubmed‑layout` fallback from their verified HuggingFace URLs.   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=2 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_download.sh exit=2 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
-  - **Verification:**  
-    - After download, count pages with layout annotations; abort with clear error if total < 10 000 (satisfies FR‑001 & FR‑007).  
-    - Log the SHA‑256 checksum of each downloaded archive.  
+`T001 → T002 → T003 → T004 → T005 → (T006 ‖ T007) → T008 → T009 → T010 → T011 → T012 → T013 → T014 → T015`
 
-- [ ] **T002** [US1] **Preprocess raw files into `DocumentPair` records** – implement `src/data/preprocess.py` to read the raw PDFs/JSON, extract OCR text, pair with layout annotations, and write a Parquet file `data/processed/document_pairs.parquet`.  
-  - **Verification:**  
-    - Validate each record against `contracts/documentpair.schema.yaml` using `jsonschema`.  
-    - Skip pages lacking `layout_annotations`, emit a warning, and ensure the warning count is recorded.  
-    - Ensure the output file passes schema validation (`pytest -k test_preprocess`).  
+*Parallel* (`‖`) indicates tasks that can run independently after the data‑preparation steps but must both finish before downstream evaluation proceeds.
 
-- [ ] **T003** [US1] **Generate visual‑layout latents on CPU** – implement `src/data/latent_generator.py` to load the frozen `layoutlmv3‑base` checkpoint on `device="cpu"` and produce a 768‑dimensional latent for every `DocumentPair`. Store results in `data/processed/document_pairs_with_latent.parquet`.  
-  - **Verification:**  
-    - Every row contains a `visual_latent` array of length 768, no NaNs.  
-    - Total inference time for 10 000 pages < 30 min on the CI runner.  
-    - If the encoder cannot be loaded on CPU, exit with an informative error (edge‑case handling).  
+| Requirement | Task(s) | Primary artifact / command |
+|-------------|---------|----------------------------|
+| FR‑001 (structural latents) | T001‑T003 | `python src/cli/run_pipeline.py --smoke` |
+| FR‑002, FR‑003 (distillation) | T006 | `src/cli/run_pipeline.py --stage distill …` |
+| FR‑004 (augmented representation) | T008 | `artifacts/eval/downstream_{seed}.json` |
+| FR‑005, FR‑006 (downstream evaluation & framing) | T008‑T009 | `artifacts/eval/results.json` |
+| FR‑007 (data sufficiency) | T001‑T004 | `provenance_text.json` |
+| FR‑008 (independence & ablation) | T010 | `ablation_incremental_value` block in `results.json` |
+| FR‑009 (baseline per seed) | T007 | `artifacts/models/baseline_<seed>/` |
+| SC‑001, SC‑004, SC‑005, SC‑007 (sanity, memory, runtime) | T006, T011 | `distill_summary.json`, `resources.json` |
+| SC‑002, SC‑003 (statistical significance) | T008‑T009 | `downstream` block in `results.json` |
+| SC‑006 (minimum rows) | T001‑T004 | `provenance_text.json` |
 
----  
-
-## Phase 2 – Train/validation split  
-
-- [ ] **T004** [US2] **Create deterministic train/val/test splits** – implement `src/utils/split_generator.py` to read `document_pairs_with_latent.parquet`, generate index files `data/splits/train_idx.json`, `val_idx.json`, `test_idx.json` using seed = 42 and ratios 0.8/0.1/0.1.  
-  - **Verification:**  
-    - Re‑run the script; the three JSON files are byte‑identical (determinism).  
-    - The counts respect the specified ratios (within ±1 document).  
-
----  
-
-## Phase 3 – Distillation & baseline model training (15 seeds)  
-
-- [ ] **T005** [US2] **Train DistilledModel (text → visual latent)** – implement `src/models/distilled.py` to train a **50 M‑parameter** DistilledModel (e.g., full‑size DistilBERT with a projection head) using MSE loss against the frozen latents. Run for seeds 42‑56, saving checkpoints under `artifacts/models/distilled_{seed}/`.  
-  - **Verification (per seed):**  
-    - Validation MSE ≥ 5 % lower than a random‑init baseline (paired t‑test, α = 0.025).  
-    - **SC‑007 check:** validation loss must not exceed **2 ×** training loss; fail otherwise.  
-    - Peak RAM usage ≤ 7 GB (monitored via `psutil`).  
-    - Training wall‑clock time ≤ 5 h (leaves margin for the 6‑h overall limit).  
-    - Early‑stop patience = 3 epochs on validation MSE.  
-
-- [ ] **T006** [US2] **Train text‑only baseline model** – implement `src/models/baseline.py` using the same pruned DistilBERT architecture **without** the projection head. Train for the same 15 seeds, saving under `artifacts/models/baseline_{seed}/`.  
-  - **Verification (per seed):**  
-    - Training completes without OOM; peak RAM ≤ 7 GB.  
-    - Record final training loss; ensure loss curve is monotonic decreasing.  
-
----  
-
-## Phase 4 – Ablation & latent‑layout fidelity  
-
-- [ ] **T007** [US2] **Ablation: correlate latent distance with layout similarity** – implement `src/eval/ablation.py` to (a) compute Euclidean distance between predicted and frozen latents for a random sample of 500 documents, (b) compute IoU of their layout boxes, and (c) report Pearson r.  
-  - **Verification:**  
-    - Pearson correlation coefficient ≥ 0.5 (indicating MSE is a meaningful proxy).  
-    - Output a CSV `artifacts/eval/ablation_correlation.csv` and a short markdown summary.  
-
----  
-
-## Phase 5 – Downstream reasoning evaluation  
-
-- [ ] **T008** [US3] **Evaluate augmented vs. baseline on downstream benchmark** – implement `src/eval/downstream.py` to (a) load each distilled checkpoint, generate predicted latents for the test split, concatenate them with the text `[CLS]` embedding (forming a 1536‑dim vector), (b) fine‑tune a lightweight classifier head on the training split, (c) evaluate accuracy/F1 on the held‑out test set, (d) repeat the exact procedure for the baseline model (re‑trained per seed).  
-  - **Verification (per seed):**  
-    - Produce `artifacts/eval/downstream_{seed}.json` containing `accuracy_baseline`, `accuracy_augmented`, `f1_baseline`, `f1_augmented`.  
-    - After all seeds, run a paired t‑test (or Wilcoxon if Shapiro‑Wilk p < 0.05) on the accuracy deltas; report p‑value < 0.05 (FR‑005, FR‑006).  
-
-- [ ] **T009** [US3] **Generate final evaluation report** – after successful downstream evaluation, compile (i) validation MSE improvement, (ii) ablation correlation, (iii) downstream accuracy/F1 statistics, (iv) resource usage (RAM, runtime), and (v) statistical significance. Produce `artifacts/report/final_report.md`.  
-  - **Verification:**  
-    - Report includes SC‑001, SC‑002, SC‑003, SC‑004, SC‑005, SC‑006, SC‑007 values and explicitly frames findings as *associational* (FR‑006).  
-    - If the downstream benchmark is missing, the pipeline aborts with a clear error (preserving FR‑005).  
-
----  
-
-## Phase 6 – Reproducibility, logging, and end‑to‑end sanity check  
-
-- [ ] **T010** [US1] **Checksum & state logging** – implement `src/utils/checksum.py` to compute SHA‑256 hashes of every generated artifact (Parquet files, model checkpoints, JSON results) and write them to `state/projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis.yaml`.  
-  - **Verification:**  
-    - After any pipeline run, the state file contains entries for all artifacts; a CI step compares current hashes against stored ones and fails on mismatch.  
-
-- [ ] **T011** [US1] **End‑to‑end pipeline smoke test** – add a small‑sample entry point `src/cli/run_pipeline.py` that runs the full workflow on a **sample** of 100 documents (download → preprocess → latent generation → one seed of distillation & baseline → downstream evaluation). Output `data/results/sample_output.parquet`.  
-  - **Verification:**  
-    - CI executes `python -m src.cli.run_pipeline --sample-size 100`.  
-    - The command finishes within 30 min, produces the result file, and the file contains columns `doc_id`, `predicted_latent`, `baseline_pred`, `augmented_pred`.  
-    - All unit tests in `tests/` pass.  
-
-- [ ] **T012** **Measure total pipeline runtime** – wrap the full end‑to‑end execution (including T001‑T011) with a timer that records start and end timestamps, writes the duration to `artifacts/runtime/runtime_seconds.txt`, and asserts the total wall‑clock time ≤ 6 hours.  
-  - **Verification:**  
-    - CI step fails if the recorded duration exceeds 21 600 seconds, satisfying SC‑005.  
-
-- [ ] **T013** **Validate validation‑vs‑training loss ratio across seeds** – after all T005 runs, aggregate training and validation loss logs, compute the maximum ratio per seed, and assert each ratio ≤ 2.0. Write a summary `artifacts/eval/loss_ratio_summary.md`.  
-  - **Verification:**  
-    - CI fails if any seed violates the ratio, fulfilling SC‑007.  
-
----  
-
-### Mapping of tasks to functional & success criteria  
-
-| FR | Covered by task(s) |
-|----|--------------------|
-| FR‑001 | T001, T002, T003 |
-| FR‑002 | T005 |
-| FR‑003 | T005, T006 (RAM checks) |
-| FR‑004 | T008 (concatenation) |
-| FR‑005 | T008 |
-| FR‑006 | T009 (report framing) |
-| FR‑007 | T001 (page‑count check) |
-| FR‑008 | T007 |
-| FR‑009 | T006 (re‑train baseline per seed) |
-
-| SC | Covered by task(s) |
-|----|--------------------|
-| SC‑001 | T005 (MSE vs. baseline) |
-| SC‑002 | T008 (accuracy/F1) |
-| SC‑003 | T008 (paired test p‑value) |
-| SC‑004 | T005, T006 (RAM measurement) |
-| SC‑005 | T012 (runtime measurement) |
-| SC‑006 | T001 (page‑count check) |
-| SC‑007 | T005 (loss‑ratio check) & T013 (aggregate verification) |
-
----  
-
-*All tasks are unchecked; they will be marked complete by the CI pipeline when their verification steps succeed.*  
+All tasks remain unchecked until their corresponding scripts and artifacts are produced and pass the verification steps described above.

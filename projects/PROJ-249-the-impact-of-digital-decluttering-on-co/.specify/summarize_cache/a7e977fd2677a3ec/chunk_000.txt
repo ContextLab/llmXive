@@ -1,0 +1,88 @@
+# Implementation Plan: The Impact of Digital Decluttering on Cognitive Performance and Well‑being
+
+**Branch**: `001-digital-decluttering-study` | **Date**: 2026-10-21 | **Spec**: `specs/001-digital-decluttering-study/spec.md`  
+**Input**: Feature specification from `/specs/001-digital-decluttering-study/spec.md`
+
+## Summary
+Implement a within‑subject pre/post experimental pipeline that (1) recruits participants, (2) records baseline SART, Ospan, PSS‑10, and PANAS scores, (3) logs daily self‑reported digital‑use compliance for seven days, (4) records post‑intervention scores, (5) validates all data against JSON‑Schema contracts, (6) computes change scores, (7) runs a primary bootstrap analysis (10 000 resamples) with Cohen’s d effect sizes *when normality holds* (or rank‑biserial correlation when it does not), (8) applies Holm‑Bonferroni correction across the four outcome variables, (9) generates a single source‑of‑truth JSON (`results/statistical_summary.json`) **plus a validation step that checks this JSON against `contracts/analysis.schema.yaml`**, and (10) produces visualizations and a deterministic run‑log (`pipeline.log`). All steps run on the free‑tier GitHub Actions CPU runner; no GPU is required.
+
+## Technical Context
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `jsonschema`, `pytest`  
+- **Storage**: CSV/JSON files under `data/` and `results/` on the CI runner’s local filesystem  
+- **Testing**: `pytest` (unit, integration, contract validation)  
+- **Target Platform**: Linux (GitHub Actions free tier) – **CPU‑only**  
+- **Performance Goals**: ≤ 45 min total runtime, ≤ 1 GB RAM, ≤ 200 MB disk usage  
+- **Constraints**: Must run on CPU; all external assets are fetched from the verified URLs listed in the spec (see `research.md`).  
+
+## Constitution Check
+| Principle | Status | Verification Detail |
+|-----------|--------|---------------------|
+| **I. Reproducibility** | PASS | `requirements.txt` pinned; random seeds fixed (`np.random.seed(42)`); deterministic pipeline; checksum manifest generated. |
+| **II. Verified Accuracy** | PASS | OSF task code for SART/Ospan downloaded from verified URLs and checksum‑validated. |
+| **III. Data Hygiene** | PASS | Raw files checksummed (`data/checksums.sha256`); transformations write new files; no PII stored. |
+| **IV. Single Source of Truth** | PASS | All reported statistics drawn from `results/statistical_summary.json`; figures read directly from this file. |
+| **V. Versioning Discipline** | PASS | Artifact hashes recorded in project state YAML; any change triggers version bump. |
+| **VI. Psychometric Validity** | PASS | Scoring functions for SART, Ospan, PSS‑10, PANAS versioned under `code/scoring/` and validated against OSF reference implementations. |
+| **VII. Intervention Fidelity** | PASS | Compliance logic (≤ 30 min social media, no news, notifications off) hard‑coded; self‑report limitation documented in `research.md`. |
+| **VIII. Causal Interpretation** | PASS | Findings presented as **associational** only; no causal language used (see Causal Interpretation Disclaimer below). |
+
+## Causal Interpretation Disclaimer
+The within‑subject pre/post design does **not** include a control group or randomization. Consequently, observed differences between baseline and post‑intervention measurements cannot be interpreted as causal effects of the digital decluttering intervention. All statistical results are presented as **associational** changes over time. The final report will explicitly avoid causal language and will discuss alternative explanations such as practice effects, time‑of‑day influences, and secular trends.
+
+## Data Authenticity Statement
+The analysis pipeline operates exclusively on **real participant data** collected via the study web interface. No simulated or placeholder datasets are used. All raw participant files must be present in `data/raw/` before the pipeline is executed; the pipeline will abort with a validation error if the directory is empty.
+
+## Project Structure
+```text
+specs/001-digital-decluttering-study/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── analysis.schema.yaml
+│   ├── compliance.schema.yaml
+│   └── dataset.schema.yaml
+└── tasks.md   # generated later by /speckit-tasks
+```
+
+```text
+projects/PROJ-249-the-impact-of-digital-decluttering-on-co/
+├── data/
+│   ├── raw/                 # participant uploads (collected during the study)
+│   ├── processed/           # cleaned CSVs, compliance summary
+│   ├── checksums.sha256     # SHA‑256 manifest for all raw files
+│   └── results/
+│       ├── statistical_summary.json
+│       ├── plots/
+│       └── pipeline.log
+├── code/
+│   ├── __init__.py
+│   ├── scoring/             # SART, Ospan, PSS‑10, PANAS scorers
+│   ├── validation/          # schema checks, plausibility checks
+│   ├── analysis/            # bootstrap, effect size, correction
+│   ├── compliance/          # daily‑log aggregation
+│   ├── viz/                 # plot generation
+│   └── pipeline/
+│       └── run_all.py       # orchestrates the full pipeline
+├── tests/
+│   ├── contract/            # jsonschema validation tests
+│   ├── unit/                # scoring logic tests
+│   └── integration/         # end‑to‑end smoke test (runs pipeline on real data)
+├── requirements.txt
+└── README.md
+```
+
+## Complexity Tracking
+All required functionality fits within a standard statistical pipeline and respects the free‑tier CI limits. No deep‑learning models or GPU‑only libraries are needed.
+
+## Phase Breakdown & Requirement Mapping
+
+| Phase | Core Tasks | FR(s) Covered | SC(s) Covered |
+|-------|------------|---------------|---------------|
+| **0 – Environment & Pilot Validation** | • Install dependencies, pin random seeds.<br>• Download & checksum‑validate OSF task code (SART/Ospan).<br>• Run unit tests for scoring functions (FR‑009). | FR‑001, FR‑009 | – |
+| **1 – Participant Recruitment & Baseline Collection** | • Generate pseudonymous IDs (FR‑001).<br>• Administer SART, Ospan, PSS‑10, PANAS via web interface (FR‑002, FR‑003).<br>• Store raw responses under `data/raw/` with timestamps.<br>• Validate raw files against `contracts/dataset.schema.yaml` (III).<br>• **Practice‑effect mitigation**: randomize order of cognitive tasks, record timestamps, and, where possible, use alternate forms of SART/Ospan. | FR‑001‑FR‑003, FR‑009 | – |
+| **2 – Intervention Compliance Logging** | • Provide daily self‑report form (FR‑004).<br>• Validate entries (0 ≤ minutes ≤ 1440) (FR‑010).<br>• Derive daily compliance flag and overall compliance percentage.<br>• **Objective compliance option**: if participants consent, collect device‑based screen‑time data via a lightweight API and store as `objective_screen_time_minutes` (new optional field).<br>• Validate logs against `contracts/compliance.schema.yaml`. | FR‑004, FR‑010, FR‑011 (sensitivity) | – |
+| **3 – Post‑Intervention Data Capture** | • Re‑administer the same four instruments (FR‑002, FR‑003).<br>• Store post‑measurements with `phase = "post"`.<br>• Apply quality flagging (e.g., low SART accuracy) (FR‑009). | FR‑002‑FR‑003, FR‑009 | – |
+| **4 – Data Integration** | • Merge baseline, post, and compliance tables into long‑format CSV (`data/processed/measurement_records.csv`).<br>• Record task order timestamps to enable covariate adjustment for practice effects.<br>• Re‑checksum merged files. | FR‑005, FR‑009 | – |

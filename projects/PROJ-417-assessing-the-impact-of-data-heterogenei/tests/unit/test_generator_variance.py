@@ -77,10 +77,9 @@ def run_variance_test():
         # Extract true_effects from the replicate
         # Assuming replicate is a list of objects/dicts with 'true_effect'
         true_effects = []
-        for s in replicate:
-            if hasattr(s, 'true_effect'):
-                true_effects.append(s.true_effect)
-            elif isinstance(s, dict) and 'true_effect' in s:
+        for s in replicate.studies:
+            # ``s`` is a dict representing a study
+            if isinstance(s, dict) and 'true_effect' in s:
                 true_effects.append(s['true_effect'])
         
         if len(true_effects) > 1:

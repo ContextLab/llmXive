@@ -1,3 +1,51 @@
+T001:
+  c: false
+  h: dcf6a15c3f0895de143355395048db1583324216532d27bc09b4848c8a936e8b
+  r: "The required `code/specs/` subdirectory is missing; all other listed directories\
+    \ exist, but the absence of `code/specs/` means the task\u2019s directory structure\
+    \ is not fully created."
+  sig: ffc81087e3d47047d9db5201412c266884a1a21cfe2d5b276a2c384fc78ddd99
+T002:
+  c: false
+  h: 2b12e5212e9f4272182f913aea170c5a94db8a05693976046ca44d0fbc59e24c
+  r: The `code/` directory does not contain a `.gitignore` file at all, let alone
+    one that lists the required exclusions (`data/raw/*`, `__pycache__`, `*.pyc`,
+    `.env`, `*.pt`). The implementer must add this file with the specified patterns.
+  sig: f9f0a26ef6765ac14d70879fca73e885a865edfdd5cc5ccfbf53735d8eb38328
+T003:
+  c: false
+  h: 825c20a8a70e956525969ec37046400b3296472d268bb8247c458997b041c20f
+  r: "The `code/` directory contains placeholder files such as `.flake8` and `.pre-commit-config.yaml`,\
+    \ but no provided contents show that flake8 and black are actually configured\
+    \ (e.g., rule sets, black line length, pre\u2011commit hooks). Without the configuration\
+    \ details, we cannot confirm the linting/formatting tools are set up as required.\
+    \ Add the actual configuration file contents (or evidence of a successful lint/format\
+    \ run) to satisfy the task."
+  sig: e6c9b0cd285ae2db710a4a47ee1199e4c58ffacd3b9f75e84c7a3593ee7134f6
+T004:
+  c: false
+  h: a5f527fe35e870f4bdbe1c7f7bb450d11d8929ef7ad4210bfe956a59a39b818e
+  r: The `code/requirements.txt` file is present, but it lists the required packages
+    without any version pins (e.g., `torch` instead of `torch==x.y.z`) and also contains
+    extra packages (`datasets`, `pyarrow`, `rdkit`) that were not part of the task.
+    The task explicitly required a requirements file with *pinned* versions for the
+    ten specified libraries.
+  sig: f1b2b066b20ff868ba5fa97b37ea03d6cf1116cc5c6c40381447530976591633
+T005a:
+  c: false
+  h: 691a05ba04649fd8fc8e4ae120effd465ef492a79980b8cf05aafeb98530de78
+  r: "Checked for `code/scripts/setup.sh` (required script) and `code/venv/` (virtual\
+    \ environment directory); both are reported as missing, so the task\u2019s required\
+    \ artifact does not exist."
+  sig: d1105033496b6201cf03182d45c401ebbec27c2ef1eab0d8527f8399ffce9001
+T006:
+  c: true
+  h: 4eb25fa6176c94140edcfdb25c988ee67d148402d04c4a513730019999c27d20
+  r: Checked `code/src/utils/config.py`, which defines a `config` dict with the required
+    defaults (`THRESHOLD_DATA_SCARCITY=120`, `PSI4_BASIS='sto-3g'`, `CUTOFF_RANGE=[3.0,
+    3.5, 4.0]`) and implements loading from a YAML file and overriding via environment
+    variables.
+  sig: 5aa50531966006ad92f594d45593c3f9b8aaa953cf7f163bcd39f2ef7615f489
 T008:
   c: true
   h: 0f885b9486070ef7515ebf0d6baee969bc48c057b3a96ec1452d755beeb79138

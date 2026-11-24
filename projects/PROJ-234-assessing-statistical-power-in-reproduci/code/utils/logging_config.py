@@ -1,63 +1,71 @@
 """
-Logging configuration utilities.
+utils/logging_config.py
+-----------------------
 
-Refactored to ensure consistent logging setup across the project.
+Minimal logging configuration used across the pipeline.
+Provides a ``setup_logging`` function that returns a logger writing
+to a given file (or to ``stderr`` if no path is supplied).  The logger
+is configured with a simple formatter and a ``INFO`` level by default.
 """
+
 import logging
-import os
 from pathlib import Path
+from typing import Optional
 
-# Default log file path relative to project root
-DEFAULT_LOG_FILE = "data/ingest.log"
+_loggers = {}
 
-def setup_logging(log_file: str = None, level: int = logging.INFO) -> logging.Logger:
+def setup_logging(log_path: Optional[str] = None) -> logging.Logger:
     """
-    Configure the root logger with a file handler.
-    
-    Args:
-        log_file: Path to the log file. Defaults to 'data/ingest.log'.
-        level: Logging level. Defaults to INFO.
-        
-    Returns:
-        The configured logger instance.
-    """
-    if log_file is None:
-        log_file = DEFAULT_LOG_FILE
-        
-    log_path = Path(log_file)
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Configure basic logging
-    logging.basicConfig(
-        filename=str(log_path),
-        level=level,
-        format='%(asctime)s %(levelname)s %(name)s %(message)s',
-        force=True  # Force reconfiguration if already configured
-    )
-    
-    # Also log to console for immediate feedback
-    console = logging.StreamHandler()
-    console.setLevel(level)
-    console.setFormatter(logging.Formatter('%(name)s - %(levelname)s - %(message)s'))
-    logging.getLogger('').addHandler(console)
-    
-    return logging.getLogger(__name__)
+    Configure and return a logger.
 
-def test_log_entry(logger: logging.Logger = None) -> bool:
+    Parameters
+    ----------
+    log_path : str or None
+        If provided, a ``FileHandler`` writing to this path is added.
+        The parent directory is created automatically.
+
+    Returns
+    -------
+    logging.Logger
+        A logger named ``'pipeline'`` (singleton per ``log_path``).
     """
-    Emits a test log entry to verify logging is working.
-    
-    Args:
-        logger: Optional logger instance. If None, uses the root logger.
-        
-    Returns:
-        True if the log entry was successfully written.
+    logger_name = "pipeline" if log_path is None else f"pipeline:{log_path}"
+    if logger_name in _loggers:
+        return _loggers[logger_name]
+
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(logging.INFO)
+
+    # Ensure we don't add duplicate handlers if called multiple times
+    if not logger.handlers:
+        formatter = logging.Formatter(
+            "%(asctime)s - %(levelname)s - %(message)s", "%Y-%m-%d %H:%M:%S"
+        )
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        logger.addHandler(stream_handler)
+
+        if log_path:
+            path = Path(log_path)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            file_handler = logging.FileHandler(path, encoding="utf-8")
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
+
+    _loggers[logger_name] = logger
+    return logger
+
+# Optional helper used by some tests
+def test_log_entry(message: str, log_path: str) -> bool:
     """
-    if logger is None:
-        logger = logging.getLogger()
-        
-    logger.info("Logging configuration test entry.")
-    
-    # Verify file exists
-    log_path = Path(DEFAULT_LOG_FILE)
-    return log_path.exists()
+    Write a single log entry to ``log_path`` and verify that the file
+    contains the message. Returns ``True`` on success.
+    """
+    logger = setup_logging(log_path)
+    logger.info(message)
+
+    try:
+        with open(log_path, "r", encoding="utf-8") as f:
+            return message in f.read()
+    except Exception:
+        return False

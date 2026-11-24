@@ -1,0 +1,8 @@
+{
+  "seed": 42,
+  "N_required": 26,
+  "N_final_target": 26,
+  "N_final_actual": 14,
+  "total_raw_rows": 14,
+  "status": "undersampled"
+}

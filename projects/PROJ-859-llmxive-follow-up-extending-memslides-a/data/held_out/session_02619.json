@@ -1,0 +1,105 @@
+{
+  "trace_id": "held_out_43_02619",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "delete_element",
+    "update_layout",
+    "apply_theme",
+    "insert_text",
+    "insert_text",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "insert_image"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 6.2145
+      }
+    },
+    {
+      "step": 1,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 12.5818,
+        "padding": 49.1905
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 36.7328,
+        "saturation": 3.3407
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 23.7649,
+        "y": 84.2821,
+        "length": 87.1257
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 54.9742,
+        "y": 52.8244,
+        "length": 35.989
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 12.3659,
+        "saturation": 58.3379
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 32.7478,
+        "saturation": 64.0726
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 37.2902,
+        "saturation": 66.473
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 99.7156,
+        "y": 26.1014,
+        "width": 27.8505,
+        "height": 48.6295
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.427061,
+    "tool_repetition_freq": 0.444444,
+    "arg_semantic_variance": 680.682826
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 7,
+    "layout_hash": "43-2619-apply_theme"
+  },
+  "variance_multiplier": 1.5
+}

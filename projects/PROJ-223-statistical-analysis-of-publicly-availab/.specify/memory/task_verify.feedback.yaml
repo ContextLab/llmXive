@@ -1,0 +1,99 @@
+T001a:
+  reason: "The evidence shows the `code/` directory and the required filenames exist,\
+    \ but there is no proof that `config.py`, `ingest.py`, `model.py`, `diagnostics.py`,\
+    \ `utils.py`, and `main.py` contain any code (i.e., are non\u2011empty and not\
+    \ just placeholders). Provide the file contents or size information to confirm\
+    \ they are populated."
+  task: bd170be7fca736d4e537ad1521ac081725531e6c982aae286362f8c324cefe44
+T001b:
+  task: 7cc120ff583c90ae199935564b454f774e30a56ad91b93783f4abf62e6e9a774
+T001c:
+  task: fb8bbb525a07edf53f4685129931490c48b417fcd90139c649e4cfb7bfafb383
+T002:
+  task: 87d4db45804dd256549449262301fc4299f7ffc5915fc5eedba4c85ebfbe9d6c
+T003:
+  task: c075037bdf9ef26a6ddc5b265a95f8ef98fcbbbf34e2281b01183e953a436d2d
+T004:
+  task: c078d9ded2ccd1626d4f83165f0555271e96d1ba9d4789c681e884bc33917f75
+T005:
+  reason: "The `code/utils.py` file is present, but the `interpolate_weather` function\
+    \ is a placeholder that always returns static weather values and does not perform\
+    \ any real interpolation of station time\u2011series data as would be required\
+    \ for geo\u2011matching. This means the helper functions are not fully implemented\
+    \ to meet the task\u2019s requirement for functional geo\u2011matching utilities."
+  task: 952ad70e3a90bc515b8d64c3b97c914d616efb15801c89a7291d96f6a20d5143
+T006:
+  task: 4016d889c5edd4a9d528b485a46585366cd7e45e8a5e1a684d8273e7b40281ee
+T007b:
+  task: 90d6d416a298cc06e2c50d9707dacfcf0c44a206b1bc3054d5911d87079464ab
+T008:
+  task: 3979f90319a8b7a3628a8ed25f95d470043127513841b2362080fc6a3d04f73b
+T009:
+  task: 2365702bab658e12e05b3be0176cc3760cbf8d336bb8c260ea1b19dbaec013c3
+T010:
+  reason: The provided `tests/test_ingest.py` exists, but it does not contain an integration
+    test that exercises the FARS/NOAA merge logic using mock URLs or a small sample
+    dataset. It only tests utility functions, schema validation, and placeholder contract
+    validation, never calling `merge_data` (or the download functions) with mocked
+    data. Therefore the required integration test is missing.
+  task: 19699f3096dadcca959f51ae316d1c6134103965f1e5175ceca21b3eb3f64fc1
+T011:
+  task: 423a453f0ee6e4bcf51da318debb277ba7e307696d770f2a4d7363aeafb888da
+T012:
+  task: c11bd395ffd968ad05997e456f30af97245c50d051af060557de709c916f9857
+T012b:
+  task: 52860819e869bb93cf55cdf91e40ee55103d55024d92ae8d2fd36f28dca32ab7
+T013:
+  task: 0ebab204b94710a65272bfeedec52dcad37af4e7e89598edd990dbc71cb9c8e1
+T014:
+  task: 0eb8d55a171a4050675a5896ac635bf816200c4c784fb2302fcf45e5dc76cb3d
+T015:
+  task: b99476d0ac620ca3d495dcbaff534b82390b25241dc0ba95af5dca7a75d7f9ab
+T016:
+  task: 8589acc92cf83f5ad01614e266b1862badc831018be0609c7478666026e3c4d4
+T017:
+  task: e2401fac03bad5c09add8621066a52c8e8be7c600f3c72110d4b8b1cffc1ff76
+T017b:
+  task: b672eb00259edf1410c6b06d73e0dcaf0793fe37a06d835e4885f5f9be3e4361
+T018:
+  task: 02ccdd4aaf28e1b6325111995ef9fde4567d3a99cd615e6a68fb1e2af3c851fa
+T019:
+  task: d1012aff5af24d7cbf8c5ad4108e34986b6bd2eb0186a4cfd0bbc1bb3f0b505f
+T020:
+  task: 788b7d3f294af2157b106cd3a82464045f6737effb71ad577f399d4860c82b4e
+T021:
+  task: d034dd94f9e9935e7475ea26bf1e5e9afe69ef8f3ae22e89aa2cc7a81ffc8f1d
+T022:
+  task: a09167aec7cec5ca47d57881234b04660434796bd4f685870c22d4f0fd11bc8b
+T023:
+  task: dda5fbbdb784a0bc515702560cc2bed924ca25e73069af60b2124b2a0707121d
+T024:
+  task: 0746b5b33e18261e60aa29182aa0dd149b97eba7fc611643680954062ea96b6b
+T024b:
+  task: 3c4fcbba105179d88d5d41db5e1d722da8e184660dfea5f4ba9ca82696d2bf4b
+T025:
+  task: 3f11ac568403707a3a8fc19f08d9aa257ee25ba20468ce9e540cc116d1602308
+T026:
+  task: 00d5219d2702d33e04b05da4b140fadd44928326aeda3b07f00b58b75af4aa96
+T027:
+  task: e9e257285386b97648b6e7689acc5ae190d89f165f90eddeaba102372ab98f64
+T028:
+  task: 8b209e8ae0ce50c8202d13a68fb639a0b8796ceb40c565b3b339ea7edd91f5f9
+T029:
+  task: b965bac381723a32d79839da825a8688c1775c7c03a7139b2884365ed54d22cd
+T030:
+  task: 08a6d83010baa428209e40ac951838ae3c0ec823724f38b79b9a80c6ff545d69
+T031:
+  task: 5467c8b8b5aada6c40797fc4299cf006cb2600be511ee03802cc4f8345c2dcc1
+T032:
+  task: e1a2616a39ba0bd78a6b71efab5ec09461d3cc8786ec835e56d84e16c6e5b2c7
+T033:
+  task: b9e76179df0d43de1df9b9c5290b3a56dbc303cba1b6e7d001d4dd44b6792879
+T034a:
+  task: 5f369d50da6e69a2eb2be840fb0dd2eb63e3af9ca7c692eaa5c7dab08412975e
+T034b:
+  task: 1572c20ff20e005ad48f27a397a556d6cd3dde9f8664f8a4105b95e3b95e9d2d
+T035:
+  task: f4cea1213f443b492cecd6f1d077745b07a4d39ab4dc3ff182e20fbcf4b04153
+T036:
+  task: 40af912b909ccb92729ed8a4ebfc6d12c1fb03735f653ae003e511c993d74070

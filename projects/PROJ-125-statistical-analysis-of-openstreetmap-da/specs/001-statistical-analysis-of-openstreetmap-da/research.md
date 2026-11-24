@@ -2,72 +2,58 @@
 
 ## Summary of Findings
 
-This research phase identifies the data sources, statistical methods, and computational strategies required to implement the specification. The primary challenge was the lack of verified dataset URLs in the provided input block for the required OSM and Satellite data. The plan proceeds by identifying standard, open, and programmatic sources for these data types.
+The study requires (a) **verified per‑city OpenStreetMap extracts** (buildings, land‑use, trees, roads), (b) city boundaries, and (c) **cloud‑screened Landsat LST**. The original OSM URLs cited in the plan were not appropriate extracts; they do not contain the necessary geometry for the ten U.S. cities. A verified source such as the **Geofabrik US PBF file** (`https://download.geofabrik.de/north-america/us-latest.osm.pbf`) provides the required layers and is openly downloadable and programmatically fetchable, satisfying FR‑001 and the Constitution’s reproducibility requirement.
+
+**LST data**: FR‑[identifier] names USGS EarthExplorer, which is interactive‑gated and cannot be fetched unattended. No verified open LST URL exists in the project's verified‑datasets block. Consequently, the pipeline includes a **Phase 0 data‑availability check** that aborts with a `DATA_GAP` error if no LST asset is present. A spec amendment must name a programmatically downloadable LST product (e.g., an AWS Open Data Landsat Collection 2 LST) or authorize a local, checksummed asset.
 
 ## Dataset Strategy
 
-The specification requires OpenStreetMap (OSM) vector data and Satellite Thermal data (MODIS/Landsat). The provided "Verified datasets" block contained no valid sources for these data types (it listed NLP datasets). 
+| Data Type | Required Variables | Source Strategy | Verified URL(s) | Status |
+|---|---|---|---|---|
+| **OSM vectors (per‑city extract)** | Buildings, land‑use, trees, roads | Download verified **Geofabrik US PBF**; filter to city bbox; convert to Parquet/GeoJSON. | Verified open source – Geofabrik (e.g., `https://download.geofabrik.de/north-america/us-latest.osm.pbf`) | ✅ (to be fetched) |
+| **City boundaries** | Polygon, bbox, CRS | Derived from the same verified OSM extract (place polygons). | — (derived from verified OSM source) | ✅ |
+| **Landsat LST** | Summer (JJA) median composite, multi‑year average, Fine spatial resolution. | Must be supplied as a checked‑in GeoTIFF inventory **or** a verified open‑source product (e.g., AWS Landsat Collection 2 LST). No such URL is currently in the verified block. | — | ❌ BLOCKING GAP (requires spec amendment) |
+| **Upper‑bound R² reference (FR‑010)** | Literature ceiling is reported as relatively high. | Citation to Zhou et al. 2020 currently unverified. | — | ⚠️ FLAGGED (requires verified citation) |
 
-**Action**: The implementation will use the following standard, open, and programmatic sources. 
+### Handling the LST gap
 
-| Data Type | Required Variables | Source Strategy | Status |
-| :--- | :--- | :--- | :--- |
-| **OSM Vectors** | Buildings, Land-use, Trees, Roads | **Hugging Face Datasets** (e.g., `osm-geoparquet`). | **Verified** |
-| **Thermal Raster** | Land Surface Temperature (LST) | **NASA EarthData** (MODIS/Landsat). | **Verified** |
-| **City Boundary** | BBox, Name | **Natural Earth** or **GADM** via `geopandas`. | **Verified** |
-
-**Data Availability**: If access to NASA EarthData fails (e.g., due to network issues or authentication problems), the pipeline will **halt execution** rather than attempting to use a fallback or synthetic dataset.
+- `code/ingest_lst.py` implements the full ingestion contract (checksum, CRS, cloud‑mask, JJA median compositing, 5‑year average) **against a supplied LST GeoTIFF inventory**.
+- If no LST asset is available, the pipeline aborts with a documented `DATA_GAP` error listing the missing component.
+- **Required spec amendment**: name a verified, programmatically downloadable Landsat LST product (e.g., an AWS S3 URL) or authorize a local asset. Until this amendment lands, the pipeline cannot proceed beyond Phase 0.
 
 ## Statistical Methodology
 
-### 1. Exploratory Analysis (FR-004)
-- **Correlation Matrix**: Pearson correlation between LST and OSM-derived features (building density, tree cover, road density).
-- **Spatial Autocorrelation**: Moran's I to quantify spatial clustering of LST and residuals.
-- **Method**: `pysal.explore.esda.Moran` and `scipy.stats.pearsonr`.
+| Step | Method | Library | Rigor Elements |
+|------|--------|---------|----------------|
+| Exploratory correlation | Pearson correlation matrix | `scipy.stats` | Reported with N and N_eff |
+| Spatial autocorrelation | Moran’s I, 999 permutations | `libpysal` + `esda` | Per‑variable; feeds N_eff |
+| Effective sample size | **Heuristic** `N_eff = N / (1 + Moran’s I)` (reported as a descriptive lower‑bound; **not** a formal power analysis) | custom utility | Caveat added (see above) |
+| OLS | Linear regression, spatially clustered SE | `statsmodels` + `cov_cluster` | Heteroskedasticity‑robust; degraded‑mode default |
+| SAR | Spatial lag model | `spreg.ML_Lag` | Same CV folds as OLS |
+| GWR | Geographically weighted regression | `mgwr` | AICc bandwidth selection |
+| Spatial 5‑fold CV | k‑means block CV on coordinates | custom (`validation.py`) | Prevents spatial leakage (FR‑006) |
+| Permutation‑FDR | Permutation p‑values **with spatially constrained permutations within the CV blocks**; Benjamini‑Hochberg correction | `statsmodels.stats.multitest` | α = 0.05; `correction_method = "permutation-FDR"` |
+| Bandwidth sweep | GWR 50–500 m step 25, or OLS coefficient‑stability sweep over block sizes in degraded mode; generate R²‑vs‑bandwidth (or block‑size) plot; compute **Unexplained Variance Gap** = 0.68 − Observed_R² (provisional, citation flagged). A negative gap indicates the literature ceiling may be invalid and will be highlighted in the report. | custom | R²‑vs‑bandwidth plot (SC‑004) |
+| Unexplained Variance Gap | **Provisional** `0.68 − Observed_R²` (literature ceiling currently unverified); a negative result flags the ceiling as likely invalid. | custom | FR‑010 flagged as provisional |
 
-### 2. Spatial Regression (FR-005)
-- **OLS**: Baseline linear model. `statsmodels.formula.api.ols`.
-- **SAR (Spatial Autoregressive)**: Accounts for spatial lag. `pysal.model.sar.SLM`.
-- **GWR (Geographically Weighted Regression)**: Local parameter estimation. `mgwr.gwr.GWR`.
-- **Memory Constraint Handling**: If memory > 6GB or N > 500k after sampling, the pipeline will **halt execution** and not produce any results.
+## Compute Feasibility & Download Strategy
 
-### 3. Validation & Correction (FR-006, FR-008)
-- **Spatial Cross-Validation**: Spatial blocking using k-means clustering. Block size will be determined based on the estimated range of spatial autocorrelation (Moran's I).
-- **Multiple Comparison Correction**: Permutation-based FDR with Meff adjustment using a toroidal shift scheme for spatial autocorrelation. `statsmodels.stats.multitest.fdrcorrection`.
+1. **OSM** — download the verified Geofabrik US PBF, filter to each city bbox, write derived GeoJSON/Parquet to `data/raw/osm/` with SHA‑256 checksums and fetch timestamps recorded in `data/raw/manifest.json`.  
+2. **City boundaries** — derived from the same verified OSM extract (place polygons).  
+3. **LST** — see blocking gap above; ingestion contract implemented, execution pending spec amendment.  
+4. **Environmental covariates** — previously mentioned DEM/albedo datasets were removed due to lack of verified sources; the analysis proceeds without them, and the limitation is documented under Principle VII.
 
-### 4. Sensitivity & Proxy Validity (FR-009, FR-010)
-- **Bandwidth Sweep**: Vary GWR bandwidth to assess stability of R².
-- **Unexplained Variance Gap**: Compare observed R² against a literature-derived upper bound of 0.75 as reported by Oke (1982) *The energetic basis of the urban heat island*.
+## Spec‑Root‑Cause Flags
 
-## Compute Feasibility & Strategy
-
-### CPU-First Approach
-- **Target**: GitHub Actions runner (2 CPU, ~7GB RAM).
-- **Strategy**: 
-  - Use `streaming=True` for large datasets if available.
-  - For raster data, process in chunks (tiles) to avoid loading full resolution into memory.
-  - For vector data, use `geopandas` with spatial indexing (R-tree) for efficient joins.
-  - Aggregate OSM features to the MODIS LST data scale to avoid artificial precision.
-
-### GPU Escape Hatch
-- **Not anticipated**: The primary execution is CPU-based.
-
-## Memory Safety & Fallback (FR-005)
-
-- **Monitoring**: `psutil` to track RAM usage.
-- **Threshold**: 6GB.
-- **Action**: If memory exceeds the threshold, the pipeline will halt execution.
-- **Integrity**: The pipeline will not produce any results if it exceeds the memory limit.
-
-## Data Availability & Download Strategy
-
-- **OSM**: Use `osmnx` to download by bbox.
-- **Satellite**: Use `earthengine-api` (primary) or NASA EarthData (secondary).
-- **Fallback**: If both EarthData and Hugging Face fail to provide data, the pipeline will halt execution.
+1. **FR‑002** – Landsat LST source is interactive‑gated; a spec amendment naming an open, programmatically downloadable product (or authorising a local, checksummed asset) is required.  
+2. **FR‑010** – The 0.68 R² ceiling citation is unverified; a verified reference must be added before this metric can be reported as literature‑grounded.  
+3. **OSM source validity** – The previously listed URLs do not provide the required per‑city geometry; a verified extract (Geofabrik) replaces them.
 
 ## References
 
-- **OSM**: `osmnx` documentation.
-- **SAR/GWR**: `pysal` and `mgwr` documentation.
-- **Spatial Stats**: Anselin, L. (1988). *Spatial Econometrics*.
-- **UHI Literature**: Oke, T. R. (1982). *The energetic basis of the urban heat island*.
+- Oke, T. R. (1982). *The energetic basis of the urban heat island*. *Quarterly Journal of the Royal Meteorological Society*, 108(455), 1‑24.  
+- Anselin, L. (1995). *Local Indicators of Spatial Association—LISA*. *Ge geographical Analysis*, 27(2), 93‑115.  
+- Brunsdon, C., & Fotheringham, A. S. (2009). *Geographically Weighted Regression*. Wiley.  
+- Zhou, Y., Li, X., & Wang, J. (2020). Mapping urban heat islands using OpenStreetMap and Landsat imagery. *Remote Sensing of Environment*, 250, 111800. **Citation currently unverified in this project's dataset block**.  
+
+

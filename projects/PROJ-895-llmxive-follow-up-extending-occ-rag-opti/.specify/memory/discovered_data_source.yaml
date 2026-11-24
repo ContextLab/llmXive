@@ -1,35 +1,13 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'from datasets import load_dataset
-
-
-  dataset_dict = load_dataset("hotpotqa/hotpot_qa", "fullwiki")
-
-  total_records = sum(len(split) for split in dataset_dict.values())
-
-  print(f"RECORDS={total_records}")
-
-
-  first_split = next(iter(dataset_dict.values()))
-
-  print("FIELDS=" + ",".join(first_split.column_names))'
-record_count: 105257
-sample_fields:
-- id
-- question
-- answer
-- type
-- level
-- supporting_facts
-- context
-field_coverage: 0.8
-required_fields:
-- id
-- question
-- answer
-- context
-- supporting_facts
-intent: download HotpotQA multi-hop QA dataset from HuggingFace Datasets python package
+status: none
+intent: synthetic multi-hop question answering dataset 50k download python package
   dataset
-cache_key: 09d0e80f0abb1558b28e09d65dff5ffbd02fb1b6946f8b7d4a5d52af195e7657
+required_fields:
+- question_id
+- question
+- context
+- answer
+- supporting_facts
+- hop_count
+cache_key: c7c531941962840972ae5479b5ab3b9e0e34c16c9bc70caa05363122b951592f
+searched_at: '2026-10-13T18:33:44.471900+00:00'
+retry_count: 1

@@ -48,7 +48,7 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Create foundational design artifacts required as inputs for the main implementation phases. **Gate**: This phase must be completed before Phase 1.
 
-- [ ] T008 Create `specs/001-comparative-analysis-of-molecular-fingerprints/data-model.md` defining Compound, Fingerprint, Model, and PerformanceMetric entities with schema. This task is a hard gate for Phase 1 and serves as a prerequisite for T011/T012. **Schema**:
+- [X] T008 Create `specs/001-comparative-analysis-of-molecular-fingerprints/data-model.md` defining Compound, Fingerprint, Model, and PerformanceMetric entities with schema. This task is a hard gate for Phase 1 and serves as a prerequisite for T011/T012. **Schema**:
  - `Compound`: {smiles: str, mol_id: str, toxicity_labels: dict}
  - `Fingerprint`: {type: str (morgan/maccs), bits: int, vector: list}
  - `Model`: {type: str, fingerprint_type: str, endpoint: str, metrics: dict}
@@ -64,13 +64,13 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure. **Gate**: Pre-Phase 0 (T008) must be complete.
 
 - [ ] T001a Create project directory structure: `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`. Execute: `mkdir -p data/raw data/processed code tests`. **Note**: `specs/` is a sibling to `projects/` at the repository root.
-- [ ] T001b Initialize Python project files: `requirements.txt` (pinning rdkit, scikit-learn, pandas, numpy, requests, pytest), `pyproject.toml` (linting config), `README.md`. **Dependency**: T001a.
-- [ ] T002 Initialize Python project files: `requirements.txt` (pinning rdkit, scikit-learn, pandas, numpy, requests, pytest), `pyproject.toml` (linting config), `README.md`
+- [X] T001b Initialize Python project files: `requirements.txt` (pinning rdkit, scikit-learn, pandas, numpy, requests, pytest), `pyproject.toml` (linting config), `README.md`. **Dependency**: T001a.
+- [X] T002 Initialize Python project files: `requirements.txt` (pinning rdkit, scikit-learn, pandas, numpy, requests, pytest), `pyproject.toml` (linting config), `README.md`
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools in `pyproject.toml`
 - [X] T004 [P] Create `data/raw/` and `data/processed/` directories with `.gitkeep`. Verify with: `ls -d data/raw data/processed && test -f data/raw/.gitkeep && test -f data/processed/.gitkeep`.
-- [~] T005 [P] Implement `code/utils.py` with logging configuration, random seed initialization (seed=42), and environment variable loading
-- [~] T006 [US1] Create `code/constants.py` with exact variable definitions: `SMARTS_PATTERN = "[P](=O)([O,SC])[O,SC]"` (str), `TANIMOTO_THRESHOLD = 0.85` (float), `MORGAN_RADIUS = 2` (int), `MORGAN_BITS = 2048` (int), `MACCS_BITS = 166` (int), `N_FOLDS = 5` (int). **MUST**: Ensure `code/filter.py` imports and applies this exact constant from `code/constants.py`; hardcoding the pattern in `code/filter.py` is strictly forbidden. **Dependency**: T005 must complete before T006. T011 and T012 depend on T006 completion.
-- [~] T007 [P] Setup `tests/` directory structure (`unit/`, `integration/`)
+- [X] T005 [P] Implement `code/utils.py` with logging configuration, random seed initialization (seed=42), and environment variable loading
+- [X] T006 [US1] Create `code/constants.py` with exact variable definitions: `SMARTS_PATTERN = "[P](=O)([O,SC])[O,SC]"` (str), `TANIMOTO_THRESHOLD = 0.85` (float), `MORGAN_RADIUS = 2` (int), `MORGAN_BITS = 2048` (int), `MACCS_BITS = 166` (int), `N_FOLDS = 5` (int). **MUST**: Ensure `code/filter.py` imports and applies this exact constant from `code/constants.py`; hardcoding the pattern in `code/filter.py` is strictly forbidden. **Dependency**: T005 must complete before T006. T011 and T012 depend on T006 completion.
+- [X] T007 [P] Setup `tests/` directory structure (`unit/`, `integration/`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,31 +86,31 @@ description: "Task list template for feature implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Unit test in `tests/unit/test_filter.py::test_smarts_filter_returns_empty_on_no_match`. Implement a pytest function that asserts the filtered dataframe is empty when the SMARTS pattern matches no compounds in a mock dataset.
-- [~] T010 [P] [US1] Integration test in `tests/integration/test_download.py::test_download_and_checksum_tox21` to verify dataset download and checksum validation.
+- [X] T009 [P] [US1] Unit test in `tests/unit/test_filter.py::test_smarts_filter_returns_empty_on_no_match`. Implement a pytest function that asserts the filtered dataframe is empty when the SMARTS pattern matches no compounds in a mock dataset.
+- [ ] T010 [P] [US1] Integration test in `tests/integration/test_download.py::test_download_and_checksum_tox21` to verify dataset download and checksum validation.
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/download.py` to fetch Tox dataset from HuggingFace `datasets.load_dataset("deepchem/tox")`, including checksum verification. **Depends on T008 (Data Model) and T006 (Constants)**.
-- [~] T012 [US1] Implement `code/filter.py` to apply SMARTS pattern `[P](=O)([O,SC])[O,SC]` to filter compounds and save to `data/processed/organophosphates_filtered.csv`. **Implementation**:
+- [ ] T011 [US1] Implement `code/download.py` to fetch Tox dataset from HuggingFace `datasets.load_dataset("deepchem/tox")`, including checksum verification. **Depends on T008 (Data Model) and T006 (Constants)**.
+- [X] T012 [US1] Implement `code/filter.py` to apply SMARTS pattern `[P](=O)([O,SC])[O,SC]` to filter compounds and save to `data/processed/organophosphates_filtered.csv`. **Implementation**:
  1. Load raw Tox21 data.
  2. Convert SMILES to RDKit Mol objects.
  3. Apply `Chem.MolFromSmarts(SMARTS_PATTERN)` match.
  4. Filter dataframe to matched rows.
  5. Save to CSV.
  **Depends on T004 (Directory Creation), T008 (Data Model), and T006 (Constants)**.
-- [~] T013a [US1] Implement validation logic in `code/filter.py` to count rows per toxicity endpoint. **CRITICAL**:
+- [X] T013a [US1] Implement validation logic in `code/filter.py` to count rows per toxicity endpoint. **CRITICAL**:
  - **Execution**: Execute the filter.
  - **Verification**:
  - **Failure Path**: If total sample size < 50, verify `data/processed/filter_log.txt` contains the exact string "WARNING: Low Sample Size (n < 50)".
  - **Success Path**: If total sample size >= 50, verify `data/processed/filter_log.txt` contains "status: OK".
  - **Deliverable**: File `data/processed/filter_log.txt` must exist and contain either the warning string or "status: OK". **Depends on T012**.
-- [~] T013b [US1] Implement logic in `code/filter.py` to write `data/processed/sample_size_status.json` with `{"status": "SKIP_STATS"}` if sample size < 50, or `{"status": "OK"}` otherwise. **Implementation**:
+- [X] T013b [US1] Implement logic in `code/filter.py` to write `data/processed/sample_size_status.json` with `{"status": "SKIP_STATS"}` if sample size < 50, or `{"status": "OK"}` otherwise. **Implementation**:
  1. Read sample count from T013a logic.
  2. Construct JSON object.
  3. Write to `data/processed/sample_size_status.json`.
  **CRITICAL**: This file is the trigger for downstream statistical tasks. **Verification**: `cat data/processed/sample_size_status.json` must return valid JSON. **Depends on T013a**.
-- [ ] T014 [US1] Add logging for dataset download size, filter counts, and endpoint distribution to `data/processed/filter_log.txt`. **Implementation**:
+- [~] T014 [US1] Add logging for dataset download size, filter counts, and endpoint distribution to `data/processed/filter_log.txt`. **Implementation**:
  1. Log `download_size_bytes` after T011.
  2. Log `filtered_count` after T012.
  3. Log `endpoint_distribution` (dict of label counts) after T013a.
@@ -158,7 +158,7 @@ description: "Task list template for feature implementation"
 - [~] T018c2 [US2] **K-Fold Verification**: Implement verification logic in `code/split.py`.
  **CRITICAL HARD GATE**: If the algorithm fails to find a valid split for any fold, immediately write `data/processed/kfold_split_error.log` with the specific error reason and **HALT** the K-Fold path.
  **Dependency**: T018c1.
-- [~] T018c3 [US2] **K-Fold Artifacts**: Generate artifacts based on T018c2 status.
+- [ ] T018c3 [US2] **K-Fold Artifacts**: Generate artifacts based on T018c2 status. <!-- FAILED-IN-EXECUTION: code/split.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/split.py exit=1 -->
  **Deliverable**: If VALID, write `data/processed/kfold_split_indices.json` with schema `{"status": "VALID", "folds": [{"fold_id": int, "train_indices": [int], "test_indices": [int]}]}`. If INVALID, write `data/processed/kfold_split_invalid_report.md` and `data/processed/kfold_split_error.log`.
  **CRITICAL**: This task MUST enforce the Tanimoto < 0.85 constraint for *every* fold to satisfy Constitution VII. **Dependency**: T018c2. **Parallel to T018a**.
 - [~] T019 [US2] **K-Fold Training**: Implement `code/train.py` to train Random Forest models (100 trees, max_depth=15) using **K-Fold Cross-Validation** on the **full filtered dataset** for the statistical test (FR-005).

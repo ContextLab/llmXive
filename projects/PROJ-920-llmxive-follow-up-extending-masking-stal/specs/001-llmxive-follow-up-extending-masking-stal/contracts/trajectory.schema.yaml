@@ -15,7 +15,7 @@ properties:
           description: "0-based index of the turn"
         text:
           type: "string"
-          description: "Content of the turn"
+          description: "Content of the same"
         is_critical:
           type: "boolean"
           description: "True if this turn contains critical evidence"
@@ -42,13 +42,13 @@ properties:
     description: "Target entropy per token"
   actual_entropy:
     type: "number"
-    description: "Calculated entropy per token"
+    description: "Calculated entropy per token for the evidence block"
   technical_token_ratio:
     type: "number"
-    description: "Ratio of technical tokens"
+    description: "Ratio of technical tokens to the total count in the evidence block"
   final_density:
     type: "number"
-    description: "Calculated density: 0.6 * entropy + 0.4 * tech_ratio"
+    description: "Calculated density = 0.6 * entropy + 0.4 * tech_ratio"
 required:
   - trajectory_id
   - turns

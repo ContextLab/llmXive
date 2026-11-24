@@ -1,52 +1,67 @@
 # Quickstart: Predicting Plant Root Architecture from Soil Nutrient Availability
 
 ## Prerequisites
--   Python 3.11+
--   `pip` or `conda`
+- Python 3.11 or newer
+- `git` (to clone the repository)
+- Internet access (to download datasets)
 
 ## Installation
 
-1.  **Clone the repository** (or navigate to the project directory).
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-
-## Running the Pipeline
-
-### 1. Data Ingestion & Preprocessing
-Download and clean the data. This step handles missing ISRIC data gracefully.
 ```bash
-python code/ingestion.py
+# 1. Clone the repository
+git clone <repository-url>
+cd plant-root-architecture
+
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3. Install pinned dependencies
+pip install -r code/requirements.txt
+```
+
+## Configuration Template
+
+A `config.yaml.template` file will be generated in `code/` by the scaffolding step (Task T001). Edit this file to set any optional parameters (e.g., logging level, maximum species to process). The pipeline reads `code/config.yaml` at runtime.
+
+## Running the Full Pipeline
+
+```bash
+# Step 1: Ingest datasets (PlantPheno + attempt RootReader & ISRIC; fallback to MergedDataset)
+python code/ingestion.py   # Handles download, verification, and initial merge
+
+# Step 2: Preprocess (filter, log‑transform, z‑score, missing‑data handling, covariate imputation)
 python code/preprocessing.py
-```
-*Output*: `data/processed/merged_dataset.parquet`
 
-### 2. Modeling
-Fit LMM and Random Forest models with species-level stratified validation.
-```bash
+# Step 3: Fit models and evaluate (species‑stratified CV)
 python code/modeling.py
-```
-*Output*: `artifacts/metrics.json`, `artifacts/logs/model_fitting.log`
 
-### 3. Visualization & Reporting
-Generate partial dependence plots and the final report.
-```bash
+# Step 4: Visualize and compile the final report
 python code/visualization.py
 ```
-*Output*: `artifacts/reports/final_report.pdf`, `artifacts/reports/plots/*.png`
 
-### 4. Contract Testing
-Verify data and output schemas.
+### Expected Outputs
+- Clean dataset: `data/processed/merged_dataset.parquet`  
+- Metrics JSON: `artifacts/metrics.json` (contains power analysis, merge success rate, all SC booleans)  
+- Partial dependence PNGs: `artifacts/reports/plots/*.png` (total ≤ 100 MB)  
+- Final PDF report: `artifacts/reports/final_report.pdf` (contains the mandatory associational statement; causal‑language lint passed)  
+- Model results JSON: `artifacts/model_results.json` (validated against `contracts/model_results.schema.yaml`)  
+- Final report JSON: `artifacts/final_report.json` (validated against `contracts/output.schema.yaml`)  
+- Configuration template: `code/config.yaml.template`
+
+## Contract Validation
+
 ```bash
 pytest tests/contract/test_schemas.py
 ```
 
+All tests should pass. Failure indicates a mismatch between generated artifacts and the JSON‑Schema contracts.
+
 ## Troubleshooting
--   **Missing Soil Data**: If the pipeline logs "ISRIC unavailable", it will proceed with root-only data. Check `artifacts/logs/deviation.log` for details.
--   **Memory Error**: If RAM exceeds 7GB, reduce the dataset size by filtering for top 5 species by sample count.
+- **Dataset download failure** – The pipeline will abort and write details to `artifacts/logs/ingestion.log`. Verify that at least one of the verified URLs in the “Dataset Strategy” table is reachable.  
+- **MemoryError** – Reduce the number of species processed by adding `--max-species N` to `preprocessing.py`.  
+- **Schema test failures** – Ensure the three schema files exist under `contracts/` and that column names/types in `merged_dataset.parquet` match the schema (nullability for `phosphorus`/`nitrogen` is allowed).
+
+---
+
+

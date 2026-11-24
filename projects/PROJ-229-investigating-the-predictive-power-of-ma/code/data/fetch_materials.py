@@ -1,173 +1,203 @@
 """
-Fetch Materials Project data with a robust fallback to a verified matbench dataset.
+fetch_materials.py
 
-This script attempts to retrieve a curated set of materials data from the
-Materials Project API using the provided API key (configured in `config.yaml`).
-If the API request fails (e.g., due to network issues, authentication problems,
-or rate‑limiting), the script logs the failure and falls back to loading a
-publicly available matbench dataset. The resulting list of material records is
-written to `data/raw/materials_project_data.json` together with a SHA‑256
-checksum file `data/raw/materials_project_data.sha256`.
+This script streams the Materials Project dataset, filters for entries that
+have both melting point and heat capacity data, computes minimal descriptor
+fields required by `contracts/dataset.schema.yaml` and writes the result
+as a Parquet file.
 
-The script validates that at least 5 000 material records are present; if the
-count is lower, it raises a `RuntimeError` so the pipeline can abort early.
+The implementation uses the modern `mp-api` client (MPRester) and falls back
+to the public `matbench` HuggingFace dataset if the Materials Project API
+is unavailable or the API key is missing.
 """
 
-import json
+import logging
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterable, List
 
-# Import logger functions directly from the concrete module to avoid triggering
-# utils/__init__ (which can cause circular import issues).
-from code.utils.logger import (
-    get_pipeline_logger,
-    log_error,
-    log_info,
-    log_warning,
-)
+import pandas as pd
+from pymatgen.core import Composition
+
 from config import get_api_key
-from utils.checksum import compute_sha256
 
-MIN_ROWS = 5_000  # Minimum number of material entries required
+# ----------------------------------------------------------------------
+# Constants
+# ----------------------------------------------------------------------
+MIN_ROWS = 5_000  # minimum number of records required after filtering
+OUTPUT_PATH = Path("data/raw/pcm.parquet")
 
+# Set up a simple module-level logger
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
-def fetch_materials_project_data() -> List[Dict[str, Any]]:
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _fetch_from_mp_api(api_key: str) -> Iterable[Dict[str, Any]]:
     """
-    Retrieve materials data from the Materials Project API.
-
-    Returns
-    -------
-    List[Dict[str, Any]]
-        A list of dictionaries, each representing a material with selected
-        properties.
+    Query the Materials Project REST API using the modern MPRester.
+    Returns a generator to avoid loading the entire dataset into memory.
     """
-    api_key = get_api_key()
     try:
-        # Import inside the function to avoid import‑time failures if the
-        # dependency is missing; the exception will be caught by the caller.
         from mp_api.client import MPRester
-    except Exception as exc:
-        log_error(f"mp-api package not available: {exc}")
+    except ImportError as exc:
+        logger.error(f"Unable to import mp_api client: {exc}")
         raise
 
     try:
         with MPRester(api_key) as mpr:
-            # Retrieve a concise set of properties useful for downstream
-            # descriptor computation and modeling.
-            docs = mpr.materials.summary.search(
-                criteria={},
-                properties=[
-                    "material_id",
-                    "pretty_formula",
-                    "formation_energy_per_atom",
-                    "band_gap",
-                    "e_above_hull",
-                ],
+            logger.info("Requesting materials from Materials Project via MPRester...")
+            # We search for materials that have experimental thermodynamic data.
+            # Since we need a large set, we query the experimental endpoint.
+            # Note: The experimental API structure can vary; we fetch a broad set.
+            results = mpr.experimental.search(
+                fields=["material_id", "pretty_formula", "melting_point", "heat_capacity"]
             )
-            # `docs` is an iterable of dict‑like objects.
-            data = [dict(doc) for doc in docs]
-            log_info(f"Fetched {len(data)} records from Materials Project.")
-            return data
+            for res in results:
+                # The MPRester returns objects; convert to dict
+                yield res.dict()
     except Exception as exc:
-        log_error(f"Error while querying Materials Project: {exc}")
+        logger.error(f"Materials Project query failed: {exc}")
         raise
 
-
-def fetch_matbench_fallback() -> List[Dict[str, Any]]:
+def _fallback_matbench() -> Iterable[Dict[str, Any]]:
     """
     Load a verified matbench dataset as a fallback source.
-
-    Returns
-    -------
-    List[Dict[str, Any]]
-        A list of dictionaries containing material records from the matbench
-        dataset.
+    Returns an iterator over the records.
     """
     try:
         from datasets import load_dataset
-    except Exception as exc:
-        log_error(f"`datasets` package not available: {exc}")
+    except ImportError as exc:
+        logger.error(f"`datasets` package not available: {exc}")
         raise
 
     try:
-        # The "matbench_expt_gap" subset is a well‑curated benchmark that
-        # includes Materials Project IDs and several physical properties.
-        ds = load_dataset("matbench", "matbench_expt_gap", split="train")
-        data = [dict(row) for row in ds]
-        log_info(f"Loaded {len(data)} records from matbench fallback.")
-        return data
+        # The matbench collection includes a thermal-properties subset.
+        # We load it and yield records.
+        ds = load_dataset(
+            "matbench",
+            "matbench_expt_thermal_properties",
+            split="train",
+        )
+        logger.info(f"Loaded records from matbench fallback.")
+        yield from ds
     except Exception as exc:
-        log_error(f"Failed to load matbench fallback dataset: {exc}")
+        logger.error(f"Failed to load matbench fallback dataset: {exc}")
         raise
 
-
-def _validate_row_count(data: List[Dict[str, Any]]) -> None:
+def _filter_and_enrich(records: Iterable[Dict[str, Any]]) -> pd.DataFrame:
     """
-    Ensure that the fetched data meets the minimum row‑count requirement.
-
-    Parameters
-    ----------
-    data : List[Dict[str, Any]]
-        The material records to validate.
-
-    Raises
-    ------
-    RuntimeError
-        If the number of records is below `MIN_ROWS`.
+    Keep only records that have both melting point and heat capacity,
+    compute `elemental_count` from the formula and reshape the data to
+    match `contracts/dataset.schema.yaml`.
     """
-    row_count = len(data)
-    if row_count < MIN_ROWS:
+    filtered: List[Dict[str, Any]] = []
+    
+    for idx, rec in enumerate(records):
+        # Filter for entries that have both melting point and heat capacity.
+        # We check for various common key names in case of API/dataset differences.
+        mp = rec.get("melting_point") or rec.get("T_m")
+        hc = rec.get("heat_capacity") or rec.get("C_p")
+        
+        if mp is None or hc is None:
+            continue
+
+        formula = rec.get("pretty_formula") or rec.get("formula")
+        if not formula:
+            continue
+
+        try:
+            comp = Composition(formula)
+            elemental_count = len(comp.elements)
+        except Exception:
+            continue
+
+        material_id = rec.get("material_id") or rec.get("mp_id")
+        if not material_id:
+            material_id = f"fallback_{idx}"
+
+        # The schema requires formation_energy and density.
+        # These are often in a separate 'summary' call in MP, but for the
+        # raw fetch, we provide available values or defaults (0.0/NaN).
+        # Later steps in the pipeline (T006) will compute descriptors.
+        enriched = {
+            "material_id": str(material_id),
+            "composition": str(formula),
+            "elemental_count": int(elemental_count),
+            "formation_energy": float(rec.get("formation_energy_per_atom", 0.0)),
+            "density": float(rec.get("density", float("nan"))),
+            "elemental_features": [],
+            "graph_features": [],
+        }
+        filtered.append(enriched)
+
+    if not filtered:
         raise RuntimeError(
-            f"Insufficient material records: {row_count} < required {MIN_ROWS}"
+            "No records with both melting point and heat capacity were found."
         )
-    log_info(f"Validated row count: {row_count} records (≥ {MIN_ROWS}).")
 
+    return pd.DataFrame(filtered)
 
+def _validate_row_count(df: pd.DataFrame) -> None:
+    """
+    Ensure the filtered dataset meets the minimum row-count requirement.
+    """
+    row_count = len(df)
+    if row_count < MIN_ROWS:
+        # In a real research environment, if the intersection is small,
+        # we would report this. For the pipeline, we raise as per verification.
+        raise RuntimeError(
+            f"Insufficient filtered records: {row_count} < required {MIN_ROWS}. "
+            "The intersection of experimental melting point and heat capacity "
+            "is too sparse in the current source."
+        )
+    logger.info(
+        f"Validated filtered dataset size: {row_count} rows (>= {MIN_ROWS})."
+    )
+
+def _write_parquet(df: pd.DataFrame) -> None:
+    """
+    Write the DataFrame to Parquet using `pyarrow`.
+    """
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(OUTPUT_PATH, index=False)
+    logger.info(f"Filtered PCM dataset written to {OUTPUT_PATH}")
+
+# ----------------------------------------------------------------------
+# Main routine
+# ----------------------------------------------------------------------
 def main() -> None:
     """
     Entry point for the script.
-
-    Attempts to fetch data from the Materials Project API; on any exception,
-    falls back to the matbench dataset. The final data is written to
-    `data/raw/materials_project_data.json` together with a SHA‑256 checksum.
     """
-    logger = get_pipeline_logger(__name__)
-
-    output_path = Path("data/raw/materials_project_data.json")
-    checksum_path = output_path.with_suffix(".sha256")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
     try:
-        materials_data = fetch_materials_project_data()
-        log_info("Successfully retrieved Materials Project data.")
-    except Exception:
-        log_warning(
-            "Materials Project fetch failed – falling back to matbench dataset."
+        api_key = get_api_key()
+    except Exception as exc:
+        logger.warning(
+            f"Could not obtain Materials Project API key ({exc}); using fallback dataset."
         )
+        api_key = None
+
+    if api_key:
         try:
-            materials_data = fetch_matbench_fallback()
-        except Exception as fallback_exc:
-            log_error(
-                f"Both primary and fallback data sources failed: {fallback_exc}"
-            )
-            raise
+            raw_records_gen = _fetch_from_mp_api(api_key)
+            logger.info("Successfully initialized fetch from Materials Project.")
+        except Exception as exc:
+            logger.warning(f"Primary MP fetch failed ({exc}); attempting matbench fallback.")
+            raw_records_gen = _fallback_matbench()
+    else:
+        raw_records_gen = _fallback_matbench()
 
-    # Validate that we have enough rows before persisting.
-    _validate_row_count(materials_data)
-
-    # Write the data atomically to avoid partial writes on interruption.
-    temp_path = output_path.with_suffix(".tmp")
-    with open(temp_path, "w", encoding="utf-8") as f:
-        json.dump(materials_data, f, indent=2, ensure_ascii=False)
-    temp_path.replace(output_path)
-
-    # Compute and store a SHA‑256 checksum for downstream integrity checks.
-    checksum = compute_sha256(output_path)
-    checksum_path.write_text(checksum, encoding="utf-8")
-
-    log_info(f"Materials data written to {output_path}")
-    log_info(f"Checksum written to {checksum_path}")
-
+    df = _filter_and_enrich(raw_records_gen)
+    _validate_row_count(df)
+    _write_parquet(df)
 
 if __name__ == "__main__":
     main()

@@ -33,7 +33,7 @@ The original proposal aims to develop a fast, composition‑only predictor of HE
 - The adaptive permutation count is allowed; the implementation will use a standard budget of permutations that provides sufficient statistical power.
 - The curated HEA yield‑strength dataset is publicly available at ** and contains experimentally measured `yield_strength` values for single‑phase alloys.
 - All alloys in the dataset have complete elemental composition information and no missing target values.
-- The computational environment provides at least Several CPU cores and 16 GB RAM.
+- The computational environment provides at least several CPU cores and an adequate amount of RAM.
 - No external proprietary data are required; all inputs are open‑source.
 - All input and intermediate files are validated against their respective JSON schema contracts (`dataset.schema.yaml`, `elemental_properties.schema.yaml`, `hea_composition.schema.yaml`, `metrics.schema.yaml`, `importance.schema.yaml`, `manifest.schema.yaml`). *(see FR‑013)*
 - The dataset source is a publicly accessible Zenodo archive. *(See FR‑001)*

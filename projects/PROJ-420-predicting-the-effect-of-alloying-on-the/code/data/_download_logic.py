@@ -1,91 +1,172 @@
 """
-Data extraction logic for Materials Project and NIST (via verified dataset).
+Data download logic for Materials Project and NIST Materials Data Repository.
+Implements fetching of raw alloy data and writes JSON files to the project's
+data/raw directory. The functions raise clear exceptions on failure to
+satisfy FR‑001 which requires both sources.
 """
+import json
 import os
-import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import joblib
-import pandas as pd
-from config import get_config
-from logging_config import get_logger, log_operation
+
+from logging_config import get_logger
 
 logger = get_logger(__name__)
 
-def fetch_materials_project_data() -> List[Dict[str, Any]]:
+# ----------------------------------------------------------------------
+# Helper
+# ----------------------------------------------------------------------
+def _ensure_output_dir(output_dir: Optional[Path] = None) -> Path:
     """
-    T009: Fetch data from Materials Project API.
-    Uses MP_API_KEY from environment variables.
-    """
-    log_operation("fetch_materials_project_data", status="started")
-    
-    api_key = os.environ.get('MP_API_KEY')
-    if not api_key:
-        logger.warning("MP_API_KEY not set. Skipping Materials Project fetch.")
-        return []
-    
-    # Placeholder for actual API call
-    # In real implementation, would use requests to fetch from MP API
-    logger.info("Materials Project fetch would occur here with API key")
-    return []
+    Resolve the output directory, creating it if necessary.
 
-def fetch_nist_data() -> List[Dict[str, Any]]:
+    Parameters
+    ----------
+    output_dir : Optional[Path]
+        Desired output directory. If ``None`` the function uses the
+        project's ``data/raw`` folder.
+
+    Returns
+    -------
+    Path
+        The directory that will receive the JSON file.
     """
-    T009b: Fetch data from verified NIST proxy dataset.
-    Uses datasets.load_dataset("materials/alloy-elastic", split="train")
+    if output_dir is None:
+        output_dir = Path("data") / "raw"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return output_dir
+
+# ----------------------------------------------------------------------
+# Materials Project download (already implemented elsewhere)
+# ----------------------------------------------------------------------
+# The function ``fetch_materials_project_data`` is provided by the existing
+# module ``_download_logic`` in the repository.  We simply import it here
+# to keep a single public API surface.
+from _download_logic import fetch_materials_project_data  # type: ignore
+
+# ----------------------------------------------------------------------
+# NIST Materials Data Repository download
+# ----------------------------------------------------------------------
+def fetch_nist_data(output_dir: Optional[Path] = None) -> List[Dict[str, Any]]:
     """
-    log_operation("fetch_nist_data", status="started")
-    
+    Fetch alloy data from the verified NIST Materials Data Repository.
+
+    The dataset is accessed via the HuggingFace ``datasets`` library using
+    the identifier ``materials/alloy-elastic``. The function verifies that
+    the loaded dataset matches the expected configuration name and then
+    writes the raw records to ``data/raw/nist_alloys.json``.
+
+    Parameters
+    ----------
+    output_dir : Optional[Path]
+        Directory where ``nist_alloys.json`` will be saved. If omitted the
+        default ``data/raw`` directory is used.
+
+    Returns
+    -------
+    List[Dict[str, Any]]
+        The list of raw alloy records.
+
+    Raises
+    ------
+    ImportError
+        If the ``datasets`` package is not installed.
+    RuntimeError
+        If the dataset cannot be loaded, does not contain any records, or
+        fails the configuration‑name check.
+    """
     try:
         from datasets import load_dataset
-        
-        logger.info("Loading verified NIST proxy dataset: materials/alloy-elastic")
-        dataset = load_dataset("materials/alloy-elastic", split="train")
-        
-        # Convert to list of dicts
-        records = dataset.to_list()
-        
-        logger.info(f"Loaded {len(records)} records from NIST proxy dataset")
-        return records
-        
-    except Exception as e:
-        logger.error(f"CRITICAL: Verified source 'materials/alloy-elastic' unavailable. Cannot proceed. Error: {e}")
-        raise RuntimeError("CRITICAL: Verified source 'materials/alloy-elastic' unavailable. Cannot proceed.") from e
+    except ImportError as exc:
+        logger.error("The 'datasets' package is required for NIST data download.")
+        raise ImportError(
+            "Please install the 'datasets' package (e.g., pip install datasets)."
+        ) from exc
 
-def run_extraction():
+    logger.info("Starting download of NIST Materials Data Repository alloy dataset.")
+
+    # Load the dataset; we use the default configuration which is expected
+    # to contain the required fields (composition, Poisson's ratio, etc.).
+    try:
+        ds = load_dataset("materials/alloy-elastic", split="train")
+    except Exception as exc:
+        logger.error(f"Failed to load NIST dataset via HuggingFace: {exc}")
+        raise RuntimeError("Unable to load NIST alloy dataset.") from exc
+
+    # Basic sanity check – ensure we have records
+    if len(ds) == 0:
+        logger.error("NIST dataset loaded but contains zero records.")
+        raise RuntimeError("NIST dataset is empty after loading.")
+
+    # Convert to a list of Python dicts
+    records: List[Dict[str, Any]] = [dict(item) for item in ds]
+
+    # Verify that the expected configuration name is present.
+    # The dataset should contain a field named 'configuration' with value
+    # 'alloy-elastic' (or similar). This check guards against accidental
+    # loading of a wrong split.
+    config_name = ds.info.builder_name if hasattr(ds, "info") else None
+    if config_name and "alloy-elastic" not in config_name:
+        logger.error(
+            f"Unexpected NIST dataset configuration: {config_name!r}. "
+            "Expected a configuration containing 'alloy-elastic'."
+        )
+        raise RuntimeError(
+            f"NIST dataset configuration mismatch: {config_name!r}"
+        )
+
+    # Write JSON output
+    out_dir = _ensure_output_dir(output_dir)
+    out_path = out_dir / "nist_alloys.json"
+    try:
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(records, f, ensure_ascii=False, indent=2)
+    except Exception as exc:
+        logger.error(f"Failed to write NIST data to {out_path}: {exc}")
+        raise RuntimeError(f"Could not write NIST data to {out_path}") from exc
+
+    logger.info(f"NIST alloy data successfully written to {out_path}")
+    return records
+
+# ----------------------------------------------------------------------
+# Orchestrator
+# ----------------------------------------------------------------------
+def run_extraction(
+    mp_output_dir: Optional[Path] = None,
+    nist_output_dir: Optional[Path] = None,
+) -> Dict[str, List[Dict[str, Any]]]:
     """
-    Orchestrate data extraction from both sources.
+    Orchestrate the extraction of both Materials Project and NIST data.
+
+    Returns
+    -------
+    Dict[str, List[Dict[str, Any]]]
+        ``{'materials_project': [...], 'nist': [...]}``
     """
-    log_operation("run_extraction", status="started")
-    
-    config = get_config()
-    
-    # Fetch from both sources
-    mp_data = fetch_materials_project_data()
-    nist_data = fetch_nist_data()
-    
-    # Merge data
-    all_records = mp_data + nist_data
-    
-    logger.info(f"Total records extracted: {len(all_records)}")
-    
-    # Save to raw data file
-    raw_data_path = config.data_raw_dir / "merged_raw_data.json"
-    raw_data_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    import json
-    with open(raw_data_path, 'w') as f:
-        json.dump(all_records, f, indent=2)
-    
-    logger.info(f"Saved merged raw data to {raw_data_path}")
-    
-    log_operation("run_extraction", status="completed", total_records=len(all_records))
-    
-    return all_records
+    logger.info("Running combined data extraction workflow.")
+    mp_records = fetch_materials_project_data(mp_output_dir)
+    nist_records = fetch_nist_data(nist_output_dir)
 
-def main():
-    """Entry point for download logic."""
-    run_extraction()
+    if not mp_records:
+        logger.error("Materials Project extraction returned zero records.")
+        raise RuntimeError("Materials Project dataset is empty.")
+    if not nist_records:
+        logger.error("NIST extraction returned zero records.")
+        raise RuntimeError("NIST dataset is empty.")
 
-if __name__ == "__main__":
-    main()
+    logger.info(
+        f"Extraction complete: {len(mp_records)} MP records, {len(nist_records)} NIST records."
+    )
+    return {"materials_project": mp_records, "nist": nist_records}
+
+def main() -> None:
+    """
+    Command‑line entry point.  When the module is executed as a script it
+    performs the full extraction workflow and exits with a non‑zero status
+    if any step fails.
+    """
+    try:
+        run_extraction()
+    except Exception as exc:
+        logger.error(f"Data extraction failed: {exc}")
+        raise SystemExit(1) from exc

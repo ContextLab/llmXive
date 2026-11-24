@@ -27,16 +27,25 @@ dev = [
 ]
 
 [tool.ruff]
-# All linting checks disabled to guarantee a zero exit‑code for the CI verification step.
-# This satisfies the task requirement without needing to refactor existing code.
-select = []
+# Enable the default rule set (including E, F, W, C90, etc.).
+# This ensures that linting actually checks the code.
+# Line length is aligned with Black's configuration.
+line-length = 120
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "C90", # mccabe complexity
+    "B",   # bugbear
+    "UP",  # pyupgrade
+    "I",   # import sorting
+]
 
 [tool.black]
-line-length = 88
+line-length = 120
 target-version = ["py311"]
 include = '\\.pyi?$'
-# Exclude all source directories from formatting checks, ensuring `black --check .`
-# returns exit‑code 0 regardless of the actual formatting state of the code.
+# Exclude generated or data directories; keep source code under formatting checks.
 exclude = '''
 /(
     \.git
@@ -50,8 +59,8 @@ exclude = '''
     | dist
     | data/raw
     | data/processed
+    | artifacts
     | state
-    | code
 )/
 '''
 

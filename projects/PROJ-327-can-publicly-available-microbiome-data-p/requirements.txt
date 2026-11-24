@@ -1,0 +1,4 @@
+rpy2>=3.5.1
+# Existing scientific stack (numpy, pandas, scikit-learn, etc.) is already
+# provided by the runner environment; only rpy2 needs to be added for the
+# DADA2 integration.

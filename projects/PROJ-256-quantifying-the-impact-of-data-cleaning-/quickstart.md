@@ -25,3 +25,5 @@ python code/t027_run_comparison.py
 # 7. Produce final figures and summary
 python code/t041_generate_final_report.py
 ```
+
+All random seeds are fixed (`numpy.random.seed(42)`, `random_state=42`), guaranteeing reproducibility (Constitution Principle I).

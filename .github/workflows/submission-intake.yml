@@ -9,8 +9,10 @@ name: Submission Intake
 # echoed into a shell.)
 
 on:
-  schedule:
-    - cron: "0 * * * *"     # hourly, at :00
+  # SCHEDULE PAUSED 2026-11-23: manual dispatch only until reliable performance and
+  # quality are verified. To restore, uncomment the block below.
+  # schedule:
+  #   - cron: "0 * * * *"     # hourly, at :00
   workflow_dispatch: {}       # for the one-time manual exercise + ad-hoc runs
 
 permissions:
@@ -38,6 +40,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
+          LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
         run: python -m llmxive submissions process
       - name: Regenerate web data
         # Submission-intake creates new projects; the website's project lists

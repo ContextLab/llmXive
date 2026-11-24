@@ -1,58 +1,49 @@
-# Python
+# Byte‑compiled / Python cache
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+*.pyo
 
-# Virtual Environments
+# Virtual environment
 venv/
-ENV/
+.venv/
 env/
+.env
 
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
 
-# Data
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Data artefacts (large files)
 data/raw/
 data/processed/
 data/results/
-!data/.gitkeep
+data/**/*.parquet
+data/**/*.nii*
+data/**/*.npz
+data/**/*.npy
 
 # Logs
 logs/
 *.log
 
-# State
-state/
-!state/.gitkeep
-
-# OS
+# OS‑specific files
 .DS_Store
 Thumbs.db
 
-# Pytest
-.pytest_cache/
+# Misc
 .coverage
 htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ruff.toml
+.pylintrc
+.flake8
+.editorconfig
 
-# Jupyter
-.ipynb_checkpoints
+# State directory used by the platform (should not be version‑controlled)
+state/

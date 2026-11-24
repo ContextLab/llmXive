@@ -1,0 +1,113 @@
+{
+  "trace_id": "training_42_04386",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 10,
+  "tool_sequence": [
+    "apply_theme",
+    "resize_element",
+    "format_text",
+    "delete_element",
+    "delete_element",
+    "update_layout",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 68.5373,
+        "saturation": 49.1037
+      }
+    },
+    {
+      "step": 1,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 44.9147,
+        "height": 13.5796
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 96.8913,
+        "x": 74.2076,
+        "y": 80.0151
+      }
+    },
+    {
+      "step": 3,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 70.7407
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 4.4793
+      }
+    },
+    {
+      "step": 5,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 70.1887,
+        "padding": 5.2227
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 84.0973,
+        "y": 75.4979,
+        "length": 75.4418
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 23.2726,
+        "y": 26.1411,
+        "length": 94.7956
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 87.2795,
+        "y": 29.9169,
+        "length": 71.9368
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 57.6987,
+        "y": 86.3854,
+        "length": 73.2048
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.609438,
+    "tool_repetition_freq": 0.4,
+    "arg_semantic_variance": 793.949878
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 6,
+    "layout_hash": "42-4386-insert_text"
+  }
+}

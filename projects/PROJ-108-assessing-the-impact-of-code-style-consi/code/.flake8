@@ -1,6 +1,18 @@
 [flake8]
+# Maximum line length for flake8 (consistent with black)
 max-line-length = 88
-extend-ignore = E203, E266, W503
-exclude = .git,__pycache__,venv,build,dist
-per-file-ignores =
-    */__init__.py:F401
+# Exclude common directories and files
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .venv,
+    .tox,
+    migrations,
+    data,
+    tests
+# Enable specific checks
+select = C,E,F,W,B,B950
+# Ignore warnings that conflict with black formatting
+ignore = E203, E266, E501, W503

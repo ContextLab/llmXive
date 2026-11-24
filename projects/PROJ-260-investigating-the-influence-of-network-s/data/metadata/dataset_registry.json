@@ -1,11 +1,11 @@
 {
-  "1000": [
-    "amorphous_si_N1000_zenodo_12345"
+  "N1000": [
+    "thalysalencar"
   ],
-  "2000": [
-    "amorphous_si_N2000_zenodo_67890"
+  "N2000": [
+    "alencar021"
   ],
-  "4000": [
-    "amorphous_si_N4000_zenodo_11223"
+  "N4000": [
+    "thalysalencar"
   ]
 }

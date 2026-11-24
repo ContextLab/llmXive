@@ -1,0 +1,8 @@
+# Project dependencies (pinned versions where appropriate)
+numpy
+scipy
+matplotlib
+pandas
+numba
+# The following are already provided by the platform and need not be listed:
+# pytest, jsonschema, requests, PyYAML, etc.

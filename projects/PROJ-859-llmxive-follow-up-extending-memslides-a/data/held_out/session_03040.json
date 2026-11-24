@@ -1,0 +1,106 @@
+{
+  "trace_id": "held_out_43_03040",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "format_text",
+    "insert_text",
+    "resize_element",
+    "resize_element",
+    "insert_text",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 0.8832,
+        "height": 1.7073
+      }
+    },
+    {
+      "step": 1,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 46.7381,
+        "height": 96.9038
+      }
+    },
+    {
+      "step": 2,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 52.811,
+        "height": 42.6767
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 65.6775,
+        "x": 40.5273,
+        "y": 74.662
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 95.6285,
+        "y": 47.7684,
+        "length": 3.4329
+      }
+    },
+    {
+      "step": 5,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 2.0202,
+        "height": 79.3445
+      }
+    },
+    {
+      "step": 6,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 10.0963,
+        "height": 52.5188
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 9.5155,
+        "y": 74.3908,
+        "length": 25.4181
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 94.5333,
+        "x": 6.1393,
+        "y": 43.8495
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.995027,
+    "tool_repetition_freq": 0.666667,
+    "arg_semantic_variance": 1043.619525
+  },
+  "final_state": {
+    "dominant_tool": "resize_element",
+    "slide_element_count": 6,
+    "layout_hash": "43-3040-resize_element"
+  },
+  "variance_multiplier": 1.5
+}

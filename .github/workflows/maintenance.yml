@@ -14,8 +14,10 @@ name: Pipeline — Maintenance (intake + generation)
 # GitHub API, never echoed into a shell.
 
 on:
-  schedule:
-    - cron: '5 * * * *'   # hourly, at :05
+  # SCHEDULE PAUSED 2026-11-23: manual dispatch only until reliable performance and
+  # quality are verified. To restore, uncomment the block below.
+  # schedule:
+  #   - cron: '5 * * * *'   # hourly, at :05
   workflow_dispatch: {}
 
 permissions:
@@ -33,6 +35,9 @@ jobs:
     timeout-minutes: 50
     env:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
+      LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
       LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
       LLMXIVE_RUN_WALL_BUDGET_S: "2400"
       # Guarded paid fallback (claude-haiku) for when ALL free models flap;
@@ -40,7 +45,9 @@ jobs:
       LLMXIVE_PAID_OPT_IN: "1"
       LLMXIVE_PAID_BUDGET_FRACTION: "0.9"
       # Paid escalation ladder (after the free tiers) for the execution/convergence fix-loop.
-      LLMXIVE_EXECUTION_PAID_TIERS: "anthropic.claude-haiku-4-5-20251001,anthropic.claude-sonnet-4-6,anthropic.claude-opus-4-6"
+      # Boolean (spec 026): enables the single paid rung; the selector, not a
+      # model-id list, picks the paid model from the capability policy.
+      LLMXIVE_EXECUTION_PAID_ESCALATION: "1"
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
     steps:
@@ -82,6 +89,14 @@ jobs:
         # / `new-paper` issues (the hourly submissions step above then routes
         # them). Throttled by the same intake allowance. Non-fatal on failure.
         run: python -m llmxive hf-papers submit-top --limit 5 || echo "[maintenance] hf-papers intake skipped/failed (non-fatal)"
+
+      - name: Sweep credit-reservation ledger
+        # Reconcile the strict-CAS credit-reservation ledger (spec 026 / FR-016):
+        # conservatively settle abandoned in-flight reservations, discard prior-epoch
+        # ones at the daily reset, and reconcile the current settling batch against
+        # fresh provider spend. Pushes only refs/llmxive/credit-ledger (contents:
+        # write). Inert with the paid opt-in off / an empty ledger; non-fatal.
+        run: python -m llmxive credits-ledger-sweep || echo "[maintenance] credit-ledger sweep skipped/failed (non-fatal)"
 
       - name: Regenerate web data
         run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"

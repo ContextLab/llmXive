@@ -1,1 +1,1 @@
-"""PROJ-206 source package: election poll aggregation analysis."""
+# Core source package for the statistical analysis of election poll aggregates.

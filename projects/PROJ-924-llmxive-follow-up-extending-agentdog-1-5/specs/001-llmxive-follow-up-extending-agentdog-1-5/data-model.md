@@ -1,127 +1,64 @@
-# Data Model: Zero-Shot Drift Detection
+# Data Model: Centroid‑Based Drift Detection
 
 ## Overview
-This document defines the data structures, schemas, and transformation logic for the AgentDoG 1.5 drift detection pipeline.
+Definitions of all entities, their JSON‑Schema contracts, and the transformation pipeline that turns raw logs into drift scores, human annotations, and final metrics. Added fields for confound control (log length, source) and clarified the drift‑score record.
 
-## Entities
+## Entities & Schemas
 
-### 1. Log Entry
-The raw input from the safety taxonomy dataset.
-- `log_id`: Unique identifier for the log.
-- `content`: Text content of the log.
-- `label`: Ground truth category (Safety, Privacy, Bias, Jailbreak) or `null` if unlabeled.
-
-### 2. Centroid
-The aggregate embedding for a safety category.
-- `category`: String (e.g., "Safety").
-- `embedding`: List of floats (dimensions for MiniLM).
-- `n_samples`: Integer count of logs used.
-
-### 3. Drift Score
-The output of the drift detection phase.
-- `log_id`: Reference to Log Entry.
-- `drift_score`: Cosine distance to the nearest centroid (0.0 = identical, 2.0 = maximally different).
-- `nearest_centroid`: String (Category name).
-- `review_flag`: Boolean indicating if the score exceeds the threshold.
-
-### 4. Human Annotation
-The validation data ingested from human reviewers.
-- `log_id`: Reference to Log Entry.
-- `annotator_id`: String.
-- `is_novel`: Boolean (1 = novel/harmful, 0 = benign).
-- `confidence`: Float (0-1).
-- **Novelty Definition**: `is_novel=1` is assigned ONLY if the annotator confirms the pattern is **outside the scope** of the 4 safety categories (Safety, Privacy, Bias, Jailbreak).
-
-## Schemas
-
-### Input Schema (Dataset)
-```yaml
-type: object
-properties:
-  log_id:
-    type: string
-  content:
-    type: string
-  label:
-    type: ["string", "null"]
-required:
-  - log_id
-  - content
-```
-
-### Output Schema (Drift Score)
-```yaml
-type: object
-properties:
-  log_id:
-    type: string
-  drift_score:
-    type: number
-    minimum: 0.0
-    maximum: 2.0
-  nearest_centroid:
-    type: string
-    enum: ["Safety", "Privacy", "Bias", "Jailbreak"]
-  review_flag:
-    type: boolean
-required:
-  - log_id
-  - drift_score
-  - nearest_centroid
-  - review_flag
-```
-
-### Validation Schema (Human Annotation)
-```yaml
-type: object
-properties:
-  log_id:
-    type: string
-  annotator_id:
-    type: string
-  is_novel:
-    type: integer
-    enum: [0, 1]
-  confidence:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-required:
-  - log_id
-  - annotator_id
-  - is_novel
-```
+| Entity | Schema File | Key Fields |
+|--------|-------------|------------|
+| **LogEntry** | `contracts/agent_log.schema.yaml` | `log_id`, `text`, `source`, `timestamp`, `label`, **`log_length`** |
+| **TaxonomyCentroid** | `contracts/taxonomy_centroid.schema.yaml` | `category`, `description`, `embedding` (384‑dim), `n_samples` ≥ 100, `source_version` |
+| **DriftScoreRecord** | `contracts/drift_output.schema.yaml` | `log_id`, `drift_score` ∈ [0, 2], `nearest_centroid`, `review_flag`, **`log_length`**, **`source`** |
+| **HumanAnnotation** | `contracts/human_annotation.schema.yaml` | `log_id`, `annotator_id`, `label` ∈ {“novel attack”, “known attack”, “benign”} |
+| **MetricsBundle** (JSON) | N/A (generated) | `kappa_mean`, `mannwhitney_p`, `rank_biserial`, `logistic_coef_p`, `auc_drift`, `auc_flant5`, `latency_ratio`, `chi2_p`, `resource_usage`, `holm_adjusted_pvalues` |
 
 ## Transformation Logic
 
-1. **Centroid Generation**:
-   - Group logs by `label`.
-   - Generate embeddings for each group.
-   - Compute mean vector for each group.
-   - Store as `Centroid`.
+1. **Load & Scrub** (`FR‑004`, `FR‑014`)  
+   - Load `agentdog/safety-v1` via HF loader.  
+   - Fetch ≥ 500 post‑2025 GitHub issue logs via the public API, store in `data/raw/novel_corpus.jsonl`.  
+   - Apply deterministic PII scrubbing; compute SHA‑256 checksums recorded in `data/raw/checksums.json`.  
 
-2. **Drift Scoring**:
-   - For each `log_id`, generate embedding.
-   - Compute cosine distance to all 4 centroids.
-   - Select minimum distance as `drift_score`.
-   - Set `review_flag` if `drift_score > threshold`.
-   - **Novelty Logic**: A log is considered "Novel" (for validation) if `drift_score` is high (far from ALL centroids) AND the human annotator confirms it is outside the 4 categories.
+2. **Centroid Generation** (`FR‑003`, `FR‑004`)  
+   - Group labeled logs by category, embed with MiniLM (batch = 64).  
+   - Compute L2‑normalized mean vector → centroid; store in `data/processed/centroids.json` (validated against `taxonomy_centroid.schema.yaml`).  
 
-3. **Stratification**:
-   - Sort logs by `drift_score`.
- - Select **top [deferred]** (High Drift) and **bottom [deferred]** (Low Drift) for human annotation.
-   - Create `annotation_batch` for human review.
-   - **Rationale**: The 10% threshold captures the extreme tails of the distribution where novelty is most likely to be found, balancing sensitivity and specificity.
+3. **Drift Scoring** (`FR‑001`, `FR‑002`)  
+   - Embed every log (both safety‑v1 and novel corpus).  
+   - Compute cosine distance to each centroid; keep minimum as `drift_score`.  
+   - Set `review_flag = drift_score >= DRIFT_THRESHOLD` (calibrated, default 0.5).  
+   - Record **`log_length`** (character count) and **`source`** for confound analysis.  
+   - Persist as Parquet `data/processed/drift_scores.parquet` (validated against `drift_output.schema.yaml`).  
 
-4. **Validation Metrics**:
-   - **Cohen's Kappa**: Compute between `is_novel` (Human) and `review_flag` (System).
-   - **Mann-Whitney U**: Compare `drift_score` distribution between `is_novel=1` (Human-Labeled Novel) and `is_novel=0` (Human-Labeled Benign).
-   - **Logistic Regression**: Estimate odds ratio of `is_novel=1` given `drift_score`.
+4. **Stratification & Sampling** (`FR‑005`, `FR‑017`)  
+   - Determine high‑drift (top quantile) and low‑drift (bottom quantile) bins **while controlling for log length and source** (quantiles resolved at runtime).  
+   - Seeded random sample of ≥ 100 logs uniformly across the full drift distribution; write IDs to `data/processed/full_range_sample.json`.  
+
+5. **Blinded Annotation Batches** (`FR‑006`)  
+   - For each sampled log, create JSONL files containing `log_id`, `text`, `log_length`, and `source` (no scores or bin labels).  
+   - Store under `data/processed/annotation_batches/`.  
+
+6. **Gold‑Standard Construction & Validation** (`FR‑007‑009`, `FR‑015`, `FR‑017`)  
+   - Ingest external `data/human_annotations.json`.  
+   - Verify exactly three distinct `annotator_id`s per `log_id`.  
+   - Compute majority‑vote binary “novel” label.  
+   - Run: mean pairwise Cohen’s κ, Mann‑Whitney U (with rank‑biserial), logistic regression `novel ~ drift_score + log_length + source`, chi‑squared test, Holm correction.  
+   - Store all results in `data/processed/metrics.json`.  
+
+7. **Baseline Comparison** (`FR‑010‑011`, `FR‑016`)  
+   - Run zero‑shot `google/flan‑t5‑small` on the same annotated set.  
+   - Compute AUC‑ROC; enforce baseline AUC ≥ 0.70.  
+   - Measure per‑log latency for both methods; compute ratio.  
+   - Perform **DeLong’s test** for paired AUCs; append baseline metrics to `metrics.json`.  
+
+8. **Final Report Generation** (`FR‑013`, `FR‑012`)  
+   - `code/report.py` reads `metrics.json`, creates `data/processed/report.md` with tables, ROC curves, latency plots.  
+   - Records peak RAM and wall‑clock time; asserts ≤ 7 GB and ≤ 6 h.  
+   - If human annotations missing or κ < 0.6, the script writes `status: Incomplete` and exits non‑zero (Principle VI).  
 
 ## Constraints
-
-- **Batch Size**: 64 (Fixed).
-- **Random Seed**: 42.
-- **Max RAM**: 7GB (Streaming enforced).
-- **Threshold**: `review_flag` threshold is a parameter, not a hardcoded constant, to allow tuning.
-- **Novelty Definition**: `is_novel=1` requires explicit human confirmation of "outside scope".
+- `RANDOM_SEED = 42`; `BATCH_SIZE = 64`; `MAX_RAM_GB = 7`; `DRIFT_THRESHOLD = 0.5`.  
+- Raw data immutable; all transformations produce new files under `data/processed/`.  
+- No PII in committed data; any PII detected triggers scrubbing and re‑checksum.  
+- Human annotations are external; the pipeline never fabricates them.

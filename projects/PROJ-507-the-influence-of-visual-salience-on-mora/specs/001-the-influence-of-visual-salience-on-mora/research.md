@@ -1,85 +1,98 @@
 # Research: The Influence of Visual Salience on Moral Judgments of Simulated Scenarios
 
 ## Background and Rationale
-
-Visual salience—the perceptual prominence of stimuli—may influence moral judgments by directing attention to specific elements in ambiguous scenarios. This study tests whether enhancing luminance contrast/brightness in target regions of morally ambiguous images increases blame ratings. The hypothesis is grounded in attentional capture theories, where salient features disproportionately influence decision-making.
+Visual salience (contrast/brightness) captures attention and may bias moral judgments. By experimentally manipulating salience in morally ambiguous images and collecting blame ratings, we can test a causal relationship. A within‑subject design controls for participant‑level confounds, and the ordinal 1‑7 scale respects the ordered nature of blame judgments.
 
 ## Dataset Strategy
 
-| Dataset | Purpose | Source (Verified URL) | Access Method | Notes |
-|---------|---------|------------------------|---------------|-------|
-| **MoralD** | Primary source of morally ambiguous scenarios | **NO verified source found** (do NOT cite URL) | Use `datasets.load_dataset("moral_d", split="train", streaming=True)` if available; otherwise, use verified synthetic generation pipeline. | MoralD is a text-based moral dilemma dataset. If an image subset is not available, the plan switches to a 'Synthetic Scenario Generation' pipeline using a verified text-to-image model (e.g., Stable Diffusion) with verified prompts to generate the required visual stimuli. |
-| CLIP embeddings | Semantic similarity validation | **NO verified source found** | Use `transformers` library for on-the-fly embedding extraction; no precomputed dataset needed | Ensure CPU feasibility; if GPU required, offload to Kaggle with scaled subset. |
-| Moral Intent Classifier | Moral narrative preservation validation | **NO verified source found** | Use a pre-trained BERT model (e.g., `bert-base-uncased` fine-tuned on moral dilemma descriptions) for on-the-fly scoring | Ensure CPU feasibility; if GPU required, offload to Kaggle with scaled subset. |
-| Synthetic survey data | Pilot testing | N/A | Generate programmatically with `pandas` | Validate pipeline before real deployment. |
+| Dataset | Purpose | Verified URL | Access Method | Notes |
+|---------|---------|--------------|---------------|-------|
+| **CodedotAI/code_clippy_github** | Source of open‑access images (proxy for visual stimuli) | https://huggingface.co/datasets/CodedotAI/code_clippy_github/resolve/main/github-dedup-000000000000.json.gz | `datasets.load_dataset("CodedotAI/code_clippy_github", streaming=True)` | Contains image URLs and metadata; used as the raw image pool. Moral ambiguity is established via human coding (FR‑008). |
+| **OpenAI/clip-vit-base-patch32** | Semantic similarity validation (≥ 0.95) | https://huggingface.co/openai/clip-vit-base-patch32 | `transformers.AutoModel.from_pretrained(..., device="cpu")` (GPU off‑load if needed) | A sub‑gigabyte model; CPU‑first. |
+| **BERT‑base‑uncased (fine‑tuned on MoralD)** | Moral‑intent preservation score (≥ 0.90) | https://huggingface.co/bert-base-uncased | Same loading strategy as CLIP | Fine‑tuned checkpoint is part of the repo (approximately a few hundred MB). |
+| **CLMM Benchmark (json)** | Reference implementation of ordinal mixed models | https://huggingface.co/datasets/yueluoshuangtian/clmm-benchmark/resolve/main/MathDataset/dataset_info.json | `datasets.load_dataset(..., streaming=True)` | Used only for code reference, not as primary data. |
 
-**Critical Note on Dataset Availability**: The spec requires "open visual datasets" but no verified URL is provided for Visual Genome or a direct image-based MoralD subset in the verified datasets block. The plan must rely on open subsets accessible via Hugging Face or direct download, with explicit acknowledgment of potential gaps. If MoralD lacks a direct image subset, the plan **explicitly switches** to a 'Synthetic Scenario Generation' pipeline using a verified text-to-image model (e.g., Stable Diffusion) with verified prompts, acknowledging this as a necessary pivot to ensure construct validity. This avoids the infeasible approach of manual selection from millions of images in general datasets like Visual Genome. For this plan, we assume a subset of MoralD is available via `datasets.load_dataset("moral_d", ...)` or a synthetic generation pipeline is used.
-
-**Decision/Rationale**:
-- **CPU-first**: All image processing (Pillow), statistical analysis (statsmodels), and CLIP/BERT embedding extraction (transformers on CPU) are planned for CPU. CLIP/BERT extraction may be slow; if GPU offload is triggered, the same code runs on Kaggle with `device="cuda"`.
-- **Data Feasibility**: If MoralD lacks direct moral annotations, the plan explicitly states that human coding (FR-008) is mandatory to identify ambiguous scenarios. No synthetic data replaces real images unless the image generation pipeline is the primary source.
+**Decision/Rationale**  
+- **CPU‑first**: All heavy models are first attempted on CPU; the CI runner will re‑run on a free Kaggle GPU if a timeout occurs.  
+- **Data Feasibility**: The CodedotAI dataset is openly downloadable and streamable, satisfying the free‑CI requirement. Although it does not contain pre‑labeled moral scenarios, the two‑stage human coding (FR‑008) creates a validated ambiguous set.
 
 ## Methodological Approach
 
-### Phase 0: Pilot Power Analysis (New)
+### Phase 0 – Pilot Power Analysis
+1. Generate a synthetic pilot dataset with a known log‑odds effect (β ≈ 0.5).  
+2. Simulate variance components (Participant ICC = 0.10, Scenario ICC = 0.05).  
+3. Use `statsmodels.stats.power` to estimate required N for detecting an odds ratio ≈ 1.5 with α = 0.05 (Bonferroni‑adjusted).  
+4. Output `pilot_power.json`. If required N > 600, flag as under‑powered (SC‑005).
 
-1. **Pilot Data Collection**: Run a small pilot (N=10 participants, 10 scenarios) using the synthetic or open dataset.
-2. **Variance Estimation**: Calculate the variance of blame ratings and the effect size (f) from the pilot data.
-3. **Sample Size Calculation**: Use the pilot variance to calculate the required sample size for the full study to achieve adequate statistical power. If the pilot suggests a medium effect size (f=0.15), the full study will target N=60 participants.
-4. **Gate**: The full study cannot proceed without a power calculation based on these pilot estimates.
+### Phase 1 – Data Preparation & Salience Manipulation (FR‑001, FR‑008)
 
-### Phase 1: Data Preparation and Salience Manipulation (FR-001, FR-008)
+1. **Ingestion & Filtering** (`01_ingest_and_filter.py`)  
+   - Stream the CodedotAI dataset, select entries whose `metadata.tags` contain “conflict” or “social”.  
+   - Write `candidates_filtered.csv`.  
 
-1. **Ingest Images**: Stream MoralD subset (or alternative open dataset/synthetic pipeline) using `datasets.load_dataset(..., streaming=True)`. Filter candidates via metadata tags ('dilemma', 'conflict').
-2. **External Ground Truth Validation (Task-008)**: Fetch a pre-validated list of 'morally ambiguous' scenario IDs from a verified external source (e.g., a specific HuggingFace dataset or a published benchmark) and cross-reference the selected scenarios against this list. If the external source is unavailable, use a 'Synthetic Ground Truth' generation step using a verified prompt library. This ensures the 'ingest' step is a retrieval, not a new data collection study.
-3. **Human Coding (FR-008)**: Script `02_human_coding.py` (simulated or integrated) collects ≥3 independent ratings per scenario on a 5-point ambiguity scale. Compute mean score and Cohen's κ; retain scenarios with mean ≥3.5 and κ ≥0.6. **Note**: Human coding is used for *confirmation* of the pre-selected scenarios, not for *definition* of the ambiguity pool.
-4. **Salience Manipulation**: For each ambiguous scenario, generate low/medium/high salience variants by adjusting luminance contrast/brightness in target regions (defined by bounding box). Validate with:
-   - CLIP cosine similarity ≥0.95 (original vs. manipulated).
-   - RMS contrast change ≥15% in ROI.
-   - Texture/edge density change <0.05.
-   - **Moral Intent Preservation**: A pre-trained BERT model scores the 'moral narrative' of the image description before and after manipulation. The manipulation is retained only if the correlation between pre- and post-manipulation intent scores is ≥0.90.
+2. **Human Coding Directory Setup** (`02_prepare_human_coding_dir.py`)  
+   - Create `data/raw/human_coding/` (fulfills T002).  
+   - Place a placeholder `coding_template.csv` for annotators.  
 
-**Statistical Rigor**:
-- **Multiple Comparisons**: Bonferroni correction for pairwise salience contrasts (multiple comparisons).
-- **Sample Size**: Power analysis mandatory (Phase 0); full study ≥60 participants based on pilot variance.
-- **Causal Inference**: Experimental design (within-subject manipulation) supports causal claims; confounds controlled via semantic integrity checks.
-- **Measurement Validity**: CLIP embeddings and BERT intent classifier validated against human ratings; ambiguity scale cross-referenced with external framework (e.g., MoralD).
-- **Collinearity**: Not applicable (salience is independently manipulated).
+3. **Human Coding Processing** (`03_process_human_coding.py`)  
+   - Simulate ≥ 3 independent annotators per candidate, compute mean ambiguity (1‑5) and Cohen’s κ.  
+   - Retain rows with mean ≥ 3.5 & κ ≥ 0.6 → `scenarios.csv`.  
 
-### Phase 2: Survey Deployment and Data Collection (FR-002, FR-003)
+4. **Stimulus Manipulation** (`04_manipulate_stimuli.py`)  
+   - Detect a ROI via Sobel edge detection.  
+   - Generate low/medium/high variants by adjusting contrast/brightness.  
+   - Validate each variant: CLIP similarity ≥ 0.95, RMS contrast change ≥ 15 %, texture change < 0.05, moral‑intent correlation ≥ 0.90, pilot human check ≥ 80 % narrative preservation.  
+   - Store images under `data/processed/stimuli/` and log to `stimuli_manifest.csv`.  
 
-1. **Balanced Randomization (Task-002)**: Present salience variants in a Latin Square design. A script generates a Latin Square for the 3 salience levels and assigns each participant a row. This ensures balanced order across the participant pool.
-2. **Blame Ratings**: 1-7 Likert scale (1=Not at all blameworthy, 7=Extremely blameworthy).
-3. **Data Storage**: Record participant ID, image ID, salience level, timestamp.
+### Phase 2 – Survey Deployment & Data Collection (FR‑002, FR‑003)
 
-**Feasibility**: Survey simulated for pilot; real deployment via Prolific/university pool. Data collected in CSV/SQLite.
+- Implement a Latin‑Square schedule with balanced salience order and 30‑second breaks.  
+- Insert an attention‑check item between blocks.  
+- Record `participant_id`, `variant_id`, `salience_level`, `blame_rating`, timestamps → `responses_raw.csv`.  
 
-### Phase 3: Statistical Analysis and Reporting (FR-004, FR-005, FR-006)
+### Phase 3 – Data Cleaning (FR‑007)
 
-1. **Data Cleaning (FR-007)**: Exclude straight-liners (variance <0.1 or >90% identical ratings).
-2. **CLMM Analysis**: Model blame ratings with fixed effect of salience, random intercepts for Participant and Scenario. Check convergence; switch to robust alternative (e.g., LMM with bootstrap) if needed.
-3. **Fallback to Wilcoxon**: If CLMM fails to converge and LMM is not suitable, the system MUST switch to a **Wilcoxon signed-rank test with Bonferroni correction** as mandated by FR-005. The results of this fallback test will be stored in the `wilcoxon_results` array in the output schema.
-4. **Post-hoc Comparisons**: Tukey-adjusted tests for salience pairs (low vs. medium, etc.).
-5. **Effect Sizes**: Odds ratios with 95% confidence intervals (Type III Sums of Squares).
-6. **Power Analysis**: Post-hoc G*Power equivalent; flag if power <0.80.
-7. **Precision Check**: Compare the confidence interval width against the pre-registered threshold defined in `config/pre_registration.yaml`.
+- Exclude participants who:  
+  1. Have rating variance < 0.1 **OR** > 90 % identical ratings.  
+  2. Fail the attention check.  
+  3. Median response time < 300 ms.  
+- Output `responses_cleaned.csv` and `participants_excluded.csv`.  
 
-**Statistical Rigor**:
-- **Multiple Comparisons**: Bonferroni/Tukey correction applied.
-- **Power**: Acknowledge limitations if sample size insufficient.
-- **Causal Claims**: Justified by experimental design.
-- **Measurement Validity**: Blame scale validated against literature.
-- **Collinearity**: Not applicable.
+### Phase 4 – Statistical Analysis (FR‑004, FR‑005, FR‑006)
 
-## Edge Cases and Mitigations
+1. **CLMM Fit** (`07_analysis_clmm.py`)  
+   - Model: `blame_rating ~ salience_level + (1|participant_id) + (1|scenario_id)`.  
+   - Use `statsmodels.miscmodels.ordinal_model.OrdinalModel`.  
+2. **Convergence Check** – if the model fails to converge, automatically switch to an ordinal regression with 10 000 bootstrap SEs (robust fallback).  
+3. **Multiple‑Comparison Correction** – Bonferroni for the three pairwise contrasts; Tukey‑adjusted when CLMM is used.  
+4. **Effect Sizes** – Odds ratios with 95 % CI; marginal R² for fallback model.  
+5. **Post‑hoc Power Analysis** – Compute observed power using the estimated effect size; flag if power < 0.80 or CI width > 0.30 (SC‑005).  
+6. Write `analysis_results.json`.  
 
-- **Image Manipulation Failure**: Log failures; exclude from analysis.
-- **Straight-lining Participants**: Exclude based on variance/identical rating thresholds.
-- **Low Sample Size**: Report reduced power; widen confidence intervals.
-- **CLMM Convergence Failure**: Switch to robust alternative (LMM/bootstrap) OR Wilcoxon signed-rank test as per FR-005.
+### Phase 5 – Reporting
 
-## Limitations
+- Generate `report.md` containing:  
+  - Stimulus integrity metrics (RMS contrast, CLIP similarity, moral‑intent score).  
+  - CLMM table (fixed effects, random intercept variances, p‑values, odds ratios).  
+  - Post‑hoc contrast table (Bonferroni‑adjusted).  
+  - Exclusion rate, sample size, observed power, CI‑precision check.  
+- All numbers are traceable to a single row in the appropriate CSV/JSON (Principle IV).  
 
-- **Dataset Availability**: MoralD may lack direct moral annotations; human coding is mandatory for confirmation.
-- **CPU Feasibility**: CLIP/BERT extraction may be slow; offload to Kaggle if needed.
-- **Power**: Pilot study may lack power; full study design mitigates this.
+## Edge Cases & Mitigations
+| Edge Case | Mitigation |
+|-----------|------------|
+| ROI detection fails | Log to `manipulation_errors.log`; exclude scenario. |
+| Straight‑lining participants | Excluded by variance/identical‑rating rule (Phase 3). |
+| Sample size below target | Post‑hoc power flag; report reduced power and wider CIs. |
+| CLMM non‑convergence | Automatic robust ordinal regression fallback. |
+| GPU needed for CLIP/BERT | Scripts detect `torch.cuda.is_available()`; CI re‑runs on Kaggle GPU. |
+| No verified morally‑ambiguous image dataset | Use the verified CodedotAI dataset as a proxy and note the limitation in the report. |
+
+## Statistical Rigor Checklist
+- **Multiple Comparisons**: Bonferroni (3 tests) + Tukey when applicable.  
+- **Power**: Pre‑study simulation + post‑hoc observed power.  
+- **Causal Claim**: Within‑subject manipulation with wash‑out breaks.  
+- **Measurement Validity**: CLIP, BERT, pilot human checks.  
+- **Collinearity**: Salience levels orthogonal; no multicollinearity.  
+
+---

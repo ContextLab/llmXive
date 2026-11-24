@@ -1,14 +1,11 @@
 status: none
-intent: download Visual Genome image dataset with python package
+intent: CodedotAI Visual Genome CLIP BERT MoralD CLMM python package dataset
 required_fields:
 - image_id
 - image_url
-- width
-- height
-- objects
-- relationships
-- region_descriptions
-- image_filename
-cache_key: a1323771aa52e4ba1d46387d65cb9a8a312423944d3f730a2dcb8b5621855780
-searched_at: '2026-08-16T01:41:56.415636+00:00'
+- bounding_boxes
+- region_label
+- moral_ambiguity_label
+cache_key: b5edfc60a4456809fd2951c2786747898359d2249bee55460d13a6f03bc73b50
+searched_at: '2026-11-05T21:16:06.035768+00:00'
 retry_count: 1

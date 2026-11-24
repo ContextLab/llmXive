@@ -1,55 +1,85 @@
 """
-I/O utilities: checksumming and parquet loading/saving.
+Utility module for I/O operations with optional Parquet support.
+Provides functions to save and load Parquet files with a fallback
+to ``fastparquet`` when ``pyarrow`` is unavailable, as well as
+SHA‑256 checksum utilities.
 """
 import hashlib
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict
 
 import pandas as pd
 
 # ----------------------------------------------------------------------
-# MD5 checksum helpers (retained for backward compatibility)
+# Parquet I/O helpers
 # ----------------------------------------------------------------------
-def compute_md5(file_path: Path) -> str:
-    """Compute MD5 checksum of a file."""
-    hash_md5 = hashlib.md5()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
+def _get_parquet_engine() -> str:
+    """
+    Determine which Parquet engine is available.
 
+    Returns:
+        str: ``'pyarrow'`` if importable, otherwise ``'fastparquet'``.
 
-def verify_md5(file_path: Path, expected_md5: str) -> bool:
-    """Verify file checksum using MD5."""
-    return compute_md5(file_path) == expected_md5
+    Raises:
+        ImportError: If neither engine is available.
+    """
+    try:
+        import pyarrow  # noqa: F401
+        return "pyarrow"
+    except Exception:
+        try:
+            import fastparquet  # noqa: F401
+            return "fastparquet"
+        except Exception as e:
+            raise ImportError(
+                "Neither 'pyarrow' nor 'fastparquet' is installed; "
+                "install one to enable Parquet I/O."
+            ) from e
+
+def save_parquet(df: pd.DataFrame, path: str | Path) -> None:
+    """
+    Save a DataFrame to a Parquet file using the available engine.
+
+    Args:
+        df: DataFrame to write.
+        path: Destination file path.
+    """
+    engine = _get_parquet_engine()
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(path, engine=engine, index=False)
+
+def load_parquet(path: str | Path) -> pd.DataFrame:
+    """
+    Load a Parquet file into a DataFrame using the available engine.
+
+    Args:
+        path: Path to the Parquet file.
+
+    Returns:
+        DataFrame read from the file.
+    """
+    engine = _get_parquet_engine()
+    return pd.read_parquet(path, engine=engine)
 
 # ----------------------------------------------------------------------
-# SHA-256 checksum helpers (required by the specification)
+# Checksum helpers
 # ----------------------------------------------------------------------
-def compute_sha256(file_path: Path) -> str:
-    """Compute SHA‑256 checksum of a file."""
+def sha256_checksum(file_path: str | Path) -> str:
+    """
+    Compute the SHA‑256 checksum of a file.
+
+    Args:
+        file_path: Path to the file.
+
+    Returns:
+        Hexadecimal SHA‑256 digest string.
+    """
+    file_path = Path(file_path)
     hash_sha256 = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
             hash_sha256.update(chunk)
     return hash_sha256.hexdigest()
 
-
-def verify_sha256(file_path: Path, expected_sha256: str) -> bool:
-    """Verify file checksum using SHA‑256."""
-    return compute_sha256(file_path) == expected_sha256
-
-# ----------------------------------------------------------------------
-# Parquet I/O helpers
-# ----------------------------------------------------------------------
-def load_parquet(file_path: Path) -> pd.DataFrame:
-    """Load a parquet file into a DataFrame."""
-    # pandas will select an appropriate engine (pyarrow, fastparquet, etc.).
-    return pd.read_parquet(file_path)
-
-
-def save_parquet(df: pd.DataFrame, file_path: Path) -> None:
-    """Save a DataFrame to a parquet file."""
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-    # Use pandas' built‑in to_parquet; let pandas pick the engine.
-    df.to_parquet(file_path, index=False)
+# Backwards‑compatible alias used by older code
+compute_md5 = sha256_checksum

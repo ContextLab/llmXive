@@ -44,7 +44,7 @@ git push origin feature/description
 
 - **Unit Tests**: Test individual functions in `tests/unit/`
 - **Integration Tests**: Test component interactions in `tests/integration/`
-- **Contract Tests**: Verify API contracts in `tests/contract/`
+- **Validation Tests**: Verify analysis/data contracts in `tests/validation/`
 - **Test Coverage**: Aim for >80% code coverage
 
 ## Documentation Standards
@@ -52,7 +52,7 @@ git push origin feature/description
 - Update `docs/` when adding new features
 - Include examples in docstrings
 - Keep `README.md` and `quickstart.md` up to date
-- Document breaking changes in `CHANGELOG.md`
+- Document breaking changes in `docs/CHANGELOG.md`
 
 ## Ethics Compliance
 
@@ -71,7 +71,7 @@ git push origin feature/description
 ## Release Process
 
 1. Version bump in `code/config.py`
-2. Update `CHANGELOG.md`
+2. Update `docs/CHANGELOG.md`
 3. Create git tag
 4. Publish to package repository (if applicable)
 

@@ -1,13 +1,16 @@
 status: none
-intent: Polymer Gas Permeability Database SMILES permeability coefficients PubChem
-  python package dataset
+intent: Polymer membrane permeability experimental dataset NIST polymer permeability
+  database Open Permeability Database python package dataset
 required_fields:
-- SMILES
+- polymer_name
+- polymer_smiles
+- repeat_unit
+- temperature_K
+- pressure_bar
+- gas_species
 - permeability_coefficient
-- polymer_type
-- temperature
-- pressure
-- units
-cache_key: 6e8d5285b917862c9b08ab4712e64ba182238def41259b63fa71f4714997add4
-searched_at: '2026-08-26T18:31:20.899565+00:00'
+- permeability_units
+- measurement_method
+cache_key: 8b1d9348a44145407ba36b8c7625dabe67f762fa8e3e49492f42922f92a108fe
+searched_at: '2026-10-26T09:53:22.463288+00:00'
 retry_count: 1

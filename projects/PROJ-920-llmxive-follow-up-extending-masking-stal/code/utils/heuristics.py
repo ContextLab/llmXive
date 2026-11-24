@@ -1,114 +1,84 @@
 """
-Heuristics module for calculating composite semantic density.
+Utility functions for computing semantic density metrics.
 
-Implements FR-008:
-- Defines the technical token list.
-- Calculates Shannon Entropy (delegated to entropy.py).
-- Calculates Technical Token Ratio.
-- Computes the composite density formula: 0.6 * Shannon_Entropy + 0.4 * Technical_Token_Ratio.
+This module provides:
+  - calculate_technical_token_ratio: proportion of tokens that are technical terms.
+  - calculate_composite_density: weighted combination of entropy per token and technical token ratio.
+
+The composite density follows the formula defined in FR‑008:
+    density = 0.6 * entropy_per_token + 0.4 * technical_token_ratio
+The result is clamped to the interval [0.0, 1.0] to keep downstream values bounded.
 """
 
 import re
 from typing import List, Set
 
-# Import the entropy calculation utility from the sibling module
-from .entropy import calculate_shannon_entropy
+from .entropy import entropy_per_token
 
-# FR-008: Define the technical token list
-# Common programming keywords, punctuation, and structural tokens often found in code
-# or technical search queries that indicate "technical" density.
-TECHNICAL_TOKENS: Set[str] = {
-    "def", "class", "import", "from", "return", "if", "else", "elif", "for", "while",
-    "try", "except", "finally", "with", "as", "lambda", "yield", "pass", "break",
-    "continue", "and", "or", "not", "in", "is", "None", "True", "False",
-    "print", "len", "range", "str", "int", "float", "list", "dict", "set",
-    "json", "load", "dump", "open", "read", "write", "close",
-    "http", "api", "url", "req", "res", "status", "code",
-    "arg", "args", "kwargs", "self", "cls",
-    "module", "package", "function", "variable", "constant",
-    "config", "settings", "env", "path", "dir", "file",
-    "error", "exception", "warning", "debug", "info", "critical",
-    "sql", "db", "query", "table", "column", "row", "index",
-    "css", "html", "div", "span", "class", "id", "style",
-    "git", "commit", "push", "pull", "branch", "merge", "rebase",
-    "docker", "container", "image", "volume", "network",
-    "aws", "azure", "gcp", "cloud", "server", "client",
-    "async", "await", "awaitable", "coroutine", "task", "future",
-    "thread", "process", "lock", "queue", "semaphore",
-    "regex", "match", "search", "sub", "findall", "compile",
-    "pandas", "numpy", "scipy", "sklearn", "torch", "tensorflow",
-    "model", "train", "test", "eval", "predict", "fit", "transform",
-    "batch", "epoch", "step", "lr", "optimizer", "loss", "accuracy",
-    "token", "embedding", "attention", "layer", "head", "dim",
-    "mask", "stale", "horizon", "density", "entropy", "heuristic"
-}
 
-# Pattern to split text into tokens (alphanumeric sequences)
-TOKENIZER_PATTERN = re.compile(r"\w+")
-
-def calculate_technical_token_ratio(text: str) -> float:
+def calculate_technical_token_ratio(text: str, terms: Set[str] = None) -> float:
     """
-    Calculate the ratio of technical tokens to total tokens in the text.
+    Calculate the proportion of tokens in *text* that appear in the supplied
+    technical term set.
 
-    Args:
-        text (str): The input text to analyze.
+    Tokens are obtained by a simple whitespace split; punctuation is retained
+    as part of the token. Matching is case‑insensitive.
 
-    Returns:
-        float: The ratio of technical tokens (0.0 to 1.0).
-               Returns 0.0 if the text contains no tokens.
+    Parameters
+    ----------
+    text: str
+        The input text to analyse.
+    terms: Set[str] | None
+        A set of technical terms. If ``None`` an empty set is used,
+        yielding a ratio of 0.0.
+
+    Returns
+    -------
+    float
+        Ratio in the range [0.0, 1.0].
     """
     if not text:
         return 0.0
-
-    # Extract tokens using regex
-    tokens = TOKENIZER_PATTERN.findall(text.lower())
-
+    if terms is None:
+        terms = set()
+    # Normalise both token and term to lower case for case‑insensitive matching
+    tokens = re.findall(r"\S+", text)
     if not tokens:
         return 0.0
+    tech_tokens = sum(1 for tok in tokens if tok.lower() in {t.lower() for t in terms})
+    return tech_tokens / len(tokens)
 
-    # Count how many tokens are in the technical list
-    technical_count = sum(1 for token in tokens if token in TECHNICAL_TOKENS)
 
-    return technical_count / len(tokens)
-
-def calculate_composite_density(text: str) -> float:
+def _clamp_density(value: float) -> float:
     """
-    Calculate the composite semantic density based on FR-008.
-
-    Formula: 0.6 * Shannon_Entropy + 0.4 * Technical_Token_Ratio
-
-    Args:
-        text (str): The input text to analyze.
-
-    Returns:
-        float: The composite density score.
-               Returns 0.0 if the text is empty or results in zero entropy and zero ratio.
+    Clamp a density value to the closed interval [0.0, 1.0].
     """
-    if not text:
-        return 0.0
+    return max(0.0, min(1.0, value))
 
-    # Calculate Shannon Entropy (delegated to entropy.py)
-    # The entropy function handles UTF-8 byte-level tokenization internally
-    shannon_entropy = calculate_shannon_entropy(text)
 
-    # Calculate Technical Token Ratio
-    technical_ratio = calculate_technical_token_ratio(text)
+def calculate_composite_density(text: str, terms: List[str]) -> float:
+    """
+    Compute the composite semantic density for *text*.
 
-    # Composite formula: 0.6 * Entropy + 0.4 * Ratio
-    # Note: Entropy is in bits. Ratio is 0-1.
-    # Depending on the magnitude of entropy, this might need scaling if entropy is very large.
-    # However, per FR-008, we apply the formula directly.
-    # If entropy is typically > 1, the 0.6 weight might dominate.
-    # Assuming standard text entropy (bits per byte) is usually between 1 and 6.
-    # To keep the scale balanced (0-1), we might need to normalize entropy,
-    # but the spec says "0.6 * Shannon_Entropy".
-    # If the resulting value exceeds 1.0, we clamp it to 1.0 as a reasonable heuristic bound.
-    
-    density = 0.6 * shannon_entropy + 0.4 * technical_ratio
+    Formula (FR‑008):
+        density = 0.6 * entropy_per_token + 0.4 * technical_token_ratio
 
-    # Clamp to [0, 1] to ensure a normalized probability-like score
-    # unless the spec implies raw bits + ratio. Given "ratio" is 0-1,
-    # and entropy can be >1, clamping ensures the "density" metric stays bounded.
-    # If the spec intends raw weighted sum, remove this clamp.
-    # Assuming a normalized density metric is desired for the simulation logic (US2).
-    return min(max(density, 0.0), 1.0)
+    Parameters
+    ----------
+    text: str
+        The text block whose density is to be measured.
+    terms: List[str]
+        List of technical terms. Converted to a ``set`` for fast lookup.
+
+    Returns
+    -------
+    float
+        Composite density, guaranteed to lie in [0.0, 1.0].
+    """
+    if not isinstance(text, str):
+        raise TypeError("text must be a string")
+    term_set = set(terms or [])
+    ent = entropy_per_token(text)
+    tech_ratio = calculate_technical_token_ratio(text, term_set)
+    density = 0.6 * ent + 0.4 * tech_ratio
+    return _clamp_density(density)

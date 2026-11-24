@@ -6,22 +6,20 @@ import logging
 
 from config import get_config, setup_logging
 
+
 def run_command(cmd: list, cwd: Path = None) -> tuple:
     """
     Run a shell command and return (return_code, stdout, stderr).
     """
     try:
         result = subprocess.run(
-            cmd,
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            check=False
+            cmd, cwd=cwd, capture_output=True, text=True, check=False
         )
         return result.returncode, result.stdout, result.stderr
     except FileNotFoundError as e:
         logging.error(f"Command not found: {cmd[0]}")
         return 127, "", str(e)
+
 
 def main():
     config = get_config()
@@ -66,6 +64,7 @@ def main():
     else:
         logger.info("All linting checks passed successfully.")
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

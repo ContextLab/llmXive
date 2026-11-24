@@ -1,3 +1,3 @@
 """
-Metrics package for llmXive follow-up project.
+metrics package initialization.
 """

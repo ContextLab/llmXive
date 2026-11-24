@@ -63,7 +63,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-14T09:42:45Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
@@ -123,7 +123,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-14T09:43:56Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
@@ -409,7 +409,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-14T19:55:57Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 0
@@ -428,7 +428,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-14T19:57:16Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
@@ -535,7 +535,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-14T22:16:47Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
@@ -1453,7 +1453,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-15T00:03:26Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
@@ -3785,7 +3785,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-08T22:28:54Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
@@ -4090,7 +4090,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-08T22:44:29Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
@@ -4197,3 +4197,168 @@
   source_type: external
   status: verified
   updated_at: '2026-09-08T22:57:46Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/sample_size_justification.md
+  attempts: 1
+  canonical: "10-15 datasets give ~80% power to detect a medium effect (Cohen's d\u2248\
+    0.5) in effect\u2011size changes due to data cleaning"
+  claim_id: c_15a162c7
+  context: "Based on the meta\u2011analysis by Smith et\u202Fal., 2020 (\u201CThe\
+    \ Effect of Data\u2011Cleaning on Statistical Inference: A Systematic Review of\
+    \ 12 Empirical Studies\u201D), the authors demonstrated that using 10\u201315\
+    \ datasets provides approximately 80\u202F% power to detect a medium effect (Cohen\u2019\
+    s\u202Fd\u202F\u2248\u202F0.5) in changes to effect\u2011size estimates caused\
+    \ by typical cleaning operations."
+  evidence:
+    asserted: '2020.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Based on the meta\u2011analysis by Smith et\u202Fal., 2020 (\u201CThe\
+    \ Effect of Data\u2011Cleaning on Statistical Inference: A Systematic Review of\
+    \ 12 Empirical Studies\u201D), the authors demonstrated that using 10\u201315\
+    \ datasets provides approximately 80\u202F% power to detect a medium effect (Cohen\u2019\
+    s\u202Fd\u202F\u2248\u202F0.5) in changes to effect\u2011size estimates caused\
+    \ by typical cleaning operations."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-19T07:41:07Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/sample_size_justification.md
+  attempts: 1
+  canonical: selected 10-15 public datasets
+  claim_id: c_41d85cb5
+  context: "We selected 10\u201315 public datasets for this study based on the meta\u2011\
+    analysis of 42 prior investigations of data\u2011cleaning impact."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "We selected 10\u201315 public datasets for this study"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T07:44:29Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/sample_size_justification.md
+  attempts: 1
+  canonical: meta-analysis of 42 prior investigations
+  claim_id: c_1d1239a4
+  context: "We selected 10\u201315 public datasets for this study based on the meta\u2011\
+    analysis of 42 prior investigations of data\u2011cleaning impact (Kumar et al.,\
+    \ 2022; Lee & Miller, 2021)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "meta\u2011analysis of 42 prior investigations of data\u2011cleaning impact"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T07:45:02Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/sample_size_justification.md
+  attempts: 1
+  canonical: "\u224812 datasets sufficient to detect systematic shifts with power\
+    \ \u22650.80 for medium effect size"
+  claim_id: c_1013d496
+  context: "Those studies reported that a sample of \u224812 datasets was sufficient\
+    \ to detect systematic shifts in effect\u2011size estimates with statistical power\u202F\
+    \u2265\u202F0.80 for medium\u2011sized effects (Cohen\u2019s\u202Fd\u202F\u2248\
+    \u202F0.5)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "a sample of \u224812 datasets was sufficient to detect systematic shifts\
+    \ in effect\u2011size estimates with statistical power\u202F\u2265\u202F0.80 for\
+    \ medium\u2011sized effects (Cohen\u2019s\u202Fd\u202F\u2248\u202F0.5)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T07:45:34Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/sample_size_justification.md
+  attempts: 1
+  canonical: opted for 15 datasets
+  claim_id: c_d42f5cee
+  context: To provide a modest safety margin ... we opted for the upper bound of this
+    range (15 datasets).
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: we opted for the upper bound of this range (15 datasets)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T07:45:35Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/sample_size_justification.md
+  attempts: 1
+  canonical: 12 datasets sufficient to detect medium effect with 80% power
+  claim_id: c_72f2696c
+  context: "The paragraph discusses dataset selection and cites a meta\u2011analysis\
+    \ that examined 38 experiments across 12 datasets."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A recent meta\u2011analysis of data\u2011cleaning studies (Smith\u202F\
+    et\u202Fal.,\u202F2022) examined 38 experiments across 12 publicly available datasets\
+    \ and found that 12 datasets were sufficient to detect a medium\u2011sized effect\
+    \ (Cohen\u2019s\u202Fd\u202F\u2248\u202F0.5) with \u2265\u202F80\u202F% power\
+    \ when outcomes varied in size (n\u202F<\u202F50, 50\u2011200,\u202F>\u202F200)\
+    \ and missingness (none, MCAR, MAR, MNAR)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T07:49:34Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/sample_size_justification.md
+  attempts: 1
+  canonical: "meta\u2011analysis examined effect of preprocessing steps across 48\
+    \ datasets"
+  claim_id: c_57451068
+  context: "The meta\u2011analysis examined the effect of common preprocessing steps\
+    \ on statistical inference across 48 publicly available datasets."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A recent meta\u2011analysis of data\u2011cleaning studies (Smith\u202F\
+    et\u202Fal., 2020, *Journal of Data Science*) examined the effect of common preprocessing\
+    \ steps on statistical inference across 48 publicly available datasets."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-11-04T12:23:00Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/sample_size_justification.md
+  attempts: 1
+  canonical: "12-14 datasets yield \u226580% power to detect medium effect (Cohen's\
+    \ d\u22480.5)"
+  claim_id: c_952064a2
+  context: "Power simulations showed that a collection of 12\u202F\u2013\u202F14 datasets,\
+    \ stratified by size and missingness, yields \u2265\u202F80\u202F% power to detect\
+    \ a medium effect (Cohen\u2019s\u202Fd\u202F\u2248\u202F0.5) in effect\u2011size\
+    \ changes."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Their power simulations showed that a collection of 12\u202F\u2013\u202F\
+    14 datasets, stratified by size (<\u202F50, 50\u2011200, >\u202F200 samples) and\
+    \ missingness (none, MCAR, MAR, MNAR), yields \u2265\u202F80\u202F% power to detect\
+    \ a medium effect (Cohen\u2019s\u202Fd\u202F\u2248\u202F0.5) in effect\u2011size\
+    \ changes."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-11-04T12:23:41Z'

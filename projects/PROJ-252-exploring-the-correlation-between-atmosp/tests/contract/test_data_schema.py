@@ -58,10 +58,10 @@ def load_schema(schema_name: str) -> dict:
     """Load a YAML schema from the contracts directory."""
     contracts_path = project_root / "contracts"
     schema_file = contracts_path / f"{schema_name}.yaml"
-    
+
     if not schema_file.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_file}")
-    
+
     with open(schema_file, 'r') as f:
         return yaml.safe_load(f)
 
@@ -72,11 +72,11 @@ def validate_record_against_schema(record: dict, schema: dict, schema_name: str)
     """
     required_fields = schema.get("required", [])
     missing_fields = [field for field in required_fields if field not in record]
-    
+
     if missing_fields:
         logger.warning(f"Validation failed for {schema_name}: Missing fields {missing_fields}")
         return False
-    
+
     return True
 
 class TestDataSchemaValidation:
@@ -136,18 +136,18 @@ class TestDataSchemaValidation:
         """Verify that schema required fields match the specification."""
         earthquake_schema = load_schema("earthquake")
         pressure_schema = load_schema("pressure-anomaly")
-        
+
         earthquake_required = set(earthquake_schema.get("required", []))
         expected_earthquake = set(REQUIRED_EARTHQUAKE_FIELDS)
-        
+
         pressure_required = set(pressure_schema.get("required", []))
         expected_pressure = set(REQUIRED_PRESSURE_FIELDS)
-        
+
         assert expected_earthquake.issubset(earthquake_required), \
             f"Earthquake schema missing required fields: {expected_earthquake - earthquake_required}"
         assert expected_pressure.issubset(pressure_required), \
             f"Pressure schema missing required fields: {expected_pressure - pressure_required}"
-        
+
         logger.info("Schema required fields match specification")
 
 if __name__ == "__main__":

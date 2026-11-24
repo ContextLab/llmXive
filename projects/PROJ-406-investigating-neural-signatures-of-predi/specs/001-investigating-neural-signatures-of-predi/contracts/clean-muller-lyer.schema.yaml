@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Clean Müller‑Lyer Dataset Schema"
+description: "Validated training dataset after removal of rows with missing critical fields."
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Participant identifier."
+  trial_id:
+    type: string
+    description: "Unique trial identifier."
+  stimulus_length:
+    type: number
+    description: "Physical length of the Müller‑Lyer stimulus."
+  response_length:
+    type: number
+    description: "Participant’s perceived length response."
+  stimulus_parameters:
+    type: string
+    description: "JSON‑encoded string of additional stimulus parameters."
+required:
+  - subject_id
+  - trial_id
+  - stimulus_length
+  - response_length
+  - stimulus_parameters
+additionalProperties: false

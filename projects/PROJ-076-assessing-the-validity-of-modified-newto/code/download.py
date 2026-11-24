@@ -7,15 +7,13 @@ import hashlib
 import os
 import yaml
 from datetime import datetime
+import zipfile
 
 from utils import get_logger, log_stage, ensure_directory
 
 # SPARC Data Source Configuration
-# Using the official SPARC repository mirror which is stable and accessible
-SPARC_BASE_URL = "https://datadryad.org/api/v2/datasets/doi:10.5061/dryad.890k7"
-# Fallback direct download link for the SPARC zip file
-# This is a known stable URL for the SPARC dataset
-SPARC_DOWNLOAD_URL = "https://datadryad.org/stash/downloads/file_stream/270916"
+# Updated to a currently reachable URL for the SPARC dataset zip file
+SPARC_DOWNLOAD_URL = "https://astroweb.cwru.edu/SPARC/datafiles/SPARC_data.zip"
 SPARC_FILENAME = "SPARC.zip"
 SPARC_CHECKSUM_URL = "https://raw.githubusercontent.com/llmXive/sparc-checksums/main/sha256sums.txt"
 
@@ -58,13 +56,12 @@ def is_valid_sparc_source(url: str) -> bool:
     Returns:
         True if it's a valid SPARC source, False otherwise
     """
-    # Check if it matches known SPARC URLs
     valid_patterns = [
         'datadryad.org',
         'sparc-data.org',
+        'astroweb.cwru.edu',
         'github.com/llmXive/sparc-checksums'
     ]
-    
     return any(pattern in url for pattern in valid_patterns)
 
 def fetch_with_retry(
@@ -161,7 +158,6 @@ def download_file(
     
     if not is_valid_sparc_source(url):
         logger.warning(f"URL may not be a verified SPARC source: {url}")
-        # Continue anyway but log warning
     
     # Ensure output directory exists
     ensure_directory(output_path.parent)
@@ -185,14 +181,13 @@ def download_file(
         
         with open(output_path, 'wb') as f:
             for chunk in response.iter_content(chunk_size=chunk_size):
-                if chunk:  # Filter out keep-alive chunks
+                if chunk:
                     f.write(chunk)
                     downloaded += len(chunk)
                     
                     if progress_callback and total_size > 0:
                         progress_callback(downloaded, total_size)
                     
-                    # Log progress every 10%
                     if total_size > 0 and downloaded % (total_size // 10 + 1) < chunk_size:
                         percent = int(100 * downloaded / total_size)
                         logger.info(f"Download progress: {percent}%")
@@ -250,6 +245,15 @@ def verify_file_integrity(file_path: Path, expected_checksum: Optional[str] = No
         logger.error(f"Unexpected error during checksum verification: {e}")
         return False
 
+def extract_zip(zip_path: Path, extract_to: Path) -> None:
+    """
+    Extract a zip archive safely.
+    """
+    logger.info(f"Extracting {zip_path} to {extract_to}")
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        zip_ref.extractall(extract_to)
+    logger.info("Extraction complete")
+
 def download_sparc_data(
     output_dir: Optional[Path] = None,
     max_retries: int = DEFAULT_MAX_RETRIES,
@@ -290,9 +294,10 @@ def download_sparc_data(
     if output_file.exists() and not force_download:
         logger.info(f"SPARC data already exists at {output_file}. Skipping download.")
         
-        # Verify integrity of existing file
         if verify_file_integrity(output_file):
             log_stage(logger, "T012", "SPARC Data Download", "Existing data verified successfully")
+            # Ensure it is extracted
+            extract_zip(output_file, output_dir)
             return True
         else:
             logger.warning("Existing file failed integrity check. Re-downloading...")
@@ -319,25 +324,30 @@ def download_sparc_data(
         log_stage(logger, "T012", "SPARC Data Download", "Downloaded file failed integrity verification", "ERROR")
         return False
     
+    # Extract zip contents
+    try:
+        extract_zip(output_file, output_dir)
+    except Exception as e:
+        logger.error(f"Failed to extract zip file: {e}")
+        return False
+    
     # Update metadata
     try:
-        # Load existing metadata or create new
         metadata = {}
         if metadata_path.exists():
             with open(metadata_path, 'r') as f:
                 metadata = yaml.safe_load(f) or {}
         
-        # Update metadata
-        metadata['sparc_data'] = {
+        metadata.setdefault('sparc_data', {})
+        metadata['sparc_data'].update({
             'version': '1.0',
             'download_url': SPARC_DOWNLOAD_URL,
             'filename': SPARC_FILENAME,
             'download_timestamp': datetime.now().isoformat(),
             'checksum_sha256': hashlib.sha256(output_file.read_bytes()).hexdigest(),
             'status': 'downloaded'
-        }
+        })
         
-        # Save updated metadata
         with open(metadata_path, 'w') as f:
             yaml.dump(metadata, f, default_flow_style=False)
         
@@ -345,9 +355,8 @@ def download_sparc_data(
         
     except Exception as e:
         logger.error(f"Failed to update metadata: {e}")
-        # Don't fail the download if metadata update fails
     
-    log_stage(logger, "T012", "SPARC Data Download", "SPARC data downloaded and verified successfully")
+    log_stage(logger, "T012", "SPARC Data Download", "SPARC data downloaded, extracted, and verified successfully")
     return True
 
 def main():
@@ -356,7 +365,6 @@ def main():
     """
     logger = get_logger(__name__)
     
-    # Parse command line arguments (simple version)
     import argparse
     parser = argparse.ArgumentParser(description='Download SPARC galaxy rotation curve data')
     parser.add_argument('--output-dir', type=str, default='data/raw',
@@ -374,16 +382,13 @@ def main():
     
     args = parser.parse_args()
     
-    output_dir = Path(args.output_dir)
-    metadata_path = Path(args.metadata)
-    
     success = download_sparc_data(
-        output_dir=output_dir,
+        output_dir=Path(args.output_dir),
         max_retries=args.max_retries,
         retry_delay=args.retry_delay,
         timeout=args.timeout,
         force_download=args.force,
-        metadata_path=metadata_path
+        metadata_path=Path(args.metadata)
     )
     
     if success:

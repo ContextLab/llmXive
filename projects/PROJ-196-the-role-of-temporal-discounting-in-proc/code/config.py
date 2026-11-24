@@ -4,6 +4,10 @@ import json
 from pathlib import Path
 from typing import Dict, Any, Optional, Union
 import yaml
+import numpy as np
+
+# Exposed constant for reproducibility
+RANDOM_SEED = 20241010
 
 def get_project_root() -> Path:
     """Returns the root directory of the project."""
@@ -22,17 +26,29 @@ def get_config_value(key: str, default: Any = None) -> Any:
     config = get_config()
     return config.get(key, default)
 
-def get_random_state() -> int:
+def get_random_state(offset: int = 0) -> np.random.RandomState:
     """
-    Returns a random seed for reproducibility.
-    Prioritizes RANDOM_SEED env var, then config, then a fixed default.
+    Returns a NumPy RandomState instance for reproducibility.
+
+    The seed is based on the module-level RANDOM_SEED constant,
+    optionally offset by the provided integer.
+
+    Args:
+        offset: Integer offset added to the base seed.
+
+    Returns:
+        A NumPy RandomState seeded with RANDOM_SEED + offset.
     """
+    # Prioritize an environment variable if present
     env_seed = os.environ.get("RANDOM_SEED")
-    if env_seed:
-        return int(env_seed)
-    
-    config_seed = get_config_value("RANDOM_SEED")
-    if config_seed is not None:
-        return int(config_seed)
-    
-    return 42  # Default seed for reproducibility
+    if env_seed is not None:
+        try:
+            seed = int(env_seed) + offset
+        except ValueError:
+            # Fallback to the constant seed if conversion fails
+            seed = RANDOM_SEED + offset
+    else:
+        # Use the constant seed
+        seed = RANDOM_SEED + offset
+
+    return np.random.RandomState(seed)

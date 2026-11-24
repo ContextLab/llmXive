@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-364-exploring-the-impact-of-network-topology",
-  "stage": "clarified",
+  "stage": "in_progress",
   "class": "transient",
   "fingerprint": "unknown",
-  "consecutive_count": 0,
-  "first_seen": "2026-10-10T20:19:50.711986+00:00",
-  "last_seen": "2026-10-10T21:24:26.824306+00:00",
-  "retry_after": null,
-  "last_error": "incomplete plan artifact set: FILE-marker split failed \u2014 only a single plan.md was recovered (no `<!-- FILE: \u2026 -->` markers in the response). Missing/empty artifacts: ['contracts/*.yaml', 'data-model.md', 'quickstart.md', 'research.md']. Required: ['plan.md', 'research.md', 'data-model.md', 'quickstart.md'] + >=1 contracts/*.yaml.",
-  "evidence": "incomplete plan artifact set: FILE-marker split failed \u2014 only a single plan.md was recovered (no `<!-- FILE: \u2026 -->` markers in the response). Missing/empty artifacts: ['contracts/*.yaml', 'data-model.md', 'quickstart.md', 'research.md']. Required: ['plan.md', 'research.md', 'data-model.md', 'quickstart.md'] + >=1 contracts/*.yaml.",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-25T13:30:24.679095+00:00",
+  "last_seen": "2026-10-25T13:30:24.679095+00:00",
+  "retry_after": "2026-10-25T13:40:24.679095+00:00",
+  "last_error": "no implementation progress: no stage change or verified task completion",
+  "evidence": "no implementation progress: no stage change or verified task completion",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }

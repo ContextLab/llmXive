@@ -1,16 +1,10 @@
 T001:
-  reason: The only artifacts shown are `plan.md` and a `contracts/` directory; there
-    is no evidence (no `ls -R` output or directory listings) that the required `src/models`,
-    `src/services`, `src/analysis`, `src/cli`, `src/utils`, `data/raw`, `data/processed`,
-    `tests/unit`, and `tests/integration` directories were actually created. Additionally,
-    a `contracts/` directory exists at the project root, which the task explicitly
-    forbids creating here (the plan places it under `specs/001-.../contracts/`), so
-    its presence at root is a violation unless it can be shown to be the spec-scoped
-    path.
   task: 25068942b8a5d2c3f7739db3f9fcf06d15f97d94b6f14a30c4640871c2a5e6be
 T002:
   task: 0410978d866ac867235ed6e21a55a0994d5999abce1808ac1b96d6af4dbb7615
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/setup_lint.sh
+    exit=1'
   task: 271186ff24d7bd0a27dd3e4b3ef269aa5d69a830beae0d918e082e00ea963888
 T004:
   task: 1d3e0bddf9c8c8d03be26df79d6dd37d7199cac0957efc3325a94d2865079580
@@ -37,8 +31,23 @@ T008b:
 T009:
   task: e3305eecfb7028cca2b23c0f4a2882b46b8e64095382a57c5925d78294aa77e7
 T010:
+  reason: "The file `tests/unit/test_backoff.py` exists and contains tests, but it\
+    \ imports `exponential_backoff` from `src.utils.backoff`, whose implementation\
+    \ is a decorator factory (`exponential_backoff(retries=..., ...) -> decorator`).\
+    \ The tests call it as a plain function with arguments `max_retries`, `initial_delay`,\
+    \ etc., which does not match the actual signature and will raise a TypeError,\
+    \ so the max\u2011retries behavior of the real backoff logic is never exercised.\
+    \ The unit test therefore does not correctly verify the required backoff logic."
   task: 713f15d0e8c073952d3b067c64cd7dccd8d3c5e8b0d845401f8fb6ac6413a6ee
 T011:
+  reason: "The `tests/integration/test_api_clients_replay.py` file exists, but it\
+    \ does **not** use real cached snapshots from the project\u2019s `data/raw/` directory\
+    \ (which is empty). Instead, the test creates temporary mock cache files in a\
+    \ `tmp_path` directory, patches `load_from_cache` incorrectly, and never exercises\
+    \ the actual cache\u2011loading logic of the client services. Consequently, the\
+    \ integration test does not satisfy the requirement to replay API responses using\
+    \ real cached snapshots. The missing real snapshot files and the flawed test implementation\
+    \ must be fixed."
   task: 8dd1ebb813e1a3446f2706837f78ce55693abaeb62b45aa200cdc62780e84a71
 T012:
   task: 9a6dc14d5fec63e5ad57c562ae8fb2c66ebfde2625d903372050c02706a6ce9b

@@ -1,0 +1,142 @@
+{
+  "sample_id": "0b401c76b6e80a4eecf3c690085b2553f6e261ca",
+  "type": "intent",
+  "entities": [
+    {
+      "entity": "@@ -6,19 +6,34 @@ dev",
+      "verified": false
+    },
+    {
+      "entity": "- \\[Short description of non-trivial change.\\]",
+      "verified": false
+    },
+    {
+      "entity": "-2.34.0 (2026-05-??)",
+      "verified": false
+    },
+    {
+      "entity": "+2.34.0 (2026-05-11)",
+      "verified": false
+    },
+    {
+      "entity": "-------------------",
+      "verified": false
+    },
+    {
+      "entity": "-**Improvements**",
+      "verified": false
+    },
+    {
+      "entity": "-* Requests 2.34.0 introduces inline types, replacing those provided by",
+      "verified": false
+    },
+    {
+      "entity": "+**Announcements**",
+      "verified": false
+    },
+    {
+      "entity": "+- Requests 2.34.0 introduces inline types, replacing those provided by",
+      "verified": false
+    },
+    {
+      "entity": "typeshed. Public API types should be fully compatible with mypy, pyright,",
+      "verified": false
+    },
+    {
+      "entity": "-  and ty. (#7272)",
+      "verified": false
+    },
+    {
+      "entity": "-* Digest Auth hashing algorithms have added `usedforsecurity=False` to clarify",
+      "verified": false
+    },
+    {
+      "entity": "+  and ty. We believe types are comprehensive but if you find issues, please",
+      "verified": false
+    },
+    {
+      "entity": "+  report them to the pinned tracking issue.",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+  Special thanks to @bastimeyer, @cthoyt, @edgarrmondragon, and @srittau for",
+      "verified": false
+    },
+    {
+      "entity": "+  helping review and test the types ahead of the release. (#7272)",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+**Improvements**",
+      "verified": false
+    },
+    {
+      "entity": "+- Digest Auth hashing algorithms have added `usedforsecurity=False` to clarify",
+      "verified": false
+    },
+    {
+      "entity": "security considerations. (#7310)",
+      "verified": false
+    },
+    {
+      "entity": "+- Requests added support for Python 3.15 based on beta1. Downstream projects",
+      "verified": false
+    },
+    {
+      "entity": "+  should be able to start testing prior to its release in October. (#7422)",
+      "verified": false
+    },
+    {
+      "entity": "+- Requests added support for Python 3.14t. (#7419)",
+      "verified": false
+    },
+    {
+      "entity": "**Bugfixes**",
+      "verified": false
+    },
+    {
+      "entity": "-* ``Response.history`` no longer contains a reference to itself, preventing",
+      "verified": false
+    },
+    {
+      "entity": "+- ``Response.history`` no longer contains a reference to itself, preventing",
+      "verified": false
+    },
+    {
+      "entity": "+- Requests no longer performs greedy matching on no_proxy domains. The",
+      "verified": false
+    },
+    {
+      "entity": "+  proxy_bypass implementation has been updated with CPython's fix from",
+      "verified": false
+    },
+    {
+      "entity": "+  bpo-39057. (#7427)",
+      "verified": false
+    },
+    {
+      "entity": "+- Requests no longer incorrectly strips duplicate leading slashes in",
+      "verified": false
+    },
+    {
+      "entity": "+  URI paths. This should address user issues with specific presigned",
+      "verified": false
+    },
+    {
+      "entity": "+  URLs. Note the full fix requires urllib3 2.7.0+. (#7315)",
+      "verified": false
+    },
+    {
+      "entity": "2.33.1 (2026-03-30)",
+      "verified": false
+    }
+  ]
+}

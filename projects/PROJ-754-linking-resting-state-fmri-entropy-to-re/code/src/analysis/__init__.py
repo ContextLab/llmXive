@@ -1,1 +1,2 @@
-"""Entropy computation and analysis modules."""
+# Package initializer for analysis modules.
+pass

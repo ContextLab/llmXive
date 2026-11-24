@@ -6,10 +6,11 @@ from pathlib import Path
 import pytest
 
 from llmxive.backends.base import BackendUnavailable, ChatResponse
+from llmxive.model_selection.types import RequirementOverrides
 from llmxive.speckit.paper_tasks_cmd import PaperTaskerAgent
 from llmxive.speckit.slash_command import SlashCommandContext
 from llmxive.state import project as project_store
-from llmxive.types import BackendName, Outcome, Project, Stage
+from llmxive.types import Outcome, Project, Stage
 
 
 @pytest.fixture
@@ -36,7 +37,7 @@ def reviewed(tmp_path, monkeypatch):
     ctx = SlashCommandContext(project_id='PROJ-901-receipt', project_dir=project,
         run_id='run', task_id='task', inputs=[], expected_outputs=[],
         prompt_template_path=tmp_path / 'agents/prompts/paper_tasker.md',
-        default_backend=BackendName.DARTMOUTH, fallback_backends=[], default_model='test',
+        profile='deep_code',
         prompt_version='1.0.0', agent_name='paper_tasker')
     monkeypatch.setenv('LLMXIVE_CLAIM_LAYER', '0')
     calls = []
@@ -127,9 +128,9 @@ def test_offline_panel_never_produces_receipt(reviewed, monkeypatch):
     assert not PaperTaskerAgent()._analysis_marker(ctx).exists()
 
 
-def test_changed_model_invalidates_receipt(reviewed):
+def test_changed_selection_invalidates_receipt(reviewed):
     ctx, _, _, _ = reviewed
-    ctx.default_model = 'different-model'
+    ctx.profile = 'deep_review'
     assert not PaperTaskerAgent().mechanical_step(ctx).get('skip_llm')
 
 
@@ -163,9 +164,10 @@ def test_changed_root_template_guard_invalidates_receipt(reviewed):
 
 
 @pytest.mark.parametrize('field,value', [
-    ('default_model', 'different-free-model'),
-    ('default_backend', BackendName.LOCAL),
-    ('fallback_backends', [BackendName.LOCAL]),
+    # Spec 026: the dispatch's selection is a profile + escalation overrides.
+    ('profile', 'deep_review'),
+    ('requirement_overrides', RequirementOverrides(allow_paid=False, exclude_leader=True)),
+    ('requirement_overrides', RequirementOverrides(exclude_models=frozenset({'zai-org.glm-5.3'}))),
     ('prompt_version', '2.0.0'),
 ])
 def test_changed_dispatch_policy_invalidates_and_reruns_analysis(reviewed, field, value):

@@ -65,12 +65,12 @@ def test_process_annotations_majority_vote():
     ]
     df = pd.DataFrame(data)
     result, kappa = process_annotations(df)
-    
+
     assert 'S1' in result['scenario_id'].values
     assert result.loc[result['scenario_id'] == 'S1', 'final_rating'].iloc[0] == 3
-    
+
     assert 'S2' not in result['scenario_id'].values # Excluded due to no majority
-    
+
     assert 'S3' in result['scenario_id'].values
     assert result.loc[result['scenario_id'] == 'S3', 'final_rating'].iloc[0] == 5
 
@@ -88,14 +88,14 @@ def test_process_annotations_insufficient_annotators():
 def test_cross_reference_external_validation():
     """Test cross-referencing with external validation."""
     scenario_ids = ['S1', 'S2', 'S3']
-    
+
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
         json.dump({
             'S1': {'is_ambiguous': True},
             'S3': {'is_ambiguous': False} # Should be excluded
         }, f)
         temp_path = f.name
-    
+
     try:
         valid_ids = cross_reference_external_validation(scenario_ids, temp_path)
         assert 'S1' in valid_ids

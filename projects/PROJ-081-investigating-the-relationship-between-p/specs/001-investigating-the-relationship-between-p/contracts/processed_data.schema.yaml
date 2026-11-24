@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Plant Metabolite & Herbivory Dataset"
+type: object
+required:
+  - species_id
+  - species_name
+  - family
+  - alkaloids
+  - terpenes
+  - phenolics
+  - benzoxazinoids
+  - herbivory_score
+properties:
+  species_id:
+    type: string
+    description: "Stable taxonomic identifier (e.g., NCBI Taxonomy ID)."
+  species_name:
+    type: string
+    description: "Scientific or common name of the plant species."
+  family:
+    type: string
+    description: "Plant family to which the species belongs."
+  alkaloids:
+    type: number
+    description: "Z‑scored alkaloid concentration; zero if documented biological absence, missing data excluded."
+  terpenes:
+    type: number
+    description: "Z‑scored terpene concentration; zero if documented biological absence, missing data excluded."
+  phenolics:
+    type: number
+    description: "Z‑scored phenolic concentration; zero if documented biological absence, missing data excluded."
+  benzoxazinoids:
+    type: number
+    description: "Z‑scored benzoxazinoid concentration; zero if documented biological absence, missing data excluded."
+  herbivory_score:
+    type: number
+    description: "Normalized herbivory damage index after IQR capping."
+  absence_indicator:
+    type: string
+    description: "Optional JSON dict documenting which metabolite classes are documented as biologically absent (vs. missing data); e.g., {\"alkaloids\": \"documented_absent\"}. Omitted if no classes are documented as absent."
+additionalProperties: false

@@ -1,1 +1,2 @@
-"""Main source package for PROJ-754."""
+# Package initializer for the core source directory.
+pass

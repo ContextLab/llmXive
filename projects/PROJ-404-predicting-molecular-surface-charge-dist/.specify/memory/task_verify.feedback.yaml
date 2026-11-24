@@ -1,0 +1,167 @@
+T001:
+  reason: The `tests/test_structure.py` test failed because it tries to run `projects/code/setup_structure.py`,
+    which does not exist (the script is at `projects/PROJ-404-predicting-molecular-surface-charge-dist/code/setup_structure.py`).
+    Consequently the verification step that should confirm all required directories
+    and `__init__.py` files is not passing. The project must either place the `setup_structure.py`
+    script at the expected path or adjust the test, and provide concrete evidence
+    (e.g., file listings) that each `code/` subdirectory (`data`, `models`, `utils`)
+    actually contains an `__init__.py`.
+  task: 47a23acf6241a71af9ea2604736230640273c85880787fca72a5faf3f47cad15
+T002:
+  task: b8fc60dbfff07c0d1d6c17b855dae3ea8b66bd31cbd3a7895f5983fb649be47e
+T003:
+  task: 53e820f5c32dd93e14ef99aa2080c64d1b66c080df168aae3a89465b0b75863f
+T004:
+  task: d7830a327072340b9e74ce1b7e23634cc65e9572b76e01f1583dc28a02cd8e4b
+T004a:
+  reason: "The provided `code/utils.py` (955\u202Fbytes) contains utility functions\
+    \ but does not define the required module\u2011level constants `EXIT_CODE_BASELINE_LOSS\
+    \ = 2`, `EXIT_CODE_THRESHOLD_FAIL = 3`, and `EXIT_CODE_SUCCESS = 0`. Adding these\
+    \ constants to the file is needed to satisfy the task."
+  task: 401dc8afc424a532ca49e8c580ea73ef6f86c5ce3acb3ea4061d1827fe2b753c
+T005:
+  task: 2c736db043cc2208191abb3f588abd6794eaf94a4409057c0eb17a1ca5054d20
+T006:
+  task: fe74c74afec971e41d3f9736fe1ead5e1e824af9a94348dda3c084791adbb4c6
+T007:
+  task: 820830883ea6dd37e7731e9c30bd2dc73e0a705f6fd5d2814788c1a9f22be2ed
+T008:
+  task: cc25a19414c8477e6a09bae35c986250ccfae0f77d1a7272c807fc75f08126d5
+T008a:
+  task: a68247ab517275f9b3fff75436bbfac8da5eafee029e1c14bbf477d8d333c979
+T010:
+  task: b1270ab5a6e140f37eb6e7dce0f20d2372432a46bb9fce2a844c55393d73280f
+T011:
+  task: 38652ec4a7c20ae7f06bc4f36d95fcff0e5821dfe3a8d28370ede5a2600e285b
+T012:
+  task: 0d156d1ec47b70fa19795cb4e2ed6b19afbe1e0b4d5d642110c0715a10d91679
+T013:
+  task: 8c67e0abe8a5c4ef95b9dbb2a872e8d4c354d69af609c61e1dd17297c977064c
+T015:
+  task: 0835af7e70a685830543f47859e1dcfca666270c03ac358a9a52cbf5d59b8ec0
+T015b:
+  task: c3eb2f239efa2ae5eb672abd24ed76852a77c8616afd5917d3ef08d2e4d62613
+T016:
+  task: 239e0940b4f2859c6ec923cf6de2cbc79f505f81dbbfd5df92196ec365b2bc64
+T018:
+  task: e23fcaafe384641fdd7214166214152928692d4cf6676998495f6d27d3b5c1be
+T019:
+  task: a94942d48e1164b0151de3ccbc30000db29dee3afe27c77e26b452e72c1cf276
+T020:
+  task: f0decc1e3a7e9e01a16912dd52ffbee7322d9935e663e18897b8875e9a7b3aa2
+T020a:
+  task: 2a37799096185c023b6818162e41e1c7e2df22738adf6366e8de4f4da07d0029
+T021:
+  task: 14d7efa8d0f15b737b7d6373aa5673ee3a2b13ba3bd56a198000ddccd025ff63
+T022:
+  task: b0794b2a0a8ca7ede6a5b9e7fec44a8381b61634dbb7eac5bdd09621d48d1658
+T023:
+  task: 66823e7b697fd005df9a3b0c8b4dd6ac9da435c4c739840264064589af1d244e
+T023b:
+  task: 41b57881670135a4efc412af56ca1ec2bf6b9d9e38e5b23ae45335760e2daace
+T023c:
+  task: ad2872b8aa3934f08a59e7ae9cb448d9a525270bf3254b566b747a4cdc32b4a0
+T024:
+  task: 4f952713cfb9c50d5218cd3db3174cc6f33f5b31e2bb175ef255115e58299199
+T026:
+  task: 8e8c41d207d27a978d1acff357937a7284ef6c0bf6530c90a35aae1e7e9f7eeb
+T034a:
+  task: d6f7c528b16d68571cc147f32d65bed02ec6a0932333f85fc2f995190fe53399
+T035a:
+  task: 57ab865bf60aa758d48adda8dcd5d88ecf9e7b96f4d0f2e9c2e95ef6ba7b4de2
+T036a:
+  task: 97e56a0c4e238cdc5d5cb02f474373f404aac897587c796332f255f4a40e7eff
+T037:
+  task: 6b5169cb1d03b113f65faab7320ee72d6b68e8de036c7db0ce57303a38eee32f
+T038:
+  task: 0f9e116092cb972b5c1c38c08dfb95efe9e531b5dc2b6ccd524e76ae50d7a724
+T040:
+  task: 7dac7b97716eef3f7010ddbc933daa05e1be0b39eabe25a77910a938f4279ad9
+T041:
+  task: 8b7840d79aa6aba0d357a5b0f37a699177634d845f85ccb923aabd57b86833dc
+T042:
+  task: b3477126e943b4f6dca728beacc388e67d9a7c76ac59e6ab0ef2fef44a981afb
+T043:
+  task: 404dfa57a8ff70917ca0692f5ecff1d0e50fd7cefb773e8be2d6a1a7400cdb65
+T044:
+  task: 57e92e8e0281c05fdd9dd2003ca7b1ff2fef3c45e2fd3aa13d8904d926e41982
+T045:
+  task: cd111e50b2d6d147a66ccbbff287946df80c160e818dfaf714c500496fe5dee5
+T045a:
+  task: 60b9f3cb2bbdd29f72ef7c4593c706a1acf1a8f41e9d1891fc47be86ffd64dca
+T047:
+  task: 40132c72e068c192a454b6d49ac4b4a0dcf6234d99c9daadba6103592020fc7d
+T048:
+  task: b11f2a0739b66ceea4e05fc49cd059ba5b3043441a3f857b7c34a089b4eb22f3
+T050:
+  task: a7a059a61b4706f0eb88f4f764af3ca5e0dbbbc123d6b58ad614dff7e88bfc11
+T051:
+  task: aa82c2bca6b3b99abc8be9c825891191dd638b747429a09de9dad3b62b8fb916
+T053:
+  task: d2a9b5a82ae1d1c9125d8caaf36424ccf1ade546e785140261d1d2fdccdaf6ff
+T054:
+  task: a5c3489d762045c7bc4dfc5b86e9e3f0351ec7e57b49ad6f7f85b0a29476919d
+T055:
+  task: 5c11974d1e4e5fd7e15daf1265bd9b8e65857d3ff27c466918a42810918115e4
+T056a:
+  reason: 'Requested task execution failed; rerun successfully: code/data/loader.py
+    exit=1'
+  task: 4778de6475c002f313c9705ce5ac00b49c1c6c8666e896a161b189dbddcf8886
+T057:
+  task: 5d8614086143688a8072957c451bdd358ddeb2cc543d478fad1b09dc61eb4dbb
+T058:
+  task: 9371aeccc02bab8159d67d24cdced568e07b3710323bc09a8202ba650d44fac8
+T062:
+  task: d54aca8d1bb1b76260d39ee1df66f0db1f547abbc7c7e57d4d6145d40909acfe
+T063:
+  task: 8bf99e6e204da7006a390efb4d81e40ad9c8544f12d8a77dc2bdff7a07be4349
+T064:
+  task: 4ee1345cc99780e62f054f493bfa9f28df8d537bc7b47dbf952eb3d4f1269134
+T065:
+  task: 3a975b905d42c5f6888271585f90956ea7db88d49aee9311dc6bcd672c4abb85
+T066:
+  task: c14993fa98250f8891b855414478f261b0525cfb1ffb8641e5f9ff46277c1122
+T067:
+  task: b8c1c2827add2decbc9358bad416abd05f5b5600fba8b3dc880a8cafd80fd978
+T068:
+  task: ebe935dceafd302b5394410f1cb9c1e6549f0dff47ae2f3807b22012381b2130
+T069:
+  task: b4c283ececa75e2aa61ca80b7609a4edc019d3a5d07842896681487054c39fc2
+T070:
+  task: 2e5f16ba3c400c5454ee4bd2bd297dc1f4a078db5de6f28cd33b661547d958c6
+T071:
+  task: 9cf2703521967f7af1a25be756b7601ff9c6f1a71c5d23d41dc5527ed83d6144
+T072:
+  task: bbfcbd88304874f116f70126b9696342f74eed289d9d438e269d78e8ae928ebd
+T073:
+  task: cabac9c243fdec84f25bf02d78e540c1c275972ea911bf38f59c49aaff5050cc
+T074:
+  task: 2762c2611371511b5a68a54e55f3da2862d00ed5edd101b31263903c69a3c7b8
+T075:
+  task: f4438c5c6fd7ecc784d75d861d4f30a81c53eaef35f02503282af181805c5b5d
+T076:
+  task: c381e34f8a595ac6606f0d95cefa739091ea3354131511d6b19500483a378372
+T077:
+  task: a07ad6ec5234aa23c407a622e40073121db24cef9671480bd1098dd6fd941afc
+T079:
+  task: 8745924112a495c955841e50b4ec5142a40653e60483d9a8eb65327afad9aacb
+T080:
+  task: 30eddc6675ef7def21897d927cc897f9d3efec784b771ca93c3f18f012d53159
+T081:
+  task: c6e75aaede6402715ce1eadb1b470f3bcfd2e628da2e26c57e73b251fc599c74
+T082:
+  task: ffa1a130f224d492b20e11bc0952caa4c95264d9c18a58107d4895d5612eda6c
+T083:
+  task: 5d3201ebaa2bfab8a12ae36bcd662e761f81ccbb005452de1a1d35b7cbf51ae3
+T084:
+  task: 3a02354f2a5e10c95dafd1c5c9d001ad1b17c70d325fc7df4bb091a62567a905
+T086:
+  task: 998f2dd0967f436d9037b6a962acd51dd62b19617d22e938168603f5d6145190
+T087:
+  task: 0b891c85c926d446125ac3feffda8ebb546de9c343b9ce53d343222695e4af84
+T088:
+  task: e7a4271c3476b1f31b3a3ca3890e600566f5571b9b5233466d9a2c1a78bce429
+T089:
+  task: 63e33d9e1e233b2b13fbc85ab9fc53a4cf096bc94613665f0524eedffba6bf4f
+T090:
+  task: 27d75ce5bf4b2470466508d9fe98a061464a87ef201588de30c6d655c3d30094

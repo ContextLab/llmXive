@@ -1,0 +1,21 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T014-IMPL** — the task writes platform-owned path(s) inside the project: `state/error_log.json` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T014-VERIFY** — the task writes platform-owned path(s) inside the project: `state/error_log.json` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T018** — declared artifact(s) missing/empty/invalid: tests/integration/test_us1_sample.py
+- **T019** — the task writes platform-owned path(s) inside the project: `state/metadata.json` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T020** — declared artifact(s) missing/empty/invalid: code/02_generate_patches.py, code/prompts/patch_gen.txt
+- **T021** — the task writes platform-owned path(s) inside the project: `state/correctness.json` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T022** — the task writes platform-owned path(s) inside the project: `state/error_log.json` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T024** — the task writes platform-owned path(s) inside the project: `state/complexity_metrics.json` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T026** — declared artifact(s) missing/empty/invalid: tests/integration/test_us2_sample.py
+- **T027** — declared artifact(s) missing/empty/invalid: code/05_extract_attention.py
+- **T028** — declared artifact(s) missing/empty/invalid: code/06_compute_saliency.py
+- **T029** — the task writes platform-owned path(s) inside the project: `state/error_log.json` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T033** — declared artifact(s) missing/empty/invalid: code/08_statistical_analysis.py
+- **T036** — the task writes platform-owned path(s) inside the project: `state/complexity_metrics.json` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T037** — the task writes platform-owned path(s) inside the project: `state/statistical_results.json` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T039-IMPL** — the task writes platform-owned path(s) inside the project: `state/` (shadows `state/`), `state/error_log.json` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T040** — the task writes platform-owned path(s) inside the project: `state/error_log.json` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.

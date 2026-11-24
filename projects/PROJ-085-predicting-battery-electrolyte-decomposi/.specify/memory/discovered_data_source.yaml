@@ -1,18 +1,19 @@
 status: none
-intent: Materials Project NOMAD electrolyte DFT dataset download python package dataset
+intent: Materials Project and NOMAD DFT dataset for electrolyte molecules python package
+  dataset
 required_fields:
+- entry_id
 - material_id
-- composition
-- source_database
-- structure_file
-- total_energy
-- homo
-- lumo
-- band_gap
-- bond_lengths
-- bond_angles
-- decomposition_energy
-- electrochemical_potential
-cache_key: 84110b5bd3ceece2b4bc98ef205094414049eea97ae3e43c03f834528a832f81
-searched_at: '2026-09-22T06:51:14.645287+00:00'
+- chemical_formula
+- species
+- structure_file (e.g., CIF or POSCAR)
+- total_energy (eV)
+- HOMO_energy (eV)
+- LUMO_energy (eV)
+- band_gap (eV)
+- bond_lengths (list)
+- bond_angles (list)
+- computed_decomposition_energy (eV)
+cache_key: f20659ede5e684c864ef30c1a0f7cd45eb3197c32aa6071ac04ff44c7c6e051f
+searched_at: '2026-10-18T05:30:12.479569+00:00'
 retry_count: 1

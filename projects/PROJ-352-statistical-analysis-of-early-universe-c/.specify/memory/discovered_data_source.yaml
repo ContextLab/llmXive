@@ -1,0 +1,18 @@
+status: none
+intent: astroquery planck SMICA CMB map Nside 128 mask download python package dataset
+required_fields:
+- pixel_index
+- temperature
+- mask_flag
+- nside
+- theta
+- phi
+- l
+- beam_transfer
+- noise_variance
+- cl_tt
+- cl_te
+- cl_ee
+cache_key: 748afa3324764f4a8e0635c1b85eebe918bf20461bac3808c9dc8c03106e2c33
+searched_at: '2026-10-24T06:38:56.835638+00:00'
+retry_count: 1

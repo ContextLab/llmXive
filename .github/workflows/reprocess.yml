@@ -12,8 +12,10 @@ name: Pipeline — Reprocess ingested code papers (autonomous drain)
 # inline, with Paper Compile providing a later recovery sweep.
 
 on:
-  schedule:
-    - cron: '7,27,47 * * * *'   # retain 20-minute intake latency; empty ticks probe only
+  # SCHEDULE PAUSED 2026-11-23: manual dispatch only until reliable performance and
+  # quality are verified. To restore, uncomment the block below.
+  # schedule:
+  #   - cron: '7,27,47 * * * *'   # retain 20-minute intake latency; empty ticks probe only
   workflow_dispatch:
     inputs:
       migrate_limit:
@@ -65,13 +67,18 @@ jobs:
     timeout-minutes: 150
     env:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
+      LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
       LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
       # Back-filling a code paper (speckit chain + code_adapter) is longer than a
       # normal advance tick; give the run loop room to finish 1-2 papers per tick.
       LLMXIVE_RUN_WALL_BUDGET_S: "5400"
       LLMXIVE_PAID_OPT_IN: "1"
       LLMXIVE_PAID_BUDGET_FRACTION: "0.9"
-      LLMXIVE_EXECUTION_PAID_TIERS: "anthropic.claude-haiku-4-5-20251001,anthropic.claude-sonnet-4-6,anthropic.claude-opus-4-6"
+      # Boolean (spec 026): enables the single paid rung; the selector, not a
+      # model-id list, picks the paid model from the capability policy.
+      LLMXIVE_EXECUTION_PAID_ESCALATION: "1"
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
     steps:

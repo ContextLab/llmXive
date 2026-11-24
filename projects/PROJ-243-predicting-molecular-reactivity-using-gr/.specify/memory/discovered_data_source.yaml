@@ -1,14 +1,17 @@
 status: none
-intent: download QM9 MoleculeNet dataset python package with graph node atomic number
-  hybridization formal charge
+intent: QM9 dataset rdkit graph preprocessing python package dataset
 required_fields:
-- molecule_id
 - smiles
-- node_atomic_number
-- node_hybridization
-- node_formal_charge
-- edge_bond_type
-- edge_conjugation
-cache_key: 231c785a2d69a214bc5e283279c193d94f8cbd387610a81ef4caa4a9b04fc6e7
-searched_at: '2026-10-11T22:33:03.131908+00:00'
+- atomic_number
+- hybridization
+- formal_charge
+- bond_type
+- bond_conjugation
+- dft_properties
+- reference_substructure_smiles
+- reference_doi
+- kinetic_experimental_rate
+- kinetic_molecule_smiles
+cache_key: fb1ebbbedf9bc4b83b7dc7fe9ebf2d40812416187a5b7bff8eed8f77450df35f
+searched_at: '2026-10-22T15:41:04.467296+00:00'
 retry_count: 1

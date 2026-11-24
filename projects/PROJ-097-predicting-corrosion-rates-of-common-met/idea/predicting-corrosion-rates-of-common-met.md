@@ -9,71 +9,89 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-How do interaction effects between specific environmental stressors (pH, salinity, temperature) and material properties (composition, crystal structure) quantitatively determine corrosion rates across common metals in public experimental datasets?
+How do interaction effects between specific environmental stressors (pH, salinity, temperature) and material properties (composition, crystal structure) quantitatively determine experimentally measured corrosion rates across common metals in publicly available datasets?
 
 ## Motivation
 
-Corrosion causes billions in annual infrastructure damage, yet traditional measurement methods are slow and costly. This project addresses the gap in understanding the *relative* and *interactive* influence of environmental vs. material drivers by leveraging data-driven materials science. Success would provide a data-backed hierarchy of risk factors, enabling targeted maintenance strategies rather than generic material replacement.
+Corrosion causes billions of dollars of infrastructure loss each year, yet traditional laboratory measurements are slow and costly. By quantifying the relative and interactive influence of environmental versus material drivers with data‑driven models, the project can produce a evidence‑based hierarchy of risk factors that guides targeted maintenance and material selection without requiring new experiments.
 
-## Literature gap analysis
+## Related work
 
-### What we searched
-We queried Semantic Scholar and arXiv using terms including "corrosion rate prediction machine learning," "environmental factors corrosion dataset," and "materials informatics corrosion." The search returned several general papers on ML validation and data science trends, but no primary studies specifically quantifying the interaction effects between specific environmental variables (pH, salinity) and material microstructure on corrosion rates in public datasets.
-
-### What is known
-- [DOME: Recommendations for supervised machine learning validation in biology (2020)](https://arxiv.org/abs/2006.16189) — Establishes critical guidelines for rigorous ML validation in scientific contexts, emphasizing the need for independent test sets and avoiding circular reasoning, which this project will adopt.
-- [Physics-Inspired Interpretability Of Machine Learning Models (2023)](https://arxiv.org/abs/2304.02381) — Highlights the importance of using interpretability tools (like SHAP) to extract physical insights from "black box" models, a key requirement for answering the "how do these drivers interact" part of our question.
-- [Changing Data Sources in the Age of Machine Learning for Official Statistics (2023)](https://arxiv.org/abs/2306.04338) — Supports the paradigm of using automated data collection and ML for statistical analysis in large-scale scientific domains, validating the approach of aggregating public corrosion data.
-
-### What is NOT known
-No published work has specifically isolated and quantified the interaction terms between environmental stressors (e.g., salinity × pH) and material composition to predict corrosion rates using only public, tabular datasets. Existing literature often focuses on model accuracy benchmarks or broad data trends rather than the specific mechanistic drivers of corrosion variability.
-
-### Why this gap matters
-Understanding the specific interaction effects is crucial for material selection in complex environments (e.g., marine vs. industrial atmospheres). Without this granular knowledge, engineers may over-rely on conservative material choices or miss critical environmental thresholds, leading to either unnecessary costs or premature failure.
-
-### How this project addresses the gap
-This project will explicitly engineer interaction features and use interpretable ML models (Random Forest/Gradient Boosting with SHAP analysis) to rank the importance of environmental vs. material factors and visualize their non-linear interactions, directly filling the gap in quantitative driver analysis.
+- [Causal Discovery to Understand Hot Corrosion (2024)](https://arxiv.org/abs/2402.07804) — Applies causal discovery techniques to hot‑corrosion data from gas‑turbine superalloys, highlighting the importance of jointly modelling temperature, deposit chemistry, and material composition; provides a methodological precedent for extracting interaction effects from corrosion datasets.
 
 ## Expected results
 
-The project expects to identify a specific set of high-impact interaction terms (e.g., high salinity combined with low pH) that dominate corrosion rate predictions across common metals. The measurement will confirm the feasibility of ML prediction if feature importance analysis reveals that environmental interactions explain a significant portion of variance beyond material composition alone. Evidence will be provided via SHAP summary plots and partial dependence curves showing non-linear interaction effects derived from the actual experimental data, not simulated values.
+The analysis is expected to reveal a small set of high‑impact interaction terms (e.g., high salinity × low pH) that explain a substantial portion of variance in measured corrosion rates beyond material composition alone. Success will be demonstrated by (1) predictive performance (RMSE, R²) on an independent test set that exceeds a baseline linear model, and (2) SHAP‑based interaction importance plots that show statistically significant contributions of the identified interaction terms.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Retrieve tabular corrosion datasets from Zenodo or OpenML containing columns for material type, composition, environmental conditions (pH, temperature, salinity), and *experimentally measured* corrosion rates (e.g., via mass loss or electrochemical polarization resistance). Specific datasets will be selected based on data completeness (no missing target values) and domain relevance.
-- **Preprocessing**: Clean missing values using `pandas` (imputation only for non-target features); normalize environmental features and encode categorical material properties using `scikit-learn`. Ensure the target variable (corrosion rate) remains strictly as the raw measured value.
-- **Feature Engineering**: Explicitly construct interaction terms (e.g., `pH * salinity`, `temperature * composition_ratio`) and polynomial features to capture non-linear relationships.
-- **Model Training**: Split data into 80/20 train/test sets; train Random Forest and Gradient Boosting regressors using `scikit-learn` (CPU-only) to model the relationship between features and the *measured* corrosion rate.
-- **Hyperparameter Tuning**: Perform grid search with constrained depth (max_depth=5) and limited trees to stay within 7GB RAM and 6-hour runtime limits.
-- **Statistical Evaluation**: Calculate Root Mean Squared Error (RMSE) and R² on the **held-out test set** (independent of training data) to assess predictive power; apply k-fold cross-validation (k=5) to ensure robustness. **All metrics will be computed on real experimental data; no simulated, hardcoded, or placeholder performance metrics will be used.**
-- **Interpretability Analysis**: Generate SHAP (SHapley Additive exPlanations) values to quantify the contribution of each feature and interaction term to the predicted corrosion rate, identifying the dominant drivers.
-- **Visualization**: Create partial dependence plots and SHAP summary plots to visualize how corrosion rates change with varying environmental conditions and material properties.
-- **Reporting**: Save model artifacts, feature importance rankings, and interaction visualizations to the project repository; document data sources with DOIs for reproducibility.
+- **Data acquisition**  
+  - Download publicly released corrosion tables from the NIST Materials Data Repository, the Open Materials Database, and Zenodo collections that include columns for: metal identifier, elemental composition, crystal structure descriptors, pH, salinity, temperature, and experimentally measured corrosion rate (mass loss or polarization resistance). Record DOIs/URLs for each dataset.  
+- **Preprocessing**  
+  - Remove rows with missing target values.  
+  - Impute non‑target missing entries using median (numeric) or most‑frequent (categorical) strategies.  
+  - Encode categorical material descriptors (e.g., crystal phase) with one‑hot encoding.  
+  - Standardize continuous environmental variables (z‑score).  
+- **Feature engineering**  
+  - Construct explicit interaction features: `pH * salinity`, `temperature * salinity`, `temperature * composition_ratio`, etc.  
+  - Add polynomial terms (degree 2) for each continuous variable to capture simple non‑linearities.  
+- **Dataset split**  
+  - Randomly partition the cleaned dataset into 80 % training and 20 % held‑out test sets, stratified by metal class to preserve distributional balance.  
+- **Model training**  
+  - Fit two interpretable regressors on the training set: (a) Random Forest (max_depth = 5, n_estimators = 200) and (b) Gradient Boosting (learning_rate = 0.05, max_depth = 5).  
+  - Use scikit‑learn’s `GridSearchCV` with a limited grid (max_depth, n_estimators) and 5‑fold cross‑validation to select hyper‑parameters while respecting the 7 GB RAM limit.  
+- **Performance evaluation**  
+  - Compute RMSE and R² on the independent test set for each model.  
+  - Perform a paired t‑test between the two models’ test‑set errors to confirm any performance gain is statistically significant (α = 0.05).  
+- **Interpretability analysis**  
+  - Apply SHAP (TreeExplainer) to the best‑performing model to obtain per‑feature and per‑interaction contribution values.  
+  - Generate (i) SHAP summary plots for all features, (ii) interaction dependence plots for the top three interaction terms, and (iii) partial dependence curves illustrating non‑linear effects.  
+- **Robustness checks**  
+  - Repeat the entire training‑evaluation pipeline on 10 different random train/test splits to assess stability of interaction importance rankings.  
+- **Reporting & reproducibility**  
+  - Save all trained models, preprocessing pipelines, and SHAP objects to the repository.  
+  - Create a `README.md` listing dataset DOIs, exact Python package versions, and a one‑click script (`run_all.sh`) that executes the full workflow within a single GitHub Actions job (< 6 h on the free tier).  
 
 ## Duplicate-check
 
-- Reviewed existing ideas: None provided in current context.
+- Reviewed existing ideas: None.
 - Closest match: N/A.
 - Verdict: NOT a duplicate
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-12T18:46:28Z
-**Outcome**: success_after_expansion
+**Generated by**: librarian (prompt v1.6.0) on 2026-10-13T23:18:15Z
+**Outcome**: exhausted
 **Original term**: Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Databases chemistry
-**Verified citation count**: 5
+**Verified citation count**: 1
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Databases chemistry | 5 |
+| 0 (initial) | Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Databases chemistry | 0 |
+| 1 | data-driven corrosion modeling | 2 |
+| 2 | machine learning corrosion rate forecasting | 5 |
+| 3 | corrosion kinetics prediction with neural networks | 0 |
+| 4 | AI-based corrosion susceptibility estimation | 0 |
+| 5 | corrosion rate prediction using ensemble learning | 0 |
+| 6 | deep learning for metal corrosion degradation | 0 |
+| 7 | corrosion behavior prediction using support vector machines | 0 |
+| 8 | corrosion rate estimation with random forest regression | 0 |
+| 9 | gradient boosting models for corrosion prediction | 0 |
+| 10 | Gaussian process regression for corrosion kinetics | 0 |
+| 11 | corrosion informatics and predictive analytics | 0 |
+| 12 | electrochemical corrosion data mining for ML models | 0 |
+| 13 | supervised learning approaches to corrosion rate estimation | 0 |
+| 14 | feature selection techniques for corrosion prediction | 0 |
+| 15 | open-source corrosion databases for predictive modeling | 0 |
+| 16 | AI-accelerated corrosion risk assessment | 0 |
+| 17 | corrosion rate prediction using hybrid physics‑ML models | 0 |
+| 18 | corrosion modeling with transfer learning | 0 |
+| 19 | corrosion degradation forecasting using time‑series ML | 0 |
+| 20 | corrosion prediction using multi‑task learning | 0 |
 
 ### Verified citations
 
-1. **Changing Data Sources in the Age of Machine Learning for Official Statistics** (2023). Cedric De Boom, Michael Reusens. arXiv. [2306.04338](https://arxiv.org/abs/2306.04338). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-2. **Learning Curves for Decision Making in Supervised Machine Learning: A Survey** (2022). Felix Mohr, Jan N. van Rijn. arXiv. [2201.12150](https://arxiv.org/abs/2201.12150). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-3. **DOME: Recommendations for supervised machine learning validation in biology** (2020). Ian Walsh, Dmytro Fishman, Dario Garcia-Gasulla, Tiina Titma, Gianluca Pollastri, et al.. arXiv. [2006.16189](https://arxiv.org/abs/2006.16189). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-4. **Physics-Inspired Interpretability Of Machine Learning Models** (2023). Maximilian P Niroomand, David J Wales. arXiv. [2304.02381](https://arxiv.org/abs/2304.02381). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-5. **A Benchmark Study of Machine Learning Models for Online Fake News Detection** (2019). Junaed Younus Khan, Md. Tawkat Islam Khondaker, Sadia Afroz, Gias Uddin, Anindya Iqbal. arXiv. [1905.04749](https://arxiv.org/abs/1905.04749). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+1. **Causal Discovery to Understand Hot Corrosion** (2024). A. Varghese, M. Arana-Catania, S. Mori, A. Encinas-Oropesa, J. Sumner. arXiv. [2402.07804](https://arxiv.org/abs/2402.07804). PDF-sampled: No.

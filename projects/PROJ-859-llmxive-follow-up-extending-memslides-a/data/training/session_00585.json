@@ -1,0 +1,212 @@
+{
+  "trace_id": "training_42_00585",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 19,
+  "tool_sequence": [
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "delete_element",
+    "insert_text",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 60.495,
+        "x": 20.0467,
+        "y": 34.6769
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 37.8502,
+        "x": 96.8227,
+        "y": 86.1992
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 81.7858,
+        "x": 83.0592,
+        "y": 29.3343
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 21.2538,
+        "x": 69.6861,
+        "y": 19.4547
+      }
+    },
+    {
+      "step": 4,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 85.5394,
+        "x": 27.3807,
+        "y": 88.3708
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 5.106,
+        "x": 38.2679,
+        "y": 15.0381
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 39.5613,
+        "x": 49.2795,
+        "y": 42.4297
+      }
+    },
+    {
+      "step": 7,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 80.1923
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 87.4505,
+        "y": 59.4528,
+        "length": 80.8475
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 79.8496,
+        "y": 73.5352,
+        "width": 51.8243,
+        "height": 65.5823
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 38.7246,
+        "y": 61.902,
+        "width": 81.9265,
+        "height": 63.3013
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 97.2447,
+        "y": 74.4582,
+        "width": 34.887,
+        "height": 84.1959
+      }
+    },
+    {
+      "step": 12,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 80.9149,
+        "y": 23.8613,
+        "width": 85.3669,
+        "height": 90.7124
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 86.3534,
+        "y": 64.7774,
+        "width": 71.6901,
+        "height": 12.9708
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 2.3518,
+        "y": 36.4545,
+        "width": 44.2684,
+        "height": 16.9653
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 64.7453,
+        "y": 55.9158,
+        "width": 27.2894,
+        "height": 83.175
+      }
+    },
+    {
+      "step": 16,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 52.4218,
+        "saturation": 39.8364
+      }
+    },
+    {
+      "step": 17,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 87.8495,
+        "saturation": 64.1683
+      }
+    },
+    {
+      "step": 18,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 25.8698,
+        "saturation": 87.7529
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.337145,
+    "tool_repetition_freq": 0.736842,
+    "arg_semantic_variance": 702.962645
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 5,
+    "layout_hash": "42-585-format_text"
+  }
+}

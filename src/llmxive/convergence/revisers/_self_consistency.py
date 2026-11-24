@@ -159,6 +159,14 @@ def invoke_reviser_backend(reviser: Any, messages: list[ChatMessage]) -> str:
     plan-panel "26 padded <missing> responses". Use the generation budget so
     the full document + change-log fit.
     """
+    # Spec 026 slice 7: every reviser stores its capability PROFILE on
+    # ``self._profile`` (not a raw model id); ``getattr`` default keeps
+    # back-compat for placeholder revisers that lack the field.
+    profile = getattr(reviser, "_profile", "standard_generation")
+    # Spec 026 slice 6: carry the reviser's escalation constraints (declared
+    # ``_overrides`` field) alongside ``profile=`` into ``route_chat``. ``getattr``
+    # default keeps back-compat for placeholder revisers that lack the field.
+    overrides = getattr(reviser, "_overrides", None)
     from ._reviser_response import RESPONSE_FORMAT_BLOCK
 
     # Reused authoring prompts can mandate JSON-only or YAML-only output.
@@ -178,12 +186,23 @@ def invoke_reviser_backend(reviser: Any, messages: list[ChatMessage]) -> str:
             break
     else:
         messages.insert(0, ChatMessage(role="system", content=contract))
-    model = getattr(reviser, "_model", None)
+    # Request-local rejected producers (set only around a corrective re-pass by
+    # ``run_pass_with_artifact_retry``). They ride the SAME selection mechanism:
+    # ``reasoning_chat`` unions them into ``RequirementOverrides.exclude_models``.
+    # A format retry must stay on FREE peers, so paid admission is switched off
+    # for exactly that call (``allow_paid=False`` is explicit tier authority).
     exclusions = getattr(reviser, "_revision_excluded_models", frozenset())
+    if exclusions:
+        from dataclasses import replace
+
+        from llmxive.model_selection.types import RequirementOverrides
+
+        overrides = replace(overrides or RequirementOverrides(), allow_paid=False)
     response = reasoning_chat(
-        reviser._backend, messages, model=model,
+        reviser._backend, messages, profile=profile,
         max_tokens=GENERATION_MAX_TOKENS,
-        **({"excluded_models": exclusions} if exclusions else {}),
+        overrides=overrides,
+        excluded_models=frozenset(exclusions),
     )
     reviser._last_revision_model = getattr(response, "model", None)
     return getattr(response, "text", "") or ""
@@ -192,7 +211,7 @@ def invoke_reviser_backend(reviser: Any, messages: list[ChatMessage]) -> str:
 def self_consistency_pass(
     *,
     backend: Any,
-    model: str | None,
+    profile: str = "standard_generation",
     revised_artifacts: dict[str, str],
     concerns: list[Concern],
     responses: list[ConcernResponse],
@@ -228,7 +247,7 @@ def self_consistency_pass(
             ChatMessage(role="system", content=system_text),
             ChatMessage(role="user", content=user_text),
         ]
-        response = reasoning_chat(backend, messages, model=model)
+        response = reasoning_chat(backend, messages, profile=profile)
         reply_text = getattr(response, "text", "") or ""
         if not reply_text.strip():
             raise ValueError("self-consistency reply was empty")
@@ -261,7 +280,7 @@ def corrective_instructions(problems: list[str]) -> str:
 def run_with_self_consistency(
     *,
     backend: Any,
-    model: str | None,
+    profile: str = "standard_generation",
     repo_root: Path,
     concerns: list[Concern],
     first_pass: tuple[dict[str, str], list[ConcernResponse]],
@@ -279,18 +298,25 @@ def run_with_self_consistency(
     would still complain, the corrected output is returned as-is. The
     self-consistency call is fully exception-guarded inside
     :func:`self_consistency_pass`, so a flaky check never blocks the revision.
+
+    ``profile`` (spec 026 slice 7) is the reviser's OWN capability profile,
+    reused as-is for the self-consistency audit call — it is never re-pinned.
+    The downstream claims/citation guards (:func:`_clean_citations`) are a
+    SEPARATE system with their own internal default profile, so they are
+    always called with ``model=None`` (no override) rather than forwarding
+    this reviser profile into their unrelated ``model=`` channel.
     """
     updated, responses = first_pass
     result = self_consistency_pass(
         backend=backend,
-        model=model,
+        profile=profile,
         revised_artifacts=updated,
         concerns=concerns,
         responses=responses,
         repo_root=repo_root,
     )
     if result.ok or not result.problems:
-        return _clean_citations(updated, backend=backend, model=model, repo_root=repo_root, stage_label=stage_label), responses
+        return _clean_citations(updated, backend=backend, model=None, repo_root=repo_root, stage_label=stage_label), responses
 
     logger.info(
         "self-consistency flagged %d problem(s); running ONE corrective re-pass",
@@ -300,7 +326,7 @@ def run_with_self_consistency(
     # reviser failure (not a self-consistency-check failure) and must surface
     # — the engine maps it to non-convergence.
     corrected, corrected_responses = redo(corrective_instructions(result.problems))
-    return _clean_citations(corrected, backend=backend, model=model, repo_root=repo_root, stage_label=stage_label), corrected_responses
+    return _clean_citations(corrected, backend=backend, model=None, repo_root=repo_root, stage_label=stage_label), corrected_responses
 
 
 def _clean_citations(

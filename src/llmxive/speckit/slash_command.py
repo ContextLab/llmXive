@@ -27,10 +27,10 @@ import os
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
-from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.backends.base import ChatMessage, ChatResponse, render_text_content
 from llmxive.backends.router import chat_with_fallback
 from llmxive.state import runlog
 from llmxive.types import (
@@ -38,6 +38,13 @@ from llmxive.types import (
     Outcome,
     RunLogEntry,
 )
+
+if TYPE_CHECKING:
+    # Type-checking only: a runtime top-level import of the
+    # ``llmxive.model_selection`` package would run its ``__init__`` (→
+    # ``execute`` → ``backends.router``) and risk a cycle. ``from __future__
+    # import annotations`` (above) makes the field annotation a lazy string.
+    from llmxive.model_selection.types import RequirementOverrides
 
 
 @dataclass
@@ -49,11 +56,18 @@ class SlashCommandContext:
     inputs: list[str]
     expected_outputs: list[str]
     prompt_template_path: Path
-    default_backend: BackendName
-    fallback_backends: list[BackendName]
-    default_model: str
+    #: Named capability-requirement profile (spec 026 FR-012), replacing the
+    #: raw default_backend/fallback_backends/default_model triple (US5).
+    #: Task 6 migrates this context's consumers to resolve a model chain
+    #: from the profile via model_selection; this task only carries the
+    #: field through construction.
+    profile: str
     prompt_version: str
     agent_name: str
+    #: Spec 026 slice 6 escalation constraints, threaded ALONGSIDE ``model=``
+    #: down to ``route_chat`` (LAST field so it stays defaulted — existing
+    #: construction call sites are unaffected). ``None`` = no override.
+    requirement_overrides: RequirementOverrides | None = None
 
 
 class SlashCommandAgent(abc.ABC):
@@ -104,8 +118,33 @@ class SlashCommandAgent(abc.ABC):
         outcome = Outcome.SUCCESS
         failure_reason: str | None = None
         outputs: list[str] = []
-        backend_used: BackendName = ctx.default_backend
-        model_used: str = ctx.default_model
+        # No attribution yet — nothing truthful to record until a real
+        # ChatResponse comes back (overwritten below on success). Seeding a
+        # placeholder backend/model here would write a fiction into a field
+        # that feeds paper authorship for a call that may never have
+        # happened; RunLogEntry's validator requires both fields ONLY when
+        # outcome is SUCCESS, so a pre-response failure legitimately records
+        # neither (spec 026 slice 7 / D4 — mirrors agents/base.py).
+        #
+        # This covers THREE distinct failure points identically, by design:
+        #   (a) prompt construction (mechanical_step/build_prompt) raises
+        #       before chat_with_fallback is ever reached;
+        #   (b) selection fails closed (ModelUnavailable) before any backend
+        #       is contacted;
+        #   (c) a real candidate WAS dispatched to a live backend but the
+        #       chain exhausted (ChainExhausted) before a ChatResponse came
+        #       back. chat_with_fallback re-raises both (b) and (c) as the
+        #       SAME BackendUnavailable, so this call site cannot (and need
+        #       not) tell them apart — but even if it could, an
+        #       attempted-but-failed candidate in (c) produced no content
+        #       that fed any artifact. Crediting it would misattribute
+        #       authorship to a call that contributed nothing, exactly what
+        #       D4 forbids. So both (b) and (c) record NO attribution, same
+        #       as (a).
+        backend_used: BackendName | None = None
+        model_used: str | None = None
+        # Settled cost of the response received this run (funded calls are metered).
+        cost_by_backend: dict[str, float] = {}
         # Spec 011 inspection-hook locals — initialized so the finally block
         # can capture even when build_prompt or chat_with_fallback raises.
         messages: list[ChatMessage] = []
@@ -115,20 +154,31 @@ class SlashCommandAgent(abc.ABC):
             mechanical_output = self.mechanical_step(ctx)
             if mechanical_output.get("skip_llm"):
                 outcome = Outcome.SKIPPED
+                # No model call was made: record the same no-LLM sentinel pair as
+                # the deterministic write below (never an invented model).
                 model_used = "deterministic-no-llm"
+                backend_used = BackendName.DARTMOUTH
             else:
                 if mechanical_output.get("deterministic_write"):
-                    llm_response = ChatResponse("", "deterministic-no-llm", ctx.default_backend.value)
+                    # A deterministic write makes NO model call, so there is no
+                    # selected backend to credit. Record the same sentinel pair the
+                    # deterministic publisher uses (agents/publisher.py): the no-LLM
+                    # model sentinel on the default serving backend.
+                    llm_response = ChatResponse(
+                        "", "deterministic-no-llm", BackendName.DARTMOUTH.value
+                    )
                 else:
                     messages = self.build_prompt(ctx, mechanical_output)
                     llm_response = chat_with_fallback(
                         messages,
-                        default_backend=ctx.default_backend.value,
-                        fallback_backends=[b.value for b in ctx.fallback_backends],
-                        model=ctx.default_model,
+                        profile=ctx.profile,
+                        overrides=ctx.requirement_overrides,
                     )
                 backend_used = BackendName(llm_response.backend)
                 model_used = llm_response.model
+                runlog.add_cost(
+                    cost_by_backend, llm_response.backend, llm_response.cost_estimate_usd
+                )
                 llm_response_text = llm_response.text
                 outputs = self.write_artifacts(ctx, mechanical_output, llm_response)
                 # FR-026 point 1: validate citations on every artifact write.
@@ -159,7 +209,7 @@ class SlashCommandAgent(abc.ABC):
                 ended_at=ended,
                 outcome=outcome,
                 failure_reason=failure_reason,
-                cost_estimate_usd=0.0,
+                **runlog.cost_fields(cost_by_backend),
             )
             runlog.append_entry(entry, repo_root=ctx.project_dir.parent.parent)
             _maybe_write_inspection(
@@ -181,8 +231,8 @@ def _maybe_write_inspection(
     failure_reason: str | None,
     messages: list[ChatMessage],
     llm_response_text: str,
-    model_used: str,
-    backend_used: BackendName,
+    model_used: str | None,
+    backend_used: BackendName | None,
     agent: SlashCommandAgent | None = None,
 ) -> None:
     """Spec 011 / FR-003 inspection-record hook (opt-in via env var).
@@ -200,8 +250,11 @@ def _maybe_write_inspection(
         return
     try:
         from llmxive.speckit._inspection import capture
-        sys_prompt = next((m.content for m in messages if m.role == "system"), "")
-        usr_prompt = next((m.content for m in messages if m.role == "user"), "")
+        # render_text_content keeps this JSON-serialized record safe even when
+        # a message carries multimodal parts (spec 026 slice 7): images become
+        # a metadata-only placeholder, never raw bytes, in the audit log.
+        sys_prompt = render_text_content(next((m.content for m in messages if m.role == "system"), ""))
+        usr_prompt = render_text_content(next((m.content for m in messages if m.role == "user"), ""))
         # spec 014 / FR-004: an agent that ran an analyze loop (the Tasker)
         # accumulates per-round sub-records on ``_inspection_rounds``; capture
         # them here. Every other agent leaves the attribute unset → ``[]``.
@@ -211,7 +264,9 @@ def _maybe_write_inspection(
             agent_name=ctx.agent_name,
             agent_version=ctx.prompt_version,
             model=model_used,
-            backend=backend_used.value if hasattr(backend_used, "value") else str(backend_used),
+            backend=(
+                backend_used.value if backend_used is not None else None
+            ),
             started_at=started,
             ended_at=ended,
             outcome=("committed" if outcome == Outcome.SUCCESS else
@@ -305,21 +360,23 @@ def _validate_artifact_citations(
 
         # T019 / FR-016: run the claim layer AFTER the F-18 citation pass.
         # Requires a backend (LLM extraction) — skip gracefully on maintenance
-        # paths where ctx has no backend (e.g. dispatch-only callers).
-        _backend = getattr(ctx, "default_backend", None)
-        if _backend is None:
+        # paths where ctx has no profile (e.g. dispatch-only callers). Claim
+        # extraction/resolution is not the WRITING agent's own capability
+        # profile (spec 026 US5) — it always serves off ``dartmouth`` with no
+        # model pin, same as before this registry migration.
+        if getattr(ctx, "profile", None) is None:
             continue
         try:
             from llmxive.backends.router import make_backend
             from llmxive.claims.service import process_document
 
-            backend_obj = make_backend(_backend.value if hasattr(_backend, "value") else str(_backend))
+            backend_obj = make_backend("dartmouth")
             rendered, _claims, gate_report = process_document(
                 text,
                 artifact_path=relpath,
                 project_id=ctx.project_id,
                 backend=backend_obj,
-                model=ctx.default_model,
+                model=None,
                 repo_root=repo,
                 stage_label=stage_label,
             )

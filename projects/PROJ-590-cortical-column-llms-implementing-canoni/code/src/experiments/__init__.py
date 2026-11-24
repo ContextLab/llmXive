@@ -1,1 +1,3 @@
-"""Experiment runners and analysis scripts."""
+"""
+experiments subpackage initializer.
+"""

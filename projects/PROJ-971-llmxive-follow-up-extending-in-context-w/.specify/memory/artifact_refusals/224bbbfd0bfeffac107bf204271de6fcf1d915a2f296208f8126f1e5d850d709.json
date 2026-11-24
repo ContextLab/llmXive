@@ -1,0 +1,7 @@
+{
+  "task_id": "T017",
+  "fingerprint": "31d6ff8f148cd74fda915e6372d61e72c06be1aa40e1c0fbabdaeb9e5e4e57d3",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/tests/test_validation_results_schema.py': SyntaxError at line 62: unexpected character after line continuation character. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 2512"
+}

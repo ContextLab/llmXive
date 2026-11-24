@@ -1,69 +1,3 @@
-- artifact_hash: 722d0708d6aa4477d1303d16a5dde99c8b07ac5cbc611ef4682920b0c0d07b18
-  artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/plan.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/hf-audio/ami/resolve/main/test/0000.parquet`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/hf-audio/ami/resolve/main/test/0000.parquet
-  verified_at: '2026-08-29T10:53:21.910186Z'
-- artifact_hash: 722d0708d6aa4477d1303d16a5dde99c8b07ac5cbc611ef4682920b0c0d07b18
-  artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/plan.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: 0000.parquet
-  kind: url
-  value: https://huggingface.co/datasets/openslr/librispeech_asr/resolve/main/all/test.clean/0000.parquet`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f181ea4/dd5d2035f32b6fe82bb83672b598a68575775d3b4b5b2accfa3343a76f0be96f?response-content-disposition=inline%3B+filename*%3DUTF-8%27%270000.parquet%3B+filename%3D%220000.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1788004402&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgxZWE0L2RkNWQyMDM1ZjMyYjZmZTgyYmI4MzY3MmI1OThhNjg1NzU3NzVkM2I0YjViMmFjY2ZhMzM0M2E3NmYwYmU5NmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3MDAwMC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIyMDAwMC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODgwMDQ0MDJ9fX1dfQ__&Signature=MEQCICb0xJohOLuELlUrXia1HzplEnw5geeppXlPdTbLXa1lAiAiTPg4u4Mma7HkB4opKZo3fkXQrMLlaT2W9wUR4PmkBQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-29T10:53:21.910186Z'
-- artifact_hash: fcf26ada73d92dbf902367315122d5b39a883c9f35e60800ffd5c91720fa233a
-  artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/hf-audio/ami/resolve/main/test/0000.parquet
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/hf-audio/ami/resolve/main/test/0000.parquet
-  verified_at: '2026-08-29T10:54:22.397517Z'
-- artifact_hash: fcf26ada73d92dbf902367315122d5b39a883c9f35e60800ffd5c91720fa233a
-  artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: 0000.parquet
-  kind: url
-  value: https://huggingface.co/datasets/openslr/librispeech_asr/resolve/main/all/test.clean/0000.parquet
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f181ea4/dd5d2035f32b6fe82bb83672b598a68575775d3b4b5b2accfa3343a76f0be96f?response-content-disposition=inline%3B+filename*%3DUTF-8%27%270000.parquet%3B+filename%3D%220000.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1788004462&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgxZWE0L2RkNWQyMDM1ZjMyYjZmZTgyYmI4MzY3MmI1OThhNjg1NzU3NzVkM2I0YjViMmFjY2ZhMzM0M2E3NmYwYmU5NmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3MDAwMC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIyMDAwMC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODgwMDQ0NjJ9fX1dfQ__&Signature=MEQCIAv95BmQw%7E7I1OSHSSg10By3eQrfURYbktPDdxMrOTFHAiBjOtal3qngNyNl4W2tr7hf6Q433GA4xpAwpLnxzaPGfQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-29T10:54:22.397517Z'
-- artifact_hash: fcf26ada73d92dbf902367315122d5b39a883c9f35e60800ffd5c91720fa233a
-  artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/hf-audio/dns-challenge/resolve/main/data/train-00000-of-00001.parquet
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/hf-audio/dns-challenge/resolve/main/data/train-00000-of-00001.parquet
-  verified_at: '2026-08-29T10:54:22.397517Z'
-- artifact_hash: fcf26ada73d92dbf902367315122d5b39a883c9f35e60800ffd5c91720fa233a
-  artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/research.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: Southern Cross - Wikidata
-  kind: url
-  value: https://www.wikidata.org/wiki/Q801455
-  verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q801455
-  verified_at: '2026-08-29T10:54:22.397517Z'
 - artifact_hash: dd21041ea0f1fd22b941436ea7205fa6b3f376d5104b57ffbd04adf13a05498c
   artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/spec.md
   cite_id: c-001
@@ -110,3 +44,51 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
   verified_at: '2026-10-05T12:39:25.929597Z'
+- artifact_hash: be2eb9f721e8ed2f4e55677417c59943637d16ddb8f5af9d9cab9fdb53e6ed55
+  artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/voices-in-the-wild/2M
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/voices-in-the-wild/2M
+  verified_at: '2026-10-16T01:44:08.297925Z'
+- artifact_hash: be2eb9f721e8ed2f4e55677417c59943637d16ddb8f5af9d9cab9fdb53e6ed55
+  artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - microsoft/DNS-Challenge: This repo contains the scripts,\
+    \ models, and required files for the Deep Noise Suppression (DNS) Challenge. \xB7\
+    \ GitHub"
+  kind: url
+  value: https://github.com/microsoft/DNS-Challenge
+  verification_status: pending
+  verified_against_url: https://github.com/microsoft/DNS-Challenge
+  verified_at: '2026-10-16T01:44:08.297925Z'
+- artifact_hash: 26473d4c30a207824bf2aa547544c832f7664730200f2b1cf1e0b3982bd1e4f1
+  artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/voices-in-the-wild/2M
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/voices-in-the-wild/2M
+  verified_at: '2026-10-16T01:44:31.018912Z'
+- artifact_hash: 26473d4c30a207824bf2aa547544c832f7664730200f2b1cf1e0b3982bd1e4f1
+  artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - microsoft/DNS-Challenge: This repo contains the scripts,\
+    \ models, and required files for the Deep Noise Suppression (DNS) Challenge. \xB7\
+    \ GitHub"
+  kind: url
+  value: https://github.com/microsoft/DNS-Challenge
+  verification_status: pending
+  verified_against_url: https://github.com/microsoft/DNS-Challenge
+  verified_at: '2026-10-16T01:44:31.018912Z'

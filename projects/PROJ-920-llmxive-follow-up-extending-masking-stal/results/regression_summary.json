@@ -1,0 +1,70 @@
+{
+  "model_summary": {
+    "formula": "success ~ density_value * bs(requested_horizon, df=3, degree=3)",
+    "n_observations": 5000,
+    "pseudo_r_squared": 0.15143568206166602
+  },
+  "coefficients": [
+    {
+      "term": "Intercept",
+      "estimate": -2689571786585.264,
+      "std_error": 10483705968094.057,
+      "z_value": -0.2565478080719417,
+      "p_value": 0.7975278697612769
+    },
+    {
+      "term": "density_value",
+      "estimate": 2689571786582.841,
+      "std_error": 10483705968094.094,
+      "z_value": 0.2565478080717097,
+      "p_value": 0.7975278697614561
+    },
+    {
+      "term": "bs(requested_horizon, df=3, degree=3)[0]",
+      "estimate": 48523019337.76337,
+      "std_error": 189138311886.4162,
+      "z_value": 0.2565478080765733,
+      "p_value": 0.7975278697577011
+    },
+    {
+      "term": "bs(requested_horizon, df=3, degree=3)[1]",
+      "estimate": -1367250225535.2146,
+      "std_error": 5329416906005.446,
+      "z_value": -0.2565478080715604,
+      "p_value": 0.7975278697615713
+    },
+    {
+      "term": "bs(requested_horizon, df=3, degree=3)[2]",
+      "estimate": -52314582968.93855,
+      "std_error": 203917481750.42728,
+      "z_value": -0.25654780806368477,
+      "p_value": 0.7975278697676518
+    },
+    {
+      "term": "density_value:bs(requested_horizon, df=3, degree=3)[0]",
+      "estimate": -48523019335.96983,
+      "std_error": 189138311886.44,
+      "z_value": -0.25654780806705835,
+      "p_value": 0.7975278697650472
+    },
+    {
+      "term": "density_value:bs(requested_horizon, df=3, degree=3)[1]",
+      "estimate": 1367250225537.86,
+      "std_error": 5329416906005.444,
+      "z_value": 0.2565478080720569,
+      "p_value": 0.797527869761188
+    },
+    {
+      "term": "density_value:bs(requested_horizon, df=3, degree=3)[2]",
+      "estimate": 52314582972.25026,
+      "std_error": 203917481750.42154,
+      "z_value": 0.2565478080799324,
+      "p_value": 0.7975278697551077
+    }
+  ],
+  "interaction_significance": {
+    "p_value": 0.7975278697650472,
+    "supported_hypothesis": false
+  },
+  "plot_path": ""
+}

@@ -13,11 +13,10 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from utils.logging_config import setup_logging, get_logger
 from utils.validators import assert_no_3d_calls, validate_dataset_schema
 from utils.checksums import compute_file_checksum
-from data.preprocess_2d import preprocess_2d, main as preprocess_main
-from data.save_descriptors import save_descriptors, main as save_main
+from data.generate_descriptors import main as generate_descriptors_main
 from data.validate import validate_processed_descriptors, main as validate_main
-from data.loader import iterate_smiles
 from utils.config import get_config_summary
+# NOTE: feature selection module may not exist yet; import lazily in the function.
 
 logger = None
 
@@ -26,21 +25,22 @@ def check_prerequisites():
     global logger
     logger = get_logger("main")
     logger.info("Checking prerequisites...")
-    
+
     # Check directories
-    dirs = ["code", "tests", "data", "data/raw", "data/processed", "data/processed/analysis", "logs", "state"]
+    dirs = ["code", "tests", "data", "data/raw", "data/processed",
+            "data/processed/analysis", "logs", "state"]
     for d in dirs:
         path = PROJECT_ROOT / d
         if not path.exists():
             logger.error(f"Directory missing: {path}")
             return False
-    
+
     # Check config
     config_summary = get_config_summary()
     if not config_summary:
         logger.error("Failed to load configuration")
         return False
-    
+
     logger.info("Prerequisites check passed.")
     return True
 
@@ -55,13 +55,13 @@ def validate_2d_compliance():
     logger.info("Validating 2D-only compliance...")
 
     # Read the source code of the descriptor computation module
-    preprocess_path = PROJECT_ROOT / "code" / "data" / "preprocess_2d.py"
+    preprocess_path = PROJECT_ROOT / "code" / "data" / "generate_descriptors.py"
     if not preprocess_path.exists():
-        logger.error(f"Preprocessing script not found: {preprocess_path}")
+        logger.error(f"Descriptor generation script not found: {preprocess_path}")
         return False
 
     code_str = preprocess_path.read_text(encoding="utf-8")
-    
+
     # Call the validator. The validator is designed to accept a string of code
     # to inspect for forbidden 3D functions (e.g., EmbedMolecule, Get3DConformer).
     try:
@@ -77,7 +77,7 @@ def validate_2d_compliance():
 def validate_descriptors_file():
     """
     Verify that the processed descriptors file exists and matches the expected schema.
-    Uses the schema validators from T006.
+    Uses the schema validators from utils.validators.
     """
     global logger
     logger = get_logger("main")
@@ -163,24 +163,38 @@ def validate_artifact_integrity():
     return success
 
 def run_data_preprocessing():
-    """Run the data preprocessing pipeline."""
+    """Run the data preprocessing pipeline (T101)."""
     global logger
     logger = get_logger("main")
-    logger.info("Running data preprocessing...")
-    
-    # This invokes the logic in preprocess_2d.py which downloads (if needed),
-    # computes descriptors, handles NaNs, and saves to data/processed/descriptors.parquet
+    logger.info("Running data preprocessing (descriptor generation)...")
     try:
-        preprocess_main()
+        generate_descriptors_main()
         return True
     except Exception as e:
-        logger.error(f"Preprocessing failed: {e}")
+        logger.error(f"Descriptor generation failed: {e}")
+        return False
+
+def run_feature_selection():
+    """Run the VIF‑based feature selection (T105)."""
+    global logger
+    logger = get_logger("main")
+    logger.info("Running feature selection (VIF pruning & clustering)...")
+    try:
+        # Lazy import to avoid ModuleNotFoundError when the module is not yet present
+        from data.feature_selection import main as feature_selection_main
+        feature_selection_main()
+        return True
+    except ModuleNotFoundError:
+        logger.error("Feature selection module not found (data/feature_selection.py).")
+        return False
+    except Exception as e:
+        logger.error(f"Feature selection failed: {e}")
         return False
 
 def run_pipeline():
     """Execute the full pipeline with runtime assertions."""
     global logger
-    
+
     # 1. Check Prerequisites
     if not check_prerequisites():
         return False
@@ -194,14 +208,16 @@ def run_pipeline():
         return False
 
     # 4. Validate Output File (Runtime Assertion on Data)
-    # This ensures the file produced in step 3 matches the schema defined in T006
     if not validate_descriptors_file():
         return False
 
-    # 5. Validate Artifact Integrity (T049)
-    # Verifies that descriptors.parquet and cluster_map.csv match the manifest (T049a)
+    # 5. Feature selection
+    if not run_feature_selection():
+        return False
+
+    # 6. Validate Artifact Integrity (T049)
     if not validate_artifact_integrity():
-        logger.critical("Artifact integrity check failed. Data may have been tampered with or regenerated inconsistently.")
+        logger.critical("Artifact integrity check failed.")
         return False
 
     logger.info("Pipeline execution completed successfully with all assertions passed.")
@@ -210,15 +226,37 @@ def run_pipeline():
 def main():
     global logger
     parser = argparse.ArgumentParser(description="Main pipeline orchestrator")
-    parser.add_argument("--config", type=str, default="code/config.yaml", help="Path to config file")
+    parser.add_argument(
+        "--step",
+        type=str,
+        choices=["fetch_and_preprocess", "feature_selection", "train", "analyze", "verify"],
+        help="Pipeline step to execute"
+    )
+    parser.add_argument(
+        "--config", type=str, default="code/config.yaml", help="Path to config file"
+    )
     args = parser.parse_args()
 
-    # Setup logging
-    setup_logging(level=logging.INFO)
+    # Setup logging (no level argument – default config handles it)
+    setup_logging()
     logger = get_logger("main")
     logger.info("Starting pipeline...")
 
-    success = run_pipeline()
+    if args.step == "fetch_and_preprocess":
+        success = run_data_preprocessing()
+    elif args.step == "feature_selection":
+        success = run_feature_selection()
+    elif args.step == "train":
+        logger.error("Training step not yet implemented.")
+        success = False
+    elif args.step == "analyze":
+        logger.error("Analysis step not yet implemented.")
+        success = False
+    elif args.step == "verify":
+        success = validate_artifact_integrity()
+    else:
+        # No step provided: run full pipeline
+        success = run_pipeline()
 
     if success:
         logger.info("Pipeline finished successfully.")

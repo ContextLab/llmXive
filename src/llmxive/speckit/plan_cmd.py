@@ -435,7 +435,7 @@ class PlannerAgent(SlashCommandAgent):
         """
         try:
             from llmxive.backends.router import make_backend
-            backend = make_backend(ctx.default_backend.value)
+            backend = make_backend("dartmouth")
         except Exception:
             backend = None
         if backend is None:
@@ -460,7 +460,9 @@ class PlannerAgent(SlashCommandAgent):
         messages.append(ChatMessage(role="user", content=corrective))
 
         try:
-            response = reasoning_chat(backend, messages, model=ctx.default_model, max_tokens=GENERATION_MAX_TOKENS)
+            response = reasoning_chat(
+                backend, messages, profile=ctx.profile, max_tokens=GENERATION_MAX_TOKENS
+            )
         except Exception as exc:
             logger.info(
                 "plan revision re-call failed (%s: %s); cannot retry",
@@ -488,7 +490,7 @@ class PlannerAgent(SlashCommandAgent):
         )
 
         try:
-            backend = make_backend(ctx.default_backend.value)
+            backend = make_backend("dartmouth")
         except Exception:
             backend = None
         if backend is None:
@@ -515,7 +517,7 @@ class PlannerAgent(SlashCommandAgent):
         constitution_text = _constitution(memory_dir) or None
         spec = build_plan_reviewspec(
             backend=backend, repo_root=repo, project_id=ctx.project_id,
-            model=ctx.default_model,
+            requirement_overrides=ctx.requirement_overrides,
         )
         run_stage_panel(
             stage_label="plan",

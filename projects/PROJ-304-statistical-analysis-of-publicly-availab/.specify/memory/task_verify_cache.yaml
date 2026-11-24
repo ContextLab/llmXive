@@ -36,6 +36,17 @@ T004b:
     \ (149c5d13...) matching the collector's sha256, confirming the function was genuinely\
     \ executed against the real files."
   sig: cbf16d25c927bb6472aeefb1e6b083fe0f775adf51c3b60297dbf22140521ac9
+T005b:
+  c: true
+  h: b264cdd0d491b23fc1561c13194810b683c4833993d9d715ea26ef7a418d7ece
+  r: "`code/synthetic_data.py` exists (8773 bytes) and implements genuine pandas-based\
+    \ chunked generation: 50,000 cells processed in CHUNK_SIZE=2000 slices, each chunk\
+    \ written immediately to a parquet file and explicitly deleted (`del gdf`), so\
+    \ only one chunk is held in memory at a time \u2014 satisfying FR-010's <7GB constraint\
+    \ by design. The code is substantive (deterministic seeding, per-chunk metadata\
+    \ recorded to the state YAML, checksum recording), not a stub, and no execution\
+    \ evidence was required since the task asks for a design-level memory-safety implementation."
+  sig: 465bd28ad1ce60ffce5c2037c974e21e29090efc70772701494e6da28654cce8
 T006:
   c: true
   h: 3c61f286670a604bb084d846e7ca35894fcef01a7dd3939ebdddd08a72503b3b
@@ -54,14 +65,62 @@ T007:
     import dependency is present locally, and the test logic is a genuine verification
     (not a stub).'
   sig: a26d1a036acb4e764cb9b77be30326dda8469d97497e98d935a39b6cd057d4e8
+T009:
+  c: false
+  h: 6b4497d54a72048b02a8cb5b029b94241a31ec42bec21cbbaf67f9032d8b19fc
+  r: "The test file exists and is substantive, but `test_iqr_filter_removes_outliers`\
+    \ is mathematically inconsistent with the actual `apply_iqr_filter` implementation:\
+    \ for data [40,42,45,48,50,52,55,150,160], pandas linear quantiles give Q1=45,\
+    \ Q3=150, IQR=105, so the upper bound is 307.5 \u2014 the values 150 and 160 are\
+    \ NOT removed, and the assertion `len(filtered_df) < len(df)` (and the 40\u2013\
+    55 range check) would fail. No execution evidence (pytest output) was supplied\
+    \ either, so there is no proof any of these tests pass; the implementer must fix\
+    \ the test data (e.g., use more inliers so 150/160 fall out"
+  sig: 1f48e639204006223287648842ae2df61ed562adc7ed1fe4a0dd45eca179bb00
+T010:
+  c: false
+  h: 79c4b32659b6ec3da2a09ac24b4080c3e2feb40609e69bdf1e8f42833c51b640
+  r: 'The test file `tests/integration/test_ingestion.py` exists and is substantive,
+    but it is incompatible with the actual code it imports and would fail immediately:
+    it calls `generate_synthetic_data_chunked(n_cells=100, n_days=5, chunk_size=25,
+    ...)` while the real function signature is `(output_dir=None, seed=42)` (TypeError
+    on every test); it expects a `(noise_df, covariate_df)` tuple return while the
+    function returns a list of parquet file paths; `load_synthetic_data_chunked` globs
+    `noise_*.csv`/`covariates_*.csv` but the generator writes `synthetic_data_chunk_*.parquet`
+    (FileNotFoundError); `'
+  sig: f2994da42b5ec8faa71669164779a7d3a9c1563467149e97e9cf717c8ad3eb8b
+T011:
+  c: false
+  h: 3a30b7a9eaae2327c4c2ae82f26b373822a3675cc5571621f2e2aba251705a2b
+  r: 'The file `code/ingestion.py` exists and loads noise/covariate CSVs, but its
+    core harmonization is a fabricated stand-in: `generate_geometry` invents coordinates
+    from `grid_id` arithmetic with an explicit comment "In a real scenario, this would
+    use actual grid definitions," producing fake 200m-spaced points mislabeled as
+    EPSG:4326 (a degree-based CRS), which violates the spec''s requirement of a real
+    200m grid in a standard geographic CRS with no missing coordinates. There is also
+    no execution evidence (no `data/processed/harmonized.parquet`, no logs) showing
+    the script ever ran successfully, an'
+  sig: 55652b92814dff637f368882430d3cd497f7ba1408ac1b3ac8e55150121759b1
+T012:
+  c: true
+  h: 6a2e6b78836ea51b3f6ba496d7743137c171a6b203de92d2f1cbce8e44ab9a7c
+  r: "`code/preprocessing.py` exists (4990 bytes) and contains a real `apply_iqr_filter`\
+    \ function that computes Q1/Q3, IQR, and bounds at k=1.5 (default) on the decibel\
+    \ column and removes rows outside those bounds, with logging and input validation\
+    \ \u2014 exactly the requested IQR outlier removal. Supporting imports (`logger.py`,\
+    \ `linting_config.py`) resolve locally, and the extra functions (traffic cleaning,\
+    \ daily aggregation) are consistent with the broader spec rather than placeholders."
+  sig: a21f069e1e4a215b13d2a3e961d7bd26b9400521dc8947fc8bdf70093df417bd
 T015:
   c: true
-  h: 477416f1cbd2f13022b428451bc19b9c4865f5fc7bddb3ac258dca2c43a4297b
-  r: "The `code/preprocessing.py` file contains a non\u2011empty implementation of\
-    \ `clean_traffic_data` that (1) keeps rows where `traffic_volume` is 0.0, (2)\
-    \ drops only rows with `NaN` in that column, and (3) writes an exclusion record\
-    \ to `data/processed/exclusion_log.csv`. The missing log file is acceptable because\
-    \ it is created at runtime by the function."
+  h: 5733f34b3a4ca9eff62aaf7ee3e9b7e0a80cd0c4ec7622e8021738fd0da1a418
+  r: '`code/preprocessing.py` contains a real, non-stub `clean_traffic_data` that
+    uses `isna()` (so 0.0 values are retained), drops only NaN rows, and appends a
+    record with `excluded_count` to `data/processed/exclusion_log.csv` (creating the
+    file/directories as needed). The missing `exclusion_log.csv` is not a defect:
+    the log is only written at runtime when NaN rows are actually excluded, and the
+    task''s deliverable is the function implementation, which matches the stated requirement.'
+  sig: 4e915161fc15010e279d94cdf123dc02e57daf35ec9712580b4706a025ec3054
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,0 +1,3 @@
+"""
+Paper package placeholder.
+"""

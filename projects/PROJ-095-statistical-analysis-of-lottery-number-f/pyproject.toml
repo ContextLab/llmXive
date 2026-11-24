@@ -1,60 +1,57 @@
-[build-system]
-requires = ["setuptools>=45", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "lottery-integrity-analysis"
-version = "0.1.0"
-description = "Statistical analysis of lottery number frequencies and anomaly detection"
-requires-python = ">=3.9"
-dependencies = [
-    "pandas",
-    "numpy",
-    "scipy",
-    "requests",
-    "pyyaml",
-    "memory-profiler",
-    "pytest",
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [
+    ".git",
+    "__pycache__",
+    "venv",
+    "data",
+    "figures",
+    "results",
 ]
 
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort (import ordering)
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line length handled by black; long lines allowed where needed
+]
+
+[tool.ruff.lint.isort]
+known-first-party = [
+    "analysis",
+    "constants",
+    "data_utils",
+    "exceptions",
+    "generate_checksums",
+    "generate_legacy_metrics",
+    "ingestion",
+    "metrics",
+    "validation",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
 [tool.black]
-line-length = 88
-target-version = ['py39', 'py310', 'py311']
+line-length = 100
+target-version = ["py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | __pycache__
+  | venv
+  | \.venv
+  | data
+  | figures
+  | results
 )/
 '''
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning",
-]
-
-[tool.coverage.run]
-source = ["code"]
-branch = true
-
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "if __name__ == .__main__.:",
-    "if TYPE_CHECKING:",
-]

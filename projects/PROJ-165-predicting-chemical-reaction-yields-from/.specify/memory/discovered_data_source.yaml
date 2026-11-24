@@ -1,19 +1,19 @@
 status: none
-intent: download USPTO reaction dataset with spectral data and reaction conditions
-  Python package
+intent: USPTO 50k reactions with experimental IR NMR spectra from NIST PubChem download
+  python package dataset
 required_fields:
-- reaction_smiles
+- reaction_id
 - reactant_smiles
-- product_smiles
-- reaction_template_id
-- spectrum_type
-- spectrum_wavenumbers
-- spectrum_intensities
+- product_smile
+- ir_spectrum_array
+- nmr_spectrum_array
 - solvent
 - catalyst
 - temperature
-- pressure
-- reaction_conditions_vector
-cache_key: ab97b2036fe54940ed91e501ecb17f4539f6b508dbed379184ed1bcb6bfa5f9c
-searched_at: '2026-08-13T08:45:01.214394+00:00'
+- bemis_murcko_scaffold
+- reaction_template_id
+- md5_template_id
+- split
+cache_key: b089cdc6f6d0468444d8cec86f7b03dffa3c19367b4567425847bf1efcf14157
+searched_at: '2026-10-21T12:37:19.071478+00:00'
 retry_count: 1

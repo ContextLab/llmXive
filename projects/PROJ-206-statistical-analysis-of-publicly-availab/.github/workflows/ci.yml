@@ -9,12 +9,13 @@ on:
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
@@ -22,20 +23,22 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          # Ensure linting tools are installed
+          pip install ruff black flake8
 
-      - name: Run Ruff linting
+      - name: Run Ruff linter
         run: |
-          ruff check .
+          ruff .
 
-      - name: Run Black formatting check
+      - name: Run Black formatter check
         run: |
           black --check .
 
-      - name: Run Flake8 linting
+      - name: Run Flake8 linter
         run: |
           flake8 .
 
       - name: Run tests
         run: |
           pytest -v
-        
+# End of CI workflow

@@ -6,6 +6,7 @@ This module provides pytest fixtures for:
 - Logging configuration for test runs
 - Common test utilities
 """
+
 import logging
 import os
 import random
@@ -26,21 +27,21 @@ if str(code_dir) not in sys.path:
 def set_seed() -> Generator[None, None, None]:
     """
     Fixture to set global random seeds for reproducibility.
-    
+
     Sets seeds for:
     - Python's random module
     - NumPy's random generator
-    
+
     This runs once per session and ensures deterministic behavior
     across test runs.
     """
     seed = 42
     random.seed(seed)
     np.random.seed(seed)
-    
+
     # Yield control to tests
     yield
-    
+
     # Optional: cleanup if needed
     pass
 
@@ -49,29 +50,29 @@ def set_seed() -> Generator[None, None, None]:
 def test_logger() -> logging.Logger:
     """
     Fixture providing a configured logger for test modules.
-    
+
     Uses standard library logging with a StreamHandler to output
     to stderr during test execution. Configured to INFO level.
-    
+
     Returns:
         logging.Logger: A logger instance named 'test_<module_name>'
     """
     module_name = os.getenv("PYTEST_CURRENT_TEST", "unknown_test")
     logger_name = f"test_{module_name.split('::')[0].replace('/', '_')}"
-    
+
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging.INFO)
-    
+
     # Prevent duplicate handlers if fixture is called multiple times
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stderr)
         handler.setLevel(logging.INFO)
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-    
+
     return logger
 
 
@@ -79,13 +80,13 @@ def test_logger() -> logging.Logger:
 def temp_data_dir(tmp_path: Path) -> Path:
     """
     Fixture providing a temporary directory for data artifacts.
-    
+
     Creates a temporary directory structure mimicking the project's
     data layout for isolated test execution.
-    
+
     Args:
         tmp_path: Pytest's built-in temporary directory path
-    
+
     Returns:
         Path: The temporary directory path
     """
@@ -98,10 +99,10 @@ def temp_data_dir(tmp_path: Path) -> Path:
 def sample_config_dict() -> dict:
     """
     Fixture providing a sample configuration dictionary.
-    
+
     Returns a minimal valid configuration structure that can be
     passed to SimulationConfig or similar classes for testing.
-    
+
     Returns:
         dict: A sample configuration dictionary
     """
@@ -114,5 +115,5 @@ def sample_config_dict() -> dict:
         "seed": 42,
         "scaling_methods": ["standardize", "minmax", "robust"],
         "test_alpha": 0.05,
-        "n_iterations": 10
+        "n_iterations": 10,
     }

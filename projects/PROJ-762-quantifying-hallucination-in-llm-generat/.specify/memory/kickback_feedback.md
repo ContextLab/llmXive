@@ -6,4 +6,4 @@ The convergence panel for this stage could not resolve the concerns below within
 
 ## Unresolved concerns
 
-- FABRICATED-RESULT signal — projects/PROJ-762-quantifying-hallucination-in-llm-generat/specs/001-quantifying-hallucination-in-llm-generat/quickstart.md: self-declared fabricated metric — “…use `--simulate` to generate placeholder scores, but these will be flagged i…”. Research results must be REAL measurements, never simulated / placeholder / hardcoded / drawn from random.*. The reviser must replace this with a genuine computation before the stage advances.
+- FABRICATED-RESULT signal — projects/PROJ-762-quantifying-hallucination-in-llm-generat/specs/001-quantifying-hallucination-in-llm-generat/plan.md: self-declared fabricated metric — “…ns, deterministic seeding, no placeholder scores (FR‑012).    ## Decision/Rat…”. Research results must be REAL measurements, never simulated / placeholder / hardcoded / drawn from random.*. The reviser must replace this with a genuine computation before the stage advances.

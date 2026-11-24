@@ -1,10 +1,17 @@
 [flake8]
+# Match Black's line length
 max-line-length = 88
+# E203: whitespace before ':' (not PEP 8 compliant, but used by Black)
+# W503: line break before binary operator (not PEP 8 compliant, but used by Black)
 extend-ignore = E203, W503
-exclude = .git,__pycache__,build,dist,venv,.venv,env
-# Enable all default error codes
-select = C,E,F,W,B,B950
-# Optional: show source of each error
-show-source = True
-# Optional: statistics at end
-statistics = True
+# Exclude standard non-source directories
+exclude = 
+    .git,
+    __pycache__,
+    build,
+    dist,
+    venv,
+    .venv,
+    data,
+    state,
+    .mypy_cache

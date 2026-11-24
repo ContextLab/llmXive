@@ -216,7 +216,7 @@ class PaperClarifierAgent(SlashCommandAgent):
         )
 
         try:
-            backend = make_backend(ctx.default_backend.value)
+            backend = make_backend("dartmouth")
         except Exception:
             backend = None
         if backend is None:
@@ -228,7 +228,7 @@ class PaperClarifierAgent(SlashCommandAgent):
         constitution_text = _read(paper_const) or None
         spec = build_paper_spec_reviewspec(
             backend=backend, repo_root=repo, project_id=ctx.project_id,
-            model=ctx.default_model,
+            requirement_overrides=ctx.requirement_overrides,
         )
         spec_key = str(spec_path.relative_to(repo))
         run_stage_panel(

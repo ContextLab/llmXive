@@ -42,25 +42,3 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/src/2606.06087v1/ancillary.zip
   verified_at: '2026-09-05T16:42:58.160994Z'
-- artifact_hash: eff5759fe44da2ccd6e1deaa2cd2a7c44d5315d9cbc5a5cb0a3cf48fb00885b9
-  artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: ancillary.zip
-  kind: url
-  value: https://arxiv.org/src/2606.06087v1/ancillary.zip`
-  verification_status: pending
-  verified_against_url: https://arxiv.org/src/2606.06087v1/ancillary.zip
-  verified_at: '2026-09-05T16:50:47.725666Z'
-- artifact_hash: eff5759fe44da2ccd6e1deaa2cd2a7c44d5315d9cbc5a5cb0a3cf48fb00885b9
-  artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF \xB7 Hugging Face"
-  kind: url
-  value: https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
-  verification_status: pending
-  verified_against_url: https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
-  verified_at: '2026-09-05T16:50:47.725666Z'

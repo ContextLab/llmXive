@@ -1,1 +1,1 @@
-"""Evaluation subpackage – metrics and timing utilities."""
+# Package marker for code.evaluation

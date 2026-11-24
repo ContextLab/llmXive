@@ -10,9 +10,11 @@ import pytest
 from llmxive.backends import dartmouth
 from llmxive.backends.base import ChatMessage, DeadlineExceededError
 from llmxive.backends.router import chat_with_model_fallback
+from llmxive.model_selection.types import ModelPricing
 
 PRIMARY = "zai-org.glm-5.3"
-PEER = "openai.gpt-oss-120b"
+#: The next free candidate after the primary in the capability policy's order.
+PEER = "qwen.qwen3.5-122b"
 
 
 @pytest.fixture
@@ -64,7 +66,12 @@ def server(monkeypatch):
     thread.start()
     monkeypatch.setenv("DARTMOUTH_CHAT_API_KEY", f"credential-free-local-test-{host.server_port}")
     monkeypatch.setattr(sdk, "CLOUD_BASE_URL", f"http://127.0.0.1:{host.server_port}/v1")
-    monkeypatch.setattr(dartmouth, "_FREE_MODELS_CACHE", frozenset({PRIMARY, PEER}))
+    # Verified-free pricing for both models, as a fresh live-catalog observation.
+    monkeypatch.setattr(
+        dartmouth, "_LIVE_PRICING_CACHE",
+        {PRIMARY: ModelPricing(0.0, 0.0), PEER: ModelPricing(0.0, 0.0)},
+    )
+    monkeypatch.setattr(dartmouth, "_LIVE_PRICING_CACHE_AT", time.monotonic())
     try:
         yield calls
     finally:

@@ -1,8 +1,9 @@
 {
-  "total_puzzles": 0,
-  "total_attempts": 0,
-  "successful_perturbations": 0,
-  "failed_perturbations": 0,
-  "cycle_rate": 0.0,
-  "status": "[deferred]"
+  "total_puzzles": 200,
+  "samples_generated_primary": 200,
+  "samples_generated_aux": 0,
+  "samples_attempted_primary": 100000,
+  "samples_attempted_aux": 0,
+  "correlation_coefficient": 0.10906547785615027,
+  "cycle_rate": "[deferred]"
 }

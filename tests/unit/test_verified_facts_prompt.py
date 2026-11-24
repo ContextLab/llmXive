@@ -176,7 +176,6 @@ def load_facts_from_payload(payload: dict[str, Any]) -> list[dict[str, Any]]:
 
 def _make_ctx(project_id: str, project_dir: Path):
     from llmxive.speckit.slash_command import SlashCommandContext
-    from llmxive.types import BackendName
 
     return SlashCommandContext(
         project_id=project_id,
@@ -186,9 +185,7 @@ def _make_ctx(project_id: str, project_dir: Path):
         inputs=[],
         expected_outputs=[],
         prompt_template_path=project_dir / "x.md",
-        default_backend=BackendName.DARTMOUTH,
-        fallback_backends=[],
-        default_model="m",
+        profile="standard_generation",
         prompt_version="1.0.0",
         agent_name="agent",
     )

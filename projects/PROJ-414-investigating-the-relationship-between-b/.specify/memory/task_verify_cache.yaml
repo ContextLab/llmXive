@@ -1,0 +1,37 @@
+T001:
+  c: true
+  h: c2bc96b888985ed8467d615a26edb4a23ec92443c03880335dacd27b9d772165
+  r: "The parquet shard `data/raw/test-00000-of-00016.parquet` exists and is non\u2011\
+    empty, `data/checksums.json` contains the correct SHA\u2011256 matching the file,\
+    \ and `data/raw/column_inventory.json` accurately reflects the real schema, field\
+    \ presence, and distinct subject count (validated by the supplied pytest suite).\
+    \ The download script uses `hf_hub_download` and raises on any error, with no\
+    \ synthetic fallback."
+  sig: ed7b61b09e6127a2771fa54abffd6698d2f59731ac0dcef46bae43ea4e5f383c
+T002:
+  c: true
+  h: 1362e049791a657e4cd4aa14ab92e2c55790248097657f3316f0f860acb03f93
+  r: "Checked `code/config.py`, `code/requirements.txt`, `code/run_all.py` (help exits\
+    \ 0 per log), and `specs/001-investigating-the-relationship-between-b/quickstart.md`\
+    \ (contains the exact CLI invocation). All required artifacts exist, are non\u2011\
+    empty, and match the task specifications."
+  sig: 1e21df58b622a90ec0e4e13f5da349ca9bdf2594e6cfe388a708ebb5e088b6fb
+T005:
+  c: true
+  h: fd40509f6012930b24f3999e6ad44575a0cdf1535e212e1f8680bbbbf867c1ea
+  r: "Checked `code/dimensionality.py` for correct PCA implementation (80\u202F% variance\
+    \ threshold, per\u2011subject score aggregation) and the generated `data/derived/pca_scores.csv`\
+    \ (header present, schema\u2011compatible). The provided pytest `test_pca_variance_threshold`\
+    \ runs successfully, confirming the required behavior."
+  sig: 5a708e7a5e62f268e9ac882812f2e08874f6fda48991ba3d0478dd0bfbf8be51
+T006:
+  c: false
+  h: a4499a5e2d3e8b231ca9435c8488eddbffd57137d139c15578c5ca8beac820ae
+  r: "Checked `code/analysis.py` and `results/power_analysis.json`. The power analysis\
+    \ JSON is present and contains the correct fields, but the implementation explicitly\
+    \ avoids `statsmodels` and computes the required sample size with a custom Fisher\u2011\
+    z approximation, violating the task\u2019s requirement to use `statsmodels.stats.power`.\
+    \ Consequently the power analysis does not meet the specification. (The missing\
+    \ `regression_results.csv` is acceptable because no skill\u2011proxy column is\
+    \ present.)"
+  sig: 1b18df1af3b832426513e32bce3c1cc5d151446d03a66dad005cf8e4a5ece283

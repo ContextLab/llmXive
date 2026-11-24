@@ -228,9 +228,6 @@ class LibrarianAgent(Agent):
             extracted_queries = query_extractor.extract_queries(
                 term,
                 field=field,
-                model=self.entry.default_model,
-                default_backend=self.entry.default_backend.value,
-                fallback_backends=[b.value for b in self.entry.fallback_backends],
             )
         except Exception as exc:
             extracted_queries = []
@@ -287,7 +284,6 @@ class LibrarianAgent(Agent):
                 idea_body_excerpt,
                 project_id=project_id,
                 prompt_ver=prompt_ver,
-                entry=self.entry,
                 repo_root=repo_root,
             )
             if verdict:
@@ -311,9 +307,6 @@ class LibrarianAgent(Agent):
                     field=field,
                     idea_body_excerpt=idea_body_excerpt,
                     n=DEFAULT_EXPANSION_CAP,
-                    model=self.entry.default_model,
-                    default_backend=self.entry.default_backend.value,
-                    fallback_backends=[b.value for b in self.entry.fallback_backends],
                 )
                 expansion = iterate_until_target(
                     term,
@@ -361,9 +354,6 @@ class LibrarianAgent(Agent):
                 kept, rejected = relevance_judge.filter_by_relevance(
                     verified,
                     query=term,
-                    model=self.entry.default_model,
-                    default_backend=self.entry.default_backend.value,
-                    fallback_backends=[b.value for b in self.entry.fallback_backends],
                     # Issue #112: freeze per-candidate verdicts on disk so
                     # re-runs replay identical judgments.
                     repo_root=repo_root,
@@ -620,7 +610,6 @@ def _maybe_math_question(
     *,
     project_id: str | None,
     prompt_ver: str,
-    entry: AgentRegistryEntry,
     repo_root: Path | None,
 ) -> tuple[bool, dict[str, Any]]:
     """Consult the LLM math-classifier; return ``(should_query_theoremsearch,
@@ -636,9 +625,6 @@ def _maybe_math_question(
         idea_body_excerpt,
         project_id=project_id,
         librarian_prompt_version=prompt_ver,
-        model=entry.default_model,
-        default_backend=entry.default_backend.value,
-        fallback_backends=[b.value for b in entry.fallback_backends],
         repo_root=repo_root,
     )
     audit = {"invoked": res.invoked, "verdict": res.verdict, "error": res.error}

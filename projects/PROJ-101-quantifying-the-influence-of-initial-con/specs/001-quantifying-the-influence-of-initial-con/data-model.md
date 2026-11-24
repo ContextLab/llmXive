@@ -1,76 +1,56 @@
 # Data Model: Quantifying the Influence of Initial Conditions on Chaotic Systems
 
 ## Overview
+All artifacts reside under `data/`. Raw trajectories are immutable; processed results are derived and validated against JSON schemas located in `specs/.../contracts/`. Checksums are recorded in `state/artifacts/manifest.yaml` (platform‑owned).
 
-This document defines the data structures, file formats, and schemas used in the project. All data is stored in `data/` with checksums recorded in `state/`.
-
-## Directory Structure
-
-```text
+## Directory Layout
+```
 data/
 ├── raw/
-│   ├── trajectories_N{N}_sigma{sigma}_trial{t}.npz
-│   └── ... (generated synthetic data)
+│   └── trajectories_N{N}_sigma{sigma}_trial{t}.npz
 ├── processed/
-│   ├── ftle_results.json           # Aggregated FTLE estimates
-│   ├── baseline_{N}.json           # Asymptotic baseline for dimension N
-│   ├── regression_stats.json       # Regression coefficients and p-values
-│   └── plots/                      # Generated figures
+│   ├── baseline_{N}.json            # Clean asymptotic exponent (baseline.schema.yaml)
+│   ├── baseline_per_window_{N}.json # Per‑window baseline estimates (mean, std, convergence error)
+│   ├── ftle_results.json            # Aggregated FTLE entries and status flags
+│   ├── regression_results.json      # Mixed‑effects summary, Tobit summary, escape probabilities, baseline_variance_used flag
+│   ├── results.json                 # Bundle containing all above plus metadata
+│   └── plots/
+│       ├── convergence.png
+│       ├── bias_scaling.png
+│       └── dimension_scaling.png
 └── artifacts/
-    └── manifest.yaml               # Checksums and metadata
+    └── manifest.yaml                # SHA‑256 checksums & metadata (platform‑owned)
 ```
 
 ## Entity Definitions
 
-### 1. Trajectory (Raw)
-- **Source**: `code/simulation/generator.py`
-- **Format**: NumPy `.npz` (compressed)
-- **Contents**:
-  - `time`: 1D array of time points.
-  - `state`: 2D array $(T, 3N)$ of system states.
-  - `noise`: 2D array $(T, 3N)$ of injected noise (for verification).
-  - `params`: Dict with `N`, `sigma`, `seed`, `rho`, `beta`, `sigma_l`.
-
-### 2. FTLE Result (Processed)
-- **Source**: `code/analysis/ftle.py`
-- **Format**: JSON
-- **Schema**: See `contracts/ftle_result.schema.yaml`
-- **Key Fields**:
-  - `window_size`: Explicitly recorded sliding window size $T$.
-  - `status`: "valid", "unphysical", or "non-chaotic".
-
-### 3. Baseline (Processed)
-- **Source**: `code/analysis/baseline.py`
-- **Format**: JSON
-- **Contents**:
-  - `N`: System dimension.
-  - `lambda_max`: Maximum Lyapunov exponent (asymptotic).
-  - `convergence_error`: % error at $T=5000$.
-  - `status`: "valid" or "invalid".
-  - `algorithm`: "Rosenstein" (as per Constitution).
-
-### 4. Regression Stats (Processed)
-- **Source**: `code/analysis/regression.py`
-- **Format**: JSON
-- **Contents**:
-  - `model_type`: e.g., "power_law".
-  - `coefficients`: Dict of fitted parameters.
-  - `r_squared`: $R^2$ value.
-  - `p_values`: Dict of p-values for coefficients.
-  - `scaling_exponent`: Exponent relating dimension to bias (if applicable).
-  - `effect_size`: Cohen's d for the bias term.
-  - `trial_count`: Number of trials used.
+| Entity | Produced by | Format | Schema |
+|--------|-------------|--------|--------|
+| **Trajectory** | `code/simulation/generator.py` | NumPy `.npz` (arrays `time`, `state`, `noise`; dict `params` with `seed`, `N`, `sigma_noise`, `trial_id`) | `contracts/trajectory.schema.yaml` |
+| **Baseline** | `code/analysis/baseline.py` | JSON object with fields `system_dimension`, `lambda_max`, `convergence_error`, `status`, `trajectory_length`, `algorithm`, optional `baseline_variance`, `sample_count` | `contracts/baseline.schema.yaml` |
+| **Baseline per window** | `code/analysis/baseline.py` | JSON array of objects each with `window_size`, `lambda_mean`, `lambda_std`, `convergence_error` | `contracts/baseline.schema.yaml` |
+| **FTLE Result (single)** | `code/analysis/ftle.py` | JSON object (see `ftle_result.schema.yaml`) | `contracts/ftle_result.schema.yaml` |
+| **FTLE Results (aggregated)** | `code/analysis/ftle.py` (aggregation) | JSON array of FTLE results | `contracts/ftle_results.schema.yaml` |
+| **Regression Results** | `code/analysis/regression.py` | JSON with mixed‑effects summary, Tobit summary, escape probabilities, `baseline_variance_used` flag | `contracts/regression_results.schema.yaml` |
+| **Results Bundle** | Pipeline end‑stage | JSON combining baseline, FTLE, regression, escape probabilities, generation timestamp | `contracts/results.schema.yaml` |
+| **Plots** | `code/analysis/plotting.py` | PNG files (no schema) | – |
 
 ## Data Flow
-
-1.  **Generation**: `generator.py` reads `config.py` -> writes `data/raw/*.npz`.
-2.  **Validation**: `baseline.py` reads `data/raw` (clean) -> writes `data/processed/baseline_{N}.json` (using Rosenstein).
-3.  **Computation**: `ftle.py` reads `data/raw` -> writes `data/processed/ftle_results.json` (includes `window_size` metadata).
-4.  **Analysis**: `regression.py` reads `ftle_results.json` + `baseline` -> writes `data/processed/regression_stats.json`.
-5.  **Visualization**: `code/analysis/plotting.py` reads `regression_stats.json` -> writes `data/processed/plots/*.png`.
+1. **Generation** → `data/raw/*.npz`.  
+2. **Baseline Validation** reads clean raw file → writes `baseline_{N}.json` and `baseline_per_window_{N}.json`.  
+3. **FTLE Computation** reads each raw file → appends entries to `ftle_results.json`.  
+4. **Statistical Analysis** consumes `ftle_results.json` + `baseline_{N}.json` → writes `regression_results.json`.  
+5. **Bundling** creates `results.json`.  
+6. **Visualization** consumes `regression_results.json` → writes PNGs.  
+7. **Manifest** computes SHA‑256 for every file in `data/` and records them under `state/artifacts/manifest.yaml`.
 
 ## Integrity & Hygiene
+- **Immutability**: Raw `.npz` files are never overwritten.  
+- **Checksums**: Generated automatically after each pipeline stage; CI fails on mismatch.  
+- **Versioning**: `state/projects/PROJ-101-quantifying-the-influence-of-initial-con.yaml` records the git commit hash and artifact hash map.  
+- **Reproducibility**: All random seeds are stored in each trajectory’s metadata (`params.seed`).  
 
-- **Checksums**: Every file in `data/` is checksummed (SHA-256) upon creation.
-- **Immutability**: Raw data files are never modified. Derived files are written with new timestamps.
-- **Versioning**: `state/manifest.yaml` tracks the git commit hash and file hashes for every artifact.
+## Propagation of Baseline Uncertainty
+The `baseline_variance` (or per‑window `lambda_std`) captured in Phase 3 is **propagated as observation‑level weights** in the mixed‑effects regression (Phase 6). This explicitly acknowledges algorithmic differences between Rosenstein baseline and QR‑based FTLE computation and prevents under‑estimation of uncertainty in the deviation metric \(\Delta\lambda\).
+
+---

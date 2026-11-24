@@ -1,9 +1,8 @@
 import logging
 import sys
-import json
-from datetime import datetime, timezone
-from typing import Optional, Dict, Any
 from pathlib import Path
+from typing import Optional, Dict, Any
+from datetime import datetime, timezone
 
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -14,7 +13,7 @@ _log_file_path: Optional[Path] = None
 def configure_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> None:
     """Configure the root logger."""
     global _logger_instance, _log_file_path
-    
+
     if _logger_instance is not None:
         return
 
@@ -33,6 +32,16 @@ def configure_logging(log_file: Optional[str] = None, level: int = logging.INFO)
         file_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
         _logger_instance.addHandler(file_handler)
 
+def init_logger(log_file: Optional[str] = None, level: int = logging.INFO) -> None:
+    """
+    Backwards‑compatible initializer used by legacy test code.
+
+    The original test suite expected a function named ``init_logger`` that
+    performed the same work as ``configure_logging``.  It now simply forwards
+    to ``configure_logging``.
+    """
+    configure_logging(log_file=log_file, level=level)
+
 def get_logger(name: Optional[str] = None) -> logging.Logger:
     """Get a logger instance, optionally with a specific name."""
     if _logger_instance is None:
@@ -50,7 +59,7 @@ def heartbeat(node_id: str, event_type: str, details: Optional[Dict[str, Any]] =
         "event_type": event_type,
         "details": details or {}
     }
-    logger.info(json.dumps(log_entry))
+    logger.info(str(log_entry))
 
 def get_log_file_path() -> Optional[Path]:
     """Return the path to the log file if configured."""

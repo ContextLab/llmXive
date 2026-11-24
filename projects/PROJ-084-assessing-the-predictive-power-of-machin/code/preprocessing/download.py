@@ -11,6 +11,7 @@ import sys
 import json
 from pathlib import Path
 from typing import Optional, Dict, Any
+import time
 
 import pandas as pd
 
@@ -33,6 +34,8 @@ OUTPUT_PARQUET = DATA_RAW_DIR / "uspto_raw.parquet"
 CHECKSUM_FILE = DATA_RESULTS_DIR / "download_checksum.txt"
 LOG_FILE = DATA_RESULTS_DIR / "download_log.txt"
 SPEC_DOI = "10.1038/s41597-022-01438-5"  # Reference DOI from spec
+MAX_RETRIES = 3
+RETRY_DELAY_SECONDS = 5
 
 def ensure_directories():
     """Create necessary directories if they don't exist."""
@@ -51,23 +54,22 @@ def calculate_sha256(file_path: Path) -> str:
 def verify_dataset_exists(dataset_id: str) -> bool:
     """
     Verify that the dataset exists on Hugging Face.
-    
+
     Args:
         dataset_id: The Hugging Face dataset identifier.
-        
+
     Returns:
         True if the dataset exists, False otherwise.
-        
+
     Raises:
         FileNotFoundError: If the dataset source is invalid.
     """
     try:
         from datasets import load_dataset
-        # Try to load just the info to verify existence without downloading full data
+        # Verify existence with streaming to avoid full download
         logger.info(f"Verifying dataset existence: {dataset_id}")
-        # We'll do a minimal load to check existence
         ds = load_dataset(dataset_id, split='train', streaming=True)
-        # Try to get one item to verify it's accessible
+        # Attempt to read a single record
         next(iter(ds))
         logger.info(f"Dataset {dataset_id} verified successfully.")
         return True
@@ -82,28 +84,28 @@ def verify_dataset_exists(dataset_id: str) -> bool:
 def download_from_hf(dataset_id: str, split: str = 'train') -> pd.DataFrame:
     """
     Download the dataset from Hugging Face and convert to DataFrame.
-    
+
     Args:
         dataset_id: The Hugging Face dataset identifier.
         split: The dataset split to load (default: 'train').
-        
+
     Returns:
         pandas DataFrame containing the dataset.
-        
+
     Raises:
         FileNotFoundError: If the download fails.
     """
     try:
         from datasets import load_dataset
         logger.info(f"Loading dataset: {dataset_id}, split: {split}")
-        
-        # Load the dataset
+
+        # Load the dataset (non-streaming for full download)
         dataset = load_dataset(dataset_id, split=split)
-        
+
         # Convert to DataFrame
         df = dataset.to_pandas()
         logger.info(f"Successfully loaded {len(df)} rows from {dataset_id}")
-        
+
         return df
     except Exception as e:
         error_msg = str(e)
@@ -135,7 +137,7 @@ def write_log(row_count: int):
 def download_uspto_dataset():
     """
     Main function to download the USPTO dataset.
-    
+
     Steps:
     1. Verify the dataset source against the spec's DOI link.
     2. Download the dataset from Hugging Face.
@@ -144,44 +146,49 @@ def download_uspto_dataset():
     5. Log row count.
     """
     logger.info("Starting USPTO dataset download...")
-    
+
     # Step 1: Ensure directories exist
     ensure_directories()
-    
+
     # Step 2: Verify dataset source
-    # The spec's DOI (10.1038/s41597-022-01438-5) points to the Farama USPTO dataset
-    # We verify this mapping is correct
     logger.info(f"Verifying dataset source: {USPTO_DATASET_ID}")
     logger.info(f"Spec DOI reference: {SPEC_DOI}")
-    
+
     # Verify the dataset exists
     verify_dataset_exists(USPTO_DATASET_ID)
-    
-    # Step 3: Download the dataset
-    try:
-        df = download_from_hf(USPTO_DATASET_ID, split='train')
-    except FileNotFoundError:
-        raise
-    except Exception as e:
-        raise FileNotFoundError(
-            f"Dataset verification failed: Canonical source could not be accessed. "
-            f"No synthetic fallback allowed. Error: {str(e)}"
-        )
-    
+
+    # Step 3: Download the dataset with retries
+    attempt = 0
+    while attempt < MAX_RETRIES:
+        try:
+            df = download_from_hf(USPTO_DATASET_ID, split='train')
+            break  # Success
+        except FileNotFoundError as e:
+            attempt += 1
+            logger.warning(f"Download attempt {attempt} failed: {e}")
+            if attempt >= MAX_RETRIES:
+                logger.error("Maximum download attempts reached. Raising error.")
+                raise FileNotFoundError(
+                    "Dataset verification failed: canonical source could not be accessed. "
+                    "No synthetic fallback allowed."
+                )
+            logger.info(f"Retrying in {RETRY_DELAY_SECONDS} seconds...")
+            time.sleep(RETRY_DELAY_SECONDS)
+
     # Step 4: Save to Parquet
     logger.info(f"Saving {len(df)} rows to {OUTPUT_PARQUET}")
     df.to_parquet(OUTPUT_PARQUET, index=False)
-    
+
     # Step 5: Calculate checksum
     checksum = calculate_sha256(OUTPUT_PARQUET)
     logger.info(f"SHA256 checksum: {checksum}")
-    
+
     # Step 6: Write checksum file
     write_checksum(OUTPUT_PARQUET, checksum, f"https://huggingface.co/datasets/{USPTO_DATASET_ID}")
-    
+
     # Step 7: Write log file
     write_log(len(df))
-    
+
     logger.info("USPTO dataset download completed successfully.")
     return df
 

@@ -1,0 +1,10 @@
+status: none
+intent: public fluorescence quantum yield SMILES dataset experimental values download
+  python package dataset
+required_fields:
+- smiles
+- fluorescence_quantum_yield
+- molecule_id
+cache_key: a0575760398a87d9ee5fdc7778f0f8de173cea69d32e6f09368b39a19fa9e1ea
+searched_at: '2026-10-25T22:18:33.970910+00:00'
+retry_count: 1

@@ -1,86 +1,108 @@
 """
-Utility functions for logging, file I/O, and error handling.
+Utility helpers for the Resting‑State fMRI Global Signal analysis pipeline.
+
+This module provides a thin wrapper around common I/O and logging operations
+used across the codebase. It deliberately avoids heavy dependencies and
+keeps the implementation straightforward to ensure reliability in the
+constrained CI environment.
 """
-import logging
-import os
-import sys
+
 import json
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict
+
 import pandas as pd
 
-def get_logger(name: str = "llmXive") -> logging.Logger:
-    """Create and return a logger instance."""
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
-    return logger
+from llmxive_toolkit import get_logger as llmxive_get_logger, paths
 
-def setup_logging(log_file: Optional[str] = None) -> None:
-    """Configure logging to file and/or console."""
-    if log_file:
-        Path(log_file).parent.mkdir(parents=True, exist_ok=True)
-        logging.basicConfig(
-            filename=log_file,
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s'
-        )
+__all__ = [
+    "get_logger",
+    "setup_logging",
+    "read_csv",
+    "write_csv",
+    "read_json",
+    "write_json",
+]
 
-def read_json(filepath: str) -> Dict:
-    """Read a JSON file and return a dictionary."""
-    with open(filepath, 'r') as f:
+
+def get_logger(name: str) -> logging.Logger:
+    """
+    Return a project‑wide logger.
+
+    The llmxive toolkit already provides a configurable logger; we simply
+    expose it under the expected name.
+    """
+    return llmxive_get_logger(name)
+
+
+def setup_logging(level: int = logging.INFO) -> None:
+    """
+    Configure the root logger for scripts that are executed directly.
+
+    This function is idempotent – calling it multiple times has no adverse
+    effect because the ``logging.basicConfig`` call only configures the
+    logger if it has no handlers attached.
+    """
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
+
+
+# ----------------------------------------------------------------------
+# CSV helpers
+# ----------------------------------------------------------------------
+
+def read_csv(path: str | Path) -> pd.DataFrame:
+    """
+    Read a CSV file into a ``pandas.DataFrame``.
+
+    Parameters
+    ----------
+    path: str or Path
+        Path to the CSV file.
+
+    Returns
+    -------
+    pandas.DataFrame
+    """
+    return pd.read_csv(path)
+
+
+def write_csv(df: pd.DataFrame, path: str | Path) -> None:
+    """
+    Write a ``pandas.DataFrame`` to CSV, ensuring the parent directory exists.
+
+    Parameters
+    ----------
+    df: pandas.DataFrame
+        Dataframe to write.
+    path: str or Path
+        Destination file path.
+    """
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(p, index=False)
+
+
+# ----------------------------------------------------------------------
+# JSON helpers
+# ----------------------------------------------------------------------
+
+def read_json(path: str | Path) -> Dict[str, Any]:
+    """
+    Load a JSON file and return its contents as a dictionary.
+    """
+    with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def write_json(filepath: str, data: Dict) -> None:
-    """Write a dictionary to a JSON file."""
-    Path(filepath).parent.mkdir(parents=True, exist_ok=True)
-    with open(filepath, 'w') as f:
-        json.dump(data, f, indent=2)
 
-def read_csv(filepath: str) -> pd.DataFrame:
-    """Read a CSV file and return a DataFrame."""
-    return pd.read_csv(filepath)
-
-def write_csv(filepath: str, df: pd.DataFrame) -> None:
-    """Write a DataFrame to a CSV file."""
-    Path(filepath).parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(filepath, index=False)
-
-def read_text(filepath: str) -> str:
-    """Read a text file and return its contents."""
-    with open(filepath, 'r') as f:
-        return f.read()
-
-def write_text(filepath: str, content: str) -> None:
-    """Write a string to a text file."""
-    Path(filepath).parent.mkdir(parents=True, exist_ok=True)
-    with open(filepath, 'w') as f:
-        f.write(content)
-
-def file_exists(filepath: str) -> bool:
-    """Check if a file exists."""
-    return Path(filepath).exists()
-
-def ensure_file_directory(filepath: str) -> None:
-    """Ensure the directory for a file exists."""
-    Path(filepath).parent.mkdir(parents=True, exist_ok=True)
-
-def safe_divide(a: float, b: float, default: float = 0.0) -> float:
-    """Safely divide two numbers, returning default if denominator is zero."""
-    if b == 0:
-        return default
-    return a / b
-
-def validate_required_keys(data: Dict, required_keys: List[str]) -> bool:
-    """Check if all required keys are present in a dictionary."""
-    return all(key in data for key in required_keys)
-
-def log_execution_time(start_time: float, end_time: float, task_name: str) -> None:
-    """Log the execution time of a task."""
-    duration = end_time - start_time
-    logger = get_logger()
-    logger.info(f"{task_name} executed in {duration:.2f} seconds")
+def write_json(path: str | Path, data: Dict[str, Any]) -> None:
+    """
+    Write a dictionary to a JSON file with pretty formatting.
+    """
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with open(p, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, sort_keys=True)

@@ -1,112 +1,141 @@
-# Tasks: The Effect of Simulated Social Rejection on Behavioral Responses
+# Tasks: The Effect of Simulated Social Rejection on Behavioral Proxies (Reaction Time and Mood)
 
-**Inputs**: `spec.md`, `plan.md`, existing project skeleton.  
-**Goal**: End‑to‑end pipeline that (1) downloads and validates the OpenNeuro ds000208 (rejection) and ds003392 (reward) datasets, (2) preprocesses behavioral logs, (3) runs the appropriate statistical test (within‑ or between‑subjects) based on cross‑dataset ID matching, (4) applies FDR correction and a sensitivity sweep, and (5) produces a reproducible report that respects all functional requirements (FR‑000 – FR‑008) and success criteria (SC‑001 – SC‑004).
+**Inputs**: `spec.md`, `plan.md`, active contracts in `specs/001-the-effect-of-simulated-social-rejection/contracts/`, existing project skeleton (`code/`, `data/`, `results/`, `paper/`, `tests/`).
 
----
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-## Phase 1 – Project scaffolding & quickstart (US0)
+*Goal*: Build a runnable pipeline that can be executed on a small real input and produce a complete set of result artifacts.
 
-- [X] **T001** [ ] [US0] Create the directory layout (`code/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`, `reports/`) and placeholder `__init__.py` files; add `requirements.txt` (pandas, numpy, scipy, statsmodels, pyyaml, requests) and generate `quickstart.md` that documents (a) installation via `pip install -r requirements.txt` and (b) the single‑command pipeline invocation `python -m code.pipeline`.
+- [ ] T001 **Create project layout and dependency file**  
+  *Create the directories `code/`, `data/raw/`, `data/interim/`, `data/processed/`, `results/`, `paper/`, `tests/` (each with an empty `__init__.py`). Write `code/requirements.txt` with the exact pinned versions listed in the plan and add the runnable command to `quickstart.md`.*  
+  *Verification*: `quickstart.md` exists and contains the full pipeline command; `pip install -r code/requirements.txt` succeeds in a fresh virtual environment.
 
----
+- [ ] T002 [US-1] **Ingest the Cyberball dataset (ds000208)**   <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 -->
+  *Download the verified OpenNeuro parquet file for ds000208 from the HuggingFace mirror to `data/raw/ds000208.parquet` using streaming HTTP. Compute a SHA‑256 checksum and write `data/raw/metadata.json`. Create a human‑readable citation file `data/raw/CITATION.md`. Abort with exit 1 if (a) required columns are missing, (b) file size > 7 GB, or (c) the `condition` column does not contain both “rejection” and “control”.*  
+  *Verification*: Running `python code/ingest.py --url <verified‑url> --out-dir data/raw --dataset-id ds000208` exits 0, the parquet file and both metadata files exist, and a log entry confirms column validation passed.
 
-## Phase 2 – Core infrastructure (US0)
+- [ ] T003 [US-1] **Validate raw dataset against schemas**  
+  *Run `code/validate.py` on `data/raw/ds000208.parquet` using `contracts/dataset.schema.yaml` and `contracts/ingest_schema.schema.yaml`. The validator must check for the required columns (`participant_id`, `condition`, `reaction_time`, `mood_rating`), enforce numeric constraints, and confirm that both “rejection” and “control” appear in `condition`. Write a JSON validation report to `data/interim/ingest_validation_report.json`. Abort with exit 1 on any failure.*  
+  *Verification*: `python code/validate.py --raw data/raw/ds000208.parquet --schema contracts/dataset.schema.yaml --output data/interim/ingest_validation_report.json` exits 0 and the JSON report contains `"status": "pass"`.
 
-- [X] **T002** [ ] [US0] Implement `code/config.py` defining:
-  - `PROJECT_ROOT`, `RAW_DIR`, `INTERIM_DIR`, `PROCESSED_DIR`, `REPORTS_DIR`
-  - `MAX_RAM_GB = 7`
-  - `ALPHA_SET = {0.01, 0.05, 0.1}`
-  - a fixed random seed (`SEED = 42`)
-- Add a minimal logger in `code/utils/logger.py` that records timestamps, RAM usage, and key events to `data/processed/event_log.json`.
-- Define data‑model classes (`Dataset`, `PreprocessedRecord`, `AnalysisResult`) with a `design_type` attribute in `code/data_model.py`.
+- [ ] T003b [US-1] **Detect participant ID overlap**  
+  *Inspect `data/raw/ds000208.parquet` to determine whether the same `participant_id` appears in both `rejection` and `control` conditions. Write `data/interim/id_match_report.json` with a boolean field `ids_match`. This report drives design selection.*  
+  *Verification*: JSON file exists with `"ids_match": true` or `false`.
 
----
+- [ ] T004 [US-1] **Record reward‑feedback dataset unavailability**  
+  *Because no open‑access reward dataset exists, the script must create `data/interim/reward_unavailable.json` with the exact content:*  
+  ```json
+  {
+    "reward_dataset_available": false,
+    "reason": "No open-access reward dataset with verified URL."
+  }
+  ```  
+  *The script exits 0 after writing the file.*  
+  *Verification*: `data/interim/reward_unavailable.json` exists and matches the JSON above; no `data/raw/ds003392.parquet` is created.
 
-## Phase 3 – User Story 1: Data ingestion & design determination (US1)
+- [ ] T005 [US-1] **Determine statistical design and record it**  
+  *Using the `ids_match` flag from `data/interim/id_match_report.json` (and noting reward‑dataset unavailability), write `data/interim/design_branch.json`.*  
+  *If `ids_match` is true, set `"design_type": "Between-Subjects"` and include a note that IDs matched but a Between‑Subjects analysis is still required. If false, also set `"design_type": "Between-Subjects"` with a reason indicating mismatch.*  
+  *Verification*: The file exists and `design_type` is `"Between-Subjects"`; a `reason` field explains the situation.
 
-- [ ] **T003** [ ] [US1] In `code/ingest.py`:
-  1. Query the OpenNeuro API for ds000208 (rejection) and ds003392 (reward), sum file sizes for each, and **halt with exit‑code 1** if either estimate > 7 GB.
-  2. Stream‑download both datasets into `data/raw/` preserving their original filenames.
-  3. Write `data/raw/dataset_manifest.json` containing an array of `{url, sha256: null, size_bytes, file_count, dataset_id}` entries.
+## Phase 2 – Complete the study and validate its evidence  
 
-- [ ] **T004** [ ] [US1] Still in `code/ingest.py`: <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 -->
-  1. Load the primary CSV from each dataset, verify presence of columns `participant_id`, `condition`, `reaction_time`, `mood_rating`; on failure **exit 1** with an error message.
-  2. Confirm that both `Rejection` and `Control` conditions appear in the rejection dataset and that the reward dataset contains the required reward‑feedback variables; produce `data/interim/condition_report.json` (`{rejection_present: bool, control_present: bool, reward_present: bool}`).
+- [ ] T006 [US-2] **Preprocess raw dataset (outlier flagging & Z‑score normalization)**  
+  *Memory‑map `data/raw/ds000208.parquet`, apply the IQR rule (1.5 × IQR) **per condition** to set a boolean `is_outlier`. Compute Z‑score normalized reaction times within each condition (`rt_normalized`). Write the cleaned table to `data/interim/preprocessed_ds000208.csv` and append per‑condition thresholds and flagged counts to `data/interim/outlier_log.json` (one object per condition). Ensure peak RAM ≤ 7 GB.*  
+  *Verification*: The CSV contains the new columns `is_outlier` and `rt_normalized`; `outlier_log.json` lists both conditions with numeric `iqr_lower`, `iqr_upper`, and `flagged_count`; a runtime log shows memory ≤ 7 GB.
 
-- [ ] **T005** [ ] [US1] In `code/ingest.py`:
-  1. Compute the set of participant IDs for each condition in the rejection dataset and the set of IDs present in the reward dataset; write `data/interim/overlap_report.json` (`{overlap: bool, rejection_ids: [...], reward_ids: [...]}`).
-  2. Based on the overlap report, decide the experimental design:
-     - If `overlap` is true → `design_type="Within-Subjects"`.
-     - Else → `design_type="Between-Subjects"`.
-  3. Emit `data/interim/design_branch.json` (`{design_type, reason}`) and append the decision to `data/processed/metadata.json`.
+- [ ] T007 [US-2] **Aggregate preprocessed data to participant‑level features**  
+  *Group `data/interim/preprocessed_ds000208.csv` by `participant_id` × `condition` and compute:*  
+  - `rt_mean` = mean of `rt_normalized` per participant‑condition  
+  - `mood_mean` = mean of `mood_rating` per participant‑condition  
+  Propagate optional `age`/`gender`. Write the result to `data/processed/analysis_ready_ds000208.csv`.  
+  *Verification*: The CSV has exactly one row per participant‑condition pair and includes the columns `participant_id`, `condition`, `rt_mean`, `mood_mean`, `age`, `gender`, and an aggregated `is_outlier` flag (true if any row for that participant‑condition was flagged).
 
-- [ ] **T006** [ ] [US1] Finalize ingestion:
-  1. Compute the SHA‑256 hash of each downloaded raw file and update `state/projects/PROJ-258-the-effect-of-simulated-social-rejection.yaml` under `artifact_hashes.<dataset_id>.sha256` and `size_bytes`; also set `updated_at` to the current ISO timestamp.
-  2. Create `data/raw/CITATION.md` that cites both OpenNeuro datasets (DOI 10.18112/openneuro.ds000208.v1.0.0 and DOI 10.18112/openneuro.ds003392.v1.0.0) and records the access date.
+- [ ] T008 [US-3] **Between‑Subjects statistical analysis and assumption handling**  
+  *Load `data/processed/analysis_ready_ds000208.csv` and the design metadata (`design_branch.json`). Because the specification mandates a Between‑Subjects analysis, run a One‑Way ANOVA for each outcome (RT and mood) using `statsmodels`. Perform Shapiro‑Wilk normality and Levene homogeneity checks; if assumptions fail, automatically (i) log‑transform RT, (ii) switch to Welch’s ANOVA, or (iii) fall back to Kruskal‑Wallis, logging the chosen path and noting the `ids_match` status from the design file. Record for each outcome:*  
+  - `test_type` (`One_Way_ANOVA`, `Welch_ANOVA`, or `Kruskal_Wallis`)  
+  - `f_value` (or equivalent statistic)  
+  - `p_raw`  
+  - `effect_size` (eta‑squared)  
+  - `assumption_notes` (if any)  
+  *Write the intermediate results to `results/analysis_raw.json`.*  
+  *Verification*: `results/analysis_raw.json` contains required keys for both outcomes and includes `assumption_notes` when fallbacks occur.
 
----
+- [ ] T009 [US-3] **Benjamini‑Hochberg FDR correction & α‑sensitivity sweep**  
+  *Apply BH FDR correction to the raw p‑values from T008. For each outcome, create boolean flags for significance at α = 0.01, 0.05, 0.1. Write the final structured output to `results/analysis_output.json` that validates against `contracts/analysis_output.schema.yaml` (including the required `p_fdr ≥ p_raw` inequality).*  
+  *Verification*: JSON schema validation passes; each `alpha_sensitivity` entry (`"0.01"`, `"0.05"`, `"0.1"`) is present and boolean; every `p_fdr` ≥ corresponding `p_raw`.
 
-## Phase 4 – User Story 2: Preprocessing & feature extraction (US2)
+- [ ] T009b [US-3] **Validate analysis_output.json against schema**  
+  *Run JSON‑schema validation of `results/analysis_output.json` using `contracts/analysis_output.schema.yaml`. Abort with exit 1 if validation fails.*  
+  *Verification*: Validation script exits 0.
 
-- [ ] **T007** [ ] [US2] In `code/preprocess.py`: <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=1 -->
-  1. Load each raw CSV, drop duplicate rows, and drop rows with missing `reaction_time` or `mood_rating`.
-  2. Save the cleaned tables to `data/interim/cleaned_<dataset_id>.csv`.
+- [ ] T010 [US-3] **Outlier‑sensitivity re‑analysis**  
+  *Re‑run the analysis of T008 twice:*  
+  1. **With outliers retained** (use the original preprocessed file).  
+  2. **With outliers removed** (filter rows where `is_outlier` = true before aggregation).  
+  *Summarise differences in F‑values, p‑values, and effect sizes in `results/outlier_sensitivity.json`. Include a boolean `conclusion_changed` indicating whether statistical significance (after FDR correction) differs between the two runs.*  
+  *Verification*: The JSON contains `with_outliers` and `without_outliers` sub‑objects and a `conclusion_changed` flag.
 
-- [ ] **T008** [ ] [US2] Still in `code/preprocess.py`:
-  1. Within each `condition` group of each dataset, compute the IQR of `reaction_time`; flag rows where `reaction_time` lies outside `1.5 × IQR` and add a boolean column `is_outlier`.
-  2. Z‑score normalize `reaction_time` per condition and overwrite the column with the normalized values.
-  3. Write the resulting datasets to `data/interim/preprocessed_<dataset_id>.csv`.
+- [ ] T011 [US-3] **Power analysis & α‑sensitivity reporting**  
+  *Using `statsmodels.stats.power.FTestAnovaPower`, compute the required total N for a medium effect size (Cohen d ≈ 0.5) at α = 0.05, power = 0.80; write the integer to `results/power_analysis.txt`. Then calculate achieved power for each α in {0.01, 0.05, 0.1} based on the observed effect size and write an array of objects (`alpha`, `power_at_alpha`) to `results/power_by_alpha.json`.*  
+  *Verification*: The text file contains a single integer; the JSON array has three entries with values between 0 and 1.
 
-- [ ] **T009** [ ] [US2] Still in `code/preprocess.py`:
-  1. For the rejection dataset, aggregate `preprocessed_ds000208.csv` to obtain, for every `participant_id` × `condition`, the mean normalized reaction time (`mean_rt`) and the mean mood rating (`avg_mood`).
-  2. Persist these features to `data/processed/features_ds000208.csv`.
-  3. Produce an outlier audit trail `data/interim/outlier_log.json` that records, for each condition, the IQR thresholds used and the count of flagged rows.
+- [ ] T011a [US-3] **Generate phrasing‑check flags**  
+  *Scan the upcoming `paper/report.md` template (or placeholder) to confirm that the Limitations section contains the word “associational” and that the Results section contains no occurrence of “causal”. Write `data/interim/phrasing_flags.json` with:*  
+  ```json
+  {
+    "contains_associational": true,
+    "no_causal_in_results": true
+  }
+  ```  
+  *Verification*: JSON file exists with both booleans true.
 
----
+- [ ] T012 [US-3] **Assemble full results package**  
+  *Combine `results/analysis_output.json`, `data/interim/design_branch.json`, `results/outlier_sensitivity.json`, `results/power_by_alpha.json`, and the phrasing‑check flags from `data/interim/phrasing_flags.json` into `results/analysis_results.json` that conforms to `contracts/analysis_results.schema.yaml`. The `limitations` object must contain:*  
+  ```json
+  {
+    "contains_associational": true,
+    "modulation_claim_valid": false
+  }
+  ```  
+  *Verification*: Schema validation succeeds; the two booleans are present and set as required.
 
-## Phase 5 – User Story 3: Statistical analysis, FDR, sensitivity & reporting (US3)
+- [ ] T013 [US-3] **Render final markdown report**  
+  *Generate `paper/report.md` from `results/analysis_results.json`. The report must:*  
+  1. State the design type (“Between‑Subjects”).  
+  2. Include ANOVA (or fallback) tables with raw and FDR‑corrected p‑values, and 95 % confidence intervals for effect sizes.  
+  3. Show an α‑sensitivity table with the power numbers from T011.  
+  4. Contain the exact word **“associational”** in the Limitations section.  
+  5. Contain **no** occurrence of the word **“causal”** in the Results section.  
+  6. State: “Neural responses are inferred from behavioral proxies (reaction times, mood ratings) and no direct neural measurement was performed.”  
+  *Abort with non‑zero exit if any phrasing constraint fails.*  
+  *Verification*: A post‑generation script scans the markdown; it returns exit 0 only when all six conditions are satisfied.
 
-- [ ] **T010** [ ] [US3] In `code/analysis.py`: <!-- FAILED-IN-EXECUTION: code/analyze.py exit=1 -->
-  1. Read the appropriate feature file (`features_ds000208.csv`) and the `design_type` from `data/processed/metadata.json`.
-  2. If `Within-Subjects`, run a repeated‑measures ANOVA via `statsmodels.stats.anova.AnovaRM`; if `Between-Subjects`, run a one‑way ANOVA via `scipy.stats.f_oneway`.
-  3. Store raw statistics (`F`, `p_raw`, effect sizes) in `data/processed/analysis_raw.json`.
+- [ ] T014 [US-3] **Runtime accounting and resource guard**  
+  *After the full pipeline finishes, query the GitHub Actions run (or use CI‑provided environment variables) to sum `duration_ms` of all steps. Write `results/runtime_report.json` with fields:*  
+  - `total_seconds` (float)  
+  - `peak_ram_gb` (float)  
+  - `runtime_ok` (true iff `total_seconds ≤ 21600` and `peak_ram_gb ≤ 7`).  
+  *The CI step fails if `runtime_ok` is false.*  
+  *Verification*: The JSON reports `runtime_ok: true`; CI aborts otherwise.
 
-- [ ] **T011** [ ] [US3] Still in `code/analysis.py`:
-  1. Apply the Benjamini‑Hochberg procedure to all `p_raw` values, creating a new column `p_fdr`.
-  2. Perform a sensitivity sweep over α ∈ {0.01, 0.05, 0.1}; for each α record whether each test is significant. Save results to `data/processed/sensitivity.json`.
-  3. Write the combined output (`analysis_fdr.json` plus `sensitivity.json`) to `data/processed/`.
+- [ ] T015 [US-3] **Comprehensive testing suite**  
+  *Add unit and integration tests under `tests/` covering:*  
+  1. Column‑presence validation (T003).  
+  2. IQR outlier flagging and Z‑score normalization (T006).  
+  3. Correctness of BH correction monotonicity (`p_fdr ≥ p_raw`).  
+  4. Presence of required phrasing in the final report (T013).  
+  5. α‑sensitivity coverage (T009).  
+  6. End‑to‑end pipeline execution producing all expected artifacts.  
+  *Run with `pytest -q`; CI must exit 0.*  
+  *Verification*: `pytest -q` returns exit 0 and coverage > 90 % for pipeline modules.
 
-- [ ] **T012** [ ] [US3] In `code/report.py`:
-  1. Assemble a Markdown report `reports/final_report.md` that includes:
-     - A results table with raw and FDR‑corrected p‑values.
-     - The sensitivity table covering all three α levels.
-     - A **Limitations** section that contains the exact phrase “associational”.
-     - A **Results** section that **does not** contain the word “causal”.
-  2. Verify the phrasing constraints programmatically; abort with a non‑zero exit code if violated.
+## Phase 3 – Reproducible results and paper handoff  
 
-- [ ] **T013** [ ] [US3] In `code/report.py`:
-  1. Write the definitive JSON results file `data/processed/final_results.json` containing:
-     - `design_type`
-     - All statistics from `analysis_fdr.json`
-     - The `p_fdr` column
-  2. Run two verification scripts (in `tests/`):
-     - `tests/verify_fdr.py` asserts `p_fdr ≤ p_raw` for every row and writes `tests/results/fdr_verification.json`.
-     - `tests/verify_sensitivity.py` asserts that the sensitivity report includes entries for α = 0.01, 0.05, 0.1 and writes `tests/results/alpha_coverage.json`.
+- [ ] T016 [US-3] **Document methods & results handoff**  
+  *Write `paper/methods_results.md` that concisely describes the methods and links every reported number (F‑values, p‑values, effect sizes, power estimates) to the exact fields in `results/analysis_results.json`. Include a Limitations paragraph containing the required “associational” phrasing and confirming that no causal language is used.*  
+  *Verification*: Manual review confirms traceability of all numbers and required phrasing.
 
-- [ ] **T019** [ ] [US3] In `tests/verify_fdr.py` (or a new helper):
-  1. After verification, generate a concise artifact `data/processed/p_fdr_verification.json` summarizing the pass/fail status for the SC‑003 requirement.
-
----
-
-## Phase 6 – Polishing, CI & benchmarking (US4)
-
-- [ ] **T015** [ ] [US4] Implement `code/benchmark.py` that, when invoked on the full pipeline, records wall‑clock start/end times, peak memory usage, and CPU utilization; output these metrics to `data/processed/ci_runtime_total.json`. The script also writes a boolean `runtime_ok` flag indicating the total time ≤ 6 hours.
-
-- [ ] **T014** [ ] [US4] Add a GitHub Actions workflow `.github/workflows/ci.yml` that:
-  1. Spins up the `ubuntu‑latest` free‑tier runner.
-  2. Enforces a maximum runtime of **6 hours** and a RAM ceiling of **7 GB** (via `ulimit` and `timeout` wrappers).
-  3. Executes the full pipeline (`python -m code.pipeline`).
-  4. After the run, reads `data/processed/ci_runtime_total.json` and fails the job if `runtime_ok` is false.
-
-- [ ] **T020** [ ] [US4] Add a lightweight verification task `code/ci_verify_runtime.py` that reads `ci_runtime_total.json` and writes `data/processed/ci_runtime_verification.json` with explicit fields `total_seconds`, `peak_ram_gb`, and `pass` for SC‑002 auditability.
+- [ ] T017 [US-3] **Re‑run full workflow from scratch for reproducibility**  
+  *Delete `data/`, `results/`, and `paper/` directories, then execute the pipeline exactly as described in `quickstart.md`. Verify that all artifacts (`data/raw/ds000208.parquet`, `results/analysis_results.json`, `paper/report.md`, etc.) are regenerated and pass their respective verification steps (T003–T015).*  
+  *Verification*: After the clean run, every verification script from the previous tasks succeeds, demonstrating full reproducibility.

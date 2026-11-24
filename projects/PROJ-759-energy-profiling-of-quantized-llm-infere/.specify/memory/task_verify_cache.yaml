@@ -1,0 +1,22 @@
+T002:
+  c: true
+  h: f8c787f744fab54ae5b2384278328ba8e84b3108c7defb30e529e31e11947e75
+  r: The parquet file exists (6.28 MB, real WikiText-2 content visible), its SHA-256
+    (96bbfe5e...) matches the checksum recorded in `data/raw/README.md`, and `code/utils/data_loader.py`
+    genuinely downloads the dataset via `datasets` and writes both artifacts. The
+    contract test log shows both `test_parquet_exists` and `test_checksum_matches`
+    passing (exit 0), and the execution log confirms the actual download and write
+    run.
+  sig: 51feaf5ed23286d7cda7287cfca114347129628e138a0d0bedbf97f7439648a3
+T003:
+  c: false
+  h: 50f0a0f251004215718f7896006fc8829b877d25cba44404a5f1debcfb528566
+  r: "The execution log shows auto-gptq was unavailable, so no INT8 or 4-bit quantized\
+    \ checkpoints were ever generated \u2014 the int8/4bit config JSONs all point\
+    \ to the FP16 checkpoint directory with `load_success: false`, which is a placeholder,\
+    \ not the required quantized variants. The 350M model failed to download (401/Repository\
+    \ Not Found), leaving only a `missing_fp16` stub path, and the 7B LLaMA \"unexpectedly\
+    \ succeeded\" in loading, so no OOM was logged and there is no evidence `logs/model_load.log`\
+    \ exists with a `load_success: false` OOM entry. A stray non-schema-conforming\
+    \ `data/configs/125M_4bit."
+  sig: 34fed88ee92097b6a08566c86ff79b9e3b588a567cc2917a3bde7c564e5d2488

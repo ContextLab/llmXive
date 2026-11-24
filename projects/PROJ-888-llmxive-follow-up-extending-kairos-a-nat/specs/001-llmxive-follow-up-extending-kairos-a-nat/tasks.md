@@ -71,7 +71,7 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T009 [P] [US1] Contract test for quantized JSON schema in `tests/contract/test_quantized_schema.py`: Implement function `test_quantized_schema_4bit` asserting `all(0 <= x <= 15 for x in data)`.
-- [ ] T010 [P] [US1] Integration test for full download-quantize-noise pipeline in `tests/integration/test_data_pipeline.py`: Specify input subset size (N=50 episodes [UNRESOLVED-CLAIM: c_6fd9c153 — status=not_enough_info]), output path `data/processed/test_subset.json`, and assert `{{claim:c_72dcc9ec}} (2108.02191, https://arxiv.org/abs/2108.02191)` and `no NaN values`.
+- [ ] T010 [P] [US1] Integration test for full download-quantize-noise pipeline in `tests/integration/test_data_pipeline.py`: Specify input subset size (N=50 episodes [UNRESOLVED-CLAIM: c_6fd9c153 — status=not_enough_info]), output path `data/processed/test_subset.json`, and assert `output_file_size < 100MB (2108.02191, https://arxiv.org/abs/2108.02191)` and `no NaN values`.
 
 ### Implementation for User Story 1
 
@@ -126,7 +126,7 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T025 [P] [US3] Contract test for error metric schema in `tests/contract/test_error_metrics.py`: Implement function `test_error_metrics_schema` asserting `keys include [mse, p_value, horizon]`.
-- [ ] T026 [P] [US3] Integration test for statistical analysis pipeline in `tests/integration/test_stability_analysis.py`: Specify running **{{claim:c_64af7e6a}} (Wikidata Q120282163, https://www.wikidata.org/wiki/Q120282163)**, expected p-value range, and exact output path `data/results/stats.json`.
+- [ ] T026 [P] [US3] Integration test for statistical analysis pipeline in `tests/integration/test_stability_analysis.py`: Specify running **Linear Mixed-Effects Model (LMM) (Wikidata Q120282163, https://www.wikidata.org/wiki/Q120282163)**, expected p-value range, and exact output path `data/results/stats.json`.
 
 ### Implementation for User Story 3
 
@@ -134,7 +134,7 @@
 - [ ] T021b [US3] Implement inference engine in `code/models/inference.py` for multiple time horizons including short, medium, and long-term prediction (per Constitution Principle VII and FR-004) specifically for stability analysis. **Ordering**: Must follow T033 (Baseline) and T027 (Metrics). **Note**: This is the analysis-specific inference step, distinct from T021 in Phase 4.
 - [ ] T027 [US3] Implement `code/analysis/metrics.py` to calculate **Total Mean Squared Error (MSE)** (raw) between predicted and ground-truth sequences. **Constraint**: MUST NOT subtract a theoretical "Quantization Noise Floor"; report Total MSE as the primary comparison metric. Normalization by state space dimensionality is allowed for internal calculation but the reported metric for thresholding must be Total MSE. **Ordering**: Must follow baseline run (T033) and inference (T021/T021b).
 - [ ] T045 [US3] Implement Levene's test for equal variance check in `code/analysis/stats.py` before selecting LMM vs block-bootstrap, ensuring statistical validity of the chosen test method. **Ordering**: Must precede T028.
-- [ ] T028 [US3] Implement `code/analysis/stats.py` to perform **{{claim:c_64af7e6a}}** as the **PRIMARY** validation method (per FR-005). Use 'episode_id' as a random effect and 'modality' as a fixed effect to account for temporal autocorrelation. Perform statistical validation on multiple independent runs with different noise seeds. **Constraint**: If LMM fails, fall back to block-bootstrap. **Output**: `stats_results.json` with p-values, confidence intervals, and model coefficients.
+- [ ] T028 [US3] Implement `code/analysis/stats.py` to perform **Linear Mixed-Effects Model (LMM)** as the **PRIMARY** validation method (per FR-005). Use 'episode_id' as a random effect and 'modality' as a fixed effect to account for temporal autocorrelation. Perform statistical validation on multiple independent runs with different noise seeds. **Constraint**: If LMM fails, fall back to block-bootstrap. **Output**: `stats_results.json` with p-values, confidence intervals, and model coefficients.
 - [ ] T029a [US3] Implement sensitivity analysis sweep across **bit-widths {6, 8, 16} and lower precision configurations [UNRESOLVED-CLAIM: c_bc2554d3 — status=not_enough_info]** (per FR-006) and report variation in headline error rates. **Constraint**: Include 6-bit as per Spec FR-006 and SC-005.
 - [ ] T029b [US3] Identify and report the specific quantization threshold where the Total MSE ratio (Discrete/Continuous) exceeds the **upper bound of the confidence interval for the null hypothesis (ratio=1)**. **Strictly depends on T029a, T027, and T028**. **Method**: Use `scipy.stats.t.interval` to calculate the 95% CI. **Output**: Write the numeric threshold value to `results/stability_threshold_temp.json`. **Verification**: Task must output the JSON file with the specific numeric value.
 - [ ] T029c [US3] Merge `results/stability_threshold_temp.json` into `results/stats_results.json` to ensure the stability threshold is part of the final results JSON as required by SC-001. **Ordering**: Must follow T029b.
@@ -289,7 +289,7 @@ With multiple developers:
 - **CPU-Only**: All model tasks MUST run on CPU without CUDA/bitsandbytes dependencies.
 - **Constitution VII & FR-004 Supremacy**: Error metrics MUST be normalized by state space dimensionality and calculated over **100, 500, and 1000 steps [UNRESOLVED-CLAIM: c_92747774 — status=not_enough_info]**. The reported metric for thresholding MUST be **Total MSE** (raw).
 - **FR-001 Supremacy**: Quantization levels MUST be **4-bit, 6-bit, 8-bit, and 16-bit [UNRESOLVED-CLAIM: c_d19b3026 — status=not_enough_info]**.
-- **FR-005**: Statistical validation MUST use **{{claim:c_64af7e6a}}** or block-bootstrap.
+- **FR-005**: Statistical validation MUST use **Linear Mixed-Effects Model (LMM)** or block-bootstrap.
 - **FR-008**: Stability claims MUST be framed as "mse_ratio" OR "relative_degradation" with a **numeric** value in the `stability_claim_framing` field.
 - **SC-001**: Sensitivity analysis MUST calculate and report the specific numerical threshold value where MSE exceeds the baseline increase (dynamic calculation using a high-confidence interval).
 - **Task T018**: Downloads the *shared* weights used for both the Discrete and Fair Baseline arms. No separate download task exists.

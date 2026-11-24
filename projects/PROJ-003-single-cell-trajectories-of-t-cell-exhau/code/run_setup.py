@@ -1,35 +1,20 @@
-import sys
-from pathlib import Path
+"""
+Bootstrap script that creates the project layout and ensures the SRA Toolkit
+is available. It simply calls the two helper entry points defined in the
+sibling modules.
+"""
 
+from install_sra_toolkit import main as install_sra
+from init_project import main as init_proj
 
-def main():
+def main() -> None:
     """
-    Main entry point for running the setup sequence.
-    
-    This script orchestrates the installation of dependencies and configuration
-    required for the project. It calls the SRA Toolkit installer as part of
-    the setup process.
+    Run the full environment bootstrap:
+    1. Create the standard directory layout.
+    2. Install and verify the SRA Toolkit / NCBI settings.
     """
-    print("=" * 60)
-    print("Project Setup Sequence")
-    print("=" * 60)
-    
-    # Import and run SRA Toolkit installer
-    try:
-        from install_sra_toolkit import main as install_sra_main
-        exit_code = install_sra_main()
-        if exit_code != 0:
-            print("\n⚠ SRA Toolkit installation had issues.")
-            print("  You may need to complete this manually.")
-    except ImportError as e:
-        print(f"\n⚠ Could not import SRA Toolkit installer: {e}")
-        print("  Please ensure install_sra_toolkit.py is in the code/ directory.")
-    
-    print("\n" + "=" * 60)
-    print("Setup sequence complete.")
-    print("=" * 60)
-    return 0
-
+    init_proj()
+    install_sra()
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

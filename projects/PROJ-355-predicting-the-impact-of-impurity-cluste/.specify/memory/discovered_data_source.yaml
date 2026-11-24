@@ -1,17 +1,9 @@
 status: none
-intent: OQMD bulk configurations Materials Project reference python package dataset
-required_fields:
-- material_id
-- formula
-- composition
-- spacegroup
-- lattice_parameters
-- lattice_vectors
-- atomic_species
-- atomic_positions
-- total_energy
-- formation_energy_per_atom
-- structure_file_path
-cache_key: 62f422bbed7a6fee90315acd599337680e7fc4493a01fe5256d2083be7eee7a0
-searched_at: '2026-10-09T14:01:40.251957+00:00'
+intent: "System MUST download bulk configuration files from Materials Project and\
+  \ OQMD using / with at most **3 failed attempts** before marking the dataset as\
+  \ inaccessible (See US\u20111). Required Variable Source Verified URL / Loader Fit\
+  \ Check Bulk alloy compositions, spacegroup, OQMD \u2705 Present; used to recons"
+required_fields: []
+cache_key: 99304184b9d23b55efcc2105d8c51de8a64019b4ebb91c206cd419cdb9f676d1
+searched_at: '2026-11-14T05:29:30.951161+00:00'
 retry_count: 1

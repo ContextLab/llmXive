@@ -1,8 +1,9 @@
 status: none
-intent: official GSM8K dataset download python package HuggingFace datasets
+intent: download GSM8K math word problem dataset via pip install python package dataset
 required_fields:
+- id
 - question
 - answer
-cache_key: d2ea50b6803d2250ab482154f4dd36da2ee3e896a504f8a0afb6caa03eab2548
-searched_at: '2026-09-18T21:47:13.918212+00:00'
+cache_key: d99816f983cf544ee201d23d8cd505edf13ee6403d464d5cbdb8d10f580da48f
+searched_at: '2026-10-21T05:11:30.700320+00:00'
 retry_count: 1

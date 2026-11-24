@@ -1,10 +1,63 @@
-T018:
+T001:
   c: false
-  h: 06cac892ee1e24aa683834ff55ae885190e43d1eb2d4719e0babb267478f3d48
-  r: "The provided `test_models.py` contains mixed\u2011effects model tests, not a\
-    \ contract test for `distribution_fit.schema.yaml`, and the required `distribution_fit.schema.yaml`\
-    \ file is missing entirely. Both the test and the schema artifact are absent,\
-    \ so the task is not satisfied."
+  h: ea2d6ffd5197b3588b40c89b68ffcdf18e6c682c1312bf832be6964febc5471c
+  r: "The repository contains `code/scripts/fetch_data.py`, but `config.yaml` is missing,\
+    \ and no `data/raw/` directory or JSON files were produced. Without a config file\
+    \ the script cannot run, and there is no evidence that a non\u2011empty raw JSON\
+    \ file was written as required. Add a valid `config.yaml` listing game IDs and\
+    \ ensure the script creates/writes to `data/raw/{game_id}.json`."
+  sig: 0dd4f652f715458aafca8ed2dcfc145dd09aa87be66de13887cbca363d5b949e
+T006a:
+  c: true
+  h: 9207aa92dd058365890ba2195455e570953740b24ac4821149e3a3a97dd86af2
+  r: "The `code/config_schema.yaml` file exists (963\u202Fbytes) and defines a JSON\u2011\
+    Schema object with the required keys `games`, `min_sample_size`, `random_seed`,\
+    \ `lagged_pressure_window_days`, and `effect_size_assumptions`. Its syntax is\
+    \ valid YAML (passes yamllint) and matches the task\u2019s specification."
+  sig: 608b5dabffa2219dad2a3e1af1530a0878b080d3d627a088711144d08118b96a
+T006b:
+  c: true
+  h: d2e0fc472abd394c1664c904ebfde5fd2e07cbe779061f87f7a642732a111749
+  r: Checked `code/config.yaml` (resolved path `code/config.yaml`), which exists,
+    is syntactically valid YAML, and includes numeric values for `min_sample_size`
+    (100), `random_seed` (42), and `effect_size_assumptions` (0.5) as required.
+  sig: 11a285f1744cddae1ccbb71c4cf8e466918c9850887c37d71b068e0abce555c8
+T008a:
+  c: true
+  h: 7d004f38ea47c2e8b6db3da9f6cdd2c567ce7cfc6485f597dd7ca9fc967c3488
+  r: Checked `code/scripts/utils/checkpoint.py` which defines `save_checkpoint(state,
+    path)` and `load_checkpoint(path)` (with correct signatures and behavior) and
+    verified that the accompanying `tests/test_checkpoint.py` exercises these functions
+    and would pass.
+  sig: 9afe8c9efe6ef0d298a93b37081d4ac3227f81848493bdb47b8d9485371e72f0
+T010:
+  c: true
+  h: 556b8390d6b8014fc5276ead924350c0adc2f781db4ab545e64f5f9c169f861a
+  r: "The `contracts/run_record.schema.yaml` file exists and defines the required\
+    \ fields and property constraints as specified, and the `tests/test_run_record_schema.py`\
+    \ unit test loads this schema and validates a minimal correct record (which passes)\
+    \ and a record missing a required field (which raises a ValidationError). Both\
+    \ artifacts are present, non\u2011empty, and correctly implement the requested\
+    \ JSON\u2011Schema and its verification."
+  sig: 62fea46b095cf21660a0b6ca7802d9409734ecebaed89dbe1affe63b94434dce
+T014:
+  c: false
+  h: ee2f79baa68f40f325064c1562601b56ccf06bf1486c51fd99e66ae3ee3324f5
+  r: "The evidence collector shows no artifacts for this task \u2014 no `run_records.csv`\
+    \ with a `competitive_pressure` column, no helper from T033b, and no execution\
+    \ output or spot-check calculations were provided. Without the actual CSV (or\
+    \ a sample of it) showing non-negative integer `competitive_pressure` values that\
+    \ match a manual lagged-pressure calculation, the claim cannot be verified."
+  sig: 75784a6dcf0da7d097e9bd98c6053daf239351f958408e6ec2893aa1d02369f4
+T015a:
+  c: false
+  h: 9e0a93177c6c74c59bd68e1f70bcbb858e16f3341db6c23b3e45adfc3e2b4bef
+  r: "Checked the `data/checkpoints/fetch_checkpoint.json` file (present) and the\
+    \ pytest log `code/.tasks/T015a.code_tests_test_fetch_checkpoint.py.log`, which\
+    \ shows both checkpoint\u2011creation and resumption tests failing because the\
+    \ script aborts with \u201CNo games specified in config.yaml\u201D and never writes\
+    \ a checkpoint file. The required integration and resume behavior are not demonstrated."
+  sig: 31bb6f6947dadc1ece13b5c90ac3d615f0169cb5d4e990621ea6eb339bc3e7aa
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,3 +66,22 @@ T024:
     implementation (e.g., saving intermediate results to disk or a database) and evidence
     of its operation, but the provided artifacts contain only the original specification
     without any new files or modifications. Consequently, the requirement is not satisfied.
+T033a:
+  c: false
+  h: 070a94e46b4d2c0346c2d1de92b611656684b2b8e7855494e0c9560364d393a4
+  r: The pagination helper `code/scripts/utils/pagination.py` and its unit tests are
+    present, but there is no evidence of a `fetch_data.py` script (or any other module)
+    that imports and uses `paginate_api` as required by the task. Without that calling
+    code, the refactor is not fully realized. Adding a `fetch_data.py` (or updating
+    an existing script) that imports `paginate_api` and uses it to fetch API pages
+    will satisfy the requirement.
+  sig: 6853e2bfd81eb79645fead5fbe3723871456a9e251e6f1560cd30ac0d6ec323a
+T033b:
+  c: false
+  h: 2fa385394e7a97a67f605c68bf6bb019dd5b777d31b5e90297c2bdc02df366bb
+  r: The file `code/scripts/utils/pressure.py` exists and the unit tests pass, but
+    the function `calculate_lagged_pressure` accepts a list of dictionaries (`run_records`)
+    instead of a pandas DataFrame (`df`) as required by the task specification, and
+    its signature and return type do not match the requested `calculate_lagged_pressure(df,
+    window_days)`. The implementation therefore does not satisfy the stated requirement.
+  sig: 3dfdf33b122f97cd2a1ab7cbf9fbd79f3310362f8eea5124af638d850707aa09

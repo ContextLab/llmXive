@@ -9,12 +9,14 @@ from .prompt_engine import (
     PhysicsConstraintNotFoundError,
     load_scene_descriptions,
     load_physics_constraints,
-    format_physics_constraints,
+    # The original function name used by the pipeline is `run_prompt_engineering`.
+    # Provide an alias `run_prompt_generation` for compatibility with `code/main.py`.
+    run_prompt_engineering as run_prompt_generation,
+    format_physics_constraints,  # If this helper exists, keep the import; otherwise it will raise ImportError only when used.
     generate_baseline_prompt,
     generate_experimental_prompt,
     generate_control_prompt,
     write_prompt_file,
-    run_prompt_engineering,
     main as prompt_engine_main
 )
 
@@ -73,7 +75,7 @@ __all__ = [
     'PromptEngineError', 'SceneDescriptionNotFoundError', 'PhysicsConstraintNotFoundError',
     'load_scene_descriptions', 'load_physics_constraints', 'format_physics_constraints',
     'generate_baseline_prompt', 'generate_experimental_prompt', 'generate_control_prompt',
-    'write_prompt_file', 'run_prompt_engineering', 'prompt_engine_main',
+    'write_prompt_file', 'run_prompt_generation', 'prompt_engine_main',
     
     # Diffusion Runner
     'DiffusionGenerationError', 'ModelLoadError', 'PromptFileNotFoundError',

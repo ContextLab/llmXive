@@ -18,19 +18,19 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m src.cli collect --top-n 1000 --output data/raw/packages_seed.json -> rc=1
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-673-analyzing-the-prevalence-of-unmaintained/code/.venv/bin/python: No module named src.cli.__main__; 'src.cli' is a package and cannot be directly executed
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-673-analyzing-the-prevalence-of-unmaintained/bin/python: No module named src.cli.__main__; 'src.cli' is a package and cannot be directly executed
 
 - python -m src.cli process --input data/raw/packages_seed.json --output data/processed/dependencies_cleaned.csv -> rc=1
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-673-analyzing-the-prevalence-of-unmaintained/code/.venv/bin/python: No module named src.cli.__main__; 'src.cli' is a package and cannot be directly executed
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-673-analyzing-the-prevalence-of-unmaintained/bin/python: No module named src.cli.__main__; 'src.cli' is a package and cannot be directly executed
 
 - python -m src.cli analyze --input data/processed/dependencies_cleaned.csv --output data/processed/results.json -> rc=1
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-673-analyzing-the-prevalence-of-unmaintained/code/.venv/bin/python: No module named src.cli.__main__; 'src.cli' is a package and cannot be directly executed
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-673-analyzing-the-prevalence-of-unmaintained/bin/python: No module named src.cli.__main__; 'src.cli' is a package and cannot be directly executed
 
 - python -m src.cli visualize --input data/processed/results.json --output figures/ -> rc=1
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-673-analyzing-the-prevalence-of-unmaintained/code/.venv/bin/python: No module named src.cli.__main__; 'src.cli' is a package and cannot be directly executed
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-673-analyzing-the-prevalence-of-unmaintained/bin/python: No module named src.cli.__main__; 'src.cli' is a package and cannot be directly executed
 
 
 ## Declared deliverables still missing

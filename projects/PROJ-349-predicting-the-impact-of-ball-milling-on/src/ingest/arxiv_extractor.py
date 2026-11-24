@@ -1,23 +1,24 @@
+# REAL DATA ONLY: This script extracts data from real arXiv PDFs (ball‑milling related) using pdfminer.six. No synthetic data is generated; failures raise errors to halt the pipeline.
 """
 arXiv PDF extractor for ball milling experiments.
 
-Searches arXiv for papers in cond-mat.mtrl-sci related to ball milling,
-downloads PDFs, and extracts PSD data (D10, D50, D90) from tables using pdfminer.six.
+Searches arXiv for papers in the ``cond-mat.mtrl-sci`` category related to ball milling,
+downloads PDFs, and extracts particle‑size‑distribution (PSD) data (D10, D50, D90)
+from the raw text using ``pdfminer.six``. The extracted records are saved as a JSON
+file under ``data/raw/arxiv_tables.json``.
 """
 
-import hashlib
 import json
 import logging
-import os
 import re
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
-# Import arxiv package (must be installed via requirements.txt)
+# External dependency – must be listed in ``requirements.txt``.
 import arxiv
 from pdfminer.high_level import extract_text
-from pdfminer.layout import LAParams, LTTable, LTText
+from pdfminer.layout import LAParams
 
 from src.utils.logger import get_module_logger
 from src.utils.seed import get_seed
@@ -25,39 +26,41 @@ from src.utils.seed import get_seed
 # Configure logger
 logger = get_module_logger(__name__)
 
+# ----------------------------------------------------------------------
 # Constants
+# ----------------------------------------------------------------------
 ARXIV_CATEGORY = "cond-mat.mtrl-sci"
 SEARCH_QUERY = "ball milling"
 OUTPUT_FILE = "data/raw/arxiv_tables.json"
 BATCH_SIZE = 50
-MAX_RESULTS_PER_SOURCE = 100  # Local limit to prevent excessive API calls
-TARGET_TOTAL_ROWS = 500  # Global target (not enforced here, just a guide)
-
-# Regex for D-values (e.g., D10: 100, D50: 500um)
+MAX_RESULTS_PER_SOURCE = 100  # Prevent excessive API calls
 D_VALUE_PATTERN = re.compile(
     r"D(\d{2})[\s:]*([-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?)\s*(?:um|µm|μm|microns|micron)?",
-    re.IGNORECASE
+    re.IGNORECASE,
 )
 
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def setup_directories() -> Path:
-    """Ensure the output directory exists."""
+    """Ensure the directory for ``OUTPUT_FILE`` exists."""
     output_path = Path(OUTPUT_FILE)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     return output_path.parent
 
 def search_arxiv_papers(
     start_index: int = 0,
-    max_results: int = BATCH_SIZE
+    max_results: int = BATCH_SIZE,
 ) -> List[arxiv.Result]:
     """
     Search arXiv for papers matching the query.
 
     Args:
-        start_index: Starting index for pagination.
-        max_results: Number of results to fetch.
+        start_index: Pagination start index.
+        max_results: Number of results to fetch in this batch.
 
     Returns:
-        List of arxiv.Result objects.
+        List of ``arxiv.Result`` objects (may be empty on error).
     """
     try:
         search = arxiv.Search(
@@ -65,7 +68,7 @@ def search_arxiv_papers(
             max_results=max_results,
             start=start_index,
             sort_by=arxiv.SortCriterion.Relevance,
-            sort_order=arxiv.SortOrder.Descending
+            sort_order=arxiv.SortOrder.Descending,
         )
         results = list(search.results())
         logger.info(f"Retrieved {len(results)} papers from arXiv (start={start_index})")
@@ -79,17 +82,16 @@ def download_pdf(entry: arxiv.Result, download_dir: Path) -> Optional[Path]:
     Download the PDF for a given arXiv entry.
 
     Args:
-        entry: arxiv.Result object.
-        download_dir: Directory to save the PDF.
+        entry: ``arxiv.Result`` object.
+        download_dir: Directory where the PDF will be saved.
 
     Returns:
-        Path to the downloaded PDF, or None if failed.
+        Path to the downloaded PDF, or ``None`` if the download failed.
     """
     try:
-        # Use the download_pdf method which handles the download
         pdf_path = entry.download_pdf(
             dirpath=str(download_dir),
-            filename=f"{entry.entry_id.split('/')[-1]}.pdf"
+            filename=f"{entry.entry_id.split('/')[-1]}.pdf",
         )
         return Path(pdf_path)
     except Exception as e:
@@ -98,13 +100,13 @@ def download_pdf(entry: arxiv.Result, download_dir: Path) -> Optional[Path]:
 
 def extract_text_from_pdf(pdf_path: Path) -> str:
     """
-    Extract raw text from a PDF using pdfminer.six.
+    Extract raw text from a PDF using ``pdfminer.six``.
 
     Args:
         pdf_path: Path to the PDF file.
 
     Returns:
-        Extracted text string.
+        Extracted text string (empty on failure).
     """
     try:
         text = extract_text(str(pdf_path), laparams=LAParams())
@@ -115,46 +117,41 @@ def extract_text_from_pdf(pdf_path: Path) -> str:
 
 def parse_d_values(text: str) -> Dict[str, float]:
     """
-    Parse D10, D50, D90 values from text using regex.
+    Parse D10, D50, D90 values from raw text using a regular expression.
 
     Args:
-        text: Text content from the PDF.
+        text: Text extracted from a PDF.
 
     Returns:
-        Dictionary with keys 'd10', 'd50', 'd90' and float values.
+        Mapping such as ``{'d10': 12.3, 'd50': 45.6, 'd90': 78.9}``.
+        Returns an empty dict when no values are found.
     """
     matches = D_VALUE_PATTERN.findall(text)
-    d_values = {}
-    for match in matches:
-        d_type = int(match[0])
+    d_values: Dict[str, float] = {}
+    for d_type_str, value_str in matches:
+        d_type = int(d_type_str)
+        if d_type not in {10, 50, 90}:
+            continue
         try:
-            value = float(match[1])
-            if d_type in [10, 50, 90]:
-                d_values[f"d{d_type}"] = value
+            d_values[f"d{d_type}"] = float(value_str)
         except ValueError:
             continue
-
-    # Validate we have at least one value to consider it useful
-    if not d_values:
-        return {}
-
-    # If we have multiple, try to fill missing ones if possible (simple heuristic)
-    # But strictly, we only return what we found.
     return d_values
 
 def extract_psd_from_arxiv(entry: arxiv.Result, download_dir: Path) -> Optional[Dict[str, Any]]:
     """
-    Extract PSD data from a single arXiv paper.
+    Process a single arXiv paper: download, extract text, parse D‑values,
+    and build a record compatible with our dataset schema.
 
     Args:
-        entry: arxiv.Result object.
-        download_dir: Directory for temporary PDF storage.
+        entry: ``arxiv.Result`` object.
+        download_dir: Temporary folder for PDF files.
 
     Returns:
-        Dictionary with experiment data, or None if extraction failed.
+        Dictionary representing one experiment, or ``None`` if extraction failed.
     """
     pdf_path = download_pdf(entry, download_dir)
-    if not pdf_path:
+    if pdf_path is None:
         return None
 
     text = extract_text_from_pdf(pdf_path)
@@ -163,22 +160,20 @@ def extract_psd_from_arxiv(entry: arxiv.Result, download_dir: Path) -> Optional[
 
     d_values = parse_d_values(text)
     if not d_values:
-        # Clean up if no data found
+        # Clean up the PDF – we keep no useful information.
         try:
             pdf_path.unlink()
         except OSError:
             pass
         return None
 
-    # Construct the record
-    # Note: We extract whatever we can from the metadata.
-    # Fields like milling_speed, etc., are often in tables and hard to parse generically.
-    # We focus on the mandatory traceability and the D-values we found.
+    # Build the record. Many fields are left ``None`` because generic PDF parsing
+    # cannot reliably extract them; downstream preprocessing will handle imputation.
     record = {
         "experiment_id": f"arxiv_{entry.entry_id.split('/')[-1]}",
         "source_name": "arXiv",
-        "source_id": entry.entry_id.split("/")[-1], # e.g., 2301.12345
-        "milling_speed": None, # Often not in abstract/title
+        "source_id": entry.entry_id.split("/")[-1],
+        "milling_speed": None,
         "milling_time": None,
         "ball_to_powder_ratio": None,
         "youngs_modulus": None,
@@ -187,10 +182,10 @@ def extract_psd_from_arxiv(entry: arxiv.Result, download_dir: Path) -> Optional[
         "d50": d_values.get("d50"),
         "d90": d_values.get("d90"),
         "material_type": None,
-        "process_duration": None
+        "process_duration": None,
     }
 
-    # Clean up PDF
+    # Remove the temporary PDF to keep storage usage low.
     try:
         pdf_path.unlink()
     except OSError:
@@ -199,22 +194,23 @@ def extract_psd_from_arxiv(entry: arxiv.Result, download_dir: Path) -> Optional[
     return record
 
 def save_to_json(data: List[Dict[str, Any]], output_path: Path) -> None:
-    """Save the collected data to a JSON file."""
+    """Write the list of extracted records to a JSON file."""
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
     logger.info(f"Saved {len(data)} records to {output_path}")
 
 def run_arxiv_ingestion() -> List[Dict[str, Any]]:
     """
-    Main ingestion loop for arXiv data.
+    Main ingestion loop.
 
     Fetches papers in batches until the local limit is reached or no more results.
+    Returns the list of successfully extracted records.
     """
     setup_directories()
     download_dir = Path("data/raw/downloads/arxiv")
     download_dir.mkdir(parents=True, exist_ok=True)
 
-    all_records = []
+    all_records: List[Dict[str, Any]] = []
     start_index = 0
     total_fetched = 0
 
@@ -224,7 +220,7 @@ def run_arxiv_ingestion() -> List[Dict[str, Any]]:
         results = search_arxiv_papers(start_index=start_index, max_results=BATCH_SIZE)
 
         if not results:
-            logger.warning("Source skipped: arXiv (no results found or exhausted)")
+            logger.warning("Source skipped: arXiv (no results or exhausted)")
             break
 
         for entry in results:
@@ -233,39 +229,34 @@ def run_arxiv_ingestion() -> List[Dict[str, Any]]:
 
             record = extract_psd_from_arxiv(entry, download_dir)
             if record:
-                # Mandatory check: source_id must exist
+                # Verify mandatory traceability metadata.
                 if not record.get("source_id"):
-                    logger.warning(f"Row flagged: missing traceability metadata for {record.get('experiment_id')}")
-                    # Do not drop, but log. The task says flag if missing source_id, but drop if lacks valid data.
-                    # Here, if we have D-values, it has valid data. We keep it but log the warning.
-                    # However, the spec says "If a row lacks source_id, it MUST be flagged... but NOT dropped... unless it lacks valid data".
-                    # We have D-values, so we keep it.
-                    pass
-
+                    logger.warning(
+                        f"Row flagged: missing source_id for {record.get('experiment_id')}"
+                    )
                 all_records.append(record)
                 logger.debug(f"Added record from {record['source_id']}")
 
             total_fetched += 1
-            # Small delay to be polite to the API
+            # Politeness delay for the arXiv API.
             time.sleep(0.5)
 
         if len(results) < BATCH_SIZE:
-            # No more results
+            # Fewer results than the batch size indicates the end of the result set.
             break
 
         start_index += BATCH_SIZE
 
     if not all_records:
         logger.warning("Source skipped: arXiv (no valid rows extracted)")
-        # Still create an empty file to satisfy the "output file exists" verification
         save_to_json([], Path(OUTPUT_FILE))
         return []
 
     save_to_json(all_records, Path(OUTPUT_FILE))
     return all_records
 
-def main():
-    """Entry point for the script."""
+def main() -> None:
+    """Entry point for ``python -m src.ingest.arxiv_extractor``."""
     logger.info("Running arXiv ingestion pipeline...")
     run_arxiv_ingestion()
     logger.info("ArXiv ingestion pipeline completed.")

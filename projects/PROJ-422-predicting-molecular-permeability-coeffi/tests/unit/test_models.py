@@ -9,12 +9,23 @@ import pandas as pd
 import joblib
 import tempfile
 import os
+import json
+import time
 from pathlib import Path
 
 # Import from the project's model modules
-from models.gnn import MPNNLayer, MPNN, create_mpnn_model, train_epoch, validate_epoch
+from models.gnn import (
+    MPNNLayer,
+    MPNN,
+    create_mpnn_model,
+    train_epoch,
+    validate_epoch,
+    train_gnn,
+    _build_graph_dataset,
+)
 from models.rf import train_random_forest, predict, evaluate_model
 
+from torch_geometric.data import DataLoader
 
 class TestMPNNLayer:
     """Tests for the MPNNLayer class."""
@@ -328,3 +339,88 @@ class TestIntegration:
         assert total_params > 0
         # Should not be excessively large for CPU training
         assert total_params < 1000000
+
+    def test_gnn_training_pipeline(self, tmp_path):
+        """Full GNN training pipeline on a tiny dataset.
+
+        - Builds a minimal graph dataset.
+        - Trains for a few epochs.
+        - Checks that checkpoint files are created.
+        - Enforces a wall‑time limit (< 3600 s).
+        """
+        import json
+        import time
+        from pathlib import Path
+
+        # Minimal mol_graph JSON (single carbon atom, no edges)
+        mol_graph_json = json.dumps({
+            "nodes": [{"atomic_num": 6, "degree": 0, "aromatic": False}],
+            "edges": []
+        })
+
+        # Tiny dataframe with 4 samples
+        df = pd.DataFrame({
+            "mol_graph": [mol_graph_json] * 4,
+            "target": [0.5, 0.6, 0.55, 0.58],
+        })
+
+        # Build graph objects
+        graphs = _build_graph_dataset(df, target_col="target")
+
+        # Simple train/validation split (3 train, 1 val)
+        train_graphs = graphs[:3]
+        val_graphs = graphs[3:]
+
+        train_loader = DataLoader(train_graphs, batch_size=2, shuffle=False)
+        val_loader = DataLoader(val_graphs, batch_size=1, shuffle=False)
+
+        checkpoint_path = tmp_path / "gnn_test.pt"
+
+        start_time = time.time()
+        # Train for a very small number of epochs to keep test fast
+        train_gnn(
+            train_loader=train_loader,
+            val_loader=val_loader,
+            checkpoint_path=checkpoint_path,
+            max_epochs=5,
+            patience=2,
+            device=torch.device("cpu"),
+        )
+        elapsed = time.time() - start_time
+
+        # Verify checkpoint creation
+        assert checkpoint_path.is_file(), "GNN checkpoint was not created"
+
+        # Verify that the interim copy expected by the explain script also exists
+        interim_path = Path("data") / "interim" / "gnn_checkpoint.pt"
+        assert interim_path.is_file(), "Interim checkpoint not found"
+
+        # Enforce wall‑time guard (< 1 hour, well within CI limits)
+        assert elapsed < 3600, f"GNN training exceeded time limit: {elapsed:.2f}s"
+
+def test_rf_training():
+    """Test that the Random Forest model checkpoint exists, has the correct number of features,
+    and that the overall training time recorded is less than 6 hours."""
+    # Verify model pickle exists
+    model_path = Path("code") / "models" / "rf.pkl"
+    assert model_path.is_file(), f"Random Forest model file not found at {model_path}"
+
+    # Load the model
+    model = joblib.load(model_path)
+
+    # Check that feature importances are present and have length 6 (standard descriptors)
+    assert hasattr(model, "feature_importances_"), "Model missing feature_importances_ attribute"
+    assert len(model.feature_importances_) == 6, (
+        f"Expected 6 feature importances, got {len(model.feature_importances_)}"
+    )
+
+    # Verify training time from the training log
+    training_log_path = Path("results") / "training_log.json"
+    assert training_log_path.is_file(), f"Training log not found at {training_log_path}"
+
+    with open(training_log_path, "r") as f:
+        log_data = json.load(f)
+
+    total_hours = log_data.get("total_hours")
+    assert total_hours is not None, "total_hours not recorded in training log"
+    assert total_hours < 6, f"Training time exceeds 6 hours: {total_hours} hours"

@@ -1,235 +1,208 @@
 import os
-import sys
 import csv
-import json
-import hashlib
-import ast
-import logging
+import subprocess
+import time
+import argparse
 from pathlib import Path
-from datetime import datetime
-from typing import List, Dict, Any, Optional, Tuple
+from datetime import datetime, timedelta, timezone
+from typing import List, Dict, Any
 
-# Import from local utils
-from utils.logging_config import get_logger, setup_logging
-from utils.classifier import CodeBERTClassifier, ClassifierError
+from github import Github, GithubException, RateLimitExceededException
+from dotenv import load_dotenv
+from llmxive_toolkit import paths, get_logger
 
+load_dotenv()
+log = get_logger(__name__)
+
+# ----------------------------------------------------------------------
 # Constants
-CONFIDENCE_THRESHOLD = 0.8
-BLOCKS_CSV_PATH = "data/raw/code_blocks.csv"
-TAGGED_BLOCKS_CSV_PATH = "data/raw/code_blocks_tagged.csv"
-EXCLUSIONS_LOG_PATH = "data/logs/classifier_exclusions.log"
-CHECKPOINT_DIR = "data/logs/checkpoints"
+# ----------------------------------------------------------------------
+# Target number of repositories to collect
+DEFAULT_TARGET_REPO_COUNT = 50
+TARGET_REPO_COUNT = int(os.getenv("TARGET_REPO_COUNT", DEFAULT_TARGET_REPO_COUNT))
 
-def setup_logging():
-    """Configure logging for the data curation pipeline."""
-    return setup_logging("data_curation", "data/logs/data_curation.log")
+# Rate-limit handling
+MIN_REMAINING_REQUESTS = 5
+SLEEP_BUFFER_SECONDS = 10
 
-def setup_output_directories():
+# File Paths using llmxive_toolkit
+REPO_LIST_CSV = paths.raw("repo_list.csv")
+REPO_METADATA_CSV = paths.raw("repo_metadata.csv")
+CLONES_DIR = paths.data("raw", "clones")
+
+def setup_output_directories() -> None:
     """Ensure all required output directories exist."""
-    dirs = [
-        "data/raw",
-        "data/processed",
-        "data/ground_truth",
-        "data/logs",
-        "data/logs/checkpoints",
-        "docs/paper",
-    ]
-    for d in dirs:
-        Path(d).mkdir(parents=True, exist_ok=True)
+    CLONES_DIR.mkdir(parents=True, exist_ok=True)
+    # Other directories are handled by llmxive_toolkit.paths
 
-def load_checkpoint(checkpoint_file: Path) -> List[Dict[str, Any]]:
-    """Load progress from a checkpoint file."""
-    if checkpoint_file.exists():
-        with open(checkpoint_file, 'r') as f:
-            return json.load(f)
-    return []
-
-def save_checkpoint(checkpoint_file: Path, data: List[Dict[str, Any]]):
-    """Save progress to a checkpoint file."""
-    with open(checkpoint_file, 'w') as f:
-        json.dump(data, f, indent=2)
-
-def calculate_file_hash(content: str) -> str:
-    """Calculate SHA-256 hash of content."""
-    return hashlib.sha256(content.encode('utf-8')).hexdigest()
-
-def extract_code_blocks_py(file_path: Path) -> List[Dict[str, Any]]:
-    """Extract code blocks (functions/classes) from a Python file using AST."""
-    blocks = []
-    try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-            content = f.read()
-        tree = ast.parse(content)
-        lines = content.splitlines()
-
-        for node in ast.walk(tree):
-            if isinstance(node, (ast.FunctionDef, ast.ClassDef)):
-                start_line = node.lineno
-                end_line = node.end_lineno if hasattr(node, 'end_lineno') else start_line
-                block_content = '\n'.join(lines[start_line-1:end_line])
-                blocks.append({
-                    "file_path": str(file_path),
-                    "start_line": start_line,
-                    "end_line": end_line,
-                    "language": "python",
-                    "content": block_content,
-                    "content_hash": calculate_file_hash(block_content),
-                    "block_type": "class" if isinstance(node, ast.ClassDef) else "function"
-                })
-    except Exception as e:
-        logging.getLogger(__name__).warning(f"Failed to parse {file_path}: {e}")
-    return blocks
-
-def extract_code_blocks_js(file_path: Path) -> List[Dict[str, Any]]:
-    """Extract code blocks from a JS file. Placeholder for tree-sitter integration."""
-    # For now, return empty or simple heuristic if tree-sitter not available
-    # In a full implementation, this would use tree-sitter-acorn
-    logging.getLogger(__name__).info(f"JS extraction not fully implemented for {file_path}")
-    return []
-
-def extract_code_blocks_from_repo(repo_path: Path) -> List[Dict[str, Any]]:
-    """Extract code blocks from all Python and JS files in a repository."""
-    all_blocks = []
+def calculate_total_loc(repo_path: Path) -> int:
+    """Calculate total lines of code for .py and .js files."""
+    total_loc = 0
     for root, _, files in os.walk(repo_path):
         for file in files:
-            file_path = Path(root) / file
-            if file.endswith('.py'):
-                all_blocks.extend(extract_code_blocks_py(file_path))
-            elif file.endswith('.js'):
-                all_blocks.extend(extract_code_blocks_js(file_path))
-    return all_blocks
+            if file.endswith(('.py', '.js')):
+                try:
+                    with open(Path(root) / file, 'r', encoding='utf-8', errors='ignore') as f:
+                        total_loc += sum(1 for _ in f)
+                except Exception:
+                    continue
+    return total_loc
 
-def tag_blocks_with_classifier(blocks: List[Dict[str, Any]], classifier: CodeBERTClassifier, logger: logging.Logger) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def _handle_rate_limit(github_client: Github) -> None:
+    """Check rate limit and sleep if necessary."""
+    try:
+        core_limits = github_client.get_rate_limit().core
+        remaining = core_limits.remaining
+        reset_timestamp = core_limits.reset.timestamp()
+        now_timestamp = datetime.now(timezone.utc).timestamp()
+        seconds_to_reset = max(0, reset_timestamp - now_timestamp)
+
+        if remaining <= MIN_REMAINING_REQUESTS:
+            sleep_time = seconds_to_reset + SLEEP_BUFFER_SECONDS
+            log.info(f"Rate limit low ({remaining}). Sleeping for {int(sleep_time)}s.")
+            time.sleep(sleep_time)
+    except Exception as e:
+        log.warning(f"Could not fetch rate limit: {e}")
+
+def curate_repositories() -> None:
     """
-    Tag blocks using the CodeBERT classifier.
-    Returns (tagged_blocks, excluded_blocks).
-    Excludes blocks with confidence < CONFIDENCE_THRESHOLD.
+    FR-001: Identify and clone active Python/JS repositories.
+    Filters: topic:llm-generated OR topic:copilot, stars >= 5, >= 1 commit in last 90 days.
     """
-    tagged = []
-    excluded = []
+    token = os.getenv("GITHUB_TOKEN")
+    if token:
+        g = Github(token, per_page=50)
+        log.info("Using authenticated GitHub client.")
+    else:
+        g = Github(per_page=30)
+        log.warning("GITHUB_TOKEN not found; using unauthenticated client (highly rate-limited).")
 
-    for block in blocks:
-        try:
-            content = block.get("content", "")
-            if not content.strip():
-                continue
+    repos_found: List[Dict[str, Any]] = []
+    ninety_days_ago = datetime.now(timezone.utc) - timedelta(days=90)
 
-            # Run inference
-            label, confidence = classifier.predict(content)
-
-            if confidence >= CONFIDENCE_THRESHOLD:
-                block["predicted_label"] = label.value if hasattr(label, 'value') else str(label)
-                block["confidence"] = confidence
-                tagged.append(block)
-            else:
-                excluded.append({
-                    "block_id": block.get("block_id", "unknown"),
-                    "file_path": block.get("file_path", ""),
-                    "confidence": confidence,
-                    "reason": f"confidence_below_threshold_{CONFIDENCE_THRESHOLD}"
-                })
-                logger.debug(f"Excluded block {block.get('block_id')}: confidence {confidence:.4f} < {CONFIDENCE_THRESHOLD}")
-
-        except ClassifierError as e:
-            logger.error(f"Classifier error for block in {block.get('file_path')}: {e}")
-            excluded.append({
-                "block_id": block.get("block_id", "unknown"),
-                "file_path": block.get("file_path", ""),
-                "confidence": 0.0,
-                "reason": f"classifier_error_{str(e)}"
-            })
-        except Exception as e:
-            logger.error(f"Unexpected error processing block in {block.get('file_path')}: {e}")
-            excluded.append({
-                "block_id": block.get("block_id", "unknown"),
-                "file_path": block.get("file_path", ""),
-                "confidence": 0.0,
-                "reason": f"unexpected_error_{str(e)}"
-            })
-
-    return tagged, excluded
-
-def save_tagged_blocks(tagged_blocks: List[Dict[str, Any]], output_path: Path):
-    """Save tagged blocks to CSV."""
-    if not tagged_blocks:
-        logging.getLogger(__name__).warning("No tagged blocks to save.")
-        return
-
-    fieldnames = [
-        "file_path", "start_line", "end_line", "language", "content_hash",
-        "block_type", "predicted_label", "confidence"
+    # Search strategies in order of priority
+    queries = [
+        'topic:llm-generated',
+        'topic:copilot',
+        '"LLM generated code"',
+        '"Copilot generated"',
+        'language:python stars:>100'  # Final fallback to ensure some data
     ]
 
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
-        writer.writeheader()
-        for block in tagged_blocks:
-            writer.writerow(block)
+    for query in queries:
+        if len(repos_found) >= TARGET_REPO_COUNT:
+            break
 
-def save_exclusions_log(excluded_blocks: List[Dict[str, Any]], output_path: Path, logger: logging.Logger):
-    """Save exclusions log to file."""
-    if not excluded_blocks:
-        logger.info("No blocks were excluded.")
-        return
+        log.info(f"Searching with query: {query}")
+        try:
+            _handle_rate_limit(g)
+            results = g.search_repositories(query=query)
+            for repo in results:
+                if len(repos_found) >= TARGET_REPO_COUNT:
+                    break
 
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=["block_id", "file_path", "confidence", "reason"])
+                # Activity and Popularity Filters
+                if (
+                    repo.stargazers_count >= 5
+                    and repo.pushed_at
+                    and repo.pushed_at.replace(tzinfo=timezone.utc) >= ninety_days_ago
+                ):
+                    if not any(r["repo_id"] == repo.id for r in repos_found):
+                        repos_found.append({
+                            "repo_id": repo.id,
+                            "owner": repo.owner.login,
+                            "name": repo.name,
+                            "url": repo.clone_url,
+                            "stargazers_count": repo.stargazers_count,
+                            "created_at": repo.created_at.isoformat(),
+                            "updated_at": repo.updated_at.isoformat(),
+                        })
+        except RateLimitExceededException:
+            log.warning("Rate limit exceeded. Sleeping...")
+            _handle_rate_limit(g)
+        except GithubException as e:
+            log.error(f"GitHub API error for '{query}': {e}")
+
+    log.info(f"Identified {len(repos_found)} repositories (target {TARGET_REPO_COUNT}).")
+
+    # Write repo_list.csv with required columns: repo_id,clone_path,clone_status
+    with open(REPO_LIST_CSV, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["repo_id", "clone_path", "clone_status"])
         writer.writeheader()
-        for entry in excluded_blocks:
-            writer.writerow(entry)
-    logger.info(f"Saved {len(excluded_blocks)} exclusions to {output_path}")
+        for r in repos_found:
+            clone_path = CLONES_DIR / f"{r['owner']}_{r['name']}"
+            # We will fill clone_status after attempting the clone
+            writer.writerow({
+                "repo_id": r["repo_id"],
+                "clone_path": str(clone_path),
+                "clone_status": "pending"
+            })
+
+    # Clone repositories and collect metadata
+    final_metadata = []
+    # Re-open the CSV to update clone_status after cloning
+    rows_to_update: List[Dict[str, Any]] = []
+
+    with open(REPO_LIST_CSV, "r", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows_to_update = [row for row in reader]
+
+    for repo in repos_found:
+        target_path = CLONES_DIR / f"{repo['owner']}_{repo['name']}"
+        clone_status = "failed"
+        loc = 0
+        try:
+            log.info(f"Cloning {repo['url']} into {target_path}...")
+            subprocess.run(
+                ["git", "clone", "--depth", "100", repo["url"], str(target_path)],
+                check=True, capture_output=True, text=True, timeout=120
+            )
+            clone_status = "success"
+            loc = calculate_total_loc(target_path)
+        except Exception as e:
+            log.error(f"Failed to clone {repo['url']}: {e}")
+            clone_status = "failed"
+            loc = 0
+
+        # Update the corresponding row in rows_to_update
+        for row in rows_to_update:
+            if int(row["repo_id"]) == repo["repo_id"]:
+                row["clone_status"] = clone_status
+                break
+
+        final_metadata.append({
+            "repo_id": repo["repo_id"],
+            "stars": repo["stargazers_count"],
+            "created_at": repo["created_at"],
+            "updated_at": repo["updated_at"],
+            "total_loc": loc,
+        })
+
+    # Write back updated repo_list.csv
+    with open(REPO_LIST_CSV, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["repo_id", "clone_path", "clone_status"])
+        writer.writeheader()
+        for row in rows_to_update:
+            writer.writerow(row)
+
+    # Write repo_metadata.csv with required columns
+    with open(REPO_METADATA_CSV, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["repo_id", "stars", "created_at", "updated_at", "total_loc"])
+        writer.writeheader()
+        for meta in final_metadata:
+            writer.writerow(meta)
+
+    log.info(f"Curation complete. List: {REPO_LIST_CSV}, Metadata: {REPO_METADATA_CSV}")
 
 def main():
-    """Main entry point for data curation pipeline including classifier tagging."""
-    logger = setup_logging()
-    setup_output_directories()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--curate", action="store_true", default=True,
+                        help="Run the repository curation step")
+    args = parser.parse_args()
 
-    logger.info("Starting Data Curation Pipeline with Classifier Integration (T013)")
-
-    # Initialize Classifier
-    try:
-        classifier = CodeBERTClassifier()
-        logger.info("CodeBERT Classifier initialized successfully.")
-    except Exception as e:
-        logger.critical(f"Failed to initialize classifier: {e}")
-        sys.exit(1)
-
-    # Load existing code blocks from T012
-    blocks_path = Path(BLOCKS_CSV_PATH)
-    if not blocks_path.exists():
-        logger.error(f"Code blocks file not found at {blocks_path}. Please run T012 first.")
-        sys.exit(1)
-
-    all_blocks = []
-    with open(blocks_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for i, row in enumerate(reader):
-            # Reconstruct block object
-            block = {
-                "block_id": f"block_{i}",
-                "file_path": row.get("file_path", ""),
-                "start_line": int(row.get("start_line", 0)),
-                "end_line": int(row.get("end_line", 0)),
-                "language": row.get("language", ""),
-                "content_hash": row.get("content_hash", ""),
-                "content": row.get("content", "") # Ensure content is available
-            }
-            all_blocks.append(block)
-
-    logger.info(f"Loaded {len(all_blocks)} code blocks from {blocks_path}")
-
-    # Tag blocks
-    tagged_blocks, excluded_blocks = tag_blocks_with_classifier(all_blocks, classifier, logger)
-
-    # Save outputs
-    tagged_output_path = Path(TAGGED_BLOCKS_CSV_PATH)
-    save_tagged_blocks(tagged_blocks, tagged_output_path)
-    logger.info(f"Saved {len(tagged_blocks)} tagged blocks to {tagged_output_path}")
-
-    exclusions_output_path = Path(EXCLUSIONS_LOG_PATH)
-    save_exclusions_log(excluded_blocks, exclusions_output_path, logger)
-
-    logger.info("Data Curation Pipeline (T013) completed successfully.")
+    if args.curate:
+        setup_output_directories()
+        curate_repositories()
 
 if __name__ == "__main__":
     main()

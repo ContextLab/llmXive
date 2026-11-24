@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 from simulation.config import CONFIG_MATRIX
 
+
 class TestConfigMatrix:
     def test_config_matrix_exists(self):
         """T065: Verify CONFIG_MATRIX constant exists."""

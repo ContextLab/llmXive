@@ -21,8 +21,10 @@ name: HF Daily Papers
 # and validated by Python's argparse before reaching `gh`.
 
 on:
-  schedule:
-    - cron: "0 8 * * *"   # 08:00 UTC daily
+  # SCHEDULE PAUSED 2026-11-23: manual dispatch only until reliable performance and
+  # quality are verified. To restore, uncomment the block below.
+  # schedule:
+  #   - cron: "0 8 * * *"   # 08:00 UTC daily
   workflow_dispatch:
     inputs:
       date:

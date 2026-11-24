@@ -1,131 +1,93 @@
 # Quickstart Guide: Evaluating the Impact of Code Generation on Code Review Time
 
-This guide provides step-by-step instructions to set up, run, and validate the `llmXive` research pipeline for evaluating how LLM-generated code affects code review times.
-
 ## Prerequisites
 
-- Python 3.9+
+- Python 3.11+
 - Git
-- A GitHub Personal Access Token (with `public_repo` scope)
-- Sufficient disk space (~15GB for intermediate data)
-- (Optional) GPU for faster code generation (self-hosted runner required)
+- A GitHub Personal Access Token (with `public_repo` scope), exported as
+ `GITHUB_TOKEN` (optional but recommended to avoid REST API rate limits)
+- Sufficient disk space (~15 GB for intermediate data)
 
-## 1. Clone and Setup
+## 1. Clone and Set Up the Environment
 
 ```bash
 git clone <repository-url>
-cd llmXive-evaluating-llm-code-generation-impact
-```
+cd projects/PROJ-302-evaluating-the-impact-of-code-generation
 
-### Install Dependencies
-
-```bash
+python -m venv.venv
+source.venv/bin/activate
 pip install -r requirements.txt
 ```
 
-> **Note**: If you plan to use the GPU escape hatch for code generation, ensure you have access to a self-hosted GitHub Actions runner with GPU capabilities.
+All dependencies (including `statsmodels`) are pinned to exact versions in
+`requirements.txt`, so a fresh install is reproducible.
 
-### Configure Environment
-
-Create a `.env` file in the project root with your GitHub token:
+## 2. Verify the Setup
 
 ```bash
-GITHUB_TOKEN=your_github_personal_access_token
+python code/verify_setup.py
 ```
 
-## 2. Project Structure
+This checks the project skeleton (`code/`, `data/`, `tests/`, `docs/`),
+validates that every required package is pinned in `requirements.txt`,
+imports each dependency, and writes the evidence to
+`results/setup_verification.json`. Exit code `0` indicates success.
+
+## 3. Run-the-Pipeline
+
+**Run-the-pipeline command:**
+
+```bash
+python code/main.py --full-run
+```
+
+This executes the full end-to-end pipeline: data acquisition (GitHub REST
+API with exponential backoff), prompt engineering, synthetic LLM code
+generation (CPU-only CodeLlama-7B-4bit-GGUF, <= 30 s per snippet), feature
+extraction (LOC, radon complexity, CI build time, all‑MiniLM‑L6‑v2
+similarity), review‑timestamp simulation, propensity‑score matching,
+statistical testing, sensitivity analysis, visualisation, report
+generation, and runtime measurement (`data/processed/runtime_report.json`,
+total <= 6 h).
+
+## 4. Project Structure
 
 ```
 .
-├── code/ # Source code modules
-│ ├── data_acquisition/ # GitHub scraping, code generation
-│ ├── feature_extraction/# Complexity, timestamps, style metrics
-│ ├── analysis/ # Matching, statistical tests, sensitivity
-│ ├── utils/ # Config, models, validators
-│ └── main.py # Pipeline orchestrator
-├── data/ # Generated datasets and reports
-│ ├── raw/ # Raw GitHub API responses
-│ └── processed/ # Cleaned and enriched data
-├── reports/ # Final PDF and HTML reports
-├── docs/ # Documentation (this file)
-└── tests/ # Unit, integration, and contract tests
+├── code/ # Source modules (data acquisition, analysis,...)
+├── data/
+│ ├── raw/ # Immutable streamed PR parquet files
+│ ├── processed/ # Features, matched pairs, analysis results
+│ ├── synthetic/ # Generated snippets + provenance
+│ └── reports/ # PDFs, PNGs, JSON summaries, runtime_report.json
+├── docs/
+│ └── quickstart.md
+├── tests/ # Unit and integration tests
+└── requirements.txt # Pinned dependencies
 ```
 
-## 3. Running the Pipeline
+## 5. Validation Checklist
 
-The pipeline is orchestrated via `code/main.py`. It executes the following stages:
+- `results/setup_verification.json` reports all packages available.
+- `data/processed/runtime_report.json` shows total <= 6 h. [UNRESOLVED-CLAIM: c_190b49e2 — status=not_enough_info]
+- `data/processed/covariate_balance.json` shows all SMD < 0.1. [UNRESOLVED-CLAIM: c_66ab34f0 — status=not_enough_info]
+- `data/processed/analysis_results.json` conforms to
+ `contracts/test_result.schema.yaml`.
 
-1. **Data Acquisition**: Fetches PR metadata and code from GitHub.
-2. **Feature Extraction**: Computes complexity, style, and timestamp metrics.
-3. **Code Generation**: Generates synthetic LLM code (context-based and prompt-based).
-4. **Matching & Analysis**: Performs propensity score matching and statistical testing.
-5. **Sensitivity Analysis**: Validates results across complexity/size strata.
-6. **Report Generation**: Produces a PDF report with visualizations.
+## 6. Troubleshooting
 
-### Execute Full Pipeline
+- **Rate limiting**: export a personal access token: `export GITHUB_TOKEN=your_token`.
+- **Memory errors**: reduce streaming batch size or limit PR count.
+- **Matching failure**: inspect `data/reports/matching_failure_report.json` for covariates with high SMD; you may increase the caliper or drop the most imbalanced covariate and re‑run.
+- **LLM generation timeout**: the script retries up to 3 times; persistent failures are logged and the corresponding commit is excluded.
+- **Evaluation PRs not reviewed**: ensure the reviewer panel has been invited; unreviewed PRs are logged and excluded after 48 h.
+- **Runtime > 6 h**: review `runtime_report.json` for the longest stage; consider reducing the number of synthetic snippets (`--max-snippets`) or the number of target repositories.
 
-```bash
-python code/main.py
-```
+## 7. Reproducibility Guarantees
 
-The script will:
-- Create necessary directories (`data/`, `reports/`, `logs/`).
-- Fetch data from GitHub (respects rate limits).
-- Generate synthetic code (CPU first; triggers GPU workflow if timeout > 60s).
-- Run matching and statistical tests.
-- Enforce gates (matching balance, sensitivity consistency, PII).
-- Generate `reports/analysis_report.pdf`.
+- All random seeds are pinned (`utils.set_seed(<fixed_value>)`).
+- External data are fetched from the GitHub API with a deterministic list; their cryptographic hash checksums are recorded.
+- The CodeLlama model version and generation parameters are stored alongside each snippet.
+- Every figure and statistic in the PDF can be traced back to a single row in a Parquet/JSON artifact.
 
-### Expected Outputs
-
-After successful completion, you will find:
-
-- `data/processed/merged_features.parquet`
-- `data/processed/matching_results.parquet`
-- `data/processed/sensitivity_summary.json`
-- `data/processed/runtime_report.json`
-- `reports/analysis_report.pdf`
-- `reports/visualizations/` (box plots, CDF curves)
-
-## 4. Validation
-
-Run the quickstart validator to ensure all components are functioning:
-
-```bash
-python code/quickstart_validator.py
-```
-
-This script checks:
-- Directory structure integrity.
-- Existence of required output files.
-- Validity of JSON reports (SMD < 0.1, sensitivity consistency >= 80%).
-- PII scan results (should be clean).
-
-Exit code `0` indicates success.
-
-## 5. Troubleshooting
-
-### Rate Limiting
-If you encounter GitHub API rate limits, ensure your `GITHUB_TOKEN` is valid and has the correct scopes. The pipeline includes exponential backoff (T013).
-
-### Code Generation Timeout
-If CPU generation exceeds 60s, the pipeline will dispatch a GitHub Actions workflow to a GPU runner (T014b-GEN). Ensure your repository has the `.github/workflows/gpu-generation.yml` file and a self-hosted GPU runner is available.
-
-### Matching Failure
-If covariate balance (SMD) > 0.1 after retries, the pipeline halts and generates `data/processed/matching_failure_report.json`. Review the report and consider adjusting covariates.
-
-### Sensitivity Inconsistency
-If p < 0.05 in < 80% of subsets, the pipeline exits with code 1. Check `data/processed/sensitivity_summary.json` for details.
-
-## 6. Extending the Pipeline
-
-- **Add New Repos**: Modify `code/data_acquisition/github_scraper.py` to include additional repositories.
-- **Custom Covariates**: Edit `data/processed/covariate_config.json` to change matching variables.
-- **New Visualizations**: Extend `code/analysis/visualization.py` to add custom plots.
-
-## 7. Citation
-
-If you use this pipeline in your research, please cite the project repository.
-
----
-*Last updated: 2023-10-27*
+Enjoy your reproducible study!

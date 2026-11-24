@@ -13,7 +13,7 @@ properties:
   date:
     type: "string"
     format: "date"
-    description: "Date of the log entry (YYYY-MM-DD)."
+    description: "Date of the log entry (YYYY‑MM‑DD)."
   social_media_minutes:
     type: "integer"
     minimum: 0

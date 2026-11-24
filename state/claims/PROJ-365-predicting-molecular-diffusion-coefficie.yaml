@@ -195,7 +195,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-13T15:45:46Z'
 - artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
   attempts: 2
@@ -232,7 +232,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-16T15:50:35Z'
 - artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
   attempts: 1
@@ -554,3 +554,18 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-05T09:08:43Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/plan.md
+  attempts: 1
+  canonical: iris dataset URL is https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv
+  claim_id: c_0dff0a57
+  context: 'Dataset URL: https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: 'Dataset URL: https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-29T07:10:11Z'

@@ -19,7 +19,7 @@ properties:
     minimum: 0
   rank:
     type: integer
-    description: "Rank among top 100 candidates (1 = lowest uncertainty)"
+    description: "Rank among the top tier of candidates (1 = lowest uncertainty)"
     minimum: 1
     maximum: 100
 required:

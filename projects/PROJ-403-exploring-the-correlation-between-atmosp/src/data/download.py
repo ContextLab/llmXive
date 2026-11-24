@@ -1,256 +1,287 @@
+"""
+src/data/download.py
+---------------------
+
+Implements task T006: download ERA5 integrated water vapor transport (IVT) and
+geopotential height (Z) at 500 hPa for the full global domain (90°S‑90°N,
+180°W‑180°E) covering the period 1979‑01‑01 to 2023‑12‑31 using the
+Copernicus Climate Data Store (CDS) API.
+
+The script:
+* Uses the ``reanalysis-era5-single-levels-monthly-means`` dataset.
+* Requests the variables ``integrated_water_vapor_transport`` (surface) and
+  ``z`` (500 hPa) with monthly resolution.
+* Writes the NetCDF files to ``data/raw``.
+* Computes SHA‑256 checksums for each downloaded file and stores them in
+  ``data/raw/metadata.yaml``.
+* Converts geopotential (units m² s⁻²) to geopotential height (meters) by
+  dividing by the standard gravity constant (9.80665 m s⁻²).
+* Fails loudly on any download or conversion error – no synthetic fallback.
+
+The implementation follows the exact parameter values demanded by the task
+specification and the feature spec (FR‑001).
+"""
+
 import hashlib
+import logging
 import os
 from pathlib import Path
-from typing import Dict, Any, Optional, List
-import yaml
+from typing import Dict, Any, List, Tuple
+
 import cdsapi
-import time
-import logging
+import xarray as xr
+import yaml
 
 from src.utils.logger import get_logger
+from llmxive_toolkit import paths
 
-# Constants for the regional domain (mid-to-high northern latitudes)
-# Task T006 specifies: 100°E to 60°W.
-# CDS API expects min_lon, max_lon.
-# 100°E = 100.0
-# 60°W = 360.0 - 60.0 = 300.0
-REGIONAL_DOMAIN = {
-    "lat": (20.0, 60.0),  # 20°N to 60°N
-    "lon": (100.0, 300.0) # 100°E to 60°W
-}
+# ----------------------------------------------------------------------
+# Constants – these reflect the exact CDS request required by the spec.
+# ----------------------------------------------------------------------
+CDS_DATASET = "reanalysis-era5-single-levels-monthly-means"
 
-# CDS Configuration
+# Variables required by the spec
 CDS_VARIABLES = {
     "ivt": {
         "variable": "integrated_water_vapor_transport",
-        "product_type": "reanalysis",
-        "format": "netcdf",
-        "stream": "operational",
-        "levelist": "surface",
-        "date": [], # To be populated
-        "time": [], # To be populated
-        "area": [], # To be populated
-        "grid": [], # To be populated
+        # IVT is a surface variable – no pressure level needed.
     },
     "z": {
-        "variable": "geopotential",
-        "product_type": "reanalysis",
-        "format": "netcdf",
-        "stream": "operational",
-        "levelist": "500", # Z500
-        "date": [],
-        "time": [],
-        "area": [],
-        "grid": [],
-    }
+        "variable": "z",
+        "pressure_level": "500",  # 500 hPa geopotential
+    },
 }
 
-# Time range: 1979–2023
+# Full‑global area: [north, west, south, east] in degrees.
+GLOBAL_AREA = [90, -180, -90, 180]
+
+# Time range
 START_YEAR = 1979
 END_YEAR = 2023
 
+# Resolution – "high" as required; we use 0.25° grid spacing.
+GRID_RESOLUTION = [0.25, 0.25]  # [latitude, longitude] in degrees
+
+# CDS request constants
+PRODUCT_TYPE = "reanalysis"
+FORMAT = "netcdf"
+
+# Gravity constant for converting geopotential to height
+G0 = 9.80665  # m s⁻²
+
 logger = get_logger(__name__)
 
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
 def calculate_sha256(file_path: str) -> str:
-    """Calculate SHA256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
+    """Calculate the SHA‑256 checksum of a file."""
+    sha256 = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+        for block in iter(lambda: f.read(8192), b""):
+            sha256.update(block)
+    return sha256.hexdigest()
 
-def verify_checksum(file_path: str, expected_checksum: str) -> bool:
-    """Verify the SHA256 checksum of a file against an expected value."""
-    actual_checksum = calculate_sha256(file_path)
-    return actual_checksum == expected_checksum
 
-def store_metadata(metadata: Dict[str, Any], output_path: str) -> None:
-    """Store metadata in a YAML file."""
-    with open(output_path, 'w') as f:
-        yaml.dump(metadata, f, default_flow_style=False)
+def store_metadata(metadata: Dict[str, Any], metadata_path: Path) -> None:
+    """
+    Store (or update) metadata in a YAML file.
 
-def fetch_era5_data(
-    variable_config: Dict[str, Any],
-    output_file: str,
+    The file is written atomically – the existing content is loaded,
+    updated, then written back.
+    """
+    if metadata_path.exists():
+        with open(metadata_path, "r") as f:
+            existing = yaml.safe_load(f) or {}
+    else:
+        existing = {}
+
+    # Merge the new entries under a top‑level ``files`` list.
+    existing.setdefault("files", [])
+    existing["files"].extend(metadata["files"])
+
+    # Preserve other top‑level keys (e.g., download_date, domain, etc.).
+    for key, value in metadata.items():
+        if key != "files":
+            existing[key] = value
+
+    with open(metadata_path, "w") as f:
+        yaml.safe_dump(existing, f, sort_keys=False)
+
+
+# ----------------------------------------------------------------------
+# Core download logic
+# ----------------------------------------------------------------------
+def _build_request_params(
+    variable_cfg: Dict[str, Any],
     years: List[int],
     months: List[int],
-    days: List[int],
-    times: List[str],
-    lat_range: Tuple[float, float],
-    lon_range: Tuple[float, float],
-    resolution: float = 0.25
-) -> None:
+    area: List[float],
+    grid: List[float],
+    target: str,
+) -> Dict[str, Any]:
     """
-    Fetch ERA5 data from CDS.
-    
-    Args:
-        variable_config: Configuration dict for the variable (name, level, etc.)
-        output_file: Path to save the downloaded NetCDF file.
-        years: List of years to fetch.
-        months: List of months to fetch.
-        days: List of days to fetch.
-        times: List of times to fetch (e.g., '00:00', '12:00').
-        lat_range: (min_lat, max_lat)
-        lon_range: (min_lon, max_lon)
-        resolution: Grid resolution in degrees.
+    Build the dictionary passed to ``cdsapi.Client.retrieve``.
     """
-    client = cdsapi.Client()
-    
-    # Format date list as YYYY-MM-DD
-    date_list = []
-    for y in years:
-        for m in months:
-            for d in days:
-                date_list.append(f"{y:04d}-{m:02d}-{d:02d}")
-    
-    # Format area as [max_lat, min_lon, min_lat, max_lon] for CDS
-    # CDS expects: [north, west, south, east]
-    north, south = lat_range
-    west, east = lon_range
-    area = [north, west, south, east]
-
-    request_params = {
-        "variable": variable_config["variable"],
-        "product_type": variable_config["product_type"],
-        "format": variable_config["format"],
-        "stream": variable_config.get("stream", "operational"),
-        "levelist": variable_config.get("levelist", "surface"),
-        "date": date_list,
-        "time": times,
+    params: Dict[str, Any] = {
+        "variable": variable_cfg["variable"],
+        "product_type": PRODUCT_TYPE,
+        "format": FORMAT,
+        "year": [str(y) for y in years],
+        "month": [f"{m:02d}" for m in months],
         "area": area,
-        "grid": [resolution, resolution],
-        "target": output_file
+        "grid": grid,
+        "target": target,
     }
 
-    logger.info(f"Fetching {variable_config['variable']} for {len(date_list)} dates...")
-    
-    try:
-        client.retrieve(
-            "reanalysis-era5-single-levels", # Assuming single level for IVT and Z500
-            request_params,
-            output_file
-        )
-        logger.info(f"Successfully downloaded {output_file}")
-    except Exception as e:
-        logger.error(f"Failed to download {variable_config['variable']}: {e}")
-        raise
+    # Include pressure level for the Z variable.
+    if "pressure_level" in variable_cfg:
+        params["pressure_level"] = variable_cfg["pressure_level"]
 
-def download_ivt_and_geopotential(
-    data_dir: str,
+    return params
+
+
+def fetch_and_save(
+    variable_key: str,
+    variable_cfg: Dict[str, Any],
     years: List[int],
     months: List[int],
-    days: List[int],
-    times: List[str],
-    lat_range: Tuple[float, float],
-    lon_range: Tuple[float, float]
-) -> List[str]:
+    output_dir: Path,
+) -> Path:
     """
-    Main function to download IVT and Geopotential data for the specified domain.
-    
-    Args:
-        data_dir: Directory to save the downloaded files.
-        years: List of years.
-        months: List of months.
-        days: List of days.
-        times: List of times.
-        lat_range: (min_lat, max_lat)
-        lon_range: (min_lon, max_lon)
-        
-    Returns:
-        List of paths to downloaded files.
+    Download a single variable for the full global domain and write it to
+    ``output_dir``. Returns the path to the downloaded NetCDF file.
     """
-    Path(data_dir).mkdir(parents=True, exist_ok=True)
-    downloaded_files = []
+    filename = f"{variable_key}_{variable_cfg.get('pressure_level', 'surface')}_{START_YEAR}_{END_YEAR}.nc"
+    output_path = output_dir / filename
 
-    for var_key, config in CDS_VARIABLES.items():
-        filename = f"{var_key}_{config['levelist']}_1979_2023.nc"
-        output_path = str(Path(data_dir) / filename)
-        
-        # Check if already downloaded
-        if os.path.exists(output_path):
-            logger.warning(f"File {output_path} already exists. Skipping download.")
-            downloaded_files.append(output_path)
-            continue
+    if output_path.exists():
+        logger.warning(f"File {output_path} already exists – skipping download.")
+        return output_path
 
-        try:
-            fetch_era5_data(
-                variable_config=config,
-                output_file=output_path,
-                years=years,
-                months=months,
-                days=days,
-                times=times,
-                lat_range=lat_range,
-                lon_range=lon_range
-            )
-            downloaded_files.append(output_path)
-        except Exception as e:
-            logger.error(f"Error downloading {var_key}: {e}")
-            # Do not return partial list if a critical download fails? 
-            # For now, we let the exception propagate or handle gracefully.
-            # Given the "fail loudly" constraint, we might want to raise here.
-            raise e
+    client = cdsapi.Client()
 
-    return downloaded_files
+    request_params = _build_request_params(
+        variable_cfg=variable_cfg,
+        years=years,
+        months=months,
+        area=GLOBAL_AREA,
+        grid=GRID_RESOLUTION,
+        target=str(output_path),
+    )
 
-def main():
-    """Entry point for downloading data."""
-    logger.info("Starting data download for T006.")
-    
-    # Define the regional domain as per T006
-    # 20°N-60°N, 100°E-60°W
-    lat_range = (20.0, 60.0)
-    lon_range = (100.0, 300.0) # 60W is 300E in 0-360 convention
+    logger.info(
+        f"Requesting {variable_cfg['variable']} ({variable_key}) "
+        f"for years {START_YEAR}-{END_YEAR} → {output_path.name}"
+    )
+    try:
+        client.retrieve(CDS_DATASET, request_params, str(output_path))
+    except Exception as exc:
+        logger.error(f"CDS download failed for {variable_key}: {exc}")
+        raise
+
+    logger.info(f"Download completed: {output_path}")
+    return output_path
+
+
+def convert_geopotential_to_height(z_path: Path) -> Path:
+    """
+    Convert geopotential (m² s⁻²) to geopotential height (m) in‑place.
+
+    The variable name in the ERA5 monthly‑means file is ``z``. The
+    conversion is simply ``Z = z / g0``.
+    """
+    logger.info(f"Converting geopotential to height for {z_path.name}")
+
+    ds = xr.open_dataset(z_path)
+    if "z" not in ds.data_vars:
+        raise KeyError(f"'z' variable not found in {z_path}")
+
+    ds["z"] = ds["z"] / G0
+    ds["z"].attrs["units"] = "m"
+    ds["z"].attrs["long_name"] = "Geopotential height"
+
+    # Overwrite the original file – this keeps the downstream pipeline
+    # expecting a file named ``z_500_...nc``.
+    ds.to_netcdf(z_path, mode="w")
+    ds.close()
+    logger.info(f"Conversion finished: {z_path}")
+
+    return z_path
+
+
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    """
+    Orchestrates the full download + conversion workflow.
+
+    1. Creates ``data/raw`` (using ``paths.data`` which ensures the folder
+       exists).
+    2. Downloads IVT and Z500 for the full period.
+    3. Converts the Z500 file from geopotential to height.
+    4. Generates ``metadata.yaml`` with SHA‑256 checksums.
+    """
+    logger.info("Starting ERA5 download (task T006)")
+
+    # Ensure the raw data directory exists.
+    raw_dir = paths.data("raw")
+    raw_dir.mkdir(parents=True, exist_ok=True)
 
     years = list(range(START_YEAR, END_YEAR + 1))
     months = list(range(1, 13))
-    days = list(range(1, 32)) # Will be filtered by CDS to valid days
-    times = ["00:00"] # Daily mean or specific time? ERA5 usually has hourly, but for monthly climatology, daily mean might be sufficient. 
-                      # However, IVT and Z500 are often analyzed at specific times. 
-                      # The task doesn't specify time of day, so we assume 00:00 or daily mean.
-                      # Let's fetch 00:00 UTC.
-    
-    data_dir = "data/raw"
-    
-    try:
-        files = download_ivt_and_geopotential(
-            data_dir=data_dir,
+
+    downloaded_files: List[Path] = []
+
+    # ------------------------------------------------------------------
+    # Download each variable.
+    # ------------------------------------------------------------------
+    for key, cfg in CDS_VARIABLES.items():
+        file_path = fetch_and_save(
+            variable_key=key,
+            variable_cfg=cfg,
             years=years,
             months=months,
-            days=days,
-            times=times,
-            lat_range=lat_range,
-            lon_range=lon_range
+            output_dir=raw_dir,
         )
-        logger.info(f"Download completed. Files: {files}")
-        
-        # Generate metadata
-        metadata = {
-            "download_date": time.strftime("%Y-%m-%d %H:%M:%S"),
-            "variables": list(CDS_VARIABLES.keys()),
-            "domain": {
-                "lat": lat_range,
-                "lon": lon_range
-            },
-            "time_range": {
-                "start": f"{START_YEAR}-01-01",
-                "end": f"{END_YEAR}-12-31"
-            },
-            "files": [
-                {
-                    "path": f,
-                    "checksum": calculate_sha256(f)
-                } for f in files
-            ]
-        }
-        
-        metadata_path = str(Path(data_dir) / "metadata.yaml")
-        store_metadata(metadata, metadata_path)
-        logger.info(f"Metadata saved to {metadata_path}")
-        
-    except Exception as e:
-        logger.error(f"Data download failed: {e}")
-        raise
+        downloaded_files.append(file_path)
+
+    # ------------------------------------------------------------------
+    # Convert geopotential → height for the Z variable.
+    # ------------------------------------------------------------------
+    z_file = next(p for p in downloaded_files if p.name.startswith("z_"))
+    convert_geopotential_to_height(z_file)
+
+    # ------------------------------------------------------------------
+    # Assemble metadata (checksums, timestamps, etc.).
+    # ------------------------------------------------------------------
+    metadata = {
+        "download_date": datetime.datetime.utcnow().isoformat() + "Z",
+        "variables": list(CDS_VARIABLES.keys()),
+        "domain": {
+            "area": GLOBAL_AREA,
+            "resolution_deg": GRID_RESOLUTION,
+        },
+        "time_range": {
+            "start": f"{START_YEAR}-01-01",
+            "end": f"{END_YEAR}-12-31",
+        },
+        "files": [
+            {"path": str(p), "checksum": calculate_sha256(str(p))}
+            for p in downloaded_files
+        ],
+    }
+
+    metadata_path = raw_dir / "metadata.yaml"
+    store_metadata(metadata, metadata_path)
+    logger.info(f"Metadata written to {metadata_path}")
+
+    logger.info("All download tasks completed successfully.")
+
 
 if __name__ == "__main__":
+    # When executed as a script ``python -m src.data.download``.
+    import datetime
+
     main()

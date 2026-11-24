@@ -1,0 +1,106 @@
+{
+  "trace_id": "training_42_02405",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "insert_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 13.5238,
+        "padding": 40.2794
+      }
+    },
+    {
+      "step": 1,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 76.1582,
+        "padding": 29.8952
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 64.7879,
+        "padding": 84.0439
+      }
+    },
+    {
+      "step": 3,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 89.7121,
+        "padding": 47.6465
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 26.2425,
+        "y": 51.9714,
+        "length": 67.5439
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 79.535,
+        "x": 6.0702,
+        "y": 82.3913
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 29.8725,
+        "x": 30.8726,
+        "y": 46.5069
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 37.0091,
+        "x": 84.9853,
+        "y": 94.1338
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 87.3325,
+        "y": 44.3714,
+        "length": 58.9269
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.060857,
+    "tool_repetition_freq": 0.666667,
+    "arg_semantic_variance": 659.279975
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 3,
+    "layout_hash": "42-2405-update_layout"
+  }
+}

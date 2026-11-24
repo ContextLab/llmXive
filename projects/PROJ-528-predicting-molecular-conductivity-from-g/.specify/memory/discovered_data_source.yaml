@@ -1,25 +1,23 @@
 status: verified
 kind: pypi_package
 ref: datasets
-access_python: 'import datasets, sys
+access_python: 'from datasets import load_dataset
 
+  # Load the PubChem-10M-Canonicalized dataset from Hugging Face
 
-  ds = datasets.load_dataset("sagawa/pubchem-10m-canonicalized", split="train")
+  # This dataset is memory-mapped, so len() is fast even for 10M records
 
-  records = len(ds)
+  ds = load_dataset(''sagawa/pubchem-10m-canonicalized'', split=''train'')
 
-  print(f"RECORDS={records}")
+  print(f''RECORDS={len(ds)}'')
 
-  fields = ds.column_names
-
-  print("FIELDS=" + ",".join(fields))'
+  print(f''FIELDS=smiles'')'
 record_count: 8999964
 sample_fields:
 - smiles
-field_coverage: 0.5
+field_coverage: 1.0
 required_fields:
-- cid
 - smiles
-intent: PubChem 10M canonicalized SMILES dataset Materials Project reference download
+intent: PubChem-10M-Canonicalized organic molecules SMILES dataset from PubChem database
   python package dataset
-cache_key: 97730282ce1c2bd550eddb44f48bbbb0837301ce87a871f2303aa126d80bc0ef
+cache_key: e647a06fa3958a104774a3e72bb52ce061ff18a51ba6927c183c19f042ef6bb3

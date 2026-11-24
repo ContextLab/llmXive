@@ -8,30 +8,29 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/utils/verify_checksums.py -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/utils/verify_checksums.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/utils/verify_checksums.py': [Errno 2] No such file or directory
 
 - python code/01_sensitivity_analysis.py --sample-size '[variable]' --masking-unit head -> rc=1
 
-INFO:__main__:Starting sensitivity analysis with delta faithfulness calculation
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/01_sensitivity_analysis.py", line 332, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/01_sensitivity_analysis.py", line 289, in main
-    validate_config(config)
-TypeError: validate_config() takes 0 positional arguments but 1 was given
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/01_sensitivity_analysis.py", line 11, in <module>
+    from utils.masking import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/utils/masking.py", line 13, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
 
 - python code/_prune_model.py --retention-pct 50 -> rc=2
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/_prune_model.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/_prune_model.py': [Errno 2] No such file or directory
 
 - python code/04_statistical_validation.py -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/04_statistical_validation.py", line 300, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/04_statistical_validation.py", line 262, in main
-    validate_config(config)
-TypeError: validate_config() takes 0 positional arguments but 1 was given
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/04_statistical_validation.py", line 18, in <module>
+    from code_00_config import Config, validate_config
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/code/code_00_config.py", line 7, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
 
 
 ## Declared deliverables still missing
@@ -41,33 +40,13 @@ TypeError: validate_config() takes 0 positional arguments but 1 was given
 - data/processed/sensitivity_results.csv
 - data/processed/statistical_validation_report.json
 
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
-- **Verified**: this loads **105257** real records with fields: id, question, answer, type, level, supporting_facts, context.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-from datasets import load_dataset
-
-dataset_dict = load_dataset("hotpotqa/hotpot_qa", "fullwiki")
-total_records = sum(len(split) for split in dataset_dict.values())
-print(f"RECORDS={total_records}")
-
-first_split = next(iter(dataset_dict.values()))
-print("FIELDS=" + ",".join(first_split.column_names))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
-
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/processed/original_faithfulness_scores.csv` is declared but was NOT written. Scripts referencing it:
     - `code/04_statistical_validation.py` — IS a run-book command
+    - `code/run_original_faithfulness.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/original_faithfulness_scores.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/pruned_faithfulness_scores.csv` is declared but was NOT written. Scripts referencing it:
     - `code/04_statistical_validation.py` — IS a run-book command

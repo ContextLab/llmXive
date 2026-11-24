@@ -1,6 +1,7 @@
 """
 Unit tests for SC-001 failure measurement.
 """
+
 import json
 import pytest
 from pathlib import Path
@@ -8,9 +9,11 @@ from unittest.mock import patch, MagicMock
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "code"))
 
 from sc001_failure_measure import measure_original_sc001_failure, write_metrics_report
+
 
 class TestMeasureOriginalSC001Failure:
     """Tests for measure_original_sc001_failure function."""
@@ -32,6 +35,7 @@ class TestMeasureOriginalSC001Failure:
         result = measure_original_sc001_failure()
         assert isinstance(result, dict)
 
+
 class TestWriteMetricsReport:
     """Tests for write_metrics_report function."""
 
@@ -43,16 +47,12 @@ class TestWriteMetricsReport:
         mock_exists.return_value = False
         mock_open.return_value.__enter__ = MagicMock()
         mock_open.return_value.__exit__ = MagicMock()
-        
-        config = {
-            "paths": {
-                "artifacts": "/tmp/test_artifacts"
-            }
-        }
-        
+
+        config = {"paths": {"artifacts": "/tmp/test_artifacts"}}
+
         metrics = {"test_metric": 0.0}
         write_metrics_report(metrics, config)
-        
+
         mock_mkdir.assert_called_once_with(parents=True, exist_ok=True)
 
     @patch("sc001_failure_measure.Path.exists")
@@ -63,16 +63,12 @@ class TestWriteMetricsReport:
         mock_exists.return_value = False
         mock_open.return_value.__enter__ = MagicMock()
         mock_open.return_value.__exit__ = MagicMock()
-        
-        config = {
-            "paths": {
-                "artifacts": "/tmp/test_artifacts"
-            }
-        }
-        
+
+        config = {"paths": {"artifacts": "/tmp/test_artifacts"}}
+
         metrics = {"test_metric": 0.0}
         write_metrics_report(metrics, config)
-        
+
         # Verify that open was called with 'w' mode
         call_args = mock_open.call_args
-        assert call_args[0][1] == 'w'
+        assert call_args[0][1] == "w"

@@ -1,2 +1,3 @@
-# Existing dependencies are already available in the execution environment.
-# No additional third‑party packages are required for T067.
+# Project dependencies
+networkx
+tiktoken

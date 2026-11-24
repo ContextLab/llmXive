@@ -15,14 +15,16 @@ import pytest
 from code.model_metrics_generator import (
     load_json_file,
     save_json_file,
-    generate_model_metrics_report
+    generate_model_metrics_report,
 )
+
 
 @pytest.fixture
 def temp_dir():
     """Create a temporary directory for test artifacts."""
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)
+
 
 @pytest.fixture
 def mock_model_results(temp_dir):
@@ -31,21 +33,15 @@ def mock_model_results(temp_dir):
         "lmm": {
             "adjusted_r_squared": 0.75,
             "rmse": 1.23,
-            "p_values": {
-                "phosphorus": 0.001,
-                "nitrogen": 0.025
-            },
-            "cv_mean_r_squared": 0.72
+            "p_values": {"phosphorus": 0.001, "nitrogen": 0.025},
+            "cv_mean_r_squared": 0.72,
         },
-        "random_forest": {
-            "r_squared": 0.68,
-            "rmse": 1.45,
-            "cv_mean_r_squared": 0.65
-        }
+        "random_forest": {"r_squared": 0.68, "rmse": 1.45, "cv_mean_r_squared": 0.65},
     }
     path = temp_dir / "model_results.json"
     save_json_file(path, data)
     return path
+
 
 @pytest.fixture
 def mock_sensitivity_analysis(temp_dir):
@@ -55,11 +51,12 @@ def mock_sensitivity_analysis(temp_dir):
         "observed_coefficient": 0.45,
         "percent_deviation": 5.2,
         "literature_mean": 0.48,
-        "confidence_interval": [0.42, 0.50]
+        "confidence_interval": [0.42, 0.50],
     }
     path = temp_dir / "sensitivity_analysis.json"
     save_json_file(path, data)
     return path
+
 
 def test_generate_model_metrics_report_success(
     temp_dir, mock_model_results, mock_sensitivity_analysis
@@ -68,9 +65,7 @@ def test_generate_model_metrics_report_success(
     output_path = temp_dir / "model_metrics_raw.json"
 
     report = generate_model_metrics_report(
-        mock_model_results,
-        mock_sensitivity_analysis,
-        output_path
+        mock_model_results, mock_sensitivity_analysis, output_path
     )
 
     # Verify file was written
@@ -97,17 +92,15 @@ def test_generate_model_metrics_report_success(
     assert report["lmm"]["adjusted_r_squared"] == 0.75
     assert report["random_forest"]["r_squared"] == 0.68
 
+
 def test_generate_model_metrics_report_missing_file(temp_dir):
     """Test that FileNotFoundError is raised when input is missing."""
     output_path = temp_dir / "output.json"
     missing_path = temp_dir / "nonexistent.json"
 
     with pytest.raises(FileNotFoundError):
-        generate_model_metrics_report(
-            missing_path,
-            missing_path,
-            output_path
-        )
+        generate_model_metrics_report(missing_path, missing_path, output_path)
+
 
 def test_generate_model_metrics_report_missing_metrics(temp_dir):
     """Test that ValueError is raised when required metrics are missing."""
@@ -117,11 +110,7 @@ def test_generate_model_metrics_report_missing_metrics(temp_dir):
             # missing adjusted_r_squared
             "rmse": 1.23
         },
-        "random_forest": {
-            "r_squared": 0.68,
-            "rmse": 1.45,
-            "cv_mean_r_squared": 0.65
-        }
+        "random_forest": {"r_squared": 0.68, "rmse": 1.45, "cv_mean_r_squared": 0.65},
     }
     model_path = temp_dir / "model_results.json"
     save_json_file(model_path, incomplete_data)
@@ -132,25 +121,20 @@ def test_generate_model_metrics_report_missing_metrics(temp_dir):
     output_path = temp_dir / "output.json"
 
     with pytest.raises(ValueError) as excinfo:
-        generate_model_metrics_report(
-            model_path,
-            sensitivity_path,
-            output_path
-        )
+        generate_model_metrics_report(model_path, sensitivity_path, output_path)
     assert "adjusted_r_squared" in str(excinfo.value)
+
 
 def test_report_json_valid(temp_dir, mock_model_results, mock_sensitivity_analysis):
     """Test that the output file is valid JSON."""
     output_path = temp_dir / "model_metrics_raw.json"
 
     generate_model_metrics_report(
-        mock_model_results,
-        mock_sensitivity_analysis,
-        output_path
+        mock_model_results, mock_sensitivity_analysis, output_path
     )
 
     # Re-load and parse to ensure validity
-    with open(output_path, 'r', encoding='utf-8') as f:
+    with open(output_path, "r", encoding="utf-8") as f:
         parsed = json.load(f)
 
     assert isinstance(parsed, dict)

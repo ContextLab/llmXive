@@ -113,7 +113,6 @@ def optimize_data_loading():
     
     try:
         # Attempt to load QM9 - this will fail if data not downloaded
-        # In real execution, this should use the download.py script first
         qm9_data = load_qm9_data()
         logger.info(f"Loaded QM9 data with {len(qm9_data)} molecules")
         qm9_memory_log.append(get_memory_usage_mb())
@@ -256,7 +255,7 @@ def generate_profile_report(profile_results: Dict[str, Any], profile_text: str) 
     report.append("- Write intermediate results to disk to free memory")
     report.append("- Use generator expressions instead of list comprehensions")
     report.append("- Explicitly call gc.collect() after large operations")
-    report.append("- Consider using memory-mapped arrays for large numpy arrays")
+    report.append("- Consider using memory‑mapped arrays for large numpy arrays")
     report.append("- Use pandas chunking for CSV/Parquet files")
     report.append("")
     

@@ -1,87 +1,83 @@
-# Implementation Plan: llmXive cross-lingual edge-spectrum analysis
+# Implementation Plan: llmXive cross‑lingual edge‑spectrum analysis
 
-**Branch**: `001-llmxive-crosslingual` | **Date**: 2026-07-14 | **Spec**: [spec.md](./spec.md)  
+**Branch**: `001-llmxive-crosslingual` | **Date**: 2026-07-14 | **Spec**: [spec.md](./spec.md)
 **Input**: Feature specification from `/specs/001-llmxive-crosslingual/spec.md`
 
 ## Summary
-
-This project investigates whether the "edge spectrum" (the subspace spanned by the leading singular vectors of the unembedding matrix $W_U$) of LLMs encodes a universal, language‑agnostic prior or reflects language‑specific syntactic noise. The approach involves extracting these subspaces from Llama‑3, Mistral, and BLOOM across several languages, computing mean embeddings via the pseudo‑inverse of $W_U$ weighted by Common Crawl token frequencies, and validating the resulting "typological shift" using WALS features and Multilingual SentEval STS benchmarks.
+This project investigates whether the "edge spectrum" subspace (top-100 singular vectors of the unembedding matrix $W_U$) encodes a universal, language-agnostic prior or language-specific noise. The technical approach involves extracting these subspaces from Llama models, Mistral, and BLOOM, aligning both the vocabulary-side bases ($U$) and the hidden-side bases ($V$) to shared spaces, and quantifying alignment via rotation-invariant subspace similarity. Validation is performed by correlating subspace shifts with WALS typological features and XTREME benchmark performance.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU), `numpy`, `scipy`, `datasets` (Hugging Face), `scikit-learn`, `jsonschema`  
-**Storage**: Local filesystem (`data/derived/` for all artifacts)  
-**Testing**: `pytest` for contract validation and unit tests  
-**Target Platform**: GitHub Actions `ubuntu-latest` (CPU‑first)  
-**Performance Goals**: Permutation test convergence within 5 h (FR‑004).  
-**Constraints**: ≤ 7 GB RAM, ≤ 14 GB disk, no local GPU.  
-**Scale/Scope**: 3 models, Multiple languages., ≥ 1 M tokens per language.
+- **Language/Version**: Python 3.11
+- **Primary Dependencies**: `torch` (CPU), `numpy`, `scipy`, `datasets`, `scikit-learn`, `jsonschema`
+- **Storage**: All artifacts under `data/derived/` (raw inputs under `data/raw/`)
+- **Testing**: `pytest` for contract validation
+- **Target Platform**: GitHub Actions `ubuntu-latest` (CPU-first)
+- **Constraints**: $\le$ 7 GB RAM, $\le$ 14 GB disk, $\le$ 6 h total runtime (per FR-004)
+- **Scale/Scope**: 3 models, Multiple languages, top-100 singular vectors, $\ge$ 1M tokens per language guard.
 
 ## Constitution Check
-
 | Principle | Status | Implementation Detail |
-|-----------|--------|-------------------------|
-| I. Reproducibility | PASS | Random seeds pinned in `run_all.py`. Canonical HF datasets used. |
-| II. Verified Accuracy | PASS | All external URLs (including WALS) are verified: `https://huggingface.co/datasets/linguistics/wals`. |
-| III. Data Hygiene | PASS | All artifacts stored in `data/derived/` with content hashes. |
-| IV. Single Source of Truth | PASS | Figures/tables will be generated directly from JSON artifacts. |
-| V. Versioning Discipline | PASS | Artifacts use 10‑char SHA‑256 suffixes. |
-| VI. Cross‑Lingual Isolation | PASS | SVD and mean embeddings computed separately per language mask (FR‑032). |
-| VII. Typological Rigor | PASS | Strict separation between shift quantification (SVD) and validation (SentEval). |
+|-----------|--------|------------------------|
+| I. Reproducibility | PASS | Fixed random seeds; deterministic HF dataset loaders. |
+| II. Verified Accuracy | PASS | External URLs are restricted to the "Verified datasets" block; timestamps recorded. |
+| III. Data Hygiene | PASS | Checksums recorded; derived files never overwrite raw data. |
+| IV. Single Source of Truth | PASS | All metrics derived from JSON artifacts in `data/derived/`. |
+| V. Versioning Discipline | PASS | Artifacts carry content hashes. |
+| VI. Cross-Lingual Subspace Isolation | PASS | Separate pipelines for $W_U$ operations per language/model pair (FR-028). |
+| VII. Typological Shift Quantification Rigor | PASS | Strict separation between geometric similarity (FR-002) and validation metrics (FR-007). |
 
 ## Project Structure
 
 ### Documentation (this feature)
 ```text
 specs/001-llmxive-crosslingual/
-├── plan.md              # This file
-├── research.md          # Research rationale and dataset strategy
-├── data-model.md        # Artifact lineage and schema mapping
-├── quickstart.md        # Reproduction guide
-└── contracts/           # JSON‑Schema definitions
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
 ```
 
 ### Source Code (repository root)
 ```text
 src/
 ├── pipeline/
-│   ├── run_all.py       # Orchestrator
-│   ├── extraction.py    # SVD and subspace logic
-│   ├── frequency.py     # Common Crawl streaming and counting
-│   ├── projection.py    # Pseudo‑inverse and mean embedding
-│   └── stats.py         # Bootstrap, Permutation, Correlation
+│   ├── orchestrator.py     # Main execution flow
+│   ├── extraction.py       # SVD, Hidden-Space Alignment, and Vocab Alignment (FR-001, FR-040)
+│   ├── frequency.py        # Token streaming and guards (FR-006, FR-034)
+│   ├── projection.py       # Pseudo-inverse and mean embeddings (FR-005, FR-036, FR-037)
+│   └── stats.py            # Permutation, bootstrap, and correlation (FR-004, FR-015, FR-016)
 └── lib/
-    └── utils.py         # Vocab mapping and hashing
+    └── utils.py            # Hashing, logging, and checksums
 tests/
-├── contract/           # Schema validation tests
-└── unit/               # Logic tests
+├── contract/               # JSON-Schema validation
+└── unit/                   # Math/Logic tests
 ```
 
-## Implementation Phases
+## Implementation Phases & FR/SC Coverage
 
-| Phase | Description | FR/SC Mapping | Primary Artifacts (`data/derived/`) |
-|-------|-------------|---------------|-----------------------------------|
-| 1 | **Subspace Extraction**: Load $W_U$, apply language‑specific token masks (FR‑032), compute top‑100 singular vectors using `scipy.sparse.linalg.svds`. **FR‑001, FR‑014** | `edge_spectrum_{model}_{lang}_{hash}.json` |
-| 2 | **Frequency Acquisition**: Stream Common Crawl subsets. Enforce ≥ 1 M token guard (FR‑006, FR‑009). **FR‑006, FR‑009, FR‑012** | `frequency_list_{lang}_{hash}.json` |
-| 3 | **Vocab Alignment**: Map model‑specific IDs to the shared subword vocabulary (size moderate 200, see Q136293754). **FR‑003, FR‑008** | `token_attribution_{model}_{hash}.json` |
-| 4 | **Mean Embedding & Baseline**: Compute $W_U^{+}\!\times\!f$, generate uniform‑frequency baseline, produce mean embeddings. **FR‑005, FR‑033** | `mean_embedding_{lang}_{hash}.json` |
-| 5 | **Similarity Matrix Generation**: Pairwise cosine similarity of subspace bases **(FR‑002)**. Compute cosine similarity as `cos_sim = (A·B) / (||A||·||B||)` for each pair of top‑k singular vector matrices, storing both raw similarity and 95 % bootstrap CI. Produce `similarity_matrix_{hash}.json` conforming to `similarity_matrix.schema.yaml` (FR‑023). **FR‑002, FR‑010, FR‑023** | `similarity_matrix_{hash}.json` |
-| 6 | **Bootstrap Analysis**: *Parametric* bootstrap that perturbs $W_U$ with Gaussian noise (σ = 1e‑4) before recomputing SVD to obtain 95 % CI for subspace cosine similarity; separate token‑frequency bootstrap for mean‑embedding metrics (FR‑015, SC‑001, SC‑006). **Addresses scientific_soundness‑a20a934d** | `bootstrap_test_{hash}.json`, `similarity_report_{hash}.json` |
-| 7 | **Permutation Testing**: 10 000 iterations, combined null distribution with three components – (i) within‑language similarity samples, (ii) across‑model similarity samples, (iii) model‑specific variability – and Bonferroni‑corrected α = 0.05/3 (FR‑004, SC‑003). **methodology‑08b0aa04** | `permutation_test_{hash}.json` |
-| 8 | **Validation & Controls**: Δ‑similarity (FR‑028), WALS & SentEval correlations (FR‑007, FR‑016), ablation (FR‑034). **FR‑007, FR‑016, FR‑028, FR‑034, SC‑004, SC‑007, SC‑009, SC‑010** | `validation_{hash}.json`, `ablation_report_{hash}.json`, `control_analysis_{hash}.json` |
-| 9 | **Feasibility & Reporting**: Consolidate metrics, record resource usage, verification timestamps. **FR‑017, FR‑019, FR‑025** | `feasibility_report_{hash}.json` |
+| Phase | Description | Primary Artifacts (`data/derived/`) | FRs | SCs | Contracts Exercised |
+|-------|-------------|--------------------------------------|-----|-----|-------------------|
+| **1** | **Subspace Extraction & Alignment**: Load $W_U$; apply language masks (FR-028); perform SVD (FR-001). Align $U$ bases to 11,200-dim shared space (FR-040). Compute Procrustes alignment for $V$ bases across models. | `edge_spectrum.json` | FR-001, FR-014, FR-028, FR-030, FR-033, FR-040 | - | `edge_spectrum.schema.yaml`, `vocab_alignment_warning.schema.yaml` |
+| **2** | **Frequency Acquisition**: Stream RedPajama (EN) and Common Crawl (others) (FR-006, FR-009). Enforce $\ge$ 1M token guard (FR-034). Record verification timestamps (FR-012). | `frequency_list_{lang}.json` | FR-006, FR-009, FR-012, FR-034 | - | `frequency_list.schema.yaml` |
+| **3** | **Vocab Mapping & Attribution**: Implement shared subword mapping (FR-008). Rank tokens by logit weights (FR-003). Generate geometric baseline (FR-031). | `token_attribution_{model}.json` | FR-003, FR-008, FR-031 | SC-002 | `token_attribution.schema.yaml` |
+| **4** | **Mean Embedding Projection**: Compute $W_U^+$ with Tikhonov regularization if condition number $> 10^8$ (FR-037). Compute language mean embeddings $\hat{\mathbf{h}}$ (FR-005) and project $\hat{\mathbf{h}}$ onto the $V$-basis (FR-036). Generate uniform baseline (FR-029). | `mean_embedding_{lang}.json`, `cross_projection.json`, `baseline_report.json` | FR-005, FR-029, FR-036, FR-037 | SC-010 | `mean_embedding.schema.yaml`, `token_shift.schema.yaml` |
+| **5** | **Subspace Similarity**: Compute rotation-invariant similarity (principal angles) in aligned $V$-space (FR-002). Compute $\Delta$ similarity vs architecture controls (FR-010). | `similarity_matrix.json`, `similarity_metric.json` | FR-002, FR-010 | SC-001 | `similarity_matrix.schema.yaml`, `similarity_metric.schema.yaml` |
+| **6** | **Bootstrap Validation**: Perform $\ge$ 1,000 replicates by resampling $W_U$ rows to generate 95% CIs (FR-015). | `bootstrap_test.json`, `similarity_report.json` | FR-015 | SC-006 | `bootstrap_test.schema.yaml`, `similarity_report.schema.yaml` |
+| **7** | **Permutation Testing**: $\ge$ 10,000 iterations. Combined null (within-lang, across-model). Bonferroni $\alpha=0.05/3$ (FR-004). Abort if $> 6$h. | `permutation_test.json`, `control_analysis.json` | FR-004 | SC-003 | `permutation_test.schema.yaml` |
+| **8** | **Typological Correlation**: Correlate $\Delta$ similarity and shift vectors with WALS features and XTREME results (FR-007, FR-016). Perform ablation (FR-032). | `validation.json`, `ablation_report.json` | FR-007, FR-016, FR-032 | SC-004, SC-007, SC-009 | `validation.schema.yaml`, `wals_correlation.schema.yaml`, `wals_validation.schema.yaml` |
+| **9** | **Feasibility & Integrity**: Run power analysis (FR-035). Record all checksums (FR-038) and runtime metrics. | `feasibility_report.json` | FR-035, FR-038 | SC-005, SC-008 | `feasibility_report.schema.yaml` |
+| **10** | **Sensitivity Analysis**: Repeat pipeline without language masks (FR-042) to check for mask-induced bias. | `sensitivity_analysis.json` | FR-042 | - | (Uses existing schemas) |
 
-All artifacts are validated against their respective JSON‑Schema contracts (FR‑021) and timestamps/URL verifications are recorded (FR‑017, FR‑019).
-
-## Scientific Rigor Adjustments
-
-* **Bootstrap for Subspace Similarity** – Since the subspace bases derive from $W_U$, we employ a *parametric* bootstrap that perturbs $W_U$ with Gaussian noise (σ = 1e‑4) before recomputing SVD, yielding a distribution of cosine similarities. This respects the mathematical independence from token‑frequency resampling (addresses concern a20a934d).
-* **Baseline‑Adjusted Shift Dependence** – The Δ embedding vector remains a linear function of the raw frequencies; we therefore explicitly report this limitation in the validation narrative (addressing concern 7c1e1b28).
-
-## Success Criteria Alignment
-
-All FR/SC items are now mapped to concrete phases, with explicit handling of bootstrap methodology, permutation test details, and the newly added similarity matrix artifact. The plan satisfies the two reviewer concerns:
-
-* **methodology-16c4d829** – cosine similarity computation is defined in Phase 5.
-* **methodology-08b0aa04** – permutation test specifications (≥10 000 iterations, three-component null, Bonferroni correction) are defined in Phase 7.
+## Success-Criteria Alignment
+- **SC-001**: Subspace similarity reported with bootstrap CI (Phase 5, 6).
+- **SC-002**: Token-overlap deviation from geometric baseline (Phase 3).
+- **SC-003**: Permutation p-values with Bonferroni flags (Phase 7).
+- **SC-004**: Pearson $r$ for WALS/XTREME with 95% CI (Phase 8).
+- **SC-005**: Pipeline completes $\le$ 6h on GitHub Actions (Phase 9).
+- **SC-006**: 95% CIs via bootstrap sampling of $W_U$ (Phase 6).
+- **SC-007**: Correlation analysis on $\ge$ 10 languages (Phase 8).
+- **SC-008**: All external URLs checksummed and timestamped (Phase 2, 9).
+- **SC-009**: Ablation yields $p > 0.05$ for WALS correlation (Phase 8).
+- **SC-010**: Uniform baseline shift is significant $p < 0.05$ (Phase 4, 8).
+- **FR-036**: Mean embedding $\hat{\mathbf{h}}$ successfully projected onto $V$-basis across languages (Phase 4).

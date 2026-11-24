@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan (`src/`, `data/`, `results/`, `tests/`)
-- [X] T002 Initialize R 4.3+ project with `renv` and install dependencies: `rgbif`, `raster`, `sf`, `ggplot2`, `dplyr`, `tidyr`, `caper`, `phylolm`, `pwr`, `tibble`, `lubridate`, `here`, `testthat`
-- [X] T003 [P] Configure `.Rprofile` to set `options(stringsAsFactors = FALSE)` and define project root via `here::here()`
+- [~] T001 Create project structure per implementation plan (`src/`, `data/`, `results/`, `tests/`)
+- [~] T002 Initialize R 4.3+ project with `renv` and install dependencies: `rgbif`, `raster`, `sf`, `ggplot2`, `dplyr`, `tidyr`, `caper`, `phylolm`, `pwr`, `tibble`, `lubridate`, `here`, `testthat`
+- [~] T003 [P] Configure `.Rprofile` to set `options(stringsAsFactors = FALSE)` and define project root via `here::here()`
 
 ---
 
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Implement `src/code/utils.R` with logging infrastructure (timestamped logs, error capture), helper functions for directory creation, checksum validation, and validation functions for handling missing climate values (NA) and coordinate precision checks (>10km uncertainty) (FR-002, Data Hygiene)
-- [X] T005 Create `data/metadata.yaml` schema definition to store query timestamps, API parameters, and file checksums
-- [X] T006 [P] Implement `src/code/fetch_gbif.R` skeleton with `rgbif::occ_search` wrapper, ensuring `occurrenceStatus == "PRESERVED_SPECIMEN` filter and taxonomic key resolution
-- [X] T007 [P] Implement `src/code/download_worldclim.R` to check for local WorldClim v2 rasters in `data/raw/worldclim_v2/*.tif` (mean annual temp and precip for 1970-2000 and 1991-2020); if missing, raise a hard error. Do NOT implement automatic download fallback to ensure reproducibility per Spec Assumptions.
-- [X] T009 Create `tests/unit/test_utils.R` to verify logging, directory creation, checksum functions, and coordinate validation logic
+- [~] T004 Implement `src/code/utils.R` with logging infrastructure (timestamped logs, error capture), helper functions for directory creation, checksum validation, and validation functions for handling missing climate values (NA) and coordinate precision checks (>10km uncertainty) (FR-002, Data Hygiene)
+- [~] T005 Create `data/metadata.yaml` schema definition to store query timestamps, API parameters, and file checksums
+- [~] T006 [P] Implement `src/code/fetch_gbif.R` skeleton with `rgbif::occ_search` wrapper, ensuring `occurrenceStatus == "PRESERVED_SPECIMEN` filter and taxonomic key resolution
+- [~] T007 [P] Implement `src/code/download_worldclim.R` to check for local WorldClim v2 rasters in `data/raw/worldclim_v2/*.tif` (mean annual temp and precip for 1970-2000 and 1991-2020); if missing, raise a hard error. Do NOT implement automatic download fallback to ensure reproducibility per Spec Assumptions.
+- [~] T009 Create `tests/unit/test_utils.R` to verify logging, directory creation, checksum functions, and coordinate validation logic
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,17 +75,17 @@
 
 > **NOTE: Write these tests FIRST, ensuring they FAIL before implementation. Use mocks/stubs for dependencies.**
 
-- [X] T010 [P] [US1] Unit test for GBIF filtering logic in `tests/unit/test_fetch_gbif.R::test_filters_records_by_date_span_and_coordinates` (using mocks/stubs)
-- [X] T011 [P] [US1] Unit test for climate extraction on synthetic coordinates in `tests/unit/test_extract_climate.R` (using mocks/stubs)
-- [X] T012 [US1] Integration test: Verify full centroid generation for multiple species produces correct CSV schema in `tests/integration/test_us1_centroids.R`
+- [~] T010 [P] [US1] Unit test for GBIF filtering logic in `tests/unit/test_fetch_gbif.R::test_filters_records_by_date_span_and_coordinates` (using mocks/stubs)
+- [~] T011 [P] [US1] Unit test for climate extraction on synthetic coordinates in `tests/unit/test_extract_climate.R` (using mocks/stubs)
+- [~] T012 [US1] Integration test: Verify full centroid generation for multiple species produces correct CSV schema in `tests/integration/test_us1_centroids.R`
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `src/code/fetch_gbif.R` to query GBIF for `PRESERVED_SPECIMEN` using species list from `data/species_list.csv` (or CLI arg), parse dates, filter by ≥50 year span, and save raw CSV to `data/raw/`
-- [X] T014 [US1] Implement `src/code/extract_climate.R` to extract mean annual temp (°C) and precip (mm) from WorldClim v2 layers (loaded via T007) for 1970-2000 and 1991-2020, handling NAs
-- [X] T015a [US1] Implement `src/code/compute_centroids.R` to calculate arithmetic mean of climate variables per species/period and output `data/processed/centroids.csv` (aggregated means)
-- [X] T015b [US1] Implement `src/code/compute_centroids.R` to output `data/processed/points_with_climate.csv` with explicit schema: columns `species`, `lat`, `lon`, `period`, `temp_c`, `precip_mm`. This file joins extracted climate values to every occurrence point and is required for FR-005 global z-scoring.
-- [X] T017 [US1] Enhance logging in `src/code/fetch_gbif.R` and `compute_centroids.R` to record record counts, filtering decisions, and species warnings (FR-010)
+- [~] T013 [US1] Implement `src/code/fetch_gbif.R` to query GBIF for `PRESERVED_SPECIMEN` using species list from `data/species_list.csv` (or CLI arg), parse dates, filter by ≥50 year span, and save raw CSV to `data/raw/`
+- [~] T014 [US1] Implement `src/code/extract_climate.R` to extract mean annual temp (°C) and precip (mm) from WorldClim v2 layers (loaded via T007) for 1970-2000 and 1991-2020, handling NAs
+- [~] T015a [US1] Implement `src/code/compute_centroids.R` to calculate arithmetic mean of climate variables per species/period and output `data/processed/centroids.csv` (aggregated means)
+- [~] T015b [US1] Implement `src/code/compute_centroids.R` to output `data/processed/points_with_climate.csv` with explicit schema: columns `species`, `lat`, `lon`, `period`, `temp_c`, `precip_mm`. This file joins extracted climate values to every occurrence point and is required for FR-005 global z-scoring.
+- [~] T017 [US1] Enhance logging in `src/code/fetch_gbif.R` and `compute_centroids.R` to record record counts, filtering decisions, and species warnings (FR-010)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,18 +99,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Unit test for Euclidean distance calculation in standardized climate space in `tests/unit/test_shifts.R`
-- [X] T019 [P] [US2] Unit test for regional warming calculation (independent grid) in `tests/unit/test_regional_warming.R`
-- [X] T020 [P] [US2] Integration test: Write this test FIRST, ensuring it FAILS due to missing implementation. Then implement logic to verify PGLS regression output schema and plot generation in `tests/integration/test_us2_regression.R`
+- [~] T018 [P] [US2] Unit test for Euclidean distance calculation in standardized climate space in `tests/unit/test_shifts.R`
+- [~] T019 [P] [US2] Unit test for regional warming calculation (independent grid) in `tests/unit/test_regional_warming.R`
+- [ ] T020 [P] [US2] Integration test: Write this test FIRST, ensuring it FAILS due to missing implementation. Then implement logic to verify PGLS regression output schema and plot generation in `tests/integration/test_us2_regression.R`
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Implement `src/code/compute_shifts.R` to perform global z-scoring (temp, precip) across ALL species occurrence points pooled (from `data/processed/points_with_climate.csv` produced by T015b) and calculate Euclidean distance (ΔN) between periods (FR-005)
-- [X] T022 [US2] Implement `src/code/compute_regional_warming.R` to calculate ΔT from WorldClim rasters by computing the zonal mean over the *species-specific* occurrence envelope (bounding box of the specific species) for each species to ensure independence from other species data (FR-006)
-- [X] T023a [US2] Implement `src/code/analyze_shifts.R` to: 1) Assign species to latitudinal bands (fixed intervals), 2) Run PGLS (if `data/phylogeny.tre` exists) or WLS regression of ΔN vs ΔT, 3) Calculate slope, 95% CI, R², p-value, 4) Output results to `results/regression_global.csv` and `results/regression_regions.csv`. (FR-007, FR-011, Plan Statistical Rigor)
-- [X] T025 [US2] Implement `src/code/power_analysis.R` to conduct a priori power analysis for n≥30 species using alpha=0.05, power=0.8, effect_size = 0.15 (Cohen's f2, moderate). Calculate required n to achieve Margin of Error (MoE) ≤ 0.15 for slope estimate using t-distribution and standard error. Report MoE and save to `results/power_analysis_report.csv` (FR-012, SC-007)
-- [X] T026 [US2] Implement `src/code/plotting.R` to generate scatter plot (ΔN vs ΔT) colored by taxonomic group, ensuring resolution ≥1200x800px (FR-008)
-- [X] T027 [US2] Add logging to `analyze_shifts.R` and `plotting.R` to record regression steps, per-region results, and plot generation details (FR-010)
+- [~] T021 [US2] Implement `src/code/compute_shifts.R` to perform global z-scoring (temp, precip) across ALL species occurrence points pooled (from `data/processed/points_with_climate.csv` produced by T015b) and calculate Euclidean distance (ΔN) between periods (FR-005)
+- [~] T022 [US2] Implement `src/code/compute_regional_warming.R` to calculate ΔT from WorldClim rasters by computing the zonal mean over the *species-specific* occurrence envelope (bounding box of the specific species) for each species to ensure independence from other species data (FR-006)
+- [~] T023a [US2] Implement `src/code/analyze_shifts.R` to: 1) Assign species to latitudinal bands (fixed intervals), 2) Run PGLS (if `data/phylogeny.tre` exists) or WLS regression of ΔN vs ΔT, 3) Calculate slope, 95% CI, R², p-value, 4) Output results to `results/regression_global.csv` and `results/regression_regions.csv`. (FR-007, FR-011, Plan Statistical Rigor)
+- [~] T025 [US2] Implement `src/code/power_analysis.R` to conduct a priori power analysis for n≥30 species using alpha=0.05, power=0.8, effect_size = 0.15 (Cohen's f2, moderate). Calculate required n to achieve Margin of Error (MoE) ≤ 0.15 for slope estimate using t-distribution and standard error. Report MoE and save to `results/power_analysis_report.csv` (FR-012, SC-007)
+- [~] T026 [US2] Implement `src/code/plotting.R` to generate scatter plot (ΔN vs ΔT) colored by taxonomic group, ensuring resolution ≥1200x800px (FR-008)
+- [~] T027 [US2] Add logging to `analyze_shifts.R` and `plotting.R` to record regression steps, per-region results, and plot generation details (FR-010)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -124,16 +124,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T028 [P] [US3] Unit test for subsampling logic (random [deferred] selection) in `tests/unit/test_sensitivity.R`
-- [X] T029 [P] [US3] Unit test for SD calculation and flagging logic (≥0.2 threshold) in `tests/unit/test_sensitivity.R`
-- [X] T030 [P] [US3] Integration test: Verify full sensitivity run produces mean/SD and flags high-variability species in `tests/integration/test_us3_sensitivity.R`
+- [~] T028 [P] [US3] Unit test for subsampling logic (random [deferred] selection) in `tests/unit/test_sensitivity.R`
+- [~] T029 [P] [US3] Unit test for SD calculation and flagging logic (≥0.2 threshold) in `tests/unit/test_sensitivity.R`
+- [~] T030 [P] [US3] Integration test: Verify full sensitivity run produces mean/SD and flags high-variability species in `tests/integration/test_us3_sensitivity.R`
 
 ### Implementation for User Story 3
 
-- [X] T031 [US3] Implement `src/code/sensitivity.R` to perform Several random subsamples of [deferred] of records per species using `set.seed(42)` for reproducibility (FR-009)
-- [X] T032 [US3] Implement `src/code/sensitivity.R` to recompute niche shift magnitude for each replicate and calculate mean/SD of shifts
-- [X] T033 [US3] Add logic in `src/code/sensitivity.R` to flag species with SD ≥ 0.2 climate-space units and skip species with <80 records (FR-009)
-- [X] T034 [US3] Output `results/sensitivity_summary.csv` and append detailed log entries for subsampling outcomes (FR-010)
+- [~] T031 [US3] Implement `src/code/sensitivity.R` to perform Several random subsamples of [deferred] of records per species using `set.seed(42)` for reproducibility (FR-009)
+- [~] T032 [US3] Implement `src/code/sensitivity.R` to recompute niche shift magnitude for each replicate and calculate mean/SD of shifts
+- [~] T033 [US3] Add logic in `src/code/sensitivity.R` to flag species with SD ≥ 0.2 climate-space units and skip species with <80 records (FR-009)
+- [ ] T034 [US3] Output `results/sensitivity_summary.csv` and append detailed log entries for subsampling outcomes (FR-010)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -144,7 +144,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [REJECTED] T035 [P] Run `testthat` suite for all unit and integration tests (Validation task dependent on code execution)
-- [X] T036a [P] Implement `src/code/validate_success_criteria.R` to parse the main execution log and `data/processed/points_with_climate.csv` to verify SC-001 (≥90% species success), SC-004 (plot dimensions), SC-005 (log warning ratio ≤5% of total rows in `points_with_climate.csv`), and SC-006 (regional results). Generate `results/validation_report.txt` with pass/fail status for each criterion.
+- [ ] T036a [P] Implement `src/code/validate_success_criteria.R` to parse the main execution log and `data/processed/points_with_climate.csv` to verify SC-001 (≥90% species success), SC-004 (plot dimensions), SC-005 (log warning ratio ≤5% of total rows in `points_with_climate.csv`), and SC-006 (regional results). Generate `results/validation_report.txt` with pass/fail status for each criterion.
 - [REJECTED] T036b [P] Verify `results/validation_report.txt` confirms ≥80% of regions produced computable results (SC-006) (Validation task dependent on T036a execution)
 - [REJECTED] T037 [P] Verify all PNG plots meet 1200x800px resolution requirement (SC-004) (Validation task dependent on T026 execution)
 - [REJECTED] T038 [P] Validate log file warning ratio is ≤5% of total processed records (SC-005) (Validation task dependent on T036a execution)

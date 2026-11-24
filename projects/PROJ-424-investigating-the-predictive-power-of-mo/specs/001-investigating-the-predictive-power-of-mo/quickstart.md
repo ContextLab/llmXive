@@ -1,70 +1,78 @@
 # Quickstart: Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients
 
 ## Prerequisites
-*   **Python**: 3.11+
-*   **GROMACS**: Installed and available in PATH (required for `gmx` commands).
-*   **System**: Linux (Ubuntu recommended).
+- Linux (Ubuntu 22.04 recommended) or macOS with Python 3.11+.  
+- ~7 GB RAM, ~14 GB disk space, **no GPU** required.
 
 ## Installation
 
-1.  **Clone and Setup Environment**:
-    ```bash
-    cd projects/PROJ-424-investigating-the-predictive-power-of-mo
-    python -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    ```
+```bash
+# Clone the repository
+git clone <PROJECT_REPO_URL>
+cd projects/PROJ-424-investigating-the-predictive-power-of-mo
 
-2.  **Verify GROMACS**:
-    ```bash
-    gmx -version
-    ```
-    Ensure the version is compatible with the MARTINI force field (2022+ recommended).
+# Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# Install pinned dependencies
+pip install -r code/requirements.txt
+```
 
 ## Data Preparation
 
-1.  **Experimental Data**:
-    Ensure `data/raw/nist_refs.json` exists and contains the curated values for water, ethanol, and acetone.
-    ```bash
-    cat data/raw/nist_refs.json
-    ```
+The experimental reference file is generated automatically by the first pipeline step:
 
-2.  **Generate Simulations** (or use pre-generated):
-    If pre-generated trajectories are not present in `data/raw/simulations/`, run the simulation script:
-    ```bash
-    python code/simulations/run_simulation.py --solvents water ethanol acetone --durations 1 5 10 --seeds 5
-    ```
-    *Note: This step may take ~6-7 hours depending on CPU speed. If time > 5.5h, the script will automatically fallback to 3 seeds.*
+```bash
+# Generate `nist_refs.json` and its checksum
+python code/data/loader.py --generate-refs
+```
 
-## Running the Analysis
+You should see:
 
-1.  **Run Full Pipeline**:
-    Execute the analysis pipeline which calculates MSD, validates convergence, and performs bootstrapping.
-    ```bash
-    python code/analysis/analyze_all.py
-    ```
-    *This script:*
-    *   Loads `nist_refs.json`.
-    *   Processes `.xtc` files (discarding first 100ps).
-    *   Checks $R^2 \ge 0.95$ for each trajectory.
-    *   Calculates MAE and 95% CI (1000 iterations).
-    *   Generates `data/processed/diffusion_results.csv` and `bootstrap_stats.json`.
+```
+data/raw/nist_refs.json created (multiple entries)
+data/raw/nist_refs.json.sha256 created
+```
 
-2.  **Generate Reports**:
-    ```bash
-    python code/analysis/generate_report.py
-    ```
-    This produces the summary tables and plots required for SC-001, SC-002, and SC-004.
+## Running the Full Workflow
 
-## Verification
+```bash
+# Execute the complete end‑to‑end pipeline (includes simulations, analysis, bootstrap, reporting)
+python code/main.py --full-batch
+```
 
-*   **Check Convergence**: Verify that all accepted trajectories have $R^2 \ge 0.95$ in `data/processed/diffusion_results.csv`.
-*   **Check Sensitivity**: Ensure `variance_pct` in `sensitivity_report.json` is < 5%.
-*   **Check CI**: Verify that 95% CI intervals are present in `bootstrap_stats.json`.
-*   **Check Seeds**: Verify that `n_seeds` in `bootstrap_stats.json` matches the number of seeds actually run (5 or 3).
+What happens:
+
+1. Simulations for water, ethanol, and acetone at an initial, intermediate, and extended simulation duration are launched (CPU only).  
+2. MSD extraction, convergence checks, and diffusion coefficient calculation are performed.  
+3. MAE bootstrap (with a sufficient number of iterations) and sensitivity analysis are run.  
+4. Timescale‑accuracy curves and summary tables are written to `results/`.
+
+## Minimal Example (single trajectory)
+
+If you only want to test the pipeline without the full compute budget:
+
+```bash
+python code/pipeline.py --solvent water --duration 1 --seed 0
+```
+
+This runs a single brief water simulation, produces one row in `diffusion_results.csv`, and updates the bootstrap stats for that condition.
+
+## Verification Checklist
+
+| Check | Expected Outcome |
+|-------|------------------|
+| `data/raw/nist_refs.json` exists and matches its SHA‑256 checksum | `tests/test_loader.py` passes (`test_load_valid`, `test_checksum_matches`). |
+| All simulation `.xtc` files are present under `data/raw/simulations/` | `tests/test_simulation.py` passes. |
+| `diffusion_results.csv` contains a row with `status = "accepted"` for at least one trajectory | `tests/test_diffusion.py` passes. |
+| `bootstrap_stats.json` contains entries generated over many iterations and a `paired_test` block. | `tests/test_bootstrap.py` passes. |
+| `code/pipeline.py --full-batch` exits with code 0 and produces figures in `results/` | `tests/test_pipeline.py` passes. |
 
 ## Troubleshooting
-*   **GROMACS not found**: Install GROMACS via `apt` or `conda`.
-*   **Convergence Failure**: If $R^2 < 0.95$, the simulation may be too short or the system not equilibrated. Check logs.
-*   **Timeout**: If the bootstrap step exceeds 5.5 hours, the script automatically falls back to 100 iterations (FR-004).
-*   **Simulation Timeout**: If the simulation step exceeds 5.5 hours, the script automatically reduces the number of seeds from 5 to 3 (Balanced Fallback).
+- **OpenMM import error** – ensure the exact version `openmm==8.1.1` is installed (`pip install openmm==8.1.1`).  
+- **R² < 0.95** – the run will be flagged `convergence_failed`; inspect `results/convergence_log.txt` for details.  
+- **Wall‑clock > 5.5 h** – a warning is logged; the pipeline continues but the warning appears in `results/performance.log`.  
+- **Bootstrap takes > 0.5 h** – unlikely given vectorized implementation; if it occurs, verify that the CI runner is not throttling CPU.
+
+---

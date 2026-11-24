@@ -1,4 +1,4 @@
-- artifact_hash: 05cdcdca18301305be7c578d2bd77ace9ab21268f9e6e97d406d084a09d77c10
+- artifact_hash: 72c7f9a4a17edf800ff84bdbb31d4ad880da3caff35525adcc367c80344703e1
   artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/research.md
   cite_id: c-001
   cited_authors: []
@@ -8,8 +8,8 @@
   value: https://pubchem.ncbi.nlm.nih.gov/
   verification_status: pending
   verified_against_url: https://pubchem.ncbi.nlm.nih.gov/
-  verified_at: '2026-07-19T03:29:01.732476Z'
-- artifact_hash: 05cdcdca18301305be7c578d2bd77ace9ab21268f9e6e97d406d084a09d77c10
+  verified_at: '2026-10-15T12:21:44.871606Z'
+- artifact_hash: 72c7f9a4a17edf800ff84bdbb31d4ad880da3caff35525adcc367c80344703e1
   artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/research.md
   cite_id: c-002
   cited_authors: []
@@ -20,8 +20,8 @@
   value: https://openbabel.org/
   verification_status: pending
   verified_against_url: https://openbabel.org/
-  verified_at: '2026-07-19T03:29:01.732476Z'
-- artifact_hash: bdae31571b0da3429961e85484e630a291cc1b794441d59b7eafcefadafb49b2
+  verified_at: '2026-10-15T12:21:44.871606Z'
+- artifact_hash: 3cc407afe04f5ade9e969291be18c9791c5e7713688230ce6dd12fa61c4803f9
   artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -31,8 +31,8 @@
   value: https://github.com/your-org/PROJ-324-predicting-molecular-properties-from-ope.git
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/PROJ-324-predicting-molecular-properties-from-ope
-  verified_at: '2026-07-19T03:29:17.189887Z'
-- artifact_hash: bdae31571b0da3429961e85484e630a291cc1b794441d59b7eafcefadafb49b2
+  verified_at: '2026-10-15T12:22:08.305132Z'
+- artifact_hash: 3cc407afe04f5ade9e969291be18c9791c5e7713688230ce6dd12fa61c4803f9
   artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/quickstart.md
   cite_id: c-002
   cited_authors: []
@@ -43,4 +43,4 @@
   value: https://openbabel.org/
   verification_status: pending
   verified_against_url: https://openbabel.org/
-  verified_at: '2026-07-19T03:29:17.189887Z'
+  verified_at: '2026-10-15T12:22:08.305132Z'

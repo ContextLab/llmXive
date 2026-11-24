@@ -1,0 +1,40 @@
+name: Spec 026 — local-backend real-call lane
+
+# Dedicated lane for the composite snapshot's LOCAL transformers fallback
+# (Qwen/Qwen2.5-3B-Instruct): it REALLY loads + calls the model, proving the
+# `local` component of `runtime_snapshot()` is not merely asserted present
+# (spec 026 / R3-5, SC-008). Heavy (multi-GB model download + CPU inference), so
+# it runs weekly + on demand, NOT per-PR. `LLMXIVE_LOCAL_LANE=1` makes an absent
+# `[local]` extra a FAILURE in this lane (no importorskip), so the evidence is real.
+
+on:
+  # SCHEDULE PAUSED 2026-11-23: manual dispatch only until reliable performance and
+  # quality are verified. To restore, uncomment the block below.
+  # schedule:
+  #   - cron: '30 6 * * 0'   # weekly, Sunday 06:30 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: model-selection-local-lane
+  cancel-in-progress: true
+
+jobs:
+  local-lane:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      LLMXIVE_REAL_TESTS: "1"
+      LLMXIVE_LOCAL_LANE: "1"   # absence of the [local] extra is a FAILURE here, not a skip
+    steps:
+      - uses: actions/checkout@v5
+        with: { ref: main }
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.11", cache: pip }
+      # CPU-only torch first (the default wheel bundles CUDA and is far larger).
+      - run: pip install --index-url https://download.pytorch.org/whl/cpu "torch>=2.2"
+      - run: pip install -e ".[dev,local]"
+      - name: Local-backend real load + call
+        run: python -m pytest tests/real_call/test_model_selection_local_real.py -m local -q

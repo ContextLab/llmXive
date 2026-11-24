@@ -1,25 +1,83 @@
-T001:
+T002a:
+  c: true
+  h: d9c88e9576e245b6fc92aaa9aba9cd15dae80751a8b963a36054c7c72630844c
+  r: "Checked the root `requirements.txt` (contains the six required packages) and\
+    \ `code/requirements.txt` (contains pinned versions for those six packages plus\
+    \ additional reproducibility tools). Both files exist, are non\u2011empty, and\
+    \ meet the task\u2019s specifications."
+  sig: e00f4f5bce158f39a2dabfcaee8fddc197a89e4a80557f00c87fc73e74a9ca96
+T002b:
+  c: true
+  h: 8fc167e6544e6c7daa905034cb0bec124b294c6f0ef64f7f629795d4a6793649
+  r: Both `pyproject.toml` and `.ruff.toml` exist at the project root and are non-empty,
+    containing genuine Black configuration (line-length 88, py311 target) and Ruff
+    lint/format configuration (rule selection, ignores, isort settings). No execution
+    logs for `ruff check`/`black --check` were supplied, but the codebase is empty
+    and both tools exclude non-code directories, so the checks trivially pass; the
+    deliverables themselves match the task's requirements.
+  sig: 7d82b3e1b978e9c0d23767ecfea55c564d2b5f41d100c34f7cb19a242215ff19
+T004c-extract:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: I looked for the required directory tree (`projects/PROJ-546-predicting-molecular-properties-from-qua/`
-    with the specified subfolders) but no such structure or any listing of its contents
-    was provided. Without concrete evidence that the directories exist, the task cannot
-    be considered completed.
-T004a:
+  h: 1393ee19087f5f3902a6377dfb5159c18d9987c833e24d9a4c4f5e7509e8fba9
+  r: "The provided `code/fetch_data.py` does perform archive detection, extraction,\
+    \ and CSV selection, but its `fetch_and_prepare()` function (and the script\u2019\
+    s CLI entry point) does **not** return the absolute path to the extracted CSV\
+    \ file as required by Task\u202FT004c\u2011extract. Consequently the core output\
+    \ contract of the task is unmet."
+  sig: f317a9a2449db314163b0fea3a0629ca4ed0a6481da8579df3d469205e046f4d
+T004c-normalize:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `idea/predicting-molecular-properties-from-qua.md`\
-    \ file being read and the Zenodo Accession ID extracted is present; the task demands\
-    \ a non\u2011empty string ID, but no artifact (e.g., a text file, JSON, or log\
-    \ entry) containing that ID was provided. The implementer must supply the extracted\
-    \ Zenodo ID (and optionally the URL) as a concrete output."
+  h: f56765225d50476a399167984cebf9bdc55ae6b10c0cdfe5f6048a655fcd3528
+  r: "Checked `code/normalize_data.py` (implements the required selection and rename\
+    \ logic) and the presence of `data/raw/barrier_dataset.csv`. The canonical CSV\
+    \ file does not exist, so the task\u2019s verification condition (file must exist\
+    \ and be non\u2011empty) is not met. The script must be executed after extraction\
+    \ to produce the required `data/raw/barrier_dataset.csv`."
+  sig: bdab960de175c14212e56024bfb260c1e22de7101cc04c0abcc24b76a7971896
+T010:
+  c: false
+  h: 6f45d396afb43100cc10415c76fb765a2f80719fb78acde7ab9b4a5c743d0b1f
+  r: "The provided `code/validators/data_validator.py` looks for a column named `SMILES`\
+    \ (uppercase) instead of the required `smiles`, and it does not raise a `FileNotFoundError`\
+    \ when `data/raw/barrier_dataset.csv` is absent (it merely returns a failure message).\
+    \ These deviations mean the validator does not meet the task\u2019s specification."
+  sig: 337057c3bfac6520ee7c34112d2f1069d1e06a7dd403031ba38042a1a157832c
 T012:
   c: false
-  h: 8a524a5c561da86fe4b7d34b687e66a62b1c8aef3852c37fb636326fd0c87b59
-  r: "The required integration test file `tests/test_descriptors.py` does not exist\
-    \ in the repository, so there is no test that runs `code/generate_descriptors.py`\
-    \ on 50 molecules or validates its output. Without this artifact, the task\u2019\
-    s requirement is unmet."
+  h: 0adfd855d5138c48f1181ad18112efaef74aded5707f360cec441551474a2e3e
+  r: "The required specific test `tests/test_descriptors.py::test_pipeline_handles_convergence_failure`\
+    \ does not exist \u2014 the file contains only `test_descriptor_generation_structure`,\
+    \ `test_export_geometries_structure`, and `test_integration_descriptor_generation_50_molecules`,\
+    \ none of which test convergence-failure handling. Additionally, there is no evidence\
+    \ of a pytest run with exit code 0, and the existing integration test would fail\
+    \ anyway (it invokes `python code/generate_descriptors.py` without the required\
+    \ `--input-csv`/`--output-csv` arguments, and the script's convergence path returns\
+    \ None"
+  sig: 7845250a6d447ba389eed41814c0a37c7ad39259156ebf50a0e3a563f12ce402
+T013a:
+  c: false
+  h: 995f85d20c7b623a4e69c4616e1d74ae5ad0a23215a078d4f0066d98313e9239
+  r: "The file exists but is not functional or requirement-complete: (1) it has no\
+    \ convergence retry with perturbed coordinates and no HOMO>=LUMO physical-validity\
+    \ retry/`PhysicalInvalidityError` \u2014 the two core logic requirements; (2)\
+    \ it calls `log_dftb_invocation(molecule_id, str(base_temp))` and `log_resource_snapshot(duration)`\
+    \ with signatures that don't match the actual `logging_utils` functions (which\
+    \ require a logger plus several more args), and it uses `time.time()` without\
+    \ importing `time`, so the module would crash at runtime; (3) the generated `dftb_in.hsd`\
+    \ is not valid DFTB+ input (e.g., "
+  sig: 75a21bbfc33e1f8c044669fca1aa18c75a0af68278f2564fc9017a26f5b649d1
+T013b:
+  c: false
+  h: a497a09bedf3d98dbbc2ca10a60cf6d47ac3073ecc8b254808480485d3cc4794
+  r: "The file exists and the three log functions (`log_convergence_failure`, `log_structural_failure`,\
+    \ `log_oom_failure`) correctly write the required `molecule_id, timestamp, error_code,\
+    \ error_message` schema. However, the OOM-handling portion is stubbed: `monitor_memory_usage`\
+    \ explicitly returns `0.0` with a \"This is a placeholder\" comment, `check_process_memory`\
+    \ unconditionally returns `True`, and `run_with_oom_protection` is marked \"Placeholder\
+    \ for actual implementation\" \u2014 so the required OOM signal detection/kill\
+    \ behavior is not actually implemented. There is also no evidence (log files or\
+    \ tes"
+  sig: 2b0a9afebd52fce09a7ddeb080de7a1c09c22ec05a253df8040aefccbc6fcae6
 T020a:
   c: false
   h: f3a4610afca0fc2cbc8f1b6059e641416b957fb3a0cc36ed33b401d1a1ad28f5
@@ -29,13 +87,6 @@ T020a:
     \ leaving doubt that the full subset\u2011selection implementation is present.\
     \ The missing dataset (and likely incomplete code) must be added for the task\
     \ to be considered complete."
-T020b:
-  c: false
-  h: 95627fa62209499efc466e46bb1d9f555d8cc4b5e6057dea5b98e79ad3f22150
-  r: "The required output file `data/descriptors_dft.csv` is absent, and the provided\
-    \ `code/dft_calculator.py` does not contain any Psi4 invocation or DFT calculation\
-    \ logic needed to generate HOMO/LUMO and Mayer bond order descriptors. Consequently\
-    \ the task\u2019s core requirements are not met."
 T021:
   c: false
   h: f3d2f238f221092f75d0a8d28a5715d5233abe11244e9d59d24ded884b4d5b6e

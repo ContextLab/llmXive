@@ -1,15 +1,18 @@
+# Pinned dependencies for Neural Narrative Networks (PROJ-595)
+# CPU-only execution environment, Python 3.11
 torch==2.3.0
-cpuonly
-nibabel
-nilearn
-scikit-learn
-datasets
-pandas
-numpy
-matplotlib
-sentence-transformers
-ruff
-black
-pytest
-pyyaml
-psutil
+datasets==2.19.0
+nibabel==5.2.1
+nilearn==0.10.4
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.4.2
+matplotlib==3.8.4
+nltk==3.8.1
+pytest==8.2.0
+scipy==1.13.0
+pyyaml==6.0.1
+psutil==5.9.8
+ruff==0.4.4
+black==24.4.2
+sentence-transformers==2.7.0

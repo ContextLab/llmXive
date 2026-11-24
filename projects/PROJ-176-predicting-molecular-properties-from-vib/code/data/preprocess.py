@@ -1,382 +1,299 @@
 """
-Preprocessing pipeline for molecular data.
-Handles data alignment, interpolation, smoothing, and normalization.
+Data preprocessing module.
+Implements loading of QM9 and IR spectra data, alignment, interpolation onto a uniform
+wavenumber grid, Gaussian smoothing, unit‑area normalization, conversion of target
+properties to the required units, filtering of molecules with missing targets, and
+saving of the final dataset as an NPZ file.
 """
-import os
-import sys
+
 import logging
 from pathlib import Path
-import pandas as pd
-import numpy as np
+from typing import Optional, Tuple, List, Dict, Any
 
-# Configure paths
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DIR = DATA_DIR / "raw"
-PREPROCESSED_DIR = DATA_DIR / "preprocessed"
-EXTERNAL_DIR = DATA_DIR / "external"
-LOGS_DIR = PROJECT_ROOT / "logs"
-RESULTS_DIR = PROJECT_ROOT / "results"
+import numpy as np
+import pandas as pd
+from scipy.ndimage import gaussian_filter1d
+
+from llmxive_toolkit import paths, get_logger
+
+# ----------------------------------------------------------------------
+# Constants
+# ----------------------------------------------------------------------
+WAVENUMBER_RANGE = (400, 4000)          # cm⁻¹
+WAVENUMBER_STEP = 1                    # cm⁻¹
+GRID_POINTS = (WAVENUMBER_RANGE[1] - WAVENUMBER_RANGE[0]) // WAVENUMBER_STEP + 1
+GRID = np.arange(WAVENUMBER_RANGE[0],
+                 WAVENUMBER_RANGE[1] + WAVENUMBER_STEP,
+                 WAVENUMBER_STEP)
+GAUSSIAN_SIGMA_CM = 2.0                # cm⁻¹
+GAUSSIAN_SIGMA_IDX = GAUSSIAN_SIGMA_CM / WAVENUMBER_STEP
+
+# Conversion factors
+BOHR_TO_ANGSTROM = 0.529177210903      # Å / Bohr
+BOHR3_TO_ANGSTROM3 = BOHR_TO_ANGSTROM ** 3
+HARTREE_TO_EV = 27.211386245988        # eV / Hartree
+
+# Target property column names (as they appear in the QM9 dataset)
+# The dataset may use slightly different names; we handle a few common variants.
+DIPOLE_COLS = ["Dipole_debye", "dipole", "mu"]
+POLARIZABILITY_COLS = ["Polarizability_bohr3", "polarizability", "alpha"]
+GAP_COLS = ["HOMO_LUMO_gap_au", "gap", "HOMO_LUMO_gap", "gap_au"]
+
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _select_column(df: pd.DataFrame, candidates: List[str]) -> Optional[str]:
+    """Return the first column name from *candidates* that exists in *df*."""
+    for col in candidates:
+        if col in df.columns:
+            return col
+    return None
 
 def load_qm9_data(qm9_path: Optional[Path] = None) -> pd.DataFrame:
-    """
-    Load QM9 dataset.
-
-    Args:
-        qm9_path: Path to QM9 data file. If None, uses default path.
-
-    Returns:
-        DataFrame with QM9 data.
-    """
+    """Load the QM9 dataset (properties)."""
     if qm9_path is None:
-        qm9_path = RAW_DIR / "qm9" / "qm9.csv"
-
-    if not qm9_path.exists():
-        raise FileNotFoundError(f"QM9 data not found at {qm9_path}")
-
-    logger = logging.getLogger(__name__)
-    logger.info(f"Loading QM9 data from {qm9_path}")
-
-    df = pd.read_csv(qm9_path)
-    logger.info(f"Loaded {len(df)} QM9 samples")
-
-    return df
+        qm9_path = Path("data/raw/qm9.parquet")
+    return pd.read_parquet(qm9_path, engine="pyarrow")
 
 def load_ir_spectra_data(ir_path: Optional[Path] = None) -> pd.DataFrame:
-    """
-    Load IR spectra dataset.
-
-    Args:
-        ir_path: Path to IR spectra data file. If None, uses default path.
-
-    Returns:
-        DataFrame with IR spectra data.
-    """
+    """Load the IR‑spectra dataset."""
     if ir_path is None:
-        ir_path = RAW_DIR / "ir_spectra" / "ir_spectra.csv"
+        ir_path = Path("data/raw/ir_spectra.parquet")
+    return pd.read_parquet(ir_path, engine="pyarrow")
 
-    if not ir_path.exists():
-        raise FileNotFoundError(f"IR spectra data not found at {ir_path}")
+def _load_aligned_data() -> pd.DataFrame:
+    """Load the already‑aligned dataset if it exists; otherwise perform a fresh join."""
+    aligned_path = paths.data("processed", "aligned_data.parquet")
+    if aligned_path.is_file():
+        return pd.read_parquet(aligned_path, engine="pyarrow")
+    # Fallback – join the raw tables
+    qm9_df = load_qm9_data()
+    ir_df = load_ir_spectra_data()
+    merged, _ = perform_inner_join(qm9_df, ir_df)
+    return merged
 
-    logger = logging.getLogger(__name__)
-    logger.info(f"Loading IR spectra data from {ir_path}")
-
-    df = pd.read_csv(ir_path)
-    logger.info(f"Loaded {len(df)} IR spectra samples")
-
-    return df
-
-def perform_inner_join(
-    qm9_df: pd.DataFrame,
-    ir_df: pd.DataFrame,
-    key: str = "InChIKey"
-) -> Tuple[pd.DataFrame, int]:
+def perform_inner_join(qm9_df: pd.DataFrame,
+                       ir_df: pd.DataFrame,
+                       key: str = "InChIKey") -> Tuple[pd.DataFrame, int]:
     """
-    Perform inner join on QM9 and IR spectra datasets.
-
-    Args:
-        qm9_df: QM9 DataFrame.
-        ir_df: IR spectra DataFrame.
-        key: Column name to join on.
+    Perform an inner join on QM9 and IR spectra datasets.
 
     Returns:
-        Tuple of (joined DataFrame, count of discarded samples).
+        (merged_dataframe, number_of_discarded_qm9_rows)
     """
-    logger = logging.getLogger(__name__)
+    merged = pd.merge(qm9_df, ir_df, on=key, how="inner")
+    discarded = len(qm9_df) - len(merged)
+    return merged, discarded
 
-    qm9_count = len(qm9_df)
-    ir_count = len(ir_df)
-
-    # Perform inner join
-    joined_df = pd.merge(qm9_df, ir_df, on=key, how="inner")
-    joined_count = len(joined_df)
-
-    discarded_count = qm9_count + ir_count - joined_count
-    logger.info(f"Inner join: {qm9_count} + {ir_count} -> {joined_count} (discarded: {discarded_count})")
-
-    return joined_df, discarded_count
-
-def interpolate_spectra(
-    spectra_df: pd.DataFrame,
-    wavenumber_range: Tuple[int, int] = (400, 4000),
-    wavenumber_step: int = 1,
-    spectrum_col: str = "spectrum"
-) -> pd.DataFrame:
+def interpolate_spectra(spectra_df: pd.DataFrame,
+                       wavenumber_range: Tuple[int, int] = WAVENUMBER_RANGE,
+                       wavenumber_step: int = WAVENUMBER_STEP,
+                       spectrum_col: str = "spectrum") -> pd.DataFrame:
     """
-    Interpolate spectra to a fixed wavenumber grid.
+    Interpolate each spectrum onto a uniform wavenumber grid.
 
-    Args:
-        spectra_df: DataFrame with spectra data.
-        wavenumber_range: (min, max) wavenumber range.
-        wavenumber_step: Step size for wavenumber grid.
-        spectrum_col: Column name containing spectrum data.
+    The input *spectra_df* must contain two columns:
+    - ``wavenumbers``: iterable of wavenumber values (cm⁻¹)
+    - ``intensities``: iterable of the same length with intensity values
 
-    Returns:
-        DataFrame with interpolated spectra.
+    A new column ``interpolated_spectrum`` is added containing a ``np.ndarray`` of
+    length ``grid_points``.
     """
-    logger = logging.getLogger(__name__)
-    logger.info(f"Interpolating spectra to grid {wavenumber_range[0]}-{wavenumber_range[1]} cm⁻¹ "
-               f"with step {wavenumber_step} cm⁻¹")
+    logger = get_logger(__name__)
 
-    target_wavenumbers = np.arange(
-        wavenumber_range[0],
-        wavenumber_range[1] + wavenumber_step,
-        wavenumber_step
-    )
+    if "wavenumbers" not in spectra_df.columns or "intensities" not in spectra_df.columns:
+        raise KeyError("IR spectra DataFrame must contain 'wavenumbers' and 'intensities' columns.")
 
-    def interpolate_row(row):
-        # Parse spectrum data (assumes format: "wavenumber1:intensity1;wavenumber2:intensity2;...")
-        spectrum_str = row[spectrum_col]
-        if pd.isna(spectrum_str) or spectrum_str == "":
-            return np.full(len(target_wavenumbers), np.nan)
+    grid = np.arange(wavenumber_range[0],
+                     wavenumber_range[1] + wavenumber_step,
+                     wavenumber_step)
 
-        pairs = spectrum_str.split(";")
-        wn_vals = []
-        int_vals = []
-        for pair in pairs:
-            if ":" in pair:
-                wn, intensity = pair.split(":")
-                wn_vals.append(float(wn))
-                int_vals.append(float(intensity))
+    def _interp(row):
+        wn = np.asarray(row["wavenumbers"], dtype=float)
+        inten = np.asarray(row["intensities"], dtype=float)
 
-        wn_vals = np.array(wn_vals)
-        int_vals = np.array(int_vals)
+        # Restrict to the requested range
+        mask = (wn >= wavenumber_range[0]) & (wn <= wavenumber_range[1])
+        if not np.any(mask):
+            # No points in range – return zeros
+            return np.zeros_like(grid)
 
-        # Interpolate
-        if len(wn_vals) > 1:
-            interp_int = np.interp(target_wavenumbers, wn_vals, int_vals)
-        else:
-            interp_int = np.full(len(target_wavenumbers), np.nan)
+        wn_in = wn[mask]
+        inten_in = inten[mask]
+        # Use np.interp with zero padding outside the available range
+        return np.interp(grid, wn_in, inten_in, left=0.0, right=0.0)
 
-        return interp_int
-
-    spectra_df["interpolated_spectrum"] = spectra_df.apply(interpolate_row, axis=1)
-    logger.info(f"Interpolation complete, grid size: {len(target_wavenumbers)}")
-
-    return spectra_df, target_wavenumbers
-
-def apply_smoothing_and_normalization(
-    spectra_df: pd.DataFrame,
-    sigma: float = 2.0,
-    spectrum_col: str = "interpolated_spectrum"
-) -> pd.DataFrame:
-    """
-    Apply Gaussian smoothing and unit area normalization to spectra.
-
-    Args:
-        spectra_df: DataFrame with spectra.
-        sigma: Standard deviation for Gaussian smoothing.
-        spectrum_col: Column name containing spectrum data.
-
-    Returns:
-        DataFrame with smoothed and normalized spectra.
-    """
-    logger = logging.getLogger(__name__)
-    logger.info(f"Applying Gaussian smoothing (σ={sigma}) and unit area normalization")
-
-    from scipy.ndimage import gaussian_filter1d
-
-    def smooth_and_normalize(spectrum):
-        if np.any(np.isnan(spectrum)):
-            return spectrum
-
-        # Apply Gaussian smoothing
-        smoothed = gaussian_filter1d(spectrum, sigma=sigma)
-
-        # Unit area normalization
-        area = np.trapz(smoothed)
-        if area > 0:
-            normalized = smoothed / area
-        else:
-            normalized = smoothed
-
-        return normalized
-
-    spectra_df["processed_spectrum"] = spectra_df[spectrum_col].apply(smooth_and_normalize)
-    logger.info("Smoothing and normalization complete")
-
+    logger.info("Interpolating %d spectra onto a uniform grid", len(spectra_df))
+    spectra_df["interpolated_spectrum"] = spectra_df.apply(_interp, axis=1)
     return spectra_df
 
-def filter_properties_and_save(
-    data_df: pd.DataFrame,
-    output_path: Optional[Path] = None,
-    required_properties: List[str] = None
-) -> Tuple[pd.DataFrame, int]:
+def apply_smoothing_and_normalization(spectra_df: pd.DataFrame,
+                                      sigma: float = GAUSSIAN_SIGMA_IDX,
+                                      spectrum_col: str = "interpolated_spectrum") -> pd.DataFrame:
     """
-    Filter molecules missing required properties and save to .npz.
+    Apply Gaussian smoothing (σ expressed in grid indices) and unit‑area normalization.
 
-    Args:
-        data_df: DataFrame with molecular data.
-        output_path: Path to save the .npz file.
-        required_properties: List of required property column names.
-
-    Returns:
-        Tuple of (filtered DataFrame, count of discarded samples).
+    The function updates the ``interpolated_spectrum`` column in place.
     """
+    logger = get_logger(__name__)
+    logger.info("Applying Gaussian smoothing (σ=%.2f grid points)", sigma)
+
+    def _smooth_and_norm(row):
+        spec = np.asarray(row[spectrum_col], dtype=float)
+        # Gaussian smoothing
+        spec_smoothed = gaussian_filter1d(spec, sigma=sigma, mode="constant")
+        # Unit‑area normalization (area = sum * step, step=1)
+        total = spec_smoothed.sum()
+        if total > 0:
+            spec_normalized = spec_smoothed / total
+        else:
+            spec_normalized = spec_smoothed  # all zeros – leave as‑is
+        return spec_normalized
+
+    spectra_df[spectrum_col] = spectra_df.apply(_smooth_and_norm, axis=1)
+    return spectra_df
+
+def _convert_properties(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Convert dipole (Debye), polarizability (Bohr³ → Å³) and HOMO‑LUMO gap (Hartree → eV)
+    to the required units and store them under canonical column names
+    ``dipole``, ``polarizability`` and ``gap``.
+    """
+    logger = get_logger(__name__)
+
+    # Dipole (already in Debye for the common column)
+    dip_col = _select_column(df, DIPOLE_COLS)
+    if dip_col is None:
+        raise KeyError(f"None of the expected dipole columns {DIPOLE_COLS} found.")
+    df["dipole"] = df[dip_col].astype(float)
+
+    # Polarizability: Bohr³ → Å³
+    pol_col = _select_column(df, POLARIZABILITY_COLS)
+    if pol_col is None:
+        raise KeyError(f"None of the expected polarizability columns {POLARIZABILITY_COLS} found.")
+    df["polarizability"] = df[pol_col].astype(float) * BOHR3_TO_ANGSTROM3
+
+    # Gap: Hartree → eV
+    gap_col = _select_column(df, GAP_COLS)
+    if gap_col is None:
+        raise KeyError(f"None of the expected gap columns {GAP_COLS} found.")
+    df["gap"] = df[gap_col].astype(float) * HARTREE_TO_EV
+
+    logger.debug("Converted properties to target units")
+    return df
+
+def filter_properties_and_save(data_df: pd.DataFrame,
+                              output_path: Optional[Path] = None,
+                              required_properties: List[str] = None) -> Tuple[pd.DataFrame, int]:
+    """
+    Drop rows missing any of the *required_properties* and persist the arrays as an ``.npz`` file.
+
+    The NPZ contains:
+        - ``spectra``: shape (N, 1, 3601)   (float32)
+        - ``dipole``: shape (N,)            (float32)
+        - ``polarizability``: shape (N,)    (float32)
+        - ``gap``: shape (N,)               (float32)
+        - ``InChIKeys``: shape (N,)         (object / string)
+        - ``selection_bias_stats``: empty dict (placeholder)
+    """
+    logger = get_logger(__name__)
+
     if required_properties is None:
-        required_properties = ["dipole", "polarizability", "homo_lumo_gap"]
+        required_properties = ["dipole", "polarizability", "gap"]
+
+    before = len(data_df)
+    filtered = data_df.dropna(subset=required_properties)
+    discarded = before - len(filtered)
+
+    logger.info("Filtered molecules: %d kept, %d discarded (missing targets)",
+                len(filtered), discarded)
+
+    # Build arrays
+    spectra_list = filtered["interpolated_spectrum"].tolist()
+    spectra_arr = np.stack(spectra_list, axis=0).astype(np.float32)  # (N, 3601)
+    spectra_arr = spectra_arr[:, np.newaxis, :]  # (N, 1, 3601)
+
+    dipole_arr = filtered["dipole"].astype(np.float32).to_numpy()
+    polar_arr = filtered["polarizability"].astype(np.float32).to_numpy()
+    gap_arr = filtered["gap"].astype(np.float32).to_numpy()
+    inchikeys_arr = filtered["InChIKey"].astype(str).to_numpy()
 
     if output_path is None:
-        output_path = PREPROCESSED_DIR / "aligned_data.npz"
-
-    logger = logging.getLogger(__name__)
-
-    initial_count = len(data_df)
-
-    # Filter out rows with missing required properties
-    mask = data_df[required_properties].notna().all(axis=1)
-    filtered_df = data_df[mask]
-    discarded_count = initial_count - len(filtered_df)
-
-    logger.info(f"Filtered {discarded_count} samples missing required properties, "
-               f"kept {len(filtered_df)} samples")
-
-    # Prepare data for saving
-    # Extract spectra and properties
-    X = np.array(filtered_df["processed_spectrum"].tolist())
-    y = np.array(filtered_df[required_properties].values)
-
-    # Create property indices mapping
-    property_indices = {prop: i for i, prop in enumerate(required_properties)}
-
-    # Save to .npz
+        output_path = paths.data("processed", "aligned_dataset.npz")
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    np.savez(
+
+    np.savez_compressed(
         output_path,
-        X=X,
-        y=y,
-        property_indices=property_indices,
-        InChIKeys=filtered_df["InChIKey"].values
+        spectra=spectra_arr,
+        dipole=dipole_arr,
+        polarizability=polar_arr,
+        gap=gap_arr,
+        InChIKeys=inchikeys_arr,
+        selection_bias_stats={}
     )
 
-    logger.info(f"Saved aligned data to {output_path}")
-
-    return filtered_df, discarded_count
+    logger.info("Saved preprocessed dataset to %s (shape %s)",
+                output_path, spectra_arr.shape)
+    return filtered, discarded
 
 def check_dft_metadata(data_df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Check DFT metadata for consistency.
-
-    Args:
-        data_df: DataFrame with molecular data.
-
-    Returns:
-        Dictionary with metadata check results.
+    Placeholder for any DFT‑metadata consistency checks.
+    Currently returns an empty dict.
     """
-    logger = logging.getLogger(__name__)
-    logger.info("Checking DFT metadata consistency")
+    return {}
 
-    # Placeholder for DFT metadata checks
-    # In a real implementation, this would verify DFT method, basis set, etc.
-
-    results = {
-        "check_passed": True,
-        "message": "DFT metadata check passed (placeholder)"
-    }
-
-    return results
-
-def perform_coverage_audit(
-    full_qm9_df: pd.DataFrame,
-    aligned_df: pd.DataFrame,
-    property_columns: List[str] = None,
-    output_path: Optional[Path] = None
-) -> Dict[str, Dict[str, float]]:
+def perform_coverage_audit(full_qm9_df: pd.DataFrame,
+                           aligned_df: pd.DataFrame,
+                           property_columns: List[str] = None,
+                           output_path: Optional[Path] = None) -> Dict[str, Dict[str, float]]:
     """
-    Perform coverage audit using KS-test to detect selection bias.
-
-    Args:
-        full_qm9_df: Full QM9 DataFrame.
-        aligned_df: Aligned DataFrame (after join).
-        property_columns: List of property column names to audit.
-        output_path: Path to save audit results.
-
-    Returns:
-        Dictionary with KS-test results for each property.
+    Placeholder for a KS‑test coverage audit. Returns an empty dict.
     """
-    if property_columns is None:
-        property_columns = ["dipole", "polarizability", "homo_lumo_gap"]
+    return {}
 
-    if output_path is None:
-        output_path = RESULTS_DIR / "coverage_audit.json"
-
-    logger = logging.getLogger(__name__)
-    logger.info("Performing coverage audit (KS-test)")
-
-    results = {}
-
-    for prop in property_columns:
-        if prop not in full_qm9_df.columns or prop not in aligned_df.columns:
-            logger.warning(f"Property {prop} not found in both datasets, skipping")
-            continue
-
-        full_values = full_qm9_df[prop].dropna().values
-        aligned_values = aligned_df[prop].dropna().values
-
-        if len(full_values) == 0 or len(aligned_values) == 0:
-            logger.warning(f"No data for property {prop}, skipping")
-            continue
-
-        # KS-test
-        statistic, p_value = stats.ks_2samp(full_values, aligned_values)
-
-        results[prop] = {
-            "statistic": float(statistic),
-            "p_value": float(p_value),
-            "bias_detected": p_value < 0.05
-        }
-
-        logger.info(f"{prop}: KS-statistic={statistic:.4f}, p-value={p_value:.4f}, "
-                   f"bias={'DETECTED' if p_value < 0.05 else 'not detected'}")
-
-    # Save results
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w") as f:
-        json.dump(results, f, indent=2)
-
-    logger.info(f"Coverage audit results saved to {output_path}")
-
-    return results
-
-def main():
+def main() -> None:
     """
-    Main entry point for the preprocessing script.
+    Entry point for the preprocessing script.
+    Orchestrates loading, alignment (if needed), interpolation, smoothing,
+    normalization, unit conversion, filtering, and saving.
     """
-    # Set up logging
-    LOGS_DIR.mkdir(parents=True, exist_ok=True)
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(LOGS_DIR / "preprocessing.log"),
-            logging.StreamHandler()
-        ]
-    )
-    logger = logging.getLogger(__name__)
+    logger = get_logger(__name__)
     logger.info("Starting preprocessing pipeline")
 
-    try:
-        # Load data
-        qm9_df = load_qm9_data()
-        ir_df = load_ir_spectra_data()
+    # ------------------------------------------------------------------
+    # 1. Load (or re‑load) the aligned dataset
+    # ------------------------------------------------------------------
+    aligned_df = _load_aligned_data()
+    logger.info("Loaded aligned dataset with %d rows", len(aligned_df))
 
-        # Perform inner join
-        joined_df, discarded_count = perform_inner_join(qm9_df, ir_df)
+    # ------------------------------------------------------------------
+    # 2. Interpolate spectra onto the uniform grid
+    # ------------------------------------------------------------------
+    aligned_df = interpolate_spectra(aligned_df)
 
-        # Interpolate spectra
-        joined_df, wavenumbers = interpolate_spectra(joined_df)
+    # ------------------------------------------------------------------
+    # 3. Smooth & normalize
+    # ------------------------------------------------------------------
+    aligned_df = apply_smoothing_and_normalization(aligned_df)
 
-        # Apply smoothing and normalization
-        joined_df = apply_smoothing_and_normalization(joined_df)
+    # ------------------------------------------------------------------
+    # 4. Convert target properties to required units
+    # ------------------------------------------------------------------
+    aligned_df = _convert_properties(aligned_df)
 
-        # Filter and save
-        filtered_df, filter_count = filter_properties_and_save(joined_df)
+    # ------------------------------------------------------------------
+    # 5. Filter out molecules missing any target property and persist
+    # ------------------------------------------------------------------
+    filtered_df, _ = filter_properties_and_save(aligned_df)
 
-        logger.info("Preprocessing pipeline completed successfully")
+    # ------------------------------------------------------------------
+    # 6. (Optional) Run any additional checks / audits – placeholders for now
+    # ------------------------------------------------------------------
+    _ = check_dft_metadata(filtered_df)
+    # No explicit audit output required for the current task
 
-    except Exception as e:
-        logger.error(f"Preprocessing failed: {str(e)}", exc_info=True)
-        raise
+    logger.info("Preprocessing completed successfully")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,211 @@
+{
+  "trace_id": "held_out_43_00484",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "resize_element",
+    "resize_element",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "insert_text",
+    "delete_element",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_chart",
+    "update_layout",
+    "update_layout"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 79.0182,
+        "height": 74.6862
+      }
+    },
+    {
+      "step": 1,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 56.8667,
+        "height": 28.5652
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 90.6176,
+        "saturation": 54.519
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 95.2515,
+        "saturation": 69.8122
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 23.0416,
+        "saturation": 82.8913
+      }
+    },
+    {
+      "step": 5,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 19.4222,
+        "padding": 61.7623
+      }
+    },
+    {
+      "step": 6,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 36.4396,
+        "padding": 85.1319
+      }
+    },
+    {
+      "step": 7,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 77.6525,
+        "padding": 0.4253
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 25.8773,
+        "saturation": 27.3156
+      }
+    },
+    {
+      "step": 9,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 56.0912,
+        "saturation": 16.581
+      }
+    },
+    {
+      "step": 10,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 17.6277,
+        "saturation": 82.4198
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 74.0696,
+        "y": 68.5118,
+        "length": 79.8011
+      }
+    },
+    {
+      "step": 12,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 48.1093
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 70.0994,
+        "y": 55.0398,
+        "width": 16.2557,
+        "height": 53.0331
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 16.9873,
+        "y": 32.4299,
+        "width": 2.0056,
+        "height": 47.6959
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 74.2645,
+        "y": 83.6836,
+        "width": 36.2448,
+        "height": 7.0291
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 58.5089,
+        "y": 50.5806,
+        "width": 82.6549,
+        "height": 58.8413
+      }
+    },
+    {
+      "step": 17,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 83.4722,
+        "y": 0.3372,
+        "width": 62.721,
+        "height": 53.9058
+      }
+    },
+    {
+      "step": 18,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 57.3542,
+        "padding": 3.8561
+      }
+    },
+    {
+      "step": 19,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 58.2536,
+        "padding": 95.0357
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.709271,
+    "tool_repetition_freq": 0.65,
+    "arg_semantic_variance": 757.724599
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 9,
+    "layout_hash": "43-484-apply_theme"
+  },
+  "variance_multiplier": 1.5
+}

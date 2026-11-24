@@ -41,6 +41,22 @@ T005a:
     \ explicitly required *no* memory\u2011hook configuration at this stage, so the\
     \ artifact does not satisfy the specification."
   sig: ffcd1fe4d4f4c4792e4bcf10a0cdbc849c379ebe4914445dee949b4b20ac9010
+T005b:
+  c: true
+  h: ef12d1fcb51fffc19be254332a7acdb2559e916c3202092f76a1a9f49c8a8c16
+  r: "Checked `code/logging_config.py`, which imports `memory_monitor` (the T007 output),\
+    \ adds a `MemoryCheckingFilter` that calls `_check_memory_and_log`, and logs a\
+    \ warning message containing \u201CTime Limit Warning\u201D when RAM usage reaches\
+    \ the 5.1\u202FGB threshold (\u22486\u202FGB limit). The implementation is non\u2011\
+    stub and fulfills the required logging hook behavior."
+  sig: 2087a4489e6be90a372d4fc2c3a220e65923b03cd2fdbb47ce68cce8edc7cde8
+T006:
+  c: true
+  h: ad4dd30214e6f4d1ab16c34db520efe8a483e4786151e29e2968edea94f4e1d9
+  r: "Checked `code/entities.py` (7820\u202Fbytes) which defines the `Subject`, `ConnectivityMatrix`,\
+    \ and `GraphMetrics` dataclasses with appropriate fields, methods, and serialization\
+    \ logic, fulfilling the requested base data entity creation."
+  sig: f4c17697a82c151705037eff2e90f383576e7f2918a384492fa070db5e5aa434
 T007:
   c: false
   h: 0c2da6008aca9626c8a9a7eeaafb2ff8bda498f5ef7db67ff7cd4f0db0ce10d2
@@ -51,6 +67,22 @@ T007:
     \ or enforced. The utility therefore does not genuinely enforce the \u22646\u202F\
     GB RAM constraint."
   sig: 2aab1083082d181c70514b4a1e0dc7dcc7a7d6d2ade52db2e8b107d4a717c0ba
+T008a:
+  c: false
+  h: 17ee5dc50fce3d67edb26be8d951b06753a8460f3a5c8bf5fc27f86b0c6349b6
+  r: 'The file `code/synthetic_data.py` exists, but it cannot run: it constructs `Subject`
+    objects with fields (`time_point`, `cognitive_score`) that are not defined in
+    `entities.Subject` (which requires a `group` field). This mismatch will raise
+    a `TypeError` and prevents the synthetic data generator from producing any output,
+    so the requirement for a functional, seeded synthetic data generator is not met.'
+  sig: 175b8af2faebcb976019a8bd41bb19e75b825209a6784b8c5fd66d53db552bbb
+T008b:
+  c: true
+  h: 33a965200b1a49d91634a6b953f568e2ec8f10cfda2c893db5c5d8da2f9c4e8c
+  r: Checked `code/config.py`, which defines `check_data_availability()` and `initialize_methodology_validation_mode()`
+    that set the global `_is_synthetic` flag (exposed via `is_synthetic()`) when no
+    real data are found, fulfilling the required switch logic.
+  sig: b412853487323ad42944224e51ccc4f387775165f93909d50087efffc33c67c4
 T011:
   c: false
   h: 1b4c7ad2dbd7a3976c1b63de0746d4965f186612afb8d2d36eb3526b30823f3f
@@ -58,6 +90,17 @@ T011:
     \ download and manifest\u2011generation logic, and the required output file `data/results/manifest.csv`\
     \ does not exist. Both the functional implementation and the expected CSV artifact\
     \ are missing."
+T012:
+  c: false
+  h: 93d490535e5aa3beaa140dcb403e7f66eef7326b68f851e83ea3dd23be05c9f7
+  r: "The provided `code/preprocessing.py` file exists and contains Nilearn\u2011\
+    based AAL masking and confound regression logic, but it does not implement the\
+    \ full ingestion pipeline required by the user story (no OpenNeuro download, no\
+    \ manifest CSV output, no \u201CMemory OK\u201D log). Moreover, it attempts to\
+    \ instantiate a `Subject` with nonexistent fields (`matrices`, `metadata`), which\
+    \ will raise a TypeError given the `Subject` dataclass definition in `entities.py`.\
+    \ These issues mean the script does not correctly fulfill the task\u2019s requirements."
+  sig: 1b90421a9367ff63815d0dd6c2c35603fe3b224009249d6823eeed810da092f2
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -74,11 +117,13 @@ T014:
     \ in the provided materials."
 T016:
   c: false
-  h: acbbac4551606f74ecf398db6827e77de1fbe5f2df88390dae95b2b8027e6b3b
-  r: The required output file `data/results/bootstrapped_ci.json` is absent, and the
-    provided `code/bootstrapping.py` snippet does not show the actual contingency
-    logic (checking `n < 20` and invoking bootstrapping). Both the generated result
-    and clear implementation of the switch are missing.
+  h: 72bd2c07004eb83925b6e23e6512d5f63b3272cdb55b25d2eed2912f25501ce0
+  r: "Checked `code/bootstrapping.py` \u2013 the script is present and contains the\
+    \ contingency check and 1000\u2011iteration bootstrapping logic. However the required\
+    \ output file `data/results/bootstrapped_ci.json` is missing; no execution evidence\
+    \ shows it was created. The task\u2019s artifact generation requirement is not\
+    \ satisfied."
+  sig: 3ec1245053fbd325cc73a5d0f8cf4b71a12c266cec6411bfcae56616d3d8a448
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,53 +1,41 @@
 # Execution failures — fix these before the analysis can run
 
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- every produced artifact is gitignored (data/processed/organophosphates_filtered.csv, data/processed/sample_size_status.json, data/raw/tox21_raw.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 command(s) failed: python code/download.py (rc=1); python code/filter.py (rc=1); python code/fingerprints.py (rc=1); 2 declared deliverable(s) absent: data/processed/kfold_split_indices.json; data/processed/organophosphates_filtered.csv
+**Summary**: every produced artifact is gitignored (data/processed/organophosphates_filtered.csv, data/processed/sample_size_status.json, data/raw/tox21_raw.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python code/split.py (rc=1); python code/train.py (rc=1); python -m pytest tests/ (rc=1)
 
 ## Failing / missing run-book commands
 
-- python code/download.py -> rc=1
-
+- python code/split.py -> rc=1
+nts - INFO - Processing batch 1: 131 compounds
+2026-10-22 09:37:04 - fingerprints - INFO - Successfully generated 131 fingerprints
+2026-10-22 09:37:04 - fingerprints - INFO - Saved Morgan fingerprints to data/processed/fingerprints_morgan.pkl
+2026-10-22 09:37:04 - fingerprints - INFO - Saved MACCS fingerprints to data/processed/fingerprints_maccs.pkl
+2026-10-22 09:37:04 - fingerprints - INFO - Fingerprint generation complete:
+2026-10-22 09:37:04 - fingerprints - INFO -   Morgan: 131 successful, 0 failed
+2026-10-22 09:37:04 - fingerprints - INFO -   MACCS: 131 successful, 0 failed
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/download.py", line 8, in <module>
-    from datasets import load_dataset
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/.venv/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Dataset
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/.venv/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/.venv/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
-
-- python code/filter.py -> rc=1
-
-2026-10-09 14:18:42 - __main__ - INFO - Loading compounds from data/raw/tox21_raw.csv
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/filter.py", line 157, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/split.py", line 418, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/filter.py", line 137, in main
-    df = load_compounds(input_path)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/filter.py", line 24, in load_compounds
-    raise FileNotFoundError(f"Input file not found: {input_path}")
-FileNotFoundError: Input file not found: data/raw/tox21_raw.csv
-
-- python code/fingerprints.py -> rc=1
-
-2026-10-09 14:18:42 - __main__ - ERROR - Input file not found: data/processed/organophosphates_filtered.csv
-2026-10-09 14:18:42 - __main__ - ERROR - Please run code/filter.py first to generate the filtered dataset.
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/fingerprints.py", line 205, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/fingerprints.py", line 200, in main
-    raise FileNotFoundError(f"Input file not found: {input_path}")
-FileNotFoundError: Input file not found: data/processed/organophosphates_filtered.csv
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/split.py", line 341, in main
+    raise FileNotFoundError(f"Fingerprint file still missing after generation: {fingerprint_file}")
+FileNotFoundError: Fingerprint file still missing after generation: /home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/data/processed/fingerprints.pkl
 
 - python code/train.py -> rc=1
 
-2026-10-09 14:18:44 - root - INFO - Starting K-Fold Cross-Validation Training (T019)
-2026-10-09 14:18:44 - root - ERROR - Split indices file not found. Cannot proceed with training.
+2026-10-22 09:37:05 - root - INFO - Starting K-Fold Cross-Validation Training (T019)
+2026-10-22 09:37:05 - root - ERROR - Split indices file not found. Cannot proceed with training.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/train.py", line 240, in <module>
     main()
@@ -55,42 +43,21 @@ Traceback (most recent call last):
     raise FileNotFoundError(f"Split file not found: {split_file}")
 FileNotFoundError: Split file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/data/processed/split_indices.json
 
-- python -m pytest tests/ -> rc=2
-,
-pyarrow/lib.pyx:42: in init pyarrow.lib
-    ???
-E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
-__________________ ERROR collecting tests/unit/test_split.py ___________________
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/tests/unit/test_split.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_split.py:11: in <module>
-    from split import greedy_maximal_dissimilarity_split, save_splits
-E   ImportError: cannot import name 'save_splits' from 'split' (/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/split.py)
-=========================== short test summary info ============================
-ERROR tests/integration/test_download.py
-ERROR tests/unit/test_split.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.47s ===============================
+- python -m pytest tests/ -> rc=1
+lter_validation.py::test_write_sample_size_status_ok
+FAILED tests/unit/test_filter_validation.py::test_write_sample_size_status_skip
+FAILED tests/unit/test_filter_validation.py::test_write_filter_log_warning - ...
+FAILED tests/unit/test_filter_validation.py::test_write_filter_log_ok - TypeE...
+FAILED tests/unit/test_fingerprints.py::TestMACCSFingerprint::test_maccs_fingerprint_generation
+FAILED tests/unit/test_report_generator.py::test_generate_markdown_table - Ty...
+FAILED tests/unit/test_report_generator.py::test_generate_markdown_table_empty
+FAILED tests/unit/test_report_generator.py::test_load_metrics_from_disk - Typ...
+FAILED tests/unit/test_report_generator.py::test_load_statistical_results - T...
+FAILED tests/unit/test_report_generator.py::test_load_sc003_results - TypeErr...
+FAILED tests/unit/test_setup_dirs.py::test_directory_creation - AssertionErro...
+FAILED tests/unit/test_split.py::test_greedy_split_tanimoto_threshold - Boost...
+FAILED tests/unit/test_stats.py::test_bootstrap_confidence_interval - TypeErr...
+ERROR tests/unit/test_report_generator.py::test_generate_final_report - FileE...
+============== 24 failed, 15 passed, 2 warnings, 1 error in 1.65s ==============
 
 
-
-## Declared deliverables still missing
-
-- data/processed/kfold_split_indices.json
-- data/processed/organophosphates_filtered.csv
-
-## Declared deliverables NOT produced — make the run-book produce them
-
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
-
-- `data/processed/kfold_split_indices.json` is declared but was NOT written. Scripts referencing it:
-    - `code/split.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/kfold_split_indices.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/organophosphates_filtered.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/filter.py` — IS a run-book command
-    - `code/fingerprints.py` — IS a run-book command
-    - `code/train.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/organophosphates_filtered.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

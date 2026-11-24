@@ -16,7 +16,6 @@ from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import chat_with_fallback
 from llmxive.config import repo_root as _repo_root
-from llmxive.types import BackendName
 
 # Spec 015 T031 (discrepancy #4) + FR-030: the analyze prompts are now real prompt
 # files that ARE used (the constant is no longer dead) and paper analyze uses a
@@ -35,9 +34,7 @@ def run_analyze(
     spec_text: str,
     plan_text: str,
     tasks_text: str,
-    default_backend: BackendName,
-    fallback_backends: list[BackendName],
-    default_model: str,
+    profile: str = "standard_generation",
     repo_root: Path | None = None,
     project_dir: Path | None = None,
     kind: str = "research",
@@ -48,7 +45,10 @@ def run_analyze(
 
     ``kind`` selects the analyze prompt (``"research"`` or ``"paper"``).
     ``constitution_text``, when provided, is included as a panel input so the
-    analyzer can flag constitution violations (FR-030).
+    analyzer can flag constitution violations (FR-030). ``profile`` (spec 026
+    US5) is the caller's ``AgentRegistryEntry.profile``; default
+    ``"standard_generation"`` preserves prior behavior for callers that don't
+    pass one.
     """
     repo = repo_root or _repo_root()
     if kind not in ANALYZE_SYSTEM_PROMPT_PATHS:
@@ -82,9 +82,7 @@ def run_analyze(
     user = "\n\n".join(parts)
     response = chat_with_fallback(
         [ChatMessage(role="system", content=system), ChatMessage(role="user", content=user)],
-        default_backend=default_backend.value,
-        fallback_backends=[b.value for b in fallback_backends],
-        model=default_model,
+        profile=profile,
     )
     return response.text.strip()
 

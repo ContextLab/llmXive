@@ -36,7 +36,7 @@ def test_write_manifest_creates_file():
         import json
         with open(out_path, "r", encoding="utf-8") as f:
             data = json.load(f)
-        assert data["dataset_id"] == "ds_test"
-        assert data["verification_status"] == "ready"
-        assert isinstance(data["eeg_files"], list)
-        assert isinstance(data["questionnaire_files"], list)
+        assert data[0]["dataset_id"] == "ds_test"
+        assert data[0]["verification_status"] == "ready"
+        assert isinstance(data[0]["eeg_files"], list)
+        assert isinstance(data[0]["questionnaire_files"], list)

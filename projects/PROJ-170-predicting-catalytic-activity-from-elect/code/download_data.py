@@ -1,282 +1,280 @@
 """
-Data download and verification module for the OC20 dataset.
+Data download module for FR-001.
 
-This module handles downloading the stratified sample of the OC20 dataset
-from HuggingFace, verifying checksums, and deriving composition families.
+This script downloads:
+1. A stratified sample from the OC20 dataset using HuggingFace `datasets`
+   with streaming enabled.
+2. Bulk electronic descriptors from the Materials Project via the `mp-api`
+   client (requires `MP_API_KEY` environment variable).
+3. A JSON file describing the mandatory columns for the unified DataFrame.
+
+For each generated file the SHA-256 checksum is recorded in
+`data/checksums.txt`. All failures raise exceptions; there is no
+silent fallback to fabricated data.
 """
 import os
 import sys
 import json
 import hashlib
 import logging
+import re
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
-import h5py
+from typing import List, Dict, Any, Optional
+
+import pandas as pd
 from datasets import load_dataset
-from pymatgen.core import Composition
-from config import get_project_root, get_data_path
+
+try:
+    from mp_api.client import MPRester
+except ImportError as exc:
+    # This will be caught by the main try-except and logged
+    raise ImportError(
+        "The `mp-api` package is required for Materials Project descriptor "
+        "download. Install it via `pip install mp-api`."
+    ) from exc
+
+# Project utilities
+from config import get_data_path
 from logging_config import get_logger
 
 # Configure logger
 logger = get_logger(__name__)
 
+# ----------------------------------------------------------------------
 # Constants
-DATASET_ID = "Open-Catalyst/oc20-experimental"
-FILE_NAME = "oc20.h5"
-OUTPUT_PATH = "data/raw/oc20_sample.h5"
-CHECKSUM_FILE = "data/raw/checksums.json"
-STRATIFICATION_COLUMN = "composition_family"
-SAMPLE_SIZE = 1000  # Stratified sample size
+# ----------------------------------------------------------------------
+OC20_DATASET = "nimashoghi/oc20_s2ef_train_2M"
+SAMPLE_SIZE = 1000
+BUFFER_SIZE = 10000  # Buffer to enable stratification from stream
 
+RAW_DIR = get_data_path() / "raw"
+PARQUET_FILE = RAW_DIR / "oc20_sample.parquet"
+MP_DESCRIPTORS_FILE = RAW_DIR / "mp_descriptors.json"
+REQUIRED_COLUMNS_FILE = RAW_DIR / "required_columns.json"
+CHECKSUM_FILE = get_data_path() / "checksums.txt"
+
+# ----------------------------------------------------------------------
+# Helper functions (checksum handling)
+# ----------------------------------------------------------------------
 def load_expected_checksums() -> Dict[str, str]:
-    """Load expected checksums from the checksum file."""
-    checksum_path = get_project_root() / CHECKSUM_FILE
-    if checksum_path.exists():
-        with open(checksum_path, 'r') as f:
-            return json.load(f)
-    return {}
+    """Load expected checksums from the checksum file (plain text)."""
+    checksums: Dict[str, str] = {}
+    if CHECKSUM_FILE.exists():
+        with open(CHECKSUM_FILE, "r") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    parts = line.split()
+                    if len(parts) == 2:
+                        name, value = parts
+                        checksums[name] = value
+                except ValueError:
+                    continue
+    return checksums
 
 def save_checksum(filename: str, checksum: str) -> None:
-    """Save a checksum for a downloaded file."""
-    checksum_path = get_project_root() / CHECKSUM_FILE
+    """Record a checksum entry in the checksum file without trailing empty lines."""
     checksums = load_expected_checksums()
     checksums[filename] = checksum
-    with open(checksum_path, 'w') as f:
-        json.dump(checksums, f, indent=2)
+    CHECKSUM_FILE.parent.mkdir(parents=True, exist_ok=True)
+    # Join with newlines and ensure no trailing newline at the very end of the file
+    lines = [f"{name} {val}" for name, val in checksums.items()]
+    with open(CHECKSUM_FILE, "w") as f:
+        f.write("\n".join(lines))
 
 def compute_file_hash(filepath: Path) -> str:
     """Compute SHA-256 hash of a file."""
-    sha256_hash = hashlib.sha256()
+    sha256 = hashlib.sha256()
     with open(filepath, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+        for block in iter(lambda: f.read(4096), b""):
+            sha256.update(block)
+    return sha256.hexdigest()
 
-def verify_checksum(filepath: Path, expected_checksum: str) -> bool:
-    """Verify the checksum of a downloaded file."""
-    actual_checksum = compute_file_hash(filepath)
-    return actual_checksum == expected_checksum
+# ----------------------------------------------------------------------
+# OC20 streaming download & stratified sampling
+# ----------------------------------------------------------------------
+def _extract_elements(composition_str: str) -> List[str]:
+    """Simple element extraction from a chemical formula string."""
+    return re.findall(r"[A-Z][a-z]?", composition_str)
 
 def derive_composition_family(composition_str: str) -> str:
-    """
-    Derive composition family from a composition string using pymatgen.
-    Groups by metal/oxide type.
-    
-    Args:
-        composition_str: String representation of composition (e.g., "Fe2O3")
-    
-    Returns:
-        String representing the composition family (e.g., "Oxide_Fe", "Metal_Cu")
-    """
+    """Derive a simple composition family for stratification."""
     try:
-        comp = Composition(composition_str)
-        elements = list(comp.elements)
-        
-        # Determine if it's an oxide (contains O) or other
-        if any(el.symbol == 'O' for el in elements):
-            # Find the metal element (first non-oxygen)
-            metals = [el for el in elements if el.symbol != 'O']
-            if metals:
-                # Group by the primary metal
-                primary_metal = sorted(metals, key=lambda x: comp[x])[0]
-                return f"Oxide_{primary_metal.symbol}"
+        elements = _extract_elements(composition_str)
+        if not elements:
+            return "Unknown"
+        counts: Dict[str, int] = {}
+        for el in elements:
+            counts[el] = counts.get(el, 0) + 1
+        if "O" in counts:
+            non_oxides = [el for el in elements if el != "O"]
+            if non_oxides:
+                primary = non_oxides[0]
+                return f"Oxide_{primary}"
             return "Oxide_Other"
         else:
-            # For non-oxides, group by primary element
-            primary = sorted(elements, key=lambda x: comp[x])[0]
-            return f"Material_{primary.symbol}"
+            primary = elements[0]
+            return f"Material_{primary}"
     except Exception as e:
-        logger.warning(f"Could not parse composition {composition_str}: {e}")
+        logger.error(f"Failed to derive composition family for '{composition_str}': {e}")
         return "Unknown"
 
-def download_stratified_sample(output_path: Optional[str] = None) -> Path:
+def download_stratified_sample() -> Path:
     """
-    Download a stratified sample of the OC20 dataset from HuggingFace.
-    
-    Args:
-        output_path: Optional path to save the file. Defaults to OUTPUT_PATH.
-    
-    Returns:
-        Path to the downloaded file.
-    
-    Raises:
-        RuntimeError: If download fails or dataset is unavailable.
+    Streams the OC20 dataset, extracts composition, performs proportional 
+    stratified sampling, and writes the result to Parquet.
     """
-    if output_path is None:
-        output_path = get_project_root() / OUTPUT_PATH
-    else:
-        output_path = get_project_root() / output_path
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Downloading stratified sample of {DATASET_ID}...")
-    logger.info(f"Output path: {output_path}")
-    
+    logger.info(f"Streaming OC20 dataset from HuggingFace: {OC20_DATASET}")
     try:
-        # Load dataset with streaming
-        dataset = load_dataset(
-            DATASET_ID,
-            streaming=True,
-            trust_remote_code=True
-        )
-        
-        # Get the split (assuming 'train' or 's2ef' split exists)
-        # OC20 experimental might have different splits
-        splits = list(dataset.keys())
-        if not splits:
-            raise RuntimeError(f"No splits found in dataset {DATASET_ID}")
-        
-        # Use the first available split
-        split_name = splits[0]
-        logger.info(f"Using split: {split_name}")
-        
-        split_dataset = dataset[split_name]
-        
-        # Derive composition family for stratification
-        logger.info("Deriving composition families for stratification...")
-        
-        # Collect all items with their composition families
-        items_with_families = []
-        for idx, item in enumerate(split_dataset):
-            composition_str = item.get('composition', item.get('formula', str(idx)))
-            family = derive_composition_family(composition_str)
-            items_with_families.append((item, family))
-            
-            # Log progress every 1000 items
-            if (idx + 1) % 1000 == 0:
-                logger.info(f"Processed {idx + 1} items...")
-            
-            # Stop if we have enough items for stratification
-            if idx > 10000:  # Limit initial scan for efficiency
-                break
-        
-        # Group items by family
-        family_groups: Dict[str, List[Tuple[dict, str]]] = {}
-        for item, family in items_with_families:
-            if family not in family_groups:
-                family_groups[family] = []
-            family_groups[family].append((item, family))
-        
-        logger.info(f"Found {len(family_groups)} composition families")
-        
-        # Stratified sampling: take proportional samples from each family
-        sampled_items = []
-        total_target = SAMPLE_SIZE
-        
-        # Calculate sample size per family
-        total_items = len(items_with_families)
-        for family, items in family_groups.items():
-            family_size = len(items)
-            # Proportional allocation
-            sample_size = max(1, int((family_size / total_items) * total_target))
-            # Take the first sample_size items from this family
-            sampled_items.extend([item for item, _ in items[:sample_size]])
-        
-        logger.info(f"Sampled {len(sampled_items)} items for stratified sample")
-        
-        if not sampled_items:
-            raise RuntimeError("No items sampled - dataset may be empty or inaccessible")
-        
-        # Write to HDF5 file
-        logger.info(f"Writing {len(sampled_items)} items to {output_path}...")
-        with h5py.File(output_path, 'w') as hf:
-            # Create datasets for each field
-            # We'll store the data as JSON strings for simplicity
-            # In a real implementation, we'd use more efficient storage
-            
-            # Determine all unique keys
-            all_keys = set()
-            for item in sampled_items:
-                all_keys.update(item.keys())
-            
-            # Create datasets
-            for key in all_keys:
-                data = [str(item.get(key, '')) for item in sampled_items]
-                if data:
-                    hf.create_dataset(key, data=data)
-            
-            # Store metadata
-            hf.attrs['dataset_id'] = DATASET_ID
-            hf.attrs['split'] = split_name
-            hf.attrs['sample_size'] = len(sampled_items)
-            hf.attrs['composition_families'] = json.dumps(list(family_groups.keys()))
-        
-        logger.info(f"Successfully downloaded and saved {len(sampled_items)} items")
-        
-        # Compute and save checksum
-        checksum = compute_file_hash(output_path)
-        save_checksum(FILE_NAME, checksum)
-        logger.info(f"Checksum saved: {checksum}")
-        
-        return output_path
-        
+        # Using trust_remote_code=False as per modern datasets API for public datasets
+        dataset = load_dataset(OC20_DATASET, split="train", streaming=True)
     except Exception as e:
-        logger.error(f"Failed to download dataset: {e}")
-        raise RuntimeError(f"Failed to download dataset {DATASET_ID}: {e}")
+        raise RuntimeError(f"Failed to load OC20 dataset via `datasets`: {e}") from e
 
-def verify_downloaded_data(filepath: Path, expected_checksum: Optional[str] = None) -> bool:
+    rows: List[Dict[str, Any]] = []
+    for i, example in enumerate(dataset):
+        rows.append(example)
+        if i + 1 >= BUFFER_SIZE:
+            break
+
+    if not rows:
+        raise RuntimeError("No rows were retrieved from the OC20 stream.")
+
+    df = pd.DataFrame(rows)
+
+    # Extract composition from structure if not present directly
+    if "composition" not in df.columns:
+        if "structure" in df.columns:
+            def _extract_formula(struct):
+                if not isinstance(struct, dict): return "Unknown"
+                return struct.get("formula_pretty") or struct.get("formula") or "Unknown"
+            df["composition"] = df["structure"].apply(_extract_formula)
+        else:
+            logger.warning("No composition information found; filling with placeholder 'Unknown'.")
+            df["composition"] = "Unknown"
+
+    df["_family"] = df["composition"].apply(derive_composition_family)
+
+    sampled_frames = []
+    total = len(df)
+    for family, group in df.groupby("_family"):
+        frac = len(group) / total
+        n_take = max(1, int(round(frac * SAMPLE_SIZE)))
+        n_take = min(n_take, len(group))
+        sampled_frames.append(group.sample(n=n_take, random_state=42))
+
+    sampled_df = pd.concat(sampled_frames).reset_index(drop=True)
+
+    # Fill remaining slots if sampling didn't reach SAMPLE_SIZE
+    if len(sampled_df) < SAMPLE_SIZE and len(df) > len(sampled_df):
+        remaining = SAMPLE_SIZE - len(sampled_df)
+        # Use indices not already in sampled_df
+        remaining_pool = df.drop(sampled_df.index)
+        extra = remaining_pool.sample(
+            n=min(remaining, len(remaining_pool)),
+            random_state=42,
+        )
+        sampled_df = pd.concat([sampled_df, extra]).reset_index(drop=True)
+
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    sampled_df.drop(columns=["_family"]).to_parquet(PARQUET_FILE, index=False)
+    
+    save_checksum(PARQUET_FILE.name, compute_file_hash(PARQUET_FILE))
+    return PARQUET_FILE
+
+# ----------------------------------------------------------------------
+# Materials Project descriptor download
+# ----------------------------------------------------------------------
+def download_mp_descriptors(compositions: List[str]) -> Path:
     """
-    Verify the integrity of the downloaded file.
-    
-    Args:
-        filepath: Path to the downloaded file.
-        expected_checksum: Optional expected checksum. If None, loads from checksum file.
-    
-    Returns:
-        True if verification passes, False otherwise.
-    
-    Raises:
-        RuntimeError: If file doesn't exist or checksum verification fails.
+    Retrieves bulk electronic descriptors from the Materials Project for the
+    supplied list of compositions.
     """
-    if not filepath.exists():
-        raise RuntimeError(f"Downloaded file not found: {filepath}")
-    
-    actual_checksum = compute_file_hash(filepath)
-    
-    if expected_checksum is None:
-        checksums = load_expected_checksums()
-        expected_checksum = checksums.get(FILE_NAME)
-    
-    if expected_checksum is None:
-        logger.warning("No expected checksum found, skipping verification")
-        return True
-    
-    if actual_checksum != expected_checksum:
+    api_key = os.getenv("MP_API_KEY")
+    if not api_key:
         raise RuntimeError(
-            f"Checksum verification failed for {filepath}. "
-            f"Expected: {expected_checksum}, Actual: {actual_checksum}"
+            "MP_API_KEY environment variable not set. Materials Project descriptors "
+            "cannot be fetched without a valid API key."
         )
-    
-    logger.info("Checksum verification passed")
-    return True
 
-def handle_excluded_datasets(excluded_datasets: List[str]) -> None:
-    """
-    Log information about excluded datasets.
-    
-    Args:
-        excluded_datasets: List of dataset names that were excluded.
-    """
-    if excluded_datasets:
-        logger.info("Excluded datasets:")
-        for ds in excluded_datasets:
-            logger.info(f"  - {ds}")
+    logger.info(f"Fetching MP bulk descriptors for {len(set(compositions))} unique compositions.")
+    descriptors: Dict[str, Dict[str, Any]] = {}
 
-def main():
-    """Main entry point for downloading the OC20 dataset."""
+    with MPRester(api_key) as mpr:
+        for comp in set(compositions):
+            try:
+                # Search for summary data including electronic descriptors
+                results = mpr.summary.search(
+                    formula=comp,
+                    fields=["material_id", "formula_pretty", "d_band_center", "p_band_center", "bader_charges"],
+                )
+                if results:
+                    entry = results[0]
+                    descriptors[comp] = {
+                        "material_id": str(getattr(entry, "material_id", None)),
+                        "formula_pretty": getattr(entry, "formula_pretty", comp),
+                        "d_band_center": getattr(entry, "d_band_center", None),
+                        "p_band_center": getattr(entry, "p_band_center", None),
+                        "bader_charges": getattr(entry, "bader_charges", None),
+                    }
+                else:
+                    descriptors[comp] = {
+                        "material_id": None,
+                        "formula_pretty": comp,
+                        "d_band_center": None,
+                        "p_band_center": None,
+                        "bader_charges": None,
+                    }
+            except Exception as e:
+                logger.error(f"Failed to retrieve MP data for composition '{comp}': {e}")
+                # We raise here to fail loudly as per constraints
+                raise RuntimeError(f"MP descriptor fetch failed for composition {comp}") from e
+
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    with open(MP_DESCRIPTORS_FILE, "w") as f:
+        json.dump(descriptors, f, indent=2)
+
+    save_checksum(MP_DESCRIPTORS_FILE.name, compute_file_hash(MP_DESCRIPTORS_FILE))
+    return MP_DESCRIPTORS_FILE
+
+# ----------------------------------------------------------------------
+# Required columns description
+# ----------------------------------------------------------------------
+def write_required_columns() -> Path:
+    """Writes a JSON file describing the mandatory columns for the unified DataFrame."""
+    required_columns = [
+        "catalyst_id", "composition", "surface_facet", "synthesis_condition",
+        "d_band_center", "p_band_center", "bader_charges", "activation_barrier",
+        "reaction_energy", "experimental_tof", "temperature", "pressure",
+    ]
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    with open(REQUIRED_COLUMNS_FILE, "w") as f:
+        json.dump(required_columns, f, indent=2)
+
+    save_checksum(REQUIRED_COLUMNS_FILE.name, compute_file_hash(REQUIRED_COLUMNS_FILE))
+    return REQUIRED_COLUMNS_FILE
+
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
+def main() -> int:
+    """Executes the full FR-001 data acquisition pipeline."""
     try:
-        # Download the stratified sample
-        output_path = download_stratified_sample()
+        parquet_path = download_stratified_sample()
+        df_sample = pd.read_parquet(parquet_path)
+        comps = df_sample["composition"].dropna().astype(str).tolist()
+        if not comps:
+            raise RuntimeError("No composition information found in OC20 sample.")
         
-        # Verify the downloaded data
-        verify_downloaded_data(output_path)
-        
-        logger.info("Data download and verification completed successfully")
+        download_mp_descriptors(comps)
+        write_required_columns()
+
+        logger.info("All data acquisition steps completed successfully.")
         return 0
-        
-    except Exception as e:
-        logger.error(f"Failed to download data: {e}")
+    except Exception as exc:
+        logger.error(f"Data acquisition failed: {exc}", exc_info=True)
         return 1
 
 if __name__ == "__main__":

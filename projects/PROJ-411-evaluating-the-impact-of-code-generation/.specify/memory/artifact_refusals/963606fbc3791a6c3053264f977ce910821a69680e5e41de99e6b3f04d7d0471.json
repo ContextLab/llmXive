@@ -1,0 +1,7 @@
+{
+  "task_id": "T003",
+  "fingerprint": "b5b230ecd2c4cb3ab2878a0f840b112945560c315c8ecbbd139f36e9318b8815",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/compute_metrics.py': SyntaxError at line 47: '(' was never closed. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 6868"
+}

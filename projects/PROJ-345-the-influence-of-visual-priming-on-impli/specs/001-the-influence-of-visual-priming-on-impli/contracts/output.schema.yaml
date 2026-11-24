@@ -23,7 +23,7 @@ properties:
     type: "array"
     items:
       type: "string"
-    description: "List of optimizer settings attempted"
+    description: "List of optimizer settings attempted (up to 3)"
 required:
   - convergence_rate
   - total_attempts

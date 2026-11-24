@@ -1,0 +1,38 @@
+T001:
+  reason: 'Requested task execution failed; rerun successfully: src/data/download.py
+    exit=1; src/data/preprocess.py exit=1'
+  task: febcef115ef02b8a610c2bab9b95210f1e3e5ae53021a2add02bb6cc8a63e07b
+T002:
+  reason: 'Requested task execution failed; rerun successfully: src/data/preprocess.py
+    exit=1'
+  task: 52325a2efe1fa759d395464e4a1a76f5397c06156be89f7d7b9b0a6dd9537490
+T003:
+  reason: 'Requested task execution failed; rerun successfully: src/data/faiss_builder.py
+    exit=1'
+  task: aaaaff9f9ccbe5b9fab1fa6239100d866a5dd1444b606a3f09435d1e8616b16c
+T004:
+  task: 579edbc7f5e11986b1fb24a99d7b067cffb5639e055adf1785862dde8be93e3a
+T005:
+  task: a8b56b443e653d33c372b46a1108edb3bc1a09e365e31bda6a383db3d93bc470
+T006:
+  task: ff7ab25e8f5b430e41af012e9ab62911d74eab209014b403c5f49964b75a1ac6
+T007:
+  task: e6302ff721d006f1292cd9c7d248f6c1e6ad97d824d1599dd2bb37852056935d
+T008:
+  task: 7f3b4260cfa318bd5a180363ab83d39efc42845457316b2796fdadc9e1eb2f97
+T009:
+  task: 2c288e82e8f092e5fe3c113f6e1bffe1bc1b31113f2cc6b16bfa3329541a3558
+T010:
+  task: 2547526de00a12994229f6343fc7cfc63768b701e0b9ab13c5cae271a5c5a2da
+T011:
+  task: 2171a511ce6fa1c8548466d525301fa14f6e19e2cb61bce33551571e71d6752a
+T012:
+  task: 2511bb0485f55689e4f95877024543d3308400fd411b0546d51e32b3c235acfc
+T013:
+  task: 386d3feec524eaa44203acf761b883c7115f45ccb58a03782e328eab83670607
+T014:
+  task: 9e3771b0047845b0733e79c0678a18762c5434e40f49d8a299db93d0daa60ddc
+T015:
+  task: 96dbae2d9126f9e42a4a4495b1223e0bced836d0be845b784e2b6cc5f35f51ee
+T016:
+  task: d67dfcf83c924a6e4dece51d8e68b2295da2e4531bd50dd5bc57970e5a3b4cb8

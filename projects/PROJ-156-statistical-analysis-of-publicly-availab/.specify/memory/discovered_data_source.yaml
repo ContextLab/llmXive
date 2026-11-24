@@ -1,12 +1,9 @@
 status: none
-intent: speedrun.com runs data download using speedrun API python package dataset
-required_fields:
-- game_id
-- run_time_seconds
-- runner_id
-- attempt_number
-- category
-- submission_date
-cache_key: b8b1f75d79a5883f7e2f6fd488de87f9ff084be0995658a602dc3375ff86af27
-searched_at: '2026-10-05T10:14:25.248029+00:00'
-retry_count: 1
+intent: "### User Story 1 - Data Acquisition and Preprocessing (Priority: P1) As a\
+  \ researcher, I want to download and clean speedrun data from speedrun.com for multiple\
+  \ games so that I have a validated dataset ready for statistical analysis. **Why\
+  \ this priority**: This is the foundational step\u2014without clean,"
+required_fields: []
+cache_key: ff9e3842a3d303981830c7d27e98a15b3899feb9d7767e1d4fecb6cedf7d6fca
+searched_at: '2026-11-21T10:29:11.203160+00:00'
+retry_count: 2

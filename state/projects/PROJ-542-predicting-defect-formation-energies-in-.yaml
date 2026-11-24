@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-542-predicting-defect-formation-energies-in-
-last_run_id: 98ff62d7-7c85-4a63-8db3-6fa12fc423ee
+last_run_id: 83f71fa5-b112-4617-b5d7-16f65e4f0500
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-542-predicting-defect-formation-energies-in-/specs/001-predicting-defect-formation-energies-in
 title: Predicting Defect Formation Energies in Perovskites with Machine Learning
-updated_at: '2026-09-09T09:22:38.770502Z'
+updated_at: '2026-10-22T18:48:16.044084Z'
