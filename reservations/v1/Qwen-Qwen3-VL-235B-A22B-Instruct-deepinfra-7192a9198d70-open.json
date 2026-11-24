@@ -1,0 +1,13 @@
+{
+  "budget_epoch": "2026-11",
+  "created_at": "2026-11-24T00:34:12.492814+00:00",
+  "event_id": "Qwen-Qwen3-VL-235B-A22B-Instruct-deepinfra-7192a9198d70-open",
+  "lease_expires_at": "2026-11-24T00:41:12.492814+00:00",
+  "model": "Qwen/Qwen3-VL-235B-A22B-Instruct:deepinfra",
+  "owner": "4ae665690d764c498cec82addff88437",
+  "reservation_id": "Qwen-Qwen3-VL-235B-A22B-Instruct-deepinfra-7192a9198d70",
+  "settlement_baseline": 0.0005967249,
+  "ts": "2026-11-24T00:34:12.492814+00:00",
+  "type": "open",
+  "worst_case_credits": 0.0013235200000000001
+}
