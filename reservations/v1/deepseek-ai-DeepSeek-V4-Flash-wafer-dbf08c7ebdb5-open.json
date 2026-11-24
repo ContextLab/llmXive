@@ -1,0 +1,13 @@
+{
+  "budget_epoch": "2026-11",
+  "created_at": "2026-11-24T15:00:28.638570+00:00",
+  "event_id": "deepseek-ai-DeepSeek-V4-Flash-wafer-dbf08c7ebdb5-open",
+  "lease_expires_at": "2026-11-24T15:07:28.638570+00:00",
+  "model": "deepseek-ai/DeepSeek-V4-Flash:wafer",
+  "owner": "f6bd1f122bef4827a133de620761c5cc",
+  "reservation_id": "deepseek-ai-DeepSeek-V4-Flash-wafer-dbf08c7ebdb5",
+  "settlement_baseline": 0.4428412463999999,
+  "ts": "2026-11-24T15:00:28.638570+00:00",
+  "type": "open",
+  "worst_case_credits": 0.02482708
+}
