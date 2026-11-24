@@ -93,7 +93,7 @@ D. Bolt a Hugging Face fallback onto `main`'s pinned router. Fastest, but a seco
 ### 5.1 Backend
 `src/llmxive/backends/huggingface.py`: `HuggingFaceBackend(BaseBackend)`, registered in
 `router._REGISTRY` as `"huggingface"`. OpenAI-compatible chat against the router with the
-bill-to header; reuses the existing shared pieces (`invoke_with_deadline`, the
+bill-to header; reuses the existing shared pieces (the deadline runners in `base.py`, the
 transient/permanent error taxonomy, the circuit breaker, empty-reply detection) rather
 than copying Dartmouth's. `model_id` is sent as `<repo id>:<provider>` so the provider
 that was priced is the provider that is billed (a pinned provider is never silently
@@ -102,6 +102,24 @@ replaced). HTTP 402 maps to `BackendUnavailable` (allowance or group limit reach
 Credentials: `credentials.load_hf_token()` — env `HF_TOKEN`, then Keychain; never the
 plaintext Hub cache, never logged. The bill-to id comes from `LLMXIVE_HF_BILL_TO`
 (Actions variable; not a secret) with no default, so a missing id fails closed.
+
+**Streamed replies (revised 2026-11-24).** The first version sent `"stream": false`
+under a fixed 360 s wall-clock deadline (`invoke_with_deadline`). In a 2026-11-24
+pipeline run the implementer's long code-writing calls failed 8 of 11 times: one
+candidate passed the 360 s deadline and the other answered HTTP 504 Gateway Time-out;
+a direct non-streamed probe reproduced the 504 at 120 s. The backend now requests a
+server-sent-events stream with `stream_options: {"include_usage": true}` and assembles
+it, under `base.invoke_with_idle_deadline`: `LLMXIVE_HF_DEADLINE_S` (default 360 s)
+bounds silence (the wait for the first data and every gap after it, reasoning deltas
+counting as data) and `LLMXIVE_HF_TOTAL_DEADLINE_S` (default 1800 s) bounds a reply
+that is still arriving; either one raises `DeadlineExceededError` and stops the
+abandoned stream. Usage is read from the final chunk (empty `choices`, sent before
+`data: [DONE]`); when it is missing the counts stay `None` and the ledger charges the
+full reservation, as before. A stream that closes without a `finish_reason` or
+`[DONE]`, or carries an `error` object, is a `TransientBackendError`, never a partial
+reply. A provider that replies with a plain JSON body is parsed as before. The funded
+hold's lease is renewed by its heartbeat for as long as the call runs, so a reply
+longer than the idle deadline keeps its hold.
 
 ### 5.2 Catalog component
 `snapshot._fetch_huggingface()` adds component `"hf_catalog"` (own provenance + LKG, like

@@ -1,6 +1,8 @@
 """HuggingFaceBackend against a real local HTTP server replaying recorded router bodies."""
 
 import json
+import threading
+import time
 from pathlib import Path
 
 import pytest
@@ -9,6 +11,7 @@ from llmxive.backends.base import (
     BackendCredentialError,
     BackendUnavailable,
     ChatMessage,
+    DeadlineExceededError,
     EmptyReplyError,
     PermanentBackendError,
     TransientBackendError,
@@ -19,10 +22,11 @@ from llmxive.backends.huggingface import (
     HuggingFaceBackend,
     PreInferenceRejection,
     fetch_router_catalog,
+    request_was_sent,
 )
 from llmxive.backends.router import make_backend
 from llmxive.types import BackendName
-from tests.helpers.replay_server import ReplayServer
+from tests.helpers.replay_server import ReplayServer, Stream
 
 _FIX = Path(__file__).parents[1] / "fixtures" / "hf_funded"
 
@@ -46,7 +50,8 @@ def test_chat_sends_pinned_provider_and_bill_to():
         r = _be(srv).chat(MSG, model=M, max_tokens=64, temperature=0.0)
     req = srv.requests[0]
     assert req["headers"]["x-hf-bill-to"] == "grp123" and req["headers"]["authorization"] == "Bearer hf_t"
-    assert req["json"]["model"] == M and req["json"]["max_tokens"] == 64 and req["json"]["stream"] is False
+    assert req["json"]["model"] == M and req["json"]["max_tokens"] == 64 and req["json"]["stream"] is True
+    assert req["json"]["stream_options"] == {"include_usage": True}
     assert r.backend == "huggingface" and r.model == M and r.text == "ok"
     assert (r.input_tokens, r.output_tokens) == (OK[1]["usage"]["prompt_tokens"], OK[1]["usage"]["completion_tokens"])
 
@@ -288,3 +293,141 @@ def test_breaker_creation_is_race_free_under_threads():
     finally:
         sys.setswitchinterval(old)
     assert all(rounds), f"{rounds.count(False)} of {len(rounds)} rounds built more than one breaker"
+
+
+# --- streamed replies (long generations) ------------------------------------------
+# The router streams server-sent events when asked (``stream: true``); with
+# ``stream_options.include_usage`` an extra chunk with empty ``choices`` carries the
+# whole request's usage just before ``data: [DONE]``. Long code-writing replies took
+# longer than the old fixed total deadline, so the deadline now bounds SILENCE.
+
+def _delta(text=None, *, finish=None, reasoning=None):
+    d = {}
+    if text is not None:
+        d["content"] = text
+    if reasoning is not None:
+        d["reasoning_content"] = reasoning
+    return Stream.sse({"choices": [{"index": 0, "delta": d, "finish_reason": finish}], "usage": None})
+
+
+_USAGE = Stream.sse({"choices": [], "usage": {"prompt_tokens": 11, "completion_tokens": 7, "total_tokens": 18}})
+_DONE = Stream.sse("[DONE]")
+
+
+def test_slow_stream_longer_than_the_deadline_succeeds_with_usage():
+    """Data keeps arriving, so a reply that takes ~4x the deadline completes."""
+    parts = [_delta(reasoning="thinking ")]
+    for i in range(10):
+        parts += [0.25, _delta(f"w{i} ")]
+    parts += [_delta("", finish="stop"), _USAGE, _DONE]
+    with ReplayServer({("POST", "/chat/completions"): [(200, Stream(parts))]}) as srv:
+        t = time.monotonic()
+        r = _be(srv).chat(MSG, model=M, deadline_s=0.6)
+        elapsed = time.monotonic() - t
+    assert elapsed > 2.0  # really did outlast the 0.6 s deadline
+    assert r.text == "".join(f"w{i} " for i in range(10))
+    assert (r.input_tokens, r.output_tokens) == (11, 7)
+    assert srv.requests[0]["json"]["stream"] is True
+
+
+def test_stream_that_goes_silent_times_out_and_is_abandoned():
+    s = Stream([_delta("a"), 3.0] + [_delta("b"), 0.05] * 40)
+    with ReplayServer({("POST", "/chat/completions"): [(200, s)]}) as srv:
+        t = time.monotonic()
+        with pytest.raises(DeadlineExceededError, match="went silent") as ei:
+            _be(srv).chat(MSG, model=M, deadline_s=0.5)
+        assert time.monotonic() - t < 2.0
+        assert s.disconnected.wait(10)  # the abandoned worker stopped reading and closed
+    assert request_was_sent(ei.value)
+
+
+def test_silent_server_still_times_out_before_any_data():
+    release = threading.Event()
+
+    def hang(req):
+        release.wait(10)
+        return OK
+
+    with ReplayServer({("POST", "/chat/completions"): hang}) as srv:
+        try:
+            with pytest.raises(DeadlineExceededError, match="no response received"):
+                _be(srv).chat(MSG, model=M, deadline_s=0.5)
+        finally:
+            release.set()
+
+
+def test_stream_past_the_total_deadline_is_stopped(monkeypatch):
+    monkeypatch.setenv("LLMXIVE_HF_TOTAL_DEADLINE_S", "1.0")
+    s = Stream([_delta("x"), 0.1] * 60)
+    with ReplayServer({("POST", "/chat/completions"): [(200, s)]}) as srv:
+        t = time.monotonic()
+        with pytest.raises(DeadlineExceededError, match="total deadline"):
+            _be(srv).chat(MSG, model=M, deadline_s=0.5)
+        assert time.monotonic() - t < 2.5
+        assert s.disconnected.wait(10)
+
+
+def test_stream_without_usage_reports_none_so_the_ledger_charges_the_hold():
+    s = Stream([_delta("hi"), _delta(None, finish="stop"), _DONE])
+    with ReplayServer({("POST", "/chat/completions"): [(200, s)]}) as srv:
+        r = _be(srv).chat(MSG, model=M)
+    assert r.text == "hi" and (r.input_tokens, r.output_tokens) == (None, None)
+
+
+def test_truncated_stream_is_transient_not_a_partial_reply():
+    s = Stream([_delta("half a rep")])  # connection closes: no finish_reason, no [DONE]
+    with ReplayServer({("POST", "/chat/completions"): [(200, s)]}) as srv:
+        with pytest.raises(TransientBackendError, match="ended before"):
+            _be(srv).chat(MSG, model=M)
+
+
+def test_error_event_inside_a_stream_is_transient_and_secret_free():
+    s = Stream([_delta("a"), Stream.sse({"error": {"message": "upstream overloaded hf_t grp123"}})])
+    with ReplayServer({("POST", "/chat/completions"): [(200, s)]}) as srv:
+        with pytest.raises(TransientBackendError, match="upstream overloaded") as ei:
+            _be(srv).chat(MSG, model=M)
+    assert "hf_t" not in str(ei.value) and "grp123" not in str(ei.value)
+
+
+def test_streamed_empty_reply_keeps_the_empty_and_length_classes():
+    def empty(fr):
+        return (200, Stream([_delta(reasoning="hmm"), _delta(None, finish=fr), _USAGE, _DONE]))
+
+    with ReplayServer({("POST", "/chat/completions"): [empty("stop"), empty("length")]}) as srv:
+        with pytest.raises(EmptyReplyError):
+            _be(srv).chat(MSG, model=M)
+        with pytest.raises(TransientBackendError, match="reasoning budget exhausted"):
+            _be(srv).chat(MSG, model=M)
+
+
+def test_malformed_stream_chunk_is_a_typed_transient_error():
+    s = Stream([b"data: {not json\n\n"])
+    with ReplayServer({("POST", "/chat/completions"): [(200, s)]}) as srv:
+        with pytest.raises(TransientBackendError, match="malformed stream"):
+            _be(srv).chat(MSG, model=M)
+
+
+def test_recorded_router_stream_replays():
+    """A real router SSE body (scripts/hf/capture_fixtures.py), replayed byte for byte."""
+    fx = _load("chat_stream_200.json")
+    raw = fx["payload_sse"].encode()
+    with ReplayServer({("POST", "/chat/completions"): [(200, Stream([raw]))]}) as srv:
+        r = _be(srv).chat(MSG, model=M)
+    assert r.text.strip() == fx["expected_text"]
+    assert (r.input_tokens, r.output_tokens) == (fx["expected_usage"]["prompt_tokens"],
+                                                 fx["expected_usage"]["completion_tokens"])
+
+
+def test_error_text_removes_a_secret_that_straddles_the_length_limit() -> None:
+    """Shortening before redaction would leave the first part of the secret."""
+    import httpx
+
+    from llmxive.backends import huggingface as hf
+
+    secret = "hf_" + "s3cr3t" * 6
+    pad = "x" * (hf._MAX_ERROR_CHARS - 5)
+    resp = httpx.Response(500, json={"error": {"message": f"{pad}{secret} tail"}})
+    text = hf._error_text(resp, (secret,))
+    assert secret[:8] not in text
+    assert len(text) <= hf._MAX_ERROR_CHARS
+    assert hf._safe_error_text(f"{pad}{secret}", (secret,)) == pad + "<reda"

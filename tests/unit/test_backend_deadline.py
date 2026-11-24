@@ -16,7 +16,12 @@ import time
 
 import pytest
 
-from llmxive.backends.base import TransientBackendError, invoke_with_deadline
+from llmxive.backends.base import (
+    DeadlineExceededError,
+    TransientBackendError,
+    invoke_with_deadline,
+    invoke_with_idle_deadline,
+)
 
 
 def test_returns_value_on_fast_success() -> None:
@@ -87,3 +92,68 @@ def test_abandoned_worker_is_daemon_and_does_not_block_exit() -> None:
     # Let it finish so we don't leak it past the test.
     release.set()
     assert ran_to_completion.wait(timeout=5.0), "abandoned worker never completed"
+
+
+# --- invoke_with_idle_deadline: bounds silence, not length -------------------------
+
+def _ticker(n: int, gap: float, seen: list[int] | None = None):
+    def fn(progress):
+        for i in range(n):
+            time.sleep(gap)
+            progress()
+            if seen is not None:
+                seen.append(i)
+        return "done"
+    return fn
+
+
+def test_idle_deadline_lets_steady_progress_outlast_it() -> None:
+    t = time.monotonic()
+    assert invoke_with_idle_deadline(_ticker(8, 0.1), idle_timeout=0.4, total_timeout=10, description="t") == "done"
+    assert time.monotonic() - t > 0.7  # longer than the idle deadline, still fine
+
+
+def test_idle_deadline_fires_on_silence_before_any_progress() -> None:
+    with pytest.raises(DeadlineExceededError, match="no response received"):
+        invoke_with_idle_deadline(lambda progress: time.sleep(5), idle_timeout=0.3, total_timeout=10,
+                                  description="silent")
+
+
+def test_idle_deadline_fires_on_silence_mid_stream_and_stops_the_worker() -> None:
+    seen: list[int] = []
+
+    def fn(progress):
+        progress()
+        time.sleep(0.8)  # silent past the idle deadline
+        for i in range(50):
+            progress()  # raises once abandoned: the worker stops here
+            seen.append(i)
+        return "late"
+
+    t = time.monotonic()
+    with pytest.raises(DeadlineExceededError, match="went silent"):
+        invoke_with_idle_deadline(fn, idle_timeout=0.3, total_timeout=10, description="stall")
+    assert time.monotonic() - t < 0.7
+    time.sleep(0.8)
+    assert seen == []
+
+
+def test_total_deadline_stops_a_reply_that_keeps_arriving() -> None:
+    seen: list[int] = []
+    t = time.monotonic()
+    with pytest.raises(DeadlineExceededError, match="total deadline"):
+        invoke_with_idle_deadline(_ticker(1000, 0.02, seen), idle_timeout=1.0, total_timeout=0.5,
+                                  description="endless")
+    assert time.monotonic() - t < 0.9
+    stopped_at = len(seen)
+    time.sleep(0.2)
+    assert len(seen) <= stopped_at + 1  # the abandoned worker stopped at its next progress()
+
+
+def test_idle_deadline_reraises_the_callable_exception() -> None:
+    def fn(progress):
+        progress()
+        raise TransientBackendError("boom")
+
+    with pytest.raises(TransientBackendError, match="boom"):
+        invoke_with_idle_deadline(fn, idle_timeout=1.0, total_timeout=2.0, description="err")

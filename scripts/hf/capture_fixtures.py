@@ -14,8 +14,12 @@ Writes six files under ``tests/fixtures/hf_funded/``, each shaped
   the 403 one naming an unknown resource group, neither billed). Needs ``HF_TOKEN``/Keychain
   (via ``credentials.load_hf_token``) and ``LLMXIVE_HF_BILL_TO``; neither value is
   written anywhere.
+- ``chat_stream_200.json``: only with ``--stream`` (one billed streamed call of at most
+  64 tokens, ``stream: true`` with ``stream_options.include_usage``). ``payload_sse`` is
+  the raw server-sent-events body; ``expected_text`` and ``expected_usage`` are read
+  from it. ``--stream`` captures only this file and leaves the others untouched.
 
-Usage: ``python scripts/hf/capture_fixtures.py [--with-chat]``
+Usage: ``python scripts/hf/capture_fixtures.py [--with-chat | --stream]``
 """
 
 from __future__ import annotations
@@ -139,11 +143,48 @@ def capture_chat(client: httpx.Client, catalog: dict) -> None:
         _write(name, url, r.status_code, payload, provenance="recorded")
 
 
+def capture_stream(client: httpx.Client, catalog: dict) -> None:
+    sys.path.insert(0, str(ROOT / "src"))
+    from llmxive.credentials import load_hf_token
+
+    token, bill_to = load_hf_token(), os.environ.get("LLMXIVE_HF_BILL_TO")
+    if not token or not bill_to:
+        raise SystemExit("--stream needs the HF token and LLMXIVE_HF_BILL_TO")
+    body = {"model": _cheapest_live_model(catalog), "max_tokens": 64, "stream": True,
+            "stream_options": {"include_usage": True},
+            "messages": [{"role": "user", "content": "Reply with the single word: ok"}]}
+    url = f"{ROUTER}/chat/completions"
+    headers = {"Authorization": f"Bearer {token}", "X-HF-Bill-To": bill_to}
+    with client.stream("POST", url, json=body, headers=headers) as r:
+        raw = r.read().decode()
+        status, ctype = r.status_code, r.headers.get("content-type", "")
+    if status != 200 or not ctype.startswith("text/event-stream"):
+        raise SystemExit(f"streamed capture failed: HTTP {status} {ctype}")
+    text, usage = [], None
+    for line in raw.splitlines():
+        data = line[5:].strip() if line.startswith("data:") else ""
+        if not data or data == "[DONE]":
+            continue
+        chunk = json.loads(data)
+        usage = chunk.get("usage") or usage
+        for ch in chunk.get("choices") or []:
+            text.append((ch.get("delta") or {}).get("content") or "")
+    FIXTURES.mkdir(parents=True, exist_ok=True)
+    doc = {"captured_at": dt.date.today().isoformat(), "source_url": url, "status": status,
+           "provenance": "recorded", "model": body["model"], "content_type": ctype,
+           "expected_text": "".join(text).strip(), "expected_usage": usage, "payload_sse": raw}
+    (FIXTURES / "chat_stream_200.json").write_text(json.dumps(doc, indent=1) + "\n")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--with-chat", action="store_true")
+    ap.add_argument("--stream", action="store_true", help="capture only chat_stream_200.json")
     args = ap.parse_args()
     with httpx.Client(headers=UA, timeout=60) as client:
+        if args.stream:
+            capture_stream(client, client.get(f"{ROUTER}/models").raise_for_status().json())
+            return
         catalog = capture_router(client)
         for cat in ARENA:
             capture_arena(client, cat)
