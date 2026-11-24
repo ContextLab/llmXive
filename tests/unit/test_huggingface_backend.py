@@ -416,3 +416,18 @@ def test_recorded_router_stream_replays():
     assert r.text.strip() == fx["expected_text"]
     assert (r.input_tokens, r.output_tokens) == (fx["expected_usage"]["prompt_tokens"],
                                                  fx["expected_usage"]["completion_tokens"])
+
+
+def test_error_text_removes_a_secret_that_straddles_the_length_limit() -> None:
+    """Shortening before redaction would leave the first part of the secret."""
+    import httpx
+
+    from llmxive.backends import huggingface as hf
+
+    secret = "hf_" + "s3cr3t" * 6
+    pad = "x" * (hf._MAX_ERROR_CHARS - 5)
+    resp = httpx.Response(500, json={"error": {"message": f"{pad}{secret} tail"}})
+    text = hf._error_text(resp, (secret,))
+    assert secret[:8] not in text
+    assert len(text) <= hf._MAX_ERROR_CHARS
+    assert hf._safe_error_text(f"{pad}{secret}", (secret,)) == pad + "<reda"

@@ -144,13 +144,21 @@ def _error_text(resp: httpx.Response, secrets: Iterable[str]) -> str:
     except ValueError:
         body = resp.text
     err = body.get("error", body) if isinstance(body, dict) else body
+    return _safe_error_text(err, secrets)
+
+
+def _safe_error_text(err: Any, secrets: Iterable[str]) -> str:
+    """``err`` (string or ``{"message"|"type"}`` object) as a short message with
+    every secret removed. Secrets are removed from the WHOLE text before it is
+    shortened: shortening first could cut a secret in two and leave its first
+    part in the message."""
     if isinstance(err, dict):
         err = err.get("message") or err.get("type") or ""
-    text = str(err)[:_MAX_ERROR_CHARS]
+    text = str(err)
     for secret in secrets:
         if secret:
             text = text.replace(secret, "<redacted>")
-    return text
+    return text[:_MAX_ERROR_CHARS]
 
 
 class HuggingFaceBackend(BaseBackend):
@@ -356,13 +364,7 @@ class HuggingFaceBackend(BaseBackend):
                 if not isinstance(chunk, dict):
                     raise TypeError("chunk is not an object")
                 if chunk.get("error") is not None:
-                    err = chunk["error"]
-                    if isinstance(err, dict):
-                        err = err.get("message") or err.get("type") or ""
-                    text = str(err)[:_MAX_ERROR_CHARS]
-                    for secret in secrets:
-                        if secret:
-                            text = text.replace(secret, "<redacted>")
+                    text = _safe_error_text(chunk["error"], secrets)
                     raise TransientBackendError(f"Hugging Face model {model!r}: error in stream: {text}")
                 if chunk.get("usage") is not None:
                     usage = chunk["usage"]
