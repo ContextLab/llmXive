@@ -85,6 +85,30 @@ probes as a health-check loop.
   source Git commit. This is an additional copy; source files were not deleted.
 - The private working bucket is provisioned; its data round trip is not yet tested.
 
+## Routed chat: streamed replies and deadlines
+
+`llmxive.backends.huggingface` requests every chat as a server-sent-events stream
+(`stream: true`, `stream_options: {"include_usage": true}`) and assembles it. Two
+environment variables bound a call:
+
+- `LLMXIVE_HF_DEADLINE_S` (default 360): the longest silence allowed, both before the
+  first data and between data after it. Reasoning deltas count as data.
+- `LLMXIVE_HF_TOTAL_DEADLINE_S` (default 1800): the longest a reply that is still
+  arriving may take.
+
+Passing either raises `DeadlineExceededError` and stops reading the stream. The token
+usage comes from the stream's final chunk; when a provider leaves it out, the funded
+ledger charges the call's full reservation. `capture_fixtures.py --stream` records one
+short real streamed reply as `tests/fixtures/hf_funded/chat_stream_200.json`.
+
+Evidence (2026-11-24), same long code-writing prompt, `max_tokens=30000`:
+`XiaomiMiMo/MiMo-V2.5:deepinfra` without streaming answered HTTP 504 Gateway Time-out
+after 120 s; with streaming it completed in 147 s with 86 input and 30,000 output
+tokens reported. `zai-org/GLM-5.3-Flash:relace` streamed for 533 s (past the old 360 s
+total deadline) without a timeout, but at `max_tokens=60000` it spent the whole budget
+reasoning and returned no content (`finish_reason=length`, classified as reasoning
+budget exhausted); without streaming at `max_tokens=30000` it did the same in 282 s.
+
 ## Funded-provider real-call lane (spec 027, Task 21)
 
 Lane: `tests/real_call/test_hf_funded_real.py`. With Dartmouth made unreachable, each

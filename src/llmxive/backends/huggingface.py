@@ -10,6 +10,18 @@ the router routes to exactly that provider. Every request carries the ``X-HF-Bil
 header naming the resource group that pays (read from ``LLMXIVE_HF_BILL_TO``); without
 it the router answers HTTP 402, so a missing value fails closed before any request.
 
+Replies are requested as a server-sent-events stream (``stream: true`` with
+``stream_options.include_usage``) and assembled here. A non-streamed request kept the
+connection silent until the whole reply was generated: long code-writing replies
+then outlasted the fixed 360 s client deadline, or the provider gateway answered
+HTTP 504 after 120 s (both seen on 2026-11-24; the same request, streamed,
+completed). Streaming keeps data flowing, so the deadline (``LLMXIVE_HF_DEADLINE_S``, default 360 s) now bounds
+silence, and ``LLMXIVE_HF_TOTAL_DEADLINE_S`` (default 1800 s) bounds a reply that is
+still arriving. The usage chunk the stream ends with is reported as the reply's
+token counts; when a provider omits it the counts stay ``None`` and the funded
+ledger charges the full reservation. A provider that answers with a plain JSON body
+instead of a stream is parsed as before.
+
 Exactly one HTTP attempt is made per :meth:`HuggingFaceBackend.chat`; retries and
 fallback belong to the router layer. Neither the token nor the bill-to value is ever
 placed in an exception message.
@@ -17,8 +29,9 @@ placed in an exception message.
 
 from __future__ import annotations
 
+import json
 import os
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from typing import Any
 
 import httpx
@@ -33,7 +46,7 @@ from llmxive.backends.base import (
     EmptyReplyError,
     PermanentBackendError,
     TransientBackendError,
-    invoke_with_deadline,
+    invoke_with_idle_deadline,
     openai_content,
 )
 from llmxive.credentials import load_hf_token
@@ -44,7 +57,12 @@ BILL_TO_HEADER = "X-HF-Bill-To"
 
 #: Reasoning-model deadline applied to every model: the catalog cannot say which
 #: models reason (spec 5.9.4), so none gets the shorter non-reasoning deadline.
+#: Replies are streamed, so this bounds SILENCE: the wait for the first data and
+#: every gap between data after it (``LLMXIVE_HF_DEADLINE_S``).
 _DEFAULT_DEADLINE_S = 360.0
+#: Upper bound on one streamed reply that keeps arriving (``LLMXIVE_HF_TOTAL_DEADLINE_S``).
+_DEFAULT_TOTAL_DEADLINE_S = 1800.0
+_SOCKET_SLACK_S = 5.0
 _MAX_ERROR_CHARS = 300
 
 
@@ -96,6 +114,10 @@ def request_was_sent(exc: BaseException) -> bool:
 
 def _deadline_s() -> float:
     return float(os.environ.get("LLMXIVE_HF_DEADLINE_S", str(_DEFAULT_DEADLINE_S)))
+
+
+def _total_deadline_s() -> float:
+    return float(os.environ.get("LLMXIVE_HF_TOTAL_DEADLINE_S", str(_DEFAULT_TOTAL_DEADLINE_S)))
 
 
 def fetch_router_catalog(*, base_url: str = ROUTER_BASE_URL, timeout: float = 30.0) -> dict:
@@ -201,34 +223,51 @@ class HuggingFaceBackend(BaseBackend):
             payload: dict[str, Any] = {
                 "model": model,
                 "messages": [{"role": m.role, "content": openai_content(m.content)} for m in messages],
-                "stream": False,
+                "stream": True,
+                "stream_options": {"include_usage": True},
             }
             if max_tokens is not None:
                 payload["max_tokens"] = max_tokens
             if temperature is not None:
                 payload["temperature"] = temperature
             headers = {"Authorization": f"Bearer {token}", BILL_TO_HEADER: bill_to}
-            deadline = deadline_s if deadline_s is not None else _deadline_s()
+            idle = deadline_s if deadline_s is not None else _deadline_s()
+            total = max(_total_deadline_s(), idle)
+            secrets = (token, bill_to)
 
-            def _attempt() -> ChatResponse:
+            def _attempt(progress: Callable[[], None]) -> ChatResponse:
                 try:
-                    resp = httpx.post(
+                    with httpx.stream(
+                        "POST",
                         f"{self._base_url}/chat/completions",
                         json=payload,
                         headers=headers,
-                        timeout=deadline,
-                    )
+                        # The idle watchdog below decides; the socket timeout is only a
+                        # backstop that ends an abandoned worker blocked on a read.
+                        timeout=httpx.Timeout(idle + _SOCKET_SLACK_S),
+                    ) as resp:
+                        progress()  # the status line and headers arrived
+                        if resp.status_code != 200:
+                            resp.read()
+                            return self._parse(resp, model, secrets=secrets)
+                        ctype = resp.headers.get("content-type", "")
+                        if not ctype.startswith("text/event-stream"):
+                            resp.read()  # the provider answered without streaming
+                            return self._parse(resp, model, secrets=secrets)
+                        return self._parse_stream(resp, model, progress, secrets=secrets)
                 except httpx.HTTPError as exc:
                     raise TransientBackendError(
                         f"Hugging Face model {model!r}: {type(exc).__name__}"
                     ) from exc
-                return self._parse(resp, model, secrets=(token, bill_to))
 
             def _dispatch() -> ChatResponse:
                 nonlocal started
                 started = True  # from here on a request may leave, whatever happens next
-                return invoke_with_deadline(
-                    _attempt, timeout=deadline, description=f"Hugging Face model {model!r}"
+                return invoke_with_idle_deadline(
+                    _attempt,
+                    idle_timeout=idle,
+                    total_timeout=total,
+                    description=f"Hugging Face model {model!r}",
                 )
 
             return self._breaker(model).call(_dispatch)
@@ -279,16 +318,87 @@ class HuggingFaceBackend(BaseBackend):
             raise TransientBackendError(
                 f"Hugging Face model {model!r}: malformed 200 response"
             ) from exc
+        return self._reply(content, choice.get("finish_reason"), body.get("usage"), model)
+
+    def _parse_stream(
+        self,
+        resp: httpx.Response,
+        model: str,
+        progress: Callable[[], None],
+        *,
+        secrets: tuple[str, ...],
+    ) -> ChatResponse:
+        """Assemble a server-sent-events reply: ``data:`` lines carrying
+        ``chat.completion.chunk`` objects, then ``data: [DONE]``. Text is the
+        concatenated ``delta.content``; the usage is read from the chunk that
+        reports it (``stream_options.include_usage``: an extra chunk with empty
+        ``choices`` just before ``[DONE]``). ``progress()`` is called for every
+        line received, reasoning deltas and keep-alive comments included, so the
+        idle deadline measures silence rather than total length.
+
+        A stream that closes with neither a ``finish_reason`` nor ``[DONE]`` was
+        cut off and is a :class:`TransientBackendError`, never a partial reply; an
+        ``error`` object inside the stream is one too."""
+        pieces: list[str] = []
+        finish: str | None = None
+        usage: Any = None
+        done = False
+        for line in resp.iter_lines():
+            progress()
+            if not line.startswith("data:"):
+                continue  # blank separators, ``:`` comments, ``event:``/``id:`` fields
+            data = line[5:].strip()
+            if data == "[DONE]":
+                done = True
+                break
+            try:
+                chunk = json.loads(data)
+                if not isinstance(chunk, dict):
+                    raise TypeError("chunk is not an object")
+                if chunk.get("error") is not None:
+                    err = chunk["error"]
+                    if isinstance(err, dict):
+                        err = err.get("message") or err.get("type") or ""
+                    text = str(err)[:_MAX_ERROR_CHARS]
+                    for secret in secrets:
+                        if secret:
+                            text = text.replace(secret, "<redacted>")
+                    raise TransientBackendError(f"Hugging Face model {model!r}: error in stream: {text}")
+                if chunk.get("usage") is not None:
+                    usage = chunk["usage"]
+                for choice in chunk.get("choices") or []:
+                    delta = choice.get("delta") or {}
+                    content = delta.get("content")
+                    if isinstance(content, str):
+                        pieces.append(content)
+                    elif content is not None:
+                        raise TypeError("delta content is not text")
+                    if choice.get("finish_reason"):
+                        finish = choice["finish_reason"]
+            except (ValueError, TypeError, AttributeError) as exc:
+                raise TransientBackendError(
+                    f"Hugging Face model {model!r}: malformed stream chunk"
+                ) from exc
+        if not done and finish is None:
+            raise TransientBackendError(
+                f"Hugging Face model {model!r}: stream ended before the reply was complete"
+            )
+        return self._reply("".join(pieces), finish, usage, model)
+
+    def _reply(self, content: str | None, finish: Any, usage: Any, model: str) -> ChatResponse:
+        """The shared tail of both reply forms: empty-reply classes, then usage.
+        A count the provider did not report stays ``None`` (the funded ledger then
+        charges the full reservation)."""
         if not (content or "").strip():
-            if choice.get("finish_reason") == "length":
+            if finish == "length":
                 raise TransientBackendError(
                     f"Hugging Face model {model!r}: reasoning budget exhausted "
                     "(empty content, finish_reason=length)"
                 )
             raise EmptyReplyError(f"Hugging Face model {model!r}: empty reply")
-        usage = body.get("usage") or {}
+        usage = usage if isinstance(usage, dict) else {}
         return ChatResponse(
-            text=content,
+            text=content,  # type: ignore[arg-type]
             model=model,
             backend=self.name,
             input_tokens=usage.get("prompt_tokens"),

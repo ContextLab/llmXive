@@ -43,7 +43,7 @@ from llmxive.self_improvement.audit_sink import EventStoreRouteAudit
 from llmxive.self_improvement.lane_log import LaneLogConfig, bootstrap_lane_log
 from tests.helpers.audit_sinks import ClaimOnceRecorder, FailingRecorder
 from tests.helpers.funded import NOW, B, E, policy_with, sel, snapshot
-from tests.helpers.replay_server import ReplayServer
+from tests.helpers.replay_server import ReplayServer, Stream
 
 # The modules themselves (the package re-exports a function named ``execute``).
 execute_mod = importlib.import_module("llmxive.model_selection.execute")
@@ -354,6 +354,33 @@ def test_timeout_after_send_is_charged_the_full_reservation(repo):
         assert b_arrived.is_set() and srv.requests[0]["json"]["model"] == B   # the request did go out
     assert res.model_ref.model_id == E
     assert sorted(charged(repo).values()) == [pytest.approx(E_COST), pytest.approx(0.0018)]
+
+
+def _slow_stream(with_usage: bool) -> Stream:
+    """A real SSE reply that keeps arriving for ~2 s (longer than a 0.8 s deadline)."""
+    parts: list = []
+    for i in range(8):
+        parts += [0.25, Stream.sse({"choices": [{"index": 0, "delta": {"content": f"w{i} "}}]})]
+    parts.append(Stream.sse({"choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}]}))
+    if with_usage:
+        parts.append(Stream.sse({"choices": [], "usage": {"prompt_tokens": 1200, "completion_tokens": 300}}))
+    return Stream([*parts, Stream.sse("[DONE]")])
+
+
+@pytest.mark.parametrize("with_usage", [True, False])
+def test_streamed_reply_longer_than_the_deadline_settles_on_its_usage(repo, with_usage):
+    """A long generation that streams past the deadline completes and settles: on the
+    reported usage, or on the full reservation when the stream reports none."""
+    with ReplayServer({("POST", "/chat/completions"): [(200, _slow_stream(with_usage))]}) as srv:
+        t = time.monotonic()
+        res = execute(sel("cheap_structured", snapshot(local=False)), MSG,
+                      options=ExecutionOptions(max_tokens=512, deadline_s=0.8),
+                      backend_factory=lambda n: _hf(srv),
+                      ledger_repo=repo, funded_ledger_config=CFG, funded_observer=OBS(), now=NOW)
+        assert time.monotonic() - t > 1.6
+    assert res.model_ref.model_id == B and res.response.text.startswith("w0 w1")
+    assert srv.requests[0]["json"]["stream"] is True and len(srv.requests) == 1
+    assert list(charged(repo).values()) == [pytest.approx(B_COST if with_usage else 0.0018)]
 
 
 def test_missing_credentials_are_charged_zero_and_send_nothing(repo):
