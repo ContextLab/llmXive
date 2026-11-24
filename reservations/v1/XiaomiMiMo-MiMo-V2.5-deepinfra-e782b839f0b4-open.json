@@ -1,0 +1,13 @@
+{
+  "budget_epoch": "2026-11",
+  "created_at": "2026-11-24T12:35:29.356644+00:00",
+  "event_id": "XiaomiMiMo-MiMo-V2.5-deepinfra-e782b839f0b4-open",
+  "lease_expires_at": "2026-11-24T12:42:29.356644+00:00",
+  "model": "XiaomiMiMo/MiMo-V2.5:deepinfra",
+  "owner": "c8a33a4f6bd947f997737ed0be0e9053",
+  "reservation_id": "XiaomiMiMo-MiMo-V2.5-deepinfra-e782b839f0b4",
+  "settlement_baseline": 0.41404783599999995,
+  "ts": "2026-11-24T12:35:29.356644+00:00",
+  "type": "open",
+  "worst_case_credits": 0.043562540000000004
+}
