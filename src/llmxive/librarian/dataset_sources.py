@@ -2,12 +2,15 @@
 
 Each ``search_*`` returns a list of :class:`DatasetCandidate` for a dataset
 intent (a name like "QM9" or a DOI). No ranking or verification here — that is
-the resolver's job. All network errors are swallowed into an empty list so one
-dead source never breaks resolution; the resolver decides what to do with the
-union of candidates.
+the resolver's job. A transport error or a 5xx/429 reply is retried a bounded
+number of times; a source that stays down is logged and yields an empty list (never
+invented candidates), so one dead source never breaks resolution; the resolver
+decides what to do with the union of candidates.
 """
 from __future__ import annotations
 
+import logging
+import time
 from dataclasses import dataclass
 from typing import Any
 
@@ -15,6 +18,11 @@ import requests  # type: ignore[import-untyped]  # no stub package available
 
 USER_AGENT = "llmxive-dataset-resolver/1.0 (https://github.com/ContextLab/llmXive)"
 _TIMEOUT = 20
+#: Attempts per lookup (first try + retries) and the pause before retry n (seconds x n).
+_MAX_ATTEMPTS = 3
+_RETRY_BACKOFF_SECONDS = 1.0
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -94,14 +102,33 @@ def search_huggingface(intent: str, *, limit: int = 5) -> list[DatasetCandidate]
 
 
 def _get_json(url: str, *, params: dict[str, object] | None = None) -> dict[str, Any] | list[Any] | None:
-    try:
-        r = requests.get(url, params=params, headers={"User-Agent": USER_AGENT}, timeout=_TIMEOUT)
-        if r.status_code != 200:
-            return None
-        result: dict[str, Any] | list[Any] = r.json()
-        return result
-    except (requests.RequestException, ValueError, OSError):
-        return None
+    """GET a JSON document, or ``None`` when the source cannot serve it.
+
+    A transport error (timeout, reset) and a 5xx/429 reply are retried up to
+    ``_MAX_ATTEMPTS`` times in all; any other non-200 reply, or a 200 that is not
+    JSON, fails at once. Every failure is logged with the host and the reason."""
+    host = url.split("/")[2] if "://" in url else url
+    reason = "no attempt made"
+    for attempt in range(_MAX_ATTEMPTS):
+        if attempt:
+            time.sleep(_RETRY_BACKOFF_SECONDS * attempt)
+        try:
+            r = requests.get(url, params=params, headers={"User-Agent": USER_AGENT}, timeout=_TIMEOUT)
+        except (requests.RequestException, OSError) as exc:
+            reason = type(exc).__name__
+            continue
+        if r.status_code == 200:
+            try:
+                result: dict[str, Any] | list[Any] = r.json()
+            except ValueError:
+                reason = "200 with a non-JSON body"
+                break
+            return result
+        reason = f"HTTP {r.status_code}"
+        if r.status_code < 500 and r.status_code != 429:
+            break
+    logger.warning("dataset source %s gave no result: %s", host, reason)
+    return None
 
 
 def search_figshare(intent: str, *, limit: int = 5) -> list[DatasetCandidate]:
