@@ -502,6 +502,84 @@ def invoke_with_deadline(
     return result[0]
 
 
+class _StreamAbandoned(BaseException):
+    """Raised inside a streaming worker by its progress callback once the caller
+    has given up on it, so the worker stops reading (and closes its connection)
+    instead of streaming on unobserved. A ``BaseException`` so a worker's own
+    ``except Exception`` cannot swallow it."""
+
+
+def invoke_with_idle_deadline(
+    fn: Callable[[Callable[[], None]], _T],
+    *,
+    idle_timeout: float,
+    total_timeout: float,
+    description: str,
+    poll_s: float = 0.05,
+) -> _T:
+    """Run ``fn(progress)`` on a daemon thread, bounded by an IDLE deadline and a
+    TOTAL deadline, and return its result.
+
+    For a streamed reply that may legitimately take longer than any fixed
+    wall-clock deadline: ``fn`` calls ``progress()`` whenever data arrives. The
+    call fails with :class:`DeadlineExceededError` when ``idle_timeout`` seconds
+    pass with no ``progress()`` call (the time before the first data counts), or
+    when the whole call passes ``total_timeout`` seconds while data is still
+    arriving. Once either happens, the next ``progress()`` call in the abandoned
+    worker raises, so a stream that is still arriving is stopped rather than
+    read on unobserved. The daemon-thread design follows
+    :func:`invoke_with_deadline`. If ``fn`` raises, that exception is re-raised
+    in the calling thread.
+    """
+    result: list[_T] = []
+    error: list[BaseException] = []
+    clock = time.monotonic
+    started = clock()
+    last = [started]
+    abandoned = threading.Event()
+
+    def _progress() -> None:
+        if abandoned.is_set():
+            raise _StreamAbandoned()
+        last[0] = clock()
+
+    def _runner() -> None:
+        try:
+            result.append(fn(_progress))
+        except _StreamAbandoned:
+            pass
+        except BaseException as exc:
+            error.append(exc)
+
+    worker = threading.Thread(target=_runner, name=f"llmxive-backend-{description}", daemon=True)
+    worker.start()
+    while True:
+        now = clock()
+        idle_left = idle_timeout - (now - last[0])
+        total_left = total_timeout - (now - started)
+        if idle_left <= 0 or total_left <= 0:
+            break
+        worker.join(min(idle_left, total_left, poll_s))
+        if not worker.is_alive():
+            break
+    if worker.is_alive():
+        abandoned.set()
+        if clock() - started >= total_timeout:
+            raise DeadlineExceededError(
+                f"{description} still streaming past its {total_timeout:g}s total deadline"
+            )
+        if last[0] == started:
+            raise DeadlineExceededError(
+                f"{description} hung past {idle_timeout:g}s deadline (no response received)"
+            )
+        raise DeadlineExceededError(
+            f"{description} went silent mid-response for {idle_timeout:g}s (idle deadline)"
+        )
+    if error:
+        raise error[0]
+    return result[0]
+
+
 class BaseBackend(abc.ABC):
     """All backends implement this interface."""
 
@@ -754,6 +832,7 @@ __all__ = [
     "TransientBackendError",
     "UnsupportedFeatureError",
     "invoke_with_deadline",
+    "invoke_with_idle_deadline",
     "openai_content",
     "parse_image_dimensions",
     "render_text_content",

@@ -1,0 +1,18 @@
+{
+ "captured_at": "2026-11-24",
+ "source_url": "https://router.huggingface.co/v1/chat/completions",
+ "status": 200,
+ "provenance": "recorded",
+ "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017:ovhcloud",
+ "content_type": "text/event-stream",
+ "expected_text": "ok",
+ "expected_usage": {
+  "prompt_tokens": 37,
+  "completion_tokens": 19,
+  "total_tokens": 56,
+  "completion_tokens_details": {
+   "reasoning_tokens": 16
+  }
+ },
+ "payload_sse": "data: {\"id\":\"chatcmpl-c68476ae\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"}}],\"created\":1795500212,\"model\":\"DeepSeek-V4.1-Flash-1017\",\"object\":\"chat.completion.chunk\"}\n\ndata: {\"id\":\"chatcmpl-c68476ae\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"reasoning\":\"The\",\"name\":\"assistant\"}}],\"created\":1795500212,\"model\":\"DeepSeek-V4.1-Flash-1017\",\"object\":\"chat.completion.chunk\"}\n\ndata: {\"id\":\"chatcmpl-c68476ae\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"reasoning\":\" user asks\",\"name\":\"assistant\"}}],\"created\":1795500212,\"model\":\"DeepSeek-V4.1-Flash-1017\",\"object\":\"chat.completion.chunk\"}\n\ndata: {\"id\":\"chatcmpl-c68476ae\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"reasoning\":\" to reply\",\"name\":\"assistant\"}}],\"created\":1795500212,\"model\":\"DeepSeek-V4.1-Flash-1017\",\"object\":\"chat.completion.chunk\"}\n\ndata: {\"id\":\"chatcmpl-c68476ae\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"reasoning\":\" with the single word \\\"\",\"name\":\"assistant\"}}],\"created\":1795500212,\"model\":\"DeepSeek-V4.1-Flash-1017\",\"object\":\"chat.completion.chunk\"}\n\ndata: {\"id\":\"chatcmpl-c68476ae\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"reasoning\":\"ok\\\". Just\",\"name\":\"assistant\"}}],\"created\":1795500212,\"model\":\"DeepSeek-V4.1-Flash-1017\",\"object\":\"chat.completion.chunk\"}\n\ndata: {\"id\":\"chatcmpl-c68476ae\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"reasoning\":\" output\",\"name\":\"assistant\"}}],\"created\":1795500212,\"model\":\"DeepSeek-V4.1-Flash-1017\",\"object\":\"chat.completion.chunk\"}\n\ndata: {\"id\":\"chatcmpl-c68476ae\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"ok\",\"reasoning\":\" that.\",\"name\":\"assistant\"}}],\"created\":1795500212,\"model\":\"DeepSeek-V4.1-Flash-1017\",\"object\":\"chat.completion.chunk\"}\n\ndata: {\"id\":\"chatcmpl-c68476ae\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"name\":\"assistant\"},\"finish_reason\":\"stop\"}],\"created\":1795500212,\"model\":\"DeepSeek-V4.1-Flash-1017\",\"object\":\"chat.completion.chunk\"}\n\ndata: {\"id\":\"chatcmpl-c68476ae\",\"choices\":[],\"created\":1795500212,\"model\":\"DeepSeek-V4.1-Flash-1017\",\"system_fingerprint\":\"vllm-0.34.0-tp2-5f4dbda3\",\"object\":\"chat.completion.chunk\",\"usage\":{\"prompt_tokens\":37,\"completion_tokens\":19,\"total_tokens\":56,\"completion_tokens_details\":{\"reasoning_tokens\":16}}}\n\ndata: [DONE]\n\n"
+}
