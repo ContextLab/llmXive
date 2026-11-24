@@ -59,9 +59,6 @@ jobs:
         if: steps.pending.outputs.count == '0'
         env:
           DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
-          LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
           GH_TOKEN: ${{ github.token }}
           LLMXIVE_PAID_OPT_IN: '0'
           SOURCE: ${{ inputs.source || (github.event.schedule == '0 19 * * *' && 'issues' || 'errors') }}
