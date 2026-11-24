@@ -1,0 +1,13 @@
+{
+  "budget_epoch": "2026-11",
+  "created_at": "2026-11-24T04:03:40.674869+00:00",
+  "event_id": "zai-org-GLM-5.3-Flash-relace-14a60449a950-open",
+  "lease_expires_at": "2026-11-24T04:10:40.674869+00:00",
+  "model": "zai-org/GLM-5.3-Flash:relace",
+  "owner": "95a708db7cab476a88e7263f3007a551",
+  "reservation_id": "zai-org-GLM-5.3-Flash-relace-14a60449a950",
+  "settlement_baseline": 0.1819396224,
+  "ts": "2026-11-24T04:03:40.674869+00:00",
+  "type": "open",
+  "worst_case_credits": 0.0138389844
+}
