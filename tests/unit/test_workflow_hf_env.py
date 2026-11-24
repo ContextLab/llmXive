@@ -244,3 +244,13 @@ def _receives_hf(job: dict) -> bool:
 def test_prompt_eval_has_no_write_permission_anywhere():
     text = (WF / "prompt-eval.yml").read_text()
     assert ": write" not in text and "write-all" not in text
+
+
+@pytest.mark.parametrize("path", sorted(WF.glob("*.yml")), ids=lambda p: p.name)
+def test_runner_context_is_used_only_inside_steps(path):
+    """GitHub rejects the whole workflow ("Unrecognized named-value: 'runner'") when
+    ``runner.*`` appears in a workflow- or job-level ``env``; it exists only in steps."""
+    wf = _load(path)
+    assert "runner." not in str(wf.get("env", ""))
+    for job, body in (wf.get("jobs") or {}).items():
+        assert "runner." not in str(body.get("env", "")), job

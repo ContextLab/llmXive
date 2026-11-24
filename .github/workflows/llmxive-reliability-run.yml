@@ -34,7 +34,6 @@ jobs:
       LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
       LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
-      LLMXIVE_ACCEPTANCE_ARTIFACTS: ${{ runner.temp }}/llmxive-acceptance
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -63,7 +62,10 @@ jobs:
           cp papers/.style/fonts/*.ttf "$HOME/.fonts/"
           fc-cache -f >/dev/null
 
+      # `runner` is not available in a job-level env block, only in steps.
       - name: Full-pipeline acceptance run
+        env:
+          LLMXIVE_ACCEPTANCE_ARTIFACTS: ${{ runner.temp }}/llmxive-acceptance
         run: pytest tests/real_call/test_pipeline_acceptance.py -x -s -p no:cacheprovider
 
       - name: Preserve research, paper and failure evidence
