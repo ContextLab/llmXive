@@ -288,3 +288,49 @@ def test_the_implementer_refuses_to_write_a_copy_of_the_toolkit(tmp_path: Path, 
     assert not (proj / "llmxive_toolkit").exists()
     assert (proj / "code/lib.py").is_file()
     assert "provided by the platform" in capsys.readouterr().out
+
+
+def test_save_figure_writes_the_image_and_what_it_shows(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """2026-10-11: a task requiring "visual verification of the plot" was
+    rejected on all nine attempts, because nothing a reviewer could read said
+    what the image contained."""
+    import json
+
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    (tmp_path / "code").mkdir()
+    toolkit = _toolkit(monkeypatch, tmp_path)
+    fig, ax = plt.subplots()
+    ax.plot([1000, 10000, 100000], [0.5, 0.25, 0.125], label="Unconditional TV")
+    ax.plot([1000, 10000, 100000], [0.4, float("nan"), 0.1], label="Conditional TV")
+    ax.scatter([1, 2], [3, 4], label="checks")
+    ax.set_xscale("log")
+    ax.set_xlabel("N")
+    ax.set_ylabel("TV distance")
+    ax.set_title("p = 5")
+    ax.legend()
+    image = toolkit.save_figure(fig, toolkit.paths.figures("tv_p5.png"), dpi=60)
+    plt.close(fig)
+    assert image == tmp_path / "figures/tv_p5.png" and image.stat().st_size > 1000
+    record = json.loads((tmp_path / "figures/tv_p5.figure.json").read_text(encoding="utf-8"))
+    assert record["image"] == "tv_p5.png" and record["written_by"] == "llmxive_toolkit.save_figure"
+    (axes,) = record["axes"]
+    assert (axes["title"], axes["xlabel"], axes["ylabel"], axes["xscale"], axes["yscale"]) == (
+        "p = 5", "N", "TV distance", "log", "linear")
+    assert axes["legend"] == ["Unconditional TV", "Conditional TV", "checks"]
+    first, second, points = axes["series"]
+    assert first == {"kind": "line", "label": "Unconditional TV", "points": 3,
+                     "x_min": 1000.0, "x_max": 100000.0, "y_min": 0.125, "y_max": 0.5}
+    assert second["points"] == 2 and second["y_min"] == 0.1  # the NaN is not a point
+    assert points["kind"] == "points" and points["points"] == 2
+    # The current figure, and a path relative to the project.
+    plt.figure()
+    plt.bar(["a", "b"], [2, 5], label="counts")
+    toolkit.save_figure("figures/bars.png")
+    plt.close("all")
+    bars = json.loads((tmp_path / "figures/bars.figure.json").read_text(encoding="utf-8"))["axes"][0]["series"]
+    assert bars == [{"kind": "bars", "label": "counts", "points": 2, "x_min": 0.0, "x_max": 1.0, "y_min": 2.0, "y_max": 5.0}]
+    with pytest.raises(TypeError, match="needs the path"):
+        toolkit.save_figure(fig)

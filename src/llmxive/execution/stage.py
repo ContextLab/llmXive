@@ -25,7 +25,11 @@ import logging
 import re
 from pathlib import Path
 
-from llmxive.execution.analysis_runner import AnalysisRunResult, run_analysis
+from llmxive.execution.analysis_runner import (
+    AnalysisRunResult,
+    RunCommandResult,
+    run_analysis,
+)
 from llmxive.state import execution_status
 
 logger = logging.getLogger(__name__)
@@ -363,6 +367,34 @@ def _deliverable_repair_feedback(project_dir: Path, res: AnalysisRunResult) -> s
     ])
 
 
+_PREVIEW_INPUTS_FILENAME = "implementation_preview.inputs"
+_PREVIEW_OUTPUT_DIRS = ("data", "results", "figures", "paper/figures")
+
+
+def _preview_inputs(project_dir: Path) -> str:
+    """A digest of everything a rerun of the run-book could depend on: the
+    contents of the project's code, tests, run-books and requirements, and
+    which output files exist (their names, not their contents)."""
+    import hashlib
+
+    from llmxive.project_files import SOURCE_DIRS
+
+    digest = hashlib.sha256()
+    skipped = {".venv", "__pycache__", ".tasks", ".git", ".pytest_cache"}
+    read = [path for directory in (*SOURCE_DIRS, "tests", "specs") for path in (project_dir / directory).rglob("*")
+            if directory != "specs" or path.name == "quickstart.md"]
+    read.append(project_dir / "requirements.txt")
+    for path in sorted(read):
+        if path.is_file() and not skipped.intersection(path.parts):
+            digest.update(path.relative_to(project_dir).as_posix().encode() + b"\0")
+            digest.update(hashlib.sha256(path.read_bytes()).digest())
+    for directory in _PREVIEW_OUTPUT_DIRS:
+        for path in sorted((project_dir / directory).rglob("*")):
+            if path.is_file():
+                digest.update(b"out:" + path.relative_to(project_dir).as_posix().encode() + b"\0")
+    return digest.hexdigest()
+
+
 def run_implementation_preview(project_dir: Path) -> None:
     """Produce execution evidence before verifying output-producing tasks.
 
@@ -371,13 +403,27 @@ def run_implementation_preview(project_dir: Path) -> None:
     once per implementation batch, with a short budget. This is feedback only;
     it never marks execution accepted, consumes final-gate fix rounds, or opens
     tasks that the implementer has not reached yet.
+
+    A run-book that last ran cleanly is not run again until something it could
+    depend on has changed. A rerun rewrites outputs that record a run time or
+    a date, the changed bytes withdraw every accepted task that cites them,
+    and the verifier's capped verdicts go to accepting those again: batch 6
+    run 3 (2026-10-12) had nothing left to implement for its last twelve steps
+    and re-accepted the same six tasks on eleven of them while five others
+    waited, until its time ran out.
     """
     from llmxive.project_files import source_files
 
     if not any(source_files(project_dir)):
         return
-    res = run_analysis(project_dir, per_cmd_timeout_s=120, overall_deadline_s=300)
     mem = project_dir / ".specify" / "memory"
+    inputs = _preview_inputs(project_dir)
+    try:
+        if (mem / _PREVIEW_INPUTS_FILENAME).read_text(encoding="utf-8") == inputs:
+            return
+    except OSError:
+        pass
+    res = run_analysis(project_dir, per_cmd_timeout_s=120, overall_deadline_s=300)
     failures = [
         f"{r.command} -> rc={r.returncode}\n{r.tail}"
         for r in res.commands if not r.ok
@@ -391,6 +437,8 @@ def run_implementation_preview(project_dir: Path) -> None:
         _mint_artifact_receipts(project_dir, res, project_dir.resolve().parent.parent,
                                 stage="implementation_preview")
         (mem / _FEEDBACK_FILENAME).unlink(missing_ok=True)
+        mem.mkdir(parents=True, exist_ok=True)
+        (mem / _PREVIEW_INPUTS_FILENAME).write_text(_preview_inputs(project_dir), encoding="utf-8")
 
 
 def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> bool:
@@ -982,6 +1030,17 @@ def _code_paths_in_text(text: str) -> set[str]:
     return out
 
 
+_PYTEST_FAILED_RE = re.compile(r"^(?:FAILED|ERROR)\s+([\w./-]+\.py)(?=::|\s|$)", re.MULTILINE)
+
+
+def _failing_test_files(text: str) -> set[str]:
+    """Test modules a pytest summary reports as failed or errored."""
+    return {
+        m.group(1) for m in _PYTEST_FAILED_RE.finditer(text or "")
+        if not any(mark in m.group(1) for mark in _VENV_PATH_MARKERS)
+    }
+
+
 def _reopen_failing_tasks(
     project_dir: Path, res: AnalysisRunResult, contract_issues: list | None = None,
     data_contract_issues: list | None = None,
@@ -1016,6 +1075,7 @@ def _reopen_failing_tasks(
     # Collect failing/missing script paths + stems from the run.
     targets: set[str] = set()
     missing_scripts: list[str] = []  # run-book scripts that DON'T exist (script_missing)
+    failed_commands: list[RunCommandResult] = []
     for r in res.commands:
         if r.ok:
             continue
@@ -1037,9 +1097,18 @@ def _reopen_failing_tasks(
             # it). The filename still catches the same script under a different
             # directory, which IS the likely owner of a path mismatch.
             targets.add(Path(rel).name)
+        # A failing pytest run names its modules only in the summary lines, and
+        # they live under tests/, which the code-path pattern does not cover.
+        for rel in _failing_test_files(r.tail or ""):
+            targets.add(rel)
+            targets.add(Path(rel).name)
         # script_missing is a property of the run-book command's OWN script.
         if r.script_missing:
             missing_scripts.extend(cmd_paths)
+        if not r.advisory:
+            failed_commands.append(r)
+            # The task added below for a failure nobody owns quotes the command.
+            targets.add(f"`{r.command}`")
     for d in res.declared_missing:
         targets.add(d)
         targets.add(Path(d).name)
@@ -1081,8 +1150,6 @@ def _reopen_failing_tasks(
             rel = m.group(1)
             targets.add(rel)
             targets.add(Path(rel).name)
-    if not targets and not missing_scripts:
-        return 0
 
     out_lines: list[str] = []
     reopened = 0
@@ -1138,6 +1205,38 @@ def _reopen_failing_tasks(
                 f"(quickstart.md / plan.md) to invoke the script that actually "
                 f"implements this step. See `.specify/memory/{_FEEDBACK_FILENAME}` "
                 f"for the exact failing command and the scripts that DO exist."
+            )
+            nxt += 1
+            reopened += 1
+
+    # A FAILED RUN ALWAYS LEAVES THE IMPLEMENTER SOMETHING TO DO. Every rule above
+    # reopens a task by a name found in the failure; when none matches (a
+    # ``pytest -q`` failing in modules no task line names, batch 3 run 3) the
+    # count was 0, the implementer was never dispatched, and each later step
+    # re-ran the same failing command until the tier ladder ran out. If no task
+    # is open after all of them, add one that owns the command. It quotes the
+    # command, so the same failure reopens it instead of adding another.
+    has_open = any(re.match(r"^\s*-\s*\[ \]\s", ln) for ln in out_lines)
+    if failed_commands and not has_open:
+        ids = [int(mm.group(1)) for ln in out_lines if (mm := re.search(r"\bT(\d+)", ln))]
+        nxt = (max(ids) + 1) if ids else 1
+        if out_lines and out_lines[-1].strip():
+            out_lines.append("")
+        out_lines.append(
+            "<!-- auto-added by the execution fix loop: a run-book command failed "
+            "and no task names what failed -->"
+        )
+        for r in failed_commands:
+            files = sorted(_failing_test_files(r.tail or "") | _code_paths_in_text(r.tail or ""))
+            named = (
+                " The output names " + ", ".join(f"`{f}`" for f in files[:8]) + "."
+                if files else ""
+            )
+            out_lines.append(
+                f"- [ ] T{nxt:03d} Make the run-book command `{r.command}` succeed: it "
+                f"exited {r.returncode} when the analysis was executed end to end."
+                f"{named} Find the cause in the code or in the test and fix it. See "
+                f"`.specify/memory/{_FEEDBACK_FILENAME}` for the command's output."
             )
             nxt += 1
             reopened += 1

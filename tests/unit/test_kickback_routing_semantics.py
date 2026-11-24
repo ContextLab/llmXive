@@ -195,6 +195,28 @@ def test_a_reviewers_science_concern_about_the_paper_spec_still_goes_to_research
     assert route_kickback(spec, [raised, _marker_concern()]).to_stage == "clarified"
 
 
+def test_a_reviewers_wording_of_the_same_unverified_claims_keeps_the_in_place_route():
+    """Reliability run r3 (2026-11-24): the paper spec carried unresolved-claim
+    markers, and the claims reviewer ALSO raised them as a requirement-level
+    concern. With two concerns open the marker's science severity decided the
+    route, and an accepted research stage was sent back to the research planner.
+    Each concern is routed by what can fix it: the reviewer's concern by its own
+    severity, the marker by the stage that revises the document."""
+    from llmxive.convergence.kickback import route_kickback
+    from llmxive.convergence.types import Concern
+
+    spec = reviewspecs._spec_paper_spec()
+    raised = Concern(id="claims_supported-00c9f5b0", reviewer="claims_supported",
+                     severity=Severity.REQUIREMENT,
+                     artifact="projects/P/paper/specs/001-paper/spec.md", location="C-02",
+                     text="Four claims carry unresolved markers and cannot back printed claims.",
+                     round=1)
+    record = route_kickback(spec, [raised, _marker_concern()])
+    assert record.to_stage == "paper_specified"
+    assert record.worst_severity == Severity.SCIENCE  # the record still reports the marker
+    assert "c_1b4afe65" in record.reason
+
+
 def test_research_stage_markers_are_routed_as_before():
     from llmxive.convergence.kickback import route_kickback
 

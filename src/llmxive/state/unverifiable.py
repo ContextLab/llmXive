@@ -15,10 +15,13 @@ CROSS-CLUSTER CONTRACT (consumed by the pipeline graph / kickback router):
                          "last_reason": str, "first_seen": iso8601,
                          "last_seen": iso8601}],
               "updated_at": iso8601}``
-  * CORE retries implementation with the next free model while preserving task
-    definitions and verifier feedback, clearing this store so tasks are judged
-    again. After the free ladder is exhausted it routes to ``planned`` with
-    deterministic feedback. Exhausted re-plan budgets route to ``agent_blocked``
+  * CORE retries implementation while preserving task definitions and verifier
+    feedback, clearing this store so tasks are judged again. Escalation is per
+    task (:func:`exhaustions`, kept beside this file as
+    ``<project_id>.exhaustions.json``): the model tier follows the task that
+    has exhausted its cap most often, and only a task that has exhausted it on
+    every free tier routes the project to the planner with deterministic
+    feedback. Exhausted re-plan budgets route to ``agent_blocked``
     and retain these unresolved records. No rejected task is force-accepted.
 
 All writes go through :func:`llmxive.state._io.atomic_write_text` (Constitution I:
@@ -118,7 +121,50 @@ def record_unverifiable(
         _path(project_id, repo_root=repo_root),
         json.dumps(rec, indent=2, sort_keys=False) + "\n",
     )
+    _count_exhaustion(project_id, task_key, repo_root=repo_root)
     return rec
+
+
+def _history_path(project_id: str, *, repo_root: Path | None = None) -> Path:
+    return _dir(repo_root) / f"{project_id}.exhaustions.json"
+
+
+def exhaustions(project_id: str, *, repo_root: Path | None = None) -> dict[str, int]:
+    """How many times each task has been recorded here since the last re-plan.
+
+    The entries above are dropped every time the implementer is given another
+    go (:func:`clear`), so they cannot say whether a task is on its first
+    exhausted cap or its third. This count survives :func:`clear` and is what
+    the router escalates on; :func:`forget` drops it when the project is
+    re-planned and its task ids start to mean something else."""
+    p = _history_path(project_id, repo_root=repo_root)
+    try:
+        rec = json.loads(p.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    counts = rec.get("counts") if isinstance(rec, dict) else None
+    if not isinstance(counts, dict):
+        return {}
+    return {str(k): v for k, v in counts.items() if type(v) is int and v > 0}
+
+
+def _count_exhaustion(project_id: str, task_key: str, *, repo_root: Path | None = None) -> None:
+    counts = exhaustions(project_id, repo_root=repo_root)
+    counts[task_key] = counts.get(task_key, 0) + 1
+    atomic_write_text(_history_path(project_id, repo_root=repo_root), json.dumps(
+        {"project_id": project_id, "counts": counts, "updated_at": _now()}, indent=2) + "\n")
+
+
+def forget(project_id: str, *, repo_root: Path | None = None, track: str) -> None:
+    """:func:`clear` the track's entries AND its exhaustion counts (on a re-plan)."""
+    clear(project_id, repo_root=repo_root, track=track)
+    counts = {key: n for key, n in exhaustions(project_id, repo_root=repo_root).items()
+              if key.startswith("paper:") != (track == "paper")}
+    if counts:
+        atomic_write_text(_history_path(project_id, repo_root=repo_root), json.dumps(
+            {"project_id": project_id, "counts": counts, "updated_at": _now()}, indent=2) + "\n")
+    else:
+        _history_path(project_id, repo_root=repo_root).unlink(missing_ok=True)
 
 
 def clear(project_id: str, *, repo_root: Path | None = None, track: str | None = None) -> None:

@@ -64,4 +64,22 @@ def test_execution_context_is_bounded(tmp_path):
         )
     evidence = tv._task_execution_evidence(tmp_path, "T001 Produce data/")
     assert len(evidence) < 19000
-    assert evidence.count("[Log truncated]") == 3
+    # Every command the task ran is shown, each cut to its share of the budget.
+    assert evidence.count("[Log truncated]") == 5
+    assert all(f"code/.tasks/T001.code_script{n}.py.log" in evidence for n in range(5))
+
+
+def test_every_command_a_task_ran_has_a_record_with_its_ending(tmp_path):
+    """Batch 3 run 2: a task with eight records was shown the newest three and
+    the verifier rejected it for "no log" of a test that had run and passed."""
+    logs = tmp_path / "code/.tasks"
+    logs.mkdir(parents=True)
+    for n in range(14):
+        (logs / f"T001.tests_test_part{n}.py.log").write_text(
+            f"# tests/test_part{n}.py (exit 0, 1s, ok=True)\n" + "." * 9000 + f"\n{n + 1} passed in 0.1s\n"
+        )
+    evidence = tv._task_execution_evidence(tmp_path, "T001 Run the tests")
+    assert len(evidence) < 21000
+    assert all(f"# tests/test_part{n}.py (exit 0" in evidence for n in range(14))
+    # Ten are shown with their pytest summary line; the rest by their exit line.
+    assert sum(f"\n{n + 1} passed in 0.1s" in evidence for n in range(14)) == 10

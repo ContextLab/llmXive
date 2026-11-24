@@ -153,6 +153,13 @@ def model_tier_ladder() -> tuple[TierConstraint, ...]:
     return (*_FREE_RUNGS, _PAID_RUNG) if _paid_escalation_enabled() else _FREE_RUNGS
 
 
+def free_tier_count() -> int:
+    """How many FREE rungs the ladder has (tier 0 included). A task that has
+    exhausted its verifier cap this many times has had every free tier, so the
+    routing layer re-plans instead of escalating further."""
+    return sum(1 for c in model_tier_ladder() if not c.is_paid)
+
+
 def tier_constraint(tier: int) -> TierConstraint:
     """The constraint for ``tier``. Corrupt/out-of-range (incl. bool/float/str) →
     tier-0 FREE-ONLY (NEVER the last/paid rung — invalid state must not broaden

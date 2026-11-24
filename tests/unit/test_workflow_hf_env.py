@@ -173,7 +173,8 @@ def test_bill_to_is_a_variable_never_a_secret():
 # pull request structurally — only a job whose ``if`` requires a manual dispatch on
 # main may hold ``contents: write``.
 
-_WRITE_FILES = ("llmxive-real-call-tests.yml", "llmxive-real-call-nightly.yml")
+_WRITE_FILES = ("llmxive-real-call-tests.yml", "llmxive-real-call-nightly.yml",
+                "llmxive-reliability-run.yml")
 _ON_MAIN = "github.ref == 'refs/heads/main'"
 _ON_DISPATCH = "github.event_name == 'workflow_dispatch'"
 

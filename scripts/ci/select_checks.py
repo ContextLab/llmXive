@@ -71,6 +71,7 @@ ROUTING_FILES = {
     "scripts/ci/select_checks.py", "tests/real_call/conftest.py",
     ".github/workflows/llmxive-real-call-tests.yml",
     ".github/workflows/llmxive-real-call-nightly.yml",
+    ".github/workflows/llmxive-reliability-run.yml",
     ".github/workflows/audit.yml", "scripts/ci/verify-audit-corpus.py",
     ".github/workflows/repair.yml",
     # Production setup/queue routing does not supply the reference-service

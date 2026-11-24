@@ -347,7 +347,9 @@ keep this policy reviewable.
 
 The [nightly suite](.github/workflows/llmxive-real-call-nightly.yml) retains slow
 checks, free-peer coverage, external services and full-pipeline acceptance tests,
-with failure artifacts preserved. [Prompt Eval](.github/workflows/prompt-eval.yml)
+with failure artifacts preserved. The manually started
+[reliability run](.github/workflows/llmxive-reliability-run.yml) executes the
+full-pipeline acceptance test alone, from main. [Prompt Eval](.github/workflows/prompt-eval.yml)
 runs two reviewer fixtures three times, including rejection of a deliberately
 flawed idea, using the configured primary and rejecting peer-model substitution.
 Repository audits check layout, Spec Kit artifacts, PDFs, personality

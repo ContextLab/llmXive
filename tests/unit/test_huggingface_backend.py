@@ -231,6 +231,26 @@ def test_router_404_is_route_unavailable_and_advances_the_chain():
     assert len(srv.requests) == 1
 
 
+# The router's reply when the pinned provider has stopped serving the model (seen
+# live 2026-11-24, mid-run, for a pair the catalog snapshot still listed). Names
+# here are placeholders.
+_MODEL_NOT_SUPPORTED_400 = {"error": {
+    "message": "The requested model 'acme/alpha-large' is not supported by provider 'prov-a'.",
+    "type": "invalid_request_error", "param": "model", "code": "model_not_supported"}}
+
+
+def test_provider_dropping_the_model_is_route_unavailable_and_advances_the_chain():
+    from llmxive.backends.huggingface import HFRouteUnavailable
+    from llmxive.backends.router import CandidateDisposition, disposition_of
+
+    with ReplayServer({("POST", "/chat/completions"): [(400, _MODEL_NOT_SUPPORTED_400)]}) as srv:
+        with pytest.raises(HFRouteUnavailable, match="not supported by provider") as ei:
+            _be(srv).chat(MSG, model=M)
+    assert not isinstance(ei.value, PreInferenceRejection)
+    assert disposition_of(ei.value) is CandidateDisposition.RETRY_ADVANCE
+    assert len(srv.requests) == 1
+
+
 @pytest.mark.parametrize("status", [400, 422])
 def test_malformed_request_stays_permanent_and_aborts(status):
     from llmxive.backends.huggingface import HFRouteUnavailable

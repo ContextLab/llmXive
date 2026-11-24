@@ -43,6 +43,12 @@ are provided in the messages that follow.
    produces `data/<x>.csv` or `figures/<y>.png`, that exact file MUST exist on disk after
    the script runs — use the output paths from tasks.md / quickstart.md verbatim (do not
    invent a different path or directory).
+   **One script writes each output file.** Before writing a script that produces a file,
+   check the existing code shown to you: if another script already writes that file, change
+   THAT script so it writes the complete file (or have yours read the existing file and add
+   to it). Two scripts that each write the whole of `data/results.md` erase each other's
+   sections whenever the earlier one is run again, and the task whose section vanished is
+   rejected.
 9. **Real data only — obtain it from a real source.** When a task needs real external data
    that is not already on disk, get it from a REAL, programmatically-accessible source: a
    pip-installable dataset package, or a downloadable URL fetched at runtime. Add any new
@@ -94,6 +100,9 @@ are provided in the messages that follow.
    `python -m pytest -v` from the project directory every time you write one, and
    the session output is recorded as the task's evidence. Do not write a wrapper
    script or shell script to run pytest, and do not redirect its output to a file.
+   Whatever a test session writes, changes or deletes in the project is put back when
+   it ends, so a test cannot produce a task's output: a script does that. Have tests
+   write to pytest's `tmp_path`, never to `data/`, `results/` or `figures/`.
 
 ## Provided by the platform — use these, do not rewrite them
 
@@ -113,6 +122,9 @@ log = get_logger(__name__)                    # optional: get_logger(__name__, l
 out = paths.data("results", "census.csv")     # <project>/data/results/census.csv; the folder now exists
 fig = paths.figures("tv_vs_n.png")            # <project>/figures/tv_vs_n.png
 root = paths.root                             # the project directory, whatever the working directory is
+
+from llmxive_toolkit import save_figure
+save_figure(fig, fig_path)                    # writes tv_vs_n.png AND tv_vs_n.figure.json
 ```
 
 - `paths.data(...)`, `paths.figures(...)`, `paths.results(...)`, `paths.docs(...)`,
@@ -121,6 +133,12 @@ root = paths.root                             # the project directory, whatever 
   and create the folder it lives in. They do not create the file. The folder is always
   the one named: `paths.results("paper.md")` is `results/paper.md`, and
   `data/results/census.csv` is `paths.data("results", "census.csv")`.
+- Save every figure with `save_figure(fig, path)` (or `save_figure(path)` for the current
+  pyplot figure), not `fig.savefig`. It writes the image and, beside it,
+  `<name>.figure.json`: titles, axis labels and scales, legend entries and every plotted
+  series with its number of points and ranges, read from the figure you drew. The reviewer
+  cannot open an image and reads that record instead. Give every series a `label=`, call
+  `ax.legend()`, and set the axis labels. Never write a `.figure.json` yourself.
 - So do NOT write directory-creation scripts, `ensure_dirs` helpers, a logging
   module, or `sys.path` edits to find the project root. Do NOT create a file
   named after a standard-library module (`logging.py`, `code.py`, `io.py`,
