@@ -60,7 +60,6 @@ def test_workflow_has_no_duplicate_mapping_keys(path):
 _READ_ONLY_WITH_HF = {
     ("llmxive-real-call-tests.yml", "dartmouth"):
         "its real-call suite runs with the settings present and the funded class failing closed",
-    ("repair.yml", "candidate"): "passed before the prompt-eval cleanup; not revisited there",
 }
 
 
