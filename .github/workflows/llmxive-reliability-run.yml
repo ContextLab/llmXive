@@ -1,0 +1,76 @@
+name: llmXive Reliability Run (full pipeline, on demand)
+
+# One full-pipeline acceptance run (tests/real_call/test_pipeline_acceptance.py),
+# so a reliability run does not need a developer machine to stay awake.
+# Dispatch-only: there is no schedule and no pull_request trigger. The funded
+# (Hugging Face) path pushes refs/llmxive/funded-ledger, so the job holds a
+# contents:write token and, like every write job, runs only from main.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: llmxive-reliability-run
+  cancel-in-progress: false
+
+jobs:
+  reliability-run:
+    runs-on: ubuntu-latest
+    # The test's own budget is 4 hours, checked between steps; leave room for
+    # setup and one long final step inside GitHub's 6-hour job limit.
+    timeout-minutes: 345
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    env:
+      LLMXIVE_REAL_TESTS: "1"
+      LLMXIVE_E2E_FULL: "1"
+      DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
+      LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
+      LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
+      LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      LLMXIVE_ACCEPTANCE_ARTIFACTS: ${{ runner.temp }}/llmxive-acceptance
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package and dev deps
+        run: pip install -e ".[dev]"
+
+      # The paper stages compile with lualatex + bibtex (same toolchain as the
+      # nightly full suite).
+      - name: Install TeX Live (lualatex + bibtex) for paper compiles
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-luatex texlive-latex-recommended texlive-latex-extra \
+            texlive-fonts-recommended texlive-fonts-extra texlive-science \
+            texlive-bibtex-extra texlive-pictures texlive-plain-generic \
+            texlive-lang-english fonts-noto-core
+          lualatex --version | head -1
+          bibtex --version | head -1
+
+      - name: Install llmXive house fonts
+        run: |
+          mkdir -p "$HOME/.fonts"
+          cp papers/.style/fonts/*.ttf "$HOME/.fonts/"
+          fc-cache -f >/dev/null
+
+      - name: Full-pipeline acceptance run
+        run: pytest tests/real_call/test_pipeline_acceptance.py -x -s -p no:cacheprovider
+
+      - name: Preserve research, paper and failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reliability-run-acceptance
+          path: ${{ runner.temp }}/llmxive-acceptance
+          if-no-files-found: ignore
+          retention-days: 30
