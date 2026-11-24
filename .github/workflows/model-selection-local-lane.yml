@@ -8,8 +8,10 @@ name: Spec 026 — local-backend real-call lane
 # `[local]` extra a FAILURE in this lane (no importorskip), so the evidence is real.
 
 on:
-  schedule:
-    - cron: '30 6 * * 0'   # weekly, Sunday 06:30 UTC
+  # SCHEDULE PAUSED 2026-11-23: manual dispatch only until reliable performance and
+  # quality are verified. To restore, uncomment the block below.
+  # schedule:
+  #   - cron: '30 6 * * 0'   # weekly, Sunday 06:30 UTC
   workflow_dispatch: {}
 
 permissions:
