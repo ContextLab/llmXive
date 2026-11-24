@@ -55,10 +55,17 @@ def route_kickback(spec: ReviewSpec, unresolved: list[Concern]) -> KickbackRecor
         raise ValueError("route_kickback() requires at least one unresolved concern")
     worst = worst_severity([c.severity for c in unresolved])
     to_stage = _nearest_routing(spec.kickback_routing, worst)
-    if spec.marker_route is not None and all(_is_marker_backstop(c) for c in unresolved):
-        # Nothing a reviewer raised is open: only the document's own unverified
-        # claim(s). The stage that revises this document is what can clear them.
-        to_stage = spec.marker_route
+    if spec.marker_route is not None:
+        # The document's own unverified claim(s) are cleared by the stage that
+        # revises this document, so they do not choose the route: what reviewers
+        # raised does, by its own worst severity. A reviewer restating the markers
+        # at requirement level must not inherit the marker's science severity
+        # (run r3, 2026-11-24: that dropped an accepted research stage).
+        raised = [c for c in unresolved if not _is_marker_backstop(c)]
+        to_stage = (
+            _nearest_routing(spec.kickback_routing, worst_severity([c.severity for c in raised]))
+            if raised else spec.marker_route
+        )
     artifact_links = sorted({c.artifact for c in unresolved} | set(spec.artifacts))
     reason = (
         f"{len(unresolved)} concern(s) remained unresolved after {spec.max_rounds} "

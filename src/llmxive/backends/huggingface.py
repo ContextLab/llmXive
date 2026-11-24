@@ -79,9 +79,11 @@ class HFPaymentRequired(PreInferenceRejection, BackendUnavailable):
 
 
 class HFRouteUnavailable(BackendUnavailable):
-    """HTTP 404: the router has no provider it may use for this model and request
-    (for example "No allowed providers are available for the selected model" when
-    the pinned provider serves the model's text calls but not image input).
+    """HTTP 404, or HTTP 400 with code ``model_not_supported``: the router has no
+    provider it may use for this model and request (for example "No allowed
+    providers are available for the selected model" when the pinned provider
+    serves the model's text calls but not image input, or "not supported by
+    provider" when the pinned provider has stopped serving the model).
 
     Another candidate may serve the request, so the chain advances
     (``disposition_of`` treats every :class:`BackendUnavailable` that way). It is
@@ -145,6 +147,22 @@ def _error_text(resp: httpx.Response, secrets: Iterable[str]) -> str:
         body = resp.text
     err = body.get("error", body) if isinstance(body, dict) else body
     return _safe_error_text(err, secrets)
+
+
+# The router's error code when the pinned provider does not serve the model (a
+# provider can drop a model after the catalog snapshot that listed the pair).
+_MODEL_NOT_SUPPORTED = "model_not_supported"
+
+
+def _error_code(resp: httpx.Response) -> str:
+    """The machine-readable ``error.code`` of an error body, or ``""``."""
+    try:
+        body: Any = resp.json()
+    except ValueError:
+        return ""
+    err = body.get("error") if isinstance(body, dict) else None
+    code = err.get("code") if isinstance(err, dict) else None
+    return code if isinstance(code, str) else ""
 
 
 def _safe_error_text(err: Any, secrets: Iterable[str]) -> str:
@@ -303,7 +321,7 @@ class HuggingFaceBackend(BaseBackend):
                 raise HFPaymentRequired(msg)
             if status in (401, 403):
                 raise HFCredentialRejected(msg, http_status=status)
-            if status == 404:
+            if status == 404 or (status == 400 and _error_code(resp) == _MODEL_NOT_SUPPORTED):
                 raise HFRouteUnavailable(msg)  # this pair cannot serve this request; try the next
             if status in (408, 429) or status >= 500:
                 raise TransientBackendError(msg)
