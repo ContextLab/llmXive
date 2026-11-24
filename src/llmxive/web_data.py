@@ -221,8 +221,7 @@ def _build_agents_block(repo: Path) -> list[dict[str, Any]]:
             "prompt_raw_url": (f"{GITHUB_RAW_BASE}/{prompt_path}" if prompt_path else None),
             "registry_github_url": REGISTRY_GITHUB_URL,
             "tools": list(a.get("tools", []) or []),
-            "default_backend": a.get("default_backend"),
-            "default_model": a.get("default_model"),
+            "profile": a.get("profile"),
             "inputs": list(a.get("inputs", []) or []),
             "outputs": list(a.get("outputs", []) or []),
         })

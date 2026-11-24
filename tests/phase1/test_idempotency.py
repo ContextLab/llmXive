@@ -52,9 +52,7 @@ def _make_registry_entry() -> AgentRegistryEntry:
         outputs=["project_state"],
         prompt_path="agents/prompts/project_initializer.md",
         prompt_version="1.0.0",
-        default_backend="dartmouth",
-        fallback_backends=["local"],
-        default_model="qwen.qwen3.5-122b",
+        profile="standard_generation",
         wall_clock_budget_seconds=300,
         paid_opt_in=False,
     )

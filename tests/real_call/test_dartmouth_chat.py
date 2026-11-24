@@ -6,25 +6,44 @@ import os
 
 import pytest
 
-from llmxive.backends.dartmouth import KNOWN_FREE_MODELS
-from llmxive.backends.router import DEFAULT_MODEL, MODEL_FALLBACKS, REASONING_MAX_TOKENS
+from llmxive.backends.router import REASONING_MAX_TOKENS
 
-_MODELS = [
-    pytest.param(DEFAULT_MODEL, id="configured-primary"),
-    *(
-        pytest.param(model, id=model, marks=pytest.mark.slow)
-        for model in dict.fromkeys(MODEL_FALLBACKS.get(DEFAULT_MODEL, []))
-        if model != DEFAULT_MODEL and model in KNOWN_FREE_MODELS
-    ),
-]
-
-
-@pytest.mark.skipif(
+_NEEDS_KEY = pytest.mark.skipif(
     not os.environ.get("DARTMOUTH_CHAT_API_KEY"),
     reason="DARTMOUTH_CHAT_API_KEY not set; live coverage unavailable",
 )
-@pytest.mark.parametrize("model_id", _MODELS)
-def test_dartmouth_real_chat(model_id: str) -> None:
+
+
+def _free_chain() -> tuple[str, ...]:
+    """The free Dartmouth chain the selector offers a deep call RIGHT NOW (spec
+    026): leader first, then every free peer. Resolved inside the test, from the
+    live snapshot — there is no model table to read at import time. ``deep_review``
+    admits no local candidate, so every id here is Dartmouth-hosted."""
+    from llmxive.model_selection.route import free_peer_ids
+
+    chain = free_peer_ids("deep_review")
+    assert chain, "the selector offers no free model for deep_review"
+    return chain
+
+
+@_NEEDS_KEY
+def test_dartmouth_real_chat_configured_primary() -> None:
+    _exercise(_free_chain()[0])
+
+
+@_NEEDS_KEY
+@pytest.mark.slow
+def test_dartmouth_real_chat_every_free_peer() -> None:
+    failures: list[str] = []
+    for model_id in _free_chain()[1:]:
+        try:
+            _exercise(model_id)
+        except AssertionError as exc:  # report EVERY broken peer, not just the first
+            failures.append(f"{model_id}: {exc}")
+    assert not failures, "\n".join(failures)
+
+
+def _exercise(model_id: str) -> None:
     from llmxive.backends.base import ChatMessage
     from llmxive.backends.dartmouth import DartmouthBackend, is_free_model
 

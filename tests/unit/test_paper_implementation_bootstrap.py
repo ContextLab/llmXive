@@ -7,9 +7,15 @@ import yaml
 
 from llmxive.agents import task_verifier as tv
 from llmxive.backends.base import ChatResponse
+from llmxive.model_selection.profiles import selection_identity
+from llmxive.model_selection.types import RequirementOverrides
 from llmxive.speckit.paper_implement_cmd import PaperImplementerAgent
 from llmxive.speckit.slash_command import SlashCommandContext
-from llmxive.types import BackendName
+
+#: Spec 026: the dispatch's selection is a profile + escalation overrides (the
+#: free second-opinion rung here), not a model id.
+ESCALATED = RequirementOverrides(allow_paid=False, exclude_leader=True)
+SELECTION = {'profile': 'deep_code', 'overrides': ESCALATED}
 
 
 @pytest.fixture
@@ -32,7 +38,9 @@ def paper(tmp_path, monkeypatch):
     (project / 'data').mkdir()
     (project / 'data/measured.csv').write_text('p,value\n11,0.42\n')
     ctx = SlashCommandContext(project.name, project, 'run-test', 'pipeline-task', [], [],
-                              tmp_path / 'unused', BackendName.DARTMOUTH, [], 'test-model', '1.0.0', 'paper_implementer')
+                              tmp_path / 'unused', 'deep_code', '1.0.0', 'paper_implementer',
+                              # A tier-escalated dispatch: every receipt below is bound to it.
+                              requirement_overrides=ESCALATED)
     agent = PaperImplementerAgent()
     monkeypatch.setattr(tv, 'verify_task', lambda **kw: tv.TaskVerdict(True, 'Selected task artifact matches.'))
     return agent, ctx, feature / 'tasks.md'
@@ -61,7 +69,9 @@ def test_empty_source_bootstraps_real_file_and_verifies_before_next_task(paper, 
     assert (ctx.project_dir / 'paper/source/main.tex').read_text() == TEX
     assert len(calls) == 1
     assert '[X] T001' in tasks.read_text() and '[ ] T002' in tasks.read_text()
-    assert tv.verified_done_keys(ctx.project_dir, tasks, model='test-model') == {'T001'}
+    assert calls[0]['overrides'] is ESCALATED
+    assert tv.verified_done_keys(ctx.project_dir, tasks, overrides=ESCALATED) == {'T001'}
+    assert tv.verified_done_keys(ctx.project_dir, tasks) == set()  # a different selection
     assert not (ctx.project_dir / '.specify/memory/task_verify_cache.yaml').exists()
     assert agent.mechanical_step(ctx)['next_task_id'] == 'T002'
     assert not (ctx.project_dir / 'paper/.specify/memory/human_input_needed.yaml').exists()
@@ -175,6 +185,8 @@ def test_finalization_runs_panel_then_reverification_then_real_proofreader_dispa
     monkeypatch.setattr('llmxive.convergence.engine.run_convergence', panel)
     def proofread_chat(messages, **kw):
         assert 'independently reviewed' in messages[-1].content
+        # The proofreader keeps its own profile but runs under the dispatch's tier.
+        assert kw['overrides'] is ESCALATED and kw['profile'] != ctx.profile
         events.append('proofreader')
         return ChatResponse('verdict: clean\nflags: []\n', 'test-model', 'dartmouth')
     # Actual ProofreaderAgent.run -> build_messages -> handler -> source-bound receipt.
@@ -184,9 +196,9 @@ def test_finalization_runs_panel_then_reverification_then_real_proofreader_dispa
     agent.write_artifacts(ctx, agent.mechanical_step(ctx), proposal(artifacts=[{'path': 'paper/source/main.tex', 'contents': TEX}]))
     assert events == ['verify', 'panel', 'verify', 'proofreader']
     assert proofreader_clean(ctx.project_id, repo_root=ctx.project_dir.parent.parent)
-    assert paper_implementation_review_current(ctx.project_dir, tasks.parent, model="test-model")
+    assert paper_implementation_review_current(ctx.project_dir, tasks.parent, **SELECTION)
     (ctx.project_dir / 'paper/source/main.tex').write_text(TEX + '% later edit\n')
-    assert not paper_implementation_review_current(ctx.project_dir, tasks.parent, model="test-model")
+    assert not paper_implementation_review_current(ctx.project_dir, tasks.parent, **SELECTION)
     assert not proofreader_clean(ctx.project_id, repo_root=ctx.project_dir.parent.parent)
 
 
@@ -265,7 +277,7 @@ def test_repeated_protocol_and_write_refusals_are_bounded(paper):
     assert 'proposal rejected 3 times' in (ctx.project_dir / 'paper/.specify/memory/implementation_failure.yaml').read_text()
 
 
-def test_review_receipt_invalidates_on_model_or_policy_change(paper, monkeypatch):
+def test_review_receipt_invalidates_on_selection_or_policy_change(paper, monkeypatch):
     from llmxive.speckit.paper_implement_cmd import (
         _paper_review_hash,
         _paper_review_policy_hash,
@@ -277,12 +289,27 @@ def test_review_receipt_invalidates_on_model_or_policy_change(paper, monkeypatch
     repo = ctx.project_dir.parent.parent
     receipt = ctx.project_dir / 'paper/.specify/memory/implementation_review.yaml'
     receipt.write_text(yaml.safe_dump({'version': 1, 'hash': _paper_review_hash(ctx.project_dir, tasks.parent),
-                                      'policy': _paper_review_policy_hash(repo), 'model': ctx.default_model}))
-    assert paper_implementation_review_current(ctx.project_dir, tasks.parent, model=ctx.default_model)
-    assert not paper_implementation_review_current(ctx.project_dir, tasks.parent, model='different-free-model')
+                                      'policy': _paper_review_policy_hash(repo),
+                                      'selection': selection_identity(ctx.profile, ESCALATED)}))
+    assert paper_implementation_review_current(ctx.project_dir, tasks.parent, **SELECTION)
+    # Another tier, another profile, or no escalation at all: each is a different selection.
+    assert not paper_implementation_review_current(
+        ctx.project_dir, tasks.parent, profile=ctx.profile, overrides=RequirementOverrides(allow_paid=False))
+    assert not paper_implementation_review_current(
+        ctx.project_dir, tasks.parent, profile='deep_review', overrides=ESCALATED)
+    assert not paper_implementation_review_current(
+        ctx.project_dir, tasks.parent, profile=ctx.profile, overrides=None)
+    # A pre-026 receipt that recorded a model id instead is never current.
+    legacy = yaml.safe_load(receipt.read_text())
+    legacy['model'] = legacy.pop('selection')
+    current = receipt.read_text()
+    receipt.write_text(yaml.safe_dump(legacy))
+    assert not paper_implementation_review_current(ctx.project_dir, tasks.parent, **SELECTION)
+    receipt.write_text(current)
+    assert paper_implementation_review_current(ctx.project_dir, tasks.parent, **SELECTION)
     (repo / 'web').mkdir()
     (repo / 'web/about.html').write_text('Changed scientific review policy')
-    assert not paper_implementation_review_current(ctx.project_dir, tasks.parent, model=ctx.default_model)
+    assert not paper_implementation_review_current(ctx.project_dir, tasks.parent, **SELECTION)
 
 
 def test_track_specific_recovery_preserves_other_track_records(paper):

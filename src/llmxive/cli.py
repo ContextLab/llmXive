@@ -310,7 +310,7 @@ def _cmd_agents_run(args: argparse.Namespace) -> int:
     if args.dry_run:
         print(
             f"[agents run --dry-run] would invoke {entry.name} on {args.project} "
-            f"(backend={entry.default_backend.value}, model={entry.default_model})"
+            f"(profile={entry.profile})"
         )
         return 0
     # Real invocation is wired per user story; until then this is a no-op
@@ -343,6 +343,75 @@ def _cmd_credits(args: argparse.Namespace) -> int:
     print(f"paid-call cap:    {cap:.2f} credits ({credits_mod.budget_fraction():.0%} of max_budget)")
     print(f"resets at:        {balance.budget_reset_at} ({balance.budget_duration})")
     print(f"paid opt-in:      {'ON' if credits_mod.paid_opt_in_enabled() else 'off'} ({credits_mod.PAID_OPT_IN_ENV})")
+    return 0
+
+
+def _cmd_credits_ledger_sweep(args: argparse.Namespace) -> int:
+    """Reconcile/sweep the credit-reservation ledger (spec 026 / FR-016).
+
+    Settles abandoned in-flight reservations conservatively, discards prior-epoch
+    reservations at the daily reset, and reconciles the current-epoch settling
+    batch against the freshly-observed provider spend (attribution-prefix rule).
+    Intended for a maintenance cron; safe to run repeatedly (idempotent events).
+    """
+    from llmxive.backends import credits as credits_mod
+    from llmxive.config import repo_root
+    from llmxive.model_selection import reservations
+    from llmxive.model_selection.ledger_transport import LedgerConfig, ledger_config_from_env
+
+    balance = credits_mod.fetch_credit_balance()  # FRESH, cache-bypassing
+    # R5-1 / finding-3: the sweep builds its config from the SAME source execute's
+    # paid path uses (`ledger_config_from_env`), so both pin the SAME remote + anchor
+    # (`LLMXIVE_CREDIT_LEDGER_ANCHOR`) and verify the authoritative ref's ancestry.
+    # ``--no-remote`` is the local/degenerate escape (tests / single runner).
+    config = (
+        LedgerConfig(remote=None)
+        if args.no_remote
+        else ledger_config_from_env(remote=args.remote)
+    )
+    # NOTE (R3-4): the sweep does NOT bootstrap — bootstrap is a one-time explicit
+    # admin op (`llmxive credits-ledger-bootstrap`). A sweep against a non-bootstrapped
+    # or wrong remote fails closed (never creates a divergent ledger).
+    result = reservations.sweep(
+        repo_root(),
+        observed_spend=balance.spend,
+        current_epoch=balance.budget_reset_at,
+        config=config,
+    )
+    for phase, ids in result.items():
+        print(f"{phase}: {len(ids)}" + (f" ({', '.join(ids)})" if ids else ""))
+    return 0
+
+
+def _cmd_funded_ledger_bootstrap(args: argparse.Namespace) -> int:
+    """One-time ADMIN op: create the funded (real-money) ledger ref. Same guards as
+    ``credits-ledger-bootstrap`` (wrong-remote refusal, idempotent adoption)."""
+    from llmxive.config import repo_root
+    from llmxive.model_selection.ledger_transport import (
+        FUNDED_LEDGER_ANCHOR_ENV,
+        FUNDED_LEDGER_REF,
+        bootstrap_ledger,
+    )
+
+    remote = None if args.no_remote else args.remote
+    anchor = bootstrap_ledger(repo_root(), remote=remote, ref=FUNDED_LEDGER_REF)
+    print(f"funded-ledger bootstrapped on {remote or 'local-only'}")
+    print(f"PIN {FUNDED_LEDGER_ANCHOR_ENV}={anchor} and protect {FUNDED_LEDGER_REF} server-side.")
+    return 0
+
+
+def _cmd_credits_ledger_bootstrap(args: argparse.Namespace) -> int:
+    """One-time ADMIN op (R3-4): create the authoritative credit-reservation ledger
+    ref. Run ONCE by a maintainer with push access — NOT part of the routine sweep.
+    Refuses to bootstrap a remote that has no ledger while a local one exists (a
+    wrong-remote guard). Idempotent: adopts an already-bootstrapped remote ledger."""
+    from llmxive.config import repo_root
+    from llmxive.model_selection.ledger_transport import bootstrap_ledger
+
+    remote = None if args.no_remote else args.remote
+    anchor = bootstrap_ledger(repo_root(), remote=remote)
+    print(f"credit-ledger bootstrapped (anchor {anchor[:12]}) on {remote or 'local-only'}")
+    print("PIN this anchor in production wiring (expected_anchor) + protect the ref server-side.")
     return 0
 
 
@@ -487,12 +556,10 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
                     ChatMessage(role="system", content=system),
                     ChatMessage(role="user", content=user),
                 ],
-                default_backend=entry.default_backend.value,
-                fallback_backends=[b.value for b in entry.fallback_backends],
-                model=entry.default_model,
+                profile=entry.profile,
             )
             body = response.text.strip()
-            model_used = response.model or entry.default_model
+            model_used = response.model
         except Exception as exc:
             print(f"[brainstorm] LLM call failed ({exc!r}); skipping seed {i+1}", file=sys.stderr)
             continue
@@ -1076,6 +1143,36 @@ def build_parser() -> argparse.ArgumentParser:
         help="show the Dartmouth daily paid-credit balance (issue #295)",
     )
     p_credits.set_defaults(func=_cmd_credits)
+
+    p_ledger_sweep = subs.add_parser(
+        "credits-ledger-sweep",
+        help="reconcile/sweep the credit-reservation ledger (spec 026 / FR-016)",
+    )
+    p_ledger_sweep.add_argument(
+        "--remote", default="origin",
+        help="git remote holding the authoritative ledger ref (default: origin)",
+    )
+    p_ledger_sweep.add_argument(
+        "--no-remote", action="store_true",
+        help="operate on the local ledger ref only (no fetch/push)",
+    )
+    p_ledger_sweep.set_defaults(func=_cmd_credits_ledger_sweep)
+
+    p_ledger_bootstrap = subs.add_parser(
+        "credits-ledger-bootstrap",
+        help="ONE-TIME admin op: create the credit-reservation ledger ref (spec 026 / R3-4)",
+    )
+    p_ledger_bootstrap.add_argument("--remote", default="origin", help="git remote (default: origin)")
+    p_ledger_bootstrap.add_argument("--no-remote", action="store_true", help="local ledger only")
+    p_ledger_bootstrap.set_defaults(func=_cmd_credits_ledger_bootstrap)
+
+    p_funded_bootstrap = subs.add_parser(
+        "funded-ledger-bootstrap",
+        help="ONE-TIME admin op: create the funded (USD) ledger ref (spec 027)",
+    )
+    p_funded_bootstrap.add_argument("--remote", default="origin", help="git remote (default: origin)")
+    p_funded_bootstrap.add_argument("--no-remote", action="store_true", help="local ledger only")
+    p_funded_bootstrap.set_defaults(func=_cmd_funded_ledger_bootstrap)
 
     p_auth = subs.add_parser("auth", help="manage local Dartmouth Chat credentials")
     auth_subs = p_auth.add_subparsers(dest="auth_cmd", required=True)

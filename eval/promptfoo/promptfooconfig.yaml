@@ -8,8 +8,9 @@
 # the build before a prompt change merges.
 #
 # Local/offline run (no Dartmouth access — identical code path through
-# local transformers):
-#   LLMXIVE_EVAL_BACKEND=local LLMXIVE_EVAL_MODEL=Qwen/Qwen2.5-0.5B-Instruct \
+# local transformers; the local checkpoint is offered under the
+# standard_generation profile, see llmxive_provider.py):
+#   LLMXIVE_EVAL_PROFILE=standard_generation LLMXIVE_EVAL_MODEL=Qwen/Qwen2.5-3B-Instruct \
 #     npx promptfoo@latest eval -c eval/promptfoo/promptfooconfig.yaml --no-cache
 
 description: "llmXive reviewer-prompt regression gate"

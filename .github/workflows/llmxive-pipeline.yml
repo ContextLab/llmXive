@@ -72,6 +72,8 @@ jobs:
       - name: Preflight (FR-024 fail-fast preconditions)
         env:
           DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+          LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
+          LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
           LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
           DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
@@ -82,6 +84,8 @@ jobs:
         timeout-minutes: 300
         env:
           DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+          LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
+          LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
           LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
           DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
@@ -104,7 +108,9 @@ jobs:
           LLMXIVE_PAID_OPT_IN: "1"
           LLMXIVE_PAID_BUDGET_FRACTION: "0.9"
           # Paid escalation ladder (after the free tiers) for the execution/convergence fix-loop
-          LLMXIVE_EXECUTION_PAID_TIERS: "anthropic.claude-haiku-4-5-20251001,anthropic.claude-sonnet-4-6,anthropic.claude-opus-4-6"
+          # Boolean (spec 026): enables the single paid rung; the selector, not a
+          # model-id list, picks the paid model from the capability policy.
+          LLMXIVE_EXECUTION_PAID_ESCALATION: "1"
         run: |
           ARGS=(run --max-tasks 5)
           if [[ -n "${PROJECT_ID:-}" ]]; then ARGS+=(--project "$PROJECT_ID"); fi

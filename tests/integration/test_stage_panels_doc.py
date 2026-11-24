@@ -29,7 +29,6 @@ import yaml
 from llmxive.convergence.types import Concern, Severity, Verdict
 from llmxive.speckit._stage_panel import StagePanelKickback
 from llmxive.speckit.slash_command import SlashCommandContext
-from llmxive.types import BackendName
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -97,9 +96,7 @@ def _ctx(project_id: str, project_dir: Path, agent_name: str) -> SlashCommandCon
         run_id="r", task_id="t",
         inputs=[], expected_outputs=[],
         prompt_template_path=project_dir / "ignored.md",
-        default_backend=BackendName.DARTMOUTH,
-        fallback_backends=[],
-        default_model="fake-model",
+        profile="standard_generation",
         prompt_version="1.0.0",
         agent_name=agent_name,
     )
@@ -639,7 +636,6 @@ def test_tasks_bridge_keeps_live_panel_and_analyze_reviewer(monkeypatch, tmp_pat
         backend=backend,
         constitution_text=None,
         analyze_report_text="report",
-        model="fake-model",
     )
     # The live panel had the 4 lenses (wired by build_tasks_reviewspec); the
     # bridge appended the analyze reviewer → its panel ran ALL of them.

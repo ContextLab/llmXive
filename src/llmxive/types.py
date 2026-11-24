@@ -184,8 +184,10 @@ class ArtifactKind(StrEnum):
 
 class BackendName(StrEnum):
     DARTMOUTH = "dartmouth"
-    # The HF Inference-API backend was removed (2026-05-29): HF models run
-    # LOCALLY via the `local`/transformers backend, with no API token.
+    # HF *models* also run LOCALLY via the `local`/transformers backend. The
+    # Hugging Face router (Inference Providers) is a separate funded backend
+    # (spec 027); an earlier HF Inference-API backend was removed 2026-05-29.
+    HUGGINGFACE = "huggingface"
     LOCAL = "local"
 
 
@@ -661,19 +663,42 @@ class RunLogEntry(_Strict):
     task_id: str
     inputs: list[str] = Field(default_factory=list)
     outputs: list[str] = Field(default_factory=list)
-    backend: BackendName
-    model_name: str = Field(min_length=1)
+    backend: BackendName | None = None
+    model_name: str | None = Field(default=None, min_length=1)
     prompt_version: SemverField
     started_at: datetime
     ended_at: datetime
     outcome: Outcome
     failure_reason: str | None = None
     cost_estimate_usd: float = Field(ge=0.0)
+    # Optional breakdown of ``cost_estimate_usd`` by the backend that served each
+    # response (a run can span backends: a funded call then a free retry). Omitted
+    # when no response carried a cost; the total stays in ``cost_estimate_usd``.
+    cost_by_backend: dict[BackendName, float] | None = None
+
+    @model_validator(mode="after")
+    def _cost_breakdown_sums_to_total(self) -> RunLogEntry:
+        if self.cost_by_backend is not None:
+            if any(v < 0 for v in self.cost_by_backend.values()):
+                raise ValueError("cost_by_backend values must be >= 0")
+            if abs(sum(self.cost_by_backend.values()) - self.cost_estimate_usd) > 1e-9:
+                raise ValueError("cost_by_backend must sum to cost_estimate_usd")
+        return self
 
     @model_validator(mode="after")
     def _time_order(self) -> RunLogEntry:
         if self.ended_at < self.started_at:
             raise ValueError("ended_at must be >= started_at")
+        return self
+
+    @model_validator(mode="after")
+    def _attribution_on_success(self) -> RunLogEntry:
+        # A SUCCESSFUL run must name the model that actually answered; a run that
+        # failed before any ChatResponse has nothing truthful to record. Seeding
+        # from a registry default (pre-spec-026) invented a model for a call that
+        # may never have happened — and this field feeds paper authorship.
+        if self.outcome is Outcome.SUCCESS and (self.backend is None or not self.model_name):
+            raise ValueError("a SUCCESS run-log entry must record backend and model_name")
         return self
 
 
@@ -686,6 +711,22 @@ class BackendEntry(_Strict):
     is_paid: Literal[False]  # v1 invariant: Constitution Principle IV
 
 
+#: The canonical requirement-profile names (spec 026 FR-012) plus the no-LLM
+#: sentinel. Declared as a Literal HERE rather than imported from
+#: llmxive.model_selection.profiles, because a runtime import would cycle
+#: (model_selection/__init__ -> execute -> backends.router -> llmxive.types).
+#: tests/unit/test_profile_schema.py asserts this stays in sync with PROFILES.
+ProfileName = Literal[
+    "cheap_structured",
+    "standard_generation",
+    "deep_review",
+    "deep_code",
+    "vision",
+    "independent_review",
+    "deterministic-no-llm",
+]
+
+
 class AgentRegistryEntry(_Strict):
     name: SnakeNameField
     purpose: str = Field(min_length=10, max_length=200)
@@ -693,16 +734,17 @@ class AgentRegistryEntry(_Strict):
     outputs: list[ArtifactKind] = Field(default_factory=list)
     prompt_path: Annotated[str, Field(pattern=PROMPT_PATH_RE.pattern)]
     prompt_version: SemverField
-    default_backend: BackendName
-    fallback_backends: list[BackendName] = Field(default_factory=list)
-    default_model: str = Field(min_length=1)
+    profile: ProfileName
     tools: list[SnakeNameField] = Field(default_factory=list)
     wall_clock_budget_seconds: int = Field(ge=30, le=1800)
-    # Default False (Constitution Principle IV free-first). True is
-    # sanctioned ONLY via the credit-managed Dartmouth daily-budget path
-    # (issue #295; runtime-gated by LLMXIVE_PAID_OPT_IN + the live credit
-    # cap in backends/credits.py) and requires written justification in
-    # the introducing PR.
+    # Default False (Constitution Principle IV free-first). True permits this
+    # agent to configure a paid-PREFERRING default/profile, and is sanctioned
+    # ONLY via the credit-managed Dartmouth daily-budget path (issue #295;
+    # runtime-gated by LLMXIVE_PAID_OPT_IN + the live credit cap in
+    # backends/credits.py), requiring written justification in the introducing
+    # PR. It does NOT gate the platform's guarded paid FALLBACK: that tail is
+    # governed process-wide by the credit guard (spec 026 SC-007(b)), exactly as
+    # the legacy MODEL_FALLBACKS chain was.
     paid_opt_in: bool = False
 
 
@@ -941,6 +983,7 @@ __all__ = [
     "ImplementerStatus",
     "Lock",
     "Outcome",
+    "ProfileName",
     "Project",
     "Publication",
     "ReviewRecord",

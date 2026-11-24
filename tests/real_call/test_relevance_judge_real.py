@@ -8,13 +8,10 @@ Uses the verbatim PROJ-261 research question — the project whose
 strict/marginal citation split flipped between flesh_out re-runs in the
 issue's original evidence.
 
-Backend selection (so the suite runs both in CI and in offline-from-
-Dartmouth dev containers):
-  - default: Dartmouth Chat + qwen.qwen3.5-122b (nightly CI)
-  - override: LLMXIVE_JUDGE_TEST_BACKEND=local +
-    LLMXIVE_JUDGE_TEST_MODEL=Qwen/Qwen2.5-0.5B-Instruct exercises the
-    same code path through the local transformers backend (validated
-    2026-06-10: 3/3 identical verdicts, ~18 s/call on CPU).
+Backend/model selection (spec 026 slice 7): ``judge_one`` routes purely by
+its named capability ``profile`` ("deep_review") — there is no longer a
+caller-side backend/model override channel, so this suite exercises whatever
+the router's live selection resolves to (real Dartmouth Chat).
 """
 
 from __future__ import annotations
@@ -28,9 +25,6 @@ pytestmark = pytest.mark.skipif(
     os.environ.get("LLMXIVE_REAL_TESTS") != "1",
     reason="set LLMXIVE_REAL_TESTS=1 to exercise live LLM calls",
 )
-
-BACKEND = os.environ.get("LLMXIVE_JUDGE_TEST_BACKEND", "dartmouth")
-MODEL = os.environ.get("LLMXIVE_JUDGE_TEST_MODEL", "qwen.qwen3.5-122b")
 
 # PROJ-261 (verbatim from projects/PROJ-261-.../idea/) — the issue #112
 # reproduction case.
@@ -57,9 +51,7 @@ def _judge(**extra):
 
     return judge_one(
         query=QUERY,
-        model=MODEL,
-        default_backend=BACKEND,
-        fallback_backends=[],
+        profile="deep_review",
         **OFF_TOPIC,
         **extra,
     )

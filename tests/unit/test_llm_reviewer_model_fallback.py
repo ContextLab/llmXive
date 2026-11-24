@@ -74,7 +74,6 @@ def _reviewer(backend) -> LLMReviewer:
         stage="clarified",
         backend=backend,
         repo_root=_REPO_ROOT,
-        model="openai.gpt-oss-120b",
     )
 
 
@@ -82,13 +81,17 @@ _ARTIFACTS = {"specs/000-x/spec.md": "## Functional Requirements\n- FR-002: do X
 
 
 def test_healthy_primary_no_fallback():
-    backend = _ModelRoutingBackend(replies={"openai.gpt-oss-120b": _VALID_PRIMARY})
+    # Spec 026 slice 7: the reviewer no longer pins a caller model — the
+    # NATURAL leader of the "deep_review" profile chain against the offline
+    # snapshot (conftest._offline_snapshot) is zai-org.glm-5.3 (policy order:
+    # glm-5.3 -> qwen3.5 -> gemma-4 -> gpt-oss).
+    backend = _ModelRoutingBackend(replies={"zai-org.glm-5.3": _VALID_PRIMARY})
     concerns = _reviewer(backend).identify(_ARTIFACTS, constitution=None, advisory=[])
     # Behavior identical to today: the primary's concern is returned.
     assert len(concerns) == 1
     assert "PRIMARY" in concerns[0].text
     # Exactly one call to the primary — no peer-model fallback.
-    assert [c["model"] for c in backend.calls] == ["openai.gpt-oss-120b"]
+    assert [c["model"] for c in backend.calls] == ["zai-org.glm-5.3"]
     # Reasoning-safe default max_tokens (32_768) was passed.
     assert backend.calls[0]["max_tokens"] == 32_768
 
@@ -96,18 +99,18 @@ def test_healthy_primary_no_fallback():
 def test_primary_transient_walks_to_peer():
     backend = _ModelRoutingBackend(
         replies={
-            "openai.gpt-oss-120b": _VALID_PRIMARY,  # never reached (transient)
-            "zai-org.glm-5.3": _VALID_PEER,       # first free peer in the chain
+            "zai-org.glm-5.3": _VALID_PRIMARY,        # never reached (transient)
+            "qwen.qwen3.5-122b": _VALID_PEER,        # next free peer in the chain
         },
-        transient_models={"openai.gpt-oss-120b"},
+        transient_models={"zai-org.glm-5.3"},
     )
     concerns = _reviewer(backend).identify(_ARTIFACTS, constitution=None, advisory=[])
     # The PEER's response (accept → no concerns) is what the reviewer returned,
     # proving the fallback chain was walked instead of stalling on the dead model.
     assert concerns == []
     models = [c["model"] for c in backend.calls]
-    assert models[-1] == "zai-org.glm-5.3"
-    assert "openai.gpt-oss-120b" in models
+    assert models[-1] == "qwen.qwen3.5-122b"
+    assert "zai-org.glm-5.3" in models
     # The reasoning-safe budget reached the PEER too.
     assert backend.calls[-1]["max_tokens"] == 32_768
 

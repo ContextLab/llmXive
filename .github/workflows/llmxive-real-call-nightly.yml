@@ -22,9 +22,16 @@ jobs:
   real-call-full:
     runs-on: ubuntu-latest
     timeout-minutes: 330
+    # The funded (Hugging Face) path pushes refs/llmxive/funded-ledger, so this job
+    # holds a write token; it runs only from main (the workflow is dispatch-only).
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
     env:
       LLMXIVE_REAL_TESTS: "1"
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
+      LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
       LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
       DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}

@@ -24,7 +24,6 @@ from llmxive.speckit.yaml_extract import outer_fenced_body
 logger = logging.getLogger(__name__)
 
 _PROMPT_PATH = "agents/prompts/claim_extraction.md"
-_DEFAULT_MODEL = "openai.gpt-oss-120b"
 
 # ---------------------------------------------------------------------------
 # Post-parse deterministic filter
@@ -447,7 +446,7 @@ def extract_claims(
     ]
 
     try:
-        response = reasoning_chat(backend, messages, model=model or _DEFAULT_MODEL)
+        response = reasoning_chat(backend, messages, model=model, profile="cheap_structured")
         reply = getattr(response, "text", "") or ""
         if not reply.strip():
             raise ValueError("extraction reply was empty")

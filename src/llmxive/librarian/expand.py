@@ -3,10 +3,10 @@
 When the librarian's initial keyword search returns fewer than
 ``target_n`` verified citations, this module:
 
-  1. Calls the brainstorming LLM (Dartmouth Chat by default,
-     ``openai.gpt-oss-120b``) with a prompt that includes the original
-     term + project context (field + idea body excerpt) and asks for
-     10-20 alternative phrasings ranked by relevance.
+  1. Calls the brainstorming LLM (routed via the ``cheap_structured``
+     capability profile — spec 026 slice 7, no raw model pin) with a prompt
+     that includes the original term + project context (field + idea body
+     excerpt) and asks for 10-20 alternative phrasings ranked by relevance.
   2. Iterates through the ranked list, querying both Semantic Scholar
      and arXiv per term, accumulating verified citations.
   3. Terminates when ≥target_n verified accumulate OR the list is
@@ -58,9 +58,7 @@ def expand_terms(
     idea_body_excerpt: str | None,
     n: int = DEFAULT_EXPANSION_CAP,
     expansion_prompt: str | None = None,
-    model: str = "openai.gpt-oss-120b",
-    default_backend: str = "dartmouth",
-    fallback_backends: Sequence[str] = ("local",),
+    profile: str = "cheap_structured",
 ) -> list[tuple[int, str]]:
     """Ask the LLM for ``n`` ranked alternative phrasings of
     ``original_term``.
@@ -84,9 +82,7 @@ def expand_terms(
             ChatMessage(role="system", content=sys_prompt),
             ChatMessage(role="user", content=user_payload),
         ],
-        default_backend=default_backend,
-        fallback_backends=list(fallback_backends),
-        model=model,
+        profile=profile,
     )
 
     parsed = _parse_ranked_terms(response.text, original_term=original_term)

@@ -18,6 +18,7 @@ import getpass
 import json
 import os
 import stat
+import subprocess
 import sys
 import tomllib
 from dataclasses import dataclass
@@ -28,6 +29,8 @@ DARTMOUTH_KEY_NAME = "DARTMOUTH_CHAT_API_KEY"
 SEMANTIC_SCHOLAR_KEY_NAME = "SEMANTIC_SCHOLAR_API_KEY"
 ZENODO_TOKEN_NAME = "ZENODO_API_TOKEN"
 ZENODO_SANDBOX_TOKEN_NAME = "ZENODO_SANDBOX_API_TOKEN"
+HF_TOKEN_NAME = "HF_TOKEN"
+HF_KEYCHAIN_SERVICE = "llmxive-huggingface"
 
 
 def credentials_path() -> Path:
@@ -332,8 +335,46 @@ def load_kaggle_creds() -> tuple[str, str] | None:
     return None
 
 
+
+def load_hf_token(*, platform: str | None = None, security_bin: str = "security", timeout_s: float = 10.0) -> str | None:
+    """Load the Hugging Face token (spec 027): ``HF_TOKEN`` env, then macOS Keychain.
+
+    Resolution order:
+        1. ``HF_TOKEN`` environment variable (GitHub Actions secret path).
+        2. On macOS only, the generic-password Keychain item named
+           ``llmxive-huggingface`` (read through ``security find-generic-password
+           -s ... -w``; no account argument, so no personal account name is needed).
+
+    Deliberately NOT read: the plaintext huggingface_hub cache (``$HF_HOME/token``),
+    the legacy ``HUGGING_FACE_HUB_TOKEN`` variable, and any ``.env`` file.
+
+    ``platform`` defaults to ``sys.platform``; ``security_bin`` is the Keychain CLI;
+    a Keychain call slower than ``timeout_s`` counts as "no token".
+    Returns the stripped token or ``None``. Never prompts and never logs the value.
+    """
+    value = os.environ.get(HF_TOKEN_NAME, "").strip()
+    if value:
+        return value
+    if (platform if platform is not None else sys.platform) != "darwin":
+        return None
+    try:
+        result = subprocess.run(
+            [security_bin, "find-generic-password", "-s", HF_KEYCHAIN_SERVICE, "-w"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=timeout_s,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    out = result.stdout.strip()
+    return out if result.returncode == 0 and out else None
+
+
 __all__ = [
     "DARTMOUTH_KEY_NAME",
+    "HF_KEYCHAIN_SERVICE",
+    "HF_TOKEN_NAME",
     "SEMANTIC_SCHOLAR_KEY_NAME",
     "ZENODO_SANDBOX_TOKEN_NAME",
     "ZENODO_TOKEN_NAME",
@@ -343,6 +384,7 @@ __all__ = [
     "clear_dartmouth_key",
     "credentials_path",
     "load_dartmouth_key",
+    "load_hf_token",
     "load_kaggle_creds",
     "load_semantic_scholar_key",
     "load_zenodo_token",
@@ -350,3 +392,4 @@ __all__ = [
     "save_dartmouth_key",
     "save_semantic_scholar_key",
 ]
+

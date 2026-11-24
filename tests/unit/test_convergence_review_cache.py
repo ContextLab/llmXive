@@ -15,12 +15,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 import pytest
 
+from llmxive.backends.base import ChatResponse
 from llmxive.convergence import review_cache
 from llmxive.convergence.llm_reviewer import LLMReviewer
 from llmxive.convergence.types import Concern, Severity
+from llmxive.model_selection.types import RequirementOverrides
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -70,10 +73,10 @@ _ARTIFACTS = {"specs/000-x/spec.md": "# spec\n- FR-002: do Y\n"}
 
 
 def _reviewer(backend, *, lens="requirements_coverage", stage="clarified",
-              repo_root=_REPO_ROOT, model=None):
+              repo_root=_REPO_ROOT, profile="deep_review"):
     return LLMReviewer(
         lens=lens, stage=stage, backend=backend,
-        repo_root=repo_root, model=model,
+        repo_root=repo_root, profile=profile,
     )
 
 
@@ -120,12 +123,12 @@ def test_round_trip_fidelity(tmp_path):
 
 def _two_calls_changing(tmp_path, *, second_kwargs=None, second_artifacts=None,
                         lens="requirements_coverage", stage="clarified",
-                        model=None, second_model="__same__"):
+                        profile="deep_review", second_profile="__same__"):
     """Run identify() twice; the second varies ONE input. Returns the
     backend so the caller can assert ``calls == 2`` (a MISS)."""
     root = tmp_root_with_prompts(tmp_path)
     backend = _CountingBackend(responses=[_VALID_RESPONSE, _VALID_RESPONSE])
-    rev1 = _reviewer(backend, lens=lens, stage=stage, repo_root=root, model=model)
+    rev1 = _reviewer(backend, lens=lens, stage=stage, repo_root=root, profile=profile)
     rev1.identify(_ARTIFACTS, constitution=None, advisory=[])
     assert backend.calls == 1
     return backend, root
@@ -196,11 +199,14 @@ def test_miss_on_changed_stage(tmp_path):
     assert backend.calls == 2
 
 
-def test_miss_on_changed_model(tmp_path):
+def test_miss_on_changed_profile(tmp_path):
+    """Spec 026 slice 7: the cache key binds the named capability PROFILE
+    (there is no raw model id to pin anymore) — two reviewers that differ
+    only in profile must MISS each other's cache entry."""
     root = tmp_root_with_prompts(tmp_path)
     backend = _CountingBackend(responses=[_VALID_RESPONSE, _VALID_RESPONSE])
-    rev_a = _reviewer(backend, model="model-a", repo_root=root)
-    rev_b = _reviewer(backend, model="model-b", repo_root=root)
+    rev_a = _reviewer(backend, profile="deep_review", repo_root=root)
+    rev_b = _reviewer(backend, profile="deep_code", repo_root=root)
     rev_a.identify(_ARTIFACTS, constitution=None, advisory=[])
     rev_b.identify(_ARTIFACTS, constitution=None, advisory=[])
     assert backend.calls == 2
@@ -305,7 +311,9 @@ def test_cache_module_round_trip(tmp_path):
                 artifact="a.md", location="", text="t2", round=1),
     ]
     key = review_cache.compose_key(
-        user="U", system="S", lens="lens", stage="clarified", model="m",
+        user="U", system="S", lens="lens", stage="clarified",
+        profile="deep_review", selection_policy_version=1,
+        temperature=0.0, max_tokens=32_768,
     )
     review_cache.store(tmp_path, key, concerns)
     got = review_cache.load(tmp_path, key)
@@ -314,25 +322,159 @@ def test_cache_module_round_trip(tmp_path):
 
 
 def test_cache_key_is_deterministic_and_sensitive():
-    base = dict(user="U", system="S", lens="L", stage="ST", model="M")
+    """Spec 026 slice 7: the key hashes ``profile`` + ``selection_policy_version``
+    (a real int) in place of the retired raw model-id pin — every
+    review-determining input, string or int, must independently move the key."""
+    base = dict(user="U", system="S", lens="L", stage="ST",
+                profile="deep_review", selection_policy_version=1,
+                temperature=0.0, max_tokens=32_768)
     k = review_cache.compose_key(**base)
     assert k == review_cache.compose_key(**base)
     assert len(k) == 64
-    for field_name in ("user", "system", "lens", "stage", "model"):
+    for field_name in ("user", "system", "lens", "stage", "profile"):
         changed = dict(base)
         changed[field_name] = base[field_name] + "X"
         assert review_cache.compose_key(**changed) != k, (
             f"changing {field_name} must change the key"
         )
+    changed_version = dict(base)
+    changed_version["selection_policy_version"] = base["selection_policy_version"] + 1
+    assert review_cache.compose_key(**changed_version) != k, (
+        "changing selection_policy_version must change the key"
+    )
 
 
-def test_cache_key_model_none_distinct_from_empty():
-    """model=None and model='' must not collide (different inputs)."""
-    k_none = review_cache.compose_key(
-        user="U", system="S", lens="L", stage="ST", model=None)
-    k_empty = review_cache.compose_key(
-        user="U", system="S", lens="L", stage="ST", model="")
-    assert k_none != k_empty
+def test_cache_key_none_and_default_overrides_are_identical():
+    """``overrides=None`` (no override object at all) and an all-default
+    ``RequirementOverrides()`` are semantically IDENTICAL to ``route_chat``
+    (both mean "no escalation constraints"). They MUST canonicalize to the
+    SAME key, or a no-override run would spuriously MISS a no-override
+    cache entry written by a caller that happened to pass an explicit
+    default instance."""
+    base = dict(user="U", system="S", lens="L", stage="ST",
+                profile="deep_review", selection_policy_version=1,
+                temperature=0.0, max_tokens=32_768)
+    assert (
+        review_cache.compose_key(**base, overrides=None)
+        == review_cache.compose_key(**base, overrides=RequirementOverrides())
+    )
+
+
+def test_cache_key_sensitive_to_overrides():
+    """FINDING 1 (BLOCKER) regression: two effective ``RequirementOverrides``
+    that differ MUST produce different keys, or an escalation rung (e.g.
+    tier 1's ``exclude_leader=True``) would silently reuse a prior tier's
+    cached review instead of reaching the model."""
+    base = dict(user="U", system="S", lens="L", stage="ST",
+                profile="deep_review", selection_policy_version=1,
+                temperature=0.0, max_tokens=32_768)
+    k_none = review_cache.compose_key(**base, overrides=None)
+    k_exclude_leader = review_cache.compose_key(
+        **base, overrides=RequirementOverrides(exclude_leader=True)
+    )
+    k_require_paid = review_cache.compose_key(
+        **base, overrides=RequirementOverrides(require_paid=True)
+    )
+    k_exclude_models = review_cache.compose_key(
+        **base, overrides=RequirementOverrides(exclude_models=frozenset({"m1"}))
+    )
+    k_max_credits = review_cache.compose_key(
+        **base, overrides=RequirementOverrides(max_credits=5)
+    )
+    k_allow_paid = review_cache.compose_key(
+        **base, overrides=RequirementOverrides(allow_paid=True)
+    )
+    keys = [k_none, k_exclude_leader, k_require_paid, k_exclude_models,
+            k_max_credits, k_allow_paid]
+    assert len(set(keys)) == len(keys), "every distinct overrides value must move the key"
+
+
+def test_cache_key_overrides_field_order_independent_but_field_sensitive():
+    """``exclude_models`` is a ``frozenset`` (unordered) — the canonicalization
+    must sort it so key equality doesn't depend on set iteration order."""
+    base = dict(user="U", system="S", lens="L", stage="ST",
+                profile="deep_review", selection_policy_version=1,
+                temperature=0.0, max_tokens=32_768)
+    ov_a = RequirementOverrides(exclude_models=frozenset({"m1", "m2"}))
+    ov_b = RequirementOverrides(exclude_models=frozenset({"m2", "m1"}))
+    assert (
+        review_cache.compose_key(**base, overrides=ov_a)
+        == review_cache.compose_key(**base, overrides=ov_b)
+    )
+
+
+# --- Finding 1 (BLOCKER) regression: escalation overrides bust the cache ---
+#
+# Tier 0 caches a review; the panel escalates (bump_model_tier) and tier 1
+# dispatches with RequirementOverrides(exclude_leader=True) — the "free
+# second opinion" rung. Before the fix, compose_key ignored overrides
+# entirely, so identify() returned the tier-0 cached review WITHOUT ever
+# reaching route_chat — silently defeating escalation. These tests drive
+# the REAL LLMReviewer.identify() path and monkeypatch the TRUE routing
+# chokepoint (llmxive.model_selection.route.route_chat, one level below
+# chat_with_model_fallback — see test_slice7_review_panel_profile_propagation.py)
+# to prove whether routing was actually reached, not merely that the keys differ.
+
+
+def test_tier1_overrides_miss_tier0_cache_and_reach_route_chat(tmp_path, monkeypatch):
+    root = tmp_root_with_prompts(tmp_path)
+    seen: list[dict[str, Any]] = []
+
+    def _fake_route_chat(messages, **kw):  # type: ignore[no-untyped-def]
+        seen.append(kw)
+        return ChatResponse(text=_VALID_RESPONSE, model="m", backend="dartmouth")
+
+    monkeypatch.setattr("llmxive.model_selection.route.route_chat", _fake_route_chat)
+
+    backend = _CountingBackend(responses=[])  # never reached directly; route_chat is faked
+    rev_tier0 = _reviewer(backend, repo_root=root, profile="deep_review")
+    rev_tier1 = LLMReviewer(
+        lens="requirements_coverage", stage="clarified", backend=backend,
+        repo_root=root, profile="deep_review",
+        overrides=RequirementOverrides(exclude_leader=True),
+    )
+
+    rev_tier0.identify(_ARTIFACTS, constitution=None, advisory=[])
+    assert len(seen) == 1, "tier-0 identify() must reach route_chat (cold cache)"
+    assert seen[0].get("overrides") is None
+
+    # Tier-1 override MUST NOT be served the tier-0 cache entry: it must
+    # independently reach route_chat with its OWN overrides.
+    rev_tier1.identify(_ARTIFACTS, constitution=None, advisory=[])
+    assert len(seen) == 2, (
+        "tier-1 identify() incorrectly served the tier-0 cache entry — "
+        "escalation overrides did not bust the cache key"
+    )
+    assert seen[1]["overrides"] == RequirementOverrides(exclude_leader=True)
+
+
+def test_none_and_default_overrides_reviewers_hit_same_cache_entry(tmp_path, monkeypatch):
+    """A reviewer with ``overrides=None`` and a separately-constructed reviewer
+    with an explicit all-default ``RequirementOverrides()`` must be treated as
+    the SAME escalation state — a HIT, not a spurious MISS."""
+    root = tmp_root_with_prompts(tmp_path)
+    seen: list[dict[str, Any]] = []
+
+    def _fake_route_chat(messages, **kw):  # type: ignore[no-untyped-def]
+        seen.append(kw)
+        return ChatResponse(text=_VALID_RESPONSE, model="m", backend="dartmouth")
+
+    monkeypatch.setattr("llmxive.model_selection.route.route_chat", _fake_route_chat)
+
+    backend = _CountingBackend(responses=[])
+    rev_none = LLMReviewer(
+        lens="requirements_coverage", stage="clarified", backend=backend,
+        repo_root=root, profile="deep_review", overrides=None,
+    )
+    rev_default = LLMReviewer(
+        lens="requirements_coverage", stage="clarified", backend=backend,
+        repo_root=root, profile="deep_review", overrides=RequirementOverrides(),
+    )
+
+    rev_none.identify(_ARTIFACTS, constitution=None, advisory=[])
+    assert len(seen) == 1
+    rev_default.identify(_ARTIFACTS, constitution=None, advisory=[])
+    assert len(seen) == 1, "default RequirementOverrides() must HIT the None-overrides cache entry"
 
 
 # --- helper: a tmp repo root carrying the real panel prompts -------------
@@ -353,3 +495,28 @@ def tmp_root_with_prompts(tmp_path: Path) -> Path:
     prompts_dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(prompts_src, prompts_dst)
     return tmp_path
+
+
+def test_cache_key_sensitive_to_sampling_settings():
+    """``LLMReviewer`` exposes ``temperature`` and ``max_tokens`` as constructor
+    parameters, and both are review-DETERMINING: temperature changes what the
+    model produces from identical inputs, and max_tokens changes where a long
+    review is truncated. Without binding them, a reviewer configured at
+    temperature 0.7 would be served the deterministic reviewer's cached
+    concerns. They are invariant across the standard production panel today —
+    this test keeps ``compose_key``'s "ALL review-determining inputs" claim
+    true if that ever stops being so."""
+    base = dict(user="U", system="S", lens="L", stage="ST",
+                profile="deep_review", selection_policy_version=1)
+    k = review_cache.compose_key(**base, temperature=0.0, max_tokens=32_768)
+    assert review_cache.compose_key(**base, temperature=0.7, max_tokens=32_768) != k, (
+        "a different temperature must MISS — it changes what the model emits"
+    )
+    assert review_cache.compose_key(**base, temperature=0.0, max_tokens=8_192) != k, (
+        "a different max_tokens must MISS — it changes where the review truncates"
+    )
+    assert review_cache.compose_key(**base, temperature=0.0, max_tokens=None) != k, (
+        "an unbounded max_tokens must MISS against a bounded one"
+    )
+    # ...and identical settings still HIT.
+    assert review_cache.compose_key(**base, temperature=0.0, max_tokens=32_768) == k

@@ -289,7 +289,7 @@
       </div>
       <div class="about-block">
         <h3>Optional Hugging Face pilot</h3>
-        <p>Dartmouth remains the production model backend. An explicit, manual Hugging Face pilot provides private artifact storage and bounded compute probes under one shared <strong>$20 monthly Jobs + Inference Providers cap</strong>. Paid Spaces and Inference Endpoints have $0 limits. Credentials stay private; no recurring HF compute workflow or HF CI secret is enabled.</p>
+        <p>Dartmouth's free models come first in each model chain. Hugging Face Inference Providers are a routed fallback after them: every such call is reserved on a funded ledger before it is sent and paced against a monthly allowance (<code>LLMXIVE_HF_MONTHLY_USD</code>, default 50 USD). A Hugging Face pilot also provides private artifact storage and bounded compute probes, invoked explicitly. Credentials stay private.</p>
         <p>Private versioned-artifact round trips, a CPU job, and a routed inference request have been verified. The working bucket&rsquo;s data round trip and automatic production offloading remain untested. These are infrastructure probes, not scientific acceptance. See the <a href="https://github.com/ContextLab/llmXive/blob/main/scripts/hf/README.md" target="_blank" rel="noopener">pilot instructions and receipts</a>.</p>
       </div>
     </div>

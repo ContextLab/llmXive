@@ -242,7 +242,9 @@ def test_fast_collection_is_exact_partition_and_nightly_keeps_references():
     references = collect(workflow_marker("references"))
     assert runtime and references and not (runtime & references)
     assert runtime | references == all_fast
-    assert any("test_dartmouth_real_chat[configured-primary]" in node for node in runtime)
+    assert any("test_dartmouth_real_chat_configured_primary" in node for node in runtime)
+    # The every-free-peer sweep is nightly-only (slow), never in the fast partition.
+    assert not any("test_dartmouth_real_chat_every_free_peer" in node for node in all_fast)
     assert any("test_resolve_reference_present_for_every_service[zenodo" in node for node in references)
     assert {node.split("::")[0] for node in references} == load("select_checks").REFERENCE_TESTS
     runtime_modules = load("select_checks").RUNTIME_TESTS

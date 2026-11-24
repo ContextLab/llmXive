@@ -13,6 +13,7 @@ from llmxive.state import unverifiable
 from llmxive.types import Stage
 from tests.unit.test_execution_exhaustion_flow import (
     _force_fix_rounds_at_cap,
+    _free_rungs,
     _project_in_progress,
 )
 
@@ -20,7 +21,7 @@ from tests.unit.test_execution_exhaustion_flow import (
 @pytest.mark.parametrize('failure_kind', ['verification', 'execution'])
 def test_exhaustion_dispatches_planner_with_saved_feedback(tmp_path, monkeypatch, failure_kind):
     monkeypatch.delenv('LLMXIVE_PAID_OPT_IN', raising=False)
-    monkeypatch.delenv('LLMXIVE_EXECUTION_PAID_TIERS', raising=False)
+    monkeypatch.delenv('LLMXIVE_EXECUTION_PAID_ESCALATION', raising=False)
     pid = 'PROJ-032-replan-owner'
     project, project_dir = _project_in_progress(tmp_path, pid)
     feature = project_dir / 'specs/001-research'
@@ -30,7 +31,7 @@ def test_exhaustion_dispatches_planner_with_saved_feedback(tmp_path, monkeypatch
     (feature / 'plan.md').write_text(plan)
     es.record(pid, ok=False, reason='driver fails', artifacts=[],
               failures=['python code/driver.py -> rc=1: missing output'], repo_root=tmp_path)
-    for _ in es.FREE_MODEL_TIERS[1:]:
+    for _ in _free_rungs()[1:]:
         es.bump_model_tier(pid, repo_root=tmp_path)
     if failure_kind == 'verification':
         (feature / 'tasks.md').write_text('- [ ] T001 Driver must emit a valid table\n')

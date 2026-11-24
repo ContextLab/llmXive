@@ -6,6 +6,12 @@ backends:
   - DARTMOUTH_CHAT_API_KEY
   daily_quota_estimate: 100
   is_paid: false
+- name: huggingface
+  kind: openai_compatible
+  auth_env_vars:
+  - HF_TOKEN
+  - LLMXIVE_HF_BILL_TO
+  is_paid: false
 - name: local
   kind: local_transformers
   auth_env_vars: []
@@ -19,10 +25,7 @@ agents:
   - idea
   prompt_path: agents/prompts/brainstorm.md
   prompt_version: 1.1.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: standard_generation
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: flesh_out
@@ -33,10 +36,7 @@ agents:
   - idea
   prompt_path: agents/prompts/flesh_out.md
   prompt_version: 1.2.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: standard_generation
   tools:
   - lit_search
   wall_clock_budget_seconds: 600
@@ -51,10 +51,7 @@ agents:
   - project_state
   prompt_path: agents/prompts/research_question_validator.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: idea_selector
@@ -65,10 +62,7 @@ agents:
   - project_state
   prompt_path: agents/prompts/idea_selector.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: project_initializer
@@ -79,10 +73,7 @@ agents:
   - project_state
   prompt_path: agents/prompts/project_initializer.md
   prompt_version: 1.2.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: standard_generation
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: librarian
@@ -95,10 +86,7 @@ agents:
   - idea
   prompt_path: agents/prompts/librarian.md
   prompt_version: 1.6.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: standard_generation
   wall_clock_budget_seconds: 1800
   paid_opt_in: false
 - name: specifier
@@ -109,10 +97,7 @@ agents:
   - technical_design
   prompt_path: agents/prompts/specifier.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: standard_generation
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: clarifier
@@ -123,10 +108,7 @@ agents:
   - technical_design
   prompt_path: agents/prompts/clarifier.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: standard_generation
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: planner
@@ -138,10 +120,7 @@ agents:
   - implementation_plan
   prompt_path: agents/prompts/planner.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: standard_generation
   wall_clock_budget_seconds: 900
   paid_opt_in: false
 - name: code_adapter
@@ -153,10 +132,7 @@ agents:
   - code
   prompt_path: agents/prompts/code_adapter.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_code
   wall_clock_budget_seconds: 900
   paid_opt_in: false
 - name: tasker
@@ -167,10 +143,7 @@ agents:
   - implementation_plan
   prompt_path: agents/prompts/tasker.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: standard_generation
   wall_clock_budget_seconds: 900
   paid_opt_in: false
 - name: implementer
@@ -183,10 +156,7 @@ agents:
   - data
   prompt_path: agents/prompts/implementer.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_code
   wall_clock_budget_seconds: 900
   paid_opt_in: false
 - name: research_reviewer
@@ -200,10 +170,7 @@ agents:
   - review
   prompt_path: agents/prompts/research_reviewer.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: reference_validator
@@ -218,10 +185,7 @@ agents:
   - review
   prompt_path: agents/prompts/reference_validator.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools:
   - citation_fetcher
   wall_clock_budget_seconds: 300
@@ -237,10 +201,7 @@ agents:
   - project_state
   prompt_path: agents/prompts/paper_initializer.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: standard_generation
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: paper_specifier
@@ -254,10 +215,7 @@ agents:
   - paper
   prompt_path: agents/prompts/paper_specifier.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: standard_generation
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: paper_clarifier
@@ -269,10 +227,7 @@ agents:
   - paper
   prompt_path: agents/prompts/paper_clarifier.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: standard_generation
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: paper_planner
@@ -284,10 +239,7 @@ agents:
   - paper
   prompt_path: agents/prompts/paper_planner.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: standard_generation
   wall_clock_budget_seconds: 900
   paid_opt_in: false
 - name: paper_tasker
@@ -299,10 +251,7 @@ agents:
   - paper
   prompt_path: agents/prompts/paper_tasker.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: standard_generation
   wall_clock_budget_seconds: 900
   paid_opt_in: false
 - name: paper_implementer
@@ -314,10 +263,7 @@ agents:
   - paper
   prompt_path: agents/prompts/paper_implementer.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_code
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: paper_writing
@@ -328,10 +274,7 @@ agents:
   - paper
   prompt_path: agents/prompts/paper_writing.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: standard_generation
   tools:
   - lit_search
   wall_clock_budget_seconds: 900
@@ -346,10 +289,7 @@ agents:
   - paper
   prompt_path: agents/prompts/paper_figure_generation.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_code
   tools:
   - code_sandbox
   wall_clock_budget_seconds: 900
@@ -364,10 +304,7 @@ agents:
   - paper
   prompt_path: agents/prompts/paper_statistics.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_code
   tools:
   - code_sandbox
   wall_clock_budget_seconds: 900
@@ -381,10 +318,7 @@ agents:
   - review
   prompt_path: agents/prompts/proofreader.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: latex_build
@@ -396,10 +330,7 @@ agents:
   - paper
   prompt_path: agents/prompts/latex_build.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: cheap_structured
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: latex_fix
@@ -411,10 +342,7 @@ agents:
   - paper
   prompt_path: agents/prompts/latex_fix.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_code
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: paper_reviewer
@@ -425,10 +353,7 @@ agents:
   - review
   prompt_path: agents/prompts/paper_reviewer.md
   prompt_version: 1.1.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   wall_clock_budget_seconds: 600
   paid_opt_in: false
 - name: status_reporter
@@ -441,10 +366,7 @@ agents:
   - project_state
   prompt_path: agents/prompts/status_reporter.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: cheap_structured
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: repository_hygiene
@@ -456,10 +378,7 @@ agents:
   - review
   prompt_path: agents/prompts/repository_hygiene.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: task_atomizer
@@ -473,10 +392,7 @@ agents:
   - paper
   prompt_path: agents/prompts/task_atomizer.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: standard_generation
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: task_joiner
@@ -490,10 +406,7 @@ agents:
   - paper
   prompt_path: agents/prompts/task_joiner.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: cheap_structured
   wall_clock_budget_seconds: 300
   paid_opt_in: false
 - name: paper_reviewer_writing_quality
@@ -505,10 +418,7 @@ agents:
   - review
   prompt_path: agents/prompts/paper_reviewer_writing_quality.md
   prompt_version: 1.1.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -521,10 +431,7 @@ agents:
   - review
   prompt_path: agents/prompts/paper_reviewer_logical_consistency.md
   prompt_version: 1.1.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -537,10 +444,7 @@ agents:
   - review
   prompt_path: agents/prompts/paper_reviewer_claim_accuracy.md
   prompt_version: 1.1.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -553,10 +457,7 @@ agents:
   - review
   prompt_path: agents/prompts/paper_reviewer_overreach.md
   prompt_version: 1.1.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -569,10 +470,7 @@ agents:
   - review
   prompt_path: agents/prompts/paper_reviewer_safety_ethics.md
   prompt_version: 1.1.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -585,10 +483,7 @@ agents:
   - review
   prompt_path: agents/prompts/paper_reviewer_scientific_evidence.md
   prompt_version: 1.1.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -601,10 +496,7 @@ agents:
   - review
   prompt_path: agents/prompts/paper_reviewer_statistical_analysis.md
   prompt_version: 1.1.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -617,10 +509,7 @@ agents:
   - review
   prompt_path: agents/prompts/paper_reviewer_code_quality_paper.md
   prompt_version: 1.1.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -633,10 +522,7 @@ agents:
   - review
   prompt_path: agents/prompts/paper_reviewer_data_quality_paper.md
   prompt_version: 1.1.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -649,10 +535,7 @@ agents:
   - review
   prompt_path: agents/prompts/paper_reviewer_text_formatting.md
   prompt_version: 1.1.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -665,10 +548,7 @@ agents:
   - review
   prompt_path: agents/prompts/paper_reviewer_figure_critic.md
   prompt_version: 1.1.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -681,10 +561,7 @@ agents:
   - review
   prompt_path: agents/prompts/paper_reviewer_jargon_police.md
   prompt_version: 1.1.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -697,10 +574,7 @@ agents:
   - review
   prompt_path: agents/prompts/research_reviewer_idea_quality.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -713,10 +587,7 @@ agents:
   - review
   prompt_path: agents/prompts/research_reviewer_creativity.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -729,10 +600,7 @@ agents:
   - review
   prompt_path: agents/prompts/research_reviewer_implementation_correctness.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -745,10 +613,7 @@ agents:
   - review
   prompt_path: agents/prompts/research_reviewer_implementation_completeness.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -761,10 +626,7 @@ agents:
   - review
   prompt_path: agents/prompts/research_reviewer_code_quality_research.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -777,10 +639,7 @@ agents:
   - review
   prompt_path: agents/prompts/research_reviewer_data_quality_research.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -793,10 +652,7 @@ agents:
   - review
   prompt_path: agents/prompts/research_reviewer_filesystem_hygiene.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_review
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -811,10 +667,7 @@ agents:
   - project_state
   prompt_path: agents/prompts/submission_intake.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: cheap_structured
   tools: []
   wall_clock_budget_seconds: 300
   paid_opt_in: false
@@ -829,10 +682,7 @@ agents:
   - status_comment
   prompt_path: agents/prompts/personality.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: standard_generation
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false
@@ -846,10 +696,7 @@ agents:
   - review
   prompt_path: agents/prompts/implementer.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends:
-  - local
-  default_model: zai-org.glm-5.3
+  profile: deep_code
   tools: []
   wall_clock_budget_seconds: 1800
   paid_opt_in: false
@@ -861,9 +708,7 @@ agents:
   - paper
   prompt_path: agents/prompts/implementer.md
   prompt_version: 1.0.0
-  default_backend: dartmouth
-  fallback_backends: []
-  default_model: deterministic-no-llm
+  profile: deterministic-no-llm
   tools: []
   wall_clock_budget_seconds: 600
   paid_opt_in: false

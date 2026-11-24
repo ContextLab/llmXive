@@ -121,7 +121,6 @@ def test_self_consistency_pass_clean_returns_ok():
     backend = _QueueBackend(replies=[_ok_audit()])
     result = self_consistency_pass(
         backend=backend,
-        model=None,
         revised_artifacts={"specs/000-x/spec.md": "FR-002 threshold 0.5"},
         concerns=_concerns(),
         responses=_responses(),
@@ -137,7 +136,6 @@ def test_self_consistency_pass_flags_problem():
     backend = _QueueBackend(replies=[_flag_audit("C1 still unresolved in FR-002")])
     result = self_consistency_pass(
         backend=backend,
-        model=None,
         revised_artifacts={"specs/000-x/spec.md": "FR-002 unchanged"},
         concerns=_concerns(),
         responses=_responses(),
@@ -152,7 +150,6 @@ def test_self_consistency_pass_backend_error_falls_back_ok():
     backend = _QueueBackend(replies=[])  # immediately raises on chat()
     result = self_consistency_pass(
         backend=backend,
-        model=None,
         revised_artifacts={"specs/000-x/spec.md": "x"},
         concerns=_concerns(),
         responses=_responses(),
@@ -167,7 +164,6 @@ def test_self_consistency_pass_unparseable_falls_back_ok():
     backend = _QueueBackend(replies=["this is not yaml: [unclosed"])
     result = self_consistency_pass(
         backend=backend,
-        model=None,
         revised_artifacts={"specs/000-x/spec.md": "x"},
         concerns=_concerns(),
         responses=_responses(),
@@ -192,7 +188,6 @@ def test_run_clean_audit_no_corrective_pass():
 
     updated, responses = run_with_self_consistency(
         backend=backend,
-        model=None,
         repo_root=_REPO_ROOT,
         concerns=_concerns(),
         first_pass=first,
@@ -215,7 +210,6 @@ def test_run_flagged_audit_triggers_one_corrective_pass():
 
     updated, responses = run_with_self_consistency(
         backend=backend,
-        model=None,
         repo_root=_REPO_ROOT,
         concerns=_concerns(),
         first_pass=first,
@@ -246,7 +240,6 @@ def test_run_corrective_loop_runs_at_most_once():
 
     updated, _ = run_with_self_consistency(
         backend=backend,
-        model=None,
         repo_root=_REPO_ROOT,
         concerns=_concerns(),
         first_pass=first,
@@ -412,7 +405,6 @@ def test_parse_problems_win_over_ok_true():
     )
     result = self_consistency_pass(
         backend=backend,
-        model=None,
         revised_artifacts={"specs/000-x/spec.md": "x"},
         concerns=_concerns(),
         responses=_responses(),
@@ -458,16 +450,24 @@ class _ModelFallbackBackend:
 def test_invoke_reviser_backend_uses_fallback():
     """The shared reviser revision turn (``invoke_reviser_backend``) goes
     through the same fallback path and returns the peer's text on a primary
-    outage."""
+    outage.
+
+    Spec 026 slice 7: the reviser carries a capability PROFILE
+    (``self._profile``), not a raw model pin — ``invoke_reviser_backend`` no
+    longer promotes a caller model to the front of the chain, so the primary
+    candidate is whatever the offline snapshot's policy ranks first for the
+    profile (``zai-org.glm-5.3``, per the fixed offline chain), with
+    ``qwen.qwen3.5-122b`` as its same-backend peer.
+    """
 
     class _Reviser:
         def __init__(self, backend):
             self._backend = backend
-            self._model = "openai.gpt-oss-120b"
+            self._profile = "deep_code"
 
     backend = _ModelFallbackBackend(
-        replies={"openai.gpt-oss-120b": "x", "zai-org.glm-5.3": "peer revision"},
-        transient_models={"openai.gpt-oss-120b"},
+        replies={"zai-org.glm-5.3": "x", "qwen.qwen3.5-122b": "peer revision"},
+        transient_models={"zai-org.glm-5.3"},
     )
     text = invoke_reviser_backend(_Reviser(backend), [])
     assert text == "peer revision"
@@ -486,9 +486,9 @@ def test_invoke_reviser_backend_uses_generation_budget():
     class _Reviser:
         def __init__(self, backend):
             self._backend = backend
-            self._model = "openai.gpt-oss-120b"
+            self._profile = "deep_code"
 
-    backend = _ModelFallbackBackend(replies={"openai.gpt-oss-120b": "revised doc"})
+    backend = _ModelFallbackBackend(replies={"zai-org.glm-5.3": "revised doc"})
     text = invoke_reviser_backend(_Reviser(backend), [])
     assert text == "revised doc"
     assert backend.calls, "backend was never called"

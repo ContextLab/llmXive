@@ -323,9 +323,7 @@ class TaskerAgent(SlashCommandAgent):
                     spec_text=spec_path.read_text(encoding="utf-8"),
                     plan_text=plan_path.read_text(encoding="utf-8"),
                     tasks_text=tasks_path.read_text(encoding="utf-8"),
-                    default_backend=ctx.default_backend,
-                    fallback_backends=ctx.fallback_backends,
-                    default_model=ctx.default_model,
+                    profile=ctx.profile,
                     repo_root=repo,
                     project_dir=ctx.project_dir,
                     kind="research",
@@ -381,9 +379,7 @@ class TaskerAgent(SlashCommandAgent):
                         ChatMessage(role="system", content=mode_b_system),
                         ChatMessage(role="user", content=mode_b_user),
                     ],
-                    default_backend=ctx.default_backend.value,
-                    fallback_backends=[b.value for b in ctx.fallback_backends],
-                    model=ctx.default_model,
+                    profile=ctx.profile,
                 )
             except _BackendError as exc:
                 print(f"[tasker] Mode-B round {round_idx + 1} backend failed: {exc}; "
@@ -559,9 +555,7 @@ class TaskerAgent(SlashCommandAgent):
                 spec_text=spec_path.read_text(encoding="utf-8"),
                 plan_text=plan_path.read_text(encoding="utf-8"),
                 tasks_text=tasks_path.read_text(encoding="utf-8"),
-                default_backend=ctx.default_backend,
-                fallback_backends=ctx.fallback_backends,
-                default_model=ctx.default_model,
+                profile=ctx.profile,
                 repo_root=repo,
                 project_dir=ctx.project_dir,
                 kind="research",
@@ -620,7 +614,7 @@ class TaskerAgent(SlashCommandAgent):
         }
 
         try:
-            backend = make_backend(ctx.default_backend.value)
+            backend = make_backend("dartmouth")
         except Exception as exc:
             print(
                 f"[tasker/engine] backend instantiation failed: {exc}; "
@@ -648,7 +642,7 @@ class TaskerAgent(SlashCommandAgent):
                 backend=backend,
                 constitution_text=_const_text,
                 analyze_report_text=first_report,
-                model=ctx.default_model,
+                requirement_overrides=ctx.requirement_overrides,
             )
         except (TransientBackendError, BackendUnavailable):
             # A transiently-degraded / circuit-broken endpoint is NOT

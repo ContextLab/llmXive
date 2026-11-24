@@ -320,20 +320,38 @@ _FREE_MODEL = "openai.gpt-oss-120b"
 
 
 def _force_free_model(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Override ONLY the model the speckit chain dispatches with, swapping the
-    registry's (retired, hanging) default for the live free model. This mirrors
-    production's model-tier override (``execution_status.execution_model_override``)
-    — every other code path (mechanical scripts, prompt build, router, artifact
-    write, claim layer) runs for real. Not a mock of the unit under test."""
-    from llmxive.agents import registry as registry_loader
+    """Exclude the registry's retired, hanging default model from every
+    selection so the live speckit chain lands on the known-good free model
+    instead. Spec 026 US5 retired the registry's raw ``default_model`` pin (an
+    agent now carries a capability ``profile``, not a model id), so this can no
+    longer swap a field on the loaded entry — the equivalent lever in the
+    profile-driven router is ``RequirementOverrides.exclude_models``, applied
+    at the same chokepoint (``route_chat``) every real call already passes
+    through. This mirrors production's model-tier escalation
+    (``execution_status.tier_overrides``) — every other code path (mechanical
+    scripts, prompt build, router, artifact write, claim layer) runs for real.
+    Not a mock of the unit under test."""
+    from llmxive.model_selection import route as route_mod
+    from llmxive.model_selection.types import RequirementOverrides
 
-    orig = registry_loader.get
+    orig_route_chat = route_mod.route_chat
+    exclude = RequirementOverrides(exclude_models=frozenset({"qwen.qwen3.5-122b"}))
 
-    def _patched(name: str, *, repo_root=None):
-        entry = orig(name, repo_root=repo_root)
-        return entry.model_copy(update={"default_model": _FREE_MODEL})
+    def _patched(*args, **kwargs):
+        prior = kwargs.get("overrides")
+        if prior is not None:
+            kwargs["overrides"] = RequirementOverrides(
+                allow_paid=prior.allow_paid,
+                require_paid=prior.require_paid,
+                exclude_models=prior.exclude_models | exclude.exclude_models,
+                max_credits=prior.max_credits,
+                exclude_leader=prior.exclude_leader,
+            )
+        else:
+            kwargs["overrides"] = exclude
+        return orig_route_chat(*args, **kwargs)
 
-    monkeypatch.setattr(registry_loader, "get", _patched)
+    monkeypatch.setattr(route_mod, "route_chat", _patched)
 
 
 @pytest.mark.slow

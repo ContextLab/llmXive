@@ -82,9 +82,16 @@ def test_validated_candidate_uses_different_reviewer(tmp_path, monkeypatch, auth
     seen = []
 
     def review(*args, **kwargs):
-        seen.append(kwargs["model"])
-        assert kwargs["model"] != author
-        return SimpleNamespace(model=kwargs["model"], text='{"accept": true, "reason": "regression reproduced"}')
+        # Spec 026: the runner names no reviewer model. It prohibits the author and
+        # lets real selection rank the rest, so resolve that same request here.
+        from llmxive.model_selection.route import free_peer_ids
+
+        assert "model" not in kwargs
+        assert kwargs["overrides"].exclude_models == frozenset({author})
+        chosen = free_peer_ids(kwargs["profile"], overrides=kwargs["overrides"])[0]
+        seen.append(chosen)
+        assert chosen != author
+        return SimpleNamespace(model=chosen, text='{"accept": true, "reason": "regression reproduced"}')
 
     monkeypatch.setattr(runner, "chat_with_fallback", review)
     if not safety_ok:

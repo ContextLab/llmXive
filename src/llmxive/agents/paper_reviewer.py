@@ -241,9 +241,7 @@ _CHUNK_SUMMARY_PROMPT_SUFFIX = (
 def _summarize_chunk(
     chunk: str,
     *,
-    default_backend: str,
-    fallback_backends: list[str],
-    model: str,
+    profile: str = "standard_generation",
 ) -> str:
     """Single real LLM call (no mocks) that summarizes one chunk of the
     paper's LaTeX source. Returns the model's summary. We assemble the
@@ -257,9 +255,7 @@ def _summarize_chunk(
     prompt = _CHUNK_SUMMARY_PROMPT_PREFIX + chunk + _CHUNK_SUMMARY_PROMPT_SUFFIX
     response = chat_with_fallback(
         [ChatMessage(role="user", content=prompt)],
-        default_backend=default_backend,
-        fallback_backends=fallback_backends,
-        model=model,
+        profile=profile,
     )
     summary = (response.text or "").strip() or "(summarizer returned empty content)"
     # Defensive: if the model expanded instead of summarized, trim to
@@ -473,12 +469,7 @@ class PaperReviewerAgent(Agent):
         # `paper/.chunk_summaries/` so the 12 specialist reviewers
         # (each calling this) share the cost across the project.
         def _summarize(chunk: str) -> str:
-            return _summarize_chunk(
-                chunk,
-                default_backend=self.entry.default_backend.value,
-                fallback_backends=[b.value for b in self.entry.fallback_backends],
-                model=self.entry.default_model,
-            )
+            return _summarize_chunk(chunk, profile=self.entry.profile)
 
         source_concat = _build_corpus_with_summaries(
             paper_dir / "source",

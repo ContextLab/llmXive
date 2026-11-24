@@ -30,7 +30,7 @@ def _run(project, tasks):
 def _forged(project, tasks):
     text = tasks.read_text().split('[X]', 1)[1].strip()
     digest = tv._verification_hash(text, (tasks.parent/'spec.md').read_text(),
-                                   tv.gather_evidence(project, text), model=tv.DEFAULT_MODEL)
+                                   tv.gather_evidence(project, text))
     return {'T002': {'h': digest, 'c': True, 'r': 'fabricated approval'}}
 
 

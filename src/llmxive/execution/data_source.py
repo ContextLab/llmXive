@@ -114,8 +114,7 @@ def _distill_data_need(raw: str) -> tuple[str, list[str]]:
                     "No prose, no fences.")),
                 ChatMessage(role="user", content=raw),
             ],
-            default_backend="dartmouth", fallback_backends=["local"],
-            model="openai.gpt-oss-120b",
+            profile="cheap_structured",
         )
         text = re.sub(r"^```[a-z]*\s*|\s*```$", "", resp.text.strip())
         obj = json.loads(text[text.find("{"): text.rfind("}") + 1])

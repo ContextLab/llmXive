@@ -41,7 +41,7 @@ class _RecordingBackend:
         self.raise_exc = raise_exc
         self.calls = 0
 
-    def __call__(self, messages, *, default_backend, fallback_backends, model):
+    def __call__(self, messages, *, profile):
         self.calls += 1
         if self.raise_exc is not None:
             raise self.raise_exc
@@ -60,9 +60,7 @@ def _patch_backend(monkeypatch, backend: _RecordingBackend) -> _RecordingBackend
 
 
 _PLUMBING = dict(
-    model="qwen.qwen3.5-122b",
-    default_backend="dartmouth",
-    fallback_backends=["local"],
+    profile="cheap_structured",
 )
 
 

@@ -292,6 +292,13 @@ class Reviser(Protocol):
     ) -> tuple[dict[str, str], list[ConcernResponse]]: ...
 
 
+#: Stages whose whole output is an accept/reject DECISION, so they may not advance
+#: carrying unresolved concerns of any severity. The self-improvement proposal gate is
+#: equally a judgment stage but declares `strict_acceptance=True` on its own spec rather
+#: than registering here, because `convergence.types` must not import lane vocabulary.
+JUDGMENT_STAGES: frozenset[str] = frozenset({"research_review", "paper_review"})
+
+
 @dataclass
 class ReviewSpec:
     """Per-step configuration the engine consumes (one per reviewable stage).
@@ -316,10 +323,30 @@ class ReviewSpec:
     constitution_input: bool = False
     max_rounds: int = 3
     exempt: bool = False
+    #: Require ZERO open concerns to converge — no writing-level-residue allowance.
+    #:
+    #: The two-tier bar (Constitution 1.2.0): a doc-AUTHORING stage may advance carrying
+    #: writing-level polish (spec-023 defect #24 — kicking back on prose burned PROJ-552's
+    #: panels to their cap), but a JUDGMENT stage may not, because its whole output IS the
+    #: accept/reject decision.
+    #:
+    #: ``None`` (the default) means "derive from the stage" via :data:`JUDGMENT_STAGES`,
+    #: resolved in ``__post_init__`` so the engine only ever reads a bool. That default
+    #: matters: this replaced a hard-coded set inside ``engine.py``, and a spec built
+    #: directly — as several tests and callers do — would otherwise have silently dropped
+    #: to the lenient bar just by not passing the argument. Pass an explicit bool to
+    #: override, which is what a stage outside the registry (the self-improvement proposal
+    #: gate) does.
+    strict_acceptance: bool | None = None
     extra: dict[str, str] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        if self.strict_acceptance is None:
+            self.strict_acceptance = self.stage in JUDGMENT_STAGES
 
 
 __all__ = [
+    "JUDGMENT_STAGES",
     "Concern",
     "ConcernResponse",
     "ConvergenceResult",

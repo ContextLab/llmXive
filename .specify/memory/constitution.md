@@ -1,7 +1,7 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: (uninitialized template) → 1.0.0 → 1.1.0 → 1.2.0 → 1.3.0
+Version change: (uninitialized template) → 1.0.0 → 1.1.0 → 1.2.0 → 1.3.0 → 1.4.0
 Rationale: 1.0.0 = initial ratification (MAJOR bump from template-only state).
 1.1.0 (2026-05-27, spec 015 / issue #239) = MINOR — added Principle VI
 (Convergent Review, NON-NEGOTIABLE) and replaced the point-based "Review
@@ -21,6 +21,12 @@ re-review critiques carry forward to the next stage, never re-inject). Aligns th
 constitution with the engine after closing the open-set "moving goalposts" gap in
 `convergence/engine.py` (the re-review used to re-admit fresh concerns every round
 → non-convergence) and unifying the `tasked` gate onto the same engine verdict.
+1.4.0 (2026-11-23, spec 027) = MINOR — Principle IV gains a "Funded services"
+category: a metered service paid for by an institutional subscription the project
+already holds (Hugging Face inference). It ranks after every free hosted option and
+before any paid one, runs under a code-enforced spend allowance, and has its real cost
+recorded per call; exhausting the allowance is an outage, never a fall-through to paid.
+This is a material expansion of existing guidance, not a new principle.
 
 Modified principles:
   - [PRINCIPLE_1_NAME] → I. Single Source of Truth (NON-NEGOTIABLE)
@@ -148,6 +154,14 @@ free option is technically viable. Concretely:
 - Prefer permissive open-source libraries over commercial SDKs.
 - Cache aggressively to avoid repeated paid calls when paid services are
   unavoidable.
+
+**Funded services.** A metered service whose cost is covered by an institutional
+subscription the project already holds is *funded*. A funded service MAY be used when
+no free hosted option can serve the request, MUST be ranked after every free hosted
+option and before any paid one, MAY be ranked ahead of a free local fallback model of
+lower measured quality, MUST run under a spend allowance enforced in code, and MUST have
+its real cost recorded for every call. Exhausting the allowance is an outage, not a
+licence to fall through to paid services.
 
 A paid service MAY be adopted only when (a) no free alternative meets the
 documented technical requirement, AND (b) the additional cost is justified
@@ -347,4 +361,4 @@ reasons. Unjustified violations block merge.
 here, contributors should consult the project `README.md` and the
 repository-level `CLAUDE.md`.
 
-**Version**: 1.3.0 | **Ratified**: 2026-04-28 | **Last Amended**: 2026-06-26
+**Version**: 1.4.0 | **Ratified**: 2026-04-28 | **Last Amended**: 2026-11-23

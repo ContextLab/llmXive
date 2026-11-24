@@ -313,9 +313,7 @@ def _stub_registry_entry(name: str):
 
     return SimpleNamespace(
         prompt_path=Path("prompts/x.md"),
-        default_backend="dartmouth",
-        fallback_backends=[],
-        default_model="m",
+        profile="standard_generation",
         prompt_version="1.0.0",
         name=name,
     )

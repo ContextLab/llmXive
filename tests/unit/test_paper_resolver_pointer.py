@@ -88,9 +88,7 @@ def _entry(name: str, prompt_path: str) -> AgentRegistryEntry:
         purpose="paper feature-dir pointer resolution test",
         prompt_path=prompt_path,
         prompt_version="1.0.0",
-        default_backend="dartmouth",
-        fallback_backends=[],
-        default_model="openai.gpt-oss-120b",
+        profile="standard_generation",
         wall_clock_budget_seconds=60,
         paid_opt_in=False,
     )

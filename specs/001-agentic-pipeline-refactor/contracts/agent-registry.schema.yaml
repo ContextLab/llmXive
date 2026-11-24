@@ -49,8 +49,7 @@ properties:
       type: object
       required:
         [name, purpose, inputs, outputs, prompt_path, prompt_version,
-         default_backend, fallback_backends, default_model,
-         wall_clock_budget_seconds, paid_opt_in]
+         profile, wall_clock_budget_seconds, paid_opt_in]
       additionalProperties: false
       properties:
         name:
@@ -77,19 +76,16 @@ properties:
         prompt_version:
           type: string
           pattern: '^\d+\.\d+\.\d+$'
-        default_backend:
+        profile:
           type: string
-          enum: [dartmouth, huggingface, local]
-        fallback_backends:
-          type: array
-          minItems: 0
-          items:
-            type: string
-            enum: [dartmouth, huggingface, local]
-        default_model:
-          type: string
-          minLength: 1
-          description: "Resolved at runtime via list(). Stored as a documented preference."
+          description: >-
+            Named capability-requirement profile (spec 026 FR-012); resolved
+            to a concrete model chain at call time by model_selection.route.
+            `deterministic-no-llm` is the sentinel for the one no-LLM agent
+            (paper_publisher).
+          enum:
+            [cheap_structured, standard_generation, deep_review, deep_code,
+             vision, independent_review, deterministic-no-llm]
         tools:
           type: array
           items:

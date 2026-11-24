@@ -10,12 +10,17 @@ from __future__ import annotations
 import logging
 import os
 import random
-import threading
 import time
 from collections.abc import Callable, Iterable
-from typing import Any, NoReturn, TypeVar
+from datetime import UTC, datetime
+from enum import StrEnum
+from typing import TYPE_CHECKING, Any, NoReturn, TypeVar
 
 from llmxive.backends.base import (
+    DEFAULT_BREAKER_COOLDOWN_S,
+    DEFAULT_BREAKER_MAX_CONSECUTIVE,
+    DEFAULT_BREAKER_WINDOW_S,
+    BackendCredentialError,
     BackendUnavailable,
     BaseBackend,
     ChatMessage,
@@ -23,10 +28,23 @@ from llmxive.backends.base import (
     DeadlineExceededError,
     EmptyReplyError,
     ModelDownError,
+    PaidGuardDenied,
     PermanentBackendError,
+    PricingUnverifiable,
     TransientBackendError,
     invoke_with_deadline,
 )
+from llmxive.backends.base import CircuitBreaker as _CircuitBreaker
+from llmxive.backends.base import openai_content as _lc_content
+
+if TYPE_CHECKING:
+    # Type-checking only: ``backends`` must not import ``model_selection`` at
+    # module scope (the established cycle guard; see ``ImagePart.__post_init__``
+    # in ``backends/base.py``). ``_lkg_model_pricing``/``_live_model_pricing``
+    # below do the real (function-local) import.
+    from llmxive.model_selection.lkg import LKGStore
+    from llmxive.model_selection.types import ModelPricing
+
 
 # --- centralized transient-error retry (T015-class outages) --------------
 #
@@ -148,19 +166,15 @@ def _dartmouth_model_kwargs(model: str) -> dict[str, object]:
 # what lets the router's peer-model fallback route around a single down model.
 # Both thresholds are constants, env-overridable.
 _DEFAULT_BREAKER_MAX_CONSECUTIVE = int(
-    os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_MAX_CONSECUTIVE", "3")
+    os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_MAX_CONSECUTIVE", DEFAULT_BREAKER_MAX_CONSECUTIVE)
 )
 _DEFAULT_BREAKER_WINDOW_S = float(
-    os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_WINDOW_S", "1800.0")  # 30 min
+    os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_WINDOW_S", DEFAULT_BREAKER_WINDOW_S)
 )
 
 _DEFAULT_BREAKER_COOLDOWN_S = float(
-    os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_COOLDOWN_S", "900.0")
+    os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_COOLDOWN_S", DEFAULT_BREAKER_COOLDOWN_S)
 )
-
-#: The open circuit's wait grows to at most this many base cooldowns (2 hours at
-#: the default 900 s).
-_MAX_COOLDOWN_FACTOR = 8
 
 # A recovery probe asks ONE question: is this model answering at all? Asking it
 # with the next real request made the answer cost a full request budget --
@@ -183,165 +197,6 @@ _LIVENESS_DEADLINE_S = float(
 _LIVENESS_MAX_TOKENS = 512
 _LIVENESS_PROMPT = "Reply with exactly: OK"
 
-
-class _CircuitBreaker:
-    """Trips OPEN on a sustained outage so callers abort fast.
-
-    Tracks consecutive fully-failed calls (a call that exhausted the backend's
-    retries and raised :class:`TransientBackendError`) and the wall-clock time
-    of the first failure in the current run of failures. Trips when EITHER:
-
-      * ``max_consecutive`` consecutive full failures accumulate, OR
-      * no success occurs within ``window_s`` of the first failure
-        (a slow-drip outage that never quite reaches ``max_consecutive``),
-
-    whichever comes first. When OPEN, :meth:`call` raises
-    :class:`BackendUnavailable` immediately WITHOUT invoking the inner callable
-    (so the retry budget is not burned). After a cooldown, allow one recovery
-    probe while concurrent callers still fail fast. A failed probe restarts the
-    cooldown; success resets the breaker. The cooldown doubles each time a real
-    request is lost with no real answer in between (see ``_cooldown``). An explicit ModelDownError opens the
-    circuit immediately because its full request budget has already been spent.
-
-    Only :class:`TransientBackendError` counts as a failure — a
-    :class:`PermanentBackendError` (e.g. the paid-model guard) is not an outage
-    signal and passes straight through without advancing the breaker.
-
-    ``clock`` is injectable for deterministic tests (defaults to
-    ``time.monotonic``).
-    """
-
-    def __init__(
-        self,
-        *,
-        max_consecutive: int = _DEFAULT_BREAKER_MAX_CONSECUTIVE,
-        window_s: float = _DEFAULT_BREAKER_WINDOW_S,
-        clock: Callable[[], float] = time.monotonic,
-        cooldown_s: float = _DEFAULT_BREAKER_COOLDOWN_S,
-        liveness: Callable[[str], bool | None] | None = None,
-    ) -> None:
-        #: Optional cheap recovery check, called with :attr:`name` when the
-        #: cooldown expires. ``True`` closes the circuit and the caller's real
-        #: request proceeds with its FULL budget; ``False`` leaves it open and
-        #: restarts the cooldown without burning a request; ``None`` means "no
-        #: cheap check available" (a paid model, whose call must stay behind the
-        #: credit guard) and falls back to probing with the real request. Left
-        #: ``None`` by default, so a breaker constructed without it behaves
-        #: exactly as before.
-        self.liveness = liveness
-        #: The resolved model this breaker guards; set by ``_breaker_for``.
-        self.name = ""
-        self._max_consecutive = max_consecutive
-        self._window_s = window_s
-        self._clock = clock
-        self._cooldown_s = cooldown_s
-        self._opened_at: float | None = None
-        self._probe_in_flight = False
-        self._lock = threading.Lock()
-        self._consecutive_failures = 0
-        self._first_failure_at: float | None = None
-        #: Real requests lost since the last real answer. A model that answers
-        #: the small liveness request and then hangs on the next real one would
-        #: otherwise cost a full deadline every cooldown, for as long as the
-        #: process runs; the wait doubles with each such loss instead.
-        self._relapses = 0
-
-    def _cooldown(self) -> float:
-        """How long the circuit stays open now: the base cooldown, doubled for
-        every real request lost since the last real answer, up to
-        :data:`_MAX_COOLDOWN_FACTOR` times."""
-        return self._cooldown_s * min(2 ** max(self._relapses - 1, 0), _MAX_COOLDOWN_FACTOR)
-
-    def _is_open(self) -> bool:
-        if self._opened_at is not None:
-            return True
-        if self._consecutive_failures >= self._max_consecutive:
-            return True
-        if (
-            self._first_failure_at is not None
-            and (self._clock() - self._first_failure_at) >= self._window_s
-        ):
-            return True
-        return False
-
-    def _open_error(self) -> BackendUnavailable:
-        mins = self._window_s / 60.0
-        return BackendUnavailable(
-            f"circuit open: Dartmouth endpoint persistently unavailable after "
-            f"{self._consecutive_failures} consecutive failures / {mins:.0f} min"
-        )
-
-    def call(self, fn: Callable[[], _T]) -> _T:
-        """Run ``fn()`` unless the breaker is OPEN (then raise immediately).
-
-        Records a full failure on :class:`TransientBackendError`; resets on
-        success. Other exceptions (PermanentBackendError, programming bugs)
-        pass through unchanged and do NOT advance the breaker.
-        """
-        probe = False
-        with self._lock:
-            if self._is_open():
-                now = self._clock()
-                if self._opened_at is None:
-                    self._opened_at = now
-                if self._probe_in_flight or now - self._opened_at < self._cooldown():
-                    raise self._open_error()
-                self._probe_in_flight = probe = True
-        if probe and self.liveness is not None:
-            try:
-                alive = self.liveness(self.name)
-            except BaseException:  # a probe must never raise into the caller
-                alive = False
-            if alive is not None:
-                with self._lock:
-                    self._probe_in_flight = False
-                    if not alive:
-                        # Still sick. Restart the cooldown and fail fast, WITHOUT
-                        # spending the caller's full request budget to find out.
-                        self._opened_at = self._clock()
-                        raise self._open_error()
-                    self._reset()
-                # The model answers: this is now an ordinary call, not a probe,
-                # so it gets the full deadline and does not re-open the circuit
-                # on a single transient failure.
-                probe = False
-        try:
-            result = fn()
-        except TransientBackendError as exc:
-            with self._lock:
-                self._record_failure()
-                # A hard deadline / explicit model-down response has already
-                # consumed a full request budget. Route around it immediately.
-                if probe or isinstance(exc, ModelDownError) or self._is_open():
-                    self._opened_at = self._clock()
-                    self._relapses += 1
-            raise
-        except BaseException:
-            # A failed/cancelled recovery probe must not leave the circuit stuck
-            # half-open, nor cause all waiting callers to immediately retry it.
-            if probe:
-                with self._lock:
-                    self._opened_at = self._clock()
-            raise
-        else:
-            with self._lock:
-                self._reset()
-                self._relapses = 0  # a real answer, not a ping
-            return result
-        finally:
-            if probe:
-                with self._lock:
-                    self._probe_in_flight = False
-
-    def _record_failure(self) -> None:
-        if self._first_failure_at is None:
-            self._first_failure_at = self._clock()
-        self._consecutive_failures += 1
-
-    def _reset(self) -> None:
-        self._opened_at = None
-        self._consecutive_failures = 0
-        self._first_failure_at = None
 
 _log = logging.getLogger(__name__)
 _T = TypeVar("_T")
@@ -512,8 +367,9 @@ def _raise_for_backend_error(text: str, exc: BaseException) -> NoReturn:
     * an AUTH rejection whose key the catalog still ACCEPTS (or cannot be
       confirmed bad) → :class:`TransientBackendError` — a transient auth-service
       flap (engine-failure #515-518), NOT a config error. A genuinely bad key is
-      rejected by the catalog too (_gateway_rejects_key → True) and falls through
-      to PERMANENT below, surfacing a loud, actionable engine-failure issue.
+      rejected by the catalog too (_gateway_rejects_key → True) and raises
+      :class:`BackendCredentialError` (a ``PermanentBackendError``): the router
+      skips to the next candidate; if none serves, the chain is exhausted.
     * anything else                → :class:`PermanentBackendError` (no retry)
     """
     # Explicit account budgets are hard limits even when costs/IDs happen to
@@ -530,8 +386,12 @@ def _raise_for_backend_error(text: str, exc: BaseException) -> NoReturn:
         raise ModelDownError(str(exc)) from exc
     if _is_transient_error_text(text):
         raise TransientBackendError(str(exc)) from exc
-    if _is_auth_error_text(text) and not _gateway_rejects_key():
-        raise TransientBackendError(str(exc)) from exc
+    if _is_auth_error_text(text):
+        if not _gateway_rejects_key():
+            raise TransientBackendError(str(exc)) from exc
+        # A key the gateway definitively rejects: this backend cannot serve any
+        # request, but a peer backend may, so the router skips to it.
+        raise BackendCredentialError(str(exc)) from exc
     raise PermanentBackendError(str(exc)) from exc
 
 
@@ -625,34 +485,71 @@ def _ensure_api_key_env() -> None:
         os.environ["DARTMOUTH_CHAT_API_KEY"] = key
 
 
-# Fail-safe set of FREE Dartmouth chat models (input/output cost-per-token
-# == 0 per chat.dartmouth.edu/api/models). Used only when the live catalog
-# is unreachable, so a transient listing outage never blocks a known-free
-# model. The live catalog (free_chat_models) is authoritative when available.
-# Synced 2026-06 with ChatDartmouth.list(): the qwen.* and google.gemma-*
-# families were RETIRED from the Dartmouth catalog, so every agent that named
-# them silently fell through to the weak `local` fallback. The only capable
-# Free capable models on the Dartmouth catalog (verified live 2026-06-25 by real
-# call — all responding): qwen3.5-122b (reasoning) is the primary default, gemma
-# (fast, non-reasoning) and gpt-oss-120b (reasoning) are fallbacks. qwen + gemma
-# were transiently retired/down 2026-06 (why the registry had moved to gpt-oss)
-# and are back. llama / codellama stay free but small (last resort). Paid models
-# (claude/gpt-5/gemini/voyage) are NEVER listed here — they route through
-# PAID_FALLBACK_MODELS + the daily credit guard.
-KNOWN_FREE_MODELS: frozenset[str] = frozenset(
-    {
-        "zai-org.glm-5.3",
-        "qwen.qwen3.5-122b",
-        "google.gemma-3-27b-it",
-        "google.gemma-4-31B-it",
-        "openai.gpt-oss-120b",
-        "meta.llama-3.2-11b-vision-instruct",
-        "meta.llama-3-2-3b-instruct",
-        "meta.codellama-13b-instruct-hf",
-    }
-)
+#: Full per-model pricing map from the live catalog (id -> ModelPricing;
+#: ``None`` cost fields mean "listed but unpriced"). This is the SINGLE live
+#: pricing cache — ``free_chat_models()`` is a filtered VIEW over it, and
+#: ``model_pricing_verdict()`` reads it directly for the paid/unlisted
+#: distinction that a free-only frozenset can't express (see
+#: ``_live_model_pricing``).
+_LIVE_PRICING_CACHE: dict[str, ModelPricing] | None = None
+#: ``time.monotonic()`` timestamp of the last successful ``_LIVE_PRICING_CACHE``
+#: fill; ``None`` means "no cache yet". Monotonic (not wall-clock) so a system
+#: clock adjustment can't extend or shrink the TTL. See ``_live_model_pricing``.
+_LIVE_PRICING_CACHE_AT: float | None = None
 
-_FREE_MODELS_CACHE: frozenset[str] | None = None
+#: Fallback spend-authorization freshness bound (seconds), used ONLY if the
+#: canonical ``model_selection.profiles`` constant cannot be imported (should
+#: not happen in production; see ``_free_model_freshness_bound_s``). Mirrors
+#: ``profiles.PROFILES["independent_review"].max_catalog_age_s`` at time of
+#: writing — kept as a literal safety net, never the primary source
+#: (Constitution I: single source of truth for the real bound).
+_FALLBACK_FREE_MODEL_FRESHNESS_BOUND_S = 900.0
+
+
+def _free_model_freshness_bound_s() -> float:
+    """Max age (seconds) a "free" classification may be before it must be
+    reconfirmed — bounds BOTH the in-process ``free_chat_models`` cache TTL
+    and the LKG "catalog" observation's staleness cutoff (review Finding 2).
+
+    ``is_free_model`` gates whether ``DartmouthBackend.chat()`` even calls
+    ``paid_call_allowed`` — a stale "free" verdict bypasses the credit guard
+    entirely, so this sits directly on the spend-authorization boundary and
+    is treated as HIGH-STAKES. Rather than duplicate a literal, this derives
+    the bound from ``model_selection.profiles``' ``independent_review``
+    profile: the SAME tight 900s bound spec 026 already reserves for
+    high-stakes calls (FR-007), not the default ``max_catalog_age_s=3600``.
+    Function-local import: ``backends`` must not import ``model_selection``
+    at module scope — the established cycle guard, see ``_lkg_free_models``
+    below. Any failure (import error, missing profile key, ...) falls back
+    to the literal mirror above; this must never raise into the chat() path.
+    """
+    try:
+        from llmxive.model_selection.profiles import PROFILES
+
+        return float(PROFILES["independent_review"].max_catalog_age_s)
+    except Exception:
+        return _FALLBACK_FREE_MODEL_FRESHNESS_BOUND_S
+
+
+def _is_fresh_enough(observed_at: datetime, *, max_age_s: float | None = None) -> bool:
+    """True if ``observed_at`` is within the spend-authorization freshness
+    bound of "now".
+
+    ``observed_at`` may be tz-naive or tz-aware depending on how it was
+    persisted (``LKGStore`` always writes UTC-aware today via
+    ``datetime.now(UTC).isoformat()``, but this stays defensive against any
+    other producer) — a naive value is treated as UTC rather than raising.
+    ANY failure (not a real datetime, arithmetic error, ...) returns
+    ``False`` — fail closed, never raise. This sits on the call path of
+    every LLM request via ``_lkg_free_models``.
+    """
+    bound = _free_model_freshness_bound_s() if max_age_s is None else max_age_s
+    try:
+        ts = observed_at if observed_at.tzinfo is not None else observed_at.replace(tzinfo=UTC)
+        age_s = (datetime.now(UTC) - ts).total_seconds()
+        return age_s <= bound
+    except Exception:
+        return False
 
 
 def _cloud_models_url() -> str:
@@ -682,7 +579,7 @@ def _fetch_cloud_models() -> list[dict[str, Any]]:
     _ensure_api_key_env()
     key = os.environ.get("DARTMOUTH_CHAT_API_KEY")
     if not key:
-        raise PermanentBackendError(
+        raise BackendCredentialError(
             "DARTMOUTH_CHAT_API_KEY is not set (required by Dartmouth backend)"
         )
     resp = _catalog_get(key, timeout=30)
@@ -719,30 +616,66 @@ def _model_token_costs(model_obj: dict[str, Any]) -> tuple[float | None, float |
     return (max(ins) if ins else None, max(outs) if outs else None)
 
 
-def free_chat_models(*, force_refresh: bool = False) -> frozenset[str] | None:
-    """Set of Dartmouth model ids that are free (cost-per-token == 0).
+def _live_model_pricing(*, force_refresh: bool = False) -> dict[str, ModelPricing] | None:
+    """Full live per-model pricing map (id -> ``ModelPricing``; unpriced
+    catalog entries — embeddings/helper bots — carry ``ModelPricing(None,
+    None)``, never treated as free or paid).
 
     Authoritative source: the live chat catalog's explicit per-model pricing.
-    Returns ``None`` when the catalog is unreachable so callers fall back to
-    KNOWN_FREE_MODELS. Cached for the process lifetime.
+    Returns ``None`` when the catalog is unreachable so callers
+    (``model_pricing_verdict``) fall back to the last-known-good LKG catalog
+    observation. This is the ONE live-catalog cache (Constitution I):
+    ``free_chat_models`` is a filtered view over it, and
+    ``model_pricing_verdict`` reads it directly to preserve the paid/unlisted
+    distinction a free-only frozenset erases.
+
+    Cached for a BOUNDED TTL (:func:`_free_model_freshness_bound_s`) — NOT the
+    process lifetime (review Finding 2: an unbounded cache in a long-running
+    cron worker never re-confirms a pricing verdict, which bypasses the
+    spend-authorization boundary). Once the TTL elapses the next call
+    refetches; a refetch FAILURE returns ``None`` rather than re-serving the
+    (now expired) cache, so callers fall through to the LKG step instead of
+    silently trusting an unboundedly old verdict.
     """
-    global _FREE_MODELS_CACHE
-    if _FREE_MODELS_CACHE is not None and not force_refresh:
-        return _FREE_MODELS_CACHE
+    global _LIVE_PRICING_CACHE, _LIVE_PRICING_CACHE_AT
+    now = time.monotonic()
+    cache_is_fresh = (
+        _LIVE_PRICING_CACHE_AT is not None
+        and (now - _LIVE_PRICING_CACHE_AT) < _free_model_freshness_bound_s()
+    )
+    if _LIVE_PRICING_CACHE is not None and cache_is_fresh and not force_refresh:
+        return _LIVE_PRICING_CACHE
     try:
         models = _fetch_cloud_models()
     except Exception:
         return None
-    free: set[str] = set()
+    from llmxive.model_selection.types import ModelPricing as _ModelPricing
+
+    pricing: dict[str, _ModelPricing] = {}
     for m in models:
         mid = m.get("id")
         if not mid:
             continue
         in_cost, out_cost = _model_token_costs(m)
-        if in_cost == 0 and out_cost == 0:
-            free.add(str(mid))
-    _FREE_MODELS_CACHE = frozenset(free)
-    return _FREE_MODELS_CACHE
+        pricing[str(mid)] = _ModelPricing(in_cost, out_cost)
+    _LIVE_PRICING_CACHE = pricing
+    _LIVE_PRICING_CACHE_AT = now
+    return _LIVE_PRICING_CACHE
+
+
+def free_chat_models(*, force_refresh: bool = False) -> frozenset[str] | None:
+    """Set of Dartmouth model ids that are free (cost-per-token == 0).
+
+    A filtered VIEW over :func:`_live_model_pricing` — kept as its own
+    function (rather than inlined) because it is a public, standalone export
+    (``__all__``) with its own established frozenset-shaped contract. Returns
+    ``None`` when the catalog is unreachable, exactly mirroring
+    ``_live_model_pricing``.
+    """
+    pricing = _live_model_pricing(force_refresh=force_refresh)
+    if pricing is None:
+        return None
+    return frozenset(model_id for model_id, p in pricing.items() if p.is_free)
 
 
 _MODEL_COSTS_CACHE: dict[str, tuple[float | None, float | None]] = {}
@@ -767,17 +700,138 @@ def model_token_costs(model: str) -> tuple[float | None, float | None]:
     return _MODEL_COSTS_CACHE.get(model, (None, None))
 
 
-def is_free_model(model: str) -> bool:
-    """Whether ``model`` is a free Dartmouth chat model (cost-per-token == 0).
+def _lkg_model_pricing(*, lkg_store: LKGStore | None = None) -> dict[str, ModelPricing] | None:
+    """Full per-model pricing map from the persisted last-known-good (LKG)
+    catalog component (sibling of :func:`_lkg_free_models`, which preserves
+    ONLY the free subset — insufficient to distinguish a genuinely PAID
+    model from one simply absent from the LKG snapshot).
 
-    Prefers the live catalog; on catalog outage (or for served-but-unlisted
-    models) falls back to the static KNOWN_FREE_MODELS allowlist so a
-    transient listing failure never blocks a known-free model.
+    ``model_selection.snapshot`` writes a "catalog" LKG component every time it
+    fetches the Dartmouth catalog live (:mod:`llmxive.model_selection.lkg`).
+    This reads that SAME persisted component directly — never a fresh network
+    call — so :func:`model_pricing_verdict` has a REAL, aged-but-genuine
+    pricing observation to fall back on when the live catalog is unreachable,
+    instead of a hardcoded allowlist that can silently drift from the truth.
+
+    Function-local import: ``backends`` must not import ``model_selection`` at
+    module scope — that would create an import cycle (the same guard as
+    ``ImagePart.__post_init__`` in ``backends/base.py``).
+
+    ANY failure — no LKG file yet, a corrupt/truncated file, a schema-version
+    mismatch, or a "catalog" entry with an unexpected payload shape — returns
+    ``None`` rather than raising. This sits on the call path of every LLM
+    request, so it must never crash a chat call just because the LKG cache is
+    unusable; the caller treats ``None`` the same as "no LKG data available".
+
+    A "catalog" entry older than :func:`_free_model_freshness_bound_s` is
+    ALSO treated as absent (review Finding 2): an aged-but-real observation
+    is fine for display/reporting, but not for authorizing spend — this is
+    the same freshness bound spec 026 reserves for high-stakes calls, and
+    SC-003 requires stale/unknown pricing to fail closed rather than trust an
+    arbitrarily old verdict.
     """
-    live = free_chat_models()
-    if live is not None and model in live:
-        return True
-    return model in KNOWN_FREE_MODELS
+    try:
+        from llmxive.model_selection.lkg import LKGStore as _LKGStore
+        from llmxive.model_selection.snapshot import _models_from_payload
+
+        entry = (lkg_store or _LKGStore()).load().get("catalog")
+        if entry is None:
+            return None
+        if not _is_fresh_enough(entry.observed_at):
+            return None
+        _refs, pricing = _models_from_payload(entry.payload)
+        return pricing
+    except Exception:
+        return None
+
+
+def _lkg_free_models(*, lkg_store: LKGStore | None = None) -> frozenset[str] | None:
+    """Free-model ids from the persisted last-known-good (LKG) catalog
+    component — a filtered VIEW over :func:`_lkg_model_pricing` (Constitution
+    I: one LKG read, two views). See that function's docstring for the
+    freshness/failure contract, which this inherits unchanged."""
+    pricing = _lkg_model_pricing(lkg_store=lkg_store)
+    if pricing is None:
+        return None
+    return frozenset(model_id for model_id, p in pricing.items() if p.is_free)
+
+
+class PricingVerdict(StrEnum):
+    """The three real outcomes of asking "does calling ``model`` cost money?"
+    — the tri-state that a bare ``bool`` (the old ``is_free_model``) could not
+    express, collapsing "verified paid" and "cannot tell right now" into the
+    same ``False``.
+
+    - ``FREE``: verified cost-per-token == 0.
+    - ``PAID``: verified cost-per-token > 0 — a long-lived, cost-related FACT.
+    - ``UNVERIFIABLE``: cannot determine right now — a TRANSIENT availability
+      condition (catalog unreachable + no fresh LKG, or the model is served
+      but not listed in an otherwise-reachable catalog). Never conflated with
+      PAID: absence from a catalog is unknown, not a cost fact.
+    """
+
+    FREE = "free"
+    PAID = "paid"
+    UNVERIFIABLE = "unverifiable"
+
+
+def _verdict_from_pricing(p: ModelPricing | None) -> PricingVerdict:
+    """Classify one ``ModelPricing`` observation (or its absence, ``None``,
+    meaning "not listed"). Unpriced-but-listed (``ModelPricing(None, None)`` —
+    e.g. an embeddings/helper-bot catalog entry) is ALSO UNVERIFIABLE: it is
+    neither a verified $0 nor a verified >$0 fact."""
+    if p is None or not p.is_known:
+        return PricingVerdict.UNVERIFIABLE
+    return PricingVerdict.FREE if p.is_free else PricingVerdict.PAID
+
+
+def model_pricing_verdict(model: str) -> PricingVerdict:
+    """The tri-state spend-authorization verdict for ``model`` — the ladder
+    :func:`is_free_model` and ``DartmouthBackend.chat()`` both build on
+    (spec 026 Slice 8, extended to split PAID from UNVERIFIABLE).
+
+    Two-step ladder, in order of authority, preserving the SAME freshness
+    bounds the old bool-returning ladder used (:func:`_free_model_freshness_bound_s`)
+    — this does NOT loosen them:
+
+    1. The LIVE catalog (:func:`_live_model_pricing`) when reachable —
+       authoritative. A model priced $0 is FREE; priced >$0 is PAID; a model
+       ABSENT from an otherwise-reachable catalog is UNVERIFIABLE (served but
+       unlisted is unknown, never paid — the core defect this fixes).
+    2. On a live-catalog outage, the last-known-good LKG catalog observation
+       (:func:`_lkg_model_pricing`) — an aged but REAL timestamped pricing
+       snapshot, bounded by the same freshness function. Same three-way split
+       as step 1. This is what keeps a transient Dartmouth catalog-listing
+       blip from denying every free model.
+    3. If NEITHER is available (cold start, no LKG observation yet, or the
+       only LKG record is too stale), UNVERIFIABLE: an unknown-priced model
+       is never silently treated as free (SC-003) OR as paid (the second half
+       of the defect this fixes) — it is explicitly "cannot tell right now".
+    """
+    live = _live_model_pricing()
+    if live is not None:
+        return _verdict_from_pricing(live.get(model))
+    lkg = _lkg_model_pricing()
+    if lkg is not None:
+        return _verdict_from_pricing(lkg.get(model))
+    return PricingVerdict.UNVERIFIABLE
+
+
+def is_free_model(model: str) -> bool:
+    """Whether ``model`` is a VERIFIED-free Dartmouth chat model
+    (cost-per-token == 0).
+
+    A thin wrapper over :func:`model_pricing_verdict`: this answers ONLY "is
+    this VERIFIED free", so an ``UNVERIFIABLE`` model reads as ``False`` here
+    — same as a genuinely ``PAID`` model (SC-003: an unverifiable model never
+    proceeds as free). Callers that need to distinguish "genuinely paid" from
+    "cannot tell right now" (e.g. the spend-authorization guard in
+    ``DartmouthBackend.chat()``, which must raise a TRANSIENT
+    ``PricingUnverifiable`` rather than a PERMANENT ``PaidGuardDenied`` for
+    the latter) MUST call :func:`model_pricing_verdict` directly instead of
+    this collapsed bool.
+    """
+    return model_pricing_verdict(model) is PricingVerdict.FREE
 
 
 class DartmouthBackend(BaseBackend):
@@ -793,7 +847,7 @@ class DartmouthBackend(BaseBackend):
     ) -> None:
         _ensure_api_key_env()
         if not os.environ.get("DARTMOUTH_CHAT_API_KEY"):
-            raise PermanentBackendError(
+            raise BackendCredentialError(
                 "DARTMOUTH_CHAT_API_KEY is not set (required by Dartmouth backend)"
             )
         self._model_name = model_name
@@ -824,7 +878,12 @@ class DartmouthBackend(BaseBackend):
         without it (every test that constructs one directly) keeps the original
         probe-with-the-real-request behavior.
         """
-        return _CircuitBreaker(liveness=self._liveness_ok)
+        return _CircuitBreaker(
+            max_consecutive=_DEFAULT_BREAKER_MAX_CONSECUTIVE,
+            window_s=_DEFAULT_BREAKER_WINDOW_S,
+            cooldown_s=_DEFAULT_BREAKER_COOLDOWN_S,
+            liveness=self._liveness_ok,
+        )
 
     def _liveness_ok(self, model: str) -> bool | None:
         """Is ``model`` answering at all? ``None`` when it cannot be asked cheaply.
@@ -914,6 +973,7 @@ class DartmouthBackend(BaseBackend):
         model: str,
         max_tokens: int | None = None,
         temperature: float | None = None,
+        deadline_s: float | None = None,
     ) -> ChatResponse:
         try:
             from langchain_core.messages import (
@@ -924,6 +984,14 @@ class DartmouthBackend(BaseBackend):
         except ImportError as exc:
             raise PermanentBackendError("langchain-core is not installed") from exc
 
+        # spec 026 execute() may pass an explicit per-call wall-clock deadline
+        # (from ExecutionOptions.deadline_s); it OVERRIDES the per-model default
+        # for the hard invoke_with_deadline enforcement. A non-positive/None value
+        # falls back to the reasoning-aware per-model deadline.
+        effective_deadline = (
+            deadline_s if deadline_s and deadline_s > 0 else _deadline_for_model(model)
+        )
+
         # Free-first guard (Constitution Principle IV). Dartmouth's catalog
         # mixes free self-hosted models with paid external providers (gpt-5,
         # claude, gemini, ...). Paid models are refused UNLESS the
@@ -933,13 +1001,30 @@ class DartmouthBackend(BaseBackend):
         # ~$2.00 list-price equivalent, renewing daily — costing the project
         # $0 in actual money when managed within budget). The guard FAILS
         # CLOSED (balance unreachable -> refuse). See backends/credits.py.
-        paid_call = not is_free_model(model)
+        #
+        # The verdict is TRI-STATE, not a bool: "verified paid" and "cannot
+        # tell right now" are different problems with different fixes (a
+        # cost fact vs. a transient catalog outage), so they get different
+        # exception types here — PricingUnverifiable (transient, RETRY_ADVANCE)
+        # vs. PaidGuardDenied (permanent, SKIP). See ``model_pricing_verdict``.
+        verdict = model_pricing_verdict(model)
+        if verdict is PricingVerdict.UNVERIFIABLE:
+            raise PricingUnverifiable(
+                f"Dartmouth: cannot verify pricing for {model!r} — the catalog is "
+                "unreachable and there is no fresh last-known-good pricing. Refusing "
+                "rather than assuming free (SC-003). This is a TRANSIENT availability "
+                "condition, not a cost or opt-in problem: it needs no configuration "
+                "change and should resolve when the catalog returns."
+            )
+        paid_call = verdict is PricingVerdict.PAID
         if paid_call:
             from llmxive.backends.credits import paid_call_allowed
 
             allowed, reason = paid_call_allowed(model)
             if not allowed:
-                raise PermanentBackendError(f"Dartmouth: {reason}")
+                # A budget/opt-in denial is an EXPECTED skip, not a hard refusal:
+                # the model-chain walker moves to the next candidate (spec 026).
+                raise PaidGuardDenied(f"Dartmouth: {reason}")
             _log.info("dartmouth: %s", reason)
 
         client = self._client(model)
@@ -947,11 +1032,11 @@ class DartmouthBackend(BaseBackend):
         msg_objs: list[_BaseMessage] = []
         for m in messages:
             if m.role == "system":
-                msg_objs.append(SystemMessage(content=m.content))
+                msg_objs.append(SystemMessage(content=_lc_content(m.content)))
             elif m.role == "assistant":
-                msg_objs.append(AIMessage(content=m.content))
+                msg_objs.append(AIMessage(content=_lc_content(m.content)))
             else:
-                msg_objs.append(HumanMessage(content=m.content))
+                msg_objs.append(HumanMessage(content=_lc_content(m.content)))
 
         kwargs: dict[str, object] = {}
         if max_tokens is not None:
@@ -959,7 +1044,7 @@ class DartmouthBackend(BaseBackend):
         if temperature is not None:
             kwargs["temperature"] = temperature
 
-        deadline_at = time.monotonic() + _deadline_for_model(model)
+        deadline_at = time.monotonic() + effective_deadline
 
         def _invoke(call_kwargs: dict[str, object]):  # type: ignore[no-untyped-def]
             # Hard-enforce a total wall-clock deadline in addition to the SDK's
@@ -1109,10 +1194,11 @@ class DartmouthBackend(BaseBackend):
 
 
 __all__ = [
-    "KNOWN_FREE_MODELS",
     "BackendUnavailable",
     "DartmouthBackend",
+    "PricingVerdict",
     "free_chat_models",
     "is_free_model",
+    "model_pricing_verdict",
     "model_token_costs",
 ]

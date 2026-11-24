@@ -1,21 +1,28 @@
 # Hugging Face pilot
 
 The `contextlab` Academia subscription supplies optional storage and burst compute
-for llmXive. Dartmouth remains the production model backend. These explicit pilot
+for llmXive. Dartmouth remains the primary model backend; Hugging Face Inference
+Providers is now a routed fallback backend (`llmxive.backends.huggingface`, billed
+to the resource group below via `LLMXIVE_HF_BILL_TO`). These explicit pilot
 commands do not change automatic model selection or upload project directories.
 
 ## Provisioned resources
 
 - Organization: `contextlab` (Academia plan verified 2026-10-09).
 - Resource group: `llmxive`, ID `6ac8defed831a06784773cfd`.
-- Monthly combined compute cap: **$20**; Jobs and Inference Providers share it.
+- Group spend limit set on Hugging Face at provisioning (2026-10-09): **$20** per
+  month; Jobs and Inference Providers share it. Hugging Face enforces this limit on
+  its side.
+- llmXive's own funded allowance for routed inference is `LLMXIVE_HF_MONTHLY_USD`,
+  default **$50** per month (`DEFAULT_MONTHLY_USD` in `llmxive.backends.hf_budget`),
+  reserved and settled on the funded ledger before and after each call.
 - Paid Spaces and Inference Endpoints: **$0** limits.
 - Private versioned artifacts: <https://huggingface.co/datasets/contextlab/llmxive-artifacts>.
 - Private working bucket: <https://huggingface.co/buckets/contextlab/llmxive-work>.
 - Group settings: <https://huggingface.co/organizations/contextlab/settings/resource-groups/6ac8defed831a06784773cfd?tab=settings>.
 
 Credits are pooled across the organization, not separate wallets attached to ten
-bot accounts. The $20 cap represents ten seats' monthly allocation. It does not
+bot accounts. At provisioning, the $20 group limit represented ten seats' monthly allocation. It does not
 reserve credits against other lab usage, and is not an additional subscription.
 HF enforces the group limit; jobs must specify this group and inference requests
 must use its ID in `X-HF-Bill-To`. HF may stop running work shortly after a limit
@@ -24,11 +31,12 @@ is reached, so this is not a promise of zero overshoot.
 ## Credentials
 
 Never commit credentials, put them in a command-line argument, log them, or use a
-credential-bearing URL. The helper reads only `HF_TOKEN` (for a GitHub Actions
-secret) or the macOS Keychain service `llmxive-huggingface`, account
-`jeremyrmanning`. It does not read a plaintext HF cache or repository `.env` file.
-The current local credential is in Keychain. **No HF GitHub secret or recurring
-HF workflow has been enabled.** Before enabling CI, create a dedicated fine-grained
+credential-bearing URL. The loader is `llmxive.credentials.load_hf_token` (this
+helper calls it); it reads only `HF_TOKEN` (for a GitHub Actions secret) or the
+macOS Keychain service `llmxive-huggingface`. It does not read a plaintext HF cache or repository `.env` file.
+The current local credential is in Keychain. Eleven workflows under
+`.github/workflows/` pass the `HF_TOKEN` secret to their jobs, together with the
+Actions variables `LLMXIVE_HF_BILL_TO` and `LLMXIVE_FUNDED_LEDGER_ANCHOR`. Before enabling CI, create a dedicated fine-grained
 HF token limited to the required project repositories, Jobs, and inference,
 and save it as a GitHub Actions secret. Do not reuse a broad lab administrator
 token in pull-request workflows. A service account can replace the personal
@@ -76,6 +84,39 @@ probes as a health-check loop.
   byte-for-byte. `pilot-storage-receipt.json` pins its HF revision, SHA-256, and
   source Git commit. This is an additional copy; source files were not deleted.
 - The private working bucket is provisioned; its data round trip is not yet tested.
+
+## Funded-provider real-call lane (spec 027, Task 21)
+
+Lane: `tests/real_call/test_hf_funded_real.py`. With Dartmouth made unreachable, each
+profile picks a Hugging Face model from the live leaderboard and catalog, reserves on
+the production funded ledger, makes a short real chat (`max_tokens=1024`, `retries=1`,
+`max_credits=100`, i.e. at most $0.10 reserved per call), and settles the real charge. It spends real money and writes to
+`refs/llmxive/funded-ledger`; it fails (never skips) when `HF_TOKEN`,
+`LLMXIVE_HF_BILL_TO` or `LLMXIVE_FUNDED_LEDGER_ANCHOR` is missing. It prints model ids,
+token counts, dollar amounts and counts only, never a rating, the token or the bill-to id.
+
+Prerequisites, once: `llmxive funded-ledger-bootstrap --remote origin`; set the Actions
+variables `LLMXIVE_HF_BILL_TO` and `LLMXIVE_FUNDED_LEDGER_ANCHOR`.
+
+`refs/llmxive/funded-ledger` lies outside `refs/heads` and `refs/tags`, which is all
+that GitHub branch and tag rulesets cover (not verified by a test here), so the ref
+has no server-side protection. It is guarded by the code's pinned-anchor ancestry
+check and compare-and-swap writes, the budget guard's cross-check against the
+organization's credit balance, and the resource group's spend limit at Hugging Face.
+A party with repository write access could reset the ref to an earlier point that
+still descends from the anchor, and the code would accept it.
+
+Run: `LLMXIVE_REAL_TESTS=1 pytest tests/real_call/test_hf_funded_real.py tests/real_call/test_model_selection_snapshot_real.py -q -s`
+
+Acceptance evidence: **not yet run.** Fields to fill after the first real run (no
+ratings):
+
+- Date:
+- Models served (ids) per profile:
+- Input / output tokens per call:
+- Total settled cost (USD):
+- Leaderboard matched counts (reasoning / coding) and ambiguous names:
+- `llmxive preflight` spend line and coverage line after the run:
 
 ## Next integration steps
 

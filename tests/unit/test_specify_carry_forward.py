@@ -28,7 +28,6 @@ from pathlib import Path
 import llmxive.speckit.specify_cmd as specify_cmd
 from llmxive.speckit.slash_command import SlashCommandContext
 from llmxive.speckit.specify_cmd import SpecifierAgent, _find_prior_spec
-from llmxive.types import BackendName
 
 # A rich, mature prior spec: 13 distinct FR lines + several SC lines + a
 # resolved clarification, modeled on the PROJ-552 specs/001 spec.
@@ -85,9 +84,7 @@ def _ctx(project_id: str, project_dir: Path) -> SlashCommandContext:
         inputs=[],
         expected_outputs=[],
         prompt_template_path=project_dir / "ignored.md",
-        default_backend=BackendName.DARTMOUTH,
-        fallback_backends=[],
-        default_model="m",
+        profile="standard_generation",
         prompt_version="1.0.0",
         agent_name="specifier",
     )

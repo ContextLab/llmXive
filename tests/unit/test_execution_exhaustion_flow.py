@@ -30,9 +30,15 @@ from llmxive.types import Project, Stage
 
 @pytest.fixture(autouse=True)
 def _free_first_env(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Default FREE-FIRST: no paid opt-in, no configured paid tiers."""
+    """Default FREE-FIRST: no paid opt-in, no paid escalation configured."""
     monkeypatch.delenv("LLMXIVE_PAID_OPT_IN", raising=False)
-    monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_TIERS", raising=False)
+    monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_ESCALATION", raising=False)
+
+
+def _free_rungs() -> list:
+    """The FREE rungs of the escalation ladder, in tier order (spec 026: rungs are
+    requirement constraints, not model ids — the former ``FREE_MODEL_TIERS``)."""
+    return [c for c in es.model_tier_ladder() if not c.is_paid]
 
 
 def _force_fix_rounds_at_cap(repo: Path, pid: str) -> None:
@@ -81,19 +87,48 @@ def test_model_tier_defaults_to_zero_and_record_preserves_it(tmp_path: Path) -> 
     assert es.fix_rounds(pid, repo_root=tmp_path) == 1  # bumped from 0
 
 
+def test_record_bool_safety_read_write_cycle(tmp_path: Path) -> None:
+    """A corrupt persisted BOOLEAN counter must not survive a record()/record_offload()
+    read->write cycle. ``isinstance(True, int)`` is True, so the pre-fix inline coercion
+    in record() read a stored ``"model_tier": true`` as tier 1 and rewrote it, and turned
+    ``"fix_rounds": true`` into 2 on the next failure — silently defeating the read-path
+    bool-safety fix. Both write paths must route through the bool-safe ``_nonneg_int``."""
+    d = tmp_path / "state" / "execution_status"
+    d.mkdir(parents=True)
+    pid = "PROJ-013-boolsafe"
+    p = d / f"{pid}.json"
+    corrupt = {"project_id": pid, "ok": False, "model_tier": True, "fix_rounds": True}
+
+    # record() on a failure must read True as 0 (not tier 1 / round 1) and rewrite ints.
+    p.write_text(json.dumps(corrupt))
+    es.record(pid, ok=False, reason="boom", artifacts=[], failures=["x"], repo_root=tmp_path)
+    rec = json.loads(p.read_text())
+    assert rec["model_tier"] == 0 and not isinstance(rec["model_tier"], bool)
+    assert rec["fix_rounds"] == 1 and not isinstance(rec["fix_rounds"], bool)  # 0+1, not True+1==2
+    assert es.model_tier(pid, repo_root=tmp_path) == 0
+    assert es.fix_rounds(pid, repo_root=tmp_path) == 1
+
+    # record_offload() likewise never reintroduces a bool from a still-corrupt record.
+    p.write_text(json.dumps(corrupt))
+    es.record_offload(pid, status="submitted", kernel_ref="k1", repo_root=tmp_path)
+    rec2 = json.loads(p.read_text())
+    assert rec2["model_tier"] == 0 and not isinstance(rec2["model_tier"], bool)
+    assert rec2["fix_rounds"] == 0 and not isinstance(rec2["fix_rounds"], bool)
+
+
 def test_ladder_skips_paid_tiers_when_opt_in_off(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     (tmp_path / "state" / "execution_status").mkdir(parents=True)
-    monkeypatch.setenv(
-        "LLMXIVE_EXECUTION_PAID_TIERS", "anthropic.claude-haiku,anthropic.claude-sonnet"
-    )
-    # Ladder LISTS paid tiers (stable indices) but they're unusable opt-in off.
-    assert es.model_tier_ladder() == (
-        *es.FREE_MODEL_TIERS, "anthropic.claude-haiku", "anthropic.claude-sonnet"
-    )
+    monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_ESCALATION", "1")
+    # Ladder APPENDS the single paid rung (stable index) but it's unusable
+    # opt-in off: three free rungs + one paid rung = 4 constraints.
+    ladder = es.model_tier_ladder()
+    assert len(ladder) == 4
+    assert [c.is_paid for c in ladder] == [False, False, False, True]
     assert es.next_usable_tier(0) == 1  # free second opinion
-    assert es.next_usable_tier(len(es.FREE_MODEL_TIERS) - 1) is None  # paid tiers skipped (opt-in off)
+    assert es.next_usable_tier(1) == 2  # third free family
+    assert es.next_usable_tier(2) is None  # paid rung skipped (opt-in off)
     pid = "PROJ-011-paid"
     es.record(pid, ok=False, reason="boom", artifacts=[], failures=["x"],
               repo_root=tmp_path)
@@ -113,10 +148,10 @@ def test_fabrication_escalation_never_climbs_to_a_paid_tier(
     must cap at the last FREE tier; then re-plan (bounded), never pay to re-fabricate.
     """
     (tmp_path / "state" / "execution_status").mkdir(parents=True)
-    monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_TIERS", "anthropic.claude-haiku")
-    monkeypatch.setattr(es, "paid_tier_usable", lambda m: True)  # opt-in ON, has budget
+    monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_ESCALATION", "1")
+    monkeypatch.setattr(es, "paid_tier_usable", lambda: True)  # opt-in ON, has budget
     # A CODE BUG can use the paid tier; fabrication cannot.
-    last_free = len(es.FREE_MODEL_TIERS) - 1
+    last_free = len(_free_rungs()) - 1
     assert es.next_usable_tier(last_free) == last_free + 1  # paid reachable
     assert es.next_usable_tier(last_free, free_only=True) is None
     assert es.next_usable_tier(0, free_only=True) == 1       # free second opinion is fine
@@ -130,20 +165,22 @@ def test_fabrication_escalation_never_climbs_to_a_paid_tier(
         es.bump_model_tier(pid, repo_root=tmp_path, free_only=True)  # no paid
 
 
-def test_execution_model_override_resolves_tier(tmp_path: Path) -> None:
+def test_tier_overrides_resolves_current_tier(tmp_path: Path) -> None:
     (tmp_path / "state" / "execution_status").mkdir(parents=True)
     pid = "PROJ-012-override"
     es.record(pid, ok=False, reason="boom", artifacts=[], failures=["x"],
               repo_root=tmp_path)
-    # Tier 0 -> the registered default (no override).
-    assert es.execution_model_override(
-        pid, default_model="REGISTERED-DEFAULT", repo_root=tmp_path
-    ) == "REGISTERED-DEFAULT"
+    # Tier 0 -> free-only constraint, no exclusions (no leader dropped yet).
+    ov0 = es.tier_overrides(pid, repo_root=tmp_path)
+    assert ov0.allow_paid is False
+    assert ov0.require_paid is False
+    assert ov0.exclude_leader is False
     es.bump_model_tier(pid, repo_root=tmp_path)
-    # Tier 1 -> the free second-opinion model id.
-    assert es.execution_model_override(
-        pid, default_model="REGISTERED-DEFAULT", repo_root=tmp_path
-    ) == "openai.gpt-oss-120b"
+    # Tier 1 -> free second opinion: exclude_leader drops whatever select() ranks
+    # first so the policy's next-best FREE model leads (no model-id pin here).
+    ov1 = es.tier_overrides(pid, repo_root=tmp_path)
+    assert ov1.allow_paid is False
+    assert ov1.exclude_leader is True
 
 
 # --- graph routing ----------------------------------------------------------
@@ -173,9 +210,9 @@ def test_at_cap_last_tier_replans_with_deterministic_report(tmp_path: Path) -> N
               artifacts=["data/results.csv", "figures/plot.png"],
               failures=["code/train.py -> rc=1\n  KeyError: 'col'"], repo_root=repo)
     # Put the project at the last free tier at the cap.
-    for _ in es.FREE_MODEL_TIERS[1:]:
+    for _ in _free_rungs()[1:]:
         es.bump_model_tier(pid, repo_root=repo)
-    assert es.model_tier(pid, repo_root=repo) == len(es.FREE_MODEL_TIERS) - 1
+    assert es.model_tier(pid, repo_root=repo) == len(_free_rungs()) - 1
     es.record(pid, ok=False, reason="still failing",
               artifacts=["data/results.csv", "figures/plot.png"],
               failures=["code/train.py -> rc=1\n  KeyError: 'col'"], repo_root=repo)
@@ -359,9 +396,10 @@ def test_rejected_tasks_retry_free_models_without_rewriting_scope(tmp_path, monk
     feedback = pdir / ".specify/memory/task_verifier_notes.md"
     feedback.parent.mkdir(parents=True)
     feedback.write_text("T001: expected exact error text; argparse adds a prefix\n")
-    monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_TIERS", "anthropic.claude-haiku")
-    monkeypatch.setattr(es, "paid_tier_usable", lambda model: True)
-    for tier in range(1, len(es.FREE_MODEL_TIERS)):
+    monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_ESCALATION", "1")
+    monkeypatch.setattr(es, "paid_tier_usable", lambda: True)
+    assert es.model_tier_ladder()[-1].is_paid  # a usable paid rung really is on offer
+    for tier in range(1, len(_free_rungs())):
         unverifiable.record_unverifiable(pid, "T001", "wrong error text", repo_root=tmp_path)
         assert graph._decide_next_stage(proj, pdir, repo_root=tmp_path) == Stage.IN_PROGRESS
         assert es.model_tier(pid, repo_root=tmp_path) == tier
@@ -386,7 +424,7 @@ def test_verifier_replans_are_bounded_and_never_accept_incomplete_tasks(tmp_path
     tasks = pdir / "specs/001-research/tasks.md"
     tasks.write_text("- [ ] T001 Still missing required output\n")
     for cycle in range(es.MAX_REPLAN_ROUNDS + 1):
-        for _ in es.FREE_MODEL_TIERS[1:]:
+        for _ in _free_rungs()[1:]:
             unverifiable.record_unverifiable(pid, "T001", "missing", repo_root=tmp_path)
             assert graph._decide_next_stage(proj, pdir, repo_root=tmp_path) == Stage.IN_PROGRESS
         unverifiable.record_unverifiable(pid, "T001", "missing", repo_root=tmp_path)

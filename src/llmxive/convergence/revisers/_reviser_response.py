@@ -526,6 +526,42 @@ def is_malformed_reply_error(exc: BaseException) -> bool:
     return "no usable" in msg or "parseable" in msg
 
 
+def _free_peers(reviser, producer, previous) -> tuple[bool, tuple[str, ...]]:
+    """``(producer_is_free, free_peers)`` for a corrective revision.
+
+    ``producer_is_free``: the model that produced the unusable reply is one the
+    selector offers this reviser at zero cost. ``free_peers``: the OTHER free
+    candidates it would offer once ``producer`` and ``previous`` are prohibited.
+    Both come from :func:`llmxive.model_selection.route.free_peer_ids` — a pure
+    preview of the real decision. An unknown/injected producer, a reviser on a
+    paid-only rung, or an unreadable catalog all yield ``(False, ())`` so the
+    caller keeps the ordinary retry.
+    """
+    if not producer or reviser is None:
+        return False, ()
+    import logging
+
+    from llmxive.model_selection.route import free_peer_ids
+
+    profile = getattr(reviser, "_profile", "standard_generation")
+    overrides = getattr(reviser, "_overrides", None)
+    try:
+        free_now = free_peer_ids(
+            profile, exclude_models=frozenset(previous), overrides=overrides
+        )
+        if producer not in free_now:
+            return False, ()
+        return True, free_peer_ids(
+            profile, exclude_models=frozenset(previous) | {producer}, overrides=overrides
+        )
+    except Exception as exc:  # preview only — never mask the corrective retry
+        logging.getLogger(__name__).warning(
+            "free-peer preview unavailable (%s: %s) — ordinary corrective retry",
+            type(exc).__name__, exc,
+        )
+        return False, ()
+
+
 def run_pass_with_artifact_retry(run_pass, *, reviser_name: str, reviser=None):
     """Call ``run_pass()``; on the zero-artifact RuntimeError, make ONE
     corrective re-pass with :data:`MISSING_ARTIFACTS_REPROMPT` appended to
@@ -551,18 +587,18 @@ def run_pass_with_artifact_retry(run_pass, *, reviser_name: str, reviser=None):
         # the actual producer, not the requested primary (which may be down).
         # Spend the existing single corrective attempt on a different FREE peer.
         # Keep the ordinary retry for unknown/injected or explicitly paid models.
-        from llmxive.backends.dartmouth import KNOWN_FREE_MODELS
-        from llmxive.backends.router import MODEL_FALLBACKS
-
-        primary = getattr(reviser, "_model", None)
+        #
+        # Spec 026: "free" and "peer" are asked of the selector (the snapshot's
+        # priced catalog under this reviser's profile + overrides), never of a
+        # hardcoded allowlist or a static fallback table.
         producer = getattr(reviser, "_last_revision_model", None)
-        chain = [primary, *MODEL_FALLBACKS.get(primary, [])]
         previous = getattr(reviser, "_revision_excluded_models", frozenset())
-        candidates = (set(chain) & KNOWN_FREE_MODELS) - {producer} - set(previous)
-        if primary in KNOWN_FREE_MODELS and producer in KNOWN_FREE_MODELS and candidates:
-            reviser._revision_excluded_models = frozenset(
-                set(previous) | {producer} | (set(chain) - KNOWN_FREE_MODELS)
-            )
+        producer_is_free, candidates = _free_peers(reviser, producer, previous)
+        if producer_is_free and candidates:
+            # Paid candidates are kept out of the corrective call by the caller
+            # (``_self_consistency`` forces ``allow_paid=False`` whenever this
+            # exclusion set is non-empty).
+            reviser._revision_excluded_models = frozenset(set(previous) | {producer})
             logging.getLogger(__name__).warning(
                 "%s: corrective revision excludes unusable producer %s; free peers only",
                 reviser_name, producer,

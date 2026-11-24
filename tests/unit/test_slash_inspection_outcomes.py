@@ -14,7 +14,7 @@ def context(root):
     return slash.SlashCommandContext(
         project_id="PROJ-001-test", project_dir=root / "projects/PROJ-001-test", run_id=str(uuid4()),
         task_id=str(uuid4()), inputs=[], expected_outputs=[], prompt_template_path=Path("unused"),
-        default_backend=BackendName.DARTMOUTH, fallback_backends=[], default_model="test",
+        profile="deep_code",
         prompt_version="1.0.0", agent_name="implementer",
     )
 

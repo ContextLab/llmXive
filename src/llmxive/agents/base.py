@@ -1,7 +1,7 @@
 """Agent base class (T023).
 
 Every agent in agents/registry.yaml extends Agent. The base class
-declares input/output artifact types, default backend, fallback chain,
+declares input/output artifact types, capability profile (spec 026 US5),
 prompt path, prompt version, wall-clock budget, and emits a run-log
 entry on every invocation.
 
@@ -17,9 +17,10 @@ import logging
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
-from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.backends.base import ChatMessage, ChatResponse, render_text_content
 from llmxive.backends.router import chat_with_fallback
 from llmxive.state import runlog
 from llmxive.types import (
@@ -28,6 +29,11 @@ from llmxive.types import (
     Outcome,
     RunLogEntry,
 )
+
+if TYPE_CHECKING:
+    # Annotation-only: a runtime import of the ``model_selection`` package here
+    # would run its ``__init__`` (→ ``execute`` → ``backends.router``).
+    from llmxive.model_selection.types import RequirementOverrides
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -110,6 +116,14 @@ class Agent(abc.ABC):
     #: here so the specialist-reviewer path is reasoning-safe too (SSoT).
     chat_max_tokens: int | None = None
 
+    #: Escalation constraints for this agent's chat calls (spec 026 slice 6), or
+    #: ``None`` for none. A caller that runs a helper agent on behalf of an
+    #: escalated dispatch (the paper implementer running the proofreader) sets
+    #: this on the INSTANCE so the helper is selected under the same tier
+    #: constraints — the profile-era form of handing the helper the caller's
+    #: escalated model. The agent keeps its own registry ``profile``.
+    requirement_overrides: RequirementOverrides | None = None
+
     def __init__(self, registry_entry: AgentRegistryEntry) -> None:
         self.entry = registry_entry
 
@@ -134,8 +148,18 @@ class Agent(abc.ABC):
         outcome = Outcome.SUCCESS
         failure_reason: str | None = None
         outputs: list[str] = []
-        backend_used = self.entry.default_backend
-        model_used = self.entry.default_model
+        # No attribution yet — nothing truthful to record until a real
+        # ChatResponse comes back (overwritten below on success). Seeding a
+        # placeholder backend/model here would write a fiction into a field
+        # that feeds paper authorship for a call that may never have
+        # happened; RunLogEntry's validator requires both fields ONLY when
+        # outcome is SUCCESS, so a pre-response failure legitimately records
+        # neither (spec 026 slice 7 / D4).
+        backend_used: BackendName | None = None
+        model_used: str | None = None
+        # Settled cost of every response received this run, per serving backend
+        # (a retry can land on a different backend than the first attempt).
+        cost_by_backend: dict[str, float] = {}
         # Spec 015 T080: capture verbatim I/O for inspection-record audit
         # when LLMXIVE_INSPECTION_DIR is set. Mirrors the speckit
         # SlashCommandAgent's inspection-capture flow so flesh_out /
@@ -151,9 +175,8 @@ class Agent(abc.ABC):
             for attempt in range(MAX_MALFORMED_RESPONSE_RETRIES + 1):
                 response = chat_with_fallback(
                     attempt_messages,
-                    default_backend=self.entry.default_backend.value,
-                    fallback_backends=[b.value for b in self.entry.fallback_backends],
-                    model=self.entry.default_model,
+                    profile=self.entry.profile,
+                    overrides=self.requirement_overrides,
                     temperature=self.chat_temperature,
                     max_tokens=self.chat_max_tokens,
                 )
@@ -161,6 +184,7 @@ class Agent(abc.ABC):
                 captured_response = response
                 backend_used = BackendName(response.backend)
                 model_used = response.model
+                runlog.add_cost(cost_by_backend, response.backend, response.cost_estimate_usd)
                 try:
                     outputs = self.handle_response(ctx, response)
                     break
@@ -212,7 +236,7 @@ class Agent(abc.ABC):
                 ended_at=ended,
                 outcome=outcome,
                 failure_reason=failure_reason,
-                cost_estimate_usd=0.0,
+                **runlog.cost_fields(cost_by_backend),
             )
             runlog.append_entry(entry)
             # Inspection-record capture (spec 015 T080 — closes design §9
@@ -228,7 +252,7 @@ class Agent(abc.ABC):
                 failure_reason=failure_reason,
                 outputs=outputs,
                 model=model_used,
-                backend=backend_used.value if hasattr(backend_used, "value") else str(backend_used),
+                backend=backend_used.value if backend_used is not None else None,
                 messages=captured_messages,
                 response=captured_response,
             )
@@ -244,8 +268,8 @@ def _capture_non_speckit_inspection(
     outcome: Outcome,
     failure_reason: str | None,
     outputs: list[str],
-    model: str,
-    backend: str,
+    model: str | None,
+    backend: str | None,
     messages: list[ChatMessage] | None,
     response: ChatResponse | None,
 ) -> None:
@@ -291,8 +315,11 @@ def _capture_non_speckit_inspection(
         # Messages → prompts dict (concat by role to fit speckit schema).
         prompts = {"system": "", "user": ""}
         if messages:
-            sys_parts = [m.content for m in messages if m.role == "system"]
-            usr_parts = [m.content for m in messages if m.role == "user"]
+            # render_text_content keeps this join safe even when a message
+            # carries multimodal parts (spec 026 slice 7): images become a
+            # metadata-only placeholder, never raw bytes, in the audit log.
+            sys_parts = [render_text_content(m.content) for m in messages if m.role == "system"]
+            usr_parts = [render_text_content(m.content) for m in messages if m.role == "user"]
             prompts["system"] = "\n\n".join(sys_parts)
             prompts["user"] = "\n\n".join(usr_parts)
 

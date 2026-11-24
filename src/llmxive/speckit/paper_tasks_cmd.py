@@ -204,9 +204,7 @@ class PaperTaskerAgent(SlashCommandAgent):
             spec_text=spec_path.read_text(encoding="utf-8"),
             plan_text=plan_path.read_text(encoding="utf-8"),
             tasks_text=tasks_path.read_text(encoding="utf-8"),
-            default_backend=ctx.default_backend,
-            fallback_backends=ctx.fallback_backends,
-            default_model=ctx.default_model,
+            profile=ctx.profile,
             repo_root=repo,
             project_dir=ctx.project_dir,
             kind="paper",
@@ -239,7 +237,7 @@ class PaperTaskerAgent(SlashCommandAgent):
         )
 
         try:
-            backend = make_backend(ctx.default_backend.value)
+            backend = make_backend("dartmouth")
         except Exception:
             backend = None
         if backend is None:
@@ -249,7 +247,7 @@ class PaperTaskerAgent(SlashCommandAgent):
         constitution_text = _read(memory_dir / "constitution.md") or None
         spec = build_paper_tasks_reviewspec(
             backend=backend, repo_root=repo, project_id=ctx.project_id,
-            model=ctx.default_model,
+            requirement_overrides=ctx.requirement_overrides,
         )
         artifact_paths: dict[str, Path] = {
             str(tasks_path.relative_to(repo)): tasks_path,

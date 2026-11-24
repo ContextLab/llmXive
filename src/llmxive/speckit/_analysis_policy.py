@@ -16,10 +16,14 @@ def _deployed_source_root() -> Path:
 
 
 def analysis_policy_fingerprint(ctx: SlashCommandContext) -> str:
+    from llmxive.model_selection.profiles import selection_identity
+
     policy = {
-        "model": ctx.default_model,
-        "backend": ctx.default_backend.value,
-        "fallbacks": [backend.value for backend in ctx.fallback_backends],
+        # Spec 026: the dispatch names a profile (+ tier constraints), not a
+        # model/backend/fallback triple. The selection identity also carries the
+        # capability-policy version, so a reviewed change to which models a
+        # profile may resolve to invalidates the receipt as a model change did.
+        "selection": selection_identity(ctx.profile, ctx.requirement_overrides),
         "prompt_version": ctx.prompt_version,
         "flags": {key: value for key, value in os.environ.items()
                   if key.startswith("LLMXIVE_") and not any(

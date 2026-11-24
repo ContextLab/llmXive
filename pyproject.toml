@@ -58,6 +58,15 @@ dependencies = [
 mcp = [
   "mcp>=1.0",
 ]
+# Spec 026 (#10): the local transformers fallback backend. A dedicated CI lane
+# installs this and runs `tests/real_call/test_model_selection_local_real.py`
+# (marked `local`) with NO importorskip — an absent transformers is a FAILURE in
+# that lane, not a skip, so the composite snapshot's local component is proven by a
+# real model load + call (not merely asserted present).
+local = [
+  "transformers>=4.44",
+  "torch>=2.2",
+]
 dev = [
   "pytest>=8",
   "pytest-asyncio",
@@ -79,3 +88,9 @@ include = ["llmxive*"]
 
 [tool.setuptools.package-data]
 llmxive = ["py.typed", "execution/base_requirements.txt"]
+
+[tool.pytest.ini_options]
+markers = [
+  "slow: heavy modules; the per-PR gate runs `-m 'not slow'`, nightly runs all",
+  "local: spec 026 dedicated local-backend real-call lane (needs the [local] extra)",
+]

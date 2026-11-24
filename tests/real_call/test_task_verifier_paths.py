@@ -14,6 +14,15 @@ pytestmark = pytest.mark.skipif(
 )
 
 
+def _leader() -> str:
+    """The verifier's primary: the model the selector ranks first for its profile
+    on the live snapshot (spec 026 — there is no model constant to compare to)."""
+    from llmxive.model_selection.route import resolve_chain
+
+    chain = resolve_chain([], profile=tv.VERIFIER_PROFILE, max_tokens=1)[1]
+    return chain.candidates[0].model_ref.model_id
+
+
 @pytest.mark.parametrize('case,expected', [
     ('canonical-command', True),
     pytest.param('repository-root-command', True, marks=pytest.mark.slow),
@@ -90,9 +99,8 @@ def test_task_verifier_respects_real_path_evidence(tmp_path, monkeypatch, case, 
     verdict = tv.verify_task(
         task_text=task,
         evidence=tv.gather_evidence(project, task),
-        fallback_backends=(),
     )
-    assert observed_models == [tv.DEFAULT_MODEL]
+    assert observed_models == [_leader()]
     assert verdict.complete is expected, verdict.reason
 
 
@@ -129,6 +137,6 @@ def test_task_verifier_checks_local_import_with_actual_execution(tmp_path, monke
         observed.append(response.model)
         return response
     monkeypatch.setattr(tv, 'chat_with_fallback', observe)
-    verdict = tv.verify_task(task_text=task, evidence=evidence, fallback_backends=())
-    assert observed == [tv.DEFAULT_MODEL]
+    verdict = tv.verify_task(task_text=task, evidence=evidence)
+    assert observed == [_leader()]
     assert verdict.complete is correct_dependency, verdict.reason

@@ -32,16 +32,21 @@ import hashlib
 import logging
 import re
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from llmxive.agents._task_import_evidence import local_import_evidence
 from llmxive.agents._task_verdict_receipt import authentic_verdict, signed_verdict
 from llmxive.backends.base import ChatMessage
-from llmxive.backends.router import DEFAULT_MODEL, REASONING_MAX_TOKENS, chat_with_fallback
+from llmxive.backends.router import REASONING_MAX_TOKENS, chat_with_fallback
 from llmxive.claims.task_requirements import read_task_document
 from llmxive.project_paths import _ROOTED_PATH_RE, declared_existing_files
 from llmxive.project_paths import declared_paths as _declared_paths
 from llmxive.project_paths import resolve_project_path as _evidence_path
+
+if TYPE_CHECKING:
+    # Annotation-only (``from __future__ import annotations`` makes it lazy), so
+    # this module does not import the ``model_selection`` package at load time.
+    from llmxive.model_selection.types import RequirementOverrides
 from llmxive.speckit.task_lines import TASK_ID_RE as _TASK_ID_RE
 from llmxive.speckit.task_lines import TaskFormatError, mask_fenced_code, task_continuation
 
@@ -485,12 +490,23 @@ def _task_execution_evidence(project_dir: Path, task_text: str, *, execution_log
             "and scientific correctness must still be checked.\n" + "\n".join(records))
 
 
+#: The verifier's own capability profile (spec 026): an independent judgment
+#: call, routed like the other review calls.
+VERIFIER_PROFILE = "deep_review"
+
+
 def _verification_hash(
-    task_text: str, spec: str, evidence: str, *, model: str = DEFAULT_MODEL,
+    task_text: str, spec: str, evidence: str, *, profile: str = VERIFIER_PROFILE,
+    overrides: RequirementOverrides | None = None,
 ) -> str:
-    # A new verifier policy/model must reconsider stale literal-path decisions.
+    # A new verifier policy/selection must reconsider stale literal-path decisions.
+    # Spec 026: there is no requested model id to bind — the receipt is bound to
+    # the SELECTION the verdict was requested under (profile + capability-policy
+    # version + escalation constraints), which is what decides the model chain.
+    from llmxive.model_selection.profiles import selection_identity
+
     return _evidence_hash("\n".join((
-        _SYSTEM_PROMPT, model, task_text, spec, evidence,
+        _SYSTEM_PROMPT, selection_identity(profile, overrides), task_text, spec, evidence,
     )))
 
 
@@ -499,9 +515,8 @@ def verify_task(
     task_text: str,
     evidence: str,
     spec_context: str = "",
-    model: str = DEFAULT_MODEL,
-    default_backend: str = "dartmouth",
-    fallback_backends: tuple[str, ...] = ("local",),
+    profile: str = VERIFIER_PROFILE,
+    overrides: RequirementOverrides | None = None,
 ) -> TaskVerdict:
     """Independently judge whether ``task_text`` is genuinely complete given the
     ACTUAL ``evidence``. DEFERS (``complete=None``) on a backend failure so an
@@ -525,9 +540,8 @@ def verify_task(
                 ChatMessage(role="system", content=_SYSTEM_PROMPT),
                 ChatMessage(role="user", content=user),
             ],
-            default_backend=default_backend,
-            fallback_backends=list(fallback_backends),
-            model=model,
+            profile=profile,
+            overrides=overrides,
             temperature=VERIFIER_TEMPERATURE,
             max_tokens=REASONING_MAX_TOKENS,
         )
@@ -644,7 +658,8 @@ def task_verification_state_path(project_dir: Path, tasks_path: Path) -> Path:
 
 def verified_done_keys(
     project_dir: Path, tasks_path: Path, *, tasks_text: str | None = None,
-    model: str = DEFAULT_MODEL,
+    profile: str = VERIFIER_PROFILE,
+    overrides: RequirementOverrides | None = None,
 ) -> set[str]:
     """Only reuse acceptances whose requirements and actual evidence still match.
 
@@ -677,7 +692,7 @@ def verified_done_keys(
         task_text = match.group(3).strip() + task_continuation(lines, i)
         if _deterministic_verdict(project_dir, task_text)[0] == "reject":
             continue
-        digest = _verification_hash(task_text, spec, gather_evidence(project_dir, task_text, execution_log_dir=("paper/.tasks" if state_path.is_relative_to(project_dir / "paper") else "code/.tasks")), model=model)
+        digest = _verification_hash(task_text, spec, gather_evidence(project_dir, task_text, execution_log_dir=("paper/.tasks" if state_path.is_relative_to(project_dir / "paper") else "code/.tasks")), profile=profile, overrides=overrides)
         receipt = cache.get(key)
         if (isinstance(receipt, dict) and receipt.get("c") is True and receipt.get("h") == digest
                 and authentic_verdict(project_dir, tasks_path, key, receipt)):
@@ -750,9 +765,8 @@ def run_verification_pass(
     *,
     already_verified: set[str],
     spec_context: str = "",
-    model: str = DEFAULT_MODEL,
-    default_backend: str = "dartmouth",
-    fallback_backends: tuple[str, ...] = ("local",),
+    profile: str = VERIFIER_PROFILE,
+    overrides: RequirementOverrides | None = None,
     notes_path: Path,
     state_path: Path,
     cap: int = DEFAULT_VERIFY_CAP,
@@ -764,7 +778,8 @@ def run_verification_pass(
 
     Reject absent production artifacts deterministically. Remaining tasks reach
     the bounded (``cap``) semantic model, with verdicts cached against task,
-    requirements, policy, requested model, and evidence bytes. Persist pending
+    requirements, policy, requested selection (profile + policy version +
+    escalation ``overrides``), and evidence bytes. Persist pending
     review before backend calls so interruption cannot leave unreviewed work
     marked accepted.
 
@@ -916,7 +931,9 @@ def run_verification_pass(
 
         # (C) Ambiguous residue → evidence-hash cache, else bounded semantic LLM.
         evidence = gather_evidence(project_dir, task_text, execution_log_dir="paper/.tasks" if namespace else "code/.tasks")
-        ev_hash = _verification_hash(task_text, spec_context, evidence, model=model)
+        ev_hash = _verification_hash(
+            task_text, spec_context, evidence, profile=profile, overrides=overrides,
+        )
         cached = cache.get(key)
         if (
             isinstance(cached, dict)
@@ -938,9 +955,8 @@ def run_verification_pass(
                 task_text=task_text,
                 evidence=evidence,
                 spec_context=spec_context,
-                model=model,
-                default_backend=default_backend,
-                fallback_backends=fallback_backends,
+                profile=profile,
+                overrides=overrides,
             )
             complete = verdict.complete
             reason = verdict.reason

@@ -30,7 +30,10 @@ from llmxive.backends.base import (
 from llmxive.tools.summarize import estimate_tokens, summarize
 
 from .kickback import route_kickback
-from .revisers._reviser_response import is_malformed_reply_error
+from .revisers._reviser_response import (
+    build_concern_responses,
+    is_malformed_reply_error,
+)
 from .types import (
     Concern,
     ConcernResponse,
@@ -140,14 +143,16 @@ def _resolved(v: Verdict) -> bool:
     return v.status == "pass" and not v.stale and not v.self_review
 
 
-def _maybe_reduce(artifacts: dict[str, str], *, goal: str, model: str,
+def _maybe_reduce(artifacts: dict[str, str], *, goal: str, profile: str,
                   budget: int, cache_dir: Path | None = None) -> dict[str, str]:
     """Route any oversized artifact through the SSoT summarizer (FR-006) so no
     reviewer/reviser input silently overflows the model context."""
     out: dict[str, str] = {}
     for path, content in artifacts.items():
         if estimate_tokens(content) > budget:
-            out[path] = summarize(content, goal=goal, model=model, token_budget=budget, cache_dir=cache_dir)
+            out[path] = summarize(
+                content, goal=goal, profile=profile, token_budget=budget, cache_dir=cache_dir
+            )
         else:
             out[path] = content
     return out
@@ -464,7 +469,7 @@ def run_convergence(
     constitution: str | None = None,
     advisory: list[str] | None = None,
     producer: str | None = None,
-    model: str = "openai.gpt-oss-120b",
+    profile: str = "deep_review",
     reviewer_token_budget: int | None = None,
     summarize_cache_dir: Path | None = None,
     max_rounds: int | None = None,
@@ -493,10 +498,13 @@ def run_convergence(
     budget = reviewer_token_budget
     if budget is None:
         from llmxive.tools.summarize import _usable_budget  # SSoT budget resolution
-        budget = _usable_budget(model, None)
+        budget = _usable_budget(profile, None)
 
     def _present(arts: dict[str, str]) -> dict[str, str]:
-        return _maybe_reduce(arts, goal=spec.overflow_goal, model=model, budget=budget, cache_dir=summarize_cache_dir)
+        return _maybe_reduce(
+            arts, goal=spec.overflow_goal, profile=profile, budget=budget,
+            cache_dir=summarize_cache_dir,
+        )
 
     @contextmanager
     def _abort_provenance(round_index: int) -> Iterator[None]:
@@ -617,7 +625,16 @@ def run_convergence(
                         "(issue #355)",
                         str(exc)[:160],
                     )
-                    new_arts, responses = {}, []
+                    # PAD, do not blank. The FR-018 guard below forces open every
+                    # concern whose response is ``"<missing>"`` — that is what stops a
+                    # lenient re-reviewer from passing a concern nobody addressed. An
+                    # EMPTY list gives it nothing to key on, so a total reviser failure
+                    # (the very case that comment names) sailed through as resolved
+                    # whenever R3 said pass. Padding via the shared builder makes the
+                    # existing deterministic guard cover the failure it always claimed
+                    # to cover.
+                    new_arts = {}
+                    responses = build_concern_responses([], list(open_concerns))
                     break
         artifacts = {**artifacts, **new_arts}
         response_history.extend(responses)
@@ -802,10 +819,12 @@ def run_convergence(
     # escalation on pure prose polish. Accept-with-known-issues and ADVANCE
     # (the next stage's panel + the implementer still catch anything
     # substantive); kickback stays reserved for REQUIREMENT/METHODOLOGY/
-    # SCIENCE/FATAL. Gated to doc-AUTHORING stages — the review stages
-    # (research_review / paper_review) keep the strict full-acceptance bar.
-    _REVIEW_STAGES = {"research_review", "paper_review"}
-    if not converged and spec.stage not in _REVIEW_STAGES:
+    # SCIENCE/FATAL. Gated to doc-AUTHORING stages — a JUDGMENT stage
+    # (`spec.strict_acceptance`: research_review / paper_review / the
+    # self-improvement proposal gate) keeps the strict full-acceptance bar,
+    # because its whole output IS the accept/reject decision and "advanced
+    # with known issues" is not an answer it is allowed to give.
+    if not converged and not spec.strict_acceptance:
         worst_rank = max(
             (severity_rank(c.severity) for c in open_concerns), default=0
         )

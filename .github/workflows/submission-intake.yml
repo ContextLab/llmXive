@@ -40,6 +40,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
+          LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
         run: python -m llmxive submissions process
       - name: Regenerate web data
         # Submission-intake creates new projects; the website's project lists
