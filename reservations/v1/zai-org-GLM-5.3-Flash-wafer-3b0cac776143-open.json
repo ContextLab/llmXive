@@ -1,0 +1,13 @@
+{
+  "budget_epoch": "2026-11",
+  "created_at": "2026-11-25T16:25:31.162780+00:00",
+  "event_id": "zai-org-GLM-5.3-Flash-wafer-3b0cac776143-open",
+  "lease_expires_at": "2026-11-25T16:32:31.162780+00:00",
+  "model": "zai-org/GLM-5.3-Flash:wafer",
+  "owner": "ac9d60a557aa48439acd0bdc1ea1afe6",
+  "reservation_id": "zai-org-GLM-5.3-Flash-wafer-3b0cac776143",
+  "settlement_baseline": 1.8242822325999999,
+  "ts": "2026-11-25T16:25:31.162780+00:00",
+  "type": "open",
+  "worst_case_credits": 0.011071748000000001
+}
