@@ -68,7 +68,7 @@ jobs:
     env:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
-      LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
+      LLMXIVE_HF_BILL_TO: ${{ secrets.LLMXIVE_HF_BILL_TO }}
       LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
       LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
       # Back-filling a code paper (speckit chain + code_adapter) is longer than a

@@ -101,7 +101,7 @@ replaced). HTTP 402 maps to `BackendUnavailable` (allowance or group limit reach
 401/403 to a permanent credential error; 429/5xx to transient.
 Credentials: `credentials.load_hf_token()` — env `HF_TOKEN`, then Keychain; never the
 plaintext Hub cache, never logged. The bill-to id comes from `LLMXIVE_HF_BILL_TO`
-(Actions variable; not a secret) with no default, so a missing id fails closed.
+(Actions secret, so job logs mask it) with no default, so a missing id fails closed.
 
 **Streamed replies (revised 2026-11-24).** The first version sent `"stream": false`
 under a fixed 360 s wall-clock deadline (`invoke_with_deadline`). In a 2026-11-24
@@ -177,7 +177,7 @@ panel can still require different families.
 
 ### 5.7 Wiring
 Workflows that make model calls get `HF_TOKEN: ${{ secrets.HF_TOKEN }}` and
-`LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}`. `llmxive preflight` reports the
+`LLMXIVE_HF_BILL_TO: ${{ secrets.LLMXIVE_HF_BILL_TO }}`. `llmxive preflight` reports the
 three backends' reachability, the allowance, month-to-date spend and the top candidate
 per profile, and makes no paid call.
 

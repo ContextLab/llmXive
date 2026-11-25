@@ -35,8 +35,8 @@ credential-bearing URL. The loader is `llmxive.credentials.load_hf_token` (this
 helper calls it); it reads only `HF_TOKEN` (for a GitHub Actions secret) or the
 macOS Keychain service `llmxive-huggingface`. It does not read a plaintext HF cache or repository `.env` file.
 The current local credential is in Keychain. Eleven workflows under
-`.github/workflows/` pass the `HF_TOKEN` secret to their jobs, together with the
-Actions variables `LLMXIVE_HF_BILL_TO` and `LLMXIVE_FUNDED_LEDGER_ANCHOR`. Before enabling CI, create a dedicated fine-grained
+`.github/workflows/` pass the `HF_TOKEN` and `LLMXIVE_HF_BILL_TO` secrets to their jobs, together with the
+Actions variable `LLMXIVE_FUNDED_LEDGER_ANCHOR`. Before enabling CI, create a dedicated fine-grained
 HF token limited to the required project repositories, Jobs, and inference,
 and save it as a GitHub Actions secret. Do not reuse a broad lab administrator
 token in pull-request workflows. A service account can replace the personal
@@ -120,7 +120,7 @@ the production funded ledger, makes a short real chat (`max_tokens=1024`, `retri
 token counts, dollar amounts and counts only, never a rating, the token or the bill-to id.
 
 Prerequisites, once: `llmxive funded-ledger-bootstrap --remote origin`; set the Actions
-variables `LLMXIVE_HF_BILL_TO` and `LLMXIVE_FUNDED_LEDGER_ANCHOR`.
+secret `LLMXIVE_HF_BILL_TO` and the Actions variable `LLMXIVE_FUNDED_LEDGER_ANCHOR`.
 
 `refs/llmxive/funded-ledger` lies outside `refs/heads` and `refs/tags`, which is all
 that GitHub branch and tag rulesets cover (not verified by a test here), so the ref

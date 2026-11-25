@@ -30,7 +30,7 @@ jobs:
       LLMXIVE_E2E_FULL: "1"
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
       DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
-      LLMXIVE_HF_BILL_TO: ${{ vars.LLMXIVE_HF_BILL_TO }}
+      LLMXIVE_HF_BILL_TO: ${{ secrets.LLMXIVE_HF_BILL_TO }}
       LLMXIVE_FUNDED_LEDGER_ANCHOR: ${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}
       LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
@@ -62,10 +62,34 @@ jobs:
           cp papers/.style/fonts/*.ttf "$HOME/.fonts/"
           fc-cache -f >/dev/null
 
+      # The acceptance test works in a fresh `git init` repository with no `origin`,
+      # so both steps below name the ledger remote and give git a credential helper
+      # that reads the job token from the environment (never from a URL).
+      # Without them every funded call is refused and the run idles to its budget.
+      - name: Funded path preflight
+        env:
+          LLMXIVE_FUNDED_LEDGER_REMOTE: ${{ github.server_url }}/${{ github.repository }}.git
+          LLMXIVE_LEDGER_GIT_TOKEN: ${{ github.token }}
+          GIT_CONFIG_COUNT: "2"
+          GIT_CONFIG_KEY_0: credential.https://github.com.helper
+          GIT_CONFIG_VALUE_0: ""
+          GIT_CONFIG_KEY_1: credential.https://github.com.helper
+          GIT_CONFIG_VALUE_1: >-
+            !f() { test "$1" = get && printf 'username=x-access-token\npassword=%s\n' "$LLMXIVE_LEDGER_GIT_TOKEN"; }; f
+        run: python scripts/ci/funded_preflight.py
+
       # `runner` is not available in a job-level env block, only in steps.
       - name: Full-pipeline acceptance run
         env:
           LLMXIVE_ACCEPTANCE_ARTIFACTS: ${{ runner.temp }}/llmxive-acceptance
+          LLMXIVE_FUNDED_LEDGER_REMOTE: ${{ github.server_url }}/${{ github.repository }}.git
+          LLMXIVE_LEDGER_GIT_TOKEN: ${{ github.token }}
+          GIT_CONFIG_COUNT: "2"
+          GIT_CONFIG_KEY_0: credential.https://github.com.helper
+          GIT_CONFIG_VALUE_0: ""
+          GIT_CONFIG_KEY_1: credential.https://github.com.helper
+          GIT_CONFIG_VALUE_1: >-
+            !f() { test "$1" = get && printf 'username=x-access-token\npassword=%s\n' "$LLMXIVE_LEDGER_GIT_TOKEN"; }; f
         run: pytest tests/real_call/test_pipeline_acceptance.py -x -s -p no:cacheprovider
 
       - name: Preserve research, paper and failure evidence
