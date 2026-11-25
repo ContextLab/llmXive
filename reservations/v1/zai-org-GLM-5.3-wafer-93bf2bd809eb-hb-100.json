@@ -1,0 +1,7 @@
+{
+  "event_id": "zai-org-GLM-5.3-wafer-93bf2bd809eb-hb-100",
+  "lease_expires_at": "2026-11-25T16:17:32.320114+00:00",
+  "reservation_id": "zai-org-GLM-5.3-wafer-93bf2bd809eb",
+  "ts": "2026-11-25T16:10:32.320127+00:00",
+  "type": "heartbeat"
+}
