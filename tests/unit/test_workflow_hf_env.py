@@ -14,7 +14,7 @@ import yaml
 WF = Path(__file__).resolve().parents[2] / ".github" / "workflows"
 WANT = {
     "HF_TOKEN": "${{ secrets.HF_TOKEN }}",
-    "LLMXIVE_HF_BILL_TO": "${{ vars.LLMXIVE_HF_BILL_TO }}",
+    "LLMXIVE_HF_BILL_TO": "${{ secrets.LLMXIVE_HF_BILL_TO }}",
     "LLMXIVE_FUNDED_LEDGER_ANCHOR": "${{ vars.LLMXIVE_FUNDED_LEDGER_ANCHOR }}",
 }
 
@@ -163,8 +163,32 @@ def test_the_dartmouth_job_still_must_succeed_in_the_final_gate():
     assert "('dartmouth', 'live')" in script and "expected = 'success' if required else 'skipped'" in script
 
 
-def test_bill_to_is_a_variable_never_a_secret():
-    assert "secrets.LLMXIVE_HF_BILL_TO" not in "".join(p.read_text() for p in WF.glob("*.yml"))
+def test_bill_to_is_a_secret_never_a_variable():
+    """Actions prints a variable's value in every job log; a secret is masked."""
+    assert "vars.LLMXIVE_HF_BILL_TO" not in "".join(p.read_text() for p in WF.glob("*.yml"))
+
+
+def test_the_reliability_run_reaches_the_funded_ledger_from_a_repository_without_origin():
+    """The acceptance test works in a fresh ``git init`` repository, so the run must
+    name the ledger remote and give git credentials through the environment, and it
+    must prove both in a preflight step before the hours-long run starts."""
+    steps = _load(WF / "llmxive-reliability-run.yml")["jobs"]["reliability-run"]["steps"]
+    names = [s.get("name") for s in steps]
+    preflight, run = names.index("Funded path preflight"), names.index("Full-pipeline acceptance run")
+    assert preflight < run
+    assert steps[preflight]["run"] == "python scripts/ci/funded_preflight.py"
+    ledger_keys = [
+        "LLMXIVE_FUNDED_LEDGER_REMOTE", "LLMXIVE_LEDGER_GIT_TOKEN", "GIT_CONFIG_COUNT",
+        "GIT_CONFIG_KEY_0", "GIT_CONFIG_VALUE_0", "GIT_CONFIG_KEY_1", "GIT_CONFIG_VALUE_1",
+    ]
+    for index in (preflight, run):
+        env = steps[index]["env"]
+        assert {k: env[k] for k in ledger_keys} == {k: steps[preflight]["env"][k] for k in ledger_keys}
+        assert env["LLMXIVE_FUNDED_LEDGER_REMOTE"].endswith(".git")
+        assert "@" not in env["LLMXIVE_FUNDED_LEDGER_REMOTE"] and "token" not in env["LLMXIVE_FUNDED_LEDGER_REMOTE"]
+        assert env["LLMXIVE_LEDGER_GIT_TOKEN"] == "${{ github.token }}"
+        assert "$LLMXIVE_LEDGER_GIT_TOKEN" in env["GIT_CONFIG_VALUE_1"]
+        assert "github.token" not in env["GIT_CONFIG_VALUE_1"]
 
 
 # --- the funded ledger needs push access; pull-request code never gets it -------
