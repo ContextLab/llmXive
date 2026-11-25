@@ -185,5 +185,7 @@ def refuse_platform_path_tasks(text: str, project_dir: Path | None) -> None:
             "workflow files or platform state. Rewrite each of these tasks to produce "
             "a project-owned file instead (for a CI step, a script under `scripts/` or "
             "`code/` that runs the same commands), and make the plan and quickstart "
-            "name that file."
+            "name that file. A task that names one of these paths is refused even "
+            "when it only says the path is left untouched, so do not name them at "
+            "all: delete the reference from the task instead of rewording it."
         )

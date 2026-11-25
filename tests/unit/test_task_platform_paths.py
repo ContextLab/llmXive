@@ -85,3 +85,17 @@ def test_the_implementer_stops_on_such_a_task_instead_of_attempting_it(tmp_path)
     ctx = SimpleNamespace(project_dir=project, project_id=project.name)
     with pytest.raises(TaskFormatError, match=r"T012 `\.github/workflows/phi\.yml`"):
         ImplementerAgent().mechanical_step(ctx)
+
+
+def test_the_refusal_says_a_mention_is_refused_too(tmp_path):
+    """Run 5 (2026-11-25): seven task lists in a row were refused for a task that
+    named `state/` only to say it is never written; the reason did not say that
+    naming the path is what is refused."""
+    project = tmp_path / "projects" / "PROJ-9999-totient-canary"
+    tasks = "- [ ] T012 Record the hand-off in `data/handoff.md`; never write the platform `state/` directory.\n"
+    with pytest.raises(TaskFormatError) as refused:
+        refuse_platform_path_tasks(tasks, project)
+    message = str(refused.value)
+    assert "T012 `state/`" in message
+    assert "even when it only says the path is left untouched" in message
+    assert "delete the reference" in message

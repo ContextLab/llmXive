@@ -77,7 +77,35 @@ def task_continuation(lines: list[str], index: int) -> str:
     return "\n" + body if body else ""
 
 
+#: CJK ideographs, kana and hangul: the scripts a model drifts into when it
+#: answers in Chinese, Japanese or Korean. Greek and other symbols that
+#: mathematics uses are deliberately not counted.
+_EAST_ASIAN_RE = re.compile(r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af]")
+_LETTER_RE = re.compile(r"[^\W\d_]")
+#: Share of letters above which a task list is treated as not written in English.
+NON_ENGLISH_SHARE = 0.2
+
+
+def refuse_non_english(text: str, *, what: str = "tasks.md") -> None:
+    """Raise ``TaskFormatError`` for a document written mostly in an East Asian script.
+
+    Run 5 (2026-11-25): a tasks.md revision came back in Chinese and was accepted,
+    so every later implement and verify round worked from a translated task list.
+    """
+    visible = mask_fenced_code(text)
+    letters = len(_LETTER_RE.findall(visible))
+    foreign = len(_EAST_ASIAN_RE.findall(visible))
+    if letters and foreign / letters > NON_ENGLISH_SHARE:
+        raise TaskFormatError(
+            f"{what} is not written in English ({foreign} of {letters} letters are "
+            "Chinese, Japanese or Korean characters). Write the whole document in "
+            "English, keeping every task id, path, requirement and verification step "
+            "unchanged."
+        )
+
+
 def validate_open_tasks(text: str) -> None:
+    refuse_non_english(text)
     text = mask_fenced_code(text)
     malformed = [
         m.group(0)

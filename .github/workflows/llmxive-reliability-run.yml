@@ -7,7 +7,12 @@ name: llmXive Reliability Run (full pipeline, on demand)
 # contents:write token and, like every write job, runs only from main.
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      fresh:
+        description: Start a new project instead of continuing the previous run
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -19,12 +24,13 @@ concurrency:
 jobs:
   reliability-run:
     runs-on: ubuntu-latest
-    # The test's own budget is 4 hours, checked between steps; leave room for
-    # setup and one long final step inside GitHub's 6-hour job limit.
-    timeout-minutes: 345
+    # GitHub's job limit is 6 hours. The acceptance step sets its own budget and
+    # a shorter step timeout, so the evidence upload still runs if a step overruns.
+    timeout-minutes: 360
     if: github.ref == 'refs/heads/main'
     permissions:
       contents: write
+      actions: read  # download the previous run's evidence
     env:
       LLMXIVE_REAL_TESTS: "1"
       LLMXIVE_E2E_FULL: "1"
@@ -79,8 +85,32 @@ jobs:
         run: python scripts/ci/funded_preflight.py
 
       # `runner` is not available in a job-level env block, only in steps.
-      - name: Full-pipeline acceptance run
+      # One run may not finish the pipeline; the next continues from the evidence
+      # the last one saved (unless that run ended accepted, or `fresh` is set).
+      - name: Restore the previous run's evidence
+        if: ${{ !inputs.fresh }}
         env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          dest="$RUNNER_TEMP/llmxive-resume"
+          for id in $(gh run list --repo "$GITHUB_REPOSITORY" --workflow llmxive-reliability-run.yml \
+                        --status completed --limit 10 --json databaseId -q '.[].databaseId'); do
+            if gh run download "$id" --repo "$GITHUB_REPOSITORY" -n reliability-run-acceptance -D "$dest" 2>/dev/null \
+                && [ -d "$dest/projects" ] && [ -d "$dest/state/projects" ]; then
+              echo "continuing from run $id"
+              echo "LLMXIVE_ACCEPTANCE_RESUME_FROM=$dest" >> "$GITHUB_ENV"
+              exit 0
+            fi
+            rm -rf "$dest"
+          done
+          echo "no earlier evidence found; starting a new project"
+
+      # The budget (5.5 hours) is checked between pipeline steps, so the step
+      # timeout allows one more step after it is spent.
+      - name: Full-pipeline acceptance run
+        timeout-minutes: 345
+        env:
+          LLMXIVE_ACCEPTANCE_BUDGET_S: "19800"
           LLMXIVE_ACCEPTANCE_ARTIFACTS: ${{ runner.temp }}/llmxive-acceptance
           LLMXIVE_FUNDED_LEDGER_REMOTE: ${{ github.server_url }}/${{ github.repository }}.git
           LLMXIVE_LEDGER_GIT_TOKEN: ${{ github.token }}

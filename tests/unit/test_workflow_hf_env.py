@@ -163,6 +163,23 @@ def test_the_dartmouth_job_still_must_succeed_in_the_final_gate():
     assert "('dartmouth', 'live')" in script and "expected = 'success' if required else 'skipped'" in script
 
 
+def test_the_reliability_run_continues_the_previous_run_unless_asked_to_start_fresh():
+    """One run may end on its budget; the next restores the evidence that run saved,
+    under the same artifact name it uploads."""
+    wf = _load(WF / "llmxive-reliability-run.yml")
+    assert wf[True]["workflow_dispatch"]["inputs"]["fresh"]["default"] is False
+    job = wf["jobs"]["reliability-run"]
+    assert job["permissions"] == {"contents": "write", "actions": "read"}
+    steps = job["steps"]
+    names = [s.get("name") for s in steps]
+    restore = steps[names.index("Restore the previous run's evidence")]
+    assert names.index("Restore the previous run's evidence") < names.index("Full-pipeline acceptance run")
+    assert restore["if"] == "${{ !inputs.fresh }}"
+    upload = steps[names.index("Preserve research, paper and failure evidence")]
+    assert f"-n {upload['with']['name']} " in restore["run"]
+    assert "LLMXIVE_ACCEPTANCE_RESUME_FROM=" in restore["run"] and "$GITHUB_ENV" in restore["run"]
+
+
 def test_bill_to_is_a_secret_never_a_variable():
     """Actions prints a variable's value in every job log; a secret is masked."""
     assert "vars.LLMXIVE_HF_BILL_TO" not in "".join(p.read_text() for p in WF.glob("*.yml"))
@@ -181,6 +198,11 @@ def test_the_reliability_run_reaches_the_funded_ledger_from_a_repository_without
         "LLMXIVE_FUNDED_LEDGER_REMOTE", "LLMXIVE_LEDGER_GIT_TOKEN", "GIT_CONFIG_COUNT",
         "GIT_CONFIG_KEY_0", "GIT_CONFIG_VALUE_0", "GIT_CONFIG_KEY_1", "GIT_CONFIG_VALUE_1",
     ]
+    # The step timeout leaves room for setup before it and the upload after it
+    # inside the job limit, and exceeds the budget the test is given.
+    job = _load(WF / "llmxive-reliability-run.yml")["jobs"]["reliability-run"]
+    budget_minutes = int(steps[run]["env"]["LLMXIVE_ACCEPTANCE_BUDGET_S"]) / 60
+    assert budget_minutes < steps[run]["timeout-minutes"] < job["timeout-minutes"] <= 360
     for index in (preflight, run):
         env = steps[index]["env"]
         assert {k: env[k] for k in ledger_keys} == {k: steps[preflight]["env"][k] for k in ledger_keys}
