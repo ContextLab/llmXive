@@ -1,0 +1,13 @@
+{
+  "budget_epoch": "2026-11",
+  "created_at": "2026-11-25T04:27:47.256231+00:00",
+  "event_id": "deepseek-ai-DeepSeek-V4-Flash-fireworks-ai-cdc6f52fcaa5-open",
+  "lease_expires_at": "2026-11-25T04:34:47.256231+00:00",
+  "model": "deepseek-ai/DeepSeek-V4-Flash:fireworks-ai",
+  "owner": "bb17bba9e57340a4b5551caecf904595",
+  "reservation_id": "deepseek-ai-DeepSeek-V4-Flash-fireworks-ai-cdc6f52fcaa5",
+  "settlement_baseline": 0.9001559567999995,
+  "ts": "2026-11-25T04:27:47.256231+00:00",
+  "type": "open",
+  "worst_case_credits": 0.025043410000000002
+}
