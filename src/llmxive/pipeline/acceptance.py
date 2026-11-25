@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import time
 from pathlib import Path
 
@@ -22,6 +23,27 @@ from llmxive.backends.base import BackendUnavailable
 from llmxive.pipeline import graph
 from llmxive.state import project as store
 from llmxive.types import Stage
+
+
+def resume_from_evidence(evidence: Path, repo: Path, project_id: str) -> bool:
+    """Seed ``repo`` with an earlier run's saved project and state, so this run
+    continues where that one stopped. Returns ``False``, copying nothing, when the
+    earlier run already ended accepted (the next run then starts a new project).
+
+    ``evidence`` is the directory a run preserves (``projects/`` and ``state/``).
+    Raises ``FileNotFoundError`` when it does not hold this project: a caller that
+    asks to resume must not silently start over.
+    """
+    project = evidence / "projects" / project_id
+    record = evidence / "state" / "projects" / f"{project_id}.yaml"
+    if not project.is_dir() or not record.is_file():
+        raise FileNotFoundError(f"no saved run of {project_id} under {evidence}")
+    trail = evidence / "state" / "acceptance" / f"{project_id}.json"
+    if trail.is_file() and json.loads(trail.read_text()).get("status") == "accepted":
+        return False
+    shutil.copytree(project, repo / "projects" / project_id)
+    shutil.copytree(evidence / "state", repo / "state", dirs_exist_ok=True)
+    return True
 
 
 def run(project_id: str, repo: Path, *, max_steps: int = 50, budget_s: float = 7200,

@@ -18,7 +18,7 @@ pytestmark = pytest.mark.skipif(
 
 
 def test_complete_research_and_paper(tmp_path: Path, monkeypatch) -> None:
-    from llmxive.pipeline.acceptance import run
+    from llmxive.pipeline.acceptance import resume_from_evidence, run
     from llmxive.repair.runner import copy_platform
     from llmxive.state import project as store
     from llmxive.types import Project, Stage
@@ -51,26 +51,32 @@ def test_complete_research_and_paper(tmp_path: Path, monkeypatch) -> None:
         monkeypatch.delenv(key, raising=False)
     monkeypatch.chdir(repo)
     pid = "PROJ-9999-totient-canary"
-    shutil.copytree(source / "tests/real_call/fixtures" / pid, repo / "projects" / pid)
-    now = datetime.now(UTC)
-    store.save(
-        Project(
-            id=pid,
-            title="Finite-range residue imbalance of Euler's totient",
-            field="mathematics",
-            current_stage=Stage.FLESH_OUT_COMPLETE,
-            points_research={},
-            points_paper={},
-            created_at=now,
-            updated_at=now,
-            artifact_hashes={},
-        ),
-        repo_root=repo,
-    )
+    # Continue an earlier run when the caller supplies its saved evidence.
+    earlier = os.environ.get("LLMXIVE_ACCEPTANCE_RESUME_FROM")
+    if earlier and resume_from_evidence(Path(earlier), repo, pid):
+        print(f"[acceptance] resuming {pid} at {store.load(pid, repo_root=repo).current_stage.value}", flush=True)
+    else:
+        shutil.copytree(source / "tests/real_call/fixtures" / pid, repo / "projects" / pid)
+        now = datetime.now(UTC)
+        store.save(
+            Project(
+                id=pid,
+                title="Finite-range residue imbalance of Euler's totient",
+                field="mathematics",
+                current_stage=Stage.FLESH_OUT_COMPLETE,
+                points_research={},
+                points_paper={},
+                created_at=now,
+                updated_at=now,
+                artifact_hashes={},
+            ),
+            repo_root=repo,
+        )
     # Keep evidence outside pytest temp cleanup when CI requests an artifact directory.
     evidence_dir = os.environ.get("LLMXIVE_ACCEPTANCE_ARTIFACTS")
     try:
-        result = run(pid, repo, budget_s=14400)
+        # Four hours unless the caller sets a budget (the reliability run does).
+        result = run(pid, repo, budget_s=float(os.environ.get("LLMXIVE_ACCEPTANCE_BUDGET_S", "14400")))
         assert result["status"] == "accepted", json.dumps(result)
     finally:
         if evidence_dir:

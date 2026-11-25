@@ -351,7 +351,8 @@ with failure artifacts preserved. The manually started
 [reliability run](.github/workflows/llmxive-reliability-run.yml) executes the
 full-pipeline acceptance test alone, from main, after a
 [preflight](scripts/ci/funded_preflight.py) that stops the job when the funded ledger
-cannot be reached. [Prompt Eval](.github/workflows/prompt-eval.yml)
+cannot be reached. A run that ends on its time budget is continued by the next run
+from the evidence it saved, unless that run is started with `fresh`. [Prompt Eval](.github/workflows/prompt-eval.yml)
 runs two reviewer fixtures three times, including rejection of a deliberately
 flawed idea, using the configured primary and rejecting peer-model substitution.
 Repository audits check layout, Spec Kit artifacts, PDFs, personality
