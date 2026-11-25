@@ -106,6 +106,33 @@ REASONING_MAX_TOKENS = 32_768
 GENERATION_MAX_TOKENS = 131_072
 
 
+#: Appended to every request. Without it a model may answer in another language
+#: and translate the keys of structured output, which no parser then recognises
+#: (run 5, 2026-11-25: a reviewer verdict and a whole tasks.md came back in Chinese).
+OUTPUT_LANGUAGE_RULE = (
+    "Write your entire response in English, including every field name, key and "
+    "label of structured output. Keep text in another language only where the task "
+    "asks you to quote it."
+)
+
+
+def with_output_language(messages: list[ChatMessage]) -> list[ChatMessage]:
+    """``messages`` with :data:`OUTPUT_LANGUAGE_RULE` closing the last user message.
+
+    The system message is left exactly as the caller built it: revisers end it
+    with their response-format contract, which must stay last and unaltered. With
+    no text user message the rule becomes a system message at the front. A list
+    that already carries the rule is returned unchanged."""
+    if any(isinstance(m.content, str) and OUTPUT_LANGUAGE_RULE in m.content for m in messages):
+        return messages
+    for index in range(len(messages) - 1, -1, -1):
+        message = messages[index]
+        if message.role == "user" and isinstance(message.content, str):
+            closed = ChatMessage(role="user", content=f"{message.content}\n\n{OUTPUT_LANGUAGE_RULE}")
+            return [*messages[:index], closed, *messages[index + 1:]]
+    return [ChatMessage(role="system", content=OUTPUT_LANGUAGE_RULE), *messages]
+
+
 def _chat_one_model(
     backend: BaseBackend,
     msg_list: list[ChatMessage],
@@ -132,6 +159,7 @@ def _chat_one_model(
     Transient/Permanent propagate to the chain walker; only ``TypeError``
     (signature mismatch) is handled here.
     """
+    msg_list = with_output_language(msg_list)
     base: dict[str, object] = {}
     if model is not None:
         base["model"] = model
